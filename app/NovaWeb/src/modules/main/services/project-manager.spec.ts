@@ -91,11 +91,42 @@ describe("Project Manager Test", () => {
             expect(messages[0].messageText).toBe("Project_NotFound");
 
         }));
+        it("Load project children. undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadArtifact(undefined as Models.IArtifact);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
+
+        }));
         it("Load project children. Null. Artifact not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             projectManager.loadArtifact(null as Models.IArtifact);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(0);
+
+        }));
+        it("Load project children. Undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadArtifact(undefined as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
@@ -113,7 +144,7 @@ describe("Project Manager Test", () => {
             //let error;
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
-            projectManager.loadArtifact({ id: 10, projectId: 2 } as Models.IArtifact);
+            projectManager.loadArtifact({ id: 88, projectId: 2 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
@@ -122,7 +153,7 @@ describe("Project Manager Test", () => {
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
             expect(messages.length).toBe(1);
-            expect(messages[0].messageText).toBe("Project_NotFound");
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
 
         }));
         it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService,
@@ -300,6 +331,34 @@ describe("Project Manager Test", () => {
             expect(projects.length).toBe(0);
             expect(artifact).toBeNull();
             expect(project).toBeNull();
+        }));
+    });
+    describe("properties", () => {
+        it("should a project be un-selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+            // Arrange
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+
+            //Act
+            
+            //Asserts
+            expect(projectManager.isProjectSelected).toBeFalsy();
+            expect(projectManager.isArtifactSelected).toBeFalsy();
+        }));
+        it("should project be selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+            // Arrange
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+
+            //Act
+            $rootScope.$digest();
+            
+            //Asserts
+            expect(projectManager.isProjectSelected).toBeTruthy();
+            expect(projectManager.isArtifactSelected).toBeTruthy();
+
+            projectManager.closeProject();
+            $rootScope.$digest();
+            expect(projectManager.isProjectSelected).toBeFalsy();
+            expect(projectManager.isArtifactSelected).toBeFalsy();
         }));
     });
 

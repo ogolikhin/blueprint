@@ -1,7 +1,7 @@
 ﻿import {IProjectManager, Models} from "../..";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 
-export class ProjectExplorerComponent implements ng.IComponentOptions {
+export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
     public transclude: boolean = true;
@@ -72,11 +72,12 @@ export class ProjectExplorerController {
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
-        if (!prms) {
-            return null;
-        }
+        //if (!prms) {
+        //    return null;
+        //}
         //notify the repository to load the node children
         this.projectManager.loadArtifact(prms as Models.IArtifact);
+        return null;
     };
 
 
@@ -88,10 +89,12 @@ export class ProjectExplorerController {
     public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
-        this.projectManager.updateArtifact(artifact, artifact.hasChildren ? {
-            loaded: node.loaded,
-            open: node.open
-        } : null);
+        if (artifact.hasChildren) {
+            angular.extend(artifact, {
+                loaded: node.loaded,
+                open: node.open
+            });
+        };
         return artifact;
     };
 

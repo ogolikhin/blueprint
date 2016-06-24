@@ -117,11 +117,11 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         suppressFiltering : true
     }];
 
-    public doLoad = (prms: any): any[] => {
+    public doLoad = (prms: any): any[] => { 
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.manager.getFolders(id)
+        this.manager.loadFolders(id)
             .then((nodes: Models.IProjectNode[]) => { 
                 self.tree.reload(nodes, id);
                 if (self.tree.isEmpty) {

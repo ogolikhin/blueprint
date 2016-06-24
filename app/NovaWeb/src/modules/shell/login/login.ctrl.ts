@@ -64,7 +64,7 @@ export class LoginCtrl {
     public enableSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    public loginInProgress: boolean;
+    public isLoginInProgress: boolean;
 
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
     /* tslint:disable */
@@ -86,7 +86,7 @@ export class LoginCtrl {
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
 
-        this.loginInProgress = false;
+        this.isLoginInProgress = false;
 
         if (!this.novaCurrentPassword) {
             this.novaCurrentPassword = "";
@@ -254,8 +254,6 @@ export class LoginCtrl {
     }
 
     private handleLoginErrors(error) {
-        this.loginInProgress = false;
-
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 if (this.formState === LoginState.SamlLoginForm) {
@@ -334,18 +332,20 @@ export class LoginCtrl {
     }
 
     public login(): void {
-        this.loginInProgress = true;
+        this.isLoginInProgress = true;
 
         this.session.login(this.novaUsername, this.novaPassword, false).then(
             () => {
                 this.labelError = false;
                 this.fieldError = false;
+                this.isLoginInProgress = false;
                 var result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
                 this.$uibModalInstance.close(result);
             },
             (error) => {
+                this.isLoginInProgress = false;
                 this.handleLoginErrors(error);
             });
     }

@@ -16,7 +16,6 @@ export class BPDiscussionPanelController {
     ];
 
     //private loadLimit: number = 10;
-    private artifactId: number;
     private _subscribers: Rx.IDisposable[];
 
     public artifactDiscussionList: IDiscussion[] = [];
@@ -61,8 +60,7 @@ export class BPDiscussionPanelController {
         this.artifactDiscussionList = [];
 
         if (artifact !== null) {
-            this.artifactId = artifact.id;
-            this.getArtifactDiscussions()
+            this.getArtifactDiscussions(artifact.id)
                 .then((discussionResultSet: IDiscussionResultSet) => {
                     this.artifactDiscussionList = discussionResultSet.discussions;
                     this.canCreate = discussionResultSet.canCreate;
@@ -75,9 +73,9 @@ export class BPDiscussionPanelController {
         this.selectedDiscussion = discussion;
     }
 
-    private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(artifactId: number): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(this.artifactId)
+        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })

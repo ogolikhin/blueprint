@@ -1,5 +1,4 @@
-﻿import "../../";
-import "angular";
+﻿import "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../util/component.test";
@@ -36,7 +35,8 @@ describe("Component BPHistoryPanel", () => {
 
     it("should be visible by default", () => {
         //Assert
-        expect(directiveTest.element.find(".history-panel").length).toBe(1);
+        expect(directiveTest.element.find(".filter-bar").length).toBe(1);
+        expect(directiveTest.element.find(".empty-state").length).toBe(1);
     });
 
     it("should load data for a selected artifact", 

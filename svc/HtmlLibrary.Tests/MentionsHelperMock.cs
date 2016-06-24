@@ -10,8 +10,11 @@ namespace HtmlLibrary.Tests
     {
         public async Task<bool> IsEmailBlocked(string email)
         { 
+            if (email == "blocked@blocked.com")
+            {
+                return (await Task.FromResult(true));
+            }
             return (await Task.FromResult(false));
         }
-
     }
 }

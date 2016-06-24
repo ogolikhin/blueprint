@@ -8,6 +8,7 @@
  */
 import Page = require("../../Pages/StorytellerPages/SvgElementsPage");
 import CreateArtifact = require("../../Model/CreateArtifacts");
+import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
 var createArtifact: CreateArtifact;
 var OR = require('../../Locator/StorytellerLocator.json');
 var logger = require('winston');
@@ -43,7 +44,7 @@ describe("Storyteller end to end test", () => {
 
         it("Should be able to publish the artifact", () => {
             //Act
-            browser.driver.sleep(5000);
+           // browser.driver.sleep(5000);
             svgElementsPage.getPublishArtifact.click();
             
             // Assert confirmation message
@@ -64,9 +65,9 @@ describe("Storyteller end to end test", () => {
           });
           it("Should be able to edit system precondition shape header", () => {
             //Act
-            browser.driver.sleep(5000);
+           // browser.driver.sleep(5000);
             svgElementsPage.editHeader(0, "s1");
-            browser.driver.sleep(5000);
+           // browser.driver.sleep(5000);
             svgElementsPage.verifyHeaderName(0).then((t) => { });
             //Assert shape header text
             expect(svgElementsPage.verifyHeaderName(0)).toBe("s1");
@@ -151,7 +152,7 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.getPanelDiscussionPostButton.click();
                 //Assert tab text
                 expect(svgElementsPage.getPostCommentText.getText()).toBe("This test case  need to be updated");
-                    browser.driver.sleep(1000);
+                    //browser.driver.sleep(1000);
             });
                    
             
@@ -165,6 +166,7 @@ describe("Storyteller end to end test", () => {
             
             it("Should be able to navigate Relationships tab", () => {
                 //Act
+                ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getPanelRelationships);
                 svgElementsPage.getPanelRelationships.click();
                 //Assert tab text
                 expect(svgElementsPage.getPanelRelationships.getText()).toEqual(['Relationships']);
@@ -173,7 +175,8 @@ describe("Storyteller end to end test", () => {
             
             it("Should be able to navigate History tab", () => {
                 //Act
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
+                ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getPanelHistory);
                 svgElementsPage.getPanelHistory.click();
                 //Assert tab text
                 expect(svgElementsPage.getPanelHistory.getText()).toEqual(['History']);
@@ -195,24 +198,24 @@ describe("Storyteller end to end test", () => {
                 
             it("Should be able to open Edit Detail modal at footer", () => {
                 //Act
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm shape index 
                 //Assert modal header text
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalTitle.getWebElement()), 9000).then(() => {
                     expect(svgElementsPage.getFooterModalTitle.getText()).toBe("Sys_T2B");
                 });
 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 9000).then(() => {
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 30000).then(() => {
                     svgElementsPage.getFooterModalCancelButton.click();
                 });       
             });
                    
             it("Should be able to open Add comment modal at footer",() => {
                 //Act
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 svgElementsPage.navFooterAddCommentButton(2).then((el) => { el.click(); });//@parm shape index 
                 //Assert modal header text
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getActiveTabInModal.getWebElement()), 9000).then(() => {
                     expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Discussions");
                 });
@@ -225,10 +228,10 @@ describe("Storyteller end to end test", () => {
              
             it("Should be able to open review traces modal at footer",() => {
                 //Act
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 svgElementsPage.navFooterReviewTracesButton(2).then((el) => { el.click(); });//@parm shape index 
                 //Assert modal header text
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Relationships");
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getPanelCloseButton.getWebElement()), 9000).then(() => {
                     svgElementsPage.getPanelCloseButton.click();
@@ -238,7 +241,7 @@ describe("Storyteller end to end test", () => {
               
             it("Should be able to open add Images-Mockups-Screenshots modal at footer",() => {
                 //Act
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 svgElementsPage.navFooterAddImageMockUpsScreenshotsButton(1).then((el) => { el.click(); });//@parm shape index 
                 //Assert modal header text
 
@@ -246,7 +249,7 @@ describe("Storyteller end to end test", () => {
                     expect(svgElementsPage.getFooterModalTitle.getText()).toBe("Sys_T2B");
                 });
 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 9000).then(() => {
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 30000).then(() => {
                     svgElementsPage.getFooterModalCancelButton.click();
                 });
 
@@ -256,7 +259,7 @@ describe("Storyteller end to end test", () => {
                 //Act
                 svgElementsPage.navFooterViewUserStoriesButton(0).then((el) => { el.click(); });//@parm shape index 
                 //Assert modal header text
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 svgElementsPage.getViewUserStoriesGherkinTitle.then((el) => {
                     logger.info("Length of Gherkin title array is : " + + el.length);
                     console.log("Length of Gherkin title array is : " + el.length);
@@ -283,14 +286,14 @@ describe("Storyteller end to end test", () => {
                 //Act
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getShowMoreButtonAtModal.getWebElement()), 9000).then(() => {
                     svgElementsPage.getShowMoreButtonAtModal.click();
                 });
                 
                     svgElementsPage.getIncludeButtonAtModal.then((el) => {
                         console.log("Total button at Edit detail modal is : " + el.length);
-                        browser.driver.sleep(5000);
+                        //browser.driver.sleep(5000);
                         el[1].click();//@parm 0 for addtional info and 1 for include
                     
                 });
@@ -298,7 +301,8 @@ describe("Storyteller end to end test", () => {
                 expect(svgElementsPage.artifactsSearchResultCount("fro")).toBeGreaterThan(0);
         
                 //Act
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
+                ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getIncludeArtifactDropdownList);
                 svgElementsPage.getIncludeArtifactDropdownList.then((el) => { 
                     el[0].click(); //@parm search item index
                 });
@@ -309,7 +313,8 @@ describe("Storyteller end to end test", () => {
 
                         
                 //Assert include-active.svg link
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
+                ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getFooterAddIncludesButton);
                 svgElementsPage.getFooterAddIncludesButton.then((el) => {
                     el[2].getOuterHtml().then((imageTag) => { //@parm shape index 
                         var link = imageTag.match(/xlink:href="(.*?)"/);
@@ -357,15 +362,15 @@ describe("Storyteller end to end test", () => {
                  fs.existsSync(directory) || fs.mkdirSync(directory);
                  //Act
                  svgElementsPage.navFooterReviewTracesButton(1).then((el) => { el.click(); });
-                 browser.driver.sleep(5000);
+                 //browser.driver.sleep(5000);
                  //Assert user story link available 
                  expect(svgElementsPage.getuserStoryLinkAtReviewTraceTab.isDisplayed()).toBeTruthy();
-                 browser.driver.sleep(5000);
+                // browser.driver.sleep(5000);
                  svgElementsPage.getuserStoryLinkAtReviewTraceTab.isDisplayed().then((el) => { console.log(el) });
                  svgElementsPage.getuserStoryLinkAtReviewTraceTab.click();
-                 browser.driver.sleep(5000);
+                // browser.driver.sleep(5000);
                  svgElementsPage.getPanelFiles.click();
-                 browser.driver.sleep(5000);
+                 //browser.driver.sleep(5000);
                  svgElementsPage.getuserStoryLinkAtFileTab.click();
                  browser.driver.wait(() => {
     
@@ -379,7 +384,7 @@ describe("Storyteller end to end test", () => {
     
                  //fs.unlinkSync(filename);
                  svgElementsPage.getPanelCloseButton.click();
-                 browser.driver.sleep(5000);
+                // browser.driver.sleep(5000);
                  //TODO This function is temp solution. Need to refactor
              });
          }); //end of test suite
@@ -394,9 +399,12 @@ describe("Storyteller end to end test", () => {
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getDeleteButton.getWebElement()), 1000).then(() => { svgElementsPage.getDeleteButton.click(); });
 
                 //Assert delete confirm meesage 
-                expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task.");//A warning pop up windows display with following contents
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getWarningPopUP.getWebElement()), 5000).then(() => {
+                    expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task.");
+                });
+                //expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task.");//A warning pop up windows display with following contents
                 svgElementsPage.getWarningPopUpOKButton.click();
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body label  array is : " + + el.length);
                     console.log("Length of body label  array is: " + el.length);
@@ -415,7 +423,7 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.getDiscardWarningPopUpOKButton.click();
                 //TODO
                 //expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("Changes Were Discarded");//should displaying sucess message
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);
@@ -428,13 +436,13 @@ describe("Storyteller end to end test", () => {
                 //Act
                 svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
                 svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
-                browser.driver.sleep(5000);
+               // browser.driver.sleep(5000);
                 svgElementsPage.getSaveButton.click();
                 //Assert save button display
                 expect(svgElementsPage.getSaveButtonDisable.isDisplayed()).toBeTruthy();//should disable save button
                 //TODO
                // element(By.css(".ng-binding.btn.button-branded-action.button-branded-warning")).click();
-                browser.driver.sleep(1000);
+               // browser.driver.sleep(1000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);
@@ -446,11 +454,11 @@ describe("Storyteller end to end test", () => {
     
             it("Should be able to click '+' to add user task ", () => {
             //Act
-                browser.driver.sleep(1000);
+               // browser.driver.sleep(1000);
                 svgElementsPage.navAddTaskButton(4).then((el) => { el.click(); });//@parm index for '+' icon
                 svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
-                browser.driver.sleep(1000);
+               // browser.driver.sleep(1000);
                 svgElementsPage.getLabelBody.then((el) => {
                         logger.info("Length of body lebel array is : " + + el.length);
                         console.log("Length of body lebel array is : " + el.length);
@@ -461,11 +469,11 @@ describe("Storyteller end to end test", () => {
     
             it("Should be able to click '+' to add user decision point ", () => {
                 //Act
-                browser.driver.sleep(1000);
+                //browser.driver.sleep(1000);
                 svgElementsPage.navAddTaskButton(6).then((el) => { el.click(); });//@parm index for '+' icon
                 svgElementsPage.selectAddItem(4).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
-                browser.driver.sleep(1000);
+               // browser.driver.sleep(1000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);
@@ -475,11 +483,11 @@ describe("Storyteller end to end test", () => {
      
             it("Should be able to click '+' to add system decision point ", () => {
                 //Act
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
                 svgElementsPage.selectAddItem(0).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
-                browser.driver.sleep(5000);
+                //browser.driver.sleep(5000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);

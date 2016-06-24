@@ -11,7 +11,7 @@ var OR = require('../../Locator/StorytellerLocator.json');
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import ElementArrayFinder = protractor.ElementArrayFinder;
-import arrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
+import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
 import WebElement = protractor.WebElement;
 var logger = require('winston');
 
@@ -200,7 +200,7 @@ class Svgelementspages {
 
 // function to verify shape's header name
     public verifyHeaderName(shape: number): Promise<string> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        browser.wait(ArrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
         return this.labelHeader.then((elements) => {
             elements[shape].getText().then((gettext) => {
                 this.header = gettext; 
@@ -233,7 +233,7 @@ class Svgelementspages {
 //funtion to verify text body  of a shape
 
     public verifyBodyText(shape: number): Promise<string> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
+        browser.wait(ArrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
         return this.labelBody.then((elements) => {
             elements[shape].getText().then((gettext) => {
                 this.body = gettext;
@@ -269,7 +269,7 @@ class Svgelementspages {
     //TO DO this funtion can be deleted but wait until dev finalized their code 
 
     public verifyUserTaskBodyText(shape: number): Promise<string> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        browser.wait(ArrayListPresenceOfAll.presenceOfAll(this.label), 100000);
         return this.label.then((elements) => {
             elements[shape].all(by.tagName('div')).then((el) => {
                 console.log("inside of finding div");
@@ -289,7 +289,7 @@ class Svgelementspages {
 //funtion to find an element and select the shape
 
     public findElementAndSelect(shape: number): Promise<protractor.WebElement> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        browser.wait(ArrayListPresenceOfAll.presenceOfAll(this.label), 100000);
         return this.label.then((elements) =>{
             console.log("inside of finding element");
             console.log("Total is label from find and select " + elements.length);
@@ -318,7 +318,7 @@ class Svgelementspages {
  
 // function to post a comment at discussion panel
     public postComment(comment: any): void {
-       browser.driver.sleep(2000);
+       //browser.driver.sleep(2000);
        this.panelDiscussions.click();
        this.panelDiscussionTextArea.click();
        browser.driver.switchTo().frame(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);
@@ -329,10 +329,12 @@ class Svgelementspages {
                if (tt === true) {
                    this.panelDiscussionTextAreaBody.sendKeys(comment);
                    browser.driver.switchTo().defaultContent();
+                   browser.ignoreSynchronization = false;
                }
                if (tt === false) {
                    fail("Eelement not found");
                    browser.driver.switchTo().defaultContent();
+                   browser.ignoreSynchronization = false;
                }
            });
     }
@@ -348,6 +350,7 @@ class Svgelementspages {
 // function to find footer edit detail Button
 
    public navFooterEditDetailButton(button: number): Promise<protractor.WebElement>  {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerEditDetailButton);
       return this.footerEditDetailButton.then((elements) => {
                logger.info("Total edit detail button is  :" + elements.length);
                console.log("Total edit detail button is  :" + elements.length);
@@ -358,6 +361,7 @@ class Svgelementspages {
 // function to find footer Discussion Button
 
    public navFooterAddCommentButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerAddCommentButton);
        return this.footerAddCommentButton.then((elements) => {
                 logger.info("Total Add Comment button is  :" + elements.length);
                 console.log("Total Add Comment button is  :" + elements.length);
@@ -368,6 +372,7 @@ class Svgelementspages {
 // function to find footer Relationships Button
 
    public navFooterReviewTracesButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerReviewTracesButton);
        return this.footerReviewTracesButton.then((elements) => {
                 logger.info("Total Review Traces button is  :" + elements.length);
                 console.log("Total Review Traces button is  :" + elements.length);
@@ -377,6 +382,7 @@ class Svgelementspages {
  // function to find footer Mockup Button
 
    public navFooterAddImageMockUpsScreenshotsButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerAddImageMockUpsScreenshotsButton);
        return this.footerAddImageMockUpsScreenshotsButton.then((elements) => {
                 logger.info("Total Add Image Mockups screenshot button is  :" + elements.length);
                 console.log("Total Add Image Mockups screenshot button is  :" + elements.length);
@@ -388,6 +394,7 @@ class Svgelementspages {
 // function to find footer user story preview Button
 
    public navFooterViewUserStoriesButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerViewUserStoriesButton);
        return this.footerViewUserStoriesButton.then((elements) => {
                 logger.info("Total view user stories button is  :" + elements.length);
                 console.log("Total view user stories button is  :" + elements.length);
@@ -399,6 +406,7 @@ class Svgelementspages {
 // function to find footer include Button
 
    public navFooterAddIncludesButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.footerAddIncludesButton);
        return this.footerAddIncludesButton.then((elements) => {
                  logger.info("Total Add Includes button is  :" + elements.length);
                  console.log("Total Add Includes button is  :" + elements.length);
@@ -409,6 +417,7 @@ class Svgelementspages {
 // function to find add button (+)
 
    public navAddTaskButton(button: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.addTaskButton);
        return this.addTaskButton.then((elements) => {
                 logger.info("Total Add Task button is  :" + elements.length);
                 console.log("Total Add Task button is  :" + elements.length);

@@ -14,6 +14,9 @@ import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-hist
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
+import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifact-discussions.svc";
+import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-Discussions-panel";
+import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
 import {MessageDirective} from "./messages/message";
 import {MessagesContainerDirective} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
@@ -33,9 +36,12 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
+    .service("artifactDiscussions", ArtifactDiscussions)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
+    .component("bpDiscussionPanel", new BPDiscussionPanel())
+    .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
     .directive("messagesContainer", MessagesContainerDirective.factory())   

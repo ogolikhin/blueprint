@@ -77,6 +77,17 @@
     }
   }
 
+  &.page-content-wrapper {
+    > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
+    > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
+    &:hover > .ps-scrollbar-x-rail:hover::before,
+    &:hover > .ps-scrollbar-y-rail:hover::before,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail::before,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail::before {
+      background: $blue-lightest;
+    }
+  }
+
   &:hover,
   &.ps-in-scrolling.ps-x,
   &.ps-in-scrolling.ps-y {

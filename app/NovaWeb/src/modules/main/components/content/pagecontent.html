@@ -1,126 +1,18 @@
-﻿<ul class="breadcrumbs">
+﻿<ul class="breadcrumbs" ng-if="$content.viewState">
     <li><a href="#">Selected Project</a></li>
     <li><a href="#">Selected Folder</a></li>
     <li><a href="#">Selected Artifact</a></li>
     <li>Infrastructure for directing change</li>
 </ul>
 <messages-container></messages-container>
-<div class="page-content-wrapper" perfect-scrollbar>
+<div class="page-content-wrapper" perfect-scrollbar ng-if="$content.viewState">
     <div class="page-content">
         <div class="page-heading">
-            <div class="artifact-icon fonticon-bp-ui-mockup-form-setting"></div>
-            <div class="artifact-heading">
-                <div class="name">Client Login
-                    <i class="readonly-indicator" bp-tooltip="Read-only"></i>
-                    <i class="lock-indicator" bp-tooltip="Locked"></i>
-                                                      <!--TODO  please do not remove, I'll remove after testing-->
-                    <i class="dirty-indicator" bp-tooltip="Dirty" ng-click="pageContentCtrl.addMsg()"></i>
-                </div>
-                <div class="type-id">User story - US123456</div>
-            </div>
-            <div class="page-top-toolbar">
-                <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>
-                <button class="btn btn-bluelight" bp-tooltip="Save">Save</button>
-                <button class="btn btn-primary" bp-tooltip="Publish">Publish</button>
-            </div>
+            <bp-artifact-info></bp-artifact-info>
         </div>
         <div class="page-body">
-            <div class="artifact-overview">
-                <div class="heading">Overview</div>
-                <div class="content">
-                    <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
-                        <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
-                        <perfect-scrollbar>
-                            <div class="content" uib-collapse="isSystemPropertiesCollapsed">
-                                <div class="property-group error">
-                                    <label for="property-name">Name:</label>
-                                    <span data-validation="use alphanumeric characters only" bp-tooltip="Edit field"><input id="property-name" class="editable" type="text" value="Client Login"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-type">Type:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-type" type="text" class="typeahead" ng-model="propertyType" uib-typeahead="type for type in ['User story', 'Process', 'Mockup']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-id">ID:</label>
-                                    <span><input id="property-id" class="readonly" type="text" value="US13367" readonly="readonly"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-created-by">Created by:</label>
-                                    <span><input id="property-created-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-created-on">Created on:</label>
-                                    <span><input id="property-created-on" class="readonly" readonly="readonly" type="text" value="07-03-2016"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-last-edited-by">Last edited by:</label>
-                                    <span><input id="property-last-edited-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-last-edited-on">Last edited on:</label>
-                                    <span><input id="property-last-edited-on" class="readonly" type="text" value="07-04-2016" readonly="readonly"></span>
-                                </div>
-                            </div>
-                        </perfect-scrollbar>
-                    </div>
-                    <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}">
-                        <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
-                        <perfect-scrollbar>
-                            <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
-                                <div class="property-group error">
-                                    <label for="property-story-title">Story title:</label>
-                                    <span data-validation="required" bp-tooltip="Edit field"><textarea id="property-story-title" class="editable">As a user I want the ability to login to the application.</textarea></span>
-                                </div>
-                                <div class="property-group error">
-                                    <label for="property-status">Status:</label>
-                                    <span data-validation="select a value" bp-tooltip="Edit field"><input id="property-status" type="text" class="typeahead" ng-model="propertyStatus" uib-typeahead="status for status in ['Blocked', 'In development', 'Ready']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group error">
-                                    <label for="property-stack-rank">Stack rank:</label>
-                                    <span data-validation="select a value" bp-tooltip="Edit field"><input id="property-stack-rank" type="text" class="typeahead" ng-model="propertyStackRank" uib-typeahead="rank for rank in ['1', '2', '3']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-dev-team">Dev team:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-dev-team" type="text" class="typeahead" ng-model="propertyDevTeam" uib-typeahead="team for team in ['Titan', 'ngStars', 'Night\' Watch']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-iteration">Iteration:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-iteration" type="text" class="typeahead" ng-model="propertyIteration" uib-typeahead="rank for rank in ['1', '2', '3']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-story-points">Story points:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-story-points" type="text" class="typeahead" ng-model="propertyStoryPoints" uib-typeahead="team for team in ['1', '2', '3', '5', '8', '13']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-release">Release:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-release" type="text" class="typeahead" ng-model="propertyRelease" uib-typeahead="team for team in ['Frampton', 'Gilmore', 'Elwood']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-user-story-path">User story path:</label>
-                                    <span bp-tooltip="Edit field"><input id="property-user-story-path" class="editable" type="text" value="Nova\Client\Main"></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-input-like">Input-like DIV:</label>
-                                    <span bp-tooltip="Edit field"><div id="property-input-like" class="editable field-input-text" contenteditable="true">Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi.</div></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-textarea-like">Textarea-like DIV:</label>
-                                    <span bp-tooltip="Edit field"><div id="property-textarea-like" class="editable field-textarea" contenteditable="true">Lorem ipsum dolor, consectetur adipiscing elit sit amet. Sed quis auctor lorem.</div></span>
-                                </div>
-                                <div class="property-group">
-                                    <label for="property-product-owner">Product owner:</label>
-                                    <span><input id="property-product-owner" class="readonly" readonly="readonly" type="text" value="Aman Bhalla"></span>
-                                </div>
-                            </div>
-                        </perfect-scrollbar>
-                    </div>
-
-                    <uib-tabset>
-                        <uib-tab index="0" heading="Description">Lorem ipsum dolor, consectetur adipiscing elit sit amet. Sed quis auctor lorem. Integer arcu quam, viverra non tempor quis, dignissim vitae magna. Proin iaculis arcu quam, nec sollicitudin mi tincidunt eu. Vestibulum id congue justo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed condimentum leo vitae pellentesque sodales. Ut et rhoncus neque.</uib-tab>
-                        <uib-tab index="1" heading="Additional notes">Fusce pellentesque pellentesque augue, sit amet ultricies mauris dictum sit amet. Vestibulum sed leo suscipit, dignissim nisi non, dictum tellus. Etiam tincidunt nisl at ante vehicula, vitae pretium eros semper. Maecenas eu lacus faucibus, pretium sapien in, ullamcorper magna. Aenean eget bibendum orci, sit amet rutrum metus. Mauris non justo at mauris viverra ultricies sed vitae odio. Nunc volutpat nisi ac magna efficitur, ut dignissim erat sodales. In non lorem mi. Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi. Sed vehicula risus vitae dolor aliquet lacinia. Nam convallis gravida enim. Etiam congue quam in lectus iaculis, at pretium libero ultrices. Integer tempus nunc sed eleifend imperdiet. Cras sed tempus felis, sed sodales ante. Ut auctor vitae dolor eget blandit.</uib-tab>
-                    </uib-tabset>
-                </div>
-            </div>
+            
+            <bp-artifact-details></bp-artifact-details>
         </div>
     </div>
 </div>

@@ -1,15 +1,15 @@
-﻿<bp-toolbar ng-if="main.currentUser"></bp-toolbar>
-<bp-sidebar-layout left-panel-title="Project Explorer" right-panel-title="Utility Panel" ng-if="main.currentUser">
+﻿<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
+<bp-sidebar-layout left-panel-title="Project Explorer" right-panel-title="Utility Panel" ng-if="$main.currentUser">
     <bp-sidebar-layout-content-left>
         <bp-project-explorer></bp-project-explorer>
     </bp-sidebar-layout-content-left>
     
     <bp-sidebar-layout-content-center>
-        <pagecontent></pagecontent>
+        <pagecontent view-state="$main.isActive"></pagecontent>
     </bp-sidebar-layout-content-center>
     
     <bp-sidebar-layout-content-right>
-        <bp-utility-panel></bp-utility-panel>
+        <bp-utility-panel ></bp-utility-panel>
     </bp-sidebar-layout-content-right>
 
 </bp-sidebar-layout>

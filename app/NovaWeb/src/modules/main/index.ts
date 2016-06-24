@@ -10,12 +10,14 @@ import "../shell";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
-import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
+import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
 import {BpAccordion} from "./components/bp-accordion/bp-accordion";
 import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
-import {ProjectExplorerComponent} from "./components/projectexplorer/project-explorer";
+import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
+import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
+import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope", "$state"];
@@ -51,11 +53,13 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .service("projectManager", ProjectManager)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
-    .component("bpToolbar", new BPToolbarComponent())
+    .component("bpToolbar", new BPToolbar())
     .component("bpSidebarLayout", new BpSidebarLayout())
     .component("bpAccordion", new BpAccordion())
     .component("bpAccordionPanel", new BpAccordionPanel())
-    .component("bpProjectExplorer", new ProjectExplorerComponent())
+    .component("bpProjectExplorer", new ProjectExplorer())
+    .component("bpArtifactInfo", new BpArtifactInfo())
+    .component("bpArtifactDetails", new BpArtifactDetails())
     .config(routesConfig);
 
 

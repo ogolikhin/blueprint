@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Model.ArtifactModel;
 
 namespace Model
 {
-    public interface IDiscussion
+    //This representation is used for Discussion in RapidReview,
+    //Impact Analysis and Storyteller
+    public interface IRaptorDiscussion
     {
         #region
         int ArtifactId { get; }
@@ -15,11 +16,13 @@ namespace Model
 
         bool AreEmailDiscusssionsEnabled { get; }
         
-        List<IComment> Comments { get; }
+        List<IRaptorComment> Comments { get; }
         #endregion
     }
 
-    public interface IComment
+    //This representation is used for Discussion in RapidReview,
+    //Impact Analysis and Storyteller
+    public interface IRaptorComment
     {
         bool IsClosed { get; }
 

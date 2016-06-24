@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model.Impl
 {
-    public class Discussion : IDiscussion
+    public class RaptorDiscussion : IRaptorDiscussion
     {
         #region
         public int ArtifactId { get; set; }
@@ -18,13 +14,13 @@ namespace Model.Impl
 
         public bool AreEmailDiscusssionsEnabled { get; set; }
 
-        public List<IComment> Comments { get; }
+        public List<IRaptorComment> Comments { get; }
         #endregion
-        public Discussion()
+        public RaptorDiscussion()
         { }
     }
 
-    public class Comment : IComment
+    public class RaptorComment : IRaptorComment
     {
         public bool IsClosed { get; set; }
 
@@ -47,7 +43,7 @@ namespace Model.Impl
         public bool CanEdit { get; set; }
 
         public bool CanDelete { get; set; }
-        public Comment()
+        public RaptorComment()
         { }
     }
 }

@@ -469,15 +469,15 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Discussion for artifact/subartifact</returns>
-        public static IDiscussion GetDiscussions(string address,
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorDiscussion GetRaptorDiscussions(string address,
             int itemId,
             bool includeDraft,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            return OpenApiArtifact.GetDiscussions(
+            return OpenApiArtifact.GetRaptorDiscussions(
                 address,
                 itemId,
                 includeDraft,

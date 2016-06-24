@@ -1,10 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
 namespace ArtifactStore.Models
 {
+    public class LinkedArtifactInfo
+    {
+        public int ArtifactId;
+        public string ArtifactName;
+    }
+
     public class FilesInfo
     {
         private readonly IList<Attachment> _attachments;
@@ -40,15 +47,35 @@ namespace ArtifactStore.Models
     //    public string FileName { get; set; }
     //}
 
+    [JsonObject]
     public class Attachment
     {
-        public string Name { get; set; }
+        [JsonProperty]
+        public int UserId { get; set; }
+        [JsonProperty]
+        public string UserName { get; set; }
+        [JsonProperty]
+        public string FileName { get; set; }
+        [JsonProperty]
+        public int AttachmentId { get; set; }
+        [JsonProperty]
+        public DateTime UploadedDate { get; set; }
+        [JsonIgnore]
         public Guid FileGuid { get; set; }
     }
 
+    [JsonObject]
     public class DocumentReference
     {
-        public int VersionArtifactId { get; set; }
-        public string Name { get; set; }     
+        [JsonProperty]
+        public string ArtifactName { get; set; }
+        [JsonProperty]
+        public int ArtifactId { get; set; }
+        [JsonProperty]
+        public int UserId { get; set; }
+        [JsonProperty]
+        public string UserName { get; set; }
+        [JsonProperty]
+        public DateTime ReferencedDate { get; set; }
     }
 }

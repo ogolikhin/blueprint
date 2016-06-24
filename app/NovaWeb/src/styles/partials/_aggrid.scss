@@ -297,7 +297,7 @@ $has-children-padding-before-arrow: 3px;
 .project-tree {
   .ag-grid,
   .ag-grid > div {
-    min-height: $project-picker-tree-height;
+    height: $project-picker-tree-height;
   }
 
   .ag-overlay-loading-wrapper {

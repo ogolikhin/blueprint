@@ -53,7 +53,7 @@ class BPToolbarController implements IBPToolbarController {
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/open-project.template.html"),
             controller: OpenProjectController,
-            css: "nova-open-project modal-resize-both"
+            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
         }).then((project: Models.IProject) => {
             if (project) {
                 this.projectManager.loadProject(project);

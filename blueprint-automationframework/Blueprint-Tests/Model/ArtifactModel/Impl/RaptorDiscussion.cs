@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -14,7 +15,7 @@ namespace Model.Impl
 
         public bool AreEmailDiscusssionsEnabled { get; set; }
 
-        public List<IRaptorComment> Comments { get; }
+        public List<IRaptorComment> Comments { get; } = new List<IRaptorComment>();
         #endregion
         public RaptorDiscussion()
         { }
@@ -38,6 +39,7 @@ namespace Model.Impl
 
         public bool IsGuest { get; set; }
 
+        [JsonProperty("comment")]
         public string CommentValue { get; set; }
 
         public bool CanEdit { get; set; }

@@ -117,5 +117,16 @@ namespace Model.ArtifactModel
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         NovaPublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// </summary>
+        /// <param name="itemId">id of artifact/subartifact</param>
+        /// <param name="discussionsText">text for the new discussion</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        IRaptorComment PostRaptorDiscussions(string discussionsText,
+            IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

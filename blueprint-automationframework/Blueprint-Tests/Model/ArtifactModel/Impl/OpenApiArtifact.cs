@@ -458,21 +458,21 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussion PostRaptorDiscussion(string address, int itemId,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public static IRaptorComment PostRaptorDiscussion(string address, int itemId, 
+            string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(URL_RAPTOR_DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(address, tokenValue);
-            var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussion>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+            
+            // Derialization
+            var result = JsonConvert.DeserializeObject<RaptorComment>(response.Content);
 
-            return response;
+            return result;
         }
 
         #endregion Static Methods

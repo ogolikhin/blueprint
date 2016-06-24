@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
@@ -9,7 +9,10 @@ namespace Model.ArtifactModel.Impl
     {
         public bool CanCreate { get; set; }
         public bool CanDelete { get; set; }
+        [JsonProperty("discussions")]
         public List<Comment> Comments { get; } = new List<Comment>();
+        public Discussions()
+        { }
     }
 
     public class Comment
@@ -23,6 +26,9 @@ namespace Model.ArtifactModel.Impl
         public string LastEditedOn { get; set; }
         public string UserName { get; set; }
         public bool IsGuest { get; set; }
+        [JsonProperty("comment")]
         public string CommentText { get; set; }
+        public Comment()
+        { }
     }
 }

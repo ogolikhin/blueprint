@@ -64,6 +64,8 @@ export class LoginCtrl {
     public enableSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
+    public loginInProgress: boolean;
+
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
     /* tslint:disable */
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
@@ -83,6 +85,8 @@ export class LoginCtrl {
         this.enableSAMLScreen = true;
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
+
+        this.loginInProgress = false;
 
         if (!this.novaCurrentPassword) {
             this.novaCurrentPassword = "";
@@ -250,6 +254,8 @@ export class LoginCtrl {
     }
 
     private handleLoginErrors(error) {
+        this.loginInProgress = false;
+
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 if (this.formState === LoginState.SamlLoginForm) {
@@ -328,6 +334,8 @@ export class LoginCtrl {
     }
 
     public login(): void {
+        this.loginInProgress = true;
+
         this.session.login(this.novaUsername, this.novaPassword, false).then(
             () => {
                 this.labelError = false;

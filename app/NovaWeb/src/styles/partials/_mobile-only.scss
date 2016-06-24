@@ -10,4 +10,14 @@ body.is-touch {
       background: $gray-dark;
     }
   }
+
+  .ps-container {
+    overflow: auto !important;
+    touch-action: auto !important;
+
+    .ps-scrollbar-x-rail,
+    .ps-scrollbar-y-rail {
+      display: none !important;
+    }
+  }
 }

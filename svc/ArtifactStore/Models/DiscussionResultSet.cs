@@ -25,7 +25,7 @@ namespace ArtifactStore.Models
 
         public int DiscussionId { get; set; }
 
-        //public int Version { get; set; }
+        public int Version { get; set; }
 
         public int UserId { get; set; }
 

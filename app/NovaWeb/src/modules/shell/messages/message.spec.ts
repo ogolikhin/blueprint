@@ -1,7 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
 import {MessageService, MessageDirective} from "../../shell";
-//import {MessageContainerController} from "./message-container";
 import {ConfigValueHelper } from "../../core";
 
 describe("message directive", () => {

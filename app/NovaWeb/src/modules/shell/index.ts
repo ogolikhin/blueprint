@@ -18,7 +18,7 @@ import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifa
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-Discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
 import {MessageDirective} from "./messages/message";
-import {MessagesContainerDirective} from "./messages/message-container";
+import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as routesConfig} from "./error.state";
 
@@ -44,7 +44,7 @@ angular.module("app.shell",
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
-    .directive("messagesContainer", MessagesContainerDirective.factory())   
+    .component("messagesContainer", new MessageContainerComponent())   
     .config(Logger)
     .config(routesConfig)
     .config(initializeInterceptors);
@@ -71,6 +71,6 @@ export class AuthenticationRequired {
 }
 
 export { IServerLogger } from "./log/server-logger.svc";
-export {MessageDirective, MessagesContainerDirective, MessageService};
+export {MessageDirective, MessageContainerComponent, MessageService};
 export { IMessageService } from "./messages/message.svc";
-export { Message, MessageType} from "./messages/message";
+export { IMessage, Message, MessageType} from "./messages/message";

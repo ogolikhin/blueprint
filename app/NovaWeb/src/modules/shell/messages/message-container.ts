@@ -1,65 +1,38 @@
-﻿import {IMessageService, Message, MessageType} from "../../shell";
+﻿import {IMessageService, IMessage, Message, MessageType} from "../../shell";
+
+
+export class MessageContainerComponent implements ng.IComponentOptions {
+    public template: string = require("./message-container.html");
+    public controller: Function = MessageContainerController;
+    public transclude: boolean = true;
+}
 
 export interface IMessageContainerController {
-
+    closeMessage(id: number);
+    getType(type: number);
+    getText(text: string);
 }
 
 export class MessageContainerController implements IMessageContainerController {
-    public messages: Message[];
-
-    public static $inject = ["messageService"];
-    constructor(private messageService: IMessageService) {
-        this.messages = messageService.getMessages();
+    public messages: Rx.BehaviorSubject<IMessage[]>;   
+    public static $inject = ["messageService", "$sce"];
+    constructor(private messageService: IMessageService, private $sce: any) {
+        this.messages = messageService.messages;
+    }
+   
+    public $onDestroy() {
+        this.messageService.dispose();
     }
 
     public closeMessage(id: number) {
         this.messageService.deleteMessageById(id);
     }
 
-    public destroy() {
-        this.messageService.clearMessages();
+    public getType(type: number) {
+        return MessageType[type].toLowerCase();
+    }
+
+    public getText(text: string) {
+        return this.$sce.trustAsHtml(text);
     }
 }
-
-export class MessagesContainerDirective implements ng.IDirective {
-    public restrict = "AE";
-
-    public scope = {
-        isPopup: "@"
-    };
-
-    public static factory() {
-        const directive = ($compile: ng.ICompileService, $sce: any) => new MessagesContainerDirective($compile, $sce);
-        directive["$inject"] = ["$compile", "$sce"];
-        return directive;
-    }
-    constructor(private $compile: ng.ICompileService, private $sce: any) {
-    }
-
-    public link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attr: ng.IAttributes, $cntr: MessageContainerController) => {
-        
-
-        $scope.$on("$destroy", function () {
-            $cntr.destroy();
-        });
-
-        $scope.$watch(() => { return $cntr.messages; }, (newVal) => {
-            angular.element($element[0]).children().remove();
-            for (let i = 0; i < $cntr.messages.length; i++) {
-                let message = $cntr.messages[i];
-                let mType = MessageType[message.messageType].toLowerCase();
-                $element
-                    .append(this.$compile("<message id=\"" + mType + "\"  data-message-type=\"" + mType +
-                        "\"  data-on-message-closed=\"messageContainterCntrl.closeMessage(" + message.id + ")\">" +                      
-                        "<div data-on-message-action=\"" + message.onMessageAction + "\"> " + this.$sce.trustAsHtml(message.messageText) + "</div>" +
-                        "</message>")($scope));
-
-            }
-        }, true);
-    };
-
-    public controller = MessageContainerController;
-    public controllerAs = "messageContainterCntrl";
-    public bindToController = false;
-}
-

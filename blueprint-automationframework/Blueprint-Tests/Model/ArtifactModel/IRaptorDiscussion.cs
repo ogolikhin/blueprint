@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Model.ArtifactModel.Impl;
 
 namespace Model
 {
@@ -45,5 +46,26 @@ namespace Model
         bool CanEdit { get; }
 
         bool CanDelete { get; }
+
+        bool Equals(Comment comment);
+    }
+
+    //This representation is used for Discussion in RapidReview,
+    //Impact Analysis and Storyteller
+    public interface IRaptorReply
+    {
+        int ReplyId { get; set; }
+        int ItemId { get; set; }
+        int DiscussionId { get; set; }
+        int Version { get; set; }
+        int UserId { get; set; }
+        DateTime LastEditedOnUtc { get; set; }
+        string UserName { get; set; }
+        bool IsGuest { get; set; }
+        string ReplyText { get; set; }
+        bool CanEdit { get; set; }
+        bool CanDelete { get; set; }
+
+        bool Equals(Reply reply);
     }
 }

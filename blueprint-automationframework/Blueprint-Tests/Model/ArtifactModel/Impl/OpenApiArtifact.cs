@@ -475,6 +475,33 @@ namespace Model.ArtifactModel.Impl
             return result;
         }
 
+        /// <summary>
+        /// POST discussion for the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="comment">Comment to reply</param>
+        /// <param name="discussionText">Text for replying</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorReply PostRaptorDiscussionReply(string address,
+            IRaptorComment comment, string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(comment, nameof(comment));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(URL_RAPTOR_REPLY, comment.ItemId, comment.DiscussionId);
+            var restApi = new RestApiFacade(address, tokenValue);
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+
+            // Derialization
+            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
+
+            return result;
+        }
+
         #endregion Static Methods
     }
 

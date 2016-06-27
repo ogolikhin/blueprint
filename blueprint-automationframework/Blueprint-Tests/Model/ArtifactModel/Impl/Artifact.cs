@@ -623,6 +623,25 @@ namespace Model.ArtifactModel.Impl
                 user, expectedStatusCodes);
         }
 
+        /// <summary>
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="comment">Comment to which we want reply</param>
+        /// <param name="replyText">text for the new reply</param>
+        /// <param name="user">The user credentials to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorReply PostRaptorDiscussionReply(string address,
+            IRaptorComment comment,
+            string replyText,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.PostRaptorDiscussionReply(address, comment, replyText,
+                user, expectedStatusCodes);
+        }
+
         #endregion Static Methods
     }
 }

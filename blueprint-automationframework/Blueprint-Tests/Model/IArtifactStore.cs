@@ -85,14 +85,25 @@ namespace Model
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets discussions for the specified artifact
-        /// (Runs: GET svc/ArtifactStore/artifacts/{artifactId}/discussions)
+        /// Gets discussions for the artifact or subartifact with specified id
+        /// (Runs: GET svc/ArtifactStore/artifacts/{itemId}/discussions)
         /// </summary>
-        /// <param name="artifact">Artifact.</param>
+        /// <param name="itemId">id of the artifact/subartifact</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Discussions for the specified artifact.</returns>
-        Discussions GetArtifactDiscussions(IArtifactBase artifact, IUser user,
+        Discussions GetArtifactDiscussions(int itemId, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets replies for the specified comment
+        /// (Runs: GET svc/ArtifactStore/artifacts/{comment.itemId}/discussions/{comment.discussionId}/replies)
+        /// </summary>
+        /// <param name="comment">Comment to get replies</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Discussions for the specified artifact.</returns>
+        List<Reply> GetDiscussionsReplies(Comment comment,  IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
     }

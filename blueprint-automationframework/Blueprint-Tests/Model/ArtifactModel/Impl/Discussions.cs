@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
@@ -20,15 +21,29 @@ namespace Model.ArtifactModel.Impl
         public bool IsClosed { get; set; }
         //Open, Closed but can also include custom status
         public string Status { get; set; }
+        public int Version { get; set; }
         public int ItemId { get; set; }
         public int DiscussionId { get; set; }
         public int UserId { get; set; }
-        public string LastEditedOn { get; set; }
+        public DateTime LastEditedOn { get; set; }
         public string UserName { get; set; }
         public bool IsGuest { get; set; }
         [JsonProperty("comment")]
         public string CommentText { get; set; }
         public Comment()
         { }
+    }
+
+    public class Reply
+    {
+        public int ReplyId { get; set; }
+        public int ItemId { get; set; }
+        public int DiscussionId { get; set; }
+        public int UserId { get; set; }
+        public DateTime LastEditedOn { get; set; }
+        public string UserName { get; set; }
+        public bool IsGuest { get; set; }
+        [JsonProperty("comment")]
+        public string ReplyText { get; set; }
     }
 }

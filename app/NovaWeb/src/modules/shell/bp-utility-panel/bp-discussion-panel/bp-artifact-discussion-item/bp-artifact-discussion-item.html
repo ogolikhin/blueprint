@@ -6,9 +6,27 @@
         </bp-avatar>
     </div>
     <div class="discussion-info">
-        <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+        <div class="status">
+            <div class="status-name" title="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
+            <div class="inline-block status-icon fonticon-circle-up" ng-click="$ctrl.getReplies()"></div>
+        </div>
+        <div>
+            <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+        </div>
         <div ng-bind-html="$ctrl.discussionInfo.comment"></div>
-        <div class="timestamp">{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+        <div>
+            <div class="version inline-block">v{{$ctrl.discussionInfo.version}}</div>
+            <div class="timestamp inline-block">{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+        </div>
     </div>
-    <div></div>
+    <div class="button-bar discussion-button-bar">
+        <div title="View comments" class="reply-count fonticon-comment"></div>
+        <div title="Delete comment" class="delete-comment fonticon-delete-filled"></div>
+        <div title="Edit comment" class="edit-comment fonticon-edit-alt"></div>
+        <div class="reply-link" title="Reply to the comment">
+            <a ng-click="" ng-class="$ctrl.discussionInfo.isClosed ? 'inactive' : 'active'">
+                Reply
+            </a>
+        </div>
+    </div>
 </div>

@@ -4,19 +4,18 @@
         ng-model="$ctrl.sortAscending"
         options="$ctrl.sortOptions">
     </bp-select>-->
+    <button class="btn btn-new-comment" type="button" ng-click="" ng-if="$ctrl.artifactDiscussionList.length">+ new comment</button>
 </div>
-
 <div ng-if="$ctrl.artifactDiscussionList.length"
      class="scrollable-content"
      perfect-scrollbar>
 
-    <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-history-item-wrapper">
-        <div class="separator"></div>
+    <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
+        <!--<div class="separator"></div>-->
         <bp-artifact-discussion-item 
             class="utility-panel-artifact-item"
             discussion-info="discussion"
-            ng-click="$ctrl.selectDiscussion(discussion)"
-            ng-class="{ 'selected': $ctrl.selectedDiscussion === discussion }">
+            get-replies="$ctrl.expandCollapseDiscussion(discussion)">
         </bp-artifact-discussion-item>
     </div>
 </div>

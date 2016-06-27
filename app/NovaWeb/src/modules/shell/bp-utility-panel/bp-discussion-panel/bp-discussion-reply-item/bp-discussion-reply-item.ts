@@ -1,5 +1,4 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IArtifactDiscussions, ICommentBase, IReply} from "../artifact-discussions.svc";
 import { Models } from "../../../../main";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
@@ -7,23 +6,20 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public controller: Function = BPArtifactDiscussionItemController;
     public bindings: any = {
         discussionInfo: "=",
-        getReplies: "&"
+        artifactInfo: "="
     };
 }
 
 export class BPArtifactDiscussionItemController {
-    public getReplies: Function;
     public static $inject: [string] = [
         "$log",
-        "localization",
-        "artifactDiscussions"
+        "localization"
     ];
     
     public getArtifactState: Function = (state: Models.ArtifactStateEnum) => Models.ArtifactStateEnum[state];
     
     constructor(
         private $log: ng.ILogService,
-        private localization: ILocalizationService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions) {
+        private localization: ILocalizationService) {
     }
 }

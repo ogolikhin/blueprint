@@ -6,6 +6,7 @@ $gray:              #999;
 $gray-light:        #aaa;
 $gray-lighter:      #ccc;
 $gray-lightest:     #e8e8e8;
+$blue-light:        #01A7E1;
 $blue-lightest:     #e7ebf2;
 $white:             #fff;
 $black:             #000;
@@ -48,6 +49,7 @@ $font-size-bigger:   1.6rem;
 $font-size-biggest:  1.8rem;
 
 // padding
+$padding-smallest: 5px;
 $padding-smaller: 7px;
 $padding-root: 10px;
 $padding-bigger: 15px;
@@ -65,14 +67,14 @@ $breadcrumbs-height: 48px;
 
 //sidebars
 $wrapper-height: $navbar-height;
-$sidebar-size: 250px;
+$sidebar-size: 270px;
 $left-sidebar-border: $brand-secondary;
 $right-sidebar-border: $brand-secondary;
 
 //utility panel
 $utility-panel-title-height: 33px;
 $utility-panel-heading-height: 31px;
-$utility-panel-border-color: #dde1e2;;
+$utility-panel-border-color: #dde1e2;
 
 //project tree/picker
 $aggrid-row-height: 20px;

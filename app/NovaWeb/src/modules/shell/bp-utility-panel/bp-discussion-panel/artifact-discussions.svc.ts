@@ -9,11 +9,14 @@ export interface IArtifactDiscussions {
 export interface IDiscussion extends ICommentBase {
     isClosed: boolean;
     status: string;
+    replies: IReply[];
+    expended: boolean;
 }
 
 export interface ICommentBase {
     itemId: number;
     discussionId: number;
+    version: number;
     userId: number;
     lastEditedOn: string;
     userName: string;

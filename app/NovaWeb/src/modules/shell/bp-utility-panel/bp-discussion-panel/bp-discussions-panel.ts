@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
-import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion} from "./artifact-discussions.svc";
+import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -16,12 +16,12 @@ export class BPDiscussionPanelController {
     ];
 
     //private loadLimit: number = 10;
+    private artifactId: number;
     private _subscribers: Rx.IDisposable[];
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
-    public selectedDiscussion: IDiscussion;
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
@@ -60,7 +60,8 @@ export class BPDiscussionPanelController {
         this.artifactDiscussionList = [];
 
         if (artifact !== null) {
-            this.getArtifactDiscussions(artifact.id)
+            this.artifactId = artifact.id;
+            this.getArtifactDiscussions()
                 .then((discussionResultSet: IDiscussionResultSet) => {
                     this.artifactDiscussionList = discussionResultSet.discussions;
                     this.canCreate = discussionResultSet.canCreate;
@@ -69,15 +70,36 @@ export class BPDiscussionPanelController {
         }
     }
 
-    public selectDiscussion(discussion: IDiscussion): void {
-        this.selectedDiscussion = discussion;
+    public expandCollapseDiscussion(discussion: IDiscussion): void {
+        if (!discussion.expended) {
+            this.getDiscussionReplies(discussion.discussionId)
+                .then((replies: IReply[]) => {
+                    discussion.replies = replies;
+                    if (replies.length > 0) {
+                        discussion.expended = true;
+                    }
+                });
+        }else {
+            discussion.expended = false;
+        }
     }
 
-    private getArtifactDiscussions(artifactId: number): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId)
+        return this._artifactDiscussionsRepository.getArtifactDiscussions(this.artifactId)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    private getDiscussionReplies(discussionId: number): ng.IPromise<IReply[]> {
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
+            .then((replies: IReply[]) => {
+                return replies;
             })
             .finally(() => {
                 this.isLoading = false;

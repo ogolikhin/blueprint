@@ -99,7 +99,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.getMessages();
+            let messages = messageService.messages.getValue();
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -130,7 +130,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.getMessages();
+            let messages = messageService.messages.getValue();
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));

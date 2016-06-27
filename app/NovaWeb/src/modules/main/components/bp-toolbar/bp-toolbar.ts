@@ -98,7 +98,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     public goToImpactAnalysis() {
-        let url = this.$rootScope["config"].settings['ImpactAnalysis'] + 'Web/#/ImpactAnalysis/' + this._currentArtifact;
+        let url = 'Web/#/ImpactAnalysis/' + this._currentArtifact;
         window.open(url);
     }
 

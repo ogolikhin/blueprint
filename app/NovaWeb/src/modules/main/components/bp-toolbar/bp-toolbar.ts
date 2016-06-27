@@ -98,7 +98,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     public goToImpactAnalysis() {
-        let url = this.$rootScope["config"].settings['ImpactAnalysis'] + 'Web/#/ImpactAnalysis/' + this._currentArtifact;
+        let url = 'Web/#/ImpactAnalysis/' + this._currentArtifact;
         window.open(url);
     }
 
@@ -118,7 +118,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact && artifact.prefix !== "ACO" && artifact.prefix!=='_CFL' ? artifact.id : null;
+        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix!=='_CFL' ? artifact.id : null;
     }
 
 }

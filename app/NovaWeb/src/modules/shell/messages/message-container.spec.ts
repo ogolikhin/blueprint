@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {MessagesContainerDirective, IMessageService, MessageService, Message, MessageType} from "../../shell";
+import {MessageContainerComponent, IMessageService, MessageService, Message, MessageType} from "../../shell";
 import {MessageContainerController} from "./message-container";
 import {ConfigValueHelper } from "../../core";
 
@@ -9,7 +9,7 @@ describe("messages container directive", () => {
     var element: ng.IAugmentedJQuery;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.directive("messagesContainer", <any>MessagesContainerDirective.factory());
+        $compileProvider.component("messagesContainer", <any>new MessageContainerComponent());
         $provide.service("messageService", MessageService);
         $provide.service("configValueHelper", ConfigValueHelper);
     }));

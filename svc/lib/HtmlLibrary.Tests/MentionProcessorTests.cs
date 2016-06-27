@@ -37,7 +37,7 @@ namespace HtmlLibrary.Tests
                 from e in xDoc.DocumentNode.Descendants()
                 where e.Attributes.Count(a => a.Name.Equals("linkassemblyqualifiedname", StringComparison.CurrentCultureIgnoreCase) && a.Value.Contains("RichTextMentionLink")) > 0
                 select e;
-            
+
             // Assert
             Assert.AreEqual(1, mentions.Count());
             Assert.AreEqual("Email Discussions have been Disabled", mentions.SingleOrDefault().GetAttributeValue("tooltip", null));

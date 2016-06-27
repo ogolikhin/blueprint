@@ -237,6 +237,18 @@ $modal-open-project-height: 450px;
       }
     }
 
+    #modal-login-form {
+      button[type='submit'] {
+        position: relative;
+
+        span {
+          left: 9px;
+          position: absolute;
+          top: 11px;
+        }
+      }
+    }
+
     #modal-login-saml {
       .nova-login-message {
         font-size: $font-size-big;

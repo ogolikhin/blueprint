@@ -2,11 +2,20 @@
     Error = 1, Info = 2, Warning = 3
 }
 
-export class Message {
+export interface IMessage {
+    onMessageAction: (actionName: string) => void;
+    id: number;
+    messageType: MessageType;
+    messageText: string;
+}
+
+export class Message implements IMessage{
     public onMessageAction: (actionName: string) => void;
     public id: number;
 
-    constructor(public messageType: MessageType, public messageText) {
+    constructor(public messageType: MessageType, public messageText: string) {
+        this.messageText = messageText;
+        this.messageType = messageType;
     }
 }
 

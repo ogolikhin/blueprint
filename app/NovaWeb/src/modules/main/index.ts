@@ -7,6 +7,7 @@ import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
 import "angular-perfect-scrollbar-2";
 import "../shell";
+import "tinymce";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
@@ -41,7 +42,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
         $state.transitionTo("error");
     }
 
-  //  tinymce.baseURL = "../novaweb/libs/tinymce";
+    tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {

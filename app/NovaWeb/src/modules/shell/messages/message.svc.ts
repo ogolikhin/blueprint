@@ -1,12 +1,12 @@
-﻿import {Message, MessageType} from "../../shell";
+﻿import {Message, MessageType, IMessage} from "../../shell";
 import {IConfigValueHelper } from "../../core";
-export {Message, MessageType}
+export {IMessage, Message, MessageType}
 export interface IMessageService {
     addMessage(msg: Message): void;
-    addError(text: string): void;
-    getMessages(): Message[];
-    clearMessages(): void;   
+    addError(text: string): void;    
     deleteMessageById(id: number): void;   
+    messages: Rx.BehaviorSubject<IMessage[]>;
+    dispose(): void;
 }
 
 export class MessageService implements IMessageService {
@@ -15,9 +15,22 @@ export class MessageService implements IMessageService {
 
     public static $inject = ["$timeout", "configValueHelper"];
     constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+        this.initialize();
     }
 
-    private messages: Message[] = [];
+    public initialize = () => {      
+        this._messages = new Rx.BehaviorSubject<IMessage[]>([]);              
+    }
+
+    public dispose(): void {
+        this.clearMessages();
+    }
+
+    private _messages: Rx.BehaviorSubject<IMessage[]>;
+
+    public get messages(): Rx.BehaviorSubject<IMessage[]> {
+        return this._messages || (this._messages = new Rx.BehaviorSubject<IMessage[]>([]));
+    }
 
     private cancelTimer = (id: number) => {
 
@@ -39,7 +52,7 @@ export class MessageService implements IMessageService {
          */
         let result = 0;
         let timeout = this.configValueHelper.getStringValue("StorytellerMessageTimeout");  //TODO to change name?
-     
+
         if (timeout) {
             timeout = JSON.parse(timeout);
         } else {
@@ -65,11 +78,13 @@ export class MessageService implements IMessageService {
         return result;
     }
 
-    public clearMessages(): void {        
-        for (var msg in this.messages) {
-            this.cancelTimer(msg["id"]);
-        }  
-        this.messages.length = 0;      
+    private clearMessages(): void {
+        if (this._messages) {
+            for (var msg in this._messages) {
+                this.cancelTimer(msg["id"]);
+            }
+            this._messages.getValue().length = 0;
+        }
     }
 
     public addError(text: string): void {
@@ -79,29 +94,24 @@ export class MessageService implements IMessageService {
     public addMessage(msg: Message): void {
         msg.id = this.id;
         this.id++;
-        this.messages.push(msg);
-     
+        this._messages.getValue().push(msg);
+        this.messages.onNext(this._messages.getValue());
+
         let messageTimeout = this.getMessageTimeout(msg.messageType);
         if (messageTimeout > 0) {
-            this.timers[msg.id ] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
+            this.timers[msg.id] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
         }
     }
-  
+
     public deleteMessageById(id: number): void {
-        let i = this.messages.length;
+        let messages = this._messages.getValue();
+        let i = messages.length;
         while (i--) {
-            if (this.messages[i].id === id) {
-                this.messages.splice(i, 1);
+            if (messages[i].id === id) {
+                messages.splice(i, 1);
+                this.messages.onNext(messages);
                 break;
             }
         }
     }
-
-    public getMessages(): Message[] {
-        return this.messages;
-    }
-
 }
-
-
-

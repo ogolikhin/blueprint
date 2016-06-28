@@ -3,12 +3,6 @@
 </div>
 <div class="utility-panel-content">
     <bp-accordion accordion-heading-height="31">
-        <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}" 
-            accordion-panel-class="utility-panel-attachments">
-            
-            <bp-attachments-panel></bp-attachments-panel>
-        </bp-accordion-panel>
         <bp-accordion-panel
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_History']}}"
             accordion-panel-class="utility-panel-history">
@@ -21,6 +15,12 @@
             accordion-panel-class="utility-panel-discussions">
 
             <bp-discussion-panel></bp-discussion-panel>
+        </bp-accordion-panel>
+        <bp-accordion-panel 
+            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}" 
+            accordion-panel-class="utility-panel-attachments">
+            
+            <bp-attachments-panel></bp-attachments-panel>
         </bp-accordion-panel>
         <bp-accordion-panel 
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}" 

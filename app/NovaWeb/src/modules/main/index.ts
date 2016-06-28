@@ -41,7 +41,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
         $state.transitionTo("error");
     }
 
-    tinymce.baseURL = "../novaweb/libs/tinymce";
+  //  tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {

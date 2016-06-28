@@ -24,7 +24,7 @@ describe("Component BPHistoryPanel", () => {
     }));
 
     beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.$onInit();
+        projectManager.initialize();
         directiveTest = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
         vm = directiveTest.createComponent({});
     }));

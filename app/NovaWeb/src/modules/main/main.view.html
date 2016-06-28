@@ -1,6 +1,6 @@
 ﻿<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
-<bp-sidebar-layout left-panel-title="Project Explorer" right-panel-title="Utility Panel" ng-if="$main.currentUser">
-    <bp-sidebar-layout-content-left>
+<bp-sidebar-layout left-panel-title="Project Explorer" right-panel-title="Utility Panel" ng-if="$main.currentUser" bp-ref="$main.layout">
+    <bp-sidebar-layout-content-left >
         <bp-project-explorer></bp-project-explorer>
     </bp-sidebar-layout-content-left>
     

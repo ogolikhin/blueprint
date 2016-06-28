@@ -1,4 +1,4 @@
-﻿interface ISidebarController {
+﻿export interface ISidebarController {
     isLeftToggled: boolean;
     isRightToggled: boolean;
     toggleLeft(evt: ng.IAngularEvent): void;
@@ -20,6 +20,8 @@ export class BpSidebarLayout implements ng.IComponentOptions {
         this.bindings = {
             leftPanelTitle: "@",
             rightPanelTitle: "@",
+            bpRef: "=?",
+
         };
         this.transclude = {
             "content-left": "bpSidebarLayoutContentLeft",
@@ -30,14 +32,28 @@ export class BpSidebarLayout implements ng.IComponentOptions {
 }
 
 export class BpSidebarLayoutCtrl implements ISidebarController {
+    public bpRef: BpSidebarLayoutCtrl;
     static $inject: [string] = ["$scope", "$element"];
-    public isLeftToggled: boolean;
-    public isRightToggled: boolean;
+    private  _isLeftToggled: boolean;
+    public get isLeftToggled(): boolean {
+        return this._isLeftToggled;
+    }
+    public set isLeftToggled(value){
+        this._isLeftToggled = !!value;
+    }
+    private _isRightToggled: boolean;
+    public get isRightToggled(): boolean {
+        return this._isRightToggled;
+    }
+    public set isRightToggled(value) {
+        this._isRightToggled = !!value;
+    }
 
     public leftPanelTitle: string;
     public rightPanelTitle: string;
 
     constructor(private $scope, private $element) {
+        this.bpRef = this;
         this.isLeftToggled = true;
         this.isRightToggled = true;
     }
@@ -51,4 +67,6 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
         evt.preventDefault();
         this.isRightToggled = !this.isRightToggled;
     }
+
+
 }

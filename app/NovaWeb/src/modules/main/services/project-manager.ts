@@ -8,6 +8,7 @@ export {Models}
 export interface IProjectManager {
     // eventManager
     initialize();
+    dispose();
 
     projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
     currentProject: Rx.BehaviorSubject<Models.IProject>;
@@ -26,6 +27,7 @@ export interface IProjectManager {
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
+    getArtifactPropertyFileds(project: Models.IArtifact): Models.IPropertyType[];
 }
 
 
@@ -42,16 +44,16 @@ export class ProjectManager implements IProjectManager {
         private _repository: IProjectRepository) {
     }
 
-    public $onInit() {
-        this.initialize();
-    }
+    //public $onInit() {
+    //    this.initialize();
+    //}
 
-    public $onDestroy() {
+    //public $onDestroy() {
+    //    this.dispose();
+    //}
+
+    public dispose() {
         //clear all Project Manager event subscription
-        this.dispose();
-    }
-
-    private dispose() {
         if (this.projectCollection) {
             this.projectCollection.dispose();
         }
@@ -70,7 +72,6 @@ export class ProjectManager implements IProjectManager {
         this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
         
-        this.currentProject.subscribeOnNext(this.loadProjectMeta, this);
         this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
     }
 
@@ -124,8 +125,8 @@ export class ProjectManager implements IProjectManager {
                     return it !== _project;
                 });
                 _projectCollection.unshift(_project);
-                this.projectCollection.onNext(_projectCollection);
-                this.setCurrentArtifact(project);
+                self.projectCollection.onNext(_projectCollection);
+                self.setCurrentArtifact(project);
 
             } else {
                 this._repository.getArtifacts(project.id)
@@ -137,7 +138,7 @@ export class ProjectManager implements IProjectManager {
                         });
                         _projectCollection.unshift(_project);
                         self.projectCollection.onNext(_projectCollection);
-                        self.setCurrentArtifact(_project);
+                        self.loadProjectMeta(_project);
                     }).catch((error: any) => {
                         this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                     });
@@ -205,20 +206,18 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    public loadProjectMeta = (project: Models.IProject) => {
+    private loadProjectMeta = (project: Models.IProject) => {
         try {
-            if (project === null) {
-                return;
-            }
             if (!project) {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
+
             let self = this;
             this._repository.getProjectMeta(project.id)
                 .then((result: Models.IProjectMeta) => {
-                    project = self.currentProject.getValue();
                     project.meta = result;
                     self.setCurrentProject(project);
+                    self.setCurrentArtifact(project);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                 });
@@ -292,9 +291,42 @@ export class ProjectManager implements IProjectManager {
         //NOTE: current Project must have a refference if project collection has any items
         return !!this.currentProject.getValue();
     }
+
+
     public get isArtifactSelected(): boolean {
         return !!this.currentArtifact.getValue();
     }
 
+    private 
 
+    public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IPropertyType[] {
+        let propertyTypes: Models.IPropertyType[] = [];
+        try {
+            if (!artifact) {
+                throw new Error(this.localization.get("Artifact_NotFound"));
+            }
+            let _project = this.getProject(artifact.projectId);
+            if (!_project) {
+                throw new Error(this.localization.get("Project_NotFound"));
+            }
+            if (!_project.meta) { 
+                return;
+            }
+            var artifactType = _project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                return it.id === artifact.typeId;
+            })[0];
+            if (artifactType) {
+                propertyTypes = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
+                    return artifactType.customPropertyTypeIds.indexOf(it.id) >= 0;
+                })
+
+            }
+
+        } catch (ex) {
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+        }
+
+        return propertyTypes;    
+
+    }
 }

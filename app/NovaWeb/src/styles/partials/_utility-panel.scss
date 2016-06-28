@@ -8,34 +8,65 @@ bp-utility-panel {
     .app-loading {
         margin-top: 30px;
     }
+
+    .bp-accordion-panel-content {
+        bp-attachments-panel, bp-history-panel {
+            display: flex;
+            flex-flow: column;
+            height: 100%;
+        }
+    }
     
     .filter-bar {
-        height: 45px;
-        padding: $padding-root $padding-root 0;
+        flex: none;
+        padding: $padding-root;
 
-        bp-select .dropdown {
-            min-width: 115px;
+        bp-select {
+            .dropdown {
+                min-width: 115px;
 
-            // make the menu open on the right side
-            .dropdown-menu {
-                left: inherit;
-                right: 0;
+                // make the menu open on the right side
+                .dropdown-menu {
+                    left: inherit;
+                    right: 0;
+                }
             }
         }
     }
     
     .scrollable-content {
+        clear: both;
         padding: 0 10px;
         width: 100%;
-        height: calc(100% - 45px);
+        flex: auto;
         overflow: auto;
     }
 
     .empty-state {
         font-size: $font-size-big;
         color: $gray-light;
-        padding: 5px 0 0;
+        padding: 30px 10px;
         text-align: center;
+    }
+
+    .nav-tabs {
+        clear: both;
+        padding-top: 7px;
+        margin-bottom: 0;
+
+        > li, > li.active {
+            font-size: $font-size-small;
+        }
+
+        > li > a {
+            margin: 0;
+            border-bottom: 1px solid $gray-lighter;
+            padding-left: 7px;
+            padding-right: 7px;
+        }
+    }
+    .tab-content {
+        display: none;
     }
     
     .artifact-item-wrapper {
@@ -49,8 +80,15 @@ bp-utility-panel {
             bottom: -$item-gap;
             left: 28px;
         }
+
         &:last-child .separator {
             display: none;
+        }
+
+        h6 {
+            margin: 0 0 3px 0;
+            line-height: 1.2em;
+            @include text-ellipsis-flex-width(100%);
         }
     }
 
@@ -58,10 +96,9 @@ bp-utility-panel {
         color: $gray-light;
         font-size: $font-size-small;
         margin-top: $padding-smaller;
-        
-        &::before {
-            font-family: 'bp-font';
-            content: '\E831';
+
+        .icon:before {
+            font-size: $font-size-small;
         }
     }
 
@@ -78,10 +115,25 @@ bp-utility-panel {
 
     .button-bar {
         border-top: 1px solid $gray-lighter;
-        margin-left: -10px;
-        margin-right: -10px;
+        margin-top: $padding-root;
+        margin-left: -$padding-root;
+        margin-right: -$padding-root;
         font-size: $font-size-tiny;
         color: $gray-light;
+        text-align: right;
+        padding: $padding-smaller $padding-smaller 0 $padding-smaller;
+
+        .icon {
+            padding: 0 5px;
+            &:before {
+                font-size: $font-size-normal;
+            }
+
+            &:hover {
+                color: $gray-dark;
+                cursor: pointer;
+            }
+        }
     }
 
     &:first-child {
@@ -101,4 +153,5 @@ bp-utility-panel {
 }
 
 @import './utility-panel/history';
+@import './utility-panel/attachments';
 @import './utility-panel/discussion';

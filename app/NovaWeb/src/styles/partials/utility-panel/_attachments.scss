@@ -1,0 +1,15 @@
+bp-attachments-panel {
+
+    .thumb {
+        width: 40px;
+        height: 40px;
+        border: 1px solid $gray;
+    }
+
+    .ext-image { background: url('images/filetypes/image.svg') center center no-repeat; }
+    .ext-video { background: url('images/filetypes/video.svg') center center no-repeat; }
+    .ext-sound { background: url('images/filetypes/sound.svg') center center no-repeat; }
+    .ext-archive { background: url('images/filetypes/zip.svg') center center no-repeat; }
+    .ext-ms-word { background: url('images/filetypes/ms-word.svg') center center no-repeat; }
+    .ext-document { background: url('images/filetypes/document.svg') center center no-repeat; }
+}

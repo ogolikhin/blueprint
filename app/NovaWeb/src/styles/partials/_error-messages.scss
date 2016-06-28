@@ -77,10 +77,10 @@ bp-message {
 
 .error-page {
   background-color: $blue-lightest;
-  height: 100%;
+  height: calc(100% - 40px);
   left: 0;
   position: fixed;
-  top: 0;
+  bottom: 0;
   width: 100%;
 
   .message {

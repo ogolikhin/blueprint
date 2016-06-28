@@ -1,0 +1,8 @@
+﻿<h6>{{ $ctrl.docRefInfo.artifactName }}</h6>
+<div class="thumb {{ $ctrl.fileIconClass }}"></div> <!-- placeholder ------->
+<div class="author">Uploaded by {{ $ctrl.docRefInfo.userName }}</div>
+<div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.docRefInfo.referencedDate | date:'medium' }}</div>
+<div class="button-bar">
+    <i class="icon fonticon-download" ng-click="$ctrl.downloadAttachment()" bp-tooltip="Download attachment"></i>
+    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteAttachment()" bp-tooltip="Delete attachment"></i>
+</div>

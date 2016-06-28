@@ -36,6 +36,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <Content Include="CustomConfig\CustomConfigStoryteller.json" />
+    <Content Include="CustomConfig\MockData.json" />
     <Content Include="Locator\StorytellerLocator.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />

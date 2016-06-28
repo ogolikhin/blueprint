@@ -3,7 +3,7 @@
  * Assumption: Project and user need to be predefined.
  */
 
-var OR = require('../../Locator/StorytellerLocator.json');
+var storytellerLocator = require('../../Locator/StorytellerLocator.json');
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import ElementArrayFinder = protractor.ElementArrayFinder;
@@ -71,56 +71,56 @@ class Svgelementspages {
 
 
     constructor() {
-        this.labelHeader = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelHeader));
-        this.labelBody = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelBody));
-        this.label = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelForUserTaskBody));
-        this.image = element.all(By.tagName(OR.locators.storyteller.svgPageStoryteller.image));
-        this.panelDiscussions = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussions));
-        this.panelProperties = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelProperties));
-        this.panelFiles = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelFiles));
-        this.panelRelationships = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelRelationships));
-        this.panelHistory = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelHistory));
-        this.panelPreview = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelPreview));
-        this.panelCloseButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelCloseButton));
-        this.panelDiscussionTextArea = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextArea));
-        this.panelDiscussionTextAreaBody = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaBody));
-        this.panelDiscussionPostButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelDiscussionPostButton));
-        this.storytellerToggleTextForBusniessProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
-        this.storytellerToggleTextForUserSystemProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForUserSystemProcess));
-        this.storytellerTogglecheckBox = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerTogglecheckBox));
-        this.publishArtifact = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.publishArtifact));
-        this.publishArtifactSucessMessage = element(By.id(OR.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
-        this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
-        this.generateUserStoriesMenuButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
-        this.generateUserStoriesMenuIteams = element.all(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
-        this.footerModalTitle = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelTitle));
-        this.footerModalCancelButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
-        this.footerEditDetailButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
-        this.footerAddCommentButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddCommentButton));
-        this.footerReviewTracesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerReviewTracesButton));
-        this.footerAddImageMockUpsScreenshotsButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddImageMockUpsScreenshotsButton));
-        this.footerViewUserStoriesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerViewUserStoriesButton));
-        this.footerAddIncludesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddIncludesButton));
-        this.addTaskButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskButton));
-        this.addTaskItems = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskItems));
-        this.activeTabInModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.activeTabInModal));
-        this.viewUserStoriesGherkinTitle = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.viewUserStoriesGherkinTitle));
-        this.showMoreButtonAtModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
-        this.includeButtonAtModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
-        this.includeArtifactTextBox = element(By.id(OR.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
-        this.includeArtifactDropdownList = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
-        this.modalOKButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.modelOKButton));
-        this.breadcurmbsList = element(By.css(OR.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
-        this.confirmModalSaveButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
-        this.deleteButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.deleteButton));
-        this.warningPopUP = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUP));
-        this.warningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUpOKButton));
-        this.discardButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardButton));
-        this.discardWarningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardWarningPopUpOKButton));
-        this.saveButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButton));
-        this.saveButtonDisable = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButtonDisable));
-        this.userStoryLinkAtReviewTraceTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtReviewTraceTab));
-        this.userStoryLinkAtFileTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtFileTab));
+        this.labelHeader = element.all(by.css(storytellerLocator.locators.storyteller.svgPageStoryteller.labelHeader));
+        this.labelBody = element.all(by.css(storytellerLocator.locators.storyteller.svgPageStoryteller.labelBody));
+        this.label = element.all(by.css(storytellerLocator.locators.storyteller.svgPageStoryteller.labelForUserTaskBody));
+        this.image = element.all(By.tagName(storytellerLocator.locators.storyteller.svgPageStoryteller.image));
+        this.panelDiscussions = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussions));
+        this.panelProperties = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelProperties));
+        this.panelFiles = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelFiles));
+        this.panelRelationships = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelRelationships));
+        this.panelHistory = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelHistory));
+        this.panelPreview = element.all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelPreview));
+        this.panelCloseButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.panelCloseButton));
+        this.panelDiscussionTextArea = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionTextArea));
+        this.panelDiscussionTextAreaBody = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaBody));
+        this.panelDiscussionPostButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionPostButton));
+        this.storytellerToggleTextForBusniessProcess = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
+        this.storytellerToggleTextForUserSystemProcess = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleTextForUserSystemProcess));
+        this.storytellerTogglecheckBox = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerTogglecheckBox));
+        this.publishArtifact = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.publishArtifact));
+        this.publishArtifactSucessMessage = element(By.id(storytellerLocator.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
+        this.postCommentText = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.postCommentText));
+        this.generateUserStoriesMenuButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
+        this.generateUserStoriesMenuIteams = element.all(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
+        this.footerModalTitle = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerModelTitle));
+        this.footerModalCancelButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
+        this.footerEditDetailButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
+        this.footerAddCommentButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerAddCommentButton));
+        this.footerReviewTracesButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerReviewTracesButton));
+        this.footerAddImageMockUpsScreenshotsButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerAddImageMockUpsScreenshotsButton));
+        this.footerViewUserStoriesButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerViewUserStoriesButton));
+        this.footerAddIncludesButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerAddIncludesButton));
+        this.addTaskButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.addTaskButton));
+        this.addTaskItems = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.addTaskItems));
+        this.activeTabInModal = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.activeTabInModal));
+        this.viewUserStoriesGherkinTitle = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.viewUserStoriesGherkinTitle));
+        this.showMoreButtonAtModal = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
+        this.includeButtonAtModal = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
+        this.includeArtifactTextBox = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
+        this.includeArtifactDropdownList = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
+        this.modalOKButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.modelOKButton));
+        this.breadcurmbsList = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
+        this.confirmModalSaveButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
+        this.deleteButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.deleteButton));
+        this.warningPopUP = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.warningPopUP));
+        this.warningPopUpOKButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.warningPopUpOKButton));
+        this.discardButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.discardButton));
+        this.discardWarningPopUpOKButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.discardWarningPopUpOKButton));
+        this.saveButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.saveButton));
+        this.saveButtonDisable = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.saveButtonDisable));
+        this.userStoryLinkAtReviewTraceTab = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.userStoryLinkAtReviewTraceTab));
+        this.userStoryLinkAtFileTab = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.userStoryLinkAtFileTab));
     }
    // public get getLabelHeader(): ElementArrayFinder { return this.labelHeader; }
     public get getLabelBody(): ElementArrayFinder { return this.labelBody; }
@@ -316,7 +316,7 @@ class Svgelementspages {
     public postComment(comment: any): void {
        this.panelDiscussions.click();
        this.panelDiscussionTextArea.click();
-       browser.driver.switchTo().frame(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);
+       browser.driver.switchTo().frame(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);
        browser.ignoreSynchronization = true;
        this.panelDiscussionTextAreaBody.isPresent()
            .then((tt) => {

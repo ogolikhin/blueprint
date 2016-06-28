@@ -1,18 +1,15 @@
 ﻿/** 
  * This class file will create an artifact at blue print. it will use nodejs 'sync-request' 
  * package to make the request to blueprint
- * Assumption: Project and user need to be predefined.
- * Author : Mohammed Ali Akbar
- * Created date: May10,2016
- * 
  */
 
-let OR = require('../Locator/StorytellerLocator.json');
+//var mockData = require('../CustomConfig/MockData.json');
+let mockData = require("../CustomConfig/MockData.json");
 let request = require('sync-request');
-let postCreateArtifactUrl = OR.mockData.postCreateArtifactUrl;
-let postPublishArtifactUrl = OR.mockData.postPublishArtifactUrl;
+let postCreateArtifactUrl = mockData.serverArtifactsInfo.postCreateArtifactUrl;
+let postPublishArtifactUrl = mockData.serverArtifactsInfo.postPublishArtifactUrl;
 
-class CreateArtifact {
+class Artifact {
     public  blueprintAuthorizationToken: any;
     public  projectID: any;
     public artifactName: string;
@@ -23,15 +20,15 @@ class CreateArtifact {
     public getAuthenticationApiUrl: string;
 
     
-    public  createArt() {
+    public createArtifact() {
 
         
-        this.artifactName = OR.mockData.artifactName;
-        this. artifactParentId = OR.mockData.artifactParentId;
-        this. artifactTypeId = OR.mockData.artifactTypeId;
-        this. authorizationTokenbase64 = OR.mockData.authorizationTokenbase64;
-        this. artifactProperties = OR.mockData.artifactProperties;
-        this. getAuthenticationApiUrl = OR.mockData.getAuthenticationApiUrl;
+        this.artifactName = mockData.serverArtifactsInfo.artifactName;
+        this.artifactParentId = mockData.serverArtifactsInfo.artifactParentId;
+        this.artifactTypeId = mockData.serverArtifactsInfo.artifactTypeId;
+        this.authorizationTokenbase64 = mockData.serverArtifactsInfo.authorizationTokenbase64;
+        this.artifactProperties = mockData.serverArtifactsInfo.artifactProperties;
+        this.getAuthenticationApiUrl = mockData.serverArtifactsInfo.getAuthenticationApiUrl;
 
         let artifactId;
 
@@ -44,11 +41,11 @@ class CreateArtifact {
         };
         // get request to get the blueprint authentication token
         let res = request('GET', this.getAuthenticationApiUrl, options);
-        let temToken = res.body.toString();
-        let objFromgetRequest = JSON.parse(temToken); // parsing response to Json object
-        console.log("This is the token receive from get request " + objFromgetRequest);
+        let tempToken = res.body.toString();
+        let objFromGetRequest = JSON.parse(tempToken); // parsing response to Json object
+        console.log("This is the token receive from get request " + objFromGetRequest);
 
-        this.blueprintAuthorizationToken = 'Blueprinttoken ' + objFromgetRequest;
+        this.blueprintAuthorizationToken = 'Blueprinttoken ' + objFromGetRequest;
         console.log("This is blueprint token" + this.blueprintAuthorizationToken);
 
         // preparing post request data 
@@ -77,11 +74,11 @@ class CreateArtifact {
         console.log("Project ID IS " + this.projectID);
         return artifactId;
     }
-    public  ArtifactPublish() {
+    public publishArtifact() {
 
         let optionsForPostRequest = {
             body: JSON.stringify([{
-                Id: this.createArt(),
+                Id: this.createArtifact(),
                 ProjectId: this.projectID
             }]),
             method: 'POST',
@@ -94,12 +91,12 @@ class CreateArtifact {
 
         // post request to publish an artifact
         var resFromPost = request('POST', postPublishArtifactUrl, optionsForPostRequest);
-        var temTestFromPost = resFromPost.body.toString();
-        console.log("Response: " + temTestFromPost);
+        var tempResFromPost = resFromPost.body.toString();
+        console.log("Response: " + tempResFromPost);
 
     }
 
 }
-export = CreateArtifact;
+export = Artifact;
 
 

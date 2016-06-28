@@ -3,19 +3,20 @@
  * This spec file will contain tests on  login page of storyteller 
  * Assumption: Project and user need to be predefined.
  */
-import CreateArtifact = require("../../Model/CreateArtifacts");
+import Artifact = require("../../Model/CreateArtifacts");
 import Page = require("../../Pages/StorytellerPages/LoginPage");
-var createArtifact: CreateArtifact;
-var OR = require('../../Locator/StorytellerLocator.json');
+let mockData = require('../../CustomConfig/MockData.json');
+var artifact: Artifact;
+var storytellerLocator = require('../../Locator/StorytellerLocator.json');
 var loginPage;
 
 describe("LoginPage- Storyteller",
     () => {
         beforeAll(() => {
             // Arrange
-            createArtifact = new CreateArtifact();
-            var ID = createArtifact.createArt();
-            var site = OR.mockData.siteUrl + ID;
+            artifact = new Artifact();
+            var ID = artifact.createArtifact();
+            var site = mockData.serverArtifactsInfo.siteUrl + ID;
             
             browser.get(site);
             loginPage = new Page();
@@ -25,15 +26,15 @@ describe("LoginPage- Storyteller",
   
         it("Should be able to login ", () => {
             //Act
-            loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
+            loginPage.login(storytellerLocator.locators.storyteller.testdata.TName, storytellerLocator.locators.storyteller.testdata.lPass);
             
             //Act
-            loginPage.sessionDialofBox()
+            loginPage.isSessionDialogBox()
                 .then((presence) => {
                     console.log("Session Dialog Box appears: " + presence);
                     if (presence) {
                        // Assert
-                            expect(loginPage.getSessionDialofBoxWarningMessage()).toBe("This user is already logged into Blueprint in another browser/session. \n" + " Do you want to override the previous session?");
+                        expect(loginPage.getSessionDialogBoxWarningMessageText()).toBe("This user is already logged into Blueprint in another browser/session. \n" + " Do you want to override the previous session?");
                             loginPage.sessionDialogBoxYesButton.click();
 
                         } else {

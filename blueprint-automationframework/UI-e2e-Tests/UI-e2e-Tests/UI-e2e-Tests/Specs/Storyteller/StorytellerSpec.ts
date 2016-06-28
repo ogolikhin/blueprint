@@ -3,10 +3,11 @@
  * Assumption: Project and user need to be predefined.
  */
 import Page = require("../../Pages/StorytellerPages/SvgElementsPage");
-import CreateArtifact = require("../../Model/CreateArtifacts");
+import Artifact = require("../../Model/CreateArtifacts");
 import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
-var createArtifact: CreateArtifact;
-var OR = require('../../Locator/StorytellerLocator.json');
+let mockData = require('../../CustomConfig/MockData.json');
+var artifact: Artifact;
+var storytellerLocator = require('../../Locator/StorytellerLocator.json');
 var customConfigStoryteller = require("../../CustomConfig/CustomConfigStoryteller.json");
 var logger = require('winston');
 var svgElementsPage: Page;
@@ -14,7 +15,7 @@ var svgElementsPage: Page;
 describe("Storyteller end to end test", () => {
     beforeAll(() => {
         //Arrange-global
-        createArtifact = new CreateArtifact();
+        artifact = new Artifact();
         svgElementsPage = new Page();
 
     });
@@ -267,7 +268,7 @@ describe("Storyteller end to end test", () => {
         
             it("Should be able  include Artifacts at Edit Detail modal at footer", () => {
                 //Arrange 
-                createArtifact.ArtifactPublish();//Creating new artifacts and publish it to ensure artifact is avaiable to be include
+                artifact.publishArtifact();//Creating new artifacts and publish it to ensure artifact is avaiable to be include
                 //Act
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(customConfigStoryteller.storyteller.footerEditDetailButtonIndex).then((el) => { el.click(); });//@parm edit detail button index
@@ -299,7 +300,7 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.getFooterAddIncludesButton.then((el) => {
                     el[customConfigStoryteller.storyteller.footerAddIncludesButtonIndex].getOuterHtml().then((imageTag) => { //@parm index 
                         var link = imageTag.match(/xlink:href="(.*?)"/);
-                        var linkUrl = OR.mockData.baseURL + "/Areas/Web/Style/images/Storyteller/include-active.svg";
+                        var linkUrl = mockData.serverArtifactsInfo.baseURL + "/Areas/Web/Style/images/Storyteller/include-active.svg";
                         console.log("include-active svg link : " +link[1]);
                         expect(link[customConfigStoryteller.storyteller.includeActiveSvgLinkIndex]).toBe(linkUrl);//@parm index of include-active.svg
         

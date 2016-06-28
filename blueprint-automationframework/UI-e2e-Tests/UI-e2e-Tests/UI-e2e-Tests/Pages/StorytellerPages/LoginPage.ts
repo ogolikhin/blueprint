@@ -3,11 +3,12 @@
  * Assumption: Project and user need to be predefined.
  */
 
-
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import WebElementPromise = protractor.WebElementPromise;
-var OR = require('../../Locator/StorytellerLocator.json');
+
+var storytellerLocator = require('../../Locator/StorytellerLocator.json');
+
 class LoginPage {
  
     private loginField: ElementFinder;
@@ -19,13 +20,13 @@ class LoginPage {
     private displayNameFinder: ElementFinder;
 
     constructor() {
-        this.loginField = element(By.id(OR.locators.storyteller.loginPageStoryteller.loginField));
-        this.passwordField = element(By.id(OR.locators.storyteller.loginPageStoryteller.passwordField));
-        this.loginButton = element(By.id(OR.locators.storyteller.loginPageStoryteller.loginButton));
-        this.sessionDialogBox = element(By.css(OR.locators.storyteller.loginPageStoryteller.sessionDialogBox));
-        this.sessionDialogBoxYesButton = element(By.buttonText(OR.locators.storyteller.loginPageStoryteller.sessionDialogBoxYesButton));
-        this.sessionDialogBoxWarningMessage = element(By.css(OR.locators.storyteller.loginPageStoryteller.sessionDialogBoxWarningMessage));
-        this.displayNameFinder = element(by.exactBinding(OR.locators.storyteller.loginPageStoryteller.displayNameFinder));
+        this.loginField = element(By.id(storytellerLocator.locators.storyteller.loginPageStoryteller.loginField));
+        this.passwordField = element(By.id(storytellerLocator.locators.storyteller.loginPageStoryteller.passwordField));
+        this.loginButton = element(By.id(storytellerLocator.locators.storyteller.loginPageStoryteller.loginButton));
+        this.sessionDialogBox = element(By.css(storytellerLocator.locators.storyteller.loginPageStoryteller.sessionDialogBox));
+        this.sessionDialogBoxYesButton = element(By.buttonText(storytellerLocator.locators.storyteller.loginPageStoryteller.sessionDialogBoxYesButton));
+        this.sessionDialogBoxWarningMessage = element(By.css(storytellerLocator.locators.storyteller.loginPageStoryteller.sessionDialogBoxWarningMessage));
+        this.displayNameFinder = element(by.exactBinding(storytellerLocator.locators.storyteller.loginPageStoryteller.displayNameFinder));
 
     }
     
@@ -45,7 +46,7 @@ class LoginPage {
     }
     
     //function to verify sessionDialogBox presence or not- return promise
-    public  sessionDialofBox(): Promise<boolean> {
+    public  isSessionDialogBox(): Promise<boolean> {
        return this.sessionDialogBox.isPresent()
             .then((present) => {
                 if (present) {
@@ -57,7 +58,7 @@ class LoginPage {
     }
 
      //function to get warning message- return promise
-    public getSessionDialofBoxWarningMessage(): Promise<string> {
+    public getSessionDialogBoxWarningMessageText(): Promise<string> {
         return this.sessionDialogBoxWarningMessage.getText();
     }
 

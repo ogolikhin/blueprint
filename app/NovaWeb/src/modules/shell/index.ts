@@ -17,6 +17,10 @@ import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-arti
 import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifact-discussions.svc";
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-Discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
+import {ArtifactAttachments} from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import {BPAttachmentsPanel} from "./bp-utility-panel/bp-attachments-panel/bp-attachments-panel";
+import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-attachment-item/bp-artifact-attachment-item";
+import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
 import {MessageDirective} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
@@ -42,6 +46,10 @@ angular.module("app.shell",
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
+    .service("artifactAttachments", ArtifactAttachments)
+    .component("bpAttachmentsPanel", new BPAttachmentsPanel())
+    .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
+    .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
     .component("messagesContainer", new MessageContainerComponent())   
@@ -73,4 +81,6 @@ export class AuthenticationRequired {
 export { IServerLogger } from "./log/server-logger.svc";
 export {MessageDirective, MessageContainerComponent, MessageService};
 export { IMessageService } from "./messages/message.svc";
+export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef } 
+    from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 export { IMessage, Message, MessageType} from "./messages/message";

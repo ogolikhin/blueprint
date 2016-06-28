@@ -91,7 +91,7 @@ namespace Model
         /// <param name="itemId">id of the artifact/subartifact</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Discussions for the specified artifact.</returns>
+        /// <returns>Discussion for the artifact/subartifact with specified id.</returns>
         Discussions GetArtifactDiscussions(int itemId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -102,7 +102,7 @@ namespace Model
         /// <param name="comment">Comment to get replies</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Discussions for the specified artifact.</returns>
+        /// <returns>Replies for the specified comment.</returns>
         List<Reply> GetDiscussionsReplies(Comment comment,  IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 

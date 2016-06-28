@@ -612,7 +612,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="discussionsText">text for the new discussion</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        /// <returns>Newly created RaptorComment for artifact/subartifact</returns>
         public static IRaptorComment PostRaptorDiscussions(string address,
             int itemId,
             string discussionsText,
@@ -631,7 +631,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="replyText">text for the new reply</param>
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
         public static IRaptorReply PostRaptorDiscussionReply(string address,
             IRaptorComment comment,
             string replyText,

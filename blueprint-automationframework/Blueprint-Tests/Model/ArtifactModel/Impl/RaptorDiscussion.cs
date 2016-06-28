@@ -18,6 +18,7 @@ namespace Model.Impl
 
         public List<IRaptorComment> Comments { get; } = new List<IRaptorComment>();
         #endregion
+
         public RaptorDiscussion()
         { }
     }
@@ -46,6 +47,7 @@ namespace Model.Impl
         public bool CanEdit { get; set; }
 
         public bool CanDelete { get; set; }
+
         public RaptorComment()
         { }
 
@@ -71,16 +73,26 @@ namespace Model.Impl
     public class RaptorReply : IRaptorReply
     {
         public int ReplyId { get; set; }
+
         public int ItemId { get; set; }
+
         public int DiscussionId { get; set; }
+
         public int Version { get; set; }
+
         public int UserId { get; set; }
+
         public DateTime LastEditedOnUtc { get; set; }
+
         public string UserName { get; set; }
+
         public bool IsGuest { get; set; }
+
         [JsonProperty("comment")]
         public string ReplyText { get; set; }
+
         public bool CanEdit { get; set; }
+
         public bool CanDelete { get; set; }
 
         public bool Equals(Reply reply)

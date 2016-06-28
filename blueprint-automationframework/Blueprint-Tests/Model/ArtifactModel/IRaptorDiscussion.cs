@@ -55,15 +55,25 @@ namespace Model
     public interface IRaptorReply
     {
         int ReplyId { get; set; }
+
         int ItemId { get; set; }
+
         int DiscussionId { get; set; }
+
         int Version { get; set; }
+
         int UserId { get; set; }
+
         DateTime LastEditedOnUtc { get; set; }
+
         string UserName { get; set; }
+
         bool IsGuest { get; set; }
+
         string ReplyText { get; set; }
+
         bool CanEdit { get; set; }
+
         bool CanDelete { get; set; }
 
         bool Equals(Reply reply);

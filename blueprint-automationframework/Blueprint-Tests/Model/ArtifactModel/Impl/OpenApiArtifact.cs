@@ -483,7 +483,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="discussionText">Text for replying</param>
         /// <param name="user">The user to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
         public static IRaptorReply PostRaptorDiscussionReply(string address,
             IRaptorComment comment, string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

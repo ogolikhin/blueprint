@@ -110,6 +110,9 @@ var executionEnvironmentDetector = (function () {
     executionEnvironmentDetector.prototype.isSafari = function() {
         return this.userBrowser.safari;
     };
+    executionEnvironmentDetector.prototype.isLandscape = function() {
+        return (window.orientation && Math.abs(window.orientation) === 90);
+    };
     return executionEnvironmentDetector;
 }());
 
@@ -146,16 +149,17 @@ var appBootstrap = (function() {
     })();
 
     appBootstrap.prototype.initApp = function() {
+        var self = this;
         var app = angular.module("app", ["app.main"]);
 
         if (this.executionEnvironment.isTouchDevice()) {
             document.body.className += " is-touch";
             // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
             // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
-            document.body.style.minHeight = screen.height + "px";
-
+            document.body.style.minHeight = (self.executionEnvironment.isiOS() && self.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
+            
             window.addEventListener("orientationchange", function() {
-                document.body.style.minHeight = screen.height + "px";
+                document.body.style.minHeight = (self.executionEnvironment.isiOS() && self.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
             });
         }
         if (this.executionEnvironment.isAndroid()) {

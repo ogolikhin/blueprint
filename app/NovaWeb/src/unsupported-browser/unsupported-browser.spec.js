@@ -1180,6 +1180,10 @@ describe('executionEnvironmentDetector', function() {
 
 describe('appBootstrap', function() {
 
+    beforeEach(function () {
+        delete app;
+    });
+
     it('Launch app with unsupported browser', function() {
         // Arrange
         var app = appBootstrap;
@@ -1194,7 +1198,24 @@ describe('appBootstrap', function() {
         expect(app.isSupportedVersion).toBeFalsy();
     });
 
-    it('Launch app with supported browser (Win IE11)', function() {
+    it('Launch app with supported browser (iPad iOS Safari)', function() {
+        // Arrange
+        var app = appBootstrap;
+        var detector = new executionEnvironmentDetector();
+        var uaiOS = "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
+
+        // Act
+        detector.userBrowser = detector.getBrowserInfoUserAgent(uaiOS, bowser._detect(uaiOS));
+        app.executionEnvironment = detector;
+        app.initApp();
+
+        // Assert
+        expect(window.document.body.className).toContain("is-ios");
+        expect(window.document.body.className).toContain("is-safari");
+        expect(window.document.body.className).toContain("is-touch");
+    });
+
+    /*it('Launch app with supported browser (Win IE11)', function() {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
@@ -1208,6 +1229,6 @@ describe('appBootstrap', function() {
         // Assert
         expect(window.document.body.className).toContain("is-windows");
         expect(window.document.body.className).toContain("is-msie");
-    });
+    });*/
 
 });

@@ -33,9 +33,9 @@ export class BpArtifactRetailsController {
     };
     public fields = [
         {
-            className: '',
+            className: "",
             fieldGroup: [{
-                className: 'property-group',
+                className: "property-group",
                 key: "name",
                 type: "input",
                 templateOptions: {
@@ -43,7 +43,7 @@ export class BpArtifactRetailsController {
                     required: true
                 }
             },
-            {   className: 'property-group',
+            {   className: "property-group",
                 key: "type",
                     type: "select",
                     templateOptions: {
@@ -60,7 +60,7 @@ export class BpArtifactRetailsController {
                     }
                 },
                 {
-                    className: 'property-group',
+                    className: "property-group",
                     key: "createdBy",
                     type: "input",
                     templateOptions: {
@@ -68,7 +68,7 @@ export class BpArtifactRetailsController {
                     }
                 },
                 {
-                    className: 'property-group',
+                    className: "property-group",
                     key: "createdOn",
                     type: "input",
                     templateOptions: {
@@ -76,7 +76,7 @@ export class BpArtifactRetailsController {
                     }
                 },
                 {
-                    className: 'property-group',
+                    className: "property-group",
                     key: "lastEditBy",
                     type: "input",
                     templateOptions: {
@@ -84,7 +84,7 @@ export class BpArtifactRetailsController {
                     }
                 },
                 {
-                    className: 'property-group',
+                    className: "property-group",
                     key: "lastEditOn",
                     type: "input",
                     templateOptions: {
@@ -112,8 +112,8 @@ export class BpArtifactRetailsController {
                     label: "Last Name",
                     required: it
                 }
-            }
-        })
+            };
+        });
     }
 
 }

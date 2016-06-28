@@ -297,7 +297,7 @@ export class ProjectManager implements IProjectManager {
         return !!this.currentArtifact.getValue();
     }
 
-    private 
+    
 
     public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IPropertyType[] {
         let propertyTypes: Models.IPropertyType[] = [];
@@ -318,7 +318,7 @@ export class ProjectManager implements IProjectManager {
             if (artifactType) {
                 propertyTypes = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
                     return artifactType.customPropertyTypeIds.indexOf(it.id) >= 0;
-                })
+                });
 
             }
 

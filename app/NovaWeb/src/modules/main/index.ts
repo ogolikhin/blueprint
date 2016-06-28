@@ -10,6 +10,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
+import * as Enums from "./models/enums";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
@@ -26,6 +27,7 @@ import {config as routesConfig} from "./main.state";
 config.$inject = ["$rootScope", "$state"];
 
 export {
+    Enums,
     ProjectRepository, 
     IProjectManager, ProjectManager, Models
 };

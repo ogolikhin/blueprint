@@ -7,13 +7,13 @@
     </div>
     <div class="discussion-info">
         <div class="status">
-            <div class="status-name" title="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
+            <div class="status-name" bp-tooltip="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
             <div ng-class="$ctrl.discussionInfo.expanded ? 'expand-icon fonticon-circle-up expanded' : 'expand-icon fonticon-circle-up'"
                  ng-click="$ctrl.getReplies()">
             </div>
         </div>
         <div>
-            <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+            <div class="username" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
         </div>
         <div ng-bind-html="$ctrl.discussionInfo.comment"></div>
         <div>
@@ -22,11 +22,11 @@
         </div>
     </div>
     <div class="button-bar discussion-button-bar">
-        <div title="View comments" class="reply-count fonticon-comment"></div>
-        <div title="Delete comment" class="delete-comment fonticon-delete-filled"></div>
-        <div title="Edit comment" class="edit-comment fonticon-edit-alt"></div>
-        <div class="reply-link" title="Reply to the comment">
-            <a ng-click="" ng-class="$ctrl.discussionInfo.isClosed ? 'inactive' : 'active'">
+        <div bp-tooltip="View comments" class="reply-count fonticon-comment"></div>
+        <div bp-tooltip="Delete comment" class="delete-comment fonticon-delete-filled"></div>
+        <div bp-tooltip="Edit comment" class="edit-comment fonticon-edit-alt"></div>
+        <div class="reply-link" bp-tooltip="Reply to the comment">
+            <a ng-click="$ctrl.newReplyClick()" ng-class="$ctrl.discussionInfo.isClosed ? 'inactive' : 'active'">
                 Reply
             </a>
         </div>

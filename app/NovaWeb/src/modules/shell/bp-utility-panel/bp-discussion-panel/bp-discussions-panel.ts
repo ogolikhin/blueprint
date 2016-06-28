@@ -25,6 +25,7 @@ export class BPDiscussionPanelController {
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
+    public showAddComment: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
@@ -58,8 +59,8 @@ export class BPDiscussionPanelController {
 
     private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactDiscussionList = [];
-
-        if (artifact !== null) {
+        this.showAddComment = false;
+        if (artifact !== null && artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== '_CFL') {
             this.artifactId = artifact.id;
             this.getArtifactDiscussions()
                 .then((discussionResultSet: IDiscussionResultSet) => {
@@ -67,6 +68,11 @@ export class BPDiscussionPanelController {
                     this.canCreate = discussionResultSet.canCreate;
                     this.canDelete = discussionResultSet.canDelete;
                 });
+        } else {
+            this.artifactId = null;
+            this.artifactDiscussionList = [];
+            this.canCreate = false;
+            this.canDelete = false;
         }
     }
 
@@ -80,6 +86,18 @@ export class BPDiscussionPanelController {
         } else {
             discussion.expanded = false;
         }
+    }
+
+    public newCommentClick(): void {
+        this.showAddComment = true;
+    }
+
+    public cancelCommentClick(): void {
+        this.showAddComment = false;
+    }
+
+    public cancelReplyClick(discussion: IDiscussion): void {
+        discussion.showAddReply = false;
     }
 
     private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {

@@ -1,21 +1,32 @@
-﻿<div class="filter-bar">
+﻿<div ng-if="$ctrl.artifactId && !$ctrl.artifactDiscussionList.length && !$ctrl.isLoading && !$ctrl.showAddComment" class="empty-state">
+    <p>You may colaborate with others using this discussion panel to add comments to any selected artifact.</p>
+    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">+ Start a new discussion</button>
+</div>
+<div ng-if="!$ctrl.artifactId" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>
+<div class="filter-bar" ng-if="$ctrl.artifactDiscussionList.length">
     <!--<bp-select
         ng-if="$ctrl.artifactDiscussionList.length"
         ng-model="$ctrl.sortAscending"
         options="$ctrl.sortOptions">
     </bp-select>-->
-    <button class="btn btn-new-comment" type="button" ng-click="" ng-if="$ctrl.artifactDiscussionList.length">+ new comment</button>
+    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">+ new comment</button>
 </div>
-<div ng-if="$ctrl.artifactDiscussionList.length"
-     class="scrollable-content"
+<bp-comment-edit ng-if="$ctrl.showAddComment"
+                 add-button-text="Post comment"
+                 cancel-button-text="Cancel"
+                 comment-place-holder-text="Add a new comment..."
+                 cancel-comment="$ctrl.cancelCommentClick()">
+</bp-comment-edit>
+<div class="scrollable-content"
+     ng-if="$ctrl.artifactDiscussionList.length"
      perfect-scrollbar>
-
     <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
         <!--<div class="separator"></div>-->
         <bp-artifact-discussion-item 
             class="utility-panel-artifact-item"
             discussion-info="discussion"
-            get-replies="$ctrl.expandCollapseDiscussion(discussion)">
+            get-replies="$ctrl.expandCollapseDiscussion(discussion)"
+            new-reply-click="$ctrl.newReplyClick()">
         </bp-artifact-discussion-item>
         <!--<div class="separator"></div>-->
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
@@ -23,14 +34,14 @@
                                       reply-info="reply">
             </bp-discussion-reply-item>
         </div>
-    </div>
-    <div>
-
+        <bp-comment-edit ng-if="discussion.showAddReply"
+                         add-button-text="Add reply"
+                         cancel-button-text="Cancel"
+                         comment-place-holder-text="Add a reply..."
+                         cancel-comment="$ctrl.cancelReplyClick(discussion)">
+        </bp-comment-edit>
     </div>
 </div>
-
 <div ng-if="!$ctrl.artifactDiscussionList.length && $ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
-
-<div ng-if="!$ctrl.artifactDiscussionList.length && !$ctrl.isLoading" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>

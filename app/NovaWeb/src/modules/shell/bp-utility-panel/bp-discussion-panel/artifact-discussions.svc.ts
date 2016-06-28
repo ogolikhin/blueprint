@@ -11,6 +11,7 @@ export interface IDiscussion extends ICommentBase {
     status: string;
     replies: IReply[];
     expanded: boolean;
+    showAddReply: boolean;
 }
 
 export interface ICommentBase {

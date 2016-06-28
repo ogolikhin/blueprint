@@ -1,23 +1,49 @@
 bp-discussion-panel {
     $item-gap: $padding-bigger;
 
-    bp-artifact-discussion-item, bp-discussion-reply-item {
-        /*&:hover {
-            cursor: pointer;
-            background: $gray-lightest;
+    .btn-new-comment {
+        background-color: $gray-lightest;
+        color: $blue-light;
+        border: solid 1px #ccc;
+        padding: $padding-smallest;
+        min-width: 0;
+    }
+
+    bp-comment-edit {
+        .edit-container {
+            text-align: center;
+            margin-top: $padding-smaller;
+            padding: $padding-smaller;
         }
 
-        &.selected {
-            background: $gray-lightest;
-            border: 1px solid $brand-secondary;
-        }*/
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+    }
+
+    .float-left {
+        float: left;
+    }
+
+    .float-right {
+        float: right;
+    }
+
+    .clear-both {
+        clear: both;
+    }
+
+    .empty-state {
+        padding: $padding-smaller;
+    }
+
+    bp-artifact-discussion-item, bp-discussion-reply-item {
         .username {
             color: $blue-light;
-            /*float: left;*/
         }
 
         .status {
-            /*float: right;*/
             text-align: right;
             margin-right: -1* $padding-smaller;
         }
@@ -40,7 +66,6 @@ bp-discussion-panel {
             margin-bottom: -1* $padding-smaller;
             padding: $padding-smallest;
             text-align: right;
-            /*padding:$padding-smallest;*/
         }
 
         .disucssion-buttonbar-item {
@@ -131,11 +156,4 @@ bp-discussion-panel {
             left: 28px;
         }
     }
-}
-
-.btn-new-comment {
-    background-color: $gray-lightest;
-    color: $blue-light;
-    border: solid 1px #ccc;
-    padding: $padding-smallest;
 }

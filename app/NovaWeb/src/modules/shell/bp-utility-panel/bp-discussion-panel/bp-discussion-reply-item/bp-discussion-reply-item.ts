@@ -10,15 +10,6 @@ export class BPDiscussionReplyItem implements ng.IComponentOptions {
 }
 
 export class BPDiscussionReplyItemController {
-    public static $inject: [string] = [
-        "$log",
-        "localization"
-    ];
-    
-    public getArtifactState: Function = (state: Models.ArtifactStateEnum) => Models.ArtifactStateEnum[state];
-    
-    constructor(
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    constructor() {
     }
 }

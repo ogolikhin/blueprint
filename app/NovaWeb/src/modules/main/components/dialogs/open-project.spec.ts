@@ -156,7 +156,7 @@ describe("Open Project.", () => {
                     "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
                 }
             };
-            manager["$onInit"]();
+            manager.initialize();
 
             $scope = $rootScope.$new();
 

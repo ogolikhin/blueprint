@@ -5,7 +5,7 @@ import "rx/dist/rx.lite.js";
 import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
-import {ISession, SessionSvc} from "./login/session.svc";
+import {SessionSvc} from "./login/session.svc";
 import {HttpErrorInterceptor} from "./login/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
@@ -62,21 +62,6 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("httpErrorInterceptor");
 }
 initializeInterceptors.$inject = ["$httpProvider"];
-
-//TODO: move to other file
-export class AuthenticationRequired {
-    private static key = "authenticated";
-    public resolve = {};
-
-    constructor() {
-        this.resolve[AuthenticationRequired.key] = [
-            "$log", "session", ($log: ng.ILogService, session: ISession): ng.IPromise<any> => {
-                $log.debug("AuthenticationRequired...called");
-                return session.ensureAuthenticated();
-            }
-        ];
-    }
-}
 
 export { IServerLogger } from "./log/server-logger.svc";
 export {MessageDirective, MessageContainerComponent, MessageService};

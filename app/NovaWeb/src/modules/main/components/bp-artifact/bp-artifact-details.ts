@@ -25,18 +25,95 @@ export class BpArtifactRetailsController {
         //use context reference as the last parameter on subscribe...
         this._subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.loadView, this),
+//            this.projectManager.currentArtifact.subscribeOnNext(this.loadView, this),
         ];
     }
-
+    public model = {
+        firstName: "John"
+    };
+    public fields = [
+        {
+            className: "",
+            fieldGroup: [{
+                className: "property-group",
+                key: "name",
+                type: "input",
+                templateOptions: {
+                    label: "Name",
+                    required: true
+                }
+            },
+            {   className: "property-group",
+                key: "type",
+                    type: "select",
+                    templateOptions: {
+                    label: "Type",
+                    options: [
+                        {
+                            "name": "Snickers",
+                            "value": "snickers"
+                        },
+                        {
+                            "name": "Baby Ruth",
+                            "value": "baby_ruth"
+                        }]
+                    }
+                },
+                {
+                    className: "property-group",
+                    key: "createdBy",
+                    type: "input",
+                    templateOptions: {
+                        label: "Created by",
+                    }
+                },
+                {
+                    className: "property-group",
+                    key: "createdOn",
+                    type: "input",
+                    templateOptions: {
+                        label: "Created on",
+                    }
+                },
+                {
+                    className: "property-group",
+                    key: "lastEditBy",
+                    type: "input",
+                    templateOptions: {
+                        label: "Last edited by",
+                    }
+                },
+                {
+                    className: "property-group",
+                    key: "lastEditOn",
+                    type: "input",
+                    templateOptions: {
+                        label: "Last edited by",
+                    }
+                },
+            ]
+        },
+    ];
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-
+    private properties: Models.IPropertyType[];
     public loadView(artifact: Models.IArtifactDetails) {
         this._artifact = artifact;
+        this.properties = this.projectManager.getArtifactPropertyFileds(artifact);
+        this.properties.forEach((it: Models.IPropertyType) => {
+            return {
+                key: it.name,
+                type: "input",
+                templateOptions: {
+                    type: "text",
+                    label: "Last Name",
+                    required: it
+                }
+            };
+        });
     }
 
 }

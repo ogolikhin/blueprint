@@ -166,6 +166,9 @@ export class BPTreeController implements IBPTreeController  {
         };
     };
 
+    public $onDestroy = () => {
+        this.perfectScrollbars(null, true);
+    };
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
@@ -242,15 +245,19 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
-    private perfectScrollbars = () => {
+    private perfectScrollbars = (params?: any, remove?: boolean) => {
         let viewport = this.$element[0].querySelector(".ag-body-viewport");
 
         if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
-            if (viewport.getAttribute("data-ps-id")) {
-                // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
-                (<any>window).PerfectScrollbar.update(viewport);
+            if (remove) {
+                (<any>window).PerfectScrollbar.destroy(viewport);
             } else {
-                (<any>window).PerfectScrollbar.initialize(viewport);
+                if (viewport.getAttribute("data-ps-id")) {
+                    // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
+                    (<any>window).PerfectScrollbar.update(viewport);
+                } else {
+                    (<any>window).PerfectScrollbar.initialize(viewport);
+                }
             }
         }
     };

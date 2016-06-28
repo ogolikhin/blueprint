@@ -7,6 +7,7 @@ import CreateArtifact = require("../../Model/CreateArtifacts");
 import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
 var createArtifact: CreateArtifact;
 var OR = require('../../Locator/StorytellerLocator.json');
+var customConfigStoryteller = require("../../CustomConfig/CustomConfigStoryteller.json");
 var logger = require('winston');
 var svgElementsPage: Page;
 
@@ -59,64 +60,64 @@ describe("Storyteller end to end test", () => {
           });
           it("Should be able to edit system precondition shape header", () => {
             //Act
-            svgElementsPage.editHeader(0, "s1");
-            svgElementsPage.verifyHeaderName(0).then((t) => { });
+            svgElementsPage.editHeader(customConfigStoryteller.storyteller.systemPreconditionShapeIndex, "s1");//@parm shape index and header text
+            svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.systemPreconditionShapeIndex).then((t) => { });
             //Assert shape header text
-            expect(svgElementsPage.verifyHeaderName(0)).toBe("s1");
+            expect(svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.systemPreconditionShapeIndex)).toBe("s1");
                         
            });
                  
             it("Should be able to edit user task shape header", () => {
                 //Act
-                svgElementsPage.editHeader(1, "User_T1");
-                svgElementsPage.verifyHeaderName(1).then((t) => { });
+                svgElementsPage.editHeader(customConfigStoryteller.storyteller.userTaskShapeIndex, "User_T1");//@parm shape index and header text
+                svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.userTaskShapeIndex).then((t) => { });
                 // Assert shape header text
-                expect(svgElementsPage.verifyHeaderName(1)).toBe("User_T1");
+                expect(svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.userTaskShapeIndex)).toBe("User_T1");
             });
               
             it("Should be able to edit system task shape header", () => {
                 //Act
-                svgElementsPage.editHeader(2, "Sys_T1");
-                svgElementsPage.verifyHeaderName(2).then((t) => { });
+                svgElementsPage.editHeader(customConfigStoryteller.storyteller.systemTaskShapeIndex, "Sys_T1");//@parm shape index and header text
+                svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.systemTaskShapeIndex).then((t) => { });
                 // Assert shape header text
-                expect(svgElementsPage.verifyHeaderName(2)).toBe("Sys_T1");
+                expect(svgElementsPage.verifyHeaderName(customConfigStoryteller.storyteller.systemTaskShapeIndex)).toBe("Sys_T1");
             });
                     
             it("Should be able to edit system precondition shape body", () => {
                 //Act
-                svgElementsPage.editBody(0, "Sys_P0B");
-                svgElementsPage.verifyBodyText(0).then((t) => { });
+                svgElementsPage.editBody(customConfigStoryteller.storyteller.systemPreconditionShapeIndex, "Sys_P0B");//@parm shape index and body text
+                svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.systemPreconditionShapeIndex).then((t) => { });
                 // Assert shape body text
-                expect(svgElementsPage.verifyBodyText(0)).toBe("Sys_P0B");
+                expect(svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.systemPreconditionShapeIndex)).toBe("Sys_P0B");
                        
             });
             it("Should be able to edit user task shape body", () => {
                 //Act
-                svgElementsPage.editBody(1, "User_T1B");
-                svgElementsPage.verifyBodyText(1).then((t) => { });
+                svgElementsPage.editBody(customConfigStoryteller.storyteller.userTaskShapeIndex, "User_T1B");//@parm shape index and body text
+                svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.userTaskShapeIndex).then((t) => { });
                 // Assert shape body text
-                expect(svgElementsPage.verifyBodyText(1)).toBe("User_T1B");
+                expect(svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.userTaskShapeIndex)).toBe("User_T1B");
                         
             });
              
             
             it("Should be able to edit system task shape body", () => {
                 //Act
-                svgElementsPage.editBody(2, "Sys_T2B");
-                svgElementsPage.verifyBodyText(2).then((t) => { });
+                svgElementsPage.editBody(customConfigStoryteller.storyteller.systemTaskShapeIndex, "Sys_T2B");//@parm shape index and body text
+                svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.systemTaskShapeIndex).then((t) => { });
                 //Assert shape body text
-                expect(svgElementsPage.verifyBodyText(2)).toBe("Sys_T2B");
+                expect(svgElementsPage.verifyBodyText(customConfigStoryteller.storyteller.systemTaskShapeIndex)).toBe("Sys_T2B");
                         
             });
                     
                     
             it("Should be able to navigate to info Panel when click a user task", () => {
                 //Act
-                svgElementsPage.findElementAndSelect(2).then((el) => {
+                svgElementsPage.findElementAndSelect(customConfigStoryteller.storyteller.shapeIndexForInfoIcon).then((el) => {
                 browser.actions().click(el).perform();           
                 }); 
-                //Assert inco icon display and clickable
-                svgElementsPage.findFooterAndInfoIcon(19);
+                //Assert icon display and clickable
+                svgElementsPage.findFooterAndInfoIcon(customConfigStoryteller.storyteller.infoIconIndexIndex);//@parm info icon index
 
              });
              
@@ -189,7 +190,7 @@ describe("Storyteller end to end test", () => {
                 
             it("Should be able to open Edit Detail modal at footer", () => {
                 //Act
-                svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm shape index 
+                svgElementsPage.navFooterEditDetailButton(customConfigStoryteller.storyteller.footerEditDetailButtonIndex).then((el) => { el.click(); });//@parm index 
                 //Assert modal header text
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalTitle.getWebElement()), 9000).then(() => {
                     expect(svgElementsPage.getFooterModalTitle.getText()).toBe("Sys_T2B");
@@ -202,7 +203,7 @@ describe("Storyteller end to end test", () => {
                    
             it("Should be able to open Add comment modal at footer",() => {
                 //Act
-                svgElementsPage.navFooterAddCommentButton(2).then((el) => { el.click(); });//@parm shape index 
+                svgElementsPage.navFooterAddCommentButton(customConfigStoryteller.storyteller.footerAddCommentButtonIndex).then((el) => { el.click(); });//@parm index 
                 //Assert modal header text
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getActiveTabInModal.getWebElement()), 9000).then(() => {
                     expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Discussions");
@@ -216,18 +217,18 @@ describe("Storyteller end to end test", () => {
              
             it("Should be able to open review traces modal at footer",() => {
                 //Act
-                svgElementsPage.navFooterReviewTracesButton(2).then((el) => { el.click(); });//@parm shape index 
+                svgElementsPage.navFooterReviewTracesButton(customConfigStoryteller.storyteller.footerReviewTracesButtonIndex).then((el) => { el.click(); });//@parm index 
                 //Assert modal header text
                 expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Relationships");
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getPanelCloseButton.getWebElement()), 9000).then(() => {
                     svgElementsPage.getPanelCloseButton.click();
                 });
-                
+               
              });
               
             it("Should be able to open add Images-Mockups-Screenshots modal at footer",() => {
                 //Act
-                svgElementsPage.navFooterAddImageMockUpsScreenshotsButton(1).then((el) => { el.click(); });//@parm shape index 
+                svgElementsPage.navFooterAddImageMockUpsScreenshotsButton(customConfigStoryteller.storyteller.footerAddImageMockUpsScreenshotsButtonIndex).then((el) => { el.click(); });//@parm index 
                 //Assert modal header text
 
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalTitle.getWebElement()), 9000).then(() => {
@@ -242,7 +243,7 @@ describe("Storyteller end to end test", () => {
                  
             it("Should be able to open view user stories modal at footer ", () => {
                 //Act
-                svgElementsPage.navFooterViewUserStoriesButton(0).then((el) => { el.click(); });//@parm shape index 
+                svgElementsPage.navFooterViewUserStoriesButton(customConfigStoryteller.storyteller.footerViewUserStoriesButtonIndex).then((el) => { el.click(); });//@parm index 
                 //Assert modal header text
                 svgElementsPage.getViewUserStoriesGherkinTitle.then((el) => {
                     logger.info("Length of Gherkin title array is : " + + el.length);
@@ -269,14 +270,14 @@ describe("Storyteller end to end test", () => {
                 createArtifact.ArtifactPublish();//Creating new artifacts and publish it to ensure artifact is avaiable to be include
                 //Act
                 //Open edit detail modal
-                svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index
+                svgElementsPage.navFooterEditDetailButton(customConfigStoryteller.storyteller.footerEditDetailButtonIndex).then((el) => { el.click(); });//@parm edit detail button index
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getShowMoreButtonAtModal.getWebElement()), 9000).then(() => {
                     svgElementsPage.getShowMoreButtonAtModal.click();
                 });
                 
                     svgElementsPage.getIncludeButtonAtModal.then((el) => {
                         console.log("Total button at Edit detail modal is : " + el.length);
-                        el[1].click();//@parm 0 for addtional info and 1 for include
+                        el[customConfigStoryteller.storyteller.includeTabAtSystemTaskIndex].click();//@parm 0 for addtional info tab and 1 for include tab
                     
                 });
                 //Assert search result display
@@ -285,7 +286,7 @@ describe("Storyteller end to end test", () => {
                 //Act
                 ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getIncludeArtifactDropdownList);
                 svgElementsPage.getIncludeArtifactDropdownList.then((el) => { 
-                    el[0].click(); //@parm search item index
+                    el[customConfigStoryteller.storyteller.artifactSearchItemAtSystemTaskIndex].click(); //@parm search item index
                 });
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getModalOKButton.getWebElement()), 9000).then(() => {
 
@@ -293,18 +294,19 @@ describe("Storyteller end to end test", () => {
                 });
 
                         
-                //Assert include-active.svg link
+                //Assert include-process button become active
                 ArrayListPresenceOfAll.presenceOfAll(svgElementsPage.getFooterAddIncludesButton);
                 svgElementsPage.getFooterAddIncludesButton.then((el) => {
-                    el[2].getOuterHtml().then((imageTag) => { //@parm shape index 
+                    el[customConfigStoryteller.storyteller.footerAddIncludesButtonIndex].getOuterHtml().then((imageTag) => { //@parm index 
                         var link = imageTag.match(/xlink:href="(.*?)"/);
                         var linkUrl = OR.mockData.baseURL + "/Areas/Web/Style/images/Storyteller/include-active.svg";
-                        console.log(link[1]);
-                    expect(link[1]).toBe(linkUrl);
+                        console.log("include-active svg link : " +link[1]);
+                        expect(link[customConfigStoryteller.storyteller.includeActiveSvgLinkIndex]).toBe(linkUrl);//@parm index of include-active.svg
         
                     });
                 });
             });
+       
         /*
         TODO: Need to refactor
            it("Should be able navigate to inclued Artifacts and navigate to parent artifact thru Breadcurmbs", () => { 
@@ -369,8 +371,8 @@ describe("Storyteller end to end test", () => {
     
             it("Should be able to delete user task ", () => {
                 //Act
-               svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+                svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonIndex).then((el) => { el.click(); });//@parm index for '+' icon
+                svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserTaskItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getDeleteButton.getWebElement()), 1000).then(() => { svgElementsPage.getDeleteButton.click(); });
 
                 //Assert delete confirm meesage 
@@ -389,8 +391,8 @@ describe("Storyteller end to end test", () => {
    
             it("Should be able discard user task ", () => {
                 //Act
-                svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+                svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonIndex).then((el) => { el.click(); });//@parm index for '+' icon
+                svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserTaskItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 svgElementsPage.getDiscardButton.click();
                 //Assert confirmation message
                 expect(svgElementsPage.getWarningPopUP.getText()).toBe("After discarding your changes, each artifact is restored to its last published version.");//A warning pop up windows display with following contents
@@ -407,8 +409,8 @@ describe("Storyteller end to end test", () => {
     
          it("Should be able to save user task ", () => {
                 //Act
-                svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+             svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonIndex).then((el) => { el.click(); });//@parm index for '+' icon
+             svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserTaskItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 svgElementsPage.getSaveButton.click();
                 //Assert save button display
                 expect(svgElementsPage.getSaveButtonDisable.isDisplayed()).toBeTruthy();//should disable save button
@@ -425,8 +427,8 @@ describe("Storyteller end to end test", () => {
     
             it("Should be able to click '+' to add user task ", () => {
                //Act
-                svgElementsPage.navAddTaskButton(4).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(1).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+                svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonAfterSaveUserTaskIndex).then((el) => { el.click(); });//@parm index for '+' icon
+                svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserTaskItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
                 svgElementsPage.getLabelBody.then((el) => {
                         logger.info("Length of body lebel array is : " + + el.length);
@@ -438,8 +440,8 @@ describe("Storyteller end to end test", () => {
     
             it("Should be able to click '+' to add user decision point ", () => {
                 //Act
-                svgElementsPage.navAddTaskButton(6).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(4).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+                svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonAfterAddUserTaskIndex).then((el) => { el.click(); });//@parm index for '+' icon
+                svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserDecisionPointItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
@@ -450,15 +452,15 @@ describe("Storyteller end to end test", () => {
      
             it("Should be able to click '+' to add system decision point ", () => {
                 //Act
-                svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
-                svgElementsPage.selectAddItem(0).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
+                svgElementsPage.navAddTaskButton(customConfigStoryteller.storyteller.addTaskButtonIndex).then((el) => { el.click(); });//@parm index for '+' icon
+                svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addSystemDecisionPointItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert shape count. count should  be increased
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);
                 expect(el.length).toEqual(16);//@parm is modifided shape count(this also include condition body). After Save total shape count should be increased.
                 });
-                browser.driver.sleep(9000);
+                browser.driver.sleep(5000);//This is only for monitoring purpose whether test reach at the end
             });
     
          });//end of test suite

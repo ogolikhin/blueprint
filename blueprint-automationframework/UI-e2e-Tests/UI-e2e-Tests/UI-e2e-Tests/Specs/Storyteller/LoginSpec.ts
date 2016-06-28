@@ -2,10 +2,6 @@
 /**
  * This spec file will contain tests on  login page of storyteller 
  * Assumption: Project and user need to be predefined.
- * Author : Mohammed Ali Akbar
- * Created date: May10,2016
- * last modified by:
- * Last modified on:
  */
 import CreateArtifact = require("../../Model/CreateArtifacts");
 import Page = require("../../Pages/StorytellerPages/LoginPage");

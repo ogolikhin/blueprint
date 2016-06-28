@@ -1,10 +1,6 @@
 ﻿/**
  * This class file will contain all elements and action on element for storyteller login page 
  * Assumption: Project and user need to be predefined.
- * Author : Mohammed Ali Akbar
- * Created date: May10,2016
- * last modified by:
- * Last modified on:
  */
 
 

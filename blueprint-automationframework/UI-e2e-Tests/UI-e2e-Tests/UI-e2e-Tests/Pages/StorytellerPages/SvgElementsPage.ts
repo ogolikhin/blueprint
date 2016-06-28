@@ -424,6 +424,7 @@ class Svgelementspages {
 // Function to find item in Add button
 
    public selectAddItem(item: number): Promise<protractor.WebElement> {
+       ArrayListPresenceOfAll.presenceOfAll(this.addTaskItems);
         return this.addTaskItems.then((elements) => {
                 logger.info("Total Add Task Items is  :" + elements.length);
                 console.log("Total Add Task Items is  :" + elements.length);

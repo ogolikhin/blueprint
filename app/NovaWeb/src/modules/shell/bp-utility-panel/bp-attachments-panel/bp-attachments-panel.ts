@@ -20,13 +20,11 @@ export class BPAttachmentsPanelController {
         "artifactAttachments"
     ];
 
-    // private loadLimit: number = 10;
-    // private artifactId: number;
     private _subscribers: Rx.IDisposable[];
 
     public artifactAttachmentsList: IArtifactAttachmentsResultSet;
     public addOptions: IAddOptions[];
-    public categoryFilter: number = 2; // TODO: remove
+    public categoryFilter: number;
     public isLoading: boolean = false;
     
     constructor(
@@ -44,17 +42,17 @@ export class BPAttachmentsPanelController {
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
         let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
-            .distinctUntilChanged( (v: Models.IArtifact) => v ? v.id : -1) // do not reload if same id is re-selected
+            .distinctUntilChanged()
             .asObservable()
             .subscribe(this.setArtifactId);
 
         this._subscribers = [ selectedArtifactSubscriber ];
 
         // TODO: remove
-        this.getAttachments(306)
-            .then( (result: IArtifactAttachmentsResultSet) => {
-                this.artifactAttachmentsList = result;
-            });
+        // this.getAttachments(306)
+        //     .then( (result: IArtifactAttachmentsResultSet) => {
+        //         this.artifactAttachmentsList = result;
+        //     });
     }
 
     public $onDestroy() {

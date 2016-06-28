@@ -1,5 +1,5 @@
-﻿<div class="filter-bar">
-        <!--ng-if="$ctrl.artifactHistoryList.length"-->
+﻿<div class="filter-bar" 
+    ng-if="$ctrl.artifactAttachmentsList.attachments.length || $ctrl.artifactAttachmentsList.documentReferences.length">
     <bp-select
         button-label="Add New"
         ng-model="$ctrl.sortAscending" 
@@ -13,7 +13,7 @@
     </uib-tabset>
 </div>
 
-<div ng-if="$ctrl.artifactAttachmentsList"
+<div ng-if="$ctrl.artifactAttachmentsList.attachments.length || $ctrl.artifactAttachmentsList.documentReferences.length"
     class="scrollable-content" 
     perfect-scrollbar>
 
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <h6 ng-if="$ctrl.artifactAttachmentsList.documentReferences.length && $ctrl.categoryFilter !== 1"">Doc References</h6>
+    <h6 ng-if="$ctrl.artifactAttachmentsList.documentReferences.length && $ctrl.categoryFilter !== 1"">Reference Docs</h6>
     <div ng-if="$ctrl.categoryFilter !== 1"">
         <div ng-repeat="document in $ctrl.artifactAttachmentsList.documentReferences" 
             class="artifact-item-wrapper">
@@ -44,4 +44,5 @@
     </div>
 </div>
 
-<div ng-if="!$ctrl.artifactAttachmentsList.attachments.length && !$ctrl.artifactAttachmentsList.documentReferences.length && !$ctrl.isLoading" class="empty-state">No documents/attachments available{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</div>
+<div ng-if="!$ctrl.artifactAttachmentsList.attachments.length && !$ctrl.artifactAttachmentsList.documentReferences.length && !$ctrl.isLoading"
+    class="empty-state">No documents/attachments available{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</div>

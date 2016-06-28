@@ -45,7 +45,7 @@ export class ArtifactHistory implements IArtifactHistory {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/ArtifactStore/artifacts/${artifactId}/version`, 
+            url: `/svc/artifactstore/artifacts/${artifactId}/version`, 
             method: "GET",
             params: {
                 limit: limit,

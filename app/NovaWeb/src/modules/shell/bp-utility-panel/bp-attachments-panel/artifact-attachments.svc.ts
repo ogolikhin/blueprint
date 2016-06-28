@@ -52,7 +52,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/ArtifactStore/artifacts/${artifactId}/attachment`, 
+            url: `/svc/artifactstore/artifacts/${artifactId}/attachment`, 
             method: "GET",
             params: {
                 subartifactId: subArtifactId,

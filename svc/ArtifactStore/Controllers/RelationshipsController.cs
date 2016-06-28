@@ -4,11 +4,8 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Filters;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 
 namespace ArtifactStore.Controllers

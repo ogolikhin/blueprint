@@ -133,6 +133,7 @@
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\IRelationshipsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

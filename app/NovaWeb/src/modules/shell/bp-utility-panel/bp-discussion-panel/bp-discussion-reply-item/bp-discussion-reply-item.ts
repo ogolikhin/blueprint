@@ -1,16 +1,15 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Models } from "../../../../main";
 
-export class BPArtifactDiscussionItem implements ng.IComponentOptions {
-    public template: string = require("./bp-artifact-discussion-item.html");
-    public controller: Function = BPArtifactDiscussionItemController;
+export class BPDiscussionReplyItem implements ng.IComponentOptions {
+    public template: string = require("./bp-discussion-reply-item.html");
+    public controller: Function = BPDiscussionReplyItemController;
     public bindings: any = {
-        discussionInfo: "=",
-        artifactInfo: "="
+        replyInfo: "="
     };
 }
 
-export class BPArtifactDiscussionItemController {
+export class BPDiscussionReplyItemController {
     public static $inject: [string] = [
         "$log",
         "localization"

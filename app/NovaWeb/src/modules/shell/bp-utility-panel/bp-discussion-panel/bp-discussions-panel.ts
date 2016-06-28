@@ -71,16 +71,14 @@ export class BPDiscussionPanelController {
     }
 
     public expandCollapseDiscussion(discussion: IDiscussion): void {
-        if (!discussion.expended) {
+        if (!discussion.expanded) {
             this.getDiscussionReplies(discussion.discussionId)
                 .then((replies: IReply[]) => {
                     discussion.replies = replies;
-                    if (replies.length > 0) {
-                        discussion.expended = true;
-                    }
+                    discussion.expanded = true;
                 });
-        }else {
-            discussion.expended = false;
+        } else {
+            discussion.expanded = false;
         }
     }
 

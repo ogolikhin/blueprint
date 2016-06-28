@@ -17,6 +17,7 @@ import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-arti
 import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifact-discussions.svc";
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-Discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
+import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {MessageDirective} from "./messages/message";
 import {MessagesContainerDirective} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
@@ -42,6 +43,7 @@ angular.module("app.shell",
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
+    .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
     .directive("messagesContainer", MessagesContainerDirective.factory())   

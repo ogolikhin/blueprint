@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IArtifactDiscussions, ICommentBase, IReply} from "../artifact-discussions.svc";
+import {IArtifactDiscussions} from "../artifact-discussions.svc";
 import { Models } from "../../../../main";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {

@@ -1,19 +1,24 @@
-﻿<div>
+﻿<div class="reply-separator"></div>
+<div>
     <div>
         <bp-avatar icon=""
-                   name="{{ $ctrl.discussionInfo.userName }}"
-                   color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+                   name="{{ $ctrl.replyInfo.userName }}"
+                   color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
         </bp-avatar>
     </div>
     <div class="discussion-info">
-        <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
-        <div ng-bind-html="$ctrl.discussionInfo.comment"></div>
-        <div class="timestamp">{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+        <div>
+            <div class="username" title="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
+        </div>
+        <div ng-bind-html="$ctrl.replyInfo.comment"></div>
+        <div>
+            <div class="version inline-block">v{{$ctrl.replyInfo.version}}</div>
+            <div class="timestamp inline-block">{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
+        </div>
     </div>
-    <div class="inline-block">
-        <div class="reply-count">c</div>
-        <div class="delete-comment">d</div>
-        <div class="edit-comment">e</div>
-        <div>reply</div>
+    <div class="button-bar discussion-button-bar">
+        <!--<div title="View comments" class="reply-count fonticon-comment"></div>-->
+        <div title="Delete reply" class="delete-comment fonticon-delete-filled"></div>
+        <div title="Edit reply" class="edit-comment fonticon-edit-alt"></div>
     </div>
 </div>

@@ -17,6 +17,15 @@
             discussion-info="discussion"
             get-replies="$ctrl.expandCollapseDiscussion(discussion)">
         </bp-artifact-discussion-item>
+        <!--<div class="separator"></div>-->
+        <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
+            <bp-discussion-reply-item class="utility-panel-artifact-item"
+                                      reply-info="reply">
+            </bp-discussion-reply-item>
+        </div>
+    </div>
+    <div>
+
     </div>
 </div>
 

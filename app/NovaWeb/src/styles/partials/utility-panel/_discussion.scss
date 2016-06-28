@@ -1,7 +1,7 @@
 bp-discussion-panel {
     $item-gap: $padding-bigger;
 
-    bp-artifact-discussion-item {
+    bp-artifact-discussion-item, bp-discussion-reply-item {
         /*&:hover {
             cursor: pointer;
             background: $gray-lightest;
@@ -75,23 +75,27 @@ bp-discussion-panel {
             }
         }
 
-        .status-icon {
+        .expand-icon {
+            @extend .inline-block;
 
             &:hover {
                 cursor: pointer;
             }
-
-            float: right;
 
             &::before {
                 font-size: $font-size-bigger;
             }
         }
 
+        .expanded {
+            @include transform-rotate(180);
+        }
+
         .status-name {
             color: $gray-light;
             @extend .inline-block;
-            padding-right: $padding-smaller;
+            padding-right: $padding-smallest;
+            margin-right: -1 * $padding-smallest;
         }
 
         .reply-link {
@@ -111,6 +115,20 @@ bp-discussion-panel {
                 pointer-events: none;
                 text-decoration: none;
             }
+        }
+    }
+
+    bp-discussion-reply-item {
+        margin-left: $padding-smaller !important;
+        background-color: $blue-lightest;
+
+        .reply-separator {
+            width: 2px;
+            height: $item-gap;
+            background: $gray-lighter;
+            position: absolute;
+            top: -$item-gap;
+            left: 28px;
         }
     }
 }

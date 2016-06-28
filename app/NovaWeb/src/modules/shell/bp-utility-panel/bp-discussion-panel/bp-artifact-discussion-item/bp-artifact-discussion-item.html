@@ -8,7 +8,9 @@
     <div class="discussion-info">
         <div class="status">
             <div class="status-name" title="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
-            <div class="inline-block status-icon fonticon-circle-up" ng-click="$ctrl.getReplies()"></div>
+            <div ng-class="$ctrl.discussionInfo.expanded ? 'expand-icon fonticon-circle-up expanded' : 'expand-icon fonticon-circle-up'"
+                 ng-click="$ctrl.getReplies()">
+            </div>
         </div>
         <div>
             <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>

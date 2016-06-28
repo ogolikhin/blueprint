@@ -10,7 +10,7 @@ export interface IDiscussion extends ICommentBase {
     isClosed: boolean;
     status: string;
     replies: IReply[];
-    expended: boolean;
+    expanded: boolean;
 }
 
 export interface ICommentBase {

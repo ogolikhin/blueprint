@@ -1,10 +1,6 @@
 ﻿/**
  * This class file will contain all elements and action on element for svg shapes 
  * Assumption: Project and user need to be predefined.
- * Author : Mohammed Ali Akbar
- * Created date: May10,2016
- * last modified by:
- * Last modified on:
  */
 
 var OR = require('../../Locator/StorytellerLocator.json');
@@ -318,7 +314,6 @@ class Svgelementspages {
  
 // function to post a comment at discussion panel
     public postComment(comment: any): void {
-       //browser.driver.sleep(2000);
        this.panelDiscussions.click();
        this.panelDiscussionTextArea.click();
        browser.driver.switchTo().frame(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);

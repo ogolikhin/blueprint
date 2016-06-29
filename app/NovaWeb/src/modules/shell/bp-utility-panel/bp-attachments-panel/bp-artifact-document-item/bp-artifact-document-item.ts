@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { IArtifactDocRef, IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../../shell";
+import { IArtifactDocRef, IArtifactAttachments, IArtifactAttachmentsResultSet, IMessageService } from "../../../../shell";
 // import { FiletypeParser } from "../../../../core/utils/filetypeParser";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
@@ -19,6 +19,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         "$log",
         "localization",
         "artifactAttachments",
+        "messageService",
         "$window"
     ];
 
@@ -29,6 +30,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private artifactAttachments: IArtifactAttachments,
+        private messageService: IMessageService,
         private $window: ng.IWindowService) {
     }
 
@@ -49,7 +51,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
                         `/svc/components/RapidReview/artifacts/${attachmentResultSet.artifactId}/files/${attachmentResultSet.attachments[0].attachmentId}`,
                         "_blank");
                 } else {
-                    alert(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
+                    this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }
             });
     }

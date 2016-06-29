@@ -57,7 +57,7 @@ App_UP_Attachments_Uploaded_By, "Uploaded by"
 App_UP_Attachments_No_Attachments, "No documents/attachments available"
 App_UP_Attachments_Download, "Download"
 App_UP_Attachments_Delete, "Delete"
-App_UP_Attachments_Download_No_Attachment, "There's no attachments available"
+App_UP_Attachments_Download_No_Attachment, "There's no attachment available"
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

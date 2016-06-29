@@ -31,6 +31,8 @@ namespace ArtifactStore.Models
         public int SourceItemId { get; set; }
         public int DestinationArtifactId { get; set; }
         public int DestinationItemId { get; set; }
+        public int SourceProjectId { get; set; }
+        public int DestinationProjectId { get; set; }
         public LinkType LinkType { get; set; }
         public bool IsSuspect { get; set; }
     }

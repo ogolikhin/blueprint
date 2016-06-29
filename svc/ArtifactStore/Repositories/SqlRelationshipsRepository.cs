@@ -9,15 +9,6 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    internal class ItemDetails
-    {
-        internal int HolderId;
-        internal string Name;
-        internal int PrimitiveItemTypePredefined;
-        internal string Prefix;
-        internal int ItemTypeId;
-        internal int ProjectId;
-    }
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
@@ -39,81 +30,89 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<IEnumerable<ItemDetails>> GetItemsDetailsWithProjectInfo(int userId, List<int> itemIds, bool addDrafts= true, int revisionId = int.MaxValue)
+        private async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts= true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetailsWithProjectInfo", parameters, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary, Dictionary<int, ItemDetails> projectItemDetailsDictionary)
+        private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
         {
-            foreach (var manualTrace in relationships)
+            foreach (var relationship in relationships)
             {
                 ItemDetails item;
                 ItemDetails project;
-                itemDetailsDictionary.TryGetValue(manualTrace.ItemId, out item);
-                if (item != null)
+                if (itemDetailsDictionary.TryGetValue(relationship.ItemId, out item))
                 {
-                    projectItemDetailsDictionary.TryGetValue(item.ProjectId, out project);
-                    if (project != null)
+                    if (itemDetailsDictionary.TryGetValue(relationship.ProjectId, out project))
                     {
-                        manualTrace.ProjectId = project.HolderId;
-                        manualTrace.ProjectName = project.Name;
+                        relationship.ProjectId = project.HolderId;
+                        relationship.ProjectName = project.Name;
                     }
-                    manualTrace.ItemName = item.Name;
-                    manualTrace.ItemTypePrefix = item.Prefix;
+                    relationship.ItemName = item.Name;
+                    relationship.ItemTypePrefix = item.Prefix;
                 }
 
-                if (manualTrace.ItemId != manualTrace.ArtifactId) //Not sub-artifacts
+                if (relationship.ItemId != relationship.ArtifactId) //Not sub-artifacts
                 {
                     ItemDetails artifact;
-                    itemDetailsDictionary.TryGetValue(manualTrace.ArtifactId, out artifact);
-                    manualTrace.ArtifactName = artifact.Name;
-                    manualTrace.ArtifactTypePrefix = artifact.Prefix;
+                    itemDetailsDictionary.TryGetValue(relationship.ArtifactId, out artifact);
+                    relationship.ArtifactName = artifact.Name;
+                    relationship.ArtifactTypePrefix = artifact.Prefix;
                 }
                 else
                 {
-                    manualTrace.ArtifactName = manualTrace.ItemName;
-                    manualTrace.ArtifactTypePrefix = manualTrace.ItemTypePrefix;
+                    relationship.ArtifactName = relationship.ItemName;
+                    relationship.ArtifactTypePrefix = relationship.ItemTypePrefix;
                 }
             }
 
         }
+        private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
+        {
+            return new Relationship
+            {
+                ArtifactId = link.DestinationArtifactId,
+                ItemId = link.DestinationItemId,
+                TraceDirection = traceDirection,
+                Suspect = link.IsSuspect,
+                TraceType = link.LinkType,
+                ProjectId = link.DestinationProjectId
+            };
+        }
 
         public async Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true)
         {
-            var result = (await GetLinkInfo(itemId, userId, addDrafts)).ToList();
-            var manualLinks = result.Where(a => a.LinkType == LinkType.Manual).ToList();
-            var otherLinks = result.Where(a => a.LinkType != LinkType.Manual).ToList();
+            var results = (await GetLinkInfo(itemId, userId, addDrafts)).ToList();
+            var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
+            var otherLinks = results.Where(a => a.LinkType != LinkType.Manual).ToList();
             var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
             var otherTraceRelationships = new List<Relationship>();
 
             foreach (var otherLink in otherLinks)
             {
-                otherTraceRelationships.Add(new Relationship
-                {
-                    ArtifactId = otherLink.DestinationArtifactId,
-                    ItemId = otherLink.DestinationItemId,
-                    TraceDirection = TraceDirection.To,
-                    Suspect = otherLink.IsSuspect,
-                    TraceType = otherLink.LinkType
-                });
+                otherTraceRelationships.Add(NewRelationship(otherLink, TraceDirection.To));
             }
-            var distinctItemIds = result.Select(a => a.SourceArtifactId)
-                           .Union(result.Select(a => a.SourceItemId))
-                           .Union(result.Select(a => a.DestinationArtifactId))
-                           .Union(result.Select(a => a.DestinationItemId)).Distinct().ToList();
-            var itemDetails = await GetItemsDetailsWithProjectInfo(userId, distinctItemIds, true, int.MaxValue);
-            var itemDetailsDictionary = itemDetails.ToDictionary(a => a.HolderId);
-            var distinctProjectIds = itemDetails.ToList().Select(a => a.ProjectId).Distinct().ToList();
-            var projectItemDetailsDictionary = (await GetItemsDetailsWithProjectInfo(userId, distinctProjectIds, true, int.MaxValue)).ToDictionary(a=>a.HolderId);
 
-            PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, projectItemDetailsDictionary);
-            PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, projectItemDetailsDictionary);
+            var distinctItemIds = new HashSet<int>();
+            foreach (var result in results)
+            {
+                distinctItemIds.Add(result.SourceArtifactId);
+                distinctItemIds.Add(result.DestinationArtifactId);
+                distinctItemIds.Add(result.SourceItemId);
+                distinctItemIds.Add(result.DestinationItemId);
+                distinctItemIds.Add(result.SourceProjectId);
+                distinctItemIds.Add(result.DestinationProjectId);
+            }
+
+            var itemDetails = await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue);
+            var itemDetailsDictionary = itemDetails.ToDictionary(a => a.HolderId);
+            PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary);
+            PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary);
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
         }
 
@@ -125,14 +124,7 @@ namespace ArtifactStore.Repositories
 
             foreach (var fromManualLink in fromManualLinks)
             {
-                result.Add(new Relationship
-                {
-                    ArtifactId = fromManualLink.DestinationArtifactId,
-                    ItemId = fromManualLink.DestinationItemId,
-                    TraceDirection = TraceDirection.To,
-                    Suspect = fromManualLink.IsSuspect,
-                    TraceType = LinkType.Manual
-                });
+                result.Add(NewRelationship(fromManualLink, TraceDirection.To));
             }
             foreach (var toManualLink in toManualLinks)
             {
@@ -143,14 +135,7 @@ namespace ArtifactStore.Repositories
                 }
                 else
                 {
-                    result.Add(new Relationship
-                    {
-                        ArtifactId = toManualLink.SourceArtifactId,
-                        ItemId = toManualLink.SourceItemId,
-                        TraceDirection = TraceDirection.From,
-                        Suspect = toManualLink.IsSuspect,
-                        TraceType = LinkType.Manual
-                    });
+                    result.Add(NewRelationship(toManualLink, TraceDirection.From));
                 }
             }
             return result;

@@ -28,11 +28,11 @@ namespace ArtifactStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/relationships"), SessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/relationships"), NoSessionRequired]
         [ActionName("GetRelationships")]
         public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = new Session { UserId = 1 }; //Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);

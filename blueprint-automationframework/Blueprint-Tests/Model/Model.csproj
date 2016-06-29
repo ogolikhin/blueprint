@@ -59,6 +59,7 @@
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
+    <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
@@ -79,14 +80,13 @@
     <Compile Include="Impl\InstanceProject.cs" />
     <Compile Include="Impl\NovaServiceBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactType.cs" />
-    <Compile Include="ArtifactModel\Impl\Discussion.cs" />
+    <Compile Include="ArtifactModel\Impl\RaptorDiscussion.cs" />
     <Compile Include="ArtifactModel\IArtifact.cs" />
     <Compile Include="ArtifactModel\IArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\Author.cs" />
     <Compile Include="ArtifactModel\Impl\Artifact.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactResult.cs" />
     <Compile Include="ArtifactModel\Impl\Attachment.cs" />
-    <Compile Include="ArtifactModel\Impl\Comment.cs" />
     <Compile Include="ArtifactModel\Impl\Property.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
     <Compile Include="ArtifactModel\Impl\Trace.cs" />
@@ -130,7 +130,7 @@
     <Compile Include="ArtifactModel\ICollections.cs" />
     <Compile Include="IDatabase.cs" />
     <Compile Include="ArtifactModel\IDiagramBase.cs" />
-    <Compile Include="ArtifactModel\IDiscussion.cs" />
+    <Compile Include="ArtifactModel\IRaptorDiscussion.cs" />
     <Compile Include="IDocument.cs" />
     <Compile Include="ArtifactModel\IDomainDiagram.cs" />
     <Compile Include="IEpic.cs" />

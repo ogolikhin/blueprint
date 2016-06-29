@@ -250,8 +250,15 @@ namespace Helper
                 {
                     if (artifact.IsPublished)
                     {
-                        artifact.Delete();
-                        artifact.Publish();
+                        if (artifact.IsMarkedForDeletion)
+                        {
+                            artifact.Publish();
+                        }
+                        else
+                        {
+                            artifact.Delete();
+                            artifact.Publish();
+                        }
                     }
                     else if (artifact.IsSaved)
                     {

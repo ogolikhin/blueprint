@@ -31,6 +31,15 @@ export enum ArtifactStateEnum {
     Draft = 1,
     Deleted = 2
 }
+export enum PrimitiveType {
+    Text = 0,
+    Number = 1,
+    Date = 2,
+    User = 3,
+    Choice = 4,
+    Image = 5
+}
+
 
 export interface IProjectNode {
     id: number;
@@ -56,20 +65,50 @@ export interface IArtifact  {
     artifacts?: IArtifact[];
     //flags:
 }
-export interface IProperty {
+export interface IItemType {
     id: number;
+    Name: string;
+    projectId?: number;
+    versionId ?: number;
+    instanceItemTypeId?: number;
+    prefix: string;
+    baseType: number;
+    iconImageId: number;
+    usedInThisProject: boolean;
+    customPropertyTypeIds: number[];
+}
+export interface IPropertyType {
+    id: number;
+    versionId?: number;
     name: string;
+    primitiveType: PrimitiveType; 
+    instancePropertyTypeId?: number;
+    isRichText: boolean;
+    decimalDefaultValue?: number;
+    dateDefaultValue?: Date; 
+    userGroupDefaultValue: any[];
+    stringDefaultValue: string;
+    decimalPlaces?: number;
+    maxNumber?: number; 
+    minNumber?: number;
+    maxDate?: Date;
+    minDate?: Date; 
+    isMultipleAllowed?: boolean;
+    isRequired?: boolean;
+    isValidated?: boolean; 
+    validValues: string[];
+    defaultValidValueIndex?: number;
 }
 
 export interface IArtifactDetails extends IArtifact {
-    systemProperties: IProperty[];
-    customProperties: IProperty[];
+    systemProperties: IPropertyType[];
+    customProperties: IPropertyType[];
     //flags:
 }
 export interface IProjectMeta {
-    artifactTypes: IProperty[];
-    propertyTypes: IProperty[];
-    subArtifactTypes: IProperty[];
+    artifactTypes: IItemType[];
+    propertyTypes: IPropertyType[];
+    subArtifactTypes: IItemType[];
     //flags:
 }
 
@@ -81,8 +120,8 @@ export interface IProject extends IArtifact {
 
 
 export class Artifact implements IArtifactDetails {
-    private _systemProperties: IProperty[];
-    private _customProperties: IProperty[];
+    private _systemProperties: IPropertyType[];
+    private _customProperties: IPropertyType[];
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
     };

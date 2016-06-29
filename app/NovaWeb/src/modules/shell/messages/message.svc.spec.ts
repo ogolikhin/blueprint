@@ -24,7 +24,7 @@ describe("messageService", () => {
             messageService.addError(message);
 
             // Act
-            var result = messageService.getMessages();
+            var result = messageService.messages.getValue();
 
             // Assert
             expect(result.length).toEqual(1);
@@ -39,7 +39,7 @@ describe("messageService", () => {
             messageService.addMessage(message);
 
             // Act
-            var result = messageService.getMessages();
+            var result = messageService.messages.getValue();
 
             // Assert
             expect(result.length).toEqual(1);
@@ -60,15 +60,15 @@ describe("messageService", () => {
                 messageService.deleteMessageById(1);
 
                 // Assert
-                expect(messageService.getMessages().length).toEqual(2);
+                expect(messageService.messages.getValue().length).toEqual(2);
             }));
-        it("clearMessages",
+        it("dispose",
             inject((messageService: IMessageService) => {
                 // Act
-                messageService.clearMessages();
+                messageService.dispose();
 
                 // Assert
-                expect(messageService.getMessages().length).toEqual(0);
+                expect(messageService.messages.getValue().length).toEqual(0);
             }));
             
     });

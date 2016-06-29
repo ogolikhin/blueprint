@@ -30,7 +30,7 @@ describe("Project Explorer Test", () => {
         };
 
         explorer.tree = new BPTreeControllerMock();
-        projectManager.$onInit();
+        projectManager.initialize();
         explorer.$onInit();
     }));
 

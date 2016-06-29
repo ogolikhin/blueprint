@@ -114,7 +114,7 @@ namespace AdminStore.Controllers
                 var script = $"window.config={config};";
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = new StringContent(script, Encoding.UTF8, "text/plain");
+                response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");
                 return ResponseMessage(response);
             }
             catch (Exception ex)

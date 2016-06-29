@@ -5,6 +5,13 @@
             <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
             <perfect-scrollbar>
                 <div class="content" uib-collapse="isSystemPropertiesCollapsed">
+
+                    <form novalidate>
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields" form="$ctrl.rentalForm">
+                        </formly-form>
+                    </form>
+
+
                     <div class="property-group error">
                         <label for="property-name">Name:</label>
                         <span data-validation="use alphanumeric characters only" bp-tooltip="Edit field"><input id="property-name" class="editable" type="text" value="Client Login"></span>

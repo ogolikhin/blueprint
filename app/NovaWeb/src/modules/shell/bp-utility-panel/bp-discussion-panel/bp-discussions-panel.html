@@ -21,14 +21,12 @@
      ng-if="$ctrl.artifactDiscussionList.length"
      perfect-scrollbar>
     <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
-        <!--<div class="separator"></div>-->
         <bp-artifact-discussion-item 
             class="utility-panel-artifact-item"
             discussion-info="discussion"
             get-replies="$ctrl.expandCollapseDiscussion(discussion)"
             new-reply-click="$ctrl.newReplyClick()">
         </bp-artifact-discussion-item>
-        <!--<div class="separator"></div>-->
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
             <bp-discussion-reply-item class="utility-panel-artifact-item"
                                       reply-info="reply">

@@ -13,7 +13,7 @@ describe("Artifact History Service", () => {
 
     it("get artifact histories with default values", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
-        $httpBackend.expectGET(`/svc/ArtifactStore/artifacts/306/version?asc=false&limit=10&offset=0`)
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=10&offset=0`)
             .respond(200, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
@@ -122,7 +122,7 @@ describe("Artifact History Service", () => {
 
     it("get first artifact history", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
-        $httpBackend.expectGET(`/svc/ArtifactStore/artifacts/306/version?asc=false&limit=1&offset=0`)
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=1&offset=0`)
             .respond(200, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
@@ -159,7 +159,7 @@ describe("Artifact History Service", () => {
 
     it("gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
-        $httpBackend.expectGET(`/svc/ArtifactStore/artifacts/0/version?asc=false&limit=1&offset=0`)
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/0/version?asc=false&limit=1&offset=0`)
             .respond(404, {
                 statusCode: 404,
                 message: "Couldn't find the artifact"
@@ -185,7 +185,7 @@ describe("Artifact History Service", () => {
 
     it("get first 2 artifact histories in descending order", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
-        $httpBackend.expectGET(`/svc/ArtifactStore/artifacts/306/version?asc=false&limit=2&offset=0`)
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=2&offset=0`)
             .respond(200, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
@@ -231,7 +231,7 @@ describe("Artifact History Service", () => {
 
     it("get first 2 artifact histories in ascending order", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
-        $httpBackend.expectGET(`/svc/ArtifactStore/artifacts/306/version?asc=true&limit=2&offset=0`)
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=true&limit=2&offset=0`)
             .respond(200, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [

@@ -3,6 +3,6 @@
 <div class="author">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.docRefInfo.userName }}</div>
 <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.docRefInfo.referencedDate | date:'medium' }}</div>
 <div class="button-bar">
-    <i class="icon fonticon-download" ng-click="$ctrl.downloadAttachment()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
-    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteAttachment()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"></i>
+    <i class="icon fonticon-download" ng-click="$ctrl.downloadItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
+    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"></i>
 </div>

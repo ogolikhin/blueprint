@@ -37,14 +37,14 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
         this.fileIconClass = FiletypeParser.getFiletypeClass(this.attachmentInfo.fileName);
     }
 
-    public deleteAttachment(): void {
+    public deleteItem(): void {
         alert("deleting attachment");
     }
     
-    public downloadAttachment(): void {
+    public downloadItem(): void {
         let artifact: Models.IArtifact = this.projectManager.currentArtifact.getValue();
         this.$window.open(
-                `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}`,
+                `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`,
                 "_blank");
     }
 }

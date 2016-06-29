@@ -1,6 +1,6 @@
 ﻿<div>
     <div>
-        <bp-avatar icon=""
+        <bp-avatar ng-class="$ctrl.discussionInfo.isGuest ? 'guest' : ''"
                    name="{{ $ctrl.discussionInfo.userName }}"
                    color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
         </bp-avatar>
@@ -10,6 +10,7 @@
             <div class="status-name" bp-tooltip="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
             <div class="expand-icon fonticon-circle-up"
                  ng-class="$ctrl.discussionInfo.expanded ? 'expanded' : ''"
+                 bp-tooltip="{{$ctrl.discussionInfo.expanded ? 'Collapse thread' : 'Expand Thread'}}"
                  ng-click="$ctrl.getReplies()">
             </div>
         </div>

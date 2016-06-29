@@ -26,14 +26,6 @@ bp-discussion-panel {
         }
     }
 
-    .float-left {
-        float: left;
-    }
-
-    .float-right {
-        float: right;
-    }
-
     .clear-both {
         clear: both;
     }
@@ -78,8 +70,8 @@ bp-discussion-panel {
         }
 
         .reply-count {
-            @extend .inline-block;
             @extend .disucssion-buttonbar-item;
+            display:inline-block;
 
             &::before {
                 font-size: $font-size-biggest;
@@ -87,8 +79,8 @@ bp-discussion-panel {
         }
 
         .delete-comment {
-            @extend .inline-block;
             @extend .disucssion-buttonbar-item;
+            display:inline-block;
 
             &::before {
                 font-size: $font-size-big;
@@ -96,8 +88,8 @@ bp-discussion-panel {
         }
 
         .edit-comment {
-            @extend .inline-block;
             @extend .disucssion-buttonbar-item;
+            display:inline-block;
 
             &::before {
                 font-size: $font-size-small;
@@ -105,7 +97,7 @@ bp-discussion-panel {
         }
 
         .expand-icon {
-            @extend .inline-block;
+            display:inline-block;
 
             &:hover {
                 cursor: pointer;
@@ -122,13 +114,13 @@ bp-discussion-panel {
 
         .status-name {
             color: $gray-light;
-            @extend .inline-block;
+            display:inline-block;
             padding-right: $padding-smallest;
             margin-right: -1 * $padding-smallest;
         }
 
         .reply-link {
-            @extend .inline-block;
+            display:inline-block;
             border-left: solid 1px #ccc;
             font-size: $font-size-big;
             padding: 0 $padding-smallest 0 $padding-smaller;

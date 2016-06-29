@@ -182,7 +182,6 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            //ThrowIf.ArgumentNull(artifact, nameof(artifact));
             string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions", SVC_PATH, itemId);
 
             var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);

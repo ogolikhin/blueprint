@@ -455,6 +455,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
+        /// <param name="discussionText">text for new comment</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>

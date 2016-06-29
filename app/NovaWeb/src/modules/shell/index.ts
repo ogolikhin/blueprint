@@ -6,7 +6,7 @@ import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
 import {SessionSvc} from "./login/session.svc";
-import {HttpErrorInterceptor} from "./login/http-error-interceptor";
+import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
@@ -26,7 +26,7 @@ import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-e
 import {MessageDirective} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
-import {config as routesConfig} from "./error.state";
+import {config as errorStateRouteConfig} from "./error/error.state";
 
 angular.module("app.shell",
     [
@@ -58,7 +58,7 @@ angular.module("app.shell",
     .directive("message", MessageDirective.factory())
     .component("messagesContainer", new MessageContainerComponent())   
     .config(Logger)
-    .config(routesConfig)
+    .config(errorStateRouteConfig)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

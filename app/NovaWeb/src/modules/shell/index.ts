@@ -26,7 +26,7 @@ import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/
 import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
 import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
-import {MessageDirective} from "./messages/message";
+import {MessageComponent} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as errorStateRouteConfig} from "./error/error.state";
@@ -47,21 +47,21 @@ angular.module("app.shell",
     .service("artifactHistory", ArtifactHistory)
     .service("artifactRelationship", ArtifactRelationship)
     .service("artifactDiscussions", ArtifactDiscussions)
+    .service("artifactAttachments", ArtifactAttachments)
+    .service("messageService", MessageService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
-    .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
-    .service("artifactAttachments", ArtifactAttachments)
+    .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())    
     .component("bpAttachmentsPanel", new BPAttachmentsPanel())
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
-    .component("bpCommentEdit", new BPCommentEdit())
-    .service("messageService", MessageService)
-    .directive("message", MessageDirective.factory())
+    .component("bpCommentEdit", new BPCommentEdit())   
+    .component("message", new MessageComponent())
     .component("messagesContainer", new MessageContainerComponent())   
     .config(Logger)
     .config(errorStateRouteConfig)
@@ -74,7 +74,7 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
 initializeInterceptors.$inject = ["$httpProvider"];
 
 export { IServerLogger } from "./log/server-logger.svc";
-export {MessageDirective, MessageContainerComponent, MessageService};
+export {MessageComponent, MessageContainerComponent, MessageService};
 export { IMessageService } from "./messages/message.svc";
 export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef } 
     from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";

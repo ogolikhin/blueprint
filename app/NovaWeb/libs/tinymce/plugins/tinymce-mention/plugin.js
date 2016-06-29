@@ -514,7 +514,9 @@
                 var p = document.createElement('p');
                 p.innerText = this.options.delimiter + text;
                 var replacement = p.firstChild;
-                var focus = this.jsH.offset(this.editor.selection.getNode()).top === (this.jsH.offset(selection).top + ((selection.offsetHeigh - window.getComputedStyle(selection).getPropertyValue("height")) / 2));
+                var height = window.getComputedStyle(selection).getPropertyValue("height") === 'auto' ? selection.offsetHeight : window.getComputedStyle(selection).getPropertyValue("height");
+
+                var focus = this.jsH.offset(this.editor.selection.getNode()).top === (this.jsH.offset(selection).top + ((selection.offsetHeight - height) / 2));
 
                 this.editor.dom.replace(replacement, selection);
 

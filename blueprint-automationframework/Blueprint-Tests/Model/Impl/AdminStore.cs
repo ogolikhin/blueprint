@@ -286,18 +286,24 @@ namespace Model.Impl
             return response.Content;
         }
 
-        /// <seealso cref="IAdminStore.GetLicenseTransactions(int, ISession, List{HttpStatusCode})"/>
-        public IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetLicenseTransactions(int?, ISession, List{HttpStatusCode})"/>
+        public IList<LicenseActivity> GetLicenseTransactions(int? numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
+            Dictionary<string, string> queryParameters = null;
+
+            if (numberOfDays != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "days", numberOfDays.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            }
 
             if (session != null)
             {
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+                Logger.WriteDebug("Adding Token header:  {0} = {1}", TOKEN_HEADER, session.SessionId);
+                additionalHeaders = new Dictionary<string, string> {{TOKEN_HEADER, session.SessionId}};
             }
 
             try
@@ -317,8 +323,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetLicenseTransactions(IUser, int, List{HttpStatusCode})"/>
-        public IList<LicenseActivity> GetLicenseTransactions(IUser user, int numberOfDays, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetLicenseTransactions(IUser, int?, List{HttpStatusCode})"/>
+        public IList<LicenseActivity> GetLicenseTransactions(IUser user, int? numberOfDays, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ISession session = SessionFactory.CreateSessionWithToken(user);
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);

@@ -297,13 +297,14 @@ namespace Model.Impl
 
             if (numberOfDays != null)
             {
+                Logger.WriteDebug("Adding 'days={0}' as a query parameter.", numberOfDays);
                 queryParameters = new Dictionary<string, string> { { "days", numberOfDays.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             }
 
             if (session != null)
             {
                 Logger.WriteDebug("Adding Token header:  {0} = {1}", TOKEN_HEADER, session.SessionId);
-                additionalHeaders = new Dictionary<string, string> {{TOKEN_HEADER, session.SessionId}};
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
             }
 
             try

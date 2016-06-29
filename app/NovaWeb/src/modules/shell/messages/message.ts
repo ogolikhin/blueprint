@@ -9,7 +9,7 @@ export interface IMessage {
     messageText: string;
 }
 
-export class Message implements IMessage{
+export class Message implements IMessage {
     public onMessageAction: (actionName: string) => void;
     public id: number;
 

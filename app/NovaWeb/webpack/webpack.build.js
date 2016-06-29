@@ -11,10 +11,16 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
+        vendor: ['angular',
+            'angular-ui-router',
+            'angular-ui-bootstrap',
+            'angular-sanitize',
             'bootstrap/dist/css/bootstrap.css', 
             'ng-draggable',
-            'ag-grid', 'ag-grid/dist/styles/ag-grid.css',
+            'angular-formly',
+            'angular-formly-templates-bootstrap',
+            'ag-grid',
+            'ag-grid/dist/styles/ag-grid.css',
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
             'tinymce']
@@ -37,6 +43,12 @@ module.exports = {
     },
     devtool: 'source-map',
     context: path.join(__dirname, '../src'),
+    //devServer: {
+    //    // This is required for webpack-dev-server if using a version <3.0.0.
+    //    // The path should be an absolute path to your build destination.
+    //        outputPath: path.join(__dirname, 'build')
+    //    },
+
     plugins: [
         new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin(
@@ -61,14 +73,14 @@ module.exports = {
         //    'window.jquery': 'jquery'
         //}),
          new CopyWebpackPlugin([
-            // {output}/file.txt 
-            { from: '**/*.view.html' },
-            { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
-            { from: './unsupported-browser', to: './static' },
-            { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
-            { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
-            { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' }
-
+            // {output}/file.txt             
+             { from: '**/*.view.html' },
+             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
+             { from: './unsupported-browser', to: './static' },
+             { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
+             { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
+             { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
+             { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
 
          ]),
          new webpack.DefinePlugin({

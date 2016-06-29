@@ -5,7 +5,7 @@ import "rx/dist/rx.lite.js";
 import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
-import {ISession, SessionSvc} from "./login/session.svc";
+import {SessionSvc} from "./login/session.svc";
 import {HttpErrorInterceptor} from "./login/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
@@ -17,6 +17,10 @@ import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-arti
 import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifact-discussions.svc";
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-Discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
+import {ArtifactAttachments} from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import {BPAttachmentsPanel} from "./bp-utility-panel/bp-attachments-panel/bp-attachments-panel";
+import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-attachment-item/bp-artifact-attachment-item";
+import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
 import {MessageDirective} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
@@ -42,6 +46,10 @@ angular.module("app.shell",
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
+    .service("artifactAttachments", ArtifactAttachments)
+    .component("bpAttachmentsPanel", new BPAttachmentsPanel())
+    .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
+    .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
     .component("messagesContainer", new MessageContainerComponent())   
@@ -55,22 +63,9 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
 }
 initializeInterceptors.$inject = ["$httpProvider"];
 
-//TODO: move to other file
-export class AuthenticationRequired {
-    private static key = "authenticated";
-    public resolve = {};
-
-    constructor() {
-        this.resolve[AuthenticationRequired.key] = [
-            "$log", "session", ($log: ng.ILogService, session: ISession): ng.IPromise<any> => {
-                $log.debug("AuthenticationRequired...called");
-                return session.ensureAuthenticated();
-            }
-        ];
-    }
-}
-
 export { IServerLogger } from "./log/server-logger.svc";
 export {MessageDirective, MessageContainerComponent, MessageService};
 export { IMessageService } from "./messages/message.svc";
+export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef } 
+    from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 export { IMessage, Message, MessageType} from "./messages/message";

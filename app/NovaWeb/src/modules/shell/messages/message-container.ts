@@ -1,5 +1,4 @@
-﻿import {IMessageService, IMessage, Message, MessageType} from "../../shell";
-
+﻿import {IMessageService, IMessage, MessageType} from "../../shell";
 
 export class MessageContainerComponent implements ng.IComponentOptions {
     public template: string = require("./message-container.html");

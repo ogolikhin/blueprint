@@ -6,7 +6,11 @@ import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
 import "angular-perfect-scrollbar-2";
+import "angular-formly";
+import "angular-formly-templates-bootstrap";
 import "../shell";
+import "tinymce";
+import * as Enums from "./models/enums";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
@@ -23,6 +27,7 @@ import {config as routesConfig} from "./main.state";
 config.$inject = ["$rootScope", "$state"];
 
 export {
+    Enums,
     ProjectRepository, 
     IProjectManager, ProjectManager, Models
 };
@@ -40,6 +45,8 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
+
+    tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {
@@ -47,7 +54,8 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 }
 
 agGrid.initialiseAgGridWithAngular1(angular);
-angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2"])
+angular.module("app.main", [
+    "ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2", "formly", "formlyBootstrap"])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

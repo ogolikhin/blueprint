@@ -1,5 +1,5 @@
     import "angular";
-import {AuthenticationRequired} from "../shell";
+import {AuthenticationRequired} from "../shell/authentication";
 
 config.$inject = ["$stateProvider", "$urlRouterProvider"];
 export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider): void {

@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(146055)]
         [Description("Add comment for published artifact, delete artifact (don't publish), get discussion for this artifact, check that it returns 404.")]
-        public void GetDiscussionsForScheduleToDeleteArtifact_Throws404()
+        public void GetDiscussionsForMarkedForDeleteArtifact_Throws404()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
@@ -166,8 +166,7 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
-            Discussions discussions = null;
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
+            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 postedRaptorComment, "let replace it with random", _user);
 

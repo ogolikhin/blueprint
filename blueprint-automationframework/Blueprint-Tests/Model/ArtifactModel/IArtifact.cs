@@ -121,7 +121,6 @@ namespace Model.ArtifactModel
         /// <summary>
         /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
         /// </summary>
-        /// <param name="itemId">id of artifact/subartifact</param>
         /// <param name="discussionsText">text for the new discussion</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>

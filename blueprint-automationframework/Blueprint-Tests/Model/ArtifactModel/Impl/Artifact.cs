@@ -624,7 +624,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// Creates new reply for the specified Comment using Raptor REST API
         /// </summary>
         /// <param name="address">The base url of the Blueprint</param>
         /// <param name="comment">Comment to which we want reply</param>

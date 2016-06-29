@@ -31,7 +31,8 @@ export enum ArtifactStateEnum {
     Draft = 1,
     Deleted = 2
 }
-export enum PrimitiveType {
+
+export enum IPrimitiveType {
     Text = 0,
     Number = 1,
     Date = 2,
@@ -39,7 +40,6 @@ export enum PrimitiveType {
     Choice = 4,
     Image = 5
 }
-
 
 export interface IProjectNode {
     id: number;
@@ -50,7 +50,6 @@ export interface IProjectNode {
     hasChildren: boolean;
     children?: IProjectNode[];
 }
-
 
 export interface IArtifact  {
     id: number;
@@ -67,7 +66,7 @@ export interface IArtifact  {
 }
 export interface IItemType {
     id: number;
-    Name: string;
+    name: string;
     projectId?: number;
     versionId ?: number;
     instanceItemTypeId?: number;
@@ -81,7 +80,7 @@ export interface IPropertyType {
     id: number;
     versionId?: number;
     name: string;
-    primitiveType: PrimitiveType; 
+    primitiveType: IPrimitiveType; 
     instancePropertyTypeId?: number;
     isRichText: boolean;
     decimalDefaultValue?: number;
@@ -112,12 +111,10 @@ export interface IProjectMeta {
     //flags:
 }
 
-
 export interface IProject extends IArtifact {
     description: string;
     meta?: IProjectMeta;
 }
-
 
 export class Artifact implements IArtifactDetails {
     private _systemProperties: IPropertyType[];
@@ -177,6 +174,12 @@ export class Project implements IProject {
 
 
     
+}
+
+export interface IArtifactDetailFields {
+    systemFields: AngularFormly.IFieldConfigurationObject[];
+    customFields: AngularFormly.IFieldConfigurationObject[];
+    noteFields: AngularFormly.IFieldConfigurationObject[];
 }
 
 

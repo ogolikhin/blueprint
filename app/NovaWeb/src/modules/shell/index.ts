@@ -4,8 +4,8 @@ import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
 import core from "../core";
 import {AppComponent} from "./app.component";
-import {AuthSvc} from "./login/auth.svc";
-import {SessionSvc} from "./login/session.svc";
+import {AuthSvc, IUser} from "./login/auth.svc";
+import {SessionSvc, ISession} from "./login/session.svc";
 import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
@@ -31,6 +31,14 @@ import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as errorStateRouteConfig} from "./error/error.state";
 
+export { IUser, ISession}
+export { IServerLogger } from "./log/server-logger.svc";
+export  {MessageComponent, MessageContainerComponent, MessageService};
+export { IMessageService } from "./messages/message.svc";
+export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef }
+        from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+export { IMessage, Message, MessageType} from "./messages/message";
+
 angular.module("app.shell",
     [
         core,
@@ -55,7 +63,7 @@ angular.module("app.shell",
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
-    .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())    
+    .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
     .component("bpAttachmentsPanel", new BPAttachmentsPanel())
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
@@ -73,9 +81,3 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
 }
 initializeInterceptors.$inject = ["$httpProvider"];
 
-export { IServerLogger } from "./log/server-logger.svc";
-export {MessageComponent, MessageContainerComponent, MessageService};
-export { IMessageService } from "./messages/message.svc";
-export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef } 
-    from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-export { IMessage, Message, MessageType} from "./messages/message";

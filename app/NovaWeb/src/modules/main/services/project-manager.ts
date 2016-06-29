@@ -27,7 +27,7 @@ export interface IProjectManager {
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-    getArtifactPropertyFileds(project: Models.IArtifact): Models.IPropertyType[];
+    getArtifactPropertyFileds(project: Models.IArtifact): Models.IArtifactDetailFields;
 }
 
 
@@ -43,14 +43,6 @@ export class ProjectManager implements IProjectManager {
         private messageService: IMessageService,
         private _repository: IProjectRepository) {
     }
-
-    //public $onInit() {
-    //    this.initialize();
-    //}
-
-    //public $onDestroy() {
-    //    this.dispose();
-    //}
 
     public dispose() {
         //clear all Project Manager event subscription
@@ -118,7 +110,7 @@ export class ProjectManager implements IProjectManager {
             }
             let self = this;
             var _projectCollection: Models.IProject[] = this.projectCollection.getValue();
-            let _project = this.getProject(project.id);
+            var _project = this.getProject(project.id);
 
             if (_project) {
                 _projectCollection = _projectCollection.filter(function (it) {
@@ -131,8 +123,8 @@ export class ProjectManager implements IProjectManager {
             } else {
                 this._repository.getArtifacts(project.id)
                     .then((result: Models.IArtifact[]) => {
-                        _project = new Models.Project(project, { artifacts: result });
-                        _project = angular.extend(_project, {
+                        _project = new Models.Project(project, {
+                            artifacts: result,
                             loaded: true,
                             open: true
                         });
@@ -297,11 +289,95 @@ export class ProjectManager implements IProjectManager {
         return !!this.currentArtifact.getValue();
     }
 
-    
 
-    public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IPropertyType[] {
-        let propertyTypes: Models.IPropertyType[] = [];
+    public getArtifactSystemPropertyFileds(itemType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
+        let fields: AngularFormly.IFieldConfigurationObject[] = [];
+        
+
+        fields.push({
+            key: "name",
+            type: "input",
+            templateOptions: {
+                label: "Name",
+                required: true
+            }
+        });
+        
+        if (itemType) {
+            fields.push({
+                key: "type",
+                type: "select",
+                defaultValue: itemType.id.toString(),
+                templateOptions: {
+                    label: "Type",
+                    required: true,
+                    options: metaData.artifactTypes.filter((it: Models.IItemType) => {
+                        return (itemType && itemType.baseType === it.baseType);
+                    }).map(function (it) {
+                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
+                    })
+                },
+                expressionProperties: {
+                    "templateOptions.disabled": "to.options.length < 2",
+                }
+            });
+        }
+        fields.push({
+            key: "createdBy",
+            type: "input",
+            templateOptions: {
+                label: "Created by",
+                disabled: true
+            }
+        });
+        fields.push({
+            key: "createdOn",
+            type: "input",
+            templateOptions: {
+                type: "date",
+                label: "Created on",
+                disabled: true,
+            }
+        });
+        fields.push({
+            key: "lastEditBy",
+            type: "input",
+            templateOptions: {
+                label: "Last edited by",
+                disabled: true
+            }
+        });
+        fields.push({
+            key: "lastEditOn",
+            type: "input",
+            templateOptions: {
+                type: "date",
+                label: "Last edited on",
+                disabled: true
+            }
+        });
+
+        return fields;
+
+    }
+
+
+    //private getFieldType(type: Models.IPrimitiveType): string {
+    //    switch (type) {
+    //        case Models.IPrimitiveType.Choice:
+    //            return "select";
+    //        default:
+    //            return "input"
+    //    }
+    //}
+
+    public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
         try {
+            let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
+                systemFields: [],
+                customFields: [],
+                noteFields: []
+            };
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
@@ -315,18 +391,42 @@ export class ProjectManager implements IProjectManager {
             var artifactType = _project.meta.artifactTypes.filter((it: Models.IItemType) => {
                 return it.id === artifact.typeId;
             })[0];
+
+
+            fields.systemFields = this.getArtifactSystemPropertyFileds(artifactType, _project.meta);
+
             if (artifactType) {
-                propertyTypes = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
-                    return artifactType.customPropertyTypeIds.indexOf(it.id) >= 0;
+
+
+                _project.meta.propertyTypes.map((it: Models.IPropertyType) => {
+                    if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                        fields.customFields.push({
+                            key: it.id,
+                            type: "input",
+                            templateOptions: {
+                                label: it.name,
+                                required: it.isRequired,
+                            }
+                        });
+                    }
+                    
                 });
 
             }
+            fields.noteFields = [
+                {
+                    key: "description",
+                    type: "textarea",
+                    templateOptions: {
+                        label: "Description",
+                    }
+                }];
+            return fields;
+
 
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
-
-        return propertyTypes;    
 
     }
 }

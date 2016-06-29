@@ -106,5 +106,16 @@ namespace Model
         List<Reply> GetDiscussionsReplies(Comment comment,  IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets attachments for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/attachment)
+        /// </summary>
+        /// <param name="itemId">Id of artifact/subartifact to get attachment</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Attachment object for the specified artifact/subartifact.</returns>
+        Attachment GetItemsAttachment(int itemId, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

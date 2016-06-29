@@ -204,6 +204,18 @@ namespace Model.Impl
                 return discussionReplies;
         }
 
+        public Attachment GetItemsAttachment(int itemId, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/attachment", SVC_PATH, itemId);
+
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+            var attachment = restApi.SendRequestAndDeserializeObject<Attachment>(path,
+                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return attachment;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

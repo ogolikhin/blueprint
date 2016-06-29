@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -10,6 +11,7 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using System.Text;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -500,6 +502,46 @@ namespace Model.ArtifactModel.Impl
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;
+        }
+
+        /// <summary>
+        /// POST discussion for the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="comment">Comment to reply</param>
+        /// <param name="discussionText">Text for replying</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
+        public static void AddAttachment(string address,
+            int projectId, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(1024);
+            byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
+            IFile file = Factories.FileFactory.CreateFile("testFile", "txt", DateTime.Now, fileContents);
+
+            string tokenValue = user.Token?.OpenApiToken;
+            string path = I18NHelper.FormatInvariant(URL_OPENAPI_ARTIFACT_ATTACHMENT, projectId, artifactId);
+            var restApi = new RestApiFacade(address, tokenValue);
+            var additionalHeaders = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(file.FileType))
+            {
+                additionalHeaders.Add("Content-Type", file.FileType);
+            }
+
+            if (!string.IsNullOrEmpty(file.FileName))
+            {
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        System.Web.HttpUtility.UrlEncode(file.FileName, System.Text.Encoding.UTF8)));
+            }
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, "attachment test",
+                file.Content.ToArray(), additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
 
         #endregion Static Methods

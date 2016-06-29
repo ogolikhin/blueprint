@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace ArtifactStore.Models
@@ -33,23 +34,38 @@ namespace ArtifactStore.Models
         public LinkType LinkType { get; set; }
         public bool IsSuspect { get; set; }
     }
+    [JsonObject]
     public class RelationshipResultSet
     {
+        [JsonProperty]
         public List<Relationship> ManualTraces;
+        [JsonProperty]
         public List<Relationship> OtherTraces;
     }
+    [JsonObject]
     public class Relationship
     {
+        [JsonProperty]
         public int ArtifactId { get; set; }
+        [JsonProperty]
         public string ArtifactTypePrefix { get; set; }
+        [JsonProperty]
         public string ArtifactName { get; set; }
+        [JsonProperty]
         public int ItemId { get; set; }
+        [JsonProperty]
         public string ItemTypePrefix { get; set; }
+        [JsonProperty]
         public string ItemName { get; set; }
+        [JsonProperty]
         public int ProjectId { get; set; }
+        [JsonProperty]
         public string ProjectName { get; set; }
+        [JsonProperty]
         public TraceDirection TraceDirection { get; set; }
+        [JsonProperty]
         public LinkType TraceType { get; set; }
+        [JsonProperty]
         public bool Suspect { get; set; }
     }
 }

@@ -49,7 +49,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
                         `/svc/components/RapidReview/artifacts/${attachmentResultSet.artifactId}/files/${attachmentResultSet.attachments[0].attachmentId}`,
                         "_blank");
                 } else {
-                    alert("sorry there are no attachments available");
+                    alert(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }
             });
     }

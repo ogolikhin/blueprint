@@ -34,8 +34,8 @@ export class BPAttachmentsPanelController {
         private artifactAttachments: IArtifactAttachments) {
 
         this.addOptions = [
-            { value: "attachment", label: "Attachment" }, //this.localization.get("App_UP_Filter_SortByLatest") },
-            { value: "document", label: "Reference Document" } //this.localization.get("App_UP_Filter_SortByEarliest") },
+            { value: "attachment", label: this.localization.get("App_UP_Attachments_Add_Attachment") },
+            { value: "document", label: this.localization.get("App_UP_Attachments_Add_Ref_Doc") },
         ];
     }
 
@@ -47,12 +47,6 @@ export class BPAttachmentsPanelController {
             .subscribe(this.setArtifactId);
 
         this._subscribers = [ selectedArtifactSubscriber ];
-
-        // TODO: remove
-        // this.getAttachments(306)
-        //     .then( (result: IArtifactAttachmentsResultSet) => {
-        //         this.artifactAttachmentsList = result;
-        //     });
     }
 
     public $onDestroy() {

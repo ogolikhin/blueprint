@@ -35,31 +35,12 @@ export interface IMessageScope extends ng.IScope {
     messageCntrl: MessageController;    
 }
 
-export class MessageDirective implements ng.IDirective { 
+export class MessageComponent implements ng.IComponentOptions {
     public template: string = require("./message.html");
-    public restrict = "E";
-
-    public transclude = true;
-
-    public scope = {
-        onMessageClosed: "&"     
+    public controller: Function = MessageController;
+    public transclude: boolean = true;
+    public bindings: any = {
+        onMessageClosed: "&",
+        messageType: "@"
     };
-
-    public static factory() {
-        const directive = () => new MessageDirective();
-        directive["$inject"] = [];
-        return directive;
-    }
-
-    constructor() {}
-
-    public link: ng.IDirectiveLinkFn = ($scope: IMessageScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
-       $scope.messageCntrl.messageType = attrs["messageType"];
-    };
-
-    public controller = MessageController;
-    public controllerAs = "messageCntrl";
-    public bindToController = true;
 }
-
-

@@ -9,13 +9,6 @@ namespace ArtifactStore.Models
         From = 1,
         TwoWay = 2
     }
-    public enum TraceType
-    {
-        ParentChild,
-        Manual,
-        Reuse,
-        Other
-    }
     public enum LinkType
     {
         None = 0,
@@ -47,14 +40,16 @@ namespace ArtifactStore.Models
     }
     public class Relationship
     {
-        public int ArtifactId;
-        public string ArtifactName;
-        public int itemId;
-        public string SubartifactName;
-        public int ProjectId;
-        public string ProjectName;
-        public TraceDirection TraceDirection;
-        public TraceType TraceType;
-        public bool Suspect;
+        public int ArtifactId { get; set; }
+        public string ArtifactTypePrefix { get; set; }
+        public string ArtifactName { get; set; }
+        public int ItemId { get; set; }
+        public string ItemTypePrefix { get; set; }
+        public string ItemName { get; set; }
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; }
+        public TraceDirection TraceDirection { get; set; }
+        public LinkType TraceType { get; set; }
+        public bool Suspect { get; set; }
     }
 }

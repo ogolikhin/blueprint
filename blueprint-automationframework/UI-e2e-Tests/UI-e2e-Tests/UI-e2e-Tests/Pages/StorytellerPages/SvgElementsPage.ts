@@ -3,12 +3,14 @@
  * Assumption: Project and user need to be predefined.
  */
 
-var storytellerLocator = require('../../Locator/StorytellerLocator.json');
+
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import ElementArrayFinder = protractor.ElementArrayFinder;
 import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
 import WebElement = protractor.WebElement;
+
+var storytellerLocator = require('../../Locator/StorytellerLocator.json');
 var logger = require('winston');
 
 class Svgelementspages {
@@ -30,14 +32,14 @@ class Svgelementspages {
     private panelDiscussionTextArea: ElementFinder;
     private panelDiscussionTextAreaBody: ElementFinder;
     private panelDiscussionPostButton: ElementFinder;
-    private storytellerToggleTextForBusniessProcess: ElementFinder;
+    private storytellerToggleTextForBusinessProcess: ElementFinder;
     private storytellerToggleTextForUserSystemProcess: ElementFinder;
-    private storytellerTogglecheckBox: ElementFinder;
+    private storytellerToggleCheckBox: ElementFinder;
     private publishArtifact: ElementFinder;
-    private publishArtifactSucessMessage: ElementFinder;
+    private publishArtifactSuccessMessage: ElementFinder;
     private postCommentText: ElementFinder;
     private generateUserStoriesMenuButton: ElementFinder;
-    private generateUserStoriesMenuIteams: ElementArrayFinder;
+    private generateUserStoriesMenuItems: ElementArrayFinder;
     private overlayDB: ElementArrayFinder;
     private footerDiscussionButton: ElementArrayFinder;
     private footerModalTitle: ElementFinder;
@@ -57,10 +59,10 @@ class Svgelementspages {
     private includeArtifactTextBox: ElementFinder;
     private includeArtifactDropdownList: ElementArrayFinder;
     private modalOKButton: ElementFinder;
-    private breadcurmbsList: ElementArrayFinder;
+    private breadcrumbsList: ElementArrayFinder;
     private confirmModalSaveButton: ElementFinder;
     private deleteButton: ElementFinder;
-    private warningPopUP: ElementFinder;
+    private warningPopUp: ElementFinder;
     private warningPopUpOKButton: ElementFinder;
     private discardButton: ElementFinder;
     private discardWarningPopUpOKButton: ElementFinder;
@@ -85,14 +87,14 @@ class Svgelementspages {
         this.panelDiscussionTextArea = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionTextArea));
         this.panelDiscussionTextAreaBody = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaBody));
         this.panelDiscussionPostButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.panelDiscussionPostButton));
-        this.storytellerToggleTextForBusniessProcess = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
+        this.storytellerToggleTextForBusinessProcess = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
         this.storytellerToggleTextForUserSystemProcess = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleTextForUserSystemProcess));
-        this.storytellerTogglecheckBox = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerTogglecheckBox));
+        this.storytellerToggleCheckBox = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.storytellerToggleCheckBox));
         this.publishArtifact = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.publishArtifact));
-        this.publishArtifactSucessMessage = element(By.id(storytellerLocator.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
+        this.publishArtifactSuccessMessage = element(By.id(storytellerLocator.locators.storyteller.utilityPanelStoryteller.publishArtifactSuccessMessage));
         this.postCommentText = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.postCommentText));
         this.generateUserStoriesMenuButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
-        this.generateUserStoriesMenuIteams = element.all(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
+        this.generateUserStoriesMenuItems = element.all(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuItems));
         this.footerModalTitle = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerModelTitle));
         this.footerModalCancelButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
         this.footerEditDetailButton = element.all(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
@@ -110,10 +112,10 @@ class Svgelementspages {
         this.includeArtifactTextBox = element(By.id(storytellerLocator.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
         this.includeArtifactDropdownList = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
         this.modalOKButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.modelOKButton));
-        this.breadcurmbsList = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
+        this.breadcrumbsList = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.breadcrumbsList)).all(by.tagName("li"));
         this.confirmModalSaveButton = element(By.css(storytellerLocator.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
         this.deleteButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.deleteButton));
-        this.warningPopUP = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.warningPopUP));
+        this.warningPopUp = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.warningPopUp));
         this.warningPopUpOKButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.warningPopUpOKButton));
         this.discardButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.discardButton));
         this.discardWarningPopUpOKButton = element(By.css(storytellerLocator.locators.storyteller.utilityPanelStoryteller.discardWarningPopUpOKButton));
@@ -136,14 +138,14 @@ class Svgelementspages {
     public get getPanelDiscussionTextArea(): ElementFinder { return this.panelDiscussionTextArea; }
     public get getPanelDiscussionTextAreaBody(): ElementFinder { return this.panelDiscussionTextAreaBody; }
     public get getPanelDiscussionPostButton(): ElementFinder { return this.panelDiscussionPostButton; }
-    public get getStorytellerToggleTextForBusniessProcess(): ElementFinder { return this.storytellerToggleTextForBusniessProcess; }
+    public get getStorytellerToggleTextForBusinessProcess(): ElementFinder { return this.storytellerToggleTextForBusinessProcess; }
     public get getStorytellerToggleTextForUserSystemProcess(): ElementFinder { return this.storytellerToggleTextForUserSystemProcess; }
-    public get getStorytellerTogglecheckBox(): ElementFinder { return this.storytellerTogglecheckBox; }
+    public get getStorytellerToggleCheckBox(): ElementFinder { return this.storytellerToggleCheckBox; }
     public get getPublishArtifact(): ElementFinder { return this.publishArtifact; }
-    public get getPublishArtifactSucessMessage(): ElementFinder { return this.publishArtifactSucessMessage; }
+    public get getPublishArtifactSuccessMessage(): ElementFinder { return this.publishArtifactSuccessMessage; }
     public get getPostCommentText(): ElementFinder { return this.postCommentText; }
     public get getGenerateUserStoriesMenuButton(): ElementFinder { return this.generateUserStoriesMenuButton; }
-    public get getGenerateUserStoriesMenuIteams(): ElementArrayFinder { return this.generateUserStoriesMenuIteams; }
+    public get getGenerateUserStoriesMenuItems(): ElementArrayFinder { return this.generateUserStoriesMenuItems; }
     public get getFooterModalTitle(): ElementFinder { return this.footerModalTitle; }
     public get getFooterModalCancelButton(): ElementFinder { return this.footerModalCancelButton; }
     public get getFooterEditDetailButton(): ElementArrayFinder { return this.footerEditDetailButton; }
@@ -160,11 +162,11 @@ class Svgelementspages {
     public get getIncludeArtifactTextBox(): ElementFinder { return this.includeArtifactTextBox; }
     public get getIncludeArtifactDropdownList(): ElementArrayFinder { return this.includeArtifactDropdownList; }
     public get getModalOKButton(): ElementFinder { return this.modalOKButton; }
-    public get getBreadcurmbsList(): ElementArrayFinder { return this.breadcurmbsList; }
+    public get getBreadcrumbsList(): ElementArrayFinder { return this.breadcrumbsList; }
     public get getIncludeButtonAtModal(): ElementArrayFinder { return this.includeButtonAtModal; }
     public get getConfirmModalSaveButton(): ElementFinder { return this.confirmModalSaveButton; }
     public get getDeleteButton(): ElementFinder { return this.deleteButton; }
-    public get getWarningPopUP(): ElementFinder { return this.warningPopUP; }
+    public get getWarningPopUp(): ElementFinder { return this.warningPopUp; }
     public get getWarningPopUpOKButton(): ElementFinder { return this.warningPopUpOKButton; }
     public get getDiscardButton(): ElementFinder { return this.discardButton; }
     public get getDiscardWarningPopUpOKButton(): ElementFinder { return this.discardWarningPopUpOKButton; }
@@ -173,7 +175,7 @@ class Svgelementspages {
     public get getuserStoryLinkAtReviewTraceTab(): ElementFinder { return this.userStoryLinkAtReviewTraceTab; }
     public get getuserStoryLinkAtFileTab(): ElementFinder { return this.userStoryLinkAtFileTab; }
     
-    // funtion for edit shape's header
+    // function for edit shape's header
     public editHeader(shape: number, headerName: any): void {
         this.labelHeader.then((elements) => {
             console.log("Total is label from edit header " + elements.length);
@@ -206,7 +208,7 @@ class Svgelementspages {
 
     }
 
-//funtion to edit body  of a shape
+//function to edit body  of a shape
 
     public  editBody(shape: number, bodyText: any):void {
         this.labelBody.then((elements) =>{
@@ -217,7 +219,7 @@ class Svgelementspages {
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
                 browser.actions().sendKeys('\n').perform();
-                console.log("End of edtign");
+                console.log("End of editing");
 
            } else {
                console.log("Your element is not in array-this is custom error message");
@@ -226,7 +228,7 @@ class Svgelementspages {
 
     }
 
-//funtion to verify text body  of a shape
+//function to verify text body  of a shape
 
     public verifyBodyText(shape: number): Promise<string> {
         browser.wait(ArrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
@@ -250,7 +252,7 @@ class Svgelementspages {
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
                 browser.actions().sendKeys('\n').perform();
-                console.log("End of edtign");
+                console.log("End of editign");
 
             } else {
                 console.log("Your element is not in array-this is custom error message");
@@ -334,8 +336,8 @@ class Svgelementspages {
            });
     }
 // function for generate user story menu items
-   public generateUserStoiesDropDownMenu(menuItem: number): Promise<protractor.WebElement> {
-       return this.generateUserStoriesMenuIteams.all(by.tagName('li')).then((elements) => {
+   public generateUserStoriesDropDownMenu(menuItem: number): Promise<protractor.WebElement> {
+       return this.generateUserStoriesMenuItems.all(by.tagName('li')).then((elements) => {
            return elements[menuItem];
        });
 

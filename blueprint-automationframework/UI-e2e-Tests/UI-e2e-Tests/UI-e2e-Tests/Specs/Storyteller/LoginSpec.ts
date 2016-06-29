@@ -5,6 +5,7 @@
  */
 import Artifact = require("../../Model/CreateArtifacts");
 import Page = require("../../Pages/StorytellerPages/LoginPage");
+
 let mockData = require('../../CustomConfig/MockData.json');
 var artifact: Artifact;
 var storytellerLocator = require('../../Locator/StorytellerLocator.json');

@@ -5,6 +5,7 @@
 import Page = require("../../Pages/StorytellerPages/SvgElementsPage");
 import Artifact = require("../../Model/CreateArtifacts");
 import ArrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
+
 let mockData = require('../../CustomConfig/MockData.json');
 var artifact: Artifact;
 var storytellerLocator = require('../../Locator/StorytellerLocator.json');
@@ -32,8 +33,8 @@ describe("Storyteller end to end test", () => {
 
         it("Should be able to toggle to user system process", () => {
             //Act           
-            if (svgElementsPage.getStorytellerTogglecheckBox.isSelected()) {
-                svgElementsPage.getStorytellerTogglecheckBox.click();
+            if (svgElementsPage.getStorytellerToggleCheckBox.isSelected()) {
+                svgElementsPage.getStorytellerToggleCheckBox.click();
             }
             //Assert toggle's text
             expect(svgElementsPage.getStorytellerToggleTextForUserSystemProcess.getText()).toBe('User-System Process');
@@ -45,13 +46,13 @@ describe("Storyteller end to end test", () => {
             svgElementsPage.getPublishArtifact.click();
             
             // Assert confirmation message
-            expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("The Process has been published.");
+            expect(svgElementsPage.getPublishArtifactSuccessMessage.getText()).toBe("The Process has been published.");
 
         });
         it("Should be able generate user story", () => {
             //Act
             svgElementsPage.getGenerateUserStoriesMenuButton.click();
-            svgElementsPage.generateUserStoiesDropDownMenu(1).then((el) => { el.click(); });//@parm 1 for generate All, 0 for generate from user task
+            svgElementsPage.generateUserStoriesDropDownMenu(1).then((el) => { el.click(); });//@parm 1 for generate All, 0 for generate from user task
             //Assert sucess message
             //TODO need to find the elment for sucess message
             //expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("The Process has been published.");
@@ -377,8 +378,8 @@ describe("Storyteller end to end test", () => {
                 browser.wait(protractor.until.elementIsVisible(svgElementsPage.getDeleteButton.getWebElement()), 1000).then(() => { svgElementsPage.getDeleteButton.click(); });
 
                 //Assert delete confirm meesage 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getWarningPopUP.getWebElement()), 5000).then(() => {
-                    expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task.");
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getWarningPopUp.getWebElement()), 5000).then(() => {
+                    expect(svgElementsPage.getWarningPopUp.getText()).toBe("Please confirm the deletion of the selected user task.");
                 });
                 //expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task.");//A warning pop up windows display with following contents
                 svgElementsPage.getWarningPopUpOKButton.click();
@@ -396,7 +397,7 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.selectAddItem(customConfigStoryteller.storyteller.addUserTaskItemsIndex).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 svgElementsPage.getDiscardButton.click();
                 //Assert confirmation message
-                expect(svgElementsPage.getWarningPopUP.getText()).toBe("After discarding your changes, each artifact is restored to its last published version.");//A warning pop up windows display with following contents
+                expect(svgElementsPage.getWarningPopUp.getText()).toBe("After discarding your changes, each artifact is restored to its last published version.");//A warning pop up windows display with following contents
                 svgElementsPage.getDiscardWarningPopUpOKButton.click();
                 //TODO
                 //expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("Changes Were Discarded");//should displaying sucess message

@@ -19,7 +19,7 @@ export class BPCommentEditController {
     public commentPlaceHolderText: string;
 
     constructor() {
-        tinymce.baseURL = "../novaweb/libs/tinymce";
+        //tinymce.baseURL = "../novaweb/libs/tinymce";
         setTimeout(() => {
             tinymce.init({
                 mode: 'textareas',

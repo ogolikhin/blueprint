@@ -21,7 +21,7 @@ export class BPDiscussionPanelController {
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
-    public sortAscending: boolean = false;
+    //public sortAscending: boolean = false;
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
@@ -60,7 +60,7 @@ export class BPDiscussionPanelController {
     private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
-        if (artifact !== null && artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== '_CFL') {
+        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== '_CFL') {
             this.artifactId = artifact.id;
             this.getArtifactDiscussions()
                 .then((discussionResultSet: IDiscussionResultSet) => {

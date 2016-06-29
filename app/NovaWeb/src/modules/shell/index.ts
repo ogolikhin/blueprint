@@ -33,7 +33,7 @@ import {config as errorStateRouteConfig} from "./error/error.state";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
-export { MessageDirective, MessageContainerComponent, MessageService};
+export  {MessageComponent, MessageContainerComponent, MessageService};
 export { IMessageService } from "./messages/message.svc";
 export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef }
         from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";

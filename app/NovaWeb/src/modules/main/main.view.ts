@@ -1,7 +1,7 @@
 ﻿import "angular";
 //import {ILocalizationService} from "../core/localization";
 //import { IDialogService } from "../core/";
-import { IMessageService, Message, IUser, ISession } from "../shell";
+import { IMessageService, IUser, ISession } from "../shell";
 import { IProjectManager, Models, Enums } from "./";
 
 export class MainViewComponent implements ng.IComponentOptions {

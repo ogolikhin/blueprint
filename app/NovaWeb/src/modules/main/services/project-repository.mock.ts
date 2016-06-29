@@ -76,7 +76,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
     public getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifactDetails> {
 
         var deferred = this.$q.defer<Models.IArtifactDetails>();
-        let artifact = new Models.Artifact({ id: artifactId })
+        let artifact = new Models.Artifact({ id: artifactId });
         deferred.resolve(artifact);
         return deferred.promise;
     }

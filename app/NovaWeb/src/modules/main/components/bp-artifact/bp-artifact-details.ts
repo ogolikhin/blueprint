@@ -42,7 +42,7 @@ export class BpArtifactRetailsController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private properties: Models.IPropertyType[];
+//    private properties: Models.IPropertyType[];
     public loadView(artifact: Models.IArtifactDetails) {
         if (!artifact) {
             return;

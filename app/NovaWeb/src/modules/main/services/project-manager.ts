@@ -314,7 +314,7 @@ export class ProjectManager implements IProjectManager {
                     options: metaData.artifactTypes.filter((it: Models.IItemType) => {
                         return (itemType && itemType.baseType === it.baseType);
                     }).map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name }
+                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
                     })
                 },
                 expressionProperties: {
@@ -362,15 +362,14 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-
-    private getFieldType(type: Models.IPrimitiveType): string {
-        switch (type) {
-            case Models.IPrimitiveType.Choice:
-                return "select";
-            default:
-                return "input"
-        }
-    }
+    //private getFieldType(type: Models.IPrimitiveType): string {
+    //    switch (type) {
+    //        case Models.IPrimitiveType.Choice:
+    //            return "select";
+    //        default:
+    //            return "input"
+    //    }
+    //}
 
     public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
         try {
@@ -408,7 +407,7 @@ export class ProjectManager implements IProjectManager {
                                 label: it.name,
                                 required: it.isRequired,
                             }
-                        })
+                        });
                     }
                     
                 });
@@ -421,7 +420,7 @@ export class ProjectManager implements IProjectManager {
                     templateOptions: {
                         label: "Description",
                     }
-                }]
+                }];
             return fields;
 
 

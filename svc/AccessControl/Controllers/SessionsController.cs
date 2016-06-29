@@ -14,6 +14,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {

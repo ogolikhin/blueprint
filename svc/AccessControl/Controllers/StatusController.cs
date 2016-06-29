@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {

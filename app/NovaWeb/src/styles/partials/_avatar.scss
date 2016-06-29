@@ -12,7 +12,7 @@ bp-avatar {
         font-size: $font-size-bigger;
         text-transform: uppercase;
         
-        img, .initials, .guest {
+        img, .initials {
             position: absolute;
             top: 2px;
             left: 2px;
@@ -22,7 +22,7 @@ bp-avatar {
             border: 0;
         }
     }
-    
+
     &.guest {
         .initials {
             background-image: url('images/guest.png') !important;

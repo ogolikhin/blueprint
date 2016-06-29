@@ -14,21 +14,30 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class RelationshipsController : LoggableApiController
     {
-        //internal readonly ISqlAttachmentsRepository AttachmentsRepository;
+        internal readonly IRelationshipsRepository RelationshipsRepository;
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.Relationships";
 
+        public RelationshipsController() : this(new SqlRelationshipsRepository(), new SqlArtifactPermissionsRepository())
+        {
+        }
+        public RelationshipsController(IRelationshipsRepository relationshipsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        {
+            RelationshipsRepository = relationshipsRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
+        }
+
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/relationships"), SessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/relationships"), NoSessionRequired]
         [ActionName("GetRelationships")]
         public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = new Session { UserId = 1 };//Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }
-
+            var itemId = artifactId;
             if (subArtifactId.HasValue)
             {
                 var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(subArtifactId.Value, session.UserId, addDrafts));
@@ -36,12 +45,14 @@ namespace ArtifactStore.Controllers
                 {
                     throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
                 }
+                itemId = subArtifactId.Value;
             }
             var artifactIds = new List<int> { artifactId };
 
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
 
-            return await Task.FromResult(new RelationshipResultSet());
+            var result = await RelationshipsRepository.GetRelationships(itemId, session.UserId, addDrafts);
+            return result;
         }
 
     }

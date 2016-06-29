@@ -5,6 +5,6 @@ namespace ArtifactStore.Repositories
 {
     public interface IRelationshipsRepository
     {
-        Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true);
+        Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true);
     }
 }

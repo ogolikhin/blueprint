@@ -60,7 +60,7 @@ export class BPDiscussionPanelController {
     private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
-        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== '_CFL') {
+        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
             this.getArtifactDiscussions()
                 .then((discussionResultSet: IDiscussionResultSet) => {

@@ -10,7 +10,7 @@ export interface IArtifactAttachment {
     userName: string;
     fileName: string;
     attachmentId: number;
-    uploadDate: string;
+    uploadedDate: string;
 }
 
 export interface IArtifactDocRef {
@@ -50,7 +50,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
         subArtifactId: number = null, 
         addDrafts: boolean = true): ng.IPromise<IArtifactAttachmentsResultSet> {
 
-        const defer = this.$q.defer<any>();
+        const defer = this.$q.defer<IArtifactAttachmentsResultSet>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/attachment`, 
             method: "GET",

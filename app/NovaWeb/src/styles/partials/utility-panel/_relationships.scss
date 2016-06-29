@@ -1,0 +1,10 @@
+bp-relationships-panel {
+    bp-artifact-relationship-item {
+        [class^="fonticon-"],
+        [class*=" fonticon-"] {
+            &::before {
+                font-size: 1.5rem;
+            }
+        }
+    }
+}

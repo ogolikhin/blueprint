@@ -11,9 +11,12 @@ import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
+import {ArtifactRelationship} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
+import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
+import {BPArtifactRelationshipItem} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/bp-artifact-relationship-item";
 import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifact-discussions.svc";
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
@@ -42,10 +45,13 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
+    .service("artifactRelationship", ArtifactRelationship)
     .service("artifactDiscussions", ArtifactDiscussions)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
+    .component("bpRelationshipsPanel", new BPRelationshipsPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
+    .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())
     .component("bpDiscussionPanel", new BPDiscussionPanel())
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
     .service("artifactAttachments", ArtifactAttachments)

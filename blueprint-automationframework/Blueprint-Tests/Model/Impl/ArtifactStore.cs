@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using Common;
 using Model.ArtifactModel.Impl;
+using Model.ArtifactModel;
 using Utilities;
 using Model.Factories;
 using Utilities.Facades;
@@ -175,6 +176,31 @@ namespace Model.Impl
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
             return artifactHistory.ArtifactHistoryVersions;
+        }
+
+        public Discussions GetArtifactDiscussions(int itemId, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions", SVC_PATH, itemId);
+
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(path,
+                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return artifactDiscussions;
+        }
+
+        public List<Reply> GetDiscussionsReplies(Comment comment, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(comment, nameof(comment));
+                string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions/{2}/replies", SVC_PATH, comment.ItemId, comment.DiscussionId);
+
+                var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+                var discussionReplies = restApi.SendRequestAndDeserializeObject<List<Reply>>(path,
+                    RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return discussionReplies;
         }
 
         #endregion Members inherited from IArtifactStore

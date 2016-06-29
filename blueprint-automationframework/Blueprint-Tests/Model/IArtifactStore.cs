@@ -1,4 +1,5 @@
 ﻿using Model.Impl;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,28 @@ namespace Model
         /// <returns>List of artifacts versions.</returns>
         List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user,
             bool? sortByDateAsc = null, int? limit = null, int? offset = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets discussions for the artifact or subartifact with specified id
+        /// (Runs: GET svc/ArtifactStore/artifacts/{itemId}/discussions)
+        /// </summary>
+        /// <param name="itemId">id of the artifact/subartifact</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Discussion for the artifact/subartifact with specified id.</returns>
+        Discussions GetArtifactDiscussions(int itemId, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets replies for the specified comment
+        /// (Runs: GET svc/ArtifactStore/artifacts/{comment.itemId}/discussions/{comment.discussionId}/replies)
+        /// </summary>
+        /// <param name="comment">Comment to get replies</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Replies for the specified comment.</returns>
+        List<Reply> GetDiscussionsReplies(Comment comment,  IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
     }

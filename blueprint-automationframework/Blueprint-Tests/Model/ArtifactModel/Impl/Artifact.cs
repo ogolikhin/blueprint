@@ -341,6 +341,13 @@ namespace Model.ArtifactModel.Impl
                 sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
+        public IRaptorComment PostRaptorDiscussions(string discussionsText,
+            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            return PostRaptorDiscussions(Address, Id, discussionsText, user, expectedStatusCodes);
+        }
+
         #endregion Methods
 
         #region Static Methods
@@ -469,15 +476,15 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Discussion for artifact/subartifact</returns>
-        public static IDiscussion GetDiscussions(string address,
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorDiscussion GetRaptorDiscussions(string address,
             int itemId,
             bool includeDraft,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            return OpenApiArtifact.GetDiscussions(
+            return OpenApiArtifact.GetRaptorDiscussions(
                 address,
                 itemId,
                 includeDraft,
@@ -595,6 +602,44 @@ namespace Model.ArtifactModel.Impl
                 artifactToPublish.IsSaved = false;
             }
             return publishResults[0];
+        }
+
+        /// <summary>
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// </summary>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="itemId">id of artifact/subartifact</param>
+        /// <param name="discussionsText">text for the new discussion</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorComment for artifact/subartifact</returns>
+        public static IRaptorComment PostRaptorDiscussions(string address,
+            int itemId,
+            string discussionsText,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.PostRaptorDiscussion(address, itemId, discussionsText,
+                user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Creates new reply for the specified Comment using Raptor REST API
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="comment">Comment to which we want reply</param>
+        /// <param name="replyText">text for the new reply</param>
+        /// <param name="user">The user credentials to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
+        public static IRaptorReply PostRaptorDiscussionReply(string address,
+            IRaptorComment comment,
+            string replyText,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.PostRaptorDiscussionReply(address, comment, replyText,
+                user, expectedStatusCodes);
         }
 
         #endregion Static Methods

@@ -4,8 +4,8 @@ import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
 import core from "../core";
 import {AppComponent} from "./app.component";
-import {AuthSvc} from "./login/auth.svc";
-import {SessionSvc} from "./login/session.svc";
+import {AuthSvc, IUser} from "./login/auth.svc";
+import {SessionSvc, ISession} from "./login/session.svc";
 import {HttpErrorInterceptor} from "./login/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
@@ -25,6 +25,14 @@ import {MessageDirective} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as routesConfig} from "./error.state";
+
+export { IUser, ISession}
+export { IServerLogger } from "./log/server-logger.svc";
+export { MessageDirective, MessageContainerComponent, MessageService};
+export { IMessageService } from "./messages/message.svc";
+export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef }
+        from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+export { IMessage, Message, MessageType} from "./messages/message";
 
 angular.module("app.shell",
     [
@@ -63,9 +71,3 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
 }
 initializeInterceptors.$inject = ["$httpProvider"];
 
-export { IServerLogger } from "./log/server-logger.svc";
-export {MessageDirective, MessageContainerComponent, MessageService};
-export { IMessageService } from "./messages/message.svc";
-export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef } 
-    from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-export { IMessage, Message, MessageType} from "./messages/message";

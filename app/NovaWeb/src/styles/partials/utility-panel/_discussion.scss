@@ -1,24 +1,163 @@
 bp-discussion-panel {
     $item-gap: $padding-bigger;
-    
-    bp-artifact-discussion-item {
-        &:hover {
-            cursor: pointer;
-            background: $gray-lightest;
+
+    .btn-new-comment {
+        background-color: $gray-lightest;
+        color: $blue-light;
+        border: solid 1px #ccc;
+        padding: $padding-smallest;
+        min-width: 0;
+    }
+
+    bp-comment-edit {
+        .edit-container {
+            text-align: center;
+            margin-top: $padding-smaller;
+            padding: $padding-smaller;
         }
 
-        &.selected {
-            background: $gray-lightest;
-            border: 1px solid $brand-secondary;
+        textarea {
+            width: 100%;
+            height: 80px;
         }
 
+        .comment-edit-button-bar {
+            margin-top: $padding-smallest;
+        }
+    }
+
+    .float-left {
+        float: left;
+    }
+
+    .float-right {
+        float: right;
+    }
+
+    .clear-both {
+        clear: both;
+    }
+
+    .empty-state {
+        padding: $padding-smaller;
+    }
+
+    bp-artifact-discussion-item, bp-discussion-reply-item {
         .username {
-            color: #01A7E1;
+            color: $blue-light;
         }
 
-        .discussion-info{
-            margin-left:50px;
-            margin-top:-40px;
+        .status {
+            text-align: right;
+            margin-right: -1* $padding-smaller;
+        }
+
+        .discussion-info {
+            margin-left: 50px;
+            margin-top: -40px;
+        }
+
+        .version {
+            padding-right: $padding-smaller;
+        }
+
+        .inline-block {
+            display: inline-block;
+        }
+
+        .discussion-button-bar {
+            margin-top: $padding-bigger;
+            margin-bottom: -1* $padding-smaller;
+            padding: $padding-smallest;
+            text-align: right;
+        }
+
+        .disucssion-buttonbar-item {
+            font-family: 'bp-font';
+            padding: 0 $padding-smaller;
+        }
+
+        .reply-count {
+            @extend .inline-block;
+            @extend .disucssion-buttonbar-item;
+
+            &::before {
+                font-size: $font-size-biggest;
+            }
+        }
+
+        .delete-comment {
+            @extend .inline-block;
+            @extend .disucssion-buttonbar-item;
+
+            &::before {
+                font-size: $font-size-big;
+            }
+        }
+
+        .edit-comment {
+            @extend .inline-block;
+            @extend .disucssion-buttonbar-item;
+
+            &::before {
+                font-size: $font-size-small;
+            }
+        }
+
+        .expand-icon {
+            @extend .inline-block;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            &::before {
+                font-size: $font-size-bigger;
+            }
+        }
+
+        .expanded {
+            @include transform-rotate(180);
+        }
+
+        .status-name {
+            color: $gray-light;
+            @extend .inline-block;
+            padding-right: $padding-smallest;
+            margin-right: -1 * $padding-smallest;
+        }
+
+        .reply-link {
+            @extend .inline-block;
+            border-left: solid 1px #ccc;
+            font-size: $font-size-big;
+            padding: 0 $padding-smallest 0 $padding-smaller;
+
+            .active {
+                color: $blue-light;
+                cursor: pointer;
+            }
+
+            .inactive {
+                color: #AAAAAA;
+                cursor: default;
+                pointer-events: none;
+                text-decoration: none;
+            }
+        }
+    }
+
+    bp-discussion-reply-item {
+        margin-left: $padding-smaller !important;
+        background-color: $blue-lightest;
+
+        .reply-separator {
+            width: 2px;
+            height: $item-gap;
+            background: $gray-lighter;
+            position: absolute;
+            top: -$item-gap;
+            left: 28px;
         }
     }
 }

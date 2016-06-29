@@ -21,6 +21,8 @@ import {ArtifactAttachments} from "./bp-utility-panel/bp-attachments-panel/artif
 import {BPAttachmentsPanel} from "./bp-utility-panel/bp-attachments-panel/bp-attachments-panel";
 import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-attachment-item/bp-artifact-attachment-item";
 import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
+import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
+import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {MessageDirective} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
@@ -50,6 +52,8 @@ angular.module("app.shell",
     .component("bpAttachmentsPanel", new BPAttachmentsPanel())
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
+    .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
+    .component("bpCommentEdit", new BPCommentEdit())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
     .component("messagesContainer", new MessageContainerComponent())   

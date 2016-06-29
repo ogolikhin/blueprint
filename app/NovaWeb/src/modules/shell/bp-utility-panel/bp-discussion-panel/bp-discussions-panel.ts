@@ -89,7 +89,7 @@ export class BPDiscussionPanelController {
     }
 
     public newCommentClick(): void {
-        this.showAddComment = true;
+        //this.showAddComment = true;
     }
 
     public cancelCommentClick(): void {

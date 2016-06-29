@@ -19,6 +19,6 @@ export class BPArtifactDiscussionItemController {
     }
 
     public newReplyClick(): void {
-        this.discussionInfo.showAddReply = true;
+        //this.discussionInfo.showAddReply = true;
     }
 }

@@ -18,7 +18,11 @@ bp-discussion-panel {
 
         textarea {
             width: 100%;
-            height: 100px;
+            height: 80px;
+        }
+
+        .comment-edit-button-bar {
+            margin-top: $padding-smallest;
         }
     }
 

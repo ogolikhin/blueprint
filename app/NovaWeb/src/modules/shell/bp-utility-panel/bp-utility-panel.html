@@ -17,23 +17,22 @@
             <bp-discussion-panel></bp-discussion-panel>
         </bp-accordion-panel>
         <bp-accordion-panel 
+            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}" 
+            accordion-panel-class="utility-panel-attachments">
+            
+            <bp-attachments-panel></bp-attachments-panel>
+        </bp-accordion-panel>
+        <bp-accordion-panel 
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}" 
             accordion-panel-class="utility-panel-properties">
             
             Mauris aliquet feugiat vulputate. Duis sollicitudin leo gravida, tristique elit sed, imperdiet libero. Proin mattis blandit malesuada. Ut quis risus congue, tristique massa eu, ultrices velit. Aenean et risus turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut vitae ante urna. Praesent ultrices neque est, nec hendrerit mi vulputate id. Fusce ut quam volutpat ipsum eleifend porta. Curabitur in mi in ligula convallis dapibus. Cras ac pharetra massa, vel malesuada orci. Nunc vel ligula maximus arcu auctor pulvinar.
         </bp-accordion-panel>
         <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}" 
-            accordion-panel-class="utility-panel-attachments">
-            
-            <bp-attachments-panel></bp-attachments-panel>
-            
-        </bp-accordion-panel>
-        <bp-accordion-panel 
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Relationships']}}"
             accordion-panel-class="utility-panel-relationships">
             
-            Etiam eget urna ullamcorper, pellentesque magna at, tempus erat <strong bp-tooltip="This is the text of the tooltip">sit amet</strong>. In sodales viverra nisi vitae tempus. Nunc mattis gravida quam in varius. Curabitur sit amet ornare urna. Proin sit amet tempus quam. Mauris ante nisl, ornare ac commodo sit amet, pellentesque a metus. Cras viverra faucibus velit, eget pellentesque magna viverra sed. Nunc arcu ipsum, egestas at ligula vel, vehicula posuere libero. Mauris convallis pharetra orci, ac scelerisque diam fringilla vitae. Nunc rhoncus sem at odio sagittis, iaculis semper risus molestie. Vestibulum ipsum sapien, dignissim eu lacus eu, lobortis tempor tellus. Aenean fringilla orci ligula, sit amet auctor ex consequat vel.
+            <bp-relationships-panel></bp-relationships-panel>
         </bp-accordion-panel>
     </bp-accordion>
 </div>

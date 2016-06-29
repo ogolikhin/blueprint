@@ -1,0 +1,8 @@
+﻿<h6>{{ $ctrl.attachmentInfo.fileName }}</h6>
+<div class="thumb {{ $ctrl.fileIconClass }}"></div>
+<div class="author">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.attachmentInfo.userName }}</div>
+<div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.attachmentInfo.uploadedDate | date:'medium' }}</div>
+<div class="button-bar">
+    <i class="icon fonticon-download" ng-click="$ctrl.downloadAttachment()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
+    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteAttachment()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"></i>
+</div>

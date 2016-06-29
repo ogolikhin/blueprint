@@ -1,5 +1,5 @@
-﻿<div class="container" data-ng-class="{'error':'error', 'warning':'warning', 'info':'info'}[messageCntrl.messageType]">
-    <div class="icon"><span class="fa" data-ng-class="{'error':'fonticon-error', 'warning':'fonticon-warning', 'info':'fonticon-information'}[messageCntrl.messageType]"></span></div>
+﻿<div class="container" data-ng-class="{'error':'error', 'warning':'warning', 'info':'info'}[$ctrl.messageType]">
+    <div class="icon"><span class="fa" data-ng-class="{'error':'fonticon-error', 'warning':'fonticon-warning', 'info':'fonticon-information'}[$ctrl.messageType]"></span></div>
     <div class="text" data-ng-transclude></div>
-    <a class="fonticon-close" data-dismiss="alert-msg-box" data-ng-click="messageCntrl.onMessageClosed()"></a>
+    <a class="fonticon-close" data-dismiss="alert-msg-box" data-ng-click="$ctrl.onMessageClosed()"></a>
 </div>

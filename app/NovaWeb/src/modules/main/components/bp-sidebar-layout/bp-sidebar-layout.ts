@@ -1,11 +1,11 @@
-﻿interface ISidebarController {
+﻿import {Enums} from "../..";
+
+export interface ISidebarController {
     isLeftToggled: boolean;
     isRightToggled: boolean;
-    toggleLeft(evt: ng.IAngularEvent): void;
-    toggleRight(evt: ng.IAngularEvent): void;
-
     leftPanelTitle: string;
     rightPanelTitle: string;
+    togglePanel: Function;
 }
 
 export class BpSidebarLayout implements ng.IComponentOptions {
@@ -18,8 +18,11 @@ export class BpSidebarLayout implements ng.IComponentOptions {
         this.template = require("./bp-sidebar-layout.html");
         this.controller = BpSidebarLayoutCtrl;
         this.bindings = {
+            isLeftToggled: "<",
+            isRightToggled: "<",
             leftPanelTitle: "@",
             rightPanelTitle: "@",
+            togglePanel: "&?",
         };
         this.transclude = {
             "content-left": "bpSidebarLayoutContentLeft",
@@ -30,25 +33,35 @@ export class BpSidebarLayout implements ng.IComponentOptions {
 }
 
 export class BpSidebarLayoutCtrl implements ISidebarController {
+
     static $inject: [string] = ["$scope", "$element"];
-    public isLeftToggled: boolean;
-    public isRightToggled: boolean;
+    public  isLeftToggled: boolean;
+    public  isRightToggled: boolean;
 
     public leftPanelTitle: string;
     public rightPanelTitle: string;
 
     constructor(private $scope, private $element) {
-        this.isLeftToggled = true;
-        this.isRightToggled = true;
+        this.isLeftToggled = false;
+        this.isRightToggled = false;
     }
+    public $onInit() {
+    }
+
+    public $onChanged(obj: any) {
+    }
+
+    public togglePanel: Function;
 
     public toggleLeft(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.isLeftToggled = !this.isLeftToggled;
+        this.togglePanel({ id: Enums.ILayoutPanel.Left });
     }
 
     public toggleRight(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.isRightToggled = !this.isRightToggled;
+        this.togglePanel({ id: Enums.ILayoutPanel.Right });
     }
+
+
 }

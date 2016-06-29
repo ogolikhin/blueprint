@@ -9,5 +9,5 @@ export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider:
 
 class ErrorState implements ng.ui.IState {
     public url = "/error";
-    public template = require("./error/errorPage.html");
+    public template = require("./error-page.html");
 }

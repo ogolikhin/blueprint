@@ -362,8 +362,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Discussion for artifact/subartifact</returns>
-        public static IDiscussion GetDiscussions(string address,
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorDiscussion GetRaptorDiscussions(string address,
             int itemId,
             bool includeDraft,
             IUser user,
@@ -385,9 +385,9 @@ namespace Model.ArtifactModel.Impl
                 { "includeDraft", includeDraft.ToString() }
             };
 
-            string path = I18NHelper.FormatInvariant(URL_DISCUSSIONS, itemId);
+            string path = I18NHelper.FormatInvariant(URL_RAPTOR_DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(address, tokenValue);
-            var response = restApi.SendRequestAndDeserializeObject<Discussion>(
+            var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussion>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
@@ -448,6 +448,59 @@ namespace Model.ArtifactModel.Impl
             Logger.WriteDebug("Response for search artifact by name: {0}", response);
 
             return response.ConvertAll(o => (IArtifactBase)o);
+        }
+
+        /// <summary>
+        /// POST discussion for the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="discussionText">text for new comment</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        public static IRaptorComment PostRaptorDiscussion(string address, int itemId, 
+            string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(URL_RAPTOR_DISCUSSIONS, itemId);
+            var restApi = new RestApiFacade(address, tokenValue);
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+            
+            // Derialization
+            var result = JsonConvert.DeserializeObject<RaptorComment>(response.Content);
+
+            return result;
+        }
+
+        /// <summary>
+        /// POST discussion for the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="comment">Comment to reply</param>
+        /// <param name="discussionText">Text for replying</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
+        public static IRaptorReply PostRaptorDiscussionReply(string address,
+            IRaptorComment comment, string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(comment, nameof(comment));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(URL_RAPTOR_REPLY, comment.ItemId, comment.DiscussionId);
+            var restApi = new RestApiFacade(address, tokenValue);
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+
+            // Derialization
+            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
+
+            return result;
         }
 
         #endregion Static Methods

@@ -1,6 +1,5 @@
 ﻿import "angular";
-import {ISession} from "./session.svc";
-//import {SessionTokenHelper} from "./session.token.helper";
+import { ISession } from "../login/session.svc";
 
 export class HttpHandledErrorStatusCodes {
     public static get handledUnauthorizedStatus() {

@@ -1,0 +1,23 @@
+﻿<div class="reply-separator"></div>
+<div>
+    <div>
+        <bp-avatar icon=""
+                   name="{{ $ctrl.replyInfo.userName }}"
+                   color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
+        </bp-avatar>
+    </div>
+    <div class="discussion-info">
+        <div>
+            <div class="username" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
+        </div>
+        <div ng-bind-html="$ctrl.replyInfo.comment"></div>
+        <div>
+            <div class="version inline-block">v{{$ctrl.replyInfo.version}}</div>
+            <div class="timestamp inline-block">{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
+        </div>
+    </div>
+    <div class="button-bar discussion-button-bar">
+        <div bp-tooltip="Delete reply" class="delete-comment fonticon-delete-filled"></div>
+        <div bp-tooltip="Edit reply" class="edit-comment fonticon-edit-alt"></div>
+    </div>
+</div>

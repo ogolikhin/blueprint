@@ -1,5 +1,4 @@
-﻿import {IMessageService, IMessage, Message, MessageType} from "../../shell";
-
+﻿import {IMessageService, IMessage, MessageType} from "../../shell";
 
 export class MessageContainerComponent implements ng.IComponentOptions {
     public template: string = require("./message-container.html");
@@ -14,7 +13,7 @@ export interface IMessageContainerController {
 }
 
 export class MessageContainerController implements IMessageContainerController {
-    public messages: Rx.BehaviorSubject<IMessage[]>;   
+    public messages: Array<IMessage>;   
     public static $inject = ["messageService", "$sce"];
     constructor(private messageService: IMessageService, private $sce: any) {
         this.messages = messageService.messages;

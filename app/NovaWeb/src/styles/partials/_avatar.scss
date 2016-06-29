@@ -12,7 +12,7 @@ bp-avatar {
         font-size: $font-size-bigger;
         text-transform: uppercase;
         
-        img, .initials {
+        img, .initials, .guest {
             position: absolute;
             top: 2px;
             left: 2px;
@@ -20,6 +20,15 @@ bp-avatar {
             width: ($avatar-size - 8px);
             border-radius: 50%;
             border: 0;
+        }
+    }
+    
+    &.guest {
+        .initials {
+            background-image: url('images/guest.png') !important;
+            background-color: transparent !important;
+            text-indent: -99999px;
+            background-size: cover;
         }
     }
 }

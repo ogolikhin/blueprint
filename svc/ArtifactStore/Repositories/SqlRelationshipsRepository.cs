@@ -49,37 +49,9 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetailsWithProjectInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
-
-        public async Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true)
+        private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary, Dictionary<int, ItemDetails> projectItemDetailsDictionary)
         {
-            var result = (await GetLinkInfo(itemId, userId, addDrafts)).ToList();
-            var manualLinks = result.Where(a => a.LinkType == LinkType.Manual).ToList();
-            var otherLinks = result.Where(a => a.LinkType != LinkType.Manual).ToList();
-            var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
-            var otherTraceRelationships = new List<Relationship>();
-
-            foreach (var otherLink in otherLinks)
-            {
-                otherTraceRelationships.Add(new Relationship
-                {
-                    ArtifactId = otherLink.DestinationArtifactId,
-                    ItemId = otherLink.DestinationItemId,
-                    TraceDirection = TraceDirection.To,
-                    Suspect = otherLink.IsSuspect,
-                    TraceType = otherLink.LinkType
-                });
-            }
-
-            var distinctItemIds = result.Select(a => a.SourceArtifactId)
-                           .Union(result.Select(a => a.SourceItemId))
-                           .Union(result.Select(a => a.DestinationArtifactId))
-                           .Union(result.Select(a => a.DestinationItemId)).Distinct().ToList();
-            var itemDetails = await GetItemsDetailsWithProjectInfo(userId, distinctItemIds, true, int.MaxValue);
-            var itemDetailsDictionary = itemDetails.ToDictionary(a => a.HolderId);
-            var distinctProjectIds = itemDetails.ToList().Select(a => a.ProjectId).Distinct().ToList();
-            var projectItemDetailsDictionary = (await GetItemsDetailsWithProjectInfo(userId, distinctProjectIds, true, int.MaxValue)).ToDictionary(a=>a.HolderId);
-
-            foreach (var manualTrace in manualTraceRelationships)
+            foreach (var manualTrace in relationships)
             {
                 ItemDetails item;
                 ItemDetails project;
@@ -102,12 +74,46 @@ namespace ArtifactStore.Repositories
                     itemDetailsDictionary.TryGetValue(manualTrace.ArtifactId, out artifact);
                     manualTrace.ArtifactName = artifact.Name;
                     manualTrace.ArtifactTypePrefix = artifact.Prefix;
-                } else
+                }
+                else
                 {
                     manualTrace.ArtifactName = manualTrace.ItemName;
                     manualTrace.ArtifactTypePrefix = manualTrace.ItemTypePrefix;
                 }
             }
+
+        }
+
+        public async Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true)
+        {
+            var result = (await GetLinkInfo(itemId, userId, addDrafts)).ToList();
+            var manualLinks = result.Where(a => a.LinkType == LinkType.Manual).ToList();
+            var otherLinks = result.Where(a => a.LinkType != LinkType.Manual).ToList();
+            var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
+            var otherTraceRelationships = new List<Relationship>();
+
+            foreach (var otherLink in otherLinks)
+            {
+                otherTraceRelationships.Add(new Relationship
+                {
+                    ArtifactId = otherLink.DestinationArtifactId,
+                    ItemId = otherLink.DestinationItemId,
+                    TraceDirection = TraceDirection.To,
+                    Suspect = otherLink.IsSuspect,
+                    TraceType = otherLink.LinkType
+                });
+            }
+            var distinctItemIds = result.Select(a => a.SourceArtifactId)
+                           .Union(result.Select(a => a.SourceItemId))
+                           .Union(result.Select(a => a.DestinationArtifactId))
+                           .Union(result.Select(a => a.DestinationItemId)).Distinct().ToList();
+            var itemDetails = await GetItemsDetailsWithProjectInfo(userId, distinctItemIds, true, int.MaxValue);
+            var itemDetailsDictionary = itemDetails.ToDictionary(a => a.HolderId);
+            var distinctProjectIds = itemDetails.ToList().Select(a => a.ProjectId).Distinct().ToList();
+            var projectItemDetailsDictionary = (await GetItemsDetailsWithProjectInfo(userId, distinctProjectIds, true, int.MaxValue)).ToDictionary(a=>a.HolderId);
+
+            PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, projectItemDetailsDictionary);
+            PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, projectItemDetailsDictionary);
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
         }
 

@@ -58,16 +58,16 @@ export class BPRelationshipsPanelController {
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships()
+            this.getRelationships(1)
                 .then((list: any) => {
                     this.artifactList = list;
                 });
         }
     }
 
-    private getRelationships(): ng.IPromise<IArtifactRelationship[]> {
+    private getRelationships(relationshipType: any): ng.IPromise<IArtifactRelationship[]> {
 
-        return this.artifactRelationships.getRelationships(this.artifactId)
+        return this.artifactRelationships.getRelationships(this.artifactId, 1)
             .then((list: IArtifactRelationship[]) => {
                 return list;
             })

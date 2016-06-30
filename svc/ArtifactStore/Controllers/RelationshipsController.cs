@@ -4,7 +4,10 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Filters;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -47,13 +50,50 @@ namespace ArtifactStore.Controllers
                 }
                 itemId = subArtifactId.Value;
             }
-            var artifactIds = new List<int> { artifactId };
-
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-
             var result = await RelationshipsRepository.GetRelationships(itemId, session.UserId, addDrafts);
+            var itemIds = new List<int> { itemId };
+            itemIds.Union(result.ManualTraces.Select(a=>a.ItemId));
+            itemIds.Union(result.OtherTraces.Select(a => a.ItemId));
+
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            CheckReadPermissions(itemId, permissions, () =>
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            });
+
+            foreach (var relationship in result.ManualTraces)
+            {
+                CheckReadPermissions(itemId, permissions, () =>
+                {
+                    relationship.HasAccess = false;
+                });
+            }
+            foreach (var relationship in result.OtherTraces)
+            {
+                CheckReadPermissions(itemId, permissions, () =>
+                {
+                    relationship.HasAccess = false;
+                });
+            }
+
             return result;
         }
+        private static void CheckReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions, Action action)
+        {
+            if (!permissions.ContainsKey(itemId))
+            {
+                action();
+            }
+            else
+            {
+                RolePermissions permission = RolePermissions.None;
+                permissions.TryGetValue(itemId, out permission);
 
+                if (!permission.HasFlag(RolePermissions.Read))
+                {
+                    action();
+                }
+            }
+        }
     }
 }

@@ -72,9 +72,15 @@ bp-discussion-panel {
         .reply-count {
             @extend .disucssion-buttonbar-item;
             display:inline-block;
+            font-size:$font-size-normal;
+
+            &.black{
+                color:black;
+            }
 
             &::before {
                 font-size: $font-size-biggest;
+                margin-right:0;
             }
         }
 

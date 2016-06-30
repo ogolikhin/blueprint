@@ -75,6 +75,14 @@ namespace ArtifactStore.Repositories
             return replies.OrderBy(r => r.LastEditedOn);
         }
 
+        public Task<bool> IsDiscussionDeleted(int discussionId)
+        {
+            var discussionsPrm = new DynamicParameters();
+            discussionsPrm.Add("@DiscussionId", discussionId);
+
+            return ConnectionWrapper.ExecuteScalarAsync<bool>("IsDiscussionDeleted", discussionsPrm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<IEnumerable<DiscussionState>> GetItemDiscussionStates(int itemId)
         {
             var discussionsPrm = new DynamicParameters();

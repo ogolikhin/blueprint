@@ -138,7 +138,7 @@
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
-    <Compile Include="Repositories\ISqlAttachmentsRepository.cs" />
+    <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />

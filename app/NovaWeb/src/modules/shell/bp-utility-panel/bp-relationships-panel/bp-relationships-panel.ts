@@ -18,7 +18,7 @@ export class BPRelationshipsPanelController {
         "$log",
         "localization",
         "projectManager",
-        "artifactRelationship"
+        "artifactRelationships"
     ];
 
 
@@ -32,7 +32,7 @@ export class BPRelationshipsPanelController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private projectManager: IProjectManager,
-        private artifactRelationship: IArtifactRelationships) {
+        private artifactRelationships: IArtifactRelationships) {
 
         this.options = [     
             { value: "1", label: "Add new" }           
@@ -58,16 +58,16 @@ export class BPRelationshipsPanelController {
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships()
+            this.getRelationships(1)
                 .then((list: any) => {
                     this.artifactList = list;
                 });
         }
     }
 
-    private getRelationships(): ng.IPromise<IArtifactRelationship[]> {
+    private getRelationships(relationshipType: any): ng.IPromise<IArtifactRelationship[]> {
 
-        return this.artifactRelationship.getRelationships(this.artifactId)
+        return this.artifactRelationships.getRelationships(this.artifactId, 1)
             .then((list: IArtifactRelationship[]) => {
                 return list;
             })

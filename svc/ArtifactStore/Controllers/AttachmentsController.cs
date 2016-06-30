@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Attributes;
@@ -9,9 +9,6 @@ using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Net.Http;
-using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -19,14 +16,16 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class AttachmentsController : LoggableApiController
     {       
-        internal readonly ISqlAttachmentsRepository AttachmentsRepository;
+        internal readonly IAttachmentsRepository AttachmentsRepository;
+
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
         public AttachmentsController() : this(new SqlAttachmentsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
-        public AttachmentsController(ISqlAttachmentsRepository attachmentsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public AttachmentsController(IAttachmentsRepository attachmentsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             AttachmentsRepository = attachmentsRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;
@@ -41,24 +40,33 @@ namespace ArtifactStore.Controllers
         /// <response code="400">Bad Request. The session token or parameters are missing or malformed</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not Found. The requested artifact or subartifact is deleted or does not exist.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/attachment"), SessionRequired]
         [ActionName("GetAttachmentsAndDocumentReferences")]
         public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? subArtifactId = null, bool addDrafts = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+            var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+
+            if (itemInfo == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
             if (subArtifactId.HasValue)
             {
-                var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(subArtifactId.Value, session.UserId, addDrafts));
-                if (itemInfo == null || itemInfo.ArtifactId != artifactId)
+                if (itemInfo.ArtifactId != artifactId)
                 {
-                    throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                    throw new HttpResponseException(HttpStatusCode.BadRequest);
                 }
             }
 
@@ -70,41 +78,33 @@ namespace ArtifactStore.Controllers
                 artifactIds.Add(documentReference.ArtifactId);
             }
             
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
 
-            CheckReadPermissions(artifactId, permissions, () =>
+            if(!HasReadPermissions(artifactId, permissions))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
-            });
-
+            }
+  
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)
             {
-                CheckReadPermissions(documentReference.ArtifactId, permissions, () =>
+                if (!HasReadPermissions(documentReference.ArtifactId, permissions))
                 {
                     result.DocumentReferences.Remove(documentReference);
-                });
+                }
             }
 
             return result;
         }
 
-        private static void CheckReadPermissions(int artifactId, Dictionary<int, RolePermissions> permissions, Action action)
+        private static bool HasReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions)
         {
-            if (!permissions.ContainsKey(artifactId))
+            RolePermissions permission = RolePermissions.None;
+            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
-                action();
+                return false;
             }
-            else
-            {
-                RolePermissions permission = RolePermissions.None;
-                permissions.TryGetValue(artifactId, out permission);
-
-                if (!permission.HasFlag(RolePermissions.Read))
-                {
-                    action();
-                }
-            }
+            return true;
         }
     }
 }

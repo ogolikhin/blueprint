@@ -24,7 +24,11 @@
         </div>
     </div>
     <div class="button-bar discussion-button-bar">
-        <div bp-tooltip="View comments" class="reply-count fonticon-comment"></div>
+        <div bp-tooltip="View comments"
+             class="reply-count fonticon-comment"
+             ng-class="$ctrl.discussionInfo.repliesCount > 0 ? 'black' : ''">
+            {{$ctrl.discussionInfo.repliesCount}}
+        </div>
         <div bp-tooltip="Delete comment" class="delete-comment fonticon-delete-filled"></div>
         <div bp-tooltip="Edit comment" class="edit-comment fonticon-edit-alt"></div>
         <div class="reply-link" bp-tooltip="Reply to the comment">

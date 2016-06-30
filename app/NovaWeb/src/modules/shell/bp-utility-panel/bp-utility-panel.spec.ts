@@ -7,6 +7,7 @@ import { ComponentTest } from "../../util/component.test";
 import { BPUtilityPanelController} from "./bp-utility-panel";
 import { LocalizationServiceMock } from "../../core/localization.mock";
 import { ArtifactHistoryMock } from "./bp-history-panel/artifact-history.mock";
+import { ArtifactRelationshipsMock } from "./bp-relationships-panel/artifact-relationships.mock";
 import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachments.mock";
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../main/services/project-manager";
@@ -21,6 +22,7 @@ describe("Component BPUtilityPanel", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);
+        $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectRepository", ProjectRepositoryMock);
@@ -45,7 +47,7 @@ describe("Component BPUtilityPanel", () => {
         expect(directiveTest.element.find("bp-attachments-panel").length).toBe(1);
     });
 
-    xit("should load data for a selected artifact", 
+    it("should load data for a selected artifact", 
         inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
 
         // Arrange

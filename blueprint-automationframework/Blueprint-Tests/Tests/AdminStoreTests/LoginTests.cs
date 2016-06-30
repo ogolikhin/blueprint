@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -38,66 +37,153 @@ namespace AdminStoreTests
         }
 
         [TestCase]
-        public void Login_ValidUser_Verify200OK()
+        [Description("Run:  POST /sessions?login={encrypted username}  with a valid username/password.  Verify it returns 200 OK and the token is returned.")]
+        [TestRail(146180)]
+        public void Login_ValidUser_ReturnsValidToken()
         {
-            Helper.AdminStore.AddSession(_user.Username, _user.Password);
+            ISession session = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+            }, "AddSession() should return 200 OK for a valid username/password!");
+
+            Assert.NotNull(session, "AddSession() returned a null session object with a valid username/password!");
+            Assert.IsNotNullOrEmpty(session.SessionId, "The returned Session token should not be null or empty!");
         }
 
         [TestCase]
+        [Description("Run:  POST /sessions?login={encrypted username}  twice with the same valid username/password.  Verify 2nd login gets a 409 error.")]
+        [TestRail(146181)]
         public void Login_ValidUser_VerifySecondLogin409Error()
         {
             Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
             Assert.Throws<Http409ConflictException>(() =>
            {
                Helper.AdminStore.AddSession(_user.Username, _user.Password);
-           });
+           }, "Second login attempt should return a 409 Conflict error!");
         }
 
         [TestCase]
-        public void Login_ValidUser_VerifyForceLogin200OK()
+        [Description("Run:  POST /sessions?login={encrypted username}&force=true  with the same valid username/password of a user who already has a session token.  Verify 2nd login gets 200 OK.")]
+        [TestRail(146182)]
+        public void Login_Force2ndLogin_200OK()
         {
             Helper.AdminStore.AddSession(_user.Username, _user.Password);
-            Helper.AdminStore.AddSession(_user.Username, _user.Password, force: true);
+
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.AddSession(_user.Username, _user.Password, force: true);
+            }, "AddSession() should succeed if run a second time with the 'force=true' parameter!");
         }
 
-        [TestCase]
-        public void Login_ValidUserBadPassword_Verify401Error()
+        [TestCase("bad-password")]
+        [Description("Run:  POST /sessions?login={encrypted username}  with a wrong password.  Verify it returns a 401 Unauthorized error.")]
+        [TestRail(146183)]
+        public void Login_ValidUserBadPassword_Verify401Error(string password)
         {
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.AddSession(_user.Username, "bad-password", expectedServiceErrorMessage: _expectedServiceMessage2000);
-            });
+                Helper.AdminStore.AddSession(_user.Username, password, expectedServiceErrorMessage: _expectedServiceMessage2000);
+            }, "AddSession() should return a 401 Unauthorized error for a valid user but wrong password!");
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        [Description("Run:  POST /sessions?login={encrypted username}  with a blank or missing password.  Verify it returns a 401 Unauthorized error.")]
+        [TestRail(146292)]
+        public void Login_ValidUserNullOrEmptyPassword_Verify401Error(string password)
+        {
+            IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2003,
+                "Username and password cannot be empty");
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.AddSession(_user.Username, password, expectedServiceErrorMessage: expectedServiceErrorMessage);
+            }, "AddSession() should return a 401 Unauthorized error for a valid user but blank or missing password!");
         }
 
         [TestCase]
+        [Description("Run:  POST /sessions?login={encrypted username}  with a non-existing user.  Verify it returns a 401 Unauthorized error.")]
+        [TestRail(146288)]
+        public void Login_NonExistingUser_Verify401Error()
+        {
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.AddSession("bad-username", "bad-password", expectedServiceErrorMessage: _expectedServiceMessage2000);
+            }, "AddSession() should return a 401 Unauthorized error for a non-existing user!");
+        }
+
+        [TestCase]
+        [Description("Run:  POST /sessions?login={encrypted username}  with locked user.  Verify it returns a 401 Unauthorized error.")]
+        [TestRail(146184)]
         public void Login_LockedUser_Verify401Error()
         {
-            _user.DeleteUser(deleteFromDatabase: true);
-            _user = UserFactory.CreateUserOnly();
-            _user.Enabled = false;
-            _user.CreateUser();
+            // Setup: Create a locked user.
+            IUser user = UserFactory.CreateUserOnly();
+            user.Enabled = false;
+            user.CreateUser();
+
+            // Execute & verify 401 error.
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceMessage2001(_user));
-            });
+                Helper.AdminStore.AddSession(user.Username, user.Password,
+                    expectedServiceErrorMessage: expectedServiceMessage2001(user));
+            }, "AddSession() should return a 401 Unauthorized error if the user is locked!");
         }
 
         [TestCase]
-        public void GetLogedinUser_200OK()
+        [Description("Run:  GET /users/loginuser   with valid token.  Verify it returns the user who owns the specified session.")]
+        [TestRail(146185)]
+        public void GetLogedinUser_ValidSession_ReturnsCorrectUser()
         {
             ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
-            IUser loggedinUser = Helper.AdminStore.GetLoginUser(session.SessionId);
-            Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
+            IUser loggedinUser = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                loggedinUser = Helper.AdminStore.GetLoginUser(session.SessionId);
+            }, "GetLoginUser() should return 200 OK for a valid session token!");
+
+            Assert.IsTrue(loggedinUser.Equals(_user), "The user info returned by GetLoginUser() doesn't match the user who owns the token!");
         }
 
         [TestCase]
+        [Description("Run:  GET /users/loginuser   with an invalid token.  Verify it returns 401 Unauthorized.")]
+        [TestRail(146289)]
+        public void GetLogedinUser_InvalidSession_401Unauthorized()
+        {
+            string badToken = (new Guid()).ToString();
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetLoginUser(badToken);
+            }, "GetLoginUser() should return 401 Unauthorized for an invalid session token!");
+        }
+
+        [TestCase]
+        [Description("Run:  GET /users/loginuser   but don't pass any Session-Token header.  Verify it returns 400 Bad Request.")]
+        [TestRail(146290)]
+        public void GetLogedinUser_MissingTokenHeader_400BadRequest()
+        {
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.GetLoginUser(null);
+            }, "GetLoginUser() should return 400 Bad Request if the Session-Token header is missing!");
+        }
+
+        [TestCase]
+        [Description("Run:  POST /sessions?login={encrypted username}  with a deleted user.  Verify it returns a 401 Unauthorized error.")]
+        [TestRail(146186)]
         public void Login_DeletedUser_Verify401Error()
         {
             _user.DeleteUser();
+
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: _expectedServiceMessage2000);
-            });
+            }, "AddSession() should return 401 Unauthorized for a deleted user!");
         }
 
         [TestCase]
@@ -164,10 +250,13 @@ namespace AdminStoreTests
         }
 
         [TestCase]
+        [TestRail(146187)]
+        [Description("Login with a bad password 5 times and verify the account gets locked.")]
         public void Login_5TimesWithBadPassword_VerifyAccountGetsLocked()
         {
             string invalidPassword = "badpassword";
 
+            // Execute:
             for (int i = 0; i < 5; i++)
             {
                 Assert.Throws<Http401UnauthorizedException>(() =>
@@ -176,6 +265,7 @@ namespace AdminStoreTests
                 }, "We expected to get a 401 Unauthorized when logging in with a bad password!");
             }
 
+            // Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceMessage2001(_user));
@@ -183,24 +273,49 @@ namespace AdminStoreTests
         }
 
         [TestCase]
-        public void Delete_ValidSession_Verify200OK()
+        [TestRail(146188)]
+        [Description("Delete a valid session.  Verify the session is deleted.")]
+        public void Delete_ValidSession_VerifySessionIsDeleted()
         {
+            // Setup:
             ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 Helper.AdminStore.DeleteSession(session);
-            });
+            }, "DeleteSession() should return 200 OK when deleting a valid session token!");
+
+            // Verify:
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetLoginUser(session.SessionId);
+            }, "The session token is still valid after it was deleted!");
         }
 
         [TestCase]
-        public void Delete_ValidDeletedSession_Verify401Error()
+        [TestRail(146189)]
+        [Description("Delete a valid session twice.  Verify a 401 Unauthorized error is returned.")]
+        public void Delete_ValidSessionTwice_Verify401Error()
         {
             ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
             Helper.AdminStore.DeleteSession(session);
+
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.DeleteSession(session);
-            });
+            }, "The second call to DeleteSession() should return a 401 Unauthorized error!");
+        }
+
+        [TestCase]
+        [TestRail(146291)]
+        [Description("Run:  DELETE /sessions  but don't pass any Session-Token header.  Verify a 400 Bad Request error is returned.")]
+        public void Delete_MissingTokenHeader_Verify400BadRequest()
+        {
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.DeleteSession(session: null);
+            }, "DeleteSession() should return 400 Bad Request if no Session-Token header was passed!");
         }
     }
 }

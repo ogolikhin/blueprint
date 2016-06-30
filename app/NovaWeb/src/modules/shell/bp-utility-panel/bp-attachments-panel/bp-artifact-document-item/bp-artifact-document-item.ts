@@ -42,13 +42,14 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         alert("deleting attachment");
     }
     
-    public downloadItem() {
+    public downloadItem(): ng.IPromise<any> {
         return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId)
             .then( (attachmentResultSet: IArtifactAttachmentsResultSet) => {
 
                 if (attachmentResultSet.attachments.length) {
                     this.$window.open(
-                        `/svc/components/RapidReview/artifacts/${attachmentResultSet.artifactId}/files/${attachmentResultSet.attachments[0].attachmentId}?includeDraft=true`,
+                        "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
+                        + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
                         "_blank");
                 } else {
                     this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));

@@ -1,4 +1,5 @@
 //Temporary test values for tinyMCE mentions plugin
+//Note: the plugin seems to transform all the properties to lowercase!
 export var tinymceMentionsData = [
     {
         "id": "AAUQADgIDCALOpNEiqOH0K4SCAc=",

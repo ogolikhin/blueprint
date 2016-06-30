@@ -1,7 +1,6 @@
 ﻿import "../../../";
 import "angular";
 import "angular-mocks";
-import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactAttachmentItemController} from "./bp-artifact-attachment-item";
 import { LocalizationServiceMock } from "../../../../core/localization.mock";
@@ -19,7 +18,7 @@ describe("Component BP Artifact Attachment Item", () => {
         $provide.service("projectManager", ProjectManager);
     }));
 
-    let directiveTest: ComponentTest<BPArtifactAttachmentItemController>;
+    let componentTest: ComponentTest<BPArtifactAttachmentItemController>;
     let template = `
         <bp-artifact-attachment-item 
             attachment-info="attachment">
@@ -39,15 +38,16 @@ describe("Component BP Artifact Attachment Item", () => {
         };
 
         projectManager.initialize();
-        directiveTest = new ComponentTest<BPArtifactAttachmentItemController>(template, "bp-artifact-attachment-item");
-        vm = directiveTest.createComponent(bindings);
+        componentTest = new ComponentTest<BPArtifactAttachmentItemController>(template, "bp-artifact-attachment-item");
+        vm = componentTest.createComponent(bindings);
     }));
 
     it("should be visible by default", () => {
         //Assert
-        expect(directiveTest.element.find(".author").length).toBe(1);
-        expect(directiveTest.element.find(".button-bar").length).toBe(1);
-        expect(directiveTest.element.find("h6").length).toBe(1);
+        expect(componentTest.element.find(".author").length).toBe(1);
+        expect(componentTest.element.find(".button-bar").length).toBe(1);
+        expect(componentTest.element.find("h6").length).toBe(1);
+        expect(componentTest.element.find(".ext-image").length).toBe(1);
     });
 
     it("should try to download an attachment", 
@@ -58,28 +58,21 @@ describe("Component BP Artifact Attachment Item", () => {
         $rootScope.$digest();
         projectManager.getArtifact(22);
 
-        spyOn($window, "open").and.callFake(() => {
-            return "`/svc/components/RapidReview/artifacts/22/files/1093?includeDrafts=true";
-        });
+        spyOn($window, "open").and.callFake(() => true);
 
         // Act
         vm.downloadItem();
         
         //Assert
         expect($window.open).toHaveBeenCalled();
+        expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/2/files/1093?includeDraft=true", "_blank");
     }));
 
     it("should try to delete an attachment", 
-        inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService, projectManager: ProjectManager) => {
+        inject(($window: ng.IWindowService) => {
         
         // Arrange
-        projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-        $rootScope.$digest();
-        projectManager.getArtifact(22);
-
-        spyOn($window, "alert").and.callFake(function() {
-            return true;
-        });
+        spyOn($window, "alert").and.callFake(() => true);
 
         // Act
         vm.deleteItem();

@@ -21,7 +21,7 @@ export class BpArtifactRetailsController {
     constructor(private $scope, private projectManager: IProjectManager) {
         $scope.tinymceOptions = {
             inline: true,
-            plugins: "advlist autolink link image paste lists charmap print preview mention",
+            plugins: "advlist autolink link image paste lists charmap print noneditable mention",
             mentions: {
                 source: tinymceMentionsData,
                 delay: 100,

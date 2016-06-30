@@ -2,7 +2,7 @@ export class BPAvatar implements ng.IComponentOptions {
     public template: string = require("./bp-avatar.html");
     public controller: Function = BPAvatarController;
     public bindings: any = {
-        icon: "@",
+        icon: "@?",
         name: "@",
         // use this string to generate bg-color
         colorBase: "@?"
@@ -20,13 +20,11 @@ export class BPAvatarController {
     public background: string;
     public initials: string;
     public initialsColor: string;
-    // public iconUrl: string;
 
     constructor(private $log: ng.ILogService) {
         this.background = this.getAvatarBg(this.colorBase || this.name);
         this.initials = this.getAvatarInitials(this.name);
         this.initialsColor = this.getAvatarInitialsColor(this.name);
-        // this.iconUrl = this.icon;
     }
 
     public getAvatarBg(name: string): string {

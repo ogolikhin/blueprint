@@ -1,4 +1,4 @@
-﻿<message ng-repeat="message in $ctrl.messages.getValue()" 
+﻿<message ng-repeat="message in $ctrl.messages" 
          id="{{$ctrl.getType(message.messageType)}}"
          data-message-type="{{$ctrl.getType(message.messageType)}}"
          data-on-message-closed="$ctrl.closeMessage(message.id)">   

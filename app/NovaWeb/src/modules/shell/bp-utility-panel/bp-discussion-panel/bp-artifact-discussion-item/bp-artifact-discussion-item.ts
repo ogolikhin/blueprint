@@ -1,25 +1,22 @@
-﻿import { ILocalizationService } from "../../../../core";
-import { Models } from "../../../../main";
+﻿import {IDiscussion} from "../artifact-discussions.svc";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
     public controller: Function = BPArtifactDiscussionItemController;
     public bindings: any = {
         discussionInfo: "=",
-        artifactInfo: "="
+        getReplies: "&"
     };
 }
 
 export class BPArtifactDiscussionItemController {
-    public static $inject: [string] = [
-        "$log",
-        "localization"
-    ];
-    
-    public getArtifactState: Function = (state: Models.ArtifactStateEnum) => Models.ArtifactStateEnum[state];
-    
-    constructor(
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    public getReplies: Function;
+    public discussionInfo: IDiscussion;
+
+    constructor() {
+    }
+
+    public newReplyClick(): void {
+        //this.discussionInfo.showAddReply = true;
     }
 }

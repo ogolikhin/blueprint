@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { IArtifactDocRef, IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../../shell";
+import { IArtifactDocRef, IArtifactAttachments, IArtifactAttachmentsResultSet, IMessageService } from "../../../../shell";
 // import { FiletypeParser } from "../../../../core/utils/filetypeParser";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
@@ -19,6 +19,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         "$log",
         "localization",
         "artifactAttachments",
+        "messageService",
         "$window"
     ];
 
@@ -29,6 +30,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private artifactAttachments: IArtifactAttachments,
+        private messageService: IMessageService,
         private $window: ng.IWindowService) {
     }
 
@@ -36,20 +38,20 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         this.fileIconClass = "ext-document"; //FiletypeParser.getFiletypeClass(null);
     }
 
-    public deleteAttachment() {
+    public deleteItem() {
         alert("deleting attachment");
     }
     
-    public downloadAttachment() {
+    public downloadItem() {
         return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId)
             .then( (attachmentResultSet: IArtifactAttachmentsResultSet) => {
 
                 if (attachmentResultSet.attachments.length) {
                     this.$window.open(
-                        `/svc/components/RapidReview/artifacts/${attachmentResultSet.artifactId}/files/${attachmentResultSet.attachments[0].attachmentId}`,
+                        `/svc/components/RapidReview/artifacts/${attachmentResultSet.artifactId}/files/${attachmentResultSet.attachments[0].attachmentId}?includeDraft=true`,
                         "_blank");
                 } else {
-                    alert(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
+                    this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }
             });
     }

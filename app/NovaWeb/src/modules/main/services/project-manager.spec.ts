@@ -83,7 +83,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -99,7 +99,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -115,7 +115,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -130,7 +130,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -148,7 +148,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));
@@ -166,7 +166,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let messages = messageService.messages.getValue();
+            let messages = messageService.messages;
 
             //Asserts
             expect(messages).toEqual(jasmine.any(Array));

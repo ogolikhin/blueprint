@@ -1,40 +1,52 @@
 ﻿export class FiletypeParser {
     private static extensionMap = {
-            // extensions
             xlsx: "ms-excel",
             xls: "ms-excel",
 
-            // word document
             doc: "ms-word",
-            xdoc: "ms-word",
+            docx: "ms-word",
 
-            onenote: "ms-onenote",
+            one: "ms-onenote",
+            onepkg: "ms-onenote",
+            
             ppt: "ms-powerpoint",
-            visio: "ms-visio",
+            pptx: "ms-powerpoint",
+            
+            vsd: "ms-visio",
+            vsdx: "ms-visio",
+            
             pdf: "pdf",
             
             // archive
             zip: "archive",
             rar: "archive",
             "7z": "archive",
+            tar: "archive",
             
-            // generics
-            // web: "web",
-            // code: "code",
-            // document: "document",
+            // web
+            html: "web",
+            htm: "web",
 
-            // sound
+            // code
+            js: "code",
+
+            // audio
             mp3: "sound",
             m4a: "sound",
+            wav: "sound",
+            wma: "sound",
 
-            // videos
+            // video
             wmv: "video",
             mp4: "video",
             
             // images
             jpg: "image",
+            jpeg: "image",
             png: "image",
-            gif: "image"
+            gif: "image",
+            svg: "image",
+            bmp: "image"
         };
 
     static getFiletypeClass(filename: string): string {

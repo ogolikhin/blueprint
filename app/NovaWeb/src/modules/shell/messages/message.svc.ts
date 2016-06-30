@@ -4,8 +4,8 @@ export {IMessage, Message, MessageType}
 export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string): void;    
-    deleteMessageById(id: number): void;   
-    messages: Rx.BehaviorSubject<IMessage[]>;
+    deleteMessageById(id: number): void;
+    messages: Array<IMessage>;
     dispose(): void;
 }
 
@@ -19,17 +19,17 @@ export class MessageService implements IMessageService {
     }
 
     public initialize = () => {      
-        this._messages = new Rx.BehaviorSubject<IMessage[]>([]);              
+        this._messages = new Array<IMessage>();              
     }
 
     public dispose(): void {
         this.clearMessages();
     }
 
-    private _messages: Rx.BehaviorSubject<IMessage[]>;
+    private _messages: Array<IMessage>;
 
-    public get messages(): Rx.BehaviorSubject<IMessage[]> {
-        return this._messages || (this._messages = new Rx.BehaviorSubject<IMessage[]>([]));
+    public get messages(): Array<IMessage> {
+        return this._messages || (this._messages = new Array<IMessage>());
     }
 
     private cancelTimer = (id: number) => {
@@ -83,7 +83,7 @@ export class MessageService implements IMessageService {
             for (var msg in this._messages) {
                 this.cancelTimer(msg["id"]);
             }
-            this._messages.getValue().length = 0;
+            this._messages.length = 0;
         }
     }
 
@@ -94,22 +94,20 @@ export class MessageService implements IMessageService {
     public addMessage(msg: Message): void {
         msg.id = this.id;
         this.id++;
-        this._messages.getValue().push(msg);
-        this.messages.onNext(this._messages.getValue());
-
+        this._messages.push(msg);
+      
         let messageTimeout = this.getMessageTimeout(msg.messageType);
         if (messageTimeout > 0) {
             this.timers[msg.id] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
         }
     }
 
-    public deleteMessageById(id: number): void {
-        let messages = this._messages.getValue();
-        let i = messages.length;
+    public deleteMessageById(id: number): void {      
+        let i = this._messages.length;
         while (i--) {
-            if (messages[i].id === id) {
-                messages.splice(i, 1);
-                this.messages.onNext(messages);
+            if (this._messages[i].id === id) {
+                this._messages.splice(i, 1);
+              
                 break;
             }
         }

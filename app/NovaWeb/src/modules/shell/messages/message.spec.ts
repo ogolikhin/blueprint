@@ -1,13 +1,13 @@
 ﻿import "angular";
 import "angular-mocks";
-import {MessageService, MessageDirective} from "../../shell";
+import {MessageService, MessageComponent} from "../../shell";
 import {ConfigValueHelper } from "../../core";
 
 describe("message directive", () => {
     var element: JQuery;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.directive("message", <any>MessageDirective.factory());
+        $compileProvider.component("message", <any>new MessageComponent());
         $provide.service("messageService", MessageService);
         $provide.service("configValueHelper", ConfigValueHelper);
     }));

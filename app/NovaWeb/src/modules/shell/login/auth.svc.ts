@@ -5,7 +5,7 @@ import {
     IConfigValueHelper,
     Helper
     } from "../../core";
-import { IHttpInterceptorConfig } from "./http-error-interceptor";
+import { IHttpInterceptorConfig } from "../error/http-error-interceptor";
 
 export interface IUser {
     DisplayName: string;

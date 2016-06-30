@@ -161,21 +161,21 @@ namespace Model
         /// Gets list of license transactions.
         /// (Runs: GET /licenses/transactions?days=numberOfDays)
         /// </summary>
-        /// <param name="numberOfDays">Number of days of license transactions history.</param>
+        /// <param name="numberOfDays">Number of days of license transactions history.  Passing null will omit the 'days' parameter from the GET request.</param>
         /// <param name="session">(optional) A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
-        IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+        IList<LicenseActivity> GetLicenseTransactions(int? numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of license transactions.
         /// (Runs: GET /licenses/transactions?days=numberOfDays)
         /// </summary>
         /// <param name="user">The user containing the token to authenticate with.</param>
-        /// <param name="numberOfDays">Number of days of license transactions history.</param>
+        /// <param name="numberOfDays">Number of days of license transactions history.  Passing null will omit the 'days' parameter from the GET request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
-        IList<LicenseActivity> GetLicenseTransactions(IUser user, int numberOfDays, List<HttpStatusCode> expectedStatusCodes = null);
+        IList<LicenseActivity> GetLicenseTransactions(IUser user, int? numberOfDays, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Reset the user's password with a new one.

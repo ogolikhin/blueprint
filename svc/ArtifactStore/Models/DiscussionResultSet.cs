@@ -49,6 +49,8 @@ namespace ArtifactStore.Models
         public bool IsClosed { get; set; }
 
         public string Status { get; set; }
+
+        public int RepliesCount { get; set; }
     }
 
     public class Reply : CommentBase

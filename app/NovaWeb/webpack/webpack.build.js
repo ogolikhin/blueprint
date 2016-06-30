@@ -14,6 +14,7 @@ module.exports = {
         vendor: ['angular',
             'angular-ui-router',
             'angular-ui-bootstrap',
+            'angular-ui-tinymce',
             'angular-sanitize',
             'bootstrap/dist/css/bootstrap.css', 
             'ng-draggable',

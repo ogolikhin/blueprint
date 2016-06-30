@@ -1,9 +1,8 @@
 ﻿import "angular";
 //import {ILocalizationService} from "../core/localization";
-import {IDialogService} from "../core/";
-import {IProjectManager, Models, Enums} from "./";
-import {ISession} from "../shell/login/session.svc";
-import {IUser} from "../shell/login/auth.svc";
+//import { IDialogService } from "../core/";
+import { IMessageService, IUser, ISession } from "../shell";
+import { IProjectManager, Models, Enums } from "./";
 
 export class MainViewComponent implements ng.IComponentOptions {
     public template: string = require("./main.view.html");
@@ -17,28 +16,29 @@ export interface IMainViewController {
 
 export class MainViewController implements IMainViewController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$state", "projectManager", "dialogService", "session"];
+    static $inject: [string] = ["$state", "session", "projectManager", "messageService"];
     constructor(
         private $state: ng.ui.IState,
-        private manager: IProjectManager,
-        private dialogService: IDialogService,
-        private session: ISession) {
+        private session: ISession,
+        private projectManager: IProjectManager,
+        private messageService: IMessageService) {
     } 
 
     public $onInit() {
-        this.manager.initialize();
+        this.projectManager.initialize();
         //use context reference as the last parameter on subscribe...
         this._subscribers = [
             //subscribe for project collection update
-            this.manager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
-            this.manager.currentProject.subscribeOnNext(this.onProjectChanged, this),
+            this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
+            this.projectManager.currentProject.subscribeOnNext(this.onProjectChanged, this),
         ];
 }
     
     public $onDestroy() {   
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        this.manager.dispose();
+        this.messageService.dispose();
+        this.projectManager.dispose();
     }
 
     private onProjectCollectionChanged = (projects: Models.IProject[]) => {

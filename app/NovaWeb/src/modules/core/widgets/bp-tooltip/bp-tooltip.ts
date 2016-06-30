@@ -1,7 +1,7 @@
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
 
-    public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes): void => {
+    public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
 
@@ -53,23 +53,27 @@ export class BPTooltip implements ng.IDirective {
         }
 
         function showTooltip(e) {
-            let attachToBody = zIndexedParent(this);
+            let tooltipText = angular.element(this).attr("bp-tooltip");
 
-            let tooltipContent = document.createElement("DIV");
-            tooltipContent.className = "bp-tooltip-content";
-            tooltipContent.innerHTML = angular.element(this).attr("bp-tooltip");
+            if (tooltipText !== "") {
+                let attachToBody = zIndexedParent(this);
 
-            angular.element(tooltip).empty();
-            tooltip.appendChild(tooltipContent);
+                let tooltipContent = document.createElement("DIV");
+                tooltipContent.className = "bp-tooltip-content";
+                tooltipContent.innerHTML = tooltipText;
 
-            if (attachToBody) {
-                document.body.appendChild(tooltip);
-            } else {
-                this.appendChild(tooltip);
+                angular.element(tooltip).empty();
+                tooltip.appendChild(tooltipContent);
+
+                if (attachToBody) {
+                    document.body.appendChild(tooltip);
+                } else {
+                    this.appendChild(tooltip);
+                }
+
+                angular.element(this).addClass("bp-tooltip-trigger");
+                angular.element(tooltip).addClass("show");
             }
-
-            angular.element(this).addClass("bp-tooltip-trigger");
-            angular.element(tooltip).addClass("show");
         }
 
         function hideTooltip(e) {
@@ -77,7 +81,7 @@ export class BPTooltip implements ng.IDirective {
             angular.element(tooltip).remove();
         }
 
-        if ($element && $element.length && $attrs["bpTooltip"]) {
+        if ($element && $element.length) {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {

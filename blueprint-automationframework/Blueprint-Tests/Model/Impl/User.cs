@@ -43,7 +43,7 @@ namespace Model.Impl
         public IEnumerable<byte> Picture { get; set; }
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
-        public IBlueprintToken Token { get; set; }
+        public IBlueprintToken Token { get; set; } = new BlueprintToken();
         public int UserId { get; set; }
         public string Username { get; set; }
 
@@ -134,8 +134,6 @@ namespace Model.Impl
         /// <exception cref="ArgumentException">If the specified token is invalid.</exception>
         public void SetToken(string token)
         {
-            if (Token == null) { Token = new BlueprintToken(); }
-
             Token.SetToken(token);
         }
 

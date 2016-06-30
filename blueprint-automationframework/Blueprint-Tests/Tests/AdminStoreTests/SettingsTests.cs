@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using CustomAttributes;
 using Model;
@@ -65,6 +66,20 @@ namespace AdminStoreTests
             {
                 Helper.AdminStore.GetSettings(session: null);
             }, "GetSettings() should return 400 Bad Request if no Session-Token header is provided!");
+        }
+
+        [TestCase]
+        [TestRail(146300)]
+        [Description("Run:  GET /config/settings  and pass an invalid token.  Verify it returns 401 Unauthorized.")]
+        public void GetSettings_InvalidToken_401Unauthorized()
+        {
+            IUser user = UserFactory.CreateUserOnly();
+            user.Token.AccessControlToken = (new Guid()).ToString();
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetSettings(user);
+            }, "GetSettings() should return 401 Unauthorized if an invalid token is provided!");
         }
 
         [TestCase]

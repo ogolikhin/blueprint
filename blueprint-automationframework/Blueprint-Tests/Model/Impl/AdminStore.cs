@@ -106,7 +106,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             string encodedUsername = HashingUtilities.EncodeTo64UTF8(username);
-            string encodedPassword = HashingUtilities.EncodeTo64UTF8(password);
+            string encodedPassword = (password != null) ? HashingUtilities.EncodeTo64UTF8(password) : null;
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "login", encodedUsername } };
 

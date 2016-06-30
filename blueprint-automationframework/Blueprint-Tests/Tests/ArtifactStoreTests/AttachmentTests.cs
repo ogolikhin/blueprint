@@ -50,7 +50,7 @@ namespace ArtifactStoreTests
             artifact.Save(_user);
             artifact.Publish(_user);
             IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
-            OpenApiArtifact.AddAttachment(Helper.BlueprintServer.Address, _project.Id,
+            OpenApiArtifact.AddArtifactAttachment(Helper.BlueprintServer.Address, _project.Id,
                 artifact.Id, attachmentFile, _user);
 
             Attachment attachment = null;
@@ -59,6 +59,74 @@ namespace ArtifactStoreTests
                 attachment = Helper.ArtifactStore.GetItemsAttachment(artifact.Id, _user);
             });
             Assert.AreEqual(1, attachment.AttachedFiles.Count);
+        }
+
+        [TestCase]
+        [TestRail(02)]
+        [Description("...")]
+        public void GetAttachmentForDeletedArtifact_CheckExpectations()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
+            OpenApiArtifact.AddArtifactAttachment(Helper.BlueprintServer.Address, _project.Id,
+                artifact.Id, attachmentFile, _user);
+            artifact.Delete(_user);
+            artifact.Publish(_user);
+
+            Attachment attachment = null;
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetItemsAttachment(artifact.Id, _user);
+            });
+            Assert.AreEqual(0, attachment.AttachedFiles.Count);
+        }
+
+        [TestCase]
+        [TestRail(03)]
+        [Description("...")]
+        public void GetAttachmentForSubArtifact_CheckExpectations()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            
+            var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
+            var result = OpenApiArtifact.AddSubArtifactAttachment(Helper.BlueprintServer.Address,
+                _project.Id, artifact.Id, userTask.Id, attachmentFile, _user);
+            Assert.IsNotNull(result);
+            Attachment attachment = null;
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetItemsAttachment(userTask.Id, _user);
+            });
+            Assert.AreEqual(1, attachment.AttachedFiles.Count);
+        }
+
+        [TestCase]
+        [TestRail(04)]
+        [Description("...")]
+        public void GetAttachmentForSubArtifactWithDeletedAttachment_CheckExpectations()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
+                var result = OpenApiArtifact.AddSubArtifactAttachment(Helper.BlueprintServer.Address,
+                    _project.Id, artifact.Id, userTask.Id, attachmentFile, _user);
+            result.Delete(_user);
+            Attachment attachment = null;
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetItemsAttachment(userTask.Id, _user);
+            });
+            Assert.AreEqual(0, attachment.AttachedFiles.Count);
         }
     }
 }

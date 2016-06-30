@@ -2,8 +2,6 @@ export class BPTooltip implements ng.IDirective {
     public restrict = "A";
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes): void => {
-        let tooltipText = $attrs["bpTooltip"];
-
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
 
@@ -55,35 +53,35 @@ export class BPTooltip implements ng.IDirective {
         }
 
         function showTooltip(e) {
+            let attachToBody = zIndexedParent(this);
+
+            let tooltipContent = document.createElement("DIV");
+            tooltipContent.className = "bp-tooltip-content";
+            tooltipContent.innerHTML = angular.element(this).attr("bp-tooltip");
+
+            angular.element(tooltip).empty();
+            tooltip.appendChild(tooltipContent);
+
+            if (attachToBody) {
+                document.body.appendChild(tooltip);
+            } else {
+                this.appendChild(tooltip);
+            }
+
+            angular.element(this).addClass("bp-tooltip-trigger");
             angular.element(tooltip).addClass("show");
         }
 
         function hideTooltip(e) {
-            angular.element(tooltip).removeClass("show");
+            angular.element(this).removeClass("bp-tooltip-trigger");
+            angular.element(tooltip).remove();
         }
 
-        if ($element && $element.length && tooltipText) {
+        if ($element && $element.length && $attrs["bpTooltip"]) {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
                 let elem = $element[0];
-                elem.removeAttribute("bp-tooltip");
-
-                let attachToBody = zIndexedParent(elem);
-
-                let tooltipContent = document.createElement("DIV");
-                tooltipContent.className = "bp-tooltip-content";
-                tooltipContent.innerHTML = tooltipText;
-
-                tooltip.appendChild(tooltipContent);
-
-                elem.className += " bp-tooltip-trigger";
-
-                if (attachToBody) {
-                    document.body.appendChild(tooltip);
-                } else {
-                    elem.appendChild(tooltip);
-                }
 
                 elem.addEventListener("mousemove", updateTooltip);
                 elem.addEventListener("mouseover", showTooltip);
@@ -97,9 +95,7 @@ export class BPTooltip implements ng.IDirective {
                     elem.removeEventListener("mousedown", hideTooltip);
                     elem.removeEventListener("mouseout", hideTooltip);
                     //elem.removeEventListener("transitionend", hideTooltip);
-                    if (tooltip.parentNode) {
-                        tooltip.parentNode.removeChild(tooltip);
-                    }
+                    angular.element(tooltip).remove();
                 });
             }
         }

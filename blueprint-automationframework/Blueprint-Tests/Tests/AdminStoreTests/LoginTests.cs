@@ -118,22 +118,19 @@ namespace AdminStoreTests
         [TestCase]
         [Description("Run:  POST /sessions?login={encrypted username}  with locked user.  Verify it returns a 401 Unauthorized error.")]
         [TestRail(146184)]
-        public static void Login_LockedUser_Verify401Error()
+        public void Login_LockedUser_Verify401Error()
         {
             // Setup: Create a locked user.
             IUser user = UserFactory.CreateUserOnly();
             user.Enabled = false;
             user.CreateUser();
 
-            using (TestHelper helper = new TestHelper())
+            // Execute & verify 401 error.
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                // Execute & verify 401 error.
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.AdminStore.AddSession(user.Username, user.Password,
-                        expectedServiceErrorMessage: expectedServiceMessage2001(user));
-                }, "AddSession() should return a 401 Unauthorized error if the user is locked!");
-            }
+                Helper.AdminStore.AddSession(user.Username, user.Password,
+                    expectedServiceErrorMessage: expectedServiceMessage2001(user));
+            }, "AddSession() should return a 401 Unauthorized error if the user is locked!");
         }
 
         [TestCase]
@@ -303,6 +300,7 @@ namespace AdminStoreTests
         {
             ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
             Helper.AdminStore.DeleteSession(session);
+
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.DeleteSession(session);

@@ -71,10 +71,10 @@ var executionEnvironmentDetector = (function () {
         else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.osx && browser.osx10_9plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.ios && browser.osMajorVersion >= 8) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.ios && browser.osMajorVersion >= 9) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (!browser.chrome && browser.safari && parseInt(browser.version, 10) >= 7 && browser.ios && browser.osMajorVersion >= 8) {
+        else if (!browser.chrome && browser.safari && parseInt(browser.version, 10) >= 7 && browser.ios && browser.osMajorVersion >= 9) {
             //Chrome UA in iOS has "Safari" too, so we need to make sure that is not Chrome when we test Safari
             browser.blueprintSupportedBrowser = true;
         }

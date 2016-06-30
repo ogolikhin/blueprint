@@ -69,5 +69,7 @@ namespace ArtifactStore.Models
         public LinkType TraceType { get; set; }
         [JsonProperty]
         public bool Suspect { get; set; }
+        [JsonProperty]
+        public bool HasAccess { get; set; } = true;
     }
 }

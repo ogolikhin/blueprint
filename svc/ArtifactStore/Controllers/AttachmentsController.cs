@@ -70,7 +70,7 @@ namespace ArtifactStore.Controllers
                 artifactIds.Add(documentReference.ArtifactId);
             }
             
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
 
             CheckReadPermissions(artifactId, permissions, () =>
             {

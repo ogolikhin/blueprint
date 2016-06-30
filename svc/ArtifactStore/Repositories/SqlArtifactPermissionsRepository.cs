@@ -95,6 +95,25 @@ namespace ArtifactStore.Repositories
            return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInChunks(List<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
+        {
+            var dictionary = new Dictionary < int, RolePermissions>();
+            int index = 0;
+            while (index < itemIds.Count())
+            {
+                int chunkSize = 50;
+                if (chunkSize > itemIds.Count - index)
+                {
+                    chunkSize = itemIds.Count - index;
+                }
+                var chunk = itemIds.GetRange(index, chunkSize);
+                var localResult = await GetArtifactPermissions(chunk, sessionUserId, contextUser, revisionId);
+                dictionary = dictionary.Union(localResult).ToDictionary(k => k.Key, v=> v.Value);
+                index += chunkSize;
+            }
+            return dictionary;
+        }
+
         public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
         {
             if (itemIds.Count() > 50)

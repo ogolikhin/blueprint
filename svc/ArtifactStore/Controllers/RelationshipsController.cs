@@ -52,10 +52,8 @@ namespace ArtifactStore.Controllers
             }
             var result = await RelationshipsRepository.GetRelationships(itemId, session.UserId, addDrafts);
             var itemIds = new List<int> { itemId };
-            itemIds.Union(result.ManualTraces.Select(a=>a.ItemId));
-            itemIds.Union(result.OtherTraces.Select(a => a.ItemId));
-
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
             CheckReadPermissions(itemId, permissions, () =>
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
@@ -63,14 +61,14 @@ namespace ArtifactStore.Controllers
 
             foreach (var relationship in result.ManualTraces)
             {
-                CheckReadPermissions(itemId, permissions, () =>
+                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
                 {
                     relationship.HasAccess = false;
                 });
             }
             foreach (var relationship in result.OtherTraces)
             {
-                CheckReadPermissions(itemId, permissions, () =>
+                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
                 {
                     relationship.HasAccess = false;
                 });

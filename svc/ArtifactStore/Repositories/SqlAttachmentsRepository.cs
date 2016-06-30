@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace ArtifactStore.Repositories
 {
 
-    public class SqlAttachmentsRepository : ISqlAttachmentsRepository
+    public class SqlAttachmentsRepository : IAttachmentsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly IUsersRepository UserRepository;

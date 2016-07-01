@@ -22,6 +22,7 @@ namespace AdminStore.Controllers
     /// <summary>
     /// SessionsController
     /// </summary>
+    [ApiControllerJsonConfig]
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {

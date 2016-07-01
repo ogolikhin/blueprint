@@ -5,11 +5,11 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Net;
 using ConfigControl.Repositories;
-using System.Collections.Generic;
 using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("settings")]
     public class ConfigController : ApiController
     {

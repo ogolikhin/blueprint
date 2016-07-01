@@ -19,6 +19,7 @@ using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {

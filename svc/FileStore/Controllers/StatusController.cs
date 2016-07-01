@@ -13,6 +13,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {

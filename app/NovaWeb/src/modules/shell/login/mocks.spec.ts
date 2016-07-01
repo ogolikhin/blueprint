@@ -43,7 +43,7 @@ export class SessionSvcMock implements ISession {
 
     public ensureAuthenticated() {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve();
         return deferred.promise;
     }
@@ -62,14 +62,14 @@ export class SessionSvcMock implements ISession {
 
     public login(username: string, password: string, overrideSession: boolean) {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve();
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean) {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve();
         return deferred.promise;
     }
@@ -89,21 +89,21 @@ export class AuthSvcMock implements IAuth {
 
     public getCurrentUser(): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
         deferred.resolve(user);
         return deferred.promise;
     }

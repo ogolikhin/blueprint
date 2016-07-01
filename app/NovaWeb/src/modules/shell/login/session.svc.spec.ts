@@ -30,7 +30,7 @@ describe("SessionSvc", () => {
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
-            expect(session.currentUser.Login).toBe("admin", "current user is not admin");
+            expect(session.currentUser.login).toBe("admin", "current user is not admin");
         }));
 
         it("return current user after logging in with session override",
@@ -55,7 +55,7 @@ describe("SessionSvc", () => {
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
-            expect(session.currentUser.Login).toBe("admin", "current user is not admin");
+            expect(session.currentUser.login).toBe("admin", "current user is not admin");
         }));
 
         it("return current user after logging in without session override",
@@ -93,7 +93,7 @@ describe("SessionSvc", () => {
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
-            expect(session.currentUser.Login).toBe("admin", "current user is not admin");
+            expect(session.currentUser.login).toBe("admin", "current user is not admin");
         }));
 
         it("return current user after logging in without session override",

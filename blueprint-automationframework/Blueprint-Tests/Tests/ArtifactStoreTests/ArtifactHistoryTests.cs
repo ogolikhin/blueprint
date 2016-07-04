@@ -146,7 +146,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145869)]
-        [Description("Create artifact, publish, delete, publish, get history.  Verify 1 deleted artifact history is returned with the expected values.")]
+        [Description("Create artifact, publish, delete, publish, get history.  Verify 2 artifact histories are returned with the expected values (latest one with ArtifactState = Deleted).")]
         public void GetHistoryForDeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:

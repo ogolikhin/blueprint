@@ -4,12 +4,7 @@
 </div>
 <div ng-if="!$ctrl.artifactId" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>
 <div class="filter-bar" ng-if="$ctrl.artifactDiscussionList.length">
-    <!--<bp-select
-        ng-if="$ctrl.artifactDiscussionList.length"
-        ng-model="$ctrl.sortAscending"
-        options="$ctrl.sortOptions">
-    </bp-select>-->
-    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">+ new comment</button>
+    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">+ New comment</button>
 </div>
 <bp-comment-edit ng-if="$ctrl.showAddComment"
                  add-button-text="Post comment"

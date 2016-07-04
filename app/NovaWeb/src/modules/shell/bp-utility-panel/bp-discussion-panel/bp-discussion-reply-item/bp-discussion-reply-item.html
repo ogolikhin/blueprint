@@ -6,18 +6,14 @@
                    color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
         </bp-avatar>
     </div>
-    <div class="discussion-info">
-        <div>
-            <div class="username" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
-        </div>
+    <div class="info">
+        <div class="username" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
         <div ng-bind-html="$ctrl.replyInfo.comment"></div>
-        <div>
-            <div class="version inline-block">v{{$ctrl.replyInfo.version}}</div>
-            <div class="timestamp inline-block">{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
-        </div>
+        <div class="version">v{{$ctrl.replyInfo.version}}</div>
+        <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
     </div>
-    <div class="button-bar discussion-button-bar">
-        <div bp-tooltip="Delete reply" class="delete-comment fonticon-delete-filled"></div>
-        <div bp-tooltip="Edit reply" class="edit-comment fonticon-edit-alt"></div>
+    <div class="button-bar">
+        <i bp-tooltip="Delete reply" class="delete-comment icon fonticon-delete-filled"></i>
+        <i bp-tooltip="Edit reply" class="edit-comment icon fonticon-edit-alt"></i>
     </div>
 </div>

@@ -9,7 +9,8 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export class ProjectExplorerController {
     public tree: IBPTreeController;
-    private _subscribers: Rx.IDisposable[];
+    private _selectedArtifactId: number;
+    private _subscribers: Rx.IDisposable[]; 
     public static $inject: [string] = ["projectManager"];
     constructor(private projectManager: IProjectManager) { }
 
@@ -20,7 +21,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this), 
+            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -61,12 +62,16 @@ export class ProjectExplorerController {
         // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
+            if (angular.isDefined(this._selectedArtifactId)) {
+                this.tree.selectNode(this._selectedArtifactId);
+            }
         }
     }
     private onSelectArtifact = (artifact: Models.IArtifact) => {
         // so, just need to do an extra check if the component has created
         if (this.tree && artifact) {
-            this.tree.selectNode(artifact.id);
+            this._selectedArtifactId = artifact.id;
+            this.tree.selectNode(this._selectedArtifactId);
         }
     }
 

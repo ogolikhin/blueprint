@@ -127,8 +127,8 @@ namespace Model
         /// </summary>
         /// <param name="user">The user containing the token to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Settings dictionary. Now it is empty.</returns>
-        Dictionary<string, object> GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>An object containing the config settings that were returned.</returns>
+        ConfigSettings GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets setting from ConfigControl.
@@ -136,8 +136,8 @@ namespace Model
         /// </summary>
         /// <param name="session">A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Settings dictionary. Now it is empty.</returns>
-        Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>An object containing the config settings that were returned.</returns>
+        ConfigSettings GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets config.js from ConfigControl.

@@ -237,14 +237,14 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>
-        public Dictionary<string, object> GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public ConfigSettings GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ISession session = SessionFactory.CreateSessionWithToken(user);
             return GetSettings(session, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetSettings(ISession, List{HttpStatusCode})"/>
-        public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public ConfigSettings GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
@@ -258,7 +258,11 @@ namespace Model.Impl
 
             Logger.WriteInfo("Getting settings...");
             RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-            return JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
+            var settingsDictionary = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(response.Content);
+
+            // We can't deserialize directly into a ConfigSettings object because AdminStore returns a dictionary inside a dictionary...
+            ConfigSettings settings = new ConfigSettings(settingsDictionary);
+            return settings;
         }
 
         /// <seealso cref="IAdminStore.GetConfigJs(IUser, List{HttpStatusCode})"/>

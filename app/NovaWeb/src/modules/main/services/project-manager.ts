@@ -118,7 +118,7 @@ export class ProjectManager implements IProjectManager {
                 });
                 _projectCollection.unshift(_project);
                 self.projectCollection.onNext(_projectCollection);
-                self.setCurrentArtifact(project);
+                self.setCurrentArtifact(_project);
 
             } else {
                 this._repository.getArtifacts(project.id)

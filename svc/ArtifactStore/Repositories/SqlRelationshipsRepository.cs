@@ -61,7 +61,17 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToRoute", parameters, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<string> GetItemDescription (int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemId", itemId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return (await ConnectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
@@ -167,7 +177,8 @@ namespace ArtifactStore.Repositories
         public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
         {
             var pathToProject = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToList();
-            return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = "Placeholder" };
+            var description = (await GetItemDescription(artifactId, userId, addDraft, revisionId));
+            return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
     }
 }

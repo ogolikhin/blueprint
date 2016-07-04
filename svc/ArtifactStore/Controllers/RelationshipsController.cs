@@ -80,11 +80,11 @@ namespace ArtifactStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), NoSessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
         [ActionName("GetRelationships")]
         public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true)
         {
-            var session = new Session { UserId = 1}; //Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 )
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);

@@ -127,5 +127,32 @@ namespace Model.ArtifactModel
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
         IRaptorComment PostRaptorDiscussions(string discussionsText,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="projectId">...</param>
+        /// <param name="artifactId">...</param>
+        /// <param name="file">...</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>...</returns>
+        OpenApiAttachment AddArtifactAttachment(IFile file, IUser user, 
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="projectId">...</param>
+        /// <param name="artifactId">...</param>
+        /// <param name="subArtifactId">...</param>
+        /// <param name="file">...</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>...</returns>
+        OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
+            IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

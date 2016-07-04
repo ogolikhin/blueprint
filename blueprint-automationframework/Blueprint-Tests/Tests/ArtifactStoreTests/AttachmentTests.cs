@@ -2,6 +2,7 @@
 using Helper;
 using Model;
 using NUnit.Framework;
+using Utilities;
 using CustomAttributes;
 using System.Collections.Generic;
 using System.Text;
@@ -43,15 +44,14 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(01)]
-        [Description("...")]
-        public void BasicAttachment()
+        [Description("Create artifact, publish it, add attachment, get attachments, check expectations.")]
+        public void GetAttachmentForPublishedArtifactWithAttachment_CheckExpectation()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
             artifact.Publish(_user);
             IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
-            OpenApiArtifact.AddArtifactAttachment(Helper.BlueprintServer.Address, _project.Id,
-                artifact.Id, attachmentFile, _user);
+            artifact.AddArtifactAttachment(attachmentFile, _user);
 
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>
@@ -63,20 +63,19 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(02)]
-        [Description("...")]
-        public void GetAttachmentForDeletedArtifact_CheckExpectations()
+        [Description("Create artifact, publish it, add attachment, delete artifact, publish artifact, get attachments, check 404.")]
+        public void GetAttachmentForDeletedArtifact_NotFound()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
             artifact.Publish(_user);
             IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
-            OpenApiArtifact.AddArtifactAttachment(Helper.BlueprintServer.Address, _project.Id,
-                artifact.Id, attachmentFile, _user);
+            artifact.AddArtifactAttachment(attachmentFile, _user);
             artifact.Delete(_user);
             artifact.Publish(_user);
 
             Attachment attachment = null;
-            Assert.DoesNotThrow(() =>
+            Assert.Throws<Http404NotFoundException>(() =>
             {
                 attachment = Helper.ArtifactStore.GetItemsAttachment(artifact.Id, _user);
             });
@@ -85,7 +84,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(03)]
-        [Description("...")]
+        [Description("Create Process, publish it, add attachment to User task, get attachments for User task, check expectations.")]
         public void GetAttachmentForSubArtifact_CheckExpectations()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
@@ -95,8 +94,7 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             
             var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
-            var result = OpenApiArtifact.AddSubArtifactAttachment(Helper.BlueprintServer.Address,
-                _project.Id, artifact.Id, userTask.Id, attachmentFile, _user);
+            var result = artifact.AddSubArtifactAttachment(userTask.Id, attachmentFile, _user);
             Assert.IsNotNull(result);
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>
@@ -108,7 +106,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(04)]
-        [Description("...")]
+        [Description("Create Process, publish it, add attachment to User task, delete attachment, get attachments for User task, check expectations.")]
         public void GetAttachmentForSubArtifactWithDeletedAttachment_CheckExpectations()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
@@ -118,8 +116,7 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
-                var result = OpenApiArtifact.AddSubArtifactAttachment(Helper.BlueprintServer.Address,
-                    _project.Id, artifact.Id, userTask.Id, attachmentFile, _user);
+            var result = artifact.AddSubArtifactAttachment(userTask.Id, attachmentFile, _user);
             result.Delete(_user);
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>

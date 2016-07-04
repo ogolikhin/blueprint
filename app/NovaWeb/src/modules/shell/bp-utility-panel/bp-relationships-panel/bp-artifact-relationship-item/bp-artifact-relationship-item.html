@@ -1,19 +1,22 @@
-﻿
-
-<div style="position:relative;" class="utility-panel-artifact-item">
+﻿<div class="utility-panel-artifact-item">
     <div>
-        {{$ctrl.artifact.artifactId}}
-    </div>
-    <div style="position:relative; display:inline-block; width:100%; bottom:0;">
-        <div style="float:right;">
-            <i class="fonticon-exchange"></i>
-            <i class="fonticon-flag-1"></i>
-
-
-            <i class="fonticon-delete-filled"></i>
+        <div class="icon">
+            icon
 
         </div>
-        
-
+        <div class="details">
+            <div>
+                {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}
+            </div>
+            <div>{{$ctrl.artifact.projectName}} </div>
+        </div>
+    </div>
+  
+    <div class="icons">
+        <div>
+            <i class="fonticon-exchange"></i>
+            <i class="fonticon-flag-1"></i>
+            <i class="fonticon-delete-filled"></i>
+        </div>
     </div>
 </div>

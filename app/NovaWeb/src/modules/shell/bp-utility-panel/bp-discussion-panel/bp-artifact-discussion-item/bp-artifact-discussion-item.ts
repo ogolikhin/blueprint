@@ -1,4 +1,5 @@
 ﻿import {IDiscussion} from "../artifact-discussions.svc";
+import { ILocalizationService } from "../../../../core";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
@@ -15,12 +16,14 @@ export class BPArtifactDiscussionItemController {
 
     public static $inject: [string] = [
         "$element",
-        "$scope"
+        "$scope",
+        "localization"
     ];
 
     constructor(
         private element: ng.IAugmentedJQuery,
-        private scope: ng.IScope) {
+        private scope: ng.IScope,
+        private localization: ILocalizationService) {
         if (this.discussionInfo) {
             let commentContainer = document.createElement("DIV");
             this.addTargetBlankToComment(commentContainer);

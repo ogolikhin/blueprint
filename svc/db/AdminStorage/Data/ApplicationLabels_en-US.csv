@@ -59,7 +59,7 @@ App_UP_Attachments_Download, "Download"
 App_UP_Attachments_Delete, "Delete"
 App_UP_Attachments_Download_No_Attachment, "There's no attachment available"
 
-App_UP_Discussions_Introduction_Message, "You may colaborate with others using this discussion panel to add comments to any selected artifact."
+App_UP_Discussions_Introduction_Message, "You may collaborate with others using this discussion panel to add comments to any selected artifact."
 App_UP_Discussions_Start_Discussion, "+ Start a new discussion"
 App_UP_Discussions_New_Discussion, "+ New comment"
 App_UP_Discussions_No_Artifact, "The item you selected has no information to display or you do not have access to view it."

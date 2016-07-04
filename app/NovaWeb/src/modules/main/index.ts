@@ -69,6 +69,15 @@ angular.module("app.main", [
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
     .component("bpArtifactDetails", new BpArtifactDetails())
-    .config(routesConfig);
+    .config(routesConfig)
+    .run(formlyConfigTinyMCE);
 
 
+function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
+    formlyConfig.setType({
+        name: 'tinymce',
+        template: `<textarea ui-tinymce="options.data.tinymceOption"  ng-model="model[options.key]" class="form-control"></textarea>`,
+        wrapper: ['bootstrapLabel']
+    });
+}
+formlyConfigTinyMCE.$inject = ["formlyConfig"];

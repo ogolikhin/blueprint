@@ -15,6 +15,11 @@ export interface IArtifactRelationship {
     traceType: number;
 }
 
+export enum ITraceType {
+    Trace = 0,
+    Association = 1
+}
+
 export interface IArtifactRelationshipsResultSet {
     manualTraces: IArtifactRelationship[];
     otherTraces: IArtifactRelationship[];
@@ -40,7 +45,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number, relationshipType: any): ng.IPromise<IArtifactRelationship[]> {
+        artifactId: number, traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
@@ -48,8 +53,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
         };
 
         this.$http(requestObj)
-            .success((result: IArtifactRelationshipsResultSet) => { 
-                if (relationshipType === 1) {
+            .success((result: IArtifactRelationshipsResultSet) => {
+                if (traceType === ITraceType.Trace) {
                     defer.resolve(result.manualTraces);
                 } else {
                     defer.resolve(result.otherTraces);

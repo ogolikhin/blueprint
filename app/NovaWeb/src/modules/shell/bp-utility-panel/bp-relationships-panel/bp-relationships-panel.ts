@@ -1,12 +1,11 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationship} from "./artifact-relationships.svc";
+import {IArtifactRelationships, IArtifactRelationship, ITraceType} from "./artifact-relationships.svc";
 
 interface IOptions {
     value: string;
     label: string;
 }
-
 
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
@@ -21,12 +20,12 @@ export class BPRelationshipsPanelController {
         "artifactRelationships"
     ];
 
-
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
     public artifactList: IArtifactRelationship[] = [];
     public option: string = "1";
+    public traceTypes = ITraceType;
 
     constructor(
         private $log: ng.ILogService,
@@ -52,22 +51,27 @@ export class BPRelationshipsPanelController {
         this.artifactList = null;
     }
 
-
     private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactList = [];
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(1)
+            this.getRelationships(ITraceType.Trace)
                 .then((list: any) => {
                     this.artifactList = list;
                 });
         }
     }
 
-    private getRelationships(relationshipType: any): ng.IPromise<IArtifactRelationship[]> {
+    private changeTraceType(traceType: ITraceType) {
+        this.getRelationships(traceType)
+            .then((list: any) => {
+                this.artifactList = list;
+            });
+    }
 
-        return this.artifactRelationships.getRelationships(this.artifactId, 1)
+    private getRelationships(traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
+        return this.artifactRelationships.getRelationships(this.artifactId, traceType)
             .then((list: IArtifactRelationship[]) => {
                 return list;
             })

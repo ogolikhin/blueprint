@@ -1,21 +1,21 @@
-﻿<div class="filter-bar" ng-if="$ctrl.artifactList.length">
-    <bp-select ng-model="$ctrl.option" 
-               
+﻿<div class="filter-bar" >
+    <bp-select ng-model="$ctrl.option"
                options="$ctrl.options">
     </bp-select>
 </div>
-
+<div class="tabs">
+    <uib-tabset>
+        <uib-tab index="0" heading="Traces" select="$ctrl.changeTraceType($ctrl.traceTypes.Trace)"></uib-tab>     
+        <uib-tab  index="1" heading="Association" select="$ctrl.changeTraceType($ctrl.traceTypes.Association)"></uib-tab>
+    </uib-tabset>
+</div>
 <div ng-if="$ctrl.artifactList.length"
      class="scrollable-content" perfect-scrollbar>
-  
-
     <div ng-repeat="artifact in $ctrl.artifactList"
          class="artifact-item-wrapper">
-
         <div class="separator"></div>
-
         <bp-artifact-relationship-item artifact="artifact"></bp-artifact-relationship-item>
     </div>
 </div>
 
-<div ng-if="!$ctrl.artifactList.length" class="empty-state">Add new</div>
+

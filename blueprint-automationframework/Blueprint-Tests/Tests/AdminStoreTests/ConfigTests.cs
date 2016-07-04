@@ -14,7 +14,7 @@ namespace AdminStoreTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
-    public class SettingsTests : TestBase
+    public class ConfigTests : TestBase
     {
         private IUser _user = null;
 

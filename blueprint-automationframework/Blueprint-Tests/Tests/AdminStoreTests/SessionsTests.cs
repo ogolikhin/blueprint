@@ -11,7 +11,7 @@ namespace AdminStoreTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
-    public class LoginTests : TestBase
+    public class SessionsTests : TestBase
     {
         private IUser _user = null;
         private IServiceErrorMessage _expectedServiceMessage2000 = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000,
@@ -131,46 +131,6 @@ namespace AdminStoreTests
                 Helper.AdminStore.AddSession(user.Username, user.Password,
                     expectedServiceErrorMessage: expectedServiceMessage2001(user));
             }, "AddSession() should return a 401 Unauthorized error if the user is locked!");
-        }
-
-        [TestCase]
-        [Description("Run:  GET /users/loginuser   with valid token.  Verify it returns the user who owns the specified session.")]
-        [TestRail(146185)]
-        public void GetLogedinUser_ValidSession_ReturnsCorrectUser()
-        {
-            ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
-            IUser loggedinUser = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                loggedinUser = Helper.AdminStore.GetLoginUser(session.SessionId);
-            }, "GetLoginUser() should return 200 OK for a valid session token!");
-
-            Assert.IsTrue(loggedinUser.Equals(_user), "The user info returned by GetLoginUser() doesn't match the user who owns the token!");
-        }
-
-        [TestCase]
-        [Description("Run:  GET /users/loginuser   with an invalid token.  Verify it returns 401 Unauthorized.")]
-        [TestRail(146289)]
-        public void GetLogedinUser_InvalidSession_401Unauthorized()
-        {
-            string badToken = (new Guid()).ToString();
-
-            Assert.Throws<Http401UnauthorizedException>(() =>
-            {
-                Helper.AdminStore.GetLoginUser(badToken);
-            }, "GetLoginUser() should return 401 Unauthorized for an invalid session token!");
-        }
-
-        [TestCase]
-        [Description("Run:  GET /users/loginuser   but don't pass any Session-Token header.  Verify it returns 400 Bad Request.")]
-        [TestRail(146290)]
-        public void GetLogedinUser_MissingTokenHeader_400BadRequest()
-        {
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.AdminStore.GetLoginUser(null);
-            }, "GetLoginUser() should return 400 Bad Request if the Session-Token header is missing!");
         }
 
         [TestCase]

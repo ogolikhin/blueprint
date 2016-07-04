@@ -19,7 +19,7 @@ function toFlat(root: any): any[] {
 
     return array;
 }
-
+/*
 describe("Embedded ag-grid events", () => {
     var controller: BPTreeController;
     var $scope, elem;
@@ -203,3 +203,4 @@ describe("Embedded ag-grid events", () => {
 
     
 });
+*/

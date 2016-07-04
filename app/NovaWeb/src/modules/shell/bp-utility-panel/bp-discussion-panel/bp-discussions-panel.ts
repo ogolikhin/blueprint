@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
+import {IMessageService} from "../../../shell";
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
@@ -12,7 +13,9 @@ export class BPDiscussionPanelController {
         "$log",
         "localization",
         "artifactDiscussions",
-        "projectManager"
+        "projectManager",
+        "messageService",
+        "$q"
     ];
 
     //private loadLimit: number = 10;
@@ -31,7 +34,9 @@ export class BPDiscussionPanelController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
-        private projectManager: IProjectManager) {
+        private projectManager: IProjectManager,
+        private messageService: IMessageService,
+        private $q: ng.IQService) {
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -113,13 +118,24 @@ export class BPDiscussionPanelController {
     }
 
     private getDiscussionReplies(discussionId: number): ng.IPromise<IReply[]> {
-        this.isLoading = true;
-        return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
-            .then((replies: IReply[]) => {
-                return replies;
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+        var deferred = this.$q.defer();
+        try {
+            this.isLoading = true;
+            return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
+                .then((replies: IReply[]) => {
+                    return replies;
+                }).catch((error: any) => {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    return [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        }
+        catch (ex) {
+            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
+            deferred.reject(ex);
+        }
+        return deferred.promise;
     }
 }

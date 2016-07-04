@@ -13,10 +13,21 @@ export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
         "localization"
-    ];   
+    ];  
+
+    public expanded: boolean = false;
     
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService) {
+    }
+
+    public expand() {
+        this.expanded = !this.expanded;
+    }
+
+    public limitChars(str) {
+        return str.substring(0, 100) + "...";
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationship, ITraceType} from "./artifact-relationships.svc";
+import {IArtifactRelationships, ITraceType} from "./artifact-relationships.svc";
 
 interface IOptions {
     value: string;
@@ -23,7 +23,7 @@ export class BPRelationshipsPanelController {
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
-    public artifactList: IArtifactRelationship[] = [];
+    public artifactList: Models.IArtifactDetails[] = [];
     public option: string = "1";
     public traceTypes = ITraceType;
 
@@ -51,12 +51,12 @@ export class BPRelationshipsPanelController {
         this.artifactList = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    private setArtifactId = (artifact: Models.IArtifactDetails) => {
         this.artifactList = [];
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(ITraceType.Trace)
+            this.getRelationships(ITraceType.Manual)
                 .then((list: any) => {
                     this.artifactList = list;
                 });
@@ -70,9 +70,9 @@ export class BPRelationshipsPanelController {
             });
     }
 
-    private getRelationships(traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
+    private getRelationships(traceType: ITraceType): ng.IPromise<Models.IArtifactDetails[]> {
         return this.artifactRelationships.getRelationships(this.artifactId, traceType)
-            .then((list: IArtifactRelationship[]) => {
+            .then((list: Models.IArtifactDetails[]) => {
                 return list;
             })
             .finally(() => {

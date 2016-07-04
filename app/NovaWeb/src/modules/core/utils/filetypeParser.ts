@@ -56,6 +56,7 @@
             return "ext-document";
         }
 
+        filename = filename.toLowerCase();
         const fileExt: RegExpMatchArray = filename.match(/([^.]*)$/);
 
         if (fileExt.length && this.extensionMap[fileExt[0]]) {

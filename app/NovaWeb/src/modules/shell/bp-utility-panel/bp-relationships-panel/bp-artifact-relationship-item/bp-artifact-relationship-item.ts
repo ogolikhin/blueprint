@@ -25,4 +25,9 @@ export class BPArtifactRelationshipItemController {
     public expand() {
         this.expanded = !this.expanded;
     }
+
+    public limitChars(str) {
+        return str.substring(0, 100) + "...";
+
+    }
 }

@@ -5,8 +5,8 @@
 </div>
 <div class="tabs">
     <uib-tabset>
-        <uib-tab index="0" heading="Traces" select="$ctrl.changeTraceType($ctrl.traceTypes.Trace)"></uib-tab>     
-        <uib-tab  index="1" heading="Association" select="$ctrl.changeTraceType($ctrl.traceTypes.Association)"></uib-tab>
+        <uib-tab index="0" heading="Traces" select="$ctrl.changeTraceType($ctrl.traceTypes.Manual)"></uib-tab>     
+        <uib-tab  index="1" heading="Association" select="$ctrl.changeTraceType($ctrl.traceTypes.Other)"></uib-tab>
     </uib-tabset>
 </div>
 <div ng-if="$ctrl.artifactList.length"

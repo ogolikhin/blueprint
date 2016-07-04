@@ -56,7 +56,7 @@ export class BPRelationshipsPanelController {
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(ITraceType.Trace)
+            this.getRelationships(ITraceType.Manual)
                 .then((list: any) => {
                     this.artifactList = list;
                 });

@@ -1,26 +1,28 @@
 ﻿<div class="utility-panel-artifact-item">
-   
-    <div>
+
+    <div class="details">
         <div class="status" ng-click="$ctrl.expand()" ng-class="{'expanded': $ctrl.expanded}"
-             bp-tooltip="{{$ctrl.discussionInfo.expanded ? 'Collapse thread' : 'Expand Thread'}}">
-
-
+             bp-tooltip="{{$ctrl.expanded ? 'Collapse' : 'Expand'}}">
             <span></span>
             <i class="icon fonticon-circle-up"></i>
         </div>
         <div class="icon">
-            icon
-
+            <i data-ng-class="{'0': 'fonticon-relationship-right', '1' : 'fonticon-relationship-left', '2' : 'fonticon-relationship-bi'}[$ctrl.artifact.traceDirection]"></i>
+            
         </div>
-        <div class="details">
+        <div class="inner-details">
             <div>
                 {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}
             </div>
             <div>{{$ctrl.artifact.projectName}} </div>
+            <div ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
+              {{$ctrl.limitChars("description description description description description description description description description")}}   
+            </div>
         </div>
+
     </div>
-  
-    <div class="icons">
+
+    <div class="icons"  >
         <div>
             <i class="fonticon-exchange"></i>
             <i class="fonticon-flag-1"></i>

@@ -118,7 +118,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" ? artifact.id : null;
+        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.version !==0 ? artifact.id : null;
     }
 
 }

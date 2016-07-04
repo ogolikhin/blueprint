@@ -79,7 +79,6 @@ module.exports = {
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
-             , { from: '../libs/mxClient', to: './libs/mxClient' }
 
          ]),
          new webpack.DefinePlugin({

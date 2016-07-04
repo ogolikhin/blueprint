@@ -48,11 +48,11 @@ namespace AdminStoreTests
             Assert.NotNull(configSettings, "GetConfig() returned null!");
             Assert.That(configSettings.Settings.Count > 0, "GetSettings() returned an empty list!");
 
-            const string maintenanceKey = "Maintenance"; // This is the only setting currently returned.
+            const string maintenanceKey = "maintenance"; // This is the only setting currently returned.
             Assert.That(configSettings.Settings.ContainsKey(maintenanceKey),
                 "GetSettings() should return a '{0}' setting!", maintenanceKey);
 
-            const string maintenanceSetting = "DaysToKeepInLogs";
+            const string maintenanceSetting = "daysToKeepInLogs";
             Assert.That(configSettings[maintenanceKey].Values.ContainsKey(maintenanceSetting),
                 "The Maintenance config setting should contain an entry for '{0}'!", maintenanceSetting);
         }

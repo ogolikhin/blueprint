@@ -40,7 +40,7 @@ namespace Helper
 
             foreach (string tag in stringsToFind)
             {
-                Assert.That(content.Contains(tag), "The content returned from GET /status should contain '{0}'!", tag);
+                Assert.That(content.ContainsIgnoreCase(tag), "The content returned from GET /status should contain '{0}'!", tag);
             }
         }
 

@@ -12,8 +12,8 @@ namespace ArtifactStore.Repositories
     public class ItemIdItemNameParentId
     {
         public int ItemId { get; set; }
-        public string ItemName { get; set; }
         public int ParentId { get; set; }
+        public string ItemName { get; set; }
     }
 
     public class RelationshipExtendedInfo
@@ -57,11 +57,11 @@ namespace ArtifactStore.Repositories
         private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@artifactId", userId);
+            parameters.Add("@artifactId", artifactId);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsToRoute", parameters, commandType: CommandType.StoredProcedure);
+            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToRoute", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
@@ -167,7 +167,6 @@ namespace ArtifactStore.Repositories
         public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
         {
             var pathToProject = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToList();
-            pathToProject.Reverse();
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = "Placeholder" };
         }
     }

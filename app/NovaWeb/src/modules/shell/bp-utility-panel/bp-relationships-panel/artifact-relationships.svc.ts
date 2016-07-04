@@ -3,8 +3,8 @@ import * as Models from "../../../main/models/models";
 
 
 export enum ITraceType {
-    Trace = 0,
-    Association = 1
+    Manual = 0,
+    Other = 1
 }
 
 export interface IArtifactRelationshipsResultSet {
@@ -41,7 +41,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
         this.$http(requestObj)
             .success((result: IArtifactRelationshipsResultSet) => {
-                if (traceType === ITraceType.Trace) {
+                if (traceType === ITraceType.Manual) {
                     defer.resolve(result.manualTraces);
                 } else {
                     defer.resolve(result.otherTraces);

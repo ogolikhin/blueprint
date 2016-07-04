@@ -1,9 +1,17 @@
 bp-relationships-panel {
     .tabs{
         padding-bottom:10px; 
+        padding-left:10px;
         width:100%;
     }
     bp-artifact-relationship-item {
+
+         .utility-panel-artifact-item {
+
+        padding: 0;
+     
+    }
+
         [class^="fonticon-"],
         [class*=" fonticon-"] {
             &::before {
@@ -11,6 +19,10 @@ bp-relationships-panel {
             }
         }
 
+        .details{
+
+            display:inline-block; 
+            padding: 7px 10px;
         .status {
         position: absolute;
         top: 8px; //$padding-smaller;
@@ -35,17 +47,23 @@ bp-relationships-panel {
             float:left;
         }
 
-        .details{
+        .inner-details{
             width:80%;
             float:right;
+            .desc-visible{
+                display:block;
+            }
+            .desc-hidden{
+                display:none;
+            }
         }
-
+        }
         .icons{
-            position:absolute; 
+            /*position:absolute;*/ 
             display:inline-block; 
             width:100%; 
-            bottom:0; 
-            left:0; 
+            /*bottom:0; 
+            left:0;*/ 
             padding:5px;
             border-top: 1px solid $gray-light;
             div{

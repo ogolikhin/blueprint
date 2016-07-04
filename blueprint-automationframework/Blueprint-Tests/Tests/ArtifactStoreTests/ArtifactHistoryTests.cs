@@ -99,7 +99,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145867)]
-        [Description("Create artifact, publish it, get history, check fields of returned version.")]
+        [Description("Create artifact, publish it, get history.  Verify 1 published artifact history is returned with the expected values.")]
         public void GetHistoryForPublishedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
@@ -122,7 +122,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145868)]
-        [Description("Create artifact, save it, get history - check that history contains draft version")]
+        [Description("Create artifact, save it, get history.  Verify 1 draft artifact history is returned with the expected values.")]
         public void GetHistoryForArtifactInDraft_VerifyHistoryHasExpectedValue()
         {
             // Setup:
@@ -146,7 +146,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145869)]
-        [Description("Create artifact, publish, delete, publish, get history - check that history contains deleted version")]
+        [Description("Create artifact, publish, delete, publish, get history.  Verify 1 deleted artifact history is returned with the expected values.")]
         public void GetHistoryForDeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
@@ -171,7 +171,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145870)]
-        [Description("Create artifact, publish, save, check that other user doesn't see draft version")]
+        [Description("Create artifact, publish, save.  Verify other user doesn't see draft version.")]
         public void GetHistoryForPublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             // Setup:
@@ -195,7 +195,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145871)]
-        [Description("Create artifact, save, check that other user sees empty history")]
+        [Description("Create artifact, save.  Verify other user sees empty history.")]
         public void GetHistoryForArtifactInDraft_VerifyOtherAdminUserSeeEmptyHistory()
         {
             // Setup:
@@ -216,7 +216,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145896)]
-        [Description("Create artifact with 12 versions, check that gethistory returns 10 items")]
+        [Description("Create artifact with 12 versions.  Verify 'GET /artifacts/{artifactId}/version' returns 10 items.")]
         public void GetHistoryForArtifact_VerifyDefaultLimitIs10()
         {
             // Setup:
@@ -236,7 +236,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145897)]
-        [Description("Create artifact with 11 versions, check that gethistory with limit 5 returns 5 items")]
+        [Description("Create artifact with 11 versions.  Verify 'GET /artifacts/{artifactId}/version' with limit 5 returns 5 items.")]
         public void GetHistoryForArtifact_VerifyLimit5ReturnsNoMoreThan5Versions()
         {
             // Setup:
@@ -257,7 +257,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145899)]
-        [Description("Create artifact with 13 versions, check that gethistory with limit 12 returns 12 items")]
+        [Description("Create artifact with 13 versions.  Verify 'GET /artifacts/{artifactId}/version' with limit 12 returns 12 items.")]
         public void GetHistoryForArtifact_VerifyLimit12ReturnsNoMoreThan12Versions()
         {
             // Setup:
@@ -278,7 +278,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145901)]
-        [Description("Create artifact with 5 versions, check that gethistory returns later versions first")]
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' returns latest version first (descending order).")]
         public void GetHistoryForArtifact_VerifyDefaultAscIsFalse()
         {
             // Setup:
@@ -303,7 +303,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145902)]
-        [Description("Create artifact with 5 versions, check that gethistory with asc=true returns later versions last")]
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=true returns latest version last (ascending order).")]
         public void GetHistoryForArtifactWithAscIsTrue_VerifyOrderOfVersions()
         {
             // Setup:
@@ -328,7 +328,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145903)]
-        [Description("Create artifact with 5 versions, check that gethistory with asc=false returns later versions first")]
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=false returns latest version first (descending order).")]
         public void GetHistoryForArtifactWithAscIsFalse_VerifyOrderOfVersions()
         {
             // Setup:
@@ -353,7 +353,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145904)]
-        [Description("Create artifact with 5 versions, check that gethistory with offset=2 returns 3 versions")]
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with offset=2 returns 3 versions.")]
         public void GetHistoryForArtifact_VerifyOffset2Skip2Versions()
         {
             // Setup:
@@ -378,7 +378,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145909)]
-        [Description("Create artifact with 5 versions, check that gethistory with asc=true, offset=3, limit=1 returns version 4")]
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=true, offset=3, limit=1 returns version 4.")]
         public void GetHistoryForArtifactWithNonDefaultParams_VerifyHistory()
         {
             // Setup:

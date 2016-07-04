@@ -6,6 +6,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 
+
 var backend = process.env.npm_config_backend || process.env.npm_package_config_backend || "http://localhost:9801";
 console.log({backend: backend});
 
@@ -22,14 +23,17 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 
+        vendor: [
+            'angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
             'bootstrap/dist/css/bootstrap.css',
             'ng-draggable',
-            'ag-grid', 'ag-grid/dist/styles/ag-grid.css', 
+            'ag-grid', 'ag-grid/dist/styles/ag-grid.css',
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
-            'tinymce']
-},
+            'tinymce'
+            , 'mxClient'
+        ]
+    },
     output: {
         filename: 'app.js',
         path: 'dist/novaweb'
@@ -39,6 +43,7 @@ module.exports = {
         extensions: ['', '.ts', '.js', '.json'],
         alias: {
             tinymce: 'tinymce/tinymce'
+            , mxClient: path.join(__dirname, '../libs/mxClient/js/mxClient.js')
         }
     },
     resolveLoader: {
@@ -89,6 +94,12 @@ module.exports = {
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
+             //, { from: '../libs/mxClient/css', to: './libs/mxClient/css' }
+             //, { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' }
+             //, { from: '../libs/mxClient/images', to: './libs/mxClient/images' }
+             //, { from: '../libs/mxClient/resources', to: './libs/mxClient/resources' }
+             //, { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }
+             , { from: '../libs/mxClient', to: './libs/mxClient' }
 
 
          ]),
@@ -105,6 +116,6 @@ module.exports = {
           // See: https://github.com/wbuchwalter/tslint-loader
             { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
         ],
-        noParse: [/angular-perfect-scrollbar-2/]
+        noParse:  [/angular-perfect-scrollbar-2/] 
     }
 };

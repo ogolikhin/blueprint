@@ -1,4 +1,6 @@
 ﻿import {IProjectManager, Models} from "../..";
+//require("script!../../../../../libs/mxClient/js/mxClient.js");
+//import "mxClient";
 
 export class BpArtifactDetails implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-details.html");
@@ -12,13 +14,31 @@ export class BpArtifactDetails implements ng.IComponentOptions {
 
 export class BpArtifactRetailsController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$scope", "projectManager"];
+    static $inject: [string] = ["$scope", "$element", "projectManager"];
     private _artifact: Models.IArtifactDetails;
 
     public currentArtifact: string;
 
-    constructor(private $scope, private projectManager: IProjectManager) {
+    constructor(private $scope, $element, private projectManager: IProjectManager) {
+        let mxClientTest: any = require("mxClient");
+        let container = $element[0].children[0].children[1].children[0];
+        let model: MxGraphModel = new mxClientTest.mxGraphModel();
+        let graph: MxGraph = new mxClientTest.mxGraph(container, null);
+        // Gets the default parent for inserting new cells. This
+        // is normally the first child of the root (ie. layer 0).
+        var parent = graph.getDefaultParent();
 
+        // Adds cells to the model in a single step
+        model.beginUpdate();
+        try {
+            var v1 = graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30);
+            var v2 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30);
+            var e1 = graph.insertEdge(parent, null, '', v1, v2);
+        }
+        finally {
+            // Updates the display
+            model.endUpdate();
+        }
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {

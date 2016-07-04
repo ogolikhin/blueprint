@@ -1,5 +1,5 @@
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-
+var path = require("path");
 module.exports = [
     {test: /\.ts(x?)$/, loader: 'ts-loader'},
     {
@@ -27,18 +27,34 @@ module.exports = [
         test: /\.png$/,
         exclude: /node_modules/,
         loader: 'url'
-    }, {
+    }
+    , {
         test: require.resolve('tinymce/tinymce'),
         loaders: [
           'imports?this=>window',
           'exports?window.tinymce'
         ]
-    }, {
+    }
+    , {
           test: /tinymce\/(themes|plugins)\//,
           loaders: [
             'imports?this=>window'
 
           ]
-      }
+    }
+    , {
+        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
+        loaders: [
+            'exports?mxClient,mxGraph,mxGraphModel'
+           //'expose?mxClient'
+        ]
+    }
+    //, {
+    //    test: /mxClient\/(css|icons|images|resources|stencils)\//,
+    //    loaders: [
+    //      'imports?this=>window'
+    //    ]
+    //}
 ];
+
 

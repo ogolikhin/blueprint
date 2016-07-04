@@ -120,6 +120,27 @@ namespace Helper
             return artifact;
         }
 
+        /// <summary>
+        /// Creates a new artifact, then saves & publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created in.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="numberOfVersions">(optional) The number of times to save & publish the artifact (to create multiple historical versions).</param>
+        /// <returns>The artifact.</returns>
+        public IArtifact CreateAndPublishArtifact(IProject project, IUser user, BaseArtifactType artifactType, int numberOfVersions = 1)
+        {
+            IArtifact artifact = CreateArtifact(project, user, artifactType);
+
+            for (int i = 0; i < numberOfVersions; ++i)
+            {
+                artifact.Save();
+                artifact.Publish();
+            }
+
+            return artifact;
+        }
+
         #endregion Artifact Management
 
         #region Project Management

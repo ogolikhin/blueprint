@@ -242,6 +242,9 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this._datasource = nodes;
         }
+        //HACk: have to clear cell selection
+        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
+
         this.options.api.setRowData(this._datasource);
     }
 
@@ -331,6 +334,9 @@ export class BPTreeController implements IBPTreeController  {
     };
 
     private rowSelected = (node: any) => {
+        if (!node) {
+            return;
+        }
         var self = this;
 
         node.setSelected(true, true);

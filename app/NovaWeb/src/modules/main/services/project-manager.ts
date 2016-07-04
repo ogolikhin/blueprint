@@ -118,7 +118,7 @@ export class ProjectManager implements IProjectManager {
                 });
                 _projectCollection.unshift(_project);
                 self.projectCollection.onNext(_projectCollection);
-                self.setCurrentArtifact(project);
+                self.setCurrentArtifact(_project);
 
             } else {
                 this._repository.getArtifacts(project.id)
@@ -354,6 +354,30 @@ export class ProjectManager implements IProjectManager {
                 type: "date",
                 label: "Last edited on",
                 disabled: true
+            }
+        });
+        fields.push({
+            key: "tinymceControl",
+            type: "tinymce",
+            data: { // using data property
+                tinymceOption: { // this will goes to ui-tinymce directive
+                    // standard tinymce option
+                    inline: false,
+                    plugins: [
+                        "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+                        "searchreplace wordcount visualblocks visualchars code fullscreen",
+                        "insertdatetime media nonbreaking save table contextmenu directionality",
+                        "emoticons template paste textcolor colorpicker textpattern imagetools"
+                    ],
+
+                    image_advtab: true,
+                    toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+                    toolbar2: "print preview media | forecolor backcolor emoticons",
+
+                }
+            },
+            templateOptions: {
+                label: "TinyMCE control",
             }
         });
 

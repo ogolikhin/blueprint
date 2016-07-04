@@ -10,6 +10,7 @@ namespace CommonServiceTests
     {
         [TestCase]
         [TestRail(106948)]
+        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/CJHIw4jw
         [Description("Calls the /status endpoint for the main Blueprint site with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
         public static void Status_ValidateReturnedContent()
         {

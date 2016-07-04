@@ -2,10 +2,11 @@ bp-discussion-panel {
     $item-gap: $padding-bigger;
 
     .btn-new-comment {
-        background-color: $gray-lightest;
+        background-color: #fff;
         color: $blue-light;
-        border: solid 1px #ccc;
-        padding: $padding-smallest;
+        border: solid 1px $gray-lighter;
+        border-radius: 3px;
+        padding: 2px $padding-smallest;
         min-width: 0;
     }
 
@@ -26,122 +27,65 @@ bp-discussion-panel {
         }
     }
 
-    .clear-both {
-        clear: both;
+    .author {
+        @include text-ellipsis-flex-width(125px);
     }
 
-    .empty-state {
-        padding: $padding-smaller;
+    .comment {
+        overflow-wrap: break-word;
     }
 
-    bp-artifact-discussion-item, bp-discussion-reply-item {
-        .username {
-            color: $blue-light;
+    .status {
+        position: absolute;
+        top: 8px; //$padding-smaller;
+        right: 10px; //$padding-smaller;
+        color: $gray-light;
+        cursor: pointer;
+
+        .icon:before {
+            color: $gray-darker;
+            font-size: $font-size-bigger;
+            margin: 0;
         }
 
-        .status {
-            text-align: right;
-            margin-right: -1* $padding-smaller;
-        }
-
-        .discussion-info {
-            margin-left: 50px;
-            margin-top: -40px;
-        }
-
-        .version {
-            padding-right: $padding-smaller;
-        }
-
-        .inline-block {
-            display: inline-block;
-        }
-
-        .discussion-button-bar {
-            margin-top: $padding-bigger;
-            margin-bottom: -1* $padding-smaller;
-            padding: $padding-smallest;
-            text-align: right;
-        }
-
-        .disucssion-buttonbar-item {
-            font-family: 'bp-font';
-            padding: 0 $padding-smaller;
-        }
-
-        .reply-count {
-            @extend .disucssion-buttonbar-item;
-            display:inline-block;
-            font-size:$font-size-normal;
-
-            &.black{
-                color:black;
-            }
-
-            &::before {
-                font-size: $font-size-biggest;
-                margin-right:0;
-            }
-        }
-
-        .delete-comment {
-            @extend .disucssion-buttonbar-item;
-            display:inline-block;
-
-            &::before {
-                font-size: $font-size-big;
-            }
-        }
-
-        .edit-comment {
-            @extend .disucssion-buttonbar-item;
-            display:inline-block;
-
-            &::before {
-                font-size: $font-size-small;
-            }
-        }
-
-        .expand-icon {
-            display:inline-block;
-
-            &:hover {
-                cursor: pointer;
-            }
-
-            &::before {
-                font-size: $font-size-bigger;
-            }
-        }
-
-        .expanded {
+        &.expanded .icon:before {
             @include transform-rotate(180);
         }
+    }
 
-        .status-name {
-            color: $gray-light;
-            display:inline-block;
-            padding-right: $padding-smallest;
-            margin-right: -1 * $padding-smallest;
+    .info {
+        margin-left: 50px;
+        margin-top: -40px;
+        line-height: $font-size-bigger;
+    }
+
+    .version, .timestamp {
+        display: inline-block;
+    }
+    .version {
+        padding-right: $padding-smaller;
+    }
+
+    .reply-count, .delete-comment, .edit-comment {
+        font-size:$font-size-normal;
+
+        &.active {
+            color: $gray-darker;
         }
+    }
 
-        .reply-link {
-            display:inline-block;
-            border-left: solid 1px #ccc;
-            font-size: $font-size-big;
-            padding: 0 $padding-smallest 0 $padding-smaller;
+    .reply-link {
+        border-left: solid 1px #ccc;
+        font-size: $font-size-normal;
+        padding: 5px 0 5px $padding-smaller;
+        color: $blue-light;
+        cursor: pointer;
 
-            .active {
-                color: $blue-light;
-                cursor: pointer;
-            }
-
-            .inactive {
-                color: #AAAAAA;
-                cursor: default;
-                pointer-events: none;
-                text-decoration: none;
-            }
+        .inactive {
+            color: #AAAAAA;
+            cursor: default;
+            pointer-events: none;
+            text-decoration: none;
         }
     }
 
@@ -154,7 +98,7 @@ bp-discussion-panel {
             height: $item-gap;
             background: $gray-lighter;
             position: absolute;
-            top: -$item-gap;
+            top: -$item-gap; 
             left: 28px;
         }
     }

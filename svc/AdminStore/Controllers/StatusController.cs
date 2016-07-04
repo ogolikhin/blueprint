@@ -12,6 +12,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {

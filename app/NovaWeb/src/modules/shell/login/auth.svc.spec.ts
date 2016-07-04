@@ -47,7 +47,7 @@ describe("AuthSvc", () => {
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
             $rootScope["config"] = {
@@ -62,7 +62,7 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
-            expect(user.Login).toBe("admin", "user login does not match");
+            expect(user.login).toBe("admin", "user login does not match");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -71,7 +71,7 @@ describe("AuthSvc", () => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
 
@@ -83,7 +83,7 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
-            expect(user.Login).toBe("admin", "user login does not match");
+            expect(user.login).toBe("admin", "user login does not match");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -95,7 +95,7 @@ describe("AuthSvc", () => {
             var status: number = 401;
             var message: string = "Login Failed";
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
-                .respond(status, { Message: message, ErrorCode: 2000 });
+                .respond(status, { message: message, errorCode: 2000 });
 
             // Act
             var error: any;
@@ -118,7 +118,7 @@ describe("AuthSvc", () => {
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
 
@@ -130,7 +130,7 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
-            expect(user.Login).toBe("admin", "user login does not match");
+            expect(user.login).toBe("admin", "user login does not match");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -158,13 +158,13 @@ describe("AuthSvc", () => {
             //unicode to test encode function
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("Карл") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(401, { Message: "401 error" });
+                .respond(401, { message: "401 error" });
 
             // Act
             var error: any;
@@ -184,7 +184,7 @@ describe("AuthSvc", () => {
             //exotic unicode to test encode function
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("𐊇𐊈𐊉") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
@@ -208,7 +208,7 @@ describe("AuthSvc", () => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
@@ -237,7 +237,7 @@ describe("AuthSvc", () => {
 
             // Act
             var error: any;
-            var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+            var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
             auth.logout(user, true).then(() => {}, (err) => error = err);
             $httpBackend.flush();
 
@@ -258,7 +258,7 @@ describe("AuthSvc", () => {
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
 
@@ -271,7 +271,7 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
-            expect(user.Login).toBe("admin", "user login does not match");
+            expect(user.login).toBe("admin", "user login does not match");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -279,7 +279,7 @@ describe("AuthSvc", () => {
         it("respond with saml error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=false", angular.toJson("PHNhbWx"))
-                .respond(401, {Message: "saml login error"});
+                .respond(401, {message: "saml login error"});
 
             // Act
             var error: any;
@@ -303,7 +303,7 @@ describe("AuthSvc", () => {
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
+                    displayName: "Default Instance Admin", login: "admin"
                 }
             );
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
@@ -359,7 +359,7 @@ describe("AuthSvc", () => {
             var encOldPassword = AuthSvc.encode(oldPassword);
             var encNewPassword = AuthSvc.encode(newPassword);
             $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }))
-                .respond(401, { Message: errorMsg});
+                .respond(401, { message: errorMsg});
 
             // Act
             var error: any;

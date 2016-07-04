@@ -1,40 +1,36 @@
-﻿<div>
-    <div>
-        <bp-avatar ng-class="$ctrl.discussionInfo.isGuest ? 'guest' : ''"
-                   name="{{ $ctrl.discussionInfo.userName }}"
-                   color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
-        </bp-avatar>
-    </div>
-    <div class="discussion-info">
-        <div class="status">
-            <div class="status-name" bp-tooltip="{{ $ctrl.discussionInfo.status }}">{{ $ctrl.discussionInfo.status }}</div>
-            <div class="expand-icon fonticon-circle-up"
-                 ng-class="$ctrl.discussionInfo.expanded ? 'expanded' : ''"
-                 bp-tooltip="{{$ctrl.discussionInfo.expanded ? 'Collapse thread' : 'Expand Thread'}}"
-                 ng-click="$ctrl.getReplies()">
-            </div>
-        </div>
-        <div>
-            <div class="username" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
-        </div>
-        <div ng-bind-html="$ctrl.discussionInfo.comment"></div>
-        <div>
-            <div class="version inline-block">v{{$ctrl.discussionInfo.version}}</div>
-            <div class="timestamp inline-block">{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
-        </div>
-    </div>
-    <div class="button-bar discussion-button-bar">
-        <div bp-tooltip="View comments"
-             class="reply-count fonticon-comment"
-             ng-class="$ctrl.discussionInfo.repliesCount > 0 ? 'black' : ''">
-            {{$ctrl.discussionInfo.repliesCount}}
-        </div>
-        <div bp-tooltip="Delete comment" class="delete-comment fonticon-delete-filled"></div>
-        <div bp-tooltip="Edit comment" class="edit-comment fonticon-edit-alt"></div>
-        <div class="reply-link" bp-tooltip="Reply to the comment">
-            <a ng-click="$ctrl.newReplyClick()" ng-class="$ctrl.discussionInfo.isClosed ? 'inactive' : 'active'">
-                Reply
-            </a>
-        </div>
-    </div>
+﻿<div class="status"
+    bp-tooltip="{{$ctrl.discussionInfo.expanded ? 'Collapse thread' : 'Expand Thread'}}"
+    ng-click="$ctrl.getReplies()"
+    ng-class="{'expanded': $ctrl.discussionInfo.expanded}">
+    <span>{{ $ctrl.discussionInfo.status }}</span>
+    <i class="icon fonticon-circle-up"></i>
+</div>
+
+<bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
+    name="{{ $ctrl.discussionInfo.userName }}"
+    color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+</bp-avatar>
+
+<div class="info">
+    <div class="author" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+    <div class="comment" ng-bind-html="$ctrl.discussionInfo.comment"></div>
+    <div class="version">v{{$ctrl.discussionInfo.version}}</div>
+    <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+</div>
+
+<div class="button-bar">
+    <i bp-tooltip="View comments"
+        class="reply-count icon fonticon-comment"
+        ng-class="{'active' : $ctrl.discussionInfo.repliesCount}">{{$ctrl.discussionInfo.repliesCount}}</i>
+
+    <i bp-tooltip="Delete comment" 
+        class="delete-comment icon fonticon-delete-filled"></i>
+
+    <i bp-tooltip="Edit comment"
+        class="edit-comment icon fonticon-edit-alt"></i>
+
+    <a  class="reply-link"
+        bp-tooltip="Reply to the comment" 
+        ng-click="$ctrl.newReplyClick()" 
+        ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">Reply</a>
 </div>

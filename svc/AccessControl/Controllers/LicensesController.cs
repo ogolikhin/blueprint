@@ -13,6 +13,7 @@ using ServiceLibrary.Attributes;
 
 namespace AccessControl.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {

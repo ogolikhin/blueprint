@@ -15,6 +15,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("users")]
     public class UsersController : ApiController
     {

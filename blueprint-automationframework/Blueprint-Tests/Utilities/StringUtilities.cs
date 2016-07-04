@@ -43,6 +43,8 @@ namespace Utilities
         public static bool ContainsIgnoreCase(this string source, string subString)
         {
             ThrowIf.ArgumentNull(source, nameof(source));
+            ThrowIf.ArgumentNull(subString, nameof(subString));
+
             return source.IndexOf(subString, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }

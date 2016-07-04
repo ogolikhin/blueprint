@@ -46,7 +46,9 @@
             png: "image",
             gif: "image",
             svg: "image",
-            bmp: "image"
+            bmp: "image",
+            tif: "image",
+            tiff: "image"
         };
 
     static getFiletypeClass(filename: string): string {

@@ -9,6 +9,20 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
+    public class ItemIdItemNameParentId
+    {
+        public int ItemId { get; set; }
+        public string ItemName { get; set; }
+        public int ParentId { get; set; }
+    }
+
+    public class RelationshipExtendedInfo
+    {
+        public int ArtifactId { get; set; }
+        public string Description { get; set; }
+        public List<ItemIdItemNameParentId> PathToProject { get; set; }
+    }
+
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
@@ -38,6 +52,16 @@ namespace ArtifactStore.Repositories
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
             return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@artifactId", userId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsToRoute", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
@@ -84,6 +108,30 @@ namespace ArtifactStore.Repositories
                 ProjectId = link.DestinationProjectId
             };
         }
+        private List<Relationship> GetManualTraceRelationships(List<LinkInfo> manualLinks, int itemId)
+        {
+            var fromManualLinks = manualLinks.Where(a => a.SourceItemId == itemId).ToList();
+            var toManualLinks = manualLinks.Where(a => a.DestinationItemId == itemId).ToList();
+            var result = new List<Relationship>();
+
+            foreach (var fromManualLink in fromManualLinks)
+            {
+                result.Add(NewRelationship(fromManualLink, TraceDirection.To));
+            }
+            foreach (var toManualLink in toManualLinks)
+            {
+                if (fromManualLinks.Any(a => a.DestinationItemId == toManualLink.SourceItemId))
+                {
+                    var BidirectionalRelationship = result.SingleOrDefault(a => a.ItemId == toManualLink.SourceItemId);
+                    BidirectionalRelationship.TraceDirection = TraceDirection.TwoWay;
+                }
+                else
+                {
+                    result.Add(NewRelationship(toManualLink, TraceDirection.From));
+                }
+            }
+            return result;
+        }
 
         public async Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true)
         {
@@ -116,29 +164,11 @@ namespace ArtifactStore.Repositories
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
         }
 
-        public List<Relationship> GetManualTraceRelationships(List<LinkInfo> manualLinks, int itemId)
+        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
         {
-            var fromManualLinks = manualLinks.Where(a => a.SourceItemId == itemId).ToList();
-            var toManualLinks = manualLinks.Where(a => a.DestinationItemId == itemId).ToList();
-            var result = new List<Relationship>();
-
-            foreach (var fromManualLink in fromManualLinks)
-            {
-                result.Add(NewRelationship(fromManualLink, TraceDirection.To));
-            }
-            foreach (var toManualLink in toManualLinks)
-            {
-                if (fromManualLinks.Any(a => a.DestinationItemId == toManualLink.SourceItemId))
-                {
-                    var BidirectionalRelationship = result.SingleOrDefault(a => a.ItemId == toManualLink.SourceItemId);
-                    BidirectionalRelationship.TraceDirection = TraceDirection.TwoWay;
-                }
-                else
-                {
-                    result.Add(NewRelationship(toManualLink, TraceDirection.From));
-                }
-            }
-            return result;
+            var pathToProject = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToList();
+            pathToProject.Reverse();
+            return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject };
         }
     }
 }

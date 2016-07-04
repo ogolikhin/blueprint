@@ -46,7 +46,9 @@
             png: "image",
             gif: "image",
             svg: "image",
-            bmp: "image"
+            bmp: "image",
+            tif: "image",
+            tiff: "image"
         };
 
     static getFiletypeClass(filename: string): string {
@@ -54,6 +56,7 @@
             return "ext-document";
         }
 
+        filename = filename.toLowerCase();
         const fileExt: RegExpMatchArray = filename.match(/([^.]*)$/);
 
         if (fileExt.length && this.extensionMap[fileExt[0]]) {

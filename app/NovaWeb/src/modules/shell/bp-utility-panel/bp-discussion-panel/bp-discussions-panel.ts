@@ -81,6 +81,7 @@ export class BPDiscussionPanelController {
             this.getDiscussionReplies(discussion.discussionId)
                 .then((replies: IReply[]) => {
                     discussion.replies = replies;
+                    discussion.repliesCount = replies.length;
                     discussion.expanded = true;
                 });
         } else {

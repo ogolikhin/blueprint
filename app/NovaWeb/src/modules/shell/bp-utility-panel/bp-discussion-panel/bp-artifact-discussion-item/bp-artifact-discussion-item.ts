@@ -21,11 +21,13 @@ export class BPArtifactDiscussionItemController {
     constructor(
         private element: ng.IAugmentedJQuery,
         private scope: ng.IScope) {
-        let commentContainer = document.createElement("DIV");
-        this.addTargetBlankToComment(commentContainer);
-        this.scope.$on("$destroy", () => {
-            angular.element(commentContainer).remove();
-        });
+        if (this.discussionInfo) {
+            let commentContainer = document.createElement("DIV");
+            this.addTargetBlankToComment(commentContainer);
+            this.scope.$on("$destroy", () => {
+                angular.element(commentContainer).remove();
+            });
+        }
     }
 
     private addTargetBlankToComment(commentContainer: HTMLElement) {

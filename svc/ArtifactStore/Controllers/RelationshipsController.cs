@@ -81,7 +81,7 @@ namespace ArtifactStore.Controllers
 
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
-        [ActionName("GetRelationships")]
+        [ActionName("GetRelationshipDetails")]
         public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;

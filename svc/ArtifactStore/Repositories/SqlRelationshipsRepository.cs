@@ -9,20 +9,6 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class ItemIdItemNameParentId
-    {
-        public int ItemId { get; set; }
-        public int ParentId { get; set; }
-        public string ItemName { get; set; }
-    }
-
-    public class RelationshipExtendedInfo
-    {
-        public int ArtifactId { get; set; }
-        public string Description { get; set; }
-        public List<ItemIdItemNameParentId> PathToProject { get; set; }
-    }
-
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;

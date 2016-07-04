@@ -1,5 +1,13 @@
 ﻿<div class="utility-panel-artifact-item">
+   
     <div>
+        <div class="status" ng-click="$ctrl.expand()" ng-class="{'expanded': $ctrl.expanded}"
+             bp-tooltip="{{$ctrl.discussionInfo.expanded ? 'Collapse thread' : 'Expand Thread'}}">
+
+
+            <span></span>
+            <i class="icon fonticon-circle-up"></i>
+        </div>
         <div class="icon">
             icon
 

@@ -1,19 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { Models } from "../../../main";
+import * as Models from "../../../main/models/models";
 
-export interface IArtifactRelationship {
-    artifactId: number;
-    artifactName: string;
-    artifactTypePrefix: string;
-    itemId: number;
-    itemName: string;
-    itemTypePrefix: string;
-    projectId: number;
-    projectName: string;
-    suspect: boolean;
-    traceDirection: number;
-    traceType: number;
-}
 
 export enum ITraceType {
     Trace = 0,
@@ -21,13 +8,13 @@ export enum ITraceType {
 }
 
 export interface IArtifactRelationshipsResultSet {
-    manualTraces: IArtifactRelationship[];
-    otherTraces: IArtifactRelationship[];
+    manualTraces: Models.IArtifactDetails[];
+    otherTraces: Models.IArtifactDetails[];
   //  artifactId: number;
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number, relationshipType: any): ng.IPromise<IArtifactRelationship[]>;
+    getRelationships(artifactId: number, relationshipType: any): ng.IPromise<Models.IArtifactDetails[]>;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
@@ -45,7 +32,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number, traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
+        artifactId: number, traceType: ITraceType): ng.IPromise<Models.IArtifactDetails[]> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           

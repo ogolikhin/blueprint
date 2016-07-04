@@ -1,6 +1,6 @@
 ﻿import {IProjectManager, Models} from "../..";
-//require("script!../../../../../libs/mxClient/js/mxClient.js");
-//import "mxClient";
+
+require("script!mxClient");
 
 export class BpArtifactDetails implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-details.html");
@@ -20,10 +20,9 @@ export class BpArtifactRetailsController {
     public currentArtifact: string;
 
     constructor(private $scope, $element, private projectManager: IProjectManager) {
-        let mxClientTest: any = require("mxClient");
         let container = $element[0].children[0].children[1].children[0];
-        let model: MxGraphModel = new mxClientTest.mxGraphModel();
-        let graph: MxGraph = new mxClientTest.mxGraph(container, null);
+        let model: MxGraphModel = new mxGraphModel();
+        let graph: MxGraph = new mxGraph(container, null);
         // Gets the default parent for inserting new cells. This
         // is normally the first child of the root (ie. layer 0).
         var parent = graph.getDefaultParent();

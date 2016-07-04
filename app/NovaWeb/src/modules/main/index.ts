@@ -8,8 +8,6 @@ import "ng-draggable";
 import "angular-perfect-scrollbar-2";
 import "../shell";
 import "tinymce";
-//import "mxClient";
-//import {mxClient} from "../../../libs/mxClient/js/";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
@@ -44,7 +42,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
-
+    
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 

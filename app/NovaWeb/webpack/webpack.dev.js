@@ -43,7 +43,7 @@ module.exports = {
         extensions: ['', '.ts', '.js', '.json'],
         alias: {
             tinymce: 'tinymce/tinymce'
-            , mxClient: path.join(__dirname, '../libs/mxClient/js/mxClient.js')
+            , mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
         }
     },
     resolveLoader: {
@@ -94,12 +94,7 @@ module.exports = {
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
-             //, { from: '../libs/mxClient/css', to: './libs/mxClient/css' }
-             //, { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' }
-             //, { from: '../libs/mxClient/images', to: './libs/mxClient/images' }
-             //, { from: '../libs/mxClient/resources', to: './libs/mxClient/resources' }
-             //, { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }
-             , { from: '../libs/mxClient', to: './libs/mxClient' }
+            , { from: '../libs/mxClient', to: './libs/mxClient' }
 
 
          ]),

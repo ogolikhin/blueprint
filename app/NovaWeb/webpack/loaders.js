@@ -42,19 +42,6 @@ module.exports = [
 
           ]
     }
-    , {
-        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
-        loaders: [
-            'exports?mxClient,mxGraph,mxGraphModel'
-           //'expose?mxClient'
-        ]
-    }
-    //, {
-    //    test: /mxClient\/(css|icons|images|resources|stencils)\//,
-    //    loaders: [
-    //      'imports?this=>window'
-    //    ]
-    //}
 ];
 
 

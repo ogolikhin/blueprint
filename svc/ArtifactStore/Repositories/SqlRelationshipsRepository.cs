@@ -168,7 +168,7 @@ namespace ArtifactStore.Repositories
         {
             var pathToProject = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToList();
             pathToProject.Reverse();
-            return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject };
+            return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = "Placeholder" };
         }
     }
 }

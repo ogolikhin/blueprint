@@ -78,6 +78,26 @@ namespace ArtifactStore.Controllers
 
             return result;
         }
+
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), NoSessionRequired]
+        [ActionName("GetRelationships")]
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true)
+        {
+            var session = new Session { UserId = 1}; //Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (artifactId < 1 )
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+            }
+            var itemIds = new List<int> { artifactId };
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            CheckReadPermissions(artifactId, permissions, () =>
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            });
+            return await RelationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, addDrafts);
+        }
+
         private static void CheckReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions, Action action)
         {
             if (!permissions.ContainsKey(itemId))

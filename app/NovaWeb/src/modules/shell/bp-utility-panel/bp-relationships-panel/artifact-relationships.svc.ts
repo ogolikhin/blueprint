@@ -2,19 +2,35 @@
 import { Models } from "../../../main";
 
 export interface IArtifactRelationship {
-    //fields
+    artifactId: number;
+    artifactName: string;
+    artifactTypePrefix: string;
+    itemId: number;
+    itemName: string;
+    itemTypePrefix: string;
+    projectId: number;
+    projectName: string;
+    suspect: boolean;
+    traceDirection: number;
+    traceType: number;
+}
+
+export enum ITraceType {
+    Trace = 0,
+    Association = 1
 }
 
 export interface IArtifactRelationshipsResultSet {
-    artifactRelationships: IArtifactRelationship[];
-    artifactId: number;
+    manualTraces: IArtifactRelationship[];
+    otherTraces: IArtifactRelationship[];
+  //  artifactId: number;
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number): ng.IPromise<IArtifactRelationship[]>;
+    getRelationships(artifactId: number, relationshipType: any): ng.IPromise<IArtifactRelationship[]>;
 }
 
-export class ArtifactRelationship implements IArtifactRelationships {
+export class ArtifactRelationships implements IArtifactRelationships {
     static $inject: [string] = [
         "$q",
         "$http",
@@ -29,25 +45,20 @@ export class ArtifactRelationship implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number): ng.IPromise<IArtifactRelationship[]> {
+        artifactId: number, traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${artifactId}/version`, 
+            url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
             method: "GET"
         };
 
         this.$http(requestObj)
             .success((result: IArtifactRelationshipsResultSet) => {
-                //defer.resolve(result.artifactRelationships);
-
-                var a = [];
-                a.push(<IArtifactRelationship>{ "id": "1" });
-                a.push(<IArtifactRelationship>{ "id": "2" });
-                a.push(<IArtifactRelationship>{ "id": "3" });
-                a.push(<IArtifactRelationship>{ "id": "4" });
-                a.push(<IArtifactRelationship>{ "id": "5" });
-                defer.resolve(a);
-
+                if (traceType === ITraceType.Trace) {
+                    defer.resolve(result.manualTraces);
+                } else {
+                    defer.resolve(result.otherTraces);
+                }
             }).error((err: any, statusCode: number) => {
                 const error = {
                     statusCode: statusCode,

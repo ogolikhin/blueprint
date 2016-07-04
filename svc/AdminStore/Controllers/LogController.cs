@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web.Http;
-using AdminStore.Models;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -13,6 +10,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("log")]
     public class LogController : ApiController
     {

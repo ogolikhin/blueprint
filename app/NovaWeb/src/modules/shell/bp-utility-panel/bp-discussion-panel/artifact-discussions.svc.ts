@@ -9,6 +9,7 @@ export interface IArtifactDiscussions {
 export interface IDiscussion extends ICommentBase {
     isClosed: boolean;
     status: string;
+    repliesCount: number;
     replies: IReply[];
     expanded: boolean;
     showAddReply: boolean;
@@ -87,7 +88,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/ArtifactStore/artifacts/${artifactId}/discussions/${discussionId}/replies`,
+            url: `/svc/artifactstore/artifacts/${artifactId}/discussions/${discussionId}/replies`,
             method: "GET",
             params: {
                 subArtifactId: subArtifactId

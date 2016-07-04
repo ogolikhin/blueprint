@@ -9,5 +9,7 @@ namespace ArtifactStore.Repositories
         Task<IEnumerable<Discussion>> GetDiscussions(int itemId, int projectId);
 
         Task<IEnumerable<Reply>> GetReplies(int discussionId, int projectId);
+
+        Task<bool> IsDiscussionDeleted(int discussionId);
     }
 }

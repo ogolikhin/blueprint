@@ -12,6 +12,7 @@ using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("log")]
     public class LogController : ApiController
     {

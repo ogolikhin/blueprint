@@ -401,10 +401,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("iPad iOS 8 - Mobile Safari 7", function () {
+    it("iPad iOS 9 - Mobile Safari 8", function () {
         // Arrange
         var userAgent =
-            "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
+            "Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/601.1.17 (KHTML, like Gecko) Version/8.0 Mobile/13A175 Safari/600.1.4";
 
         // Act
         var detector = new executionEnvironmentDetector();
@@ -413,13 +413,13 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
-        expect(browserInfo.osversion).toEqual("8.0");
-        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.osversion).toEqual("9.0");
+        expect(browserInfo.osMajorVersion).toEqual(9);
         expect(browserInfo.tablet).toBeTruthy();
 
         // Assert - Browser
         expect(browserInfo.safari).toBeTruthy();
-        expect(browserInfo.version).toEqual("7.0");
+        expect(browserInfo.version).toEqual("8.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
 
@@ -428,10 +428,10 @@ describe('executionEnvironmentDetector', function() {
         expect(detector.isSafari()).toBeTruthy();
     });
 
-    it("iPad iOS 8 - Chrome 40", function () {
+    it("iPad iOS 9 - Chrome 40", function () {
         // Arrange
         var userAgent =
-            "Mozilla/5.0 (iPad; CPU OS 8_1_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
+            "Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
 
         // Act
         var detector = new executionEnvironmentDetector();
@@ -440,8 +440,8 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
-        expect(browserInfo.osversion).toEqual("8.1.2");
-        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.osversion).toEqual("9.0");
+        expect(browserInfo.osMajorVersion).toEqual(9);
         expect(browserInfo.tablet).toBeTruthy();
 
         // Assert - Browser
@@ -456,18 +456,18 @@ describe('executionEnvironmentDetector', function() {
         expect(detector.isChrome()).toBeTruthy();
     });
 
-    it("iPhone iOS 8 - Chrome 41", function () {
+    it("iPhone iOS 9.2 - Chrome 41", function () {
         // Arrange
         var userAgent =
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/41.0.2272.58 Mobile/12F70 Safari/600.1.4 (000797)";
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) CriOS/41.0.2272.58 Mobile/12F70 Safari/601.1 (000797)";
 
         // Act
         var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
-        expect(browserInfo.osversion).toEqual("8.3");
-        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.osversion).toEqual("9.2");
+        expect(browserInfo.osMajorVersion).toEqual(9);
         expect(browserInfo.tablet).toBeFalsy();
         expect(browserInfo.mobile).toBeTruthy();
 

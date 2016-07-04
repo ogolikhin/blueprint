@@ -117,7 +117,7 @@ namespace ArtifactStore.Controllers
                 itemInfo = await _artifactVersionsRepository.GetDeletedItemInfo(itemId);
                 revisionId = ((DeletedItemInfo)itemInfo).VersionId;
             }
-            if (itemInfo == null)
+            if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }

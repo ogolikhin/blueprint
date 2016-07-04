@@ -1,12 +1,11 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationship} from "./artifact-relationships.svc";
+import {IArtifactRelationships, IArtifactRelationship, ITraceType} from "./artifact-relationships.svc";
 
 interface IOptions {
     value: string;
     label: string;
 }
-
 
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
@@ -18,21 +17,21 @@ export class BPRelationshipsPanelController {
         "$log",
         "localization",
         "projectManager",
-        "artifactRelationship"
+        "artifactRelationships"
     ];
-
 
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
     public artifactList: IArtifactRelationship[] = [];
     public option: string = "1";
+    public traceTypes = ITraceType;
 
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private projectManager: IProjectManager,
-        private artifactRelationship: IArtifactRelationships) {
+        private artifactRelationships: IArtifactRelationships) {
 
         this.options = [     
             { value: "1", label: "Add new" }           
@@ -52,22 +51,27 @@ export class BPRelationshipsPanelController {
         this.artifactList = null;
     }
 
-
     private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactList = [];
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships()
+            this.getRelationships(ITraceType.Trace)
                 .then((list: any) => {
                     this.artifactList = list;
                 });
         }
     }
 
-    private getRelationships(): ng.IPromise<IArtifactRelationship[]> {
+    private changeTraceType(traceType: ITraceType) {
+        this.getRelationships(traceType)
+            .then((list: any) => {
+                this.artifactList = list;
+            });
+    }
 
-        return this.artifactRelationship.getRelationships(this.artifactId)
+    private getRelationships(traceType: ITraceType): ng.IPromise<IArtifactRelationship[]> {
+        return this.artifactRelationships.getRelationships(this.artifactId, traceType)
             .then((list: IArtifactRelationship[]) => {
                 return list;
             })

@@ -47,7 +47,7 @@ export class SessionSvc implements ISession {
 
     public forceUsername(): string {
         if (this._currentUser) {
-            return this._currentUser.Login;
+            return this._currentUser.login;
         } else {
             return undefined;
         }

@@ -8,10 +8,10 @@ import {
 import { IHttpInterceptorConfig } from "../error/http-error-interceptor";
 
 export interface IUser {
-    DisplayName: string;
-    Login: string;
-    IsFallbackAllowed: boolean;
-    IsSso: boolean;
+    displayName: string;
+    login: string;
+    isFallbackAllowed: boolean;
+    isSso: boolean;
 }
 
 export interface IAuth {
@@ -47,7 +47,7 @@ export class AuthSvc implements IAuth {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
+                    message: err ? err.message : this.localization.get("Login_Auth_CannotGetUser")
                 };
                 if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
@@ -79,7 +79,7 @@ export class AuthSvc implements IAuth {
                 var error = {
                     statusCode: statusCode,
                     message: this.getLoginErrorMessage(err),
-                    errorCode: err.ErrorCode
+                    errorCode: err.errorCode
                 };
                 deferred.reject(error);
 
@@ -122,7 +122,7 @@ export class AuthSvc implements IAuth {
                         var error = {
                             statusCode: statusCode,
                             message: this.getLoginErrorMessage(err),
-                            errorCode: err.ErrorCode
+                            errorCode: err.errorCode
                         };
                         deferred.reject(error);
                     });
@@ -143,7 +143,7 @@ export class AuthSvc implements IAuth {
 
     public logout(userInfo: IUser, skipSamlLogout: boolean = false): ng.IPromise<any> {
         if (!this.pendingLogout) {
-            var logoutFinilizer: () => boolean = (!skipSamlLogout && userInfo && userInfo.IsSso)
+            var logoutFinilizer: () => boolean = (!skipSamlLogout && userInfo && userInfo.isSso)
                 ? () => {
                     var url = "/Login/SAMLHandler.ashx?action=logout";
                     this.$window.location.replace(url);
@@ -173,7 +173,7 @@ export class AuthSvc implements IAuth {
             return "";
         }
 
-        return err.Message ? err.Message : this.localization.get("Login_Auth_LoginFailed"); // TODO: generic message
+        return err.message ? err.message : this.localization.get("Login_Auth_LoginFailed"); // TODO: generic message
     }
 
     private internalLogout(token: string): ng.IPromise<any> {
@@ -196,7 +196,7 @@ export class AuthSvc implements IAuth {
                     SessionTokenHelper.setToken(token);
                     this.$http.get<IUser>("/svc/adminstore/users/loginuser", this.createRequestConfig())
                         .success((user: IUser) => {
-                            if (isSaml && prevLogin && prevLogin !== user.Login) {
+                            if (isSaml && prevLogin && prevLogin !== user.login) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({ message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser") });
                                 });
@@ -206,7 +206,7 @@ export class AuthSvc implements IAuth {
                         }).error((err: any, statusCode: number) => {
                             var error = {
                                 statusCode: statusCode,
-                                message: err ? err.Message : ""
+                                message: err ? err.message : ""
                             };
                             deferred.reject(error);
                         });
@@ -251,7 +251,7 @@ export class AuthSvc implements IAuth {
                 } else { // Other error
                     error = {
                         statusCode: statusCode,
-                        message: err ? err.Message : ""
+                        message: err ? err.message : ""
                     };
                 }
 
@@ -276,7 +276,7 @@ export class AuthSvc implements IAuth {
                 var error = {
                     statusCode: statusCode,
                     message: this.getLoginErrorMessage(err),
-                    errorCode: err.ErrorCode
+                    errorCode: err.errorCode
                 };
                 deferred.reject(error);
             });

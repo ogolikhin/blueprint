@@ -1,13 +1,12 @@
 ﻿import "../../../";
 import "angular";
 import "angular-mocks";
-import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactDocumentItemController} from "./bp-artifact-document-item";
 import { LocalizationServiceMock } from "../../../../core/localization.mock";
-import { ArtifactAttachmentsMock } from "../artifact-attachments.mock";
-import { ProjectRepositoryMock } from "../../../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../../../main/services/project-manager";
+import { ArtifactAttachments } from "../artifact-attachments.svc";
+import { IMessageService } from "../../../../shell";
+
 
 describe("Component BP Artifact Document Item", () => {
     let directiveTest: ComponentTest<BPArtifactDocumentItemController>;
@@ -22,15 +21,13 @@ describe("Component BP Artifact Document Item", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectManager", ProjectManager);
-        $provide.service("artifactAttachments", ArtifactAttachmentsMock);
+        $provide.service("artifactAttachments", ArtifactAttachments);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
+    beforeEach(inject(() => {
         let bindings: any = { 
             document: {
-                artifactName: "document with no attachment",
+                artifactName: "doc",
                 artifactId: 357,
                 userId: 1,
                 userName: "admin",
@@ -38,7 +35,6 @@ describe("Component BP Artifact Document Item", () => {
             }
         };
 
-        projectManager.initialize();
         directiveTest = new ComponentTest<BPArtifactDocumentItemController>(template, "bp-artifact-document-item");
         vm = directiveTest.createComponent(bindings);
     }));
@@ -50,17 +46,73 @@ describe("Component BP Artifact Document Item", () => {
         expect(directiveTest.element.find("h6").length).toBe(1);
     });
 
-    it("should try to delete an item", 
-        inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService, projectManager: ProjectManager) => {
+    it("should try to download a document which has an attachment", 
+        inject((
+            $httpBackend: ng.IHttpBackendService, 
+            $window: ng.IWindowService) => {
         
         // Arrange
-        projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-        $rootScope.$digest();
-        projectManager.getArtifact(22);
-
-        spyOn($window, "alert").and.callFake(() => {
+        spyOn($window, "open").and.callFake(function() {
             return true;
         });
+
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/357/attachment?addDrafts=true`)
+            .respond(200, {
+                artifactId: 357,
+                subartifactId: null,
+                attachments: [
+                    {
+                        userId: 1,
+                        userName: "admin",
+                        fileName: "acc-wizard.d.ts",
+                        attachmentId: 1102,
+                        uploadedDate: "2016-06-27T21:26:24.24Z"
+                    }
+                ],
+                documentReferences: []
+            });
+
+        // Act
+        vm.downloadItem();
+        $httpBackend.flush();
+        
+        //Assert
+        expect($window.open).toHaveBeenCalled();
+        expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/357/files/1102?includeDraft=true", "_blank");
+    }));
+
+    it("should try to download a document which has no attachment", 
+        inject((
+            $httpBackend: ng.IHttpBackendService, 
+            $window: ng.IWindowService,
+            messageService: IMessageService) => {
+        
+        // Arrange
+        spyOn($window, "open").and.callFake(() => true);
+        spyOn(messageService, "addError").and.callFake(() => true);
+
+        $httpBackend.expectGET(`/svc/artifactstore/artifacts/357/attachment?addDrafts=true`)
+            .respond(200, {
+                artifactId: 357,
+                subartifactId: null,
+                attachments: [],
+                documentReferences: []
+            });
+
+        // Act
+        vm.downloadItem();
+        $httpBackend.flush();
+        
+        //Assert
+        expect($window.open).not.toHaveBeenCalled();
+        expect(messageService.addError).toHaveBeenCalled();
+    }));
+
+    it("should try to delete an item", 
+        inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService) => {
+        
+        // Arrange
+        spyOn($window, "alert").and.callFake(() => true);
 
         // Act
         vm.deleteItem();

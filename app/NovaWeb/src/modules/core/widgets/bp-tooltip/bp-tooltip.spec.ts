@@ -35,7 +35,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    it("hides the tooltip on mouseout from the trigger",
+    it("removes the tooltip on mouseout from the trigger",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -57,6 +57,62 @@ describe("Directive BP-Tooltip", () => {
                 expect(tooltip).toBeNull();
             }
         )
+    );
+
+    it("hides the tooltip on mousedown on the trigger",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                let scope = $rootScope.$new();
+                let element = $compile(tooltipTrigger)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                let trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                let tooltip = <HTMLElement>trigger.querySelector("div.bp-tooltip");
+
+                trigger.dispatchEvent(new Event("mousedown", { "bubbles": true }));
+                tooltip = <HTMLElement>trigger.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeDefined();
+                expect(tooltip.classList).not.toContain("show");
+                expect(tooltip.textContent).toContain("Tooltip's content");
+            }
+        )
+    );
+
+    it("changes the tooltip text dynamically", function(done) {
+            inject(
+                ($compile:ng.ICompileService, $rootScope:ng.IRootScopeService) => {
+                    // Arrange
+                    let scope = $rootScope.$new();
+                    let element = $compile(tooltipTrigger)(scope);
+                    angular.element("body").append(element);
+                    scope.$digest();
+
+                    // Act
+                    $rootScope.$apply();
+                    let trigger = <HTMLElement>element[0].firstChild;
+                    trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                    let tooltip = <HTMLElement>trigger.querySelector("div.bp-tooltip");
+
+                    trigger.setAttribute("bp-tooltip", "Updated tooltip's content");
+
+                    // Assert
+                    expect(tooltip).toBeDefined();
+                    expect(tooltip.classList).toContain("show");
+
+                    setTimeout(function() {
+                        expect(tooltip.textContent).toContain("Updated tooltip's content");
+                        done();
+                    }, 100);
+                }
+            );
+        }
     );
 
     it("moves the tooltip according to mouse position (top left)",

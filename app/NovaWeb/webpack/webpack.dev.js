@@ -6,6 +6,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 
+
 var backend = process.env.npm_config_backend || process.env.npm_package_config_backend || "http://localhost:9801";
 console.log({backend: backend});
 
@@ -23,11 +24,7 @@ module.exports = {
     entry: {
         app: './index.ts',
         vendor: [
-            'angular',
-            'angular-ui-router',
-            'angular-ui-bootstrap',
-            'angular-ui-tinymce',
-            'angular-sanitize',
+            'angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
             'bootstrap/dist/css/bootstrap.css',
             'ng-draggable',
             'angular-formly',
@@ -36,7 +33,9 @@ module.exports = {
             'ag-grid/dist/styles/ag-grid.css',
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
-            'tinymce']
+            'tinymce',
+            'mxClient'
+        ]
 },
     output: {
         filename: 'app.js',
@@ -46,7 +45,8 @@ module.exports = {
         root: __dirname,
         extensions: ['', '.ts', '.js', '.json'],
         alias: {
-            tinymce: 'tinymce/tinymce'
+            tinymce: 'tinymce/tinymce',
+            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
         }
     },
     resolveLoader: {
@@ -96,9 +96,10 @@ module.exports = {
              { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
-             { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
-
-
+             { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' },
+             { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
+             { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
+             { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }
          ]),
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),
@@ -113,6 +114,6 @@ module.exports = {
           // See: https://github.com/wbuchwalter/tslint-loader
             { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
         ],
-        noParse: [/angular-perfect-scrollbar-2/]
+        noParse:  [/angular-perfect-scrollbar-2/] 
     }
 };

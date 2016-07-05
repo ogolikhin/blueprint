@@ -2,6 +2,7 @@
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
+import {tinymceMentionsData} from "../../util/tinymce-mentions.mock.ts";
 
 export {Models}
 
@@ -356,30 +357,6 @@ export class ProjectManager implements IProjectManager {
                 disabled: true
             }
         });
-        fields.push({
-            key: "tinymceControl",
-            type: "tinymce",
-            data: { // using data property
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    inline: false,
-                    plugins: [
-                        "advlist autolink lists link image charmap print preview hr anchor pagebreak",
-                        "searchreplace wordcount visualblocks visualchars code fullscreen",
-                        "insertdatetime media nonbreaking save table contextmenu directionality",
-                        "emoticons template paste textcolor colorpicker textpattern imagetools"
-                    ],
-
-                    image_advtab: true,
-                    toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-                    toolbar2: "print preview media | forecolor backcolor emoticons",
-
-                }
-            },
-            templateOptions: {
-                label: "TinyMCE control",
-            }
-        });
 
         return fields;
 
@@ -437,14 +414,52 @@ export class ProjectManager implements IProjectManager {
                 });
 
             }
-            fields.noteFields = [
-                {
-                    key: "description",
-                    type: "textarea",
-                    templateOptions: {
-                        label: "Description",
+            fields.noteFields.push({
+                key: "tinymceControl",
+                type: "tinymce",
+                data: { // using data property
+                    tinymceOption: { // this will goes to ui-tinymce directive
+                        // standard tinymce option
+                        plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                        mentions: {
+                            source: tinymceMentionsData,
+                            delay: 100,
+                            items: 5,
+                            queryBy: "fullname",
+                            insert: function (item) {
+                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                            }
+                        }
                     }
-                }];
+                },
+                templateOptions: {
+                    label: "TinyMCE control"
+                }
+            });
+            fields.noteFields.push({
+                key: "tinymceInlineControl",
+                type: "tinymceInline",
+                data: { // using data property
+                    tinymceOption: { // this will goes to ui-tinymce directive
+                        // standard tinymce option
+                        inline: true,
+                        plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                        mentions: {
+                            source: tinymceMentionsData,
+                            delay: 100,
+                            items: 5,
+                            queryBy: "fullname",
+                            insert: function (item) {
+                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                            }
+                        },
+                        fixed_toolbar_container: ".form-tinymce-toolbar"
+                    }
+                },
+                templateOptions: {
+                    label: "TinyMCE Inline control"
+                }
+            });
             return fields;
 
 

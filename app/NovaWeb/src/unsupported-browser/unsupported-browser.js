@@ -151,13 +151,15 @@ var appBootstrap = (function() {
     // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
     // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
     appBootstrap.prototype.orientationHandler = function() {
-        document.body.style.minHeight = (this.executionEnvironment.isiOS() && this.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
-        if (this.executionEnvironment.isLandscape()) {
-            document.body.classList.remove("is-portrait");
-            document.body.classList.add("is-landscape");
-        } else {
-            document.body.classList.remove("is-landscape");
-            document.body.classList.add("is-portrait");
+        if (this.executionEnvironment.isTouchDevice()) {
+            document.body.style.minHeight = (this.executionEnvironment.isiOS() && this.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
+            if (this.executionEnvironment.isLandscape()) {
+                document.body.classList.remove("is-portrait");
+                document.body.classList.add("is-landscape");
+            } else {
+                document.body.classList.remove("is-landscape");
+                document.body.classList.add("is-portrait");
+            }
         }
     };
 

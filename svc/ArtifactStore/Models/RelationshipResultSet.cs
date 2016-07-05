@@ -72,4 +72,27 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public bool HasAccess { get; set; } = true;
     }
+
+    [JsonObject]
+    public class ItemIdItemNameParentId
+    {
+        [JsonProperty]
+        public int ItemId { get; set; }
+        [JsonProperty]
+        public int ParentId { get; set; }
+        [JsonProperty]
+        public string ItemName { get; set; }
+    }
+
+    [JsonObject]
+    public class RelationshipExtendedInfo
+    {
+        [JsonProperty]
+        public int ArtifactId { get; set; }
+        [JsonProperty]
+        public string Description { get; set; }
+        [JsonProperty]
+        public IEnumerable<ItemIdItemNameParentId> PathToProject { get; set; }
+    }
+
 }

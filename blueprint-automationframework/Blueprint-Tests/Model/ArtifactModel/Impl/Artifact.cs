@@ -361,7 +361,6 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
-            ThrowIf.ArgumentNull(subArtifactId, nameof(subArtifactId));
             return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
                 user, expectedStatusCodes);
         }

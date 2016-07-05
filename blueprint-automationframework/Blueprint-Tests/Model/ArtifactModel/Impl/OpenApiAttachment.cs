@@ -16,8 +16,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.OpenApiToken;
-            System.Uri uri;
-            System.Uri.TryCreate(Link, System.UriKind.Absolute, out uri);
+            System.Uri uri = new System.Uri(Link, System.UriKind.Absolute);
             var restApi = new RestApiFacade(uri, tokenValue);
             //in this case we have resourcePath as a part of URI
             restApi.SendRequestAndGetResponse(string.Empty, RestRequestMethod.DELETE,

@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
-import {IArtifactRelationships, ITraceType} from "./artifact-relationships.svc";
+import { IProjectManager, Relationships, Models} from "../../../main";
+import {IArtifactRelationships} from "./artifact-relationships.svc";
 
 interface IOptions {
     value: string;
@@ -23,9 +23,10 @@ export class BPRelationshipsPanelController {
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
-    public artifactList: Models.IArtifactDetails[] = [];
+    public artifactList: Relationships.Relationship[] = [];
     public option: string = "1";
-    public traceTypes = ITraceType;
+    public traceTypes = Relationships.ITraceType;
+    public currentTraceType = Relationships.ITraceType.Manual;
 
     constructor(
         private $log: ng.ILogService,
@@ -56,23 +57,30 @@ export class BPRelationshipsPanelController {
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(ITraceType.Manual)
+            this.getRelationships(Relationships.ITraceType.Manual)
                 .then((list: any) => {
                     this.artifactList = list;
+                    this.currentTraceType = Relationships.ITraceType.Manual;
+                  
                 });
         }
     }
 
-    private changeTraceType(traceType: ITraceType) {
+    //public setActive() {
+    //    return this.currentTraceType == type;
+    //}
+
+    private changeTraceType(traceType: Relationships.ITraceType) {
         this.getRelationships(traceType)
             .then((list: any) => {
                 this.artifactList = list;
+                this.currentTraceType = traceType;
             });
     }
 
-    private getRelationships(traceType: ITraceType): ng.IPromise<Models.IArtifactDetails[]> {
+    private getRelationships(traceType: Relationships.ITraceType): ng.IPromise<Relationships.Relationship[]> {
         return this.artifactRelationships.getRelationships(this.artifactId, traceType)
-            .then((list: Models.IArtifactDetails[]) => {
+            .then((list: Relationships.Relationship[]) => {
                 return list;
             })
             .finally(() => {

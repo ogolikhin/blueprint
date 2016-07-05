@@ -14,6 +14,7 @@ import "tinymce";
 import * as Enums from "./models/enums";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
+import * as Relationships from "./models/relationshipModels";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -30,7 +31,7 @@ config.$inject = ["$rootScope", "$state"];
 export {
     Enums,
     ProjectRepository, 
-    IProjectManager, ProjectManager, Models
+    IProjectManager, ProjectManager, Models, Relationships
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin

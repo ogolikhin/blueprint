@@ -17,13 +17,15 @@ export class BPArtifactDiscussionItemController {
     public static $inject: [string] = [
         "$element",
         "$scope",
-        "localization"
+        "localization",
+        "$sce"
     ];
 
     constructor(
         private element: ng.IAugmentedJQuery,
         private scope: ng.IScope,
-        private localization: ILocalizationService) {
+        private localization: ILocalizationService,
+        private $sce: ng.ISCEService) {
         if (this.discussionInfo) {
             let commentContainer = document.createElement("DIV");
             this.addTargetBlankToComment(commentContainer);
@@ -42,4 +44,13 @@ export class BPArtifactDiscussionItemController {
     public newReplyClick(): void {
         //this.discussionInfo.showAddReply = true;
     }
+
+    public getTrustedCommentHtml() {
+        if (this.discussionInfo) {
+            return this.$sce.trustAsHtml(this.discussionInfo.comment);
+        } else {
+            return "";
+        }
+        //return this.discussionInfo.comment;
+    };
 }

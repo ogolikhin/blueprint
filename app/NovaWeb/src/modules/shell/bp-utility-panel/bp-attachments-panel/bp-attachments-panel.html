@@ -29,9 +29,11 @@
                 attachment-info="attachment"></bp-artifact-attachment-item>
         </div>
     </div>
+    <div ng-if="!$ctrl.artifactAttachmentsList.attachments.length && $ctrl.categoryFilter === 1"
+   	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments_Only') }}</div>
 
-    <h6 ng-if="$ctrl.artifactAttachmentsList.documentReferences.length && $ctrl.categoryFilter !== 1"">{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}</h6>
-    <div ng-if="$ctrl.categoryFilter !== 1"">
+    <h6 ng-if="$ctrl.artifactAttachmentsList.documentReferences.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}</h6>
+    <div ng-if="$ctrl.categoryFilter !== 1">
         <div ng-repeat="document in $ctrl.artifactAttachmentsList.documentReferences" 
             class="artifact-item-wrapper">
 
@@ -42,6 +44,8 @@
                 doc-ref-info="document"></bp-artifact-document-item>
         </div>
     </div>
+    <div ng-if="!$ctrl.artifactAttachmentsList.documentReferences.length && $ctrl.categoryFilter === 2"
+   	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Documents_Only') }}</div>
 </div>
 
 <div ng-if="$ctrl.isLoading" class="app-loading">

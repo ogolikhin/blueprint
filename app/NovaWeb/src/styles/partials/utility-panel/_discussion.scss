@@ -34,26 +34,7 @@ bp-discussion-panel {
 
     .comment {
         word-wrap: break-word;
-    }
-
-    .status {
-        position: absolute;
-        top: 8px; //$padding-smaller;
-        right: 10px; //$padding-smaller;
-        color: $gray-light;
-        cursor: pointer;
-
-        .icon:before {
-            color: $gray-darker;
-            font-size: $font-size-bigger;
-            margin: 0;
-        }
-
-        &.expanded .icon:before {
-            @include transform-rotate(180);
-        }
-    }
-
+    }   
     .info {
         margin-left: 50px;
         margin-top: -40px;

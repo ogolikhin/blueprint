@@ -384,8 +384,20 @@
             var div = document.createElement("div");
             div.innerHTML = this.renderDropdown();
             this.dropdown = div.firstChild;
-            this.dropdown.style.top = offset.top + "px";
-            this.dropdown.style.left = offset.left + "px";
+	        if (offset.top !== null) {
+		        this.dropdown.style.top = offset.top + "px";
+		        this.dropdown.style.bottom = "auto";
+	        } else {
+		        this.dropdown.style.top = "auto";
+		        this.dropdown.style.bottom = offset.bottom + "px";
+	        }
+	        if (offset.left !== null) {
+		        this.dropdown.style.left = offset.left + "px";
+		        this.dropdown.style.right = "auto";
+	        } else {
+		        this.dropdown.style.left = "auto";
+		        this.dropdown.style.right = offset.right + "px";
+	        }
 
             document.body.appendChild(this.dropdown);
 
@@ -530,21 +542,36 @@
         offset: function () {
             var rtePosition = this.jsH.offset(this.editor.getContainer()),
 				contentAreaPosition = this.jsH.position(this.editor.getContentAreaContainer()),
-				nodePosition = this.jsH.position(this.editor.dom.select('span#autocomplete')[0]),
+                node = this.editor.dom.select("span#autocomplete")[0],
+				nodePosition = this.jsH.position(node),
 				scrollTop = this.jsH.isIE() ? this.editor.getDoc().documentElement.scrollTop : this.editor.getDoc().body.scrollTop;
 
+            var nodePositionTop = rtePosition.top + contentAreaPosition.top + nodePosition.top - scrollTop,
+                nodePositionLeft = rtePosition.left + contentAreaPosition.left + nodePosition.left;
+
+            var showBelow = nodePositionTop < window.innerHeight / 2,
+                showRight = nodePositionLeft < window.innerWidth * .75;
+
             return {
-                top: rtePosition.top + contentAreaPosition.top + nodePosition.top + this.jsH.innerHeight(this.editor.selection.getNode()) - scrollTop + 5,
-                left: rtePosition.left + contentAreaPosition.left + nodePosition.left
+                top: showBelow ? nodePositionTop + 5 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
+                bottom: showBelow ? null : window.innerHeight - nodePositionTop + 5,
+                left: showRight ? nodePositionLeft : null,
+                right: showRight ? null : window.innerWidth - nodePositionLeft - node.offsetWidth
             };
         },
 
         offsetInline: function () {
-            var nodePosition = this.jsH.offset(this.editor.dom.select('span#autocomplete')[0]);
+            var node = this.editor.dom.select("span#autocomplete")[0],
+                nodePosition = this.jsH.offset(node);
+
+            var showBelow = nodePosition.top < window.innerHeight / 2,
+                showRight = nodePosition.left < window.innerWidth * .75;
 
             return {
-                top: nodePosition.top + this.jsH.innerHeight(this.editor.selection.getNode()) + 5, //TODO
-                left: nodePosition.left
+                top: showBelow ? nodePosition.top + 5 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
+                bottom: showBelow ? null : window.innerHeight - nodePosition.top + 5,
+                left: showRight ? nodePosition.left : null,
+	            right: showRight ? null : window.innerWidth - nodePosition.left - node.offsetWidth
             };
         }
 

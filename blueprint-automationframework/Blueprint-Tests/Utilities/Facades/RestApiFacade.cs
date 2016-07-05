@@ -257,22 +257,20 @@ namespace Utilities.Facades
         /// <param name="password">Password to authenticate with.</param>
         /// <param name="token">The user token to use for the request.  If you don't want to use a token, you should pass an empty string here.</param>
         public RestApiFacade(string baseAddress, string username, string password, string token)
-            : this(new Uri(baseAddress), username, password, token)
+            : this(new Uri(baseAddress), token)
         {
+            _username = username;
+            _password = password;
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="baseUri">The base URI of the REST calls.</param>
-        /// <param name="username">Username to authenticate with.</param>
-        /// <param name="password">Password to authenticate with.</param>
         /// <param name="token">(optional) The user token to use for the request.  If you don't want to use a token, you should pass an empty string here.</param>
-        public RestApiFacade(Uri baseUri, string username, string password, string token)
+        public RestApiFacade(Uri baseUri, string token)
         {
             _baseUri = baseUri;
-            _username = username;
-            _password = password;
             _token = token;
         }
 

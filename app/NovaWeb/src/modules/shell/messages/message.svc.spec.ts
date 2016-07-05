@@ -45,6 +45,21 @@ describe("messageService", () => {
             expect(result.length).toEqual(1);
             expect(result[0]).toBe(message);
         }));
+
+    it("don't add a message if it already exists in the list",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            const message = new Message(MessageType.Info, "someText");
+            messageService.addMessage(message);
+
+            // Act
+            messageService.addMessage(new Message(MessageType.Info, "someText"));
+            const result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0]).toBe(message);
+        }));
     
     describe("methods", () => {      
         beforeEach(inject((messageService: IMessageService) => {

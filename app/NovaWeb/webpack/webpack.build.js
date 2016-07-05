@@ -24,9 +24,7 @@ module.exports = {
             'ag-grid/dist/styles/ag-grid.css',
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
-            'tinymce',
-            'mxClient'
-        ]
+            'tinymce']
 
     },
     output: {
@@ -37,8 +35,7 @@ module.exports = {
         root: __dirname,
         extensions: ['', '.ts', '.js', '.json'],
         alias: {          
-            tinymce: 'tinymce/tinymce',
-            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
+            tinymce: 'tinymce/tinymce'
         }
 
     },
@@ -54,7 +51,6 @@ module.exports = {
     //    },
 
     plugins: [
-        
         new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin(
             {
@@ -70,7 +66,7 @@ module.exports = {
             hash: true
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.js"),
-     // Uncomment next lines if jQuery is required for the app
+        // Uncomment next lines if jQuery is required for the app
         //new webpack.ProvidePlugin({
         //    $: 'jquery',
         //    jQuery: 'jquery',
@@ -85,10 +81,7 @@ module.exports = {
              { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
-             { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' },
-             { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
-             { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
-             { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }
+             { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' }
 
          ]),
          new webpack.DefinePlugin({

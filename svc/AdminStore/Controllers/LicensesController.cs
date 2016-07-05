@@ -73,8 +73,7 @@ namespace AdminStore.Controllers
                     transaction.Username = user.Login;
                     transaction.Department = user.Department;
                 }
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = new ObjectContent<IEnumerable<LicenseTransaction>>(transactions, new JsonMediaTypeFormatter());
+                var response = Request.CreateResponse(HttpStatusCode.OK, transactions);
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)

@@ -24,7 +24,11 @@ module.exports = {
     entry: {
         app: './index.ts',
         vendor: [
-            'angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
+            'angular',
+            'angular-ui-router',
+            'angular-ui-bootstrap',
+            'angular-ui-tinymce',
+            'angular-sanitize',
             'bootstrap/dist/css/bootstrap.css',
             'ng-draggable',
             'angular-formly',

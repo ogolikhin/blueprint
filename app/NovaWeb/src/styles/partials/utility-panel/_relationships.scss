@@ -23,23 +23,7 @@ bp-relationships-panel {
 
             display:inline-block; 
             padding: 7px 10px;
-        .status {
-        position: absolute;
-        top: 8px; //$padding-smaller;
-        right: 10px; //$padding-smaller;
-        color: $gray-light;
-        cursor: pointer;
-
-        .icon:before {
-            color: $gray-darker;
-            font-size: $font-size-bigger;
-            margin: 0;
-        }
-
-        &.expanded .icon:before {
-            @include transform-rotate(180);
-        }
-    }
+        
 
         .icon{
             width:10%; 

@@ -87,11 +87,22 @@ export class MessageService implements IMessageService {
         }
     }
 
+    private findDuplicateMessages(message: IMessage): IMessage[] {
+        return this.messages.filter( (msg: IMessage) => {
+            return message.messageType === msg.messageType && message.messageText === msg.messageText;
+        });
+    }
+
     public addError(text: string): void {
         this.addMessage(new Message(MessageType.Error, text));
     }
 
     public addMessage(msg: Message): void {
+        // if the message of that type and with that text is already displayed, don't add another one
+        if (this.findDuplicateMessages(msg).length) {
+            return;
+        }
+
         msg.id = this.id;
         this.id++;
         this._messages.push(msg);

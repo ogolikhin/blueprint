@@ -7,7 +7,8 @@ import { LocalizationServiceMock } from "../../../core/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";
-
+import {IReply} from "./artifact-discussions.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
 describe("Component BPDiscussionPanel", () => {
 
     let directiveTest: ComponentTest<BPDiscussionPanelController>;
@@ -21,6 +22,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(inject((projectManager: ProjectManager) => {
@@ -75,6 +77,37 @@ describe("Component BPDiscussionPanel", () => {
             //Assert
             expect(vm.artifactDiscussionList[0].expanded).toBe(true);
             expect(vm.artifactDiscussionList[0].replies.length).toBe(1);
+        }));
+
+    it("should throw exception for expanded discussion",
+        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+            //Arrange
+            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            $rootScope.$digest();
+            let deferred = $q.defer();
+            //MessageService.prototype.addError = jasmine.createSpy("addError() spy").and.callFake(() => {});
+            ArtifactDiscussionsMock.prototype.getReplies = jasmine.createSpy("getReplies() spy").and.callFake(
+                (): ng.IPromise <IReply[] > => {
+                    deferred.reject({
+                        statusCode: 404,
+                        errorCode: 2000
+                    });
+                    return deferred.promise;
+                }
+            );
+
+            //Act
+            let artifact = projectManager.getArtifact(22);
+            projectManager.loadArtifact(artifact);
+            artifact.prefix = "PRO";
+            $rootScope.$digest();
+            vm.artifactDiscussionList[0].expanded = false;
+            vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
+            $timeout.flush();
+
+            //Assert
+            expect(vm.artifactDiscussionList[0].expanded).toBe(true);
+            expect(vm.artifactDiscussionList[0].replies.length).toBe(0);
         }));
 
     it("expanded should be false for collapsed discussion",

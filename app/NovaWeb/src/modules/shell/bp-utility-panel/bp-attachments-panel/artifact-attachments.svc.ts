@@ -18,6 +18,7 @@ export interface IArtifactDocRef {
     artifactId: number;
     userId: number;
     userName: string;
+    itemTypePrefix: string;
     referencedDate: string;
 }
 
@@ -68,7 +69,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             }).error((err: any, statusCode: number) => {
                 const error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

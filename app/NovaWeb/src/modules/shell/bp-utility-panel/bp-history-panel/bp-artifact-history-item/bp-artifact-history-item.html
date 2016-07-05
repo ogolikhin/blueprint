@@ -8,5 +8,5 @@
     name="{{ $ctrl.artifactInfo.displayName }}"
     color-base="{{ $ctrl.artifactInfo.userId + $ctrl.artifactInfo.displayName }}">
 </bp-avatar>
-<div class="author" bp-tooltip="{{ $ctrl.artifactInfo.displayName }}">{{ $ctrl.artifactInfo.displayName }}</div>
+<div class="author" bp-tooltip="{{ $ctrl.artifactInfo.displayName }}" bp-tooltip-truncated="true">{{ $ctrl.artifactInfo.displayName }}</div>
 <div ng-if="$ctrl.artifactInfo.artifactState !== $ctrl.getArtifactState('Draft')" class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>

@@ -69,6 +69,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachments {
                 artifactId: 258,
                 userId: 1,
                 userName: "admin",
+                itemTypePrefix: "DOC",
                 referencedDate: "2016-06-23T14:54:27.273Z"
                 },
                 {
@@ -76,6 +77,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachments {
                 artifactId: 357,
                 userId: 1,
                 userName: "admin",
+                itemTypePrefix: "DOC",
                 referencedDate: "2016-06-27T21:27:57.67Z"
                 },
                 {
@@ -83,6 +85,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachments {
                 artifactId: 358,
                 userId: 1,
                 userName: "admin",
+                itemTypePrefix: "DOC",
                 referencedDate: "2016-06-27T22:00:07.873Z"
                 }
             ]

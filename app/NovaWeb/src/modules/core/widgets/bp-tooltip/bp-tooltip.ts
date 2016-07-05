@@ -73,7 +73,9 @@ export class BPTooltip implements ng.IDirective {
 
             let tooltipText = angular.element(this).attr("bp-tooltip");
 
-            if (tooltipText !== "") {
+            // shouldDisplayTooltipForTruncated() only checks if tooltip should be displayed initially. 
+            // Doesn't account for edge case where text changes when mouse is already over the element
+            if (tooltipText !== "" && shouldDisplayTooltipForTruncated(angular.element(this))) {
                 let attachToBody = zIndexedParent(this);
 
                 let tooltipContent = document.createElement("DIV");
@@ -92,6 +94,15 @@ export class BPTooltip implements ng.IDirective {
                 angular.element(this).addClass("bp-tooltip-trigger");
                 angular.element(tooltip).addClass("show");
             }
+        }
+
+        // only checks the immediate text, not nested HTML elements
+        function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
+            if (element.attr("bp-tooltip-truncated") === "true") {
+                const elem = element[0];
+                return (elem && elem.offsetWidth < elem.scrollWidth);
+            }
+            return true;
         }
 
         function hideTooltip(e) {

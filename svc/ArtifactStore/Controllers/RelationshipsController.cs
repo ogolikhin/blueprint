@@ -54,44 +54,56 @@ namespace ArtifactStore.Controllers
             var itemIds = new List<int> { itemId };
             itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
-            CheckReadPermissions(itemId, permissions, () =>
+            if (!HasReadPermissions(itemId, permissions))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
-            });
+            }
 
             foreach (var relationship in result.ManualTraces)
             {
-                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
+                if (!HasReadPermissions(relationship.ArtifactId, permissions))
                 {
                     relationship.HasAccess = false;
-                });
+                }
             }
             foreach (var relationship in result.OtherTraces)
             {
-                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
+                if (!HasReadPermissions(relationship.ArtifactId, permissions))
                 {
                     relationship.HasAccess = false;
-                });
+                }
             }
 
             return result;
         }
-        private static void CheckReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions, Action action)
-        {
-            if (!permissions.ContainsKey(itemId))
-            {
-                action();
-            }
-            else
-            {
-                RolePermissions permission = RolePermissions.None;
-                permissions.TryGetValue(itemId, out permission);
 
-                if (!permission.HasFlag(RolePermissions.Read))
-                {
-                    action();
-                }
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
+        [ActionName("GetRelationshipDetails")]
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (artifactId < 1 )
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }
+            var itemIds = new List<int> { artifactId };
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            if (!HasReadPermissions(artifactId, permissions))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            return await RelationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, addDrafts);
+        }
+
+        private static bool HasReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions)
+        {
+            RolePermissions permission = RolePermissions.None;
+            if (permissions.TryGetValue(itemId, out permission) && permission.HasFlag(RolePermissions.Read))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

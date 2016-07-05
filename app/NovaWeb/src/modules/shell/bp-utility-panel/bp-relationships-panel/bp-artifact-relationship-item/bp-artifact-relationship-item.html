@@ -6,7 +6,7 @@
             <span></span>
             <i class="icon fonticon-circle-up"></i>
         </div>
-        <div class="icon">
+        <div class="trace-icon" data-ng-class="{'false': 'trace-icon-regular', 'true' : 'trace-icon-suspect'}[$ctrl.artifact.suspect]">
             <i data-ng-class="{'0': 'fonticon-relationship-right', '1' : 'fonticon-relationship-left', '2' : 'fonticon-relationship-bi'}[$ctrl.artifact.traceDirection]"></i>
 
         </div>

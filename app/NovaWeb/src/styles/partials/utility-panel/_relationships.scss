@@ -7,9 +7,7 @@ bp-relationships-panel {
     bp-artifact-relationship-item {
 
          .utility-panel-artifact-item {
-
-        padding: 0;
-     
+             padding: 0;     
     }
 
         [class^="fonticon-"],
@@ -23,16 +21,28 @@ bp-relationships-panel {
 
             display:inline-block; 
             padding: 7px 10px;
-        
-
-        .icon{
-            width:10%; 
-            height:100%;
+     
+            .trace-icon{
+            width:2em;
+            height:2em;
+            border: 2px solid $gray-lighter;
+            border-radius: 50%;
             float:left;
+            line-height:2em;
+            color:blue;
         }
 
+        .trace-icon-regular{           
+            color:blue;
+          }
+        
+         .trace-icon-suspect{           
+            background-color:red;
+            color:white;
+         }
+
         .inner-details{
-            width:90%;
+            width:80%;
             float:right;
             .desc-visible{
                 display:block;

@@ -6,36 +6,7 @@
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isSystemPropertiesCollapsed">
-                        <div class="property-group error">
-                            <label for="property-name">Name:</label>
-                            <span data-validation="use alphanumeric characters only" bp-tooltip="Edit field"><input id="property-name" class="editable" type="text" value="Client Login"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-type">Type:</label>
-                            <span bp-tooltip="Edit field"><input id="property-type" type="text" class="typeahead" ng-model="propertyType" uib-typeahead="type for type in ['User story', 'Process', 'Mockup']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="true" typeahead-select-on-blur="false" typeahead-select-on-exact="true" typeahead-focus-first="false"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-id">ID:</label>
-                            <span><input id="property-id" class="readonly" type="text" value="US13367" readonly="readonly"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-created-by">Created by:</label>
-                            <span><input id="property-created-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-created-on">Created on:</label>
-                            <span><input id="property-created-on" class="readonly" readonly="readonly" type="text" value="07-03-2016"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-last-edited-by">Last edited by:</label>
-                            <span><input id="property-last-edited-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo"></span>
-                        </div>
-                        <div class="property-group">
-                            <label for="property-last-edited-on">Last edited on:</label>
-                            <span><input id="property-last-edited-on" class="readonly" type="text" value="07-04-2016" readonly="readonly"></span>
-                        </div>
-                        <br>
-                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields" >
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields">
                         </formly-form>
                     </div>
                 </perfect-scrollbar>
@@ -51,10 +22,10 @@
             </div>
 
             <uib-tabset>
-                <formly-form model="$ctrl.model" fields="$ctrl.fields.noteFields">
-                </formly-form>
-
-                <uib-tab index="0" heading="Description"><div id="tinymce-toolbar"></div><div ui-tinymce="tinymceOptions" ng-model="$ctrl.model.description" style="width: 100%; max-height: 100px; overflow: auto;"></div></uib-tab>
+                <uib-tab index="0" heading="Description">
+                    <formly-form model="$ctrl.model" fields="$ctrl.fields.noteFields">
+                    </formly-form>
+                </uib-tab>
                 <uib-tab index="1" heading="Additional notes">Fusce pellentesque pellentesque augue, sit amet ultricies mauris dictum sit amet. Vestibulum sed leo suscipit, dignissim nisi non, dictum tellus. Etiam tincidunt nisl at ante vehicula, vitae pretium eros semper. Maecenas eu lacus faucibus, pretium sapien in, ullamcorper magna. Aenean eget bibendum orci, sit amet rutrum metus. Mauris non justo at mauris viverra ultricies sed vitae odio. Nunc volutpat nisi ac magna efficitur, ut dignissim erat sodales. In non lorem mi. Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi. Sed vehicula risus vitae dolor aliquet lacinia. Nam convallis gravida enim. Etiam congue quam in lectus iaculis, at pretium libero ultrices. Integer tempus nunc sed eleifend imperdiet. Cras sed tempus felis, sed sodales ante. Ut auctor vitae dolor eget blandit.</uib-tab>
             </uib-tabset>
         </form>

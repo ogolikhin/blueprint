@@ -89,6 +89,7 @@ namespace ArtifactStore.Repositories
                 documentReferenceArtifactInfoDictionary.TryGetValue(referencedArtifact.ArtifactId, out linkedArtifactInfo);
                 referencedArtifact.UserName = userInfo.DisplayName;
                 referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;
+                referencedArtifact.ItemTypePrefix = linkedArtifactInfo.ItemTypePrefix;
                 referencedArtifact.ReferencedDate = DateTime.SpecifyKind(referencedArtifact.ReferencedDate, DateTimeKind.Utc);
             }
 

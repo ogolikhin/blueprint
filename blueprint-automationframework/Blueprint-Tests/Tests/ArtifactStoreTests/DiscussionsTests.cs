@@ -43,7 +43,7 @@ namespace ArtifactStoreTests
 
             var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
-            
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
@@ -106,17 +106,14 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -134,17 +131,14 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             artifact.Save(_user);
+            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -162,17 +156,14 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             artifact.Save(_user);
+            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
             IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, user2);
+                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, user2);
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
         }
 
@@ -183,13 +174,9 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
-
-            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
+            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 postedRaptorComment, "This is a reply to a comment.", _user);
 
@@ -215,19 +202,30 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
             artifact.Delete(_user);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
+                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
             }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
+        }
+
+        /// <summary>
+        /// Adds a discussion comment to the specified Storyteller Process artifact.
+        /// </summary>
+        /// <param name="artifact">The Process artifact to add a comment to.</param>
+        /// <returns>The IRaptorComment returned after posting the comment.</returns>
+        private IRaptorComment AddCommentToSubArtifactOfStorytellerProcess(IArtifact artifact)
+        {
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
+                userTask.Id, "text for UT", _user);
+
+            return postedRaptorComment;
         }
     }
 }

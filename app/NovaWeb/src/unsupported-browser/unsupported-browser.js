@@ -148,18 +148,29 @@ var appBootstrap = (function() {
         return false;
     })();
 
+    // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
+    // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
+    appBootstrap.prototype.orientationHandler = function() {
+        document.body.style.minHeight = (this.executionEnvironment.isiOS() && this.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
+        if (this.executionEnvironment.isLandscape()) {
+            document.body.classList.remove("is-portrait");
+            document.body.classList.add("is-landscape");
+        } else {
+            document.body.classList.remove("is-landscape");
+            document.body.classList.add("is-portrait");
+        }
+    };
+
     appBootstrap.prototype.initApp = function() {
         var self = this;
         var app = angular.module("app", ["app.main"]);
 
         if (this.executionEnvironment.isTouchDevice()) {
             document.body.className += " is-touch";
-            // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
-            // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
-            document.body.style.minHeight = (self.executionEnvironment.isiOS() && self.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
-            
+            self.orientationHandler();
+
             window.addEventListener("orientationchange", function() {
-                document.body.style.minHeight = (self.executionEnvironment.isiOS() && self.executionEnvironment.isLandscape() ? screen.width : screen.height) + "px";
+                self.orientationHandler();
             });
         }
         if (this.executionEnvironment.isAndroid()) {

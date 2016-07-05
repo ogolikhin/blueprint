@@ -15,7 +15,7 @@
     UiMockup = 10,
     UseCase = 11,
     UseCaseDiagram = 12,
-        
+
     //BaseLines and Reviews
     BaselineReviewFolder = 13,
     Baleline = 14,
@@ -51,25 +51,16 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
-export interface IArtifact  {
-    //TODO change? or remove artifactId and artifactName
+export interface IArtifact {
     id: number;
     name: string;
-
-    artifactId: number;
-    artifactName: string;
-    artifactTypePrefix: string;
-    itemId: number;
-    itemName: string;
-    itemTypePrefix: string;
     projectId: number;
     typeId: number;
-    projectName: string;
     parentId: number;
     predefinedType: ArtifactTypeEnum;
     prefix?: string;
     version?: number;
-    hasChildren?: boolean;  
+    hasChildren?: boolean;
     artifacts?: IArtifact[];
     //flags:
 }
@@ -77,7 +68,7 @@ export interface IItemType {
     id: number;
     name: string;
     projectId?: number;
-    versionId ?: number;
+    versionId?: number;
     instanceItemTypeId?: number;
     prefix: string;
     baseType: number;
@@ -89,21 +80,21 @@ export interface IPropertyType {
     id: number;
     versionId?: number;
     name: string;
-    primitiveType: IPrimitiveType; 
+    primitiveType: IPrimitiveType;
     instancePropertyTypeId?: number;
     isRichText: boolean;
     decimalDefaultValue?: number;
-    dateDefaultValue?: Date; 
+    dateDefaultValue?: Date;
     userGroupDefaultValue: any[];
     stringDefaultValue: string;
     decimalPlaces?: number;
-    maxNumber?: number; 
+    maxNumber?: number;
     minNumber?: number;
     maxDate?: Date;
-    minDate?: Date; 
+    minDate?: Date;
     isMultipleAllowed?: boolean;
     isRequired?: boolean;
-    isValidated?: boolean; 
+    isValidated?: boolean;
     validValues: string[];
     defaultValidValueIndex?: number;
 }
@@ -111,10 +102,6 @@ export interface IPropertyType {
 export interface IArtifactDetails extends IArtifact {
     systemProperties: IPropertyType[];
     customProperties: IPropertyType[];
-    //relationships
-    suspect: boolean;
-    traceDirection: number;
-    traceType: number;
     //flags:
 }
 export interface IProjectMeta {
@@ -135,55 +122,34 @@ export class Artifact implements IArtifactDetails {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
     };
-    //TODO change? or remove artifactId and artifactName
     public id: number;
+
     public name: string;
 
-    public artifactId: number;
-    public artifactName: string;
-    public artifactTypePrefix: string;
-    public itemId: number;
-    public itemName: string;
-    public itemTypePrefix: string;
     public projectId: number;
-    public projectName: string;
     public parentId: number;
     public predefinedType: ArtifactTypeEnum;
     public typeId: number;
-    public prefix: string;
-    public version: number;
-    public hasChildren: boolean;
-    public artifacts: IArtifact[];
-
-    public suspect: boolean;
-    public traceDirection: number;
-    public traceType: number;
 
     public get systemProperties() {
         return this._systemProperties || (this._systemProperties = []);
     }
     public get customProperties() {
         return this._customProperties || (this._customProperties = []);
-    }  
+    }
+
+    public artifacts: IArtifact[];
 }
 
 export class Project implements IProject {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
     };
-    //TODO change? or remove artifactId and artifactName
-    public id: number;
-    public name: string;
-    
-    public artifactId: number;
-    public artifactName: string;
 
-    public artifactTypePrefix: string;
-    public itemId: number;
-    public itemName: string;
-    public itemTypePrefix: string;
-  
-    public projectName: string;
+    public id: number;
+
+    public name: string;
+
     public description: string;
 
     public typeId: number;
@@ -204,7 +170,10 @@ export class Project implements IProject {
 
     public get hasChildren() {
         return this.artifacts && this.artifacts.length > 0;
-    }   
+    }
+
+
+
 }
 
 export interface IArtifactDetailFields {

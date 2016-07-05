@@ -76,7 +76,12 @@ angular.module("app.main", [
 function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     formlyConfig.setType({
         name: 'tinymce',
-        template: `<textarea ui-tinymce="options.data.tinymceOption"  ng-model="model[options.key]" class="form-control"></textarea>`,
+        template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
+        wrapper: ['bootstrapLabel']
+    });
+    formlyConfig.setType({
+        name: 'tinymceInline',
+        template: `<div class="form-tinymce-toolbar"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         wrapper: ['bootstrapLabel']
     });
 }

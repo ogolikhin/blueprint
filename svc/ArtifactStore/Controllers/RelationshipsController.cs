@@ -54,24 +54,24 @@ namespace ArtifactStore.Controllers
             var itemIds = new List<int> { itemId };
             itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
-            CheckReadPermissions(itemId, permissions, () =>
+            if (!HasReadPermissions(itemId, permissions))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
-            });
+            }
 
             foreach (var relationship in result.ManualTraces)
             {
-                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
+                if (!HasReadPermissions(relationship.ArtifactId, permissions))
                 {
                     relationship.HasAccess = false;
-                });
+                }
             }
             foreach (var relationship in result.OtherTraces)
             {
-                CheckReadPermissions(relationship.ArtifactId, permissions, () =>
+                if (!HasReadPermissions(relationship.ArtifactId, permissions))
                 {
                     relationship.HasAccess = false;
-                });
+                }
             }
 
             return result;
@@ -89,29 +89,21 @@ namespace ArtifactStore.Controllers
             }
             var itemIds = new List<int> { artifactId };
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
-            CheckReadPermissions(artifactId, permissions, () =>
+            if (!HasReadPermissions(artifactId, permissions))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
-            });
+            }
             return await RelationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, addDrafts);
         }
 
-        private static void CheckReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions, Action action)
+        private static bool HasReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions)
         {
-            if (!permissions.ContainsKey(itemId))
+            RolePermissions permission = RolePermissions.None;
+            if (permissions.TryGetValue(itemId, out permission) && permission.HasFlag(RolePermissions.Read))
             {
-                action();
+                return true;
             }
-            else
-            {
-                RolePermissions permission = RolePermissions.None;
-                permissions.TryGetValue(itemId, out permission);
-
-                if (!permission.HasFlag(RolePermissions.Read))
-                {
-                    action();
-                }
-            }
+            return false;
         }
     }
 }

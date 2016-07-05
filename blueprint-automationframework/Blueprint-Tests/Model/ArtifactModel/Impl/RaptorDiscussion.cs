@@ -57,15 +57,12 @@ namespace Model.Impl
             { return false; }
             else
             {
-                if ((string.Equals(comment.CommentText, CommentValue)) &&
+                return (string.Equals(comment.CommentText, CommentValue)) &&
                     (comment.DiscussionId == DiscussionId) && (comment.IsClosed == IsClosed) &&
                     (comment.IsGuest == IsGuest) && (comment.ItemId == ItemId) &&
                     //(DateTime.Equals(comment.LastEditedOn, LastEditedOnUtc)) && //microseconds are different
                     (comment.UserId == UserId) && (string.Equals(comment.UserName, Username)) &&
-                    (comment.Version == Version))
-                { return true; }
-                else
-                { return false; }
+                    (comment.Version == Version);
             }
         }
     }

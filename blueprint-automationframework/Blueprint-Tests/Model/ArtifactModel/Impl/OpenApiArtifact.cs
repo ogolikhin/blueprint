@@ -479,7 +479,7 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// POST discussion for the specified artifact
         /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="address">The base url of the Blueprint server</param>
         /// <param name="comment">Comment to reply</param>
         /// <param name="discussionText">Text for replying</param>
         /// <param name="user">The user to authenticate with</param>
@@ -503,8 +503,96 @@ namespace Model.ArtifactModel.Impl
             return result;
         }
 
-        #endregion Static Methods
-    }
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint server</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        public static OpenApiAttachment AddArtifactAttachment(string address,
+            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string path = I18NHelper.FormatInvariant(URL_OPENAPI_ARTIFACT_ATTACHMENT, projectId, artifactId);
+            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// add attachment to the specified sub-artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint server</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        public static OpenApiAttachment AddSubArtifactAttachment(string address,
+            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string path = I18NHelper.FormatInvariant(URL_OPENAPI_SUBARTIFACT_ATTACHMENT,
+                projectId, artifactId, subArtifactId);
+            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// add attachment to the specified artifact/subartifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint server</param>
+        /// <param name="path">Path to add attachment</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        private static OpenApiAttachment AddItemAttachment(string address,
+            string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var restApi = new RestApiFacade(address, tokenValue);
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(file.FileType))
+            {
+                additionalHeaders.Add("Content-Type", file.FileType);
+            }
+
+            if (!string.IsNullOrEmpty(file.FileName))
+            {
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        System.Web.HttpUtility.UrlPathEncode(file.FileName)));
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
+                fileName: file.FileName,
+                fileContent: file.Content.ToArray(),
+                contentType: file.FileType,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return JsonConvert.DeserializeObject<OpenApiAttachment>(response.Content);
+        }
+
+            #endregion Static Methods
+        }
 
     public class ArtifactForUpdate
     {

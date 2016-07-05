@@ -1,4 +1,4 @@
-﻿<h6 bp-tooltip="DOC{{ $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }}">DOC{{ $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }}</h6>
+﻿<h6 bp-tooltip="{{ $ctrl.docRefInfo.itemTypePrefix + $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }}">{{ $ctrl.docRefInfo.itemTypePrefix + $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }}</h6>
 <div class="thumb {{ $ctrl.fileIconClass }}"></div>
 <div class="author" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.docRefInfo.userName }}">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.docRefInfo.userName }}</div>
 <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.docRefInfo.referencedDate | date:'medium' }}</div>

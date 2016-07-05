@@ -1213,6 +1213,11 @@ describe('appBootstrap', function() {
         expect(window.document.body.className).toContain("is-ios");
         expect(window.document.body.className).toContain("is-safari");
         expect(window.document.body.className).toContain("is-touch");
+        if ((window.orientation && Math.abs(window.orientation) === 90)) {
+            expect(window.document.body.className).toContain("is-landscape");
+        } else {
+            expect(window.document.body.className).toContain("is-portrait");
+        }
     });
 
     /*it('Launch app with supported browser (Win IE11)', function() {

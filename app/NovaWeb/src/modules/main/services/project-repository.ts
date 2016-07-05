@@ -48,7 +48,7 @@ export class ProjectRepository implements IProjectRepository {
                 this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 defer.reject(error);
             });
@@ -73,7 +73,7 @@ export class ProjectRepository implements IProjectRepository {
                 this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound")
+                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound")
                 };
                 defer.reject(error);
             });
@@ -92,7 +92,7 @@ export class ProjectRepository implements IProjectRepository {
                 this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("Project_NotFound")
+                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
                 };
                 defer.reject(error);
             });

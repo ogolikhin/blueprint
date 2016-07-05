@@ -20,6 +20,7 @@ import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {config as routesConfig} from "./main.state";
+require("script!mxClient");
 
 config.$inject = ["$rootScope", "$state"];
 

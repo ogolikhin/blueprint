@@ -27,22 +27,18 @@ module.exports = [
         test: /\.png$/,
         exclude: /node_modules/,
         loader: 'url'
-    }
-    , {
+    }, {
         test: require.resolve('tinymce/tinymce'),
         loaders: [
           'imports?this=>window',
           'exports?window.tinymce'
         ]
-    }
-    , {
+    }, {
           test: /tinymce\/(themes|plugins)\//,
           loaders: [
             'imports?this=>window'
-
           ]
-    }
-    , {
+    }, {
         test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'

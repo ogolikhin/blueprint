@@ -1,4 +1,5 @@
 ﻿using System;
+using Common;
 using Helper;
 using Model;
 using NUnit.Framework;
@@ -19,19 +20,24 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         IProject _project = null;
+        uint _fileSize = (uint)(RandomGenerator.RandomNumber(4096));
+        string _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
+        IFile _attachmentFile = null;
 
-        [SetUp]
+    [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _attachmentFile = CreateRandomFile(_fileSize, _fileName);
         }
 
         [TearDown]
         public void TearDown()
         {
             Helper?.Dispose();
+            _attachmentFile = null;
         }
 
         private static IFile CreateRandomFile(uint fileLength, string fileName, string fileType = "text/plain")
@@ -43,34 +49,32 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(01)]
+        [TestRail(146332)]
         [Description("Create artifact, publish it, add attachment, get attachments, check expectations.")]
         public void GetAttachmentForPublishedArtifactWithAttachment_CheckExpectation()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
             artifact.Publish(_user);
-            IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
-            artifact.AddArtifactAttachment(attachmentFile, _user);
-
+            var openApiAttachment = artifact.AddArtifactAttachment(_attachmentFile, _user);
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetItemsAttachment(artifact.Id, _user);
-            });
-            Assert.AreEqual(1, attachment.AttachedFiles.Count);
+            }, "GetItemsAttachment shouldn't throw any error.");
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
         }
 
         [TestCase]
-        [TestRail(02)]
+        [TestRail(146333)]
         [Description("Create artifact, publish it, add attachment, delete artifact, publish artifact, get attachments, check 404.")]
         public void GetAttachmentForDeletedArtifact_NotFound()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
             artifact.Publish(_user);
-            IFile attachmentFile = CreateRandomFile(2048, "attachment_test.txt");
-            artifact.AddArtifactAttachment(attachmentFile, _user);
+            artifact.AddArtifactAttachment(_attachmentFile, _user);
             artifact.Delete(_user);
             artifact.Publish(_user);
 
@@ -78,12 +82,11 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 attachment = Helper.ArtifactStore.GetItemsAttachment(artifact.Id, _user);
-            });
-            Assert.AreEqual(0, attachment.AttachedFiles.Count);
+            }, "GetItemsAttachment should throw 404 error, but it doesn't.");
         }
 
         [TestCase]
-        [TestRail(03)]
+        [TestRail(146334)]
         [Description("Create Process, publish it, add attachment to User task, get attachments for User task, check expectations.")]
         public void GetAttachmentForSubArtifact_CheckExpectations()
         {
@@ -93,19 +96,18 @@ namespace ArtifactStoreTests
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             
-            var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
-            var result = artifact.AddSubArtifactAttachment(userTask.Id, attachmentFile, _user);
-            Assert.IsNotNull(result);
+            var attachedFile = artifact.AddSubArtifactAttachment(userTask.Id, _attachmentFile, _user);
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetItemsAttachment(userTask.Id, _user);
-            });
-            Assert.AreEqual(1, attachment.AttachedFiles.Count);
+            }, "GetItemsAttachment shouldn't throw any error.");
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+            Assert.IsTrue(attachedFile.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
         }
 
         [TestCase]
-        [TestRail(04)]
+        [TestRail(146335)]
         [Description("Create Process, publish it, add attachment to User task, delete attachment, get attachments for User task, check expectations.")]
         public void GetAttachmentForSubArtifactWithDeletedAttachment_CheckExpectations()
         {
@@ -115,15 +117,14 @@ namespace ArtifactStoreTests
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            var attachmentFile = CreateRandomFile(3000, "attachment_test.txt");
-            var result = artifact.AddSubArtifactAttachment(userTask.Id, attachmentFile, _user);
+            var result = artifact.AddSubArtifactAttachment(userTask.Id, _attachmentFile, _user);
             result.Delete(_user);
             Attachment attachment = null;
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetItemsAttachment(userTask.Id, _user);
-            });
-            Assert.AreEqual(0, attachment.AttachedFiles.Count);
+            }, "GetItemsAttachment shouldn't throw an error.");
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
         }
     }
 }

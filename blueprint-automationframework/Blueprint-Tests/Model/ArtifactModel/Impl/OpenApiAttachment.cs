@@ -23,5 +23,16 @@ namespace Model.ArtifactModel.Impl
             restApi.SendRequestAndGetResponse(string.Empty, RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
         }
+
+        public bool Equals(AttachedFile attachedFile)
+        {
+            if (attachedFile == null)
+            { return false; }
+            else
+            {
+                return (((attachedFile.AttachmentId) == Id) && 
+                    (attachedFile.FileName == FileName));
+            }
+        }
     }
 }

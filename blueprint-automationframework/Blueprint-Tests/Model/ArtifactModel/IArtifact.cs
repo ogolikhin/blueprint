@@ -129,29 +129,23 @@ namespace Model.ArtifactModel
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// add attachment to the specified artifact
+        /// Adds attachment to the specified artifact
         /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">...</param>
-        /// <param name="artifactId">...</param>
-        /// <param name="file">...</param>
+        /// <param name="file">File to attach</param>
         /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>...</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
         OpenApiAttachment AddArtifactAttachment(IFile file, IUser user, 
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// add attachment to the specified artifact
+        /// Adds attachment to the specified subartifact
         /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">...</param>
-        /// <param name="artifactId">...</param>
-        /// <param name="subArtifactId">...</param>
-        /// <param name="file">...</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file</param>
+        /// <param name="file">File to attach</param>
         /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>...</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
         OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
             IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }

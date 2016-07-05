@@ -507,12 +507,12 @@ namespace Model.ArtifactModel.Impl
         /// add attachment to the specified artifact
         /// </summary>
         /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">...</param>
-        /// <param name="artifactId">...</param>
-        /// <param name="file">...</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="file">File to attach</param>
         /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>...</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
         public static OpenApiAttachment AddArtifactAttachment(string address,
             int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -527,13 +527,13 @@ namespace Model.ArtifactModel.Impl
         /// add attachment to the specified artifact
         /// </summary>
         /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="projectId">...</param>
-        /// <param name="artifactId">...</param>
-        /// <param name="subArtifactId">...</param>
-        /// <param name="file">...</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file</param>
+        /// <param name="file">File to attach</param>
         /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>...</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
         public static OpenApiAttachment AddSubArtifactAttachment(string address,
             int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -545,6 +545,15 @@ namespace Model.ArtifactModel.Impl
             return AddItemAttachment(address, path, file, user, expectedStatusCodes);
         }
 
+        /// <summary>
+        /// add attachment to the specified artifact/subartifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="path">Path to add attachment</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
         private static OpenApiAttachment AddItemAttachment(string address,
             string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

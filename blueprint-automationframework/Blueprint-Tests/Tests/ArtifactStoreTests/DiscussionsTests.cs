@@ -177,7 +177,7 @@ namespace ArtifactStoreTests
             }, "GetDiscussionsReplies shouldn't throw any error.");
             Assert.AreEqual(1, replies.Count, "Subartifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedReply.Equals(replies[0]), "Reply shoud have expected value, but it doesn't.");
+            Assert.True(postedReply.Equals(replies[0]), "Reply should have expected value, but it doesn't.");
         }
 
         [TestCase]

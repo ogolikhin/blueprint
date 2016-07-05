@@ -203,15 +203,21 @@ namespace Model.Impl
                 return discussionReplies;
         }
 
-        public Attachment GetItemsAttachment(int itemId, IUser user,
+        public Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/attachment", SVC_PATH, itemId);
 
+            Dictionary<string, string> queryParameters = null;
+            if (addDrafts != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "addDrafts", addDrafts.ToString() } };
+            }
+
             var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
             var attachment = restApi.SendRequestAndDeserializeObject<Attachment>(path,
-                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
             return attachment;
         }
 

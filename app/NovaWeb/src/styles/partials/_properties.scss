@@ -87,6 +87,85 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
   }
 }
 
+.formly-field {
+
+  .form-group > div {
+    align-items: flex-start;
+    border-left: solid $property-horiz-spacing transparent;
+    border-right: solid $property-horiz-spacing transparent;
+    display: flex;
+    //flex: $property-width;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    font-size: 0; // to eliminate empty space. Must redefine font-size in children!
+    //margin: 1px 0 0;
+    margin: 0 0 12px;
+    //max-width: $property-width;
+    min-height: $property-min-height;
+    order: 0;
+    width: $property-width;
+  }
+
+  label {
+    color: $gray-dark;
+    display: inline-block;
+    font-size: $font-size-normal;
+    font-weight: 400;
+    margin: 6px 0 0;
+    width: $property-label-width;
+  }
+
+  input,
+  textarea {
+    border: solid 1px #eef0f0;
+    box-sizing: border-box;
+    color: $gray-dark;
+    display: inline-block;
+    font-size: $font-size-normal;
+    font-weight: 400;
+    max-width: $property-input-width;
+    padding-left: 6px;
+    width: $property-input-width;
+
+    &.readonly {
+      border-color: transparent;
+    }
+
+    &.editable:hover {
+      background: #fbf8e7 url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+      padding-right: 20px;
+    }
+
+    &.editable:focus,
+    &.mce-edit-focus:focus {
+      background: #fbf8e7;
+      padding-right: 6px;
+    }
+
+    &.typeahead {
+      background: url('images/typeahead-arrow.png') no-repeat right;
+      padding-right: 23px;
+    }
+
+    &::-ms-clear {
+      display: none;
+    }
+  }
+
+  input {
+    min-height: $property-min-height;
+    padding-right: 6px;
+  }
+
+  textarea {
+    min-height: #{1.5 * $property-min-height};
+    overflow: auto;
+    padding-right: 20px;
+  }
+}
+
 .property-group {
   align-items: flex-start;
   border-left: solid $property-horiz-spacing transparent;

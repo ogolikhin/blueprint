@@ -17,15 +17,13 @@ namespace ArtifactStoreTests
     public class DiscussionsTests : TestBase
     {
         private IUser _user = null;
-        private IUser _user2 = null;
-        IProject _project = null;
+        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
         }
 
@@ -37,167 +35,199 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146053)]
-        [Description("Add comment for published artifact, get discussion for this artifact, check that it has expected values.")]
-        public void GetDiscussionsForPublishedArtifact_VerifyDiscussionsHasExpectedValue()
+        [Description("Add comment to published artifact, then get discussion for this artifact.  Verify it returns the comment that we added.")]
+        public void GetDiscussions_PublishedArtifact_ReturnsCorrectDiscussion()
         {
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
             var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
             
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
+
+            // Verify:
             Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]), "Comment should have expected value, but it doesn't.");
+            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
         [TestRail(146054)]
-        [Description("Add comment for saved artifact, get discussion for this artifact, check that it has expected values.")]
-        public void GetDiscussionsForDraftArtifact_VerifyDiscussionsHasExpectedValue()
+        [Description("Add comment to saved artifact, then get discussion for this artifact.  Verify it returns the comment that we added.")]
+        public void GetDiscussions_DraftArtifact_ReturnsCorrectDiscussion()
         {
+            // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
+
             var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
             }, "GetArtifactDiscussions shouldn't throw any error, but it doesn't.");
+
+            // Verify:
             Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]), "Comment should have expected value, but it doesn't.");
+            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
         [TestRail(146055)]
-        [Description("Add comment for published artifact, delete artifact (don't publish), get discussion for this artifact, check that it returns 404.")]
-        public void GetDiscussionsForMarkedForDeleteArtifact_Throws404()
+        [Description("Add comment to published artifact, delete artifact (don't publish), get discussion for this artifact.  Verify it returns 404 Not Found.")]
+        public void GetDiscussions_MarkedForDeleteArtifact_404NotFound()
         {
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.PostRaptorDiscussions("draft", _user);
             artifact.Delete(_user);
 
+            // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
-            }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
+            }, "GetArtifactDiscussions should throw 404 error for artifacts marked for deletion, but it doesn't.");
         }
 
         [TestCase]
         [TestRail(146056)]
-        [Description("Add comment for published subartifact, get discussion for this subartifact, check that it has expected values.")]
-        public void GetDiscussionsForSubArtifact_VerifyDiscussionsHasExpectedValue()
+        [Description("Add comment to published subartifact, get discussion for this subartifact, check that it has expected values.")]
+        public void GetDiscussions_PublishedSubArtifact_ReturnsCorrectDiscussion()
         {
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
             Discussions discussions = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
+
+            // Verify:
             Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]), "Comment should have expected value, but it doesn't.");
+            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
         [TestRail(146057)]
-        [Description("Add comment for subartifact of saved (unpublished) artifact, get discussion for this subartifact, check that it has expected values.")]
-        public void GetDiscussionsForUnpublishedSubArtifact_VerifyDiscussionsHasExpectedValue()
+        [Description("Add comment to subartifact of saved (unpublished) artifact, get discussion for this subartifact.  Verify it returns the comment that we added.")]
+        public void GetDiscussions_UnpublishedSubArtifact_ReturnsCorrectDiscussion()
         {
+            // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             artifact.Save(_user);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
             Discussions discussions = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
+
+            // Verify:
             Assert.AreEqual(1, discussions.Comments.Count, "Subartifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]), "Comment should have expected value, but it doesn't.");
+            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
         [TestRail(146059)]
-        [Description("Add comment for subartifact of saved (unpublished) artifact, try to get discussion for this subartifact with user other than author, check that it returns 404.")]
-        public void GetDiscussionsForUnpublishedSubArtifactOtherUser_Throws404()
+        [Description("Add comment to subartifact of saved (unpublished) artifact, try to get discussion for this subartifact with user other than author.  Verify it returns 404 Not Found.")]
+        public void GetDiscussions_UnpublishedSubArtifactOtherUser_404NotFound()
         {
+            // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             artifact.Save(_user);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
+            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user2);
+                Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, user2);
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
         }
 
         [TestCase]
         [TestRail(146060)]
-        [Description("Add comment for subartifact of published artifact, get discussion for this subartifact, check that it has expected values.")]
-        public void GetRepliesForSubartifactDiscussion_VerifyReplyHasExpectedValue()
+        [Description("Add comment & a reply to subartifact of published artifact, get discussion for this subartifact.  Verify it returns the reply that we added.")]
+        public void GetReplies_PublishedSubArtifactWithDiscussionAndReply_ReturnsCorrectDiscussion()
         {
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
+
             Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                postedRaptorComment, "let replace it with random", _user);
+                postedRaptorComment, "This is a reply to a comment.", _user);
 
             List<Reply> replies = null;
+
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 replies = Helper.ArtifactStore.GetDiscussionsReplies(discussions.Comments[0], _user);
             }, "GetDiscussionsReplies shouldn't throw any error.");
+
+            // Verify:
             Assert.AreEqual(1, replies.Count, "Subartifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
-            Assert.True(postedReply.Equals(replies[0]), "Reply shoud have expected value, but it doesn't.");
+            Assert.True(postedReply.Equals(replies[0]),
+                "The discussion reply returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
         [TestRail(146063)]
-        [Description("Add comment for subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact, check that it returns 404.")]
-        public void GetDiscussionsForSubArtifactOfDeletedArtifact_Throws404()
+        [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns 404 Not Found.")]
+        public void GetDiscussions_MarkedForDeleteSubArtifact_404NotFound()
         {
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
-            artifact.Publish(_user);
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
             Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
                 userTask.Id, "text for UT", _user);
             artifact.Delete(_user);
 
+            // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _user);
-            }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
+            }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
         }
     }
 }

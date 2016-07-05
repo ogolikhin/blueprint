@@ -96,6 +96,7 @@ export class BPTooltip implements ng.IDirective {
             }
         }
 
+        // only checks the immediate text, not nested HTML elements
         function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
             if (element.attr("bp-tooltip-truncated") === "true") {
                 const elem = element[0];

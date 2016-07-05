@@ -118,24 +118,16 @@ export class BPDiscussionPanelController {
     }
 
     private getDiscussionReplies(discussionId: number): ng.IPromise<IReply[]> {
-        var deferred = this.$q.defer();
-        try {
-            this.isLoading = true;
-            return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
-                .then((replies: IReply[]) => {
-                    return replies;
-                }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                    return [];
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
-        }
-        catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
-            deferred.reject(ex);
-        }
-        return deferred.promise;
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
+            .then((replies: IReply[]) => {
+                return replies;
+            }).catch((error: any) => {
+                this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                return [];
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
     }
 }

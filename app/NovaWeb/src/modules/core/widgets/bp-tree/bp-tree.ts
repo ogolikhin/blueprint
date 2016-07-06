@@ -167,7 +167,10 @@ export class BPTreeController implements IBPTreeController  {
     };
 
     public $onDestroy = () => {
+        this.selectedRow = null;
+        this.reload(null);
         this.perfectScrollbars(null, true);
+
     };
 
     private mapData(data: any, propertyMap?: any): ITreeNode {

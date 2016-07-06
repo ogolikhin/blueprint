@@ -132,6 +132,10 @@ Input_Required,"Required"
 Folder_NotFound,"Couldn't find specified project or folder"
 Project_NotFound,"Couldn't find the project"
 Artifact_NotFound,"Couldn't find the artifact"
+ArtifactType_NotFound, "Couldn't find the artifact type"
+
+#
+Artifact_Details_FieldNameError, "The field name isn't specified"
 
 #Messages
 Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."

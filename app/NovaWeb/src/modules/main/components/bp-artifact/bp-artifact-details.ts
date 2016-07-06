@@ -42,7 +42,7 @@ export class BpArtifactDetailsController {
     };
 
     public get isCustomPropertyAvailable(): boolean {
-        return this.fields.customFields && this.fields.customFields.length > 0;
+        return this.fields && this.fields.customFields && this.fields.customFields.length > 0;
     }
     public $onDestroy() {
         //dispose all subscribers

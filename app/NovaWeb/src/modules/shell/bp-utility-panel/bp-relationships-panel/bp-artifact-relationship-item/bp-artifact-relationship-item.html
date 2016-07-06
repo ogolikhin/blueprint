@@ -12,9 +12,9 @@
         </div>
         <div class="inner-details">
             <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
-                <i ng-class="$ctrl.getIcon($ctrl.artifact.itemTypePrefix)"></i> {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}
+                <item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></item-type-icon> {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}
             </a>
-            <div><i ng-class="$ctrl.getIcon($ctrl.artifact.itemTypePrefix)"></i>{{$ctrl.artifact.projectName}} </div>
+            <div><item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></item-type-icon>{{$ctrl.artifact.projectName}} </div>
             <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
                 <div>
                     <ul class="wrappable-breadcrumbs" >

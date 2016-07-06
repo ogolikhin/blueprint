@@ -41,8 +41,8 @@ bp-relationships-panel {
          }
 
         .inner-details{
-            width:75%;
-            float:left;
+            width:85%;
+            float:left;            
             padding-left:$padding-root;
             padding-right:$padding-root;
             .desc-visible{
@@ -55,6 +55,9 @@ bp-relationships-panel {
                  text-decoration: none;
                  cursor:pointer;
             }
+            div{
+                padding-top:2px;
+            }
         }
         }
         .icons{     
@@ -62,7 +65,7 @@ bp-relationships-panel {
             display:inline-block; 
             width:100%;           
             padding:5px;
-            border-top: 1px solid $gray-light;
+            border-top: 1px solid $gray-lighter;
             div{
                  float:right;            
              }

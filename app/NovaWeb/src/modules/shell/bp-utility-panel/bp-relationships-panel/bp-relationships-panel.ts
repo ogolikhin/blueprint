@@ -71,11 +71,13 @@ export class BPRelationshipsPanelController {
     //}
 
     private changeTraceType(traceType: Relationships.ITraceType) {
-        this.getRelationships(traceType)
-            .then((list: any) => {
-                this.artifactList = list;
-                this.currentTraceType = traceType;
-            });
+        if (this.artifactId) {
+            this.getRelationships(traceType)
+                .then((list: any) => {
+                    this.artifactList = list;
+                    this.currentTraceType = traceType;
+                });
+        }
     }
 
     private getRelationships(traceType: Relationships.ITraceType): ng.IPromise<Relationships.Relationship[]> {

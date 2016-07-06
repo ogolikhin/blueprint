@@ -30,10 +30,10 @@ namespace HtmlLibrary
             foreach (var mention in mentions)
             {
                 var emailAttr = mention.Attributes.FirstOrDefault(a => a.Name.Equals(MENTION_EMAIL_ATTRIBUTE, StringComparison.CurrentCultureIgnoreCase));
-                var email = emailAttr == null ? string.Empty : emailAttr.Value.Trim();
-                var isEmailBlocked = await _mentionValidator.IsEmailBlocked(email);
                 if (emailAttr != null)
                 {
+                    var email = emailAttr.Value == null ? string.Empty : emailAttr.Value.Trim();
+                    var isEmailBlocked = await _mentionValidator.IsEmailBlocked(email);
                     var innerHtml = mention.InnerHtml;
                     var innerDoc = new HtmlDocument();
                     innerDoc.LoadHtml(innerHtml);

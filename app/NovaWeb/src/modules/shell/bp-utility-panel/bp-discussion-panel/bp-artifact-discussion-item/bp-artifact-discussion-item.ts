@@ -46,7 +46,9 @@ export class BPArtifactDiscussionItemController {
     }
 
     public getTrustedCommentHtml() {
-        if (this.discussionInfo) {
+        if (this.discussionInfo &&
+            this.discussionInfo.comment &&
+            this.discussionInfo.comment.length > 0) {
             return this.$sce.trustAsHtml(this.discussionInfo.comment);
         } else {
             return "";

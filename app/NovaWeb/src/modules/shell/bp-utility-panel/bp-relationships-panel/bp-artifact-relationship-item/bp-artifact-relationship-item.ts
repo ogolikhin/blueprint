@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { Relationships } from "../../../../main";
+import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
@@ -14,9 +14,8 @@ export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
         "localization",
-        "artifactRelationships",
-        "$window",
-        "$location"
+        "artifactRelationships",      
+        "projectManager"
     ];
 
     public expanded: boolean = false;
@@ -26,9 +25,8 @@ export class BPArtifactRelationshipItemController {
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,
-        private $window: ng.IWindowService,
-        private $location: ng.ILocationService) {
+        private artifactRelationships: IArtifactRelationships,     
+        private projectManager: IProjectManager) {
        
     }
 
@@ -59,18 +57,13 @@ export class BPArtifactRelationshipItemController {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.RelationshipExtendedInfo) => {
                 return relationshipExtendedInfo;
-            })
-            .finally(() => {
-
             });
     }
 
-    public navigateToBreadcrumb(processId: number) {
-      //  if (url) {
-       //     this.$window.location.href = url;
-       // } else {
-            var path = this.$location.path();
-            this.$location.path(path + (path.lastIndexOf("/") === path.length - 1 ? "" : "/") + processId);
-       // }
+    public navigateToArtifact(artifact: Relationships.Relationship) {
+        var art = this.projectManager.getArtifact(artifact.artifactId);
+        if (art) {
+            this.projectManager.setCurrentArtifact(art);
+        }
     }
 }

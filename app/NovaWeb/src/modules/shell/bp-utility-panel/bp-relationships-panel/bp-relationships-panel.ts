@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Relationships, Models} from "../../../main";
-import {IArtifactRelationships} from "./artifact-relationships.svc";
+import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
 
 interface IOptions {
     value: string;
@@ -23,10 +23,10 @@ export class BPRelationshipsPanelController {
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
-    public artifactList: Relationships.Relationship[] = [];
+    public artifactList: IArtifactRelationshipsResultSet;
     public option: string = "1";
     public traceTypes = Relationships.ITraceType;
-    public currentTraceType = Relationships.ITraceType.Manual;
+  
 
     constructor(
         private $log: ng.ILogService,
@@ -39,52 +39,31 @@ export class BPRelationshipsPanelController {
         ];
     }
 
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
         let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
         this._subscribers = [selectedArtifactSubscriber];
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        // clean up history list
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });   
         this.artifactList = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifactDetails) => {
-        this.artifactList = [];
-
+    private setArtifactId = (artifact: Models.IArtifactDetails) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(Relationships.ITraceType.Manual)
+            this.getRelationships()
                 .then((list: any) => {
                     this.artifactList = list;
-                    this.currentTraceType = Relationships.ITraceType.Manual;
-                  
+                                     
                 });
         }
     }
 
-    //public setActive() {
-    //    return this.currentTraceType == type;
-    //}
-
-    private changeTraceType(traceType: Relationships.ITraceType) {
-        this.getRelationships(traceType)
-            .then((list: any) => {
-                this.artifactList = list;
-                this.currentTraceType = traceType;
-            });
-    }
-
-    private getRelationships(traceType: Relationships.ITraceType): ng.IPromise<Relationships.Relationship[]> {
-        return this.artifactRelationships.getRelationships(this.artifactId, traceType)
-            .then((list: Relationships.Relationship[]) => {
+    private getRelationships(): ng.IPromise<IArtifactRelationshipsResultSet> {
+        return this.artifactRelationships.getRelationships(this.artifactId)
+            .then((list: IArtifactRelationshipsResultSet) => {
                 return list;
-            })
-            .finally(() => {
-
             });
     }
 }

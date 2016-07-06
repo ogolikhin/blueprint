@@ -12,7 +12,6 @@ import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
 import {ArtifactRelationships} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
-import {ItemTypeService} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/item-type.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
@@ -59,7 +58,6 @@ angular.module("app.shell",
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("artifactAttachments", ArtifactAttachments)
     .service("messageService", MessageService)
-    .service("itemTypeService", ItemTypeService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())

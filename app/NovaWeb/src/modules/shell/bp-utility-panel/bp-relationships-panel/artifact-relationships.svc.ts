@@ -1,17 +1,13 @@
 ﻿import { ILocalizationService } from "../../../core";
 import {Relationships} from "../../../main";
 
-
-
-
 export interface IArtifactRelationshipsResultSet {
     manualTraces: Relationships.Relationship[];
-    otherTraces: Relationships.Relationship[];
-  //  artifactId: number;
+    otherTraces: Relationships.Relationship[]; 
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number, relationshipType: any): ng.IPromise<Relationships.Relationship[]>;
+    getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet>;
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo>;
 }
 
@@ -30,7 +26,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number, traceType: Relationships.ITraceType): ng.IPromise<Relationships.Relationship[]> {
+        artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
@@ -38,12 +34,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
         };
 
         this.$http(requestObj)
-            .success((result: IArtifactRelationshipsResultSet) => {
-                if (traceType === Relationships.ITraceType.Manual) {
-                    defer.resolve(result.manualTraces);
-                } else {
-                    defer.resolve(result.otherTraces);
-                }
+            .success((result: IArtifactRelationshipsResultSet) => {               
+                    defer.resolve(result);               
             }).error((err: any, statusCode: number) => {
                 const error = {
                     statusCode: statusCode,

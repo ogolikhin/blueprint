@@ -19,11 +19,12 @@ function toFlat(root: any): any[] {
 
     return array;
 }
-/*
+
 describe("Embedded ag-grid events", () => {
     var controller: BPTreeController;
     var $scope, elem;
     var gridApi = new GridApi();
+    gridApi.setFocusedCell = () => { }
 
     beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();
@@ -203,4 +204,3 @@ describe("Embedded ag-grid events", () => {
 
     
 });
-*/

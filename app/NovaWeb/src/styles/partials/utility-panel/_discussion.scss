@@ -34,6 +34,10 @@ bp-discussion-panel {
 
     .comment {
         word-wrap: break-word;
+
+        ul{
+            padding:0;
+        }
     }   
     .info {
         margin-left: 50px;

@@ -11,6 +11,7 @@
     traceType: LinkType;
     suspect: boolean;
     hasAccess: boolean;
+    primitiveItemTypePredefined: number;
 }
 
 export enum TraceDirection {

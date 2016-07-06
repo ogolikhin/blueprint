@@ -1,4 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
+import {IReply} from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
@@ -9,11 +10,24 @@ export class BPDiscussionReplyItem implements ng.IComponentOptions {
 }
 
 export class BPDiscussionReplyItemController {
+    public replyInfo: IReply;
 
     public static $inject: [string] = [
-        "localization"
+        "localization",
+        "$sce"
     ];
 
-    constructor(private localization: ILocalizationService) {
+    constructor(
+        private localization: ILocalizationService,
+        private $sce: ng.ISCEService) {
     }
+
+    public getTrustedCommentHtml() {
+        if (this.replyInfo) {
+            return this.$sce.trustAsHtml(this.replyInfo.comment);
+        } else {
+            return "";
+        }
+        //return this.discussionInfo.comment;
+    };
 }

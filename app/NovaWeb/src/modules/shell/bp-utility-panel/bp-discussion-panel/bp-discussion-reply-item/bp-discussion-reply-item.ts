@@ -23,7 +23,9 @@ export class BPDiscussionReplyItemController {
     }
 
     public getTrustedCommentHtml() {
-        if (this.replyInfo) {
+        if (this.replyInfo &&
+            this.replyInfo.comment &&
+            this.replyInfo.comment.length > 0) {
             return this.$sce.trustAsHtml(this.replyInfo.comment);
         } else {
             return "";

@@ -62,9 +62,9 @@ namespace ArtifactStore.Repositories
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
         {
+            ItemDetails item, project, artifact;
             foreach (var relationship in relationships)
             {
-                ItemDetails item, project, artifact;
                 if (itemDetailsDictionary.TryGetValue(relationship.ItemId, out item))
                 {
                     if (itemDetailsDictionary.TryGetValue(relationship.ProjectId, out project))
@@ -88,15 +88,15 @@ namespace ArtifactStore.Repositories
         {
             int artifactId = 0;
             int itemId = 0;
-            if (traceDirection == TraceDirection.To || traceDirection == TraceDirection.TwoWay)
-            {
-                artifactId = link.DestinationArtifactId;
-                itemId = link.DestinationItemId;
-            }
-            else
+            if (traceDirection == TraceDirection.From)
             {
                 artifactId = link.SourceArtifactId;
                 itemId = link.SourceItemId;
+            }
+            else
+            {
+                artifactId = link.DestinationArtifactId;
+                itemId = link.DestinationItemId;
             }
             return new Relationship
             {

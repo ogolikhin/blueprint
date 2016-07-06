@@ -1,0 +1,174 @@
+﻿<shapes name="mxgraph.generic">
+  <shape  h="100" w="100" name="triangledown" aspect="variable" strokewidth="inherit" >
+    <background>
+      <path>
+        <move x="0" y="0"/>
+        <line x="100" y="0"/>
+        <line x="50" y="100"/>
+        <close/>
+      </path>
+      <fillstroke/>
+    </background>
+  </shape>
+
+  <shape  h="100" w="100" name="triangleup" aspect="variable" strokewidth="inherit" >
+    <background>
+      <path>
+        <move x="50" y="0"/>
+        <line x="100" y="100"/>
+        <line x="0" y="100"/>
+        <close/>
+      </path>
+      <fillstroke/>
+    </background>
+  </shape>
+
+  <shape h="100" w="100" name="triangleleft" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="0" y="50"/>
+        <line x="100" y="0"/>
+        <line x="100" y="100"/>
+        <close/>
+      </path>
+      <fillstroke/>
+    </background>
+  </shape>
+
+  <shape h="100" w="100" name="triangleright" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="100" y="50"/>
+        <line x="0" y="100"/>
+        <line x="0" y="0"/>
+        <close/>
+      </path>
+      <fillstroke/>
+    </background>
+  </shape>
+
+  <shape h="100" w="100" name="verticalcylinder" aspect="variable" strokewidth="inherit">
+    <background>
+      <fillstroke/>
+      <path>
+        <move x="0" y="14"/>
+        <curve x1="0" y1="-4.6" x2="100" y2="-4.6" x3="100" y3="14"/>
+        <line x="100" y="86"/>
+        <curve x1="100" y1="104.6" x2="0" y2="104.6" x3="0" y3="86"/>
+        <line x="0" y="14"/>
+      </path>
+      <stroke/>
+    </background>
+    <foreground>
+      <fillstroke/>
+      <path>
+        <move x="0" y="14"/>
+        <curve x1="0" y1="28" x2="100" y2="28" x3="100" y3="14"/>
+      </path>
+      <stroke/>
+    </foreground>
+  </shape>
+  
+  <shape h="100" w="100" name="horizontalcylinder" aspect="variable" strokewidth="inherit">
+    <background>
+      <fillstroke/>
+      <path>
+        <move x="14" y="0"/>
+        <curve x1="-4.6" y1="0" x2="-4.6" y2="100" x3="14" y3="100"/>
+        <line x="86" y="100"/>
+        <curve x1="104.6" y1="100" x2="104.6" y2="0" x3="86" y3="0"/>
+        <line x="14" y="0"/>
+      </path>
+      <stroke/>
+    </background>
+    <foreground>
+      <fillstroke/>
+      <path>
+        <move x="86" y="0"/>
+        <curve x1="72" y1="0" x2="72" y2="100" x3="86" y3="100"/>
+      </path>
+      <stroke/>
+    </foreground>
+  </shape>
+
+  <shape name="page" h="100" w="100" aspect="variable" strokewidth="inherit">
+    <background>
+      <fillstroke />
+      <path>
+        <move x="0" y="0" />
+        <line x="80" y="0" />
+        <line x="100" y="20" />
+        <line x="100" y="100" />
+        <line x="0" y="100" />
+        <close />
+      </path>
+      <stroke />
+    </background>
+    <foreground>
+      <fillstroke />
+      <path>
+        <move x="80" y="0" />
+        <line x="80" y="20" />
+        <line x="100" y="20" />
+      </path>
+      <stroke />
+    </foreground>
+  </shape>
+
+  <shape name="document" h="100" w="100" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="0" y="0"/>
+        <line x="100" y="0"/>
+<line x="100" y="85"/>
+        <quad x1="75" y1="58" x2="50" y2="85"/>
+        <quad x1="25" y1="112" x2="0" y2="85"/>
+        <line x="0" y="15"/>
+        <close/>
+      </path>
+      <fillstroke/>
+    </background>
+  </shape>
+
+  <shape name="trapezoid" h="100" w="100" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="0" y="100" />
+        <line x="23.5" y="0" />
+        <line x="73.5" y="0" />
+        <line x="100" y="100" />
+        <close />
+      </path>
+    </background>
+    <foreground>
+      <fillstroke />
+    </foreground>
+  </shape>
+
+  <shape name="parallelogram" h="100" w="100" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="0" y="100" />
+        <line x="23.5" y="0" />
+        <line x="97" y="0" />
+        <line x="73.5" y="100" />
+        <close />
+      </path>
+      <fillstroke />
+    </background>
+  </shape>
+
+  <shape name="diamond" h="100" w="100" aspect="variable" strokewidth="inherit">
+    <background>
+      <path>
+        <move x="50" y="0" />
+        <line x="100" y="50" />
+        <line x="50" y="100" />
+        <line x="0" y="50" />
+        <line x="50" y="0" />
+        <close />
+      </path>
+      <fillstroke />
+    </background>
+  </shape>
+</shapes>

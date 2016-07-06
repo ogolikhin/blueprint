@@ -64,3 +64,54 @@
 .right-panel-visible .breadcrumbs {
   padding-right: 20px;
 }
+
+
+.wrappable-breadcrumbs {
+  align-items: center; 
+  box-sizing: border-box;
+  color: $gray;
+  display: flex;
+  flex-flow: row wrap; 
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+
+  &::after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+
+  li {
+    @include text-ellipsis-flex-width(500px);
+    color: $gray;
+    list-style-type: none;
+    padding-left: 2px;
+    padding-right: 2px;
+    transition: flex .4s ease;
+
+    &::before {
+      content: ' > ';
+    }
+
+    &:first-child {
+      padding-left: 0;
+
+      &::before {
+        content: ' ';
+      }
+    }
+
+    &:last-child
+    {
+      @include text-ellipsis-flex-width(999px);
+      flex: none;
+    }   
+
+    a {
+      color: $gray-darker;
+       text-decoration: none;
+
+    }
+  }
+}

@@ -409,7 +409,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint(not OpenAPI).
+        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint (not OpenAPI).
+        /// (Runs:  /svc/shared/artifacts/discard)
         /// </summary>
         /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
         /// <param name="address">The base url of the API</param>
@@ -582,7 +583,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Publish a single artifact on Blueprint server
+        /// Publish a single artifact on Blueprint server.
+        /// (Runs: /svc/shared/artifacts/publish)
         /// </summary>
         /// <param name="artifactToPublish">The artifact to publish</param>
         /// <param name="user">The user saving the artifact</param>
@@ -622,7 +624,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
         /// <param name="address">The base url of the API</param>
         /// <param name="itemId">id of artifact/subartifact</param>

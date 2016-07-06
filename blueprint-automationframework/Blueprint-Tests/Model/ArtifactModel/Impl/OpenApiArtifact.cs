@@ -451,7 +451,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// POST discussion for the specified artifact
+        /// POST discussion for the specified artifact.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>

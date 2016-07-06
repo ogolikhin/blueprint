@@ -110,6 +110,28 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
             Assert.AreEqual(TraceDirection.TwoWay, result.ManualTraces[0].TraceDirection);
         }
+        [TestMethod]
+        public async Task GetRelationships_ToOtherRelationshipSubartifact_Success()
+        {
+            // Arrange
+            int itemId = 1;
+            int userId = 1;
+            bool addDrafts = true;
 
+            var mockLinkInfoList = new List<LinkInfo>();
+            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 3, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
+
+            cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
+
+            // Act
+            var result = await relationshipsRepository.GetRelationships(itemId, userId, addDrafts);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.ManualTraces.Count);
+            Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
+            Assert.AreEqual(TraceDirection.To, result.ManualTraces[0].TraceDirection);
+            Assert.AreEqual(3, result.ManualTraces[0].ItemId);
+            Assert.AreEqual(2, result.ManualTraces[0].ArtifactId);
+        }
     }
 }

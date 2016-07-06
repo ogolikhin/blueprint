@@ -83,6 +83,7 @@
     <Compile Include="Controllers\ArtifactVersionsControllerTest.cs" />
     <Compile Include="Controllers\DiscussionControllerTest.cs" />
     <Compile Include="Controllers\ProjectMetaControllerTests.cs" />
+    <Compile Include="Controllers\RelationshipsControllerTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ArtifactControllerTests.cs" />
     <Compile Include="Helpers\MentionHelperTests.cs" />

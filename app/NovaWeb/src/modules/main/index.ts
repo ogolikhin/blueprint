@@ -23,15 +23,10 @@ import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
+import {IArtifactService, ArtifactService} from "./services/artifact-service";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope", "$state"];
-
-export {
-    Enums,
-    ProjectRepository, 
-    IProjectManager, ProjectManager, Models
-};
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
@@ -46,7 +41,6 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
-
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
@@ -60,6 +54,7 @@ angular.module("app.main", [
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
+    .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())
@@ -86,3 +81,12 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     });
 }
 formlyConfigTinyMCE.$inject = ["formlyConfig"];
+
+export {
+    Enums,
+    Models,
+    ProjectRepository,
+    IProjectManager, ProjectManager,
+    IArtifactService
+};
+

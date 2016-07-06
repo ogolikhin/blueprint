@@ -2,6 +2,7 @@
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
+import {IArtifactService} from "./artifact-service";
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock.ts";
 
 export {Models}
@@ -38,11 +39,13 @@ export class ProjectManager implements IProjectManager {
     private _currentProject: Rx.BehaviorSubject<Models.IProject>;
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository"];
+    static $inject: [string] = ["localization", "messageService", "projectRepository", "artifactService"];
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private _repository: IProjectRepository) {
+        private _repository: IProjectRepository,
+        private artifactService: IArtifactService
+    ) {
     }
 
     public dispose() {
@@ -292,6 +295,8 @@ export class ProjectManager implements IProjectManager {
 
 
     public getArtifactSystemPropertyFileds(itemType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
+        
+
         let fields: AngularFormly.IFieldConfigurationObject[] = [];
         
 
@@ -363,17 +368,18 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-    //private getFieldType(type: Models.IPrimitiveType): string {
-    //    switch (type) {
-    //        case Models.IPrimitiveType.Choice:
-    //            return "select";
-    //        default:
-    //            return "input"
-    //    }
-    //}
+    private getFieldType(type: Models.IPrimitiveType): string {
+        switch (type) {
+            case Models.IPrimitiveType.Choice:
+                return "select";
+            default:
+                return "input"
+        }
+    }
 
     public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
         try {
+
             let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
                 systemFields: [],
                 customFields: [],
@@ -386,80 +392,8 @@ export class ProjectManager implements IProjectManager {
             if (!_project) {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
-            if (!_project.meta) { 
-                return;
-            }
-            var artifactType = _project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === artifact.typeId;
-            })[0];
-
-
-            fields.systemFields = this.getArtifactSystemPropertyFileds(artifactType, _project.meta);
-
-            if (artifactType) {
-
-
-                _project.meta.propertyTypes.map((it: Models.IPropertyType) => {
-                    if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                        fields.customFields.push({
-                            key: it.id,
-                            type: "input",
-                            templateOptions: {
-                                label: it.name,
-                                required: it.isRequired,
-                            }
-                        });
-                    }
-                    
-                });
-
-            }
-            fields.noteFields.push({
-                key: "tinymceControl",
-                type: "tinymce",
-                data: { // using data property
-                    tinymceOption: { // this will goes to ui-tinymce directive
-                        // standard tinymce option
-                        plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                        mentions: {
-                            source: tinymceMentionsData,
-                            delay: 100,
-                            items: 5,
-                            queryBy: "fullname",
-                            insert: function (item) {
-                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                            }
-                        }
-                    }
-                },
-                templateOptions: {
-                    label: "TinyMCE control"
-                }
-            });
-            fields.noteFields.push({
-                key: "tinymceInlineControl",
-                type: "tinymceInline",
-                data: { // using data property
-                    tinymceOption: { // this will goes to ui-tinymce directive
-                        // standard tinymce option
-                        inline: true,
-                        plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                        mentions: {
-                            source: tinymceMentionsData,
-                            delay: 100,
-                            items: 5,
-                            queryBy: "fullname",
-                            insert: function (item) {
-                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                            }
-                        },
-                        fixed_toolbar_container: ".form-tinymce-toolbar"
-                    }
-                },
-                templateOptions: {
-                    label: "TinyMCE Inline control"
-                }
-            });
+            fields = this.artifactService.getArtifactPropertyFileds(artifact, _project);
+            
             return fields;
 
 

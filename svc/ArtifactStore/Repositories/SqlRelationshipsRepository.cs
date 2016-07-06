@@ -89,6 +89,7 @@ namespace ArtifactStore.Repositories
                     relationship.ArtifactName = relationship.ItemName;
                     relationship.ArtifactTypePrefix = relationship.ItemTypePrefix;
                 }
+                relationship.PrimitiveItemTypePredefined = item.PrimitiveItemTypePredefined;
             }
 
         }

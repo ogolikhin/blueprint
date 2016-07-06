@@ -71,6 +71,8 @@ namespace ArtifactStore.Models
         public bool Suspect { get; set; }
         [JsonProperty]
         public bool HasAccess { get; set; } = true;
+        [JsonProperty]
+        public int PrimitiveItemTypePredefined { get; set; }
     }
 
     [JsonObject]

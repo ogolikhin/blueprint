@@ -1,5 +1,5 @@
 import { IArtifactRelationships } from "./artifact-relationships.svc";
-import { Models } from "../../../main";
+import { Models, Relationships } from "../../../main";
 
 export class ArtifactRelationshipsMock implements IArtifactRelationships {
 
@@ -9,7 +9,7 @@ export class ArtifactRelationshipsMock implements IArtifactRelationships {
 
     constructor(private $q: ng.IQService) { }
 
-    public getRelationships(artifactId: number): ng.IPromise<Models.IArtifactDetails[]> {
+    public getRelationships(artifactId: number, traceType: Relationships.ITraceType): ng.IPromise<Relationships.Relationship[]> {
         const deferred = this.$q.defer<any[]>();
         
         var artifactList = [
@@ -24,6 +24,26 @@ export class ArtifactRelationshipsMock implements IArtifactRelationships {
                 "id": 3
             }
         ];      
+
+        deferred.resolve(artifactList);
+        return deferred.promise;
+    }
+
+    public getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo> {
+        const deferred = this.$q.defer<any>();
+
+        var artifactList = [
+            {
+                "id": 1
+
+            },
+            {
+                "id": 2
+            },
+            {
+                "id": 3
+            }
+        ];
 
         deferred.resolve(artifactList);
         return deferred.promise;

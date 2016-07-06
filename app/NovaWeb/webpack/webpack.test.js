@@ -1,5 +1,6 @@
 var loaders = require("./loaders");
 var webpack = require('webpack');
+var path = require('path');
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
@@ -26,7 +27,8 @@ module.exports = {
     root: __dirname,
     extensions: ['', '.ts', '.js', '.json'],
     alias: {
-        tinymce: 'tinymce/tinymce'
+        tinymce: 'tinymce/tinymce',
+        mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
     }
   },
   resolveLoader: {

@@ -18,6 +18,7 @@ export interface IArtifactDocRef {
     artifactId: number;
     userId: number;
     userName: string;
+    itemTypePrefix: string;
     referencedDate: string;
 }
 

@@ -14,6 +14,7 @@ import "tinymce";
 import * as Enums from "./models/enums";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
+import * as Relationships from "./models/relationshipModels";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -25,11 +26,13 @@ import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {IArtifactService, ArtifactService} from "./services/artifact-service";
 import {config as routesConfig} from "./main.state";
+require("script!mxClient");
 
 config.$inject = ["$rootScope", "$state"];
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
+
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
 

@@ -24,7 +24,7 @@ export class BPAvatarController {
     constructor(private $log: ng.ILogService) {
         this.background = this.getAvatarBg(this.colorBase || this.name);
         this.initials = this.getAvatarInitials(this.name);
-        this.initialsColor = this.getAvatarInitialsColor(this.name);
+        this.initialsColor = this.getAvatarInitialsColor(this.colorBase || this.name);
     }
 
     public getAvatarBg(name: string): string {

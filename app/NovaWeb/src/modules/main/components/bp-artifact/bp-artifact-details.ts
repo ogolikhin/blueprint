@@ -18,6 +18,8 @@ export class BpArtifactDetailsController {
     public currentArtifact: string;
 
     constructor(private $scope, private projectManager: IProjectManager) {
+
+        
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {

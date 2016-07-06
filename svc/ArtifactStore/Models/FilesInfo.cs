@@ -10,6 +10,7 @@ namespace ArtifactStore.Models
     {
         public int ArtifactId;
         public string ArtifactName;
+        public string ItemTypePrefix;
     }
 
     public class FilesInfo
@@ -75,6 +76,8 @@ namespace ArtifactStore.Models
         public int UserId { get; set; }
         [JsonProperty]
         public string UserName { get; set; }
+        [JsonProperty]
+        public string ItemTypePrefix { get; set; }
         [JsonProperty]
         public DateTime ReferencedDate { get; set; }
     }

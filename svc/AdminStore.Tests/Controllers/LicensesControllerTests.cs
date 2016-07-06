@@ -14,6 +14,7 @@ using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Web.Http.Hosting;
 
 namespace AdminStore.Controllers
 {
@@ -60,6 +61,7 @@ namespace AdminStore.Controllers
             var logMock = new Mock<IServiceLogRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).ReturnsAsync(users);
             var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
+            controller.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
             controller.Request.Headers.Add("Session-Token", string.Empty);
             int days = 1;
 

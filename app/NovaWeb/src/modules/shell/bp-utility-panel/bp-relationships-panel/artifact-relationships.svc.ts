@@ -1,20 +1,14 @@
 ﻿import { ILocalizationService } from "../../../core";
-import * as Models from "../../../main/models/models";
-
-
-export enum ITraceType {
-    Manual = 0,
-    Other = 1
-}
+import {Relationships} from "../../../main";
 
 export interface IArtifactRelationshipsResultSet {
-    manualTraces: Models.IArtifactDetails[];
-    otherTraces: Models.IArtifactDetails[];
-  //  artifactId: number;
+    manualTraces: Relationships.Relationship[];
+    otherTraces: Relationships.Relationship[]; 
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number, relationshipType: any): ng.IPromise<Models.IArtifactDetails[]>;
+    getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo>;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
@@ -32,7 +26,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number, traceType: ITraceType): ng.IPromise<Models.IArtifactDetails[]> {
+        artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
@@ -40,12 +34,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
         };
 
         this.$http(requestObj)
-            .success((result: IArtifactRelationshipsResultSet) => {
-                if (traceType === ITraceType.Manual) {
-                    defer.resolve(result.manualTraces);
-                } else {
-                    defer.resolve(result.otherTraces);
-                }
+            .success((result: IArtifactRelationshipsResultSet) => {               
+                    defer.resolve(result);               
             }).error((err: any, statusCode: number) => {
                 const error = {
                     statusCode: statusCode,
@@ -55,6 +45,29 @@ export class ArtifactRelationships implements IArtifactRelationships {
                 defer.reject(error);
             });
             
+        return defer.promise;
+    }
+
+    public getRelationshipDetails(
+        artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo> {
+        const defer = this.$q.defer<any>();
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`,
+            method: "GET"
+        };
+
+        this.$http(requestObj)
+            .success((result: Relationships.RelationshipExtendedInfo) => {                
+                    defer.resolve(result);               
+            }).error((err: any, statusCode: number) => {
+                const error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                };
+                this.$log.error(error);
+                defer.reject(error);
+            });
+
         return defer.promise;
     }
 }

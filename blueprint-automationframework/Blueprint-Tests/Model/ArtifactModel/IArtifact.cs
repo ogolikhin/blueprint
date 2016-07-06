@@ -27,7 +27,8 @@ namespace Model.ArtifactModel
         List<DiscardArtifactResult> Discard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Discard changes to an artifact on Blueprint server using NOVA endpoint(not OpenAPI).
+        /// Discard changes to an artifact on Blueprint server using NOVA endpoint (not OpenAPI).
+        /// (Runs: /svc/shared/artifacts/discard)
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint. If null, attempts to discard changes using the credentials
         /// of the user that created the artifact. </param>
@@ -37,7 +38,7 @@ namespace Model.ArtifactModel
         List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets the Version property of an Artifact
+        /// Gets the Version property of an Artifact.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -47,7 +48,8 @@ namespace Model.ArtifactModel
         int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets diagram content for RapidReview (Storyteller)
+        /// Gets diagram content for RapidReview (Storyteller).
+        /// (Runs:  svc/components/RapidReview/diagram/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -58,7 +60,8 @@ namespace Model.ArtifactModel
         RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets UseCase content for RapidReview (Storyteller)
+        /// Gets UseCase content for RapidReview (Storyteller).
+        /// (Runs: svc/components/RapidReview/usecase/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -69,7 +72,8 @@ namespace Model.ArtifactModel
         RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets glossary content for RapidReview (Storyteller)
+        /// Gets glossary content for RapidReview (Storyteller).
+        /// (Runs: svc/components/RapidReview/glossary/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -80,7 +84,7 @@ namespace Model.ArtifactModel
         RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets artifact info
+        /// Gets artifact info.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -90,7 +94,8 @@ namespace Model.ArtifactModel
         ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets properties for RapidReview (Storyteller)
+        /// Gets properties for RapidReview (Storyteller).
+        /// (Runs: svc/components/RapidReview/artifacts/properties)
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
@@ -100,7 +105,7 @@ namespace Model.ArtifactModel
         RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Lock an Artifact
+        /// Lock an Artifact.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
         /// of the user that created the artifact.</param>
@@ -111,6 +116,7 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Publish the artifact on Blueprint server.
+        /// (Runs: /svc/shared/artifacts/publish)
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
         /// of the user that created the artifact.</param>
@@ -119,7 +125,8 @@ namespace Model.ArtifactModel
         NovaPublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
         /// <param name="discussionsText">text for the new discussion</param>
         /// <param name="user">The user credentials for the request</param>
@@ -127,5 +134,26 @@ namespace Model.ArtifactModel
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
         IRaptorComment PostRaptorDiscussions(string discussionsText,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Adds attachment to the specified artifact.
+        /// </summary>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        OpenApiAttachment AddArtifactAttachment(IFile file, IUser user, 
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Adds attachment to the specified subartifact.
+        /// </summary>
+        /// <param name="subArtifactId">Id of subartifact to attach file</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
+            IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

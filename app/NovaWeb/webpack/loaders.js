@@ -1,5 +1,5 @@
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-
+var path = require("path");
 module.exports = [
     {test: /\.ts(x?)$/, loader: 'ts-loader'},
     {
@@ -37,8 +37,13 @@ module.exports = [
           test: /tinymce\/(themes|plugins)\//,
           loaders: [
             'imports?this=>window'
-
           ]
-      }
+    }, {
+        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
+        loaders: [
+            'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
+        ]
+    }
 ];
+
 

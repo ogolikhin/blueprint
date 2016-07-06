@@ -4,17 +4,22 @@
     </bp-select>
 </div>
 <div class="tabs">
-    <uib-tabset>
-        <uib-tab index="0" heading="Traces" select="$ctrl.changeTraceType($ctrl.traceTypes.Manual)"></uib-tab>     
-        <uib-tab  index="1" heading="Association" select="$ctrl.changeTraceType($ctrl.traceTypes.Other)"></uib-tab>
+    <uib-tabset active="$ctrl.categoryFilter">
+        <uib-tab index="0" heading="All"></uib-tab>     
+        <uib-tab  index="1" heading="Traces"></uib-tab>
+        <uib-tab index="2" heading="Association"></uib-tab>
     </uib-tabset>
 </div>
-<div ng-if="$ctrl.artifactList.length"
-     class="scrollable-content" perfect-scrollbar>
-    <div ng-repeat="artifact in $ctrl.artifactList"
+<div class="scrollable-content" perfect-scrollbar>
+    <div ng-if="$ctrl.categoryFilter!==2" ng-repeat="artifact in $ctrl.artifactList.manualTraces" 
          class="artifact-item-wrapper">
         <div class="separator"></div>
-        <bp-artifact-relationship-item artifact="artifact"></bp-artifact-relationship-item>
+        <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+    </div>
+    <div ng-if="$ctrl.categoryFilter!==1" ng-repeat="artifact in $ctrl.artifactList.otherTraces" 
+         class="artifact-item-wrapper">
+        <div class="separator"></div>
+        <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
     </div>
 </div>
 

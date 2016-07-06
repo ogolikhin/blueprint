@@ -1,16 +1,14 @@
 bp-relationships-panel {
     .tabs{
-        padding-bottom:10px; 
-        padding-left:10px;
+        padding-bottom:$padding-root; 
+        padding-left:$padding-root;
         width:100%;
     }
-    bp-artifact-relationship-item {
-
-         .utility-panel-artifact-item {
-
-        padding: 0;
-     
-    }
+    bp-artifact-relationship-item {   
+      
+        .utility-panel-artifact-item {
+             padding: 0;     
+          }
 
         [class^="fonticon-"],
         [class*=" fonticon-"] {
@@ -22,36 +20,54 @@ bp-relationships-panel {
         .details{
 
             display:inline-block; 
-            padding: 7px 10px;
-        
-
-        .icon{
-            width:10%; 
-            height:100%;
+            padding: $padding-smaller $padding-root;
+     
+            .trace-icon{
+            width:2em;
+            height:2em;
+            border: 2px solid $gray-lighter;
+            border-radius: 50%;
             float:left;
+            line-height:2em;          
         }
 
+        .trace-icon-regular{           
+            color:$blue-light;
+          }
+        
+         .trace-icon-suspect{           
+            background-color:$brand-error;
+            color:white;
+         }
+
         .inner-details{
-            width:90%;
-            float:right;
+            width:85%;
+            float:left;            
+            padding-left:$padding-root;
+            padding-right:$padding-root;
             .desc-visible{
                 display:block;
             }
             .desc-hidden{
                 display:none;
             }
-        }
-        }
-        .icons{
-            /*position:absolute;*/ 
-            display:inline-block; 
-            width:100%; 
-            /*bottom:0; 
-            left:0;*/ 
-            padding:5px;
-            border-top: 1px solid $gray-light;
+            &>a{
+                 text-decoration: none;
+                 cursor:pointer;
+            }
             div{
-            float:right;            
+                padding-top:2px;
+            }
+        }
+        }
+        .icons{     
+            color:  $gray;    
+            display:inline-block; 
+            width:100%;           
+            padding:5px;
+            border-top: 1px solid $gray-lighter;
+            div{
+                 float:right;            
              }
         }
     }

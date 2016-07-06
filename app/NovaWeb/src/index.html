@@ -12,15 +12,21 @@
     <title>Blueprint</title>
 </head>
 <body>
-    <app id="js-enabled">
-        <div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span> Loading ...</div>
-    </app>
+<app id="js-enabled">
+	<div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span> Loading ...</div>
+</app>
 <noscript>
-    <div>
-        You must enable JavaScript to use this application
-    </div>
+	<div class="error-page nojs">
+		<div class="message">
+			<div>
+				<span class="fonticon-error"></span>Error
+			</div>
+			<div>
+				You must enable JavaScript to use this application.
+			</div>
+		</div>
+	</div>
 </noscript>
-
 <script src="/novaweb/static/bowser.js"></script>
 <script src="/novaweb/static/unsupported-browser.js"></script>
 </body>

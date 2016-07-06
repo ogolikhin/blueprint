@@ -3,6 +3,8 @@ using HtmlLibrary;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,7 +39,7 @@ namespace ArtifactStore.Helpers
         public async Task<bool> IsEmailBlocked(string email)
         {
             var emailSettings = await GetInstanceEmailSettings();
-            var user = (await UsersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
+            var user = await GetUserByEmail(email);
             if ((user != null) && ((user.IsGuest && !user.IsEnabled) || (!CheckUsersEmailDomain(email, user.IsEnabled, user.IsGuest, emailSettings))))
             {
                 return true;
@@ -60,6 +62,23 @@ namespace ArtifactStore.Helpers
         public async Task<string> ProcessComment(string comment, bool areEmailDiscussionsEnabled)
         {
             return await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
+        }
+
+        private IDictionary<string, UserInfo> _usersByEmail;
+
+        private async Task<UserInfo> GetUserByEmail(string email)
+        {
+            var user = (UserInfo)null;
+            if (_usersByEmail == null)
+            {
+                _usersByEmail = new Dictionary<string, UserInfo>();
+            }
+            if (!_usersByEmail.TryGetValue(email, out user))
+            {
+                user = (await UsersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
+                _usersByEmail.Add(email, user);
+            }
+            return user;
         }
 
         /// <summary>

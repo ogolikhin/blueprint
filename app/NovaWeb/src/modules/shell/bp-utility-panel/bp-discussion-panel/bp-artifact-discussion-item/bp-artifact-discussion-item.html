@@ -13,7 +13,7 @@
 
 <div class="info">
     <div class="author" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
-    <div class="comment" ng-bind-html="$ctrl.discussionInfo.comment"></div>
+    <div class="comment" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
     <div class="version">v{{$ctrl.discussionInfo.version}}</div>
     <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
 </div>

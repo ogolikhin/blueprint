@@ -348,6 +348,23 @@ namespace Model.ArtifactModel.Impl
             return PostRaptorDiscussions(Address, Id, discussionsText, user, expectedStatusCodes);
         }
 
+        public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+            return AddArtifactAttachment(Address, ProjectId, Id, file, user, expectedStatusCodes);
+        }
+
+        public OpenApiAttachment AddSubArtifactAttachment(int subArtifactId,
+            IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+            return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
+                user, expectedStatusCodes);
+        }
+
         #endregion Methods
 
         #region Static Methods
@@ -392,7 +409,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint(not OpenAPI).
+        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint (not OpenAPI).
+        /// (Runs:  /svc/shared/artifacts/discard)
         /// </summary>
         /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
         /// <param name="address">The base url of the API</param>
@@ -565,7 +583,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Publish a single artifact on Blueprint server
+        /// Publish a single artifact on Blueprint server.
+        /// (Runs: /svc/shared/artifacts/publish)
         /// </summary>
         /// <param name="artifactToPublish">The artifact to publish</param>
         /// <param name="user">The user saving the artifact</param>
@@ -605,7 +624,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API
+        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
         /// <param name="address">The base url of the API</param>
         /// <param name="itemId">id of artifact/subartifact</param>
@@ -640,6 +660,41 @@ namespace Model.ArtifactModel.Impl
         {
             return OpenApiArtifact.PostRaptorDiscussionReply(address, comment, replyText,
                 user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        public static OpenApiAttachment AddArtifactAttachment(string address,
+            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.AddArtifactAttachment(address, projectId, artifactId,
+                file, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        public static OpenApiAttachment AddSubArtifactAttachment(string address,
+            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.AddSubArtifactAttachment(address, projectId,
+                artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
 
         #endregion Static Methods

@@ -19,6 +19,8 @@ namespace Model.ArtifactModel.Impl
         public const string URL_LOCK = "svc/shared/artifacts/lock";
         public const string URL_RAPTOR_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         public const string URL_RAPTOR_REPLY = "/svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
+        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/attachments";
+        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
         public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
         public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";

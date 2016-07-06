@@ -64,8 +64,7 @@ namespace ArtifactStore.Repositories
         {
             foreach (var relationship in relationships)
             {
-                ItemDetails item;
-                ItemDetails project;
+                ItemDetails item, project, artifact;
                 if (itemDetailsDictionary.TryGetValue(relationship.ItemId, out item))
                 {
                     if (itemDetailsDictionary.TryGetValue(relationship.ProjectId, out project))
@@ -75,23 +74,15 @@ namespace ArtifactStore.Repositories
                     }
                     relationship.ItemName = item.Name;
                     relationship.ItemTypePrefix = item.Prefix;
-                }
-
-                if (relationship.ItemId != relationship.ArtifactId) //Not sub-artifacts
-                {
-                    ItemDetails artifact;
-                    itemDetailsDictionary.TryGetValue(relationship.ArtifactId, out artifact);
-                    relationship.ArtifactName = artifact.Name;
-                    relationship.ArtifactTypePrefix = artifact.Prefix;
-                }
-                else
-                {
                     relationship.ArtifactName = relationship.ItemName;
                     relationship.ArtifactTypePrefix = relationship.ItemTypePrefix;
                 }
-                relationship.PrimitiveItemTypePredefined = item.PrimitiveItemTypePredefined;
+                if (relationship.ItemId != relationship.ArtifactId && itemDetailsDictionary.TryGetValue(relationship.ArtifactId, out artifact)) // Sub-artifacts
+                {
+                    relationship.ArtifactName = artifact.Name;
+                    relationship.ArtifactTypePrefix = artifact.Prefix;
+                }
             }
-
         }
         private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
         {

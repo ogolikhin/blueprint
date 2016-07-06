@@ -62,10 +62,9 @@ namespace ArtifactStore.Repositories
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
         {
+            ItemDetails item, project, artifact;
             foreach (var relationship in relationships)
             {
-                ItemDetails item;
-                ItemDetails project;
                 if (itemDetailsDictionary.TryGetValue(relationship.ItemId, out item))
                 {
                     if (itemDetailsDictionary.TryGetValue(relationship.ProjectId, out project))
@@ -75,30 +74,34 @@ namespace ArtifactStore.Repositories
                     }
                     relationship.ItemName = item.Name;
                     relationship.ItemTypePrefix = item.Prefix;
-                }
-
-                if (relationship.ItemId != relationship.ArtifactId) //Not sub-artifacts
-                {
-                    ItemDetails artifact;
-                    itemDetailsDictionary.TryGetValue(relationship.ArtifactId, out artifact);
-                    relationship.ArtifactName = artifact.Name;
-                    relationship.ArtifactTypePrefix = artifact.Prefix;
-                }
-                else
-                {
                     relationship.ArtifactName = relationship.ItemName;
                     relationship.ArtifactTypePrefix = relationship.ItemTypePrefix;
                 }
-                relationship.PrimitiveItemTypePredefined = item.PrimitiveItemTypePredefined;
+                if (relationship.ItemId != relationship.ArtifactId && itemDetailsDictionary.TryGetValue(relationship.ArtifactId, out artifact)) // Sub-artifacts
+                {
+                    relationship.ArtifactName = artifact.Name;
+                    relationship.ArtifactTypePrefix = artifact.Prefix;
+                }
             }
-
         }
         private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
         {
+            int artifactId = 0;
+            int itemId = 0;
+            if (traceDirection == TraceDirection.From)
+            {
+                artifactId = link.SourceArtifactId;
+                itemId = link.SourceItemId;
+            }
+            else
+            {
+                artifactId = link.DestinationArtifactId;
+                itemId = link.DestinationItemId;
+            }
             return new Relationship
             {
-                ArtifactId = link.DestinationArtifactId,
-                ItemId = link.DestinationItemId,
+                ArtifactId = artifactId,
+                ItemId = itemId,
                 TraceDirection = traceDirection,
                 Suspect = link.IsSuspect,
                 TraceType = link.LinkType,

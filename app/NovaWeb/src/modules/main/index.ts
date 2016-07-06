@@ -24,7 +24,6 @@ import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
-import {IArtifactService, ArtifactService} from "./services/artifact-service";
 import {config as routesConfig} from "./main.state";
 require("script!mxClient");
 
@@ -35,7 +34,6 @@ export {
     Relationships,
     ProjectRepository,
     IProjectManager, ProjectManager,
-    IArtifactService
 };
 
 
@@ -66,7 +64,6 @@ angular.module("app.main", [
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
-    .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())

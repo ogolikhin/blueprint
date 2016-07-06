@@ -51,7 +51,7 @@ bp-relationships-panel {
             .desc-hidden{
                 display:none;
             }
-            a{
+            &>a{
                  text-decoration: none;
                  cursor:pointer;
             }

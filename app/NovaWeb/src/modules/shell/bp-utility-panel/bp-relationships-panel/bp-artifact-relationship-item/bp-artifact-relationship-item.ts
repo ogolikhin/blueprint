@@ -1,7 +1,6 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
-import {IItemTypeService, ItemTypeService} from "./item-type.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -15,10 +14,7 @@ export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
         "localization",
-        "artifactRelationships",
-        "$window",
-        "$location",
-        "itemTypeService",
+        "artifactRelationships",      
         "projectManager"
     ];
 
@@ -29,10 +25,7 @@ export class BPArtifactRelationshipItemController {
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,
-        private $window: ng.IWindowService,
-        private $location: ng.ILocationService,
-        private itemTypeService: IItemTypeService,
+        private artifactRelationships: IArtifactRelationships,     
         private projectManager: IProjectManager) {
        
     }
@@ -64,14 +57,7 @@ export class BPArtifactRelationshipItemController {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.RelationshipExtendedInfo) => {
                 return relationshipExtendedInfo;
-            })
-            .finally(() => {
-
             });
-    }
-
-    public getIcon(predefined: string) {
-        return this.itemTypeService.getIconClass(predefined);
     }
 
     public navigateToArtifact(artifact: Relationships.Relationship) {

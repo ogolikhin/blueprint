@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { Relationships } from "../../../../main";
+import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
+import {IItemTypeService, ItemTypeService} from "./item-type.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -16,7 +17,9 @@ export class BPArtifactRelationshipItemController {
         "localization",
         "artifactRelationships",
         "$window",
-        "$location"
+        "$location",
+        "itemTypeService",
+        "projectManager"
     ];
 
     public expanded: boolean = false;
@@ -28,7 +31,9 @@ export class BPArtifactRelationshipItemController {
         private localization: ILocalizationService,
         private artifactRelationships: IArtifactRelationships,
         private $window: ng.IWindowService,
-        private $location: ng.ILocationService) {
+        private $location: ng.ILocationService,
+        private itemTypeService: IItemTypeService,
+        private projectManager: IProjectManager) {
        
     }
 
@@ -65,12 +70,14 @@ export class BPArtifactRelationshipItemController {
             });
     }
 
-    public navigateToBreadcrumb(processId: number) {
-      //  if (url) {
-       //     this.$window.location.href = url;
-       // } else {
-            var path = this.$location.path();
-            this.$location.path(path + (path.lastIndexOf("/") === path.length - 1 ? "" : "/") + processId);
-       // }
+    public getIcon(predefined: string) {
+        return this.itemTypeService.getIconClass(predefined);
+    }
+
+    public navigateToArtifact(artifact: Relationships.Relationship) {
+        var art = this.projectManager.getArtifact(artifact.artifactId);
+        if (art) {
+            this.projectManager.setCurrentArtifact(art);
+        }
     }
 }

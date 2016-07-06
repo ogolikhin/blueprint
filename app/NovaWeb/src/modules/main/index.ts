@@ -25,6 +25,7 @@ import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {config as routesConfig} from "./main.state";
+require("script!mxClient");
 
 config.$inject = ["$rootScope", "$state"];
 
@@ -37,6 +38,7 @@ export {
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
 
+
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
 
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
@@ -47,7 +49,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
-
+    
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 

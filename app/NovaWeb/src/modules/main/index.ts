@@ -29,6 +29,15 @@ import {config as routesConfig} from "./main.state";
 require("script!mxClient");
 
 config.$inject = ["$rootScope", "$state"];
+export {
+    Enums,
+    Models,
+    Relationships,
+    ProjectRepository,
+    IProjectManager, ProjectManager,
+    IArtifactService
+};
+
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
@@ -75,21 +84,13 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     formlyConfig.setType({
         name: 'tinymce',
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ['bootstrapLabel']
+        wrapper: ["bootstrapLabel"]
     });
     formlyConfig.setType({
         name: 'tinymceInline',
         template: `<div class="form-tinymce-toolbar"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
-        wrapper: ['bootstrapLabel']
+        wrapper: ["bootstrapLabel"]
     });
 }
 formlyConfigTinyMCE.$inject = ["formlyConfig"];
-
-export {
-    Enums,
-    Models,
-    ProjectRepository,
-    IProjectManager, ProjectManager,
-    IArtifactService
-};
 

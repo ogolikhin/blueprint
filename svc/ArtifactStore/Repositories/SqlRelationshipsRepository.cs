@@ -95,10 +95,22 @@ namespace ArtifactStore.Repositories
         }
         private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
         {
+            int artifactId = 0;
+            int itemId = 0;
+            if (traceDirection == TraceDirection.To || traceDirection == TraceDirection.TwoWay)
+            {
+                artifactId = link.DestinationArtifactId;
+                itemId = link.DestinationItemId;
+            }
+            else
+            {
+                artifactId = link.SourceArtifactId;
+                itemId = link.SourceItemId;
+            }
             return new Relationship
             {
-                ArtifactId = link.DestinationArtifactId,
-                ItemId = link.DestinationItemId,
+                ArtifactId = artifactId,
+                ItemId = itemId,
                 TraceDirection = traceDirection,
                 Suspect = link.IsSuspect,
                 TraceType = link.LinkType,

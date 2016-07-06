@@ -26,7 +26,8 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
-        /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}?status={status}&comments={comments}&traces={traces}&attachments={attachments}&richtextasplain={richtextasplain}&inlinecss={inlinecss}&content={content})
+        /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}  with the following optional query parameters:
+        /// status={status}, comments={comments}, traces={traces}, attachments={attachments}, richtextasplain={richtextasplain}, inlinecss={inlinecss}, content={content})
         /// </summary>
         /// <param name="project">The project where the artifact exists.</param>
         /// <param name="user">The user to authenticate with.</param>

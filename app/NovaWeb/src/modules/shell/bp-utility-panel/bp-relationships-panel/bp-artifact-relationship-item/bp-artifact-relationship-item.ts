@@ -43,8 +43,12 @@ export class BPArtifactRelationshipItemController {
     public limitChars(str) {
         if (str) {
             var text = str.replace(/(<\/?[^>]+>)([&#x200b;]+)?/gi, '');
-            if (text && text.length > 100) {
-                return text.substring(0, 100) + "...";
+            if (text) {
+                if (text.length > 100) {
+                    return text.substring(0, 100) + "...";
+                } else {
+                    return text;
+                }
             } else {
                 return '';
             }

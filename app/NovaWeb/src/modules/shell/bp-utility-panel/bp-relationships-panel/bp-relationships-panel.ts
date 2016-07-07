@@ -26,7 +26,7 @@ export class BPRelationshipsPanelController {
     public artifactList: IArtifactRelationshipsResultSet;
     public option: string = "1";
     public traceTypes = Relationships.ITraceType;
-  
+    public isLoading: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
@@ -61,9 +61,13 @@ export class BPRelationshipsPanelController {
     }
 
     private getRelationships(): ng.IPromise<IArtifactRelationshipsResultSet> {
+        this.isLoading = true;
         return this.artifactRelationships.getRelationships(this.artifactId)
             .then((list: IArtifactRelationshipsResultSet) => {
                 return list;
+            })
+            .finally(() => {
+                this.isLoading = false;
             });
     }
 }

@@ -19,8 +19,8 @@ export class BPArtifactRelationshipItemController {
     ];
 
     public expanded: boolean = false;
-    public relationshipExtendedInfo: Relationships.RelationshipExtendedInfo;    
-    public artifact: Relationships.Relationship;
+    public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
+    public artifact: Relationships.IRelationship;
 
     constructor(
         private $log: ng.ILogService,
@@ -53,14 +53,14 @@ export class BPArtifactRelationshipItemController {
 
     }
 
-    private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo> {
+    private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
-            .then((relationshipExtendedInfo: Relationships.RelationshipExtendedInfo) => {
+            .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 return relationshipExtendedInfo;
             });
     }
 
-    public navigateToArtifact(artifact: Relationships.Relationship) {
+    public navigateToArtifact(artifact: Relationships.IRelationship) {
         var art = this.projectManager.getArtifact(artifact.artifactId);
         if (art) {
             this.projectManager.setCurrentArtifact(art);

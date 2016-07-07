@@ -2,7 +2,7 @@
 
     <div class="details">
         <div class="status" ng-click="$ctrl.expand()" ng-class="{'expanded': $ctrl.expanded}"
-             bp-tooltip="{{$ctrl.expanded ? 'Collapse' : 'Expand'}}">
+             bp-tooltip="{{$ctrl.expanded ? $ctrl.localization.get('App_UP_Relationships_Collapse') : $ctrl.localization.get('App_UP_Relationships_Expand')}}">
             <span></span>
             <i class="icon fonticon-circle-up"></i>
         </div>
@@ -12,9 +12,9 @@
         </div>
         <div class="inner-details">
             <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
-                <item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></item-type-icon> {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}
+                <bp-item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></bp-item-type-icon> {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}
             </a>
-            <div><item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></item-type-icon>{{$ctrl.artifact.projectName}} </div>
+            <div><bp-item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></bp-item-type-icon>{{$ctrl.artifact.projectName}} </div>
             <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
                 <div>
                     <ul class="wrappable-breadcrumbs" >

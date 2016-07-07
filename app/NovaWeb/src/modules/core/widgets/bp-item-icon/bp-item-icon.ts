@@ -1,9 +1,9 @@
-﻿export interface IItemTypeIconController {
+﻿export interface IBPItemTypeIconController {
     predefinedType: string;
     getImageSource(): string;
 }
 
-export class ItemTypeIconController implements IItemTypeIconController {
+export class BPItemTypeIconController implements IBPItemTypeIconController {
     public predefinedType: string;
 
     public getImageSource() {
@@ -11,9 +11,9 @@ export class ItemTypeIconController implements IItemTypeIconController {
     }
 }
 
-export class ItemTypeIconComponent implements ng.IComponentOptions {
+export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public template: string = require("./bp-item-icon.html");
-    public controller: Function = ItemTypeIconController;
+    public controller: Function = BPItemTypeIconController;
     public transclude: boolean = true;
     public bindings: any = {     
         predefinedType: "@"

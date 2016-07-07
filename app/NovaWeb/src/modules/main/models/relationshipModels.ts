@@ -1,4 +1,4 @@
-﻿export interface Relationship {
+﻿export interface IRelationship {
     artifactId: number;
     artifactTypePrefix: string;
     artifactName: string;
@@ -35,14 +35,14 @@ export enum LinkType {
     Reuse = 1024
 }
 
-export interface RelationshipExtendedInfo {
+export interface IRelationshipExtendedInfo {
 
     artifactId: number;
     description: string;
-    pathToProject: ItemIdItemNameParentId[];
+    pathToProject: IItemIdItemNameParentId[];
 }
 
-export interface ItemIdItemNameParentId {
+export interface IItemIdItemNameParentId {
     itemId: number;
     parentId: number;
     itemName: string;

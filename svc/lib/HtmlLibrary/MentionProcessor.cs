@@ -21,6 +21,10 @@ namespace HtmlLibrary
 
         public async Task<string> ProcessComment(string comment, bool areEmailDiscussionsEnabled)
         {
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                return comment;
+            }
             var xDoc = new HtmlDocument();
             xDoc.LoadHtml(comment);
             IEnumerable<HtmlNode> mentions =

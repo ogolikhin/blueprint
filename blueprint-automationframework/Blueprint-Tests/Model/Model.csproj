@@ -74,10 +74,12 @@
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="Factories\FactoryCommon.cs" />
+    <Compile Include="Factories\GroupFactory.cs" />
     <Compile Include="IArtifactStore.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\ConfigSettings.cs" />
+    <Compile Include="Impl\Group.cs" />
     <Compile Include="Impl\InstanceProject.cs" />
     <Compile Include="Impl\NovaServiceBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactType.cs" />

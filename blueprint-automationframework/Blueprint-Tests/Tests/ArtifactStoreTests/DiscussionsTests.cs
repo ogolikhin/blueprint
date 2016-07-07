@@ -17,19 +17,31 @@ namespace ArtifactStoreTests
     public class DiscussionsTests : TestBase
     {
         private IUser _user = null;
+        private IUser _adminUser = null;
         private IProject _project = null;
+        private IGroup _authorsGroup = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _authorsGroup = GroupFactory.CreateGroup("authors", "test", "auth@auth.net");
+            _authorsGroup.AddGroupToDatabase();
+
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens,
+                instanceAdminRole: null);
+            _authorsGroup.AddUser(_user);
+
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+
+            _authorsGroup.AssignProjectAuthorRole(_project);
         }
 
         [TearDown]
         public void TearDown()
         {
+            _authorsGroup.DeleteGroup();
             Helper?.Dispose();
         }
 
@@ -39,9 +51,10 @@ namespace ArtifactStoreTests
         public void GetDiscussions_PublishedArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            //var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
             Discussions discussions = null;
 
             // Execute:

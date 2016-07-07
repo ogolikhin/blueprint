@@ -2,13 +2,13 @@
 import {Relationships} from "../../../main";
 
 export interface IArtifactRelationshipsResultSet {
-    manualTraces: Relationships.Relationship[];
-    otherTraces: Relationships.Relationship[]; 
+    manualTraces: Relationships.IRelationship[];
+    otherTraces: Relationships.IRelationship[]; 
 }
 
 export interface IArtifactRelationships {
     getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet>;
-    getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo>;
+    getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
@@ -49,7 +49,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationshipDetails(
-        artifactId: number): ng.IPromise<Relationships.RelationshipExtendedInfo> {
+        artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`,
@@ -57,7 +57,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         };
 
         this.$http(requestObj)
-            .success((result: Relationships.RelationshipExtendedInfo) => {                
+            .success((result: Relationships.IRelationshipExtendedInfo) => {                
                     defer.resolve(result);               
             }).error((err: any, statusCode: number) => {
                 const error = {

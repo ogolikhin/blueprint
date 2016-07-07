@@ -35,6 +35,21 @@ export class ProjectRepository implements IProjectRepository {
             });
         return defer.promise;
     } 
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        var defer = this.$q.defer<any>();
+        this.$http.get<any>(`svc/adminstore/instance/projects/${id}`)
+            .success((result: Models.IProjectNode[]) => {
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
+                };
+                defer.reject(error);
+            });
+        return defer.promise;
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();

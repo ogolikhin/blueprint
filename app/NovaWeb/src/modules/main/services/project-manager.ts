@@ -24,6 +24,7 @@ export interface IProjectManager {
     loadProject(project: Models.IProject): void;
     loadArtifact(project: Models.IArtifact): void;
     loadArtifactDetails(artifact: Models.IArtifact): void;
+
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     closeProject(all?: boolean): void;
@@ -294,79 +295,6 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-    public getArtifactSystemPropertyFileds(itemType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        
-
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        
-
-        fields.push({
-            key: "name",
-            type: "input",
-            templateOptions: {
-                label: "Name",
-                required: true
-            }
-        });
-        
-        if (itemType) {
-            fields.push({
-                key: "type",
-                type: "select",
-                defaultValue: itemType.id.toString(),
-                templateOptions: {
-                    label: "Type",
-                    required: true,
-                    options: metaData.artifactTypes.filter((it: Models.IItemType) => {
-                        return (itemType && itemType.baseType === it.baseType);
-                    }).map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
-                    })
-                },
-                expressionProperties: {
-                    "templateOptions.disabled": "to.options.length < 2",
-                }
-            });
-        }
-        fields.push({
-            key: "createdBy",
-            type: "input",
-            templateOptions: {
-                label: "Created by",
-                disabled: true
-            }
-        });
-        fields.push({
-            key: "createdOn",
-            type: "input",
-            templateOptions: {
-                type: "date",
-                label: "Created on",
-                disabled: true,
-            }
-        });
-        fields.push({
-            key: "lastEditBy",
-            type: "input",
-            templateOptions: {
-                label: "Last edited by",
-                disabled: true
-            }
-        });
-        fields.push({
-            key: "lastEditOn",
-            type: "input",
-            templateOptions: {
-                type: "date",
-                label: "Last edited on",
-                disabled: true
-            }
-        });
-
-        return fields;
-
-    }
-
 
     public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
         try {
@@ -383,10 +311,18 @@ export class ProjectManager implements IProjectManager {
             if (!project || !project.meta) {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
-
-            let artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === artifact.typeId;
-            })[0];
+            let artifactType: Models.IItemType
+            if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
+                artifactType = <Models.IItemType>{
+                    id: -1,
+                    name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                    baseType: Models.ItemTypePredefined.Project
+                }
+            } else {
+                artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                    return it.id === artifact.typeId;
+                })[0];
+            }
 
 
             fields.systemFields = this.createSystemPropertyFileds(artifactType, project.meta);
@@ -431,14 +367,14 @@ export class ProjectManager implements IProjectManager {
             case Models.IPrimitiveType.Date:
                 field.type = "input";
                 field.templateOptions.type = "date";
-                field.defaultValue = type.dateDefaultValue || new Date();
+                field.defaultValue = type.dateDefaultValue;
                 //field.templateOptions.min = type.minDate;
                 //field.templateOptions.max = type.maxDate;
                 break;
             case Models.IPrimitiveType.Number:
                 field.type = "input";
                 field.templateOptions.type = "number";
-                field.defaultValue = type.decimalDefaultValue || 0;
+                field.defaultValue = type.decimalDefaultValue;
                 field.templateOptions.min = type.minNumber;
                 field.templateOptions.max = type.maxNumber;
                 break;
@@ -474,16 +410,18 @@ export class ProjectManager implements IProjectManager {
             isRequired: true
         }));
 
-        field.templateOptions.options = metaData.artifactTypes.filter((it: Models.IItemType) => {
-            return (artifactType && artifactType.baseType === it.baseType);
+        field.templateOptions.options = artifactType ? [<AngularFormly.ISelectOption>{ value: artifactType.baseType.toString(), name: artifactType.name }] : [];
+        field.templateOptions.options = field.templateOptions.options.concat(metaData.artifactTypes.filter((it: Models.IItemType) => {
+            return (artifactType && (artifactType.baseType === it.baseType));
         }).map(function (it) {
             return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
-        });
+        }));
+
         field.expressionProperties = {
             "templateOptions.disabled": "to.options.length < 2",
         };
 
-        fields.push(this.createField("createBy", <Models.IPropertyType>{
+        fields.push(this.createField("createdBy", <Models.IPropertyType>{
             id: -1,
             name: "Created by",
             primitiveType: Models.IPrimitiveType.Text,
@@ -495,13 +433,13 @@ export class ProjectManager implements IProjectManager {
             primitiveType: Models.IPrimitiveType.Date,
             disabled: true
         }));
-        fields.push(this.createField("lastEditBy", <Models.IPropertyType>{
+        fields.push(this.createField("lastEditedBy", <Models.IPropertyType>{
             id: -1,
             name: "Last edited by",
             primitiveType: Models.IPrimitiveType.Text,
             disabled: true
         }));
-        fields.push(this.createField("lastEditOn", <Models.IPropertyType>{
+        fields.push(this.createField("lastEditedOn", <Models.IPropertyType>{
             id: -1,
             name: "Last edited on",
             primitiveType: Models.IPrimitiveType.Date,
@@ -518,7 +456,7 @@ export class ProjectManager implements IProjectManager {
 
         if (artifactType) {
             metaData.propertyTypes.map((it: Models.IPropertyType) => {
-                if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                if ((artifactType.customPropertyTypeIds || []).indexOf(it.id) >= 0) {
                     field = this.createField(`property_${it.id}`, it);
                     if (field) {
                         fields.push(field);

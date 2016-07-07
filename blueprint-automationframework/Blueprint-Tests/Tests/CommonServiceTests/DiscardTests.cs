@@ -102,7 +102,7 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107372)]
-        [Explicit(IgnoreReasons.ProductBug)]
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug #1435
         [Description("Create process artifact, save, publish, delete, discard - must return successfully discarded.")]
         public void Discard_MarkedForDeleteArtifact_ArtifactIsNotMarkedForDeletion()
         {

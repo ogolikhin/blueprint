@@ -28,31 +28,32 @@ describe("Component BPRelationshipsPanel", () => {
         directiveTest = new ComponentTest<BPRelationshipsPanelController>(template, "bp-relationships-panel");
         vm = directiveTest.createComponent({});
     }));
-    
-    afterEach( () => {
+
+    afterEach(() => {
         vm = null;
     });
 
-    xit("should be visible by default", () => {
+    it("should be visible by default", () => {
         //Assert
         expect(directiveTest.element.find(".filter-bar").length).toBe(0);
         expect(directiveTest.element.find(".empty-state").length).toBe(1);
     });
 
-   xit("should load data for a selected artifact", 
+    it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
 
-        //Arrange
-       projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-       $rootScope.$digest();
+            //Arrange
+            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            $rootScope.$digest();
 
-       //Act
-       let artifact = projectManager.getArtifact(22);
+            //Act
+            let artifact = projectManager.getArtifact(22);
 
-       //Assert
-       expect(artifact).toBeDefined();
-       expect(vm.artifactList.manualTraces.length).toBe(11);
-    }));
+            //Assert
+            expect(artifact).toBeDefined();
+            expect(vm.artifactList.manualTraces.length).toBe(2);
+            expect(vm.artifactList.otherTraces.length).toBe(3);
+        }));
 
-   
+
 });

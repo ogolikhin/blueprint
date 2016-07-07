@@ -123,7 +123,9 @@ export class BPDiscussionPanelController {
             .then((replies: IReply[]) => {
                 return replies;
             }).catch((error: any) => {
-                this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
                 return [];
             })
             .finally(() => {

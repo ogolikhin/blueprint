@@ -85,6 +85,7 @@ App_UP_Relationships_Traces, "Traces"
 App_UP_Relationships_Association, "Association"
 App_UP_Relationships_Collapse, "Collapse"
 App_UP_Relationships_Expand, "Expand"
+App_UP_Relationships_No_Relationships, "No relationships available"
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

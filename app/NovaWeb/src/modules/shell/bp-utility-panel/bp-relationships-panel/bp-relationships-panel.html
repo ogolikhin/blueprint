@@ -5,9 +5,9 @@
 </div>
 <div class="tabs">
     <uib-tabset active="$ctrl.categoryFilter">
-        <uib-tab index="0" heading="All"></uib-tab>     
-        <uib-tab  index="1" heading="Traces"></uib-tab>
-        <uib-tab index="2" heading="Association"></uib-tab>
+        <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>     
+        <uib-tab  index="1" heading="{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}"></uib-tab>
+        <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"></uib-tab>  
     </uib-tabset>
 </div>
 <div class="scrollable-content" perfect-scrollbar>

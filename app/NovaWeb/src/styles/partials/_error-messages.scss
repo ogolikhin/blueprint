@@ -78,7 +78,8 @@ bp-message {
 .error-page {
   background-color: $blue-lightest;
   bottom: 0;
-  height: calc(100% - 40px);
+  height: 100%; //IE8- property
+  height: calc(100% - #{$navbar-height});
   left: 0;
   position: fixed;
   width: 100%;

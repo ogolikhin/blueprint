@@ -37,7 +37,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), string.Join(", ", deletedArtifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), String.Join(", ", deletedArtifactIds));
 
             foreach (var deletedArtifactId in deletedArtifactIds)
             {
@@ -238,6 +238,69 @@ namespace Helper
         }
 
         #endregion User management
+
+        #region Custom Asserts
+
+        /// <summary>
+        /// Asserts that both artifacts are identical.
+        /// </summary>
+        /// <param name="firstArtifact">The first artifact to compare.</param>
+        /// <param name="secondArtifact">The second artifact to compare.</param>
+        /// <param name="compareBlueprintUrls">(optional) Pass true if you want to also compare the BlueprintUrl properties of the artifacts.</param>
+        /// <param name="compareVersions">(optional) Pass true if you want to also compare the Version properties of the artifacts.</param>
+        public static void AssertArtifactsAreEqual(IArtifactBase firstArtifact,
+            IArtifactBase secondArtifact,
+            bool compareBlueprintUrls = false,
+            bool compareVersions = false)
+        {
+            ThrowIf.ArgumentNull(firstArtifact, nameof(firstArtifact));
+            ThrowIf.ArgumentNull(secondArtifact, nameof(secondArtifact));
+
+            Assert.AreEqual(firstArtifact.AreAttachmentsReadOnly, secondArtifact.AreAttachmentsReadOnly,
+                "First artifact AreAttachmentsReadOnly: '{0}' doesn't match second artifact AreAttachmentsReadOnly: '{1}'",
+                firstArtifact.AreAttachmentsReadOnly, secondArtifact.AreAttachmentsReadOnly);
+            Assert.AreEqual(firstArtifact.AreDocumentReferencesReadOnly, secondArtifact.AreDocumentReferencesReadOnly,
+                "First artifact AreDocumentReferencesReadOnly: '{0}' doesn't match second artifact AreDocumentReferencesReadOnly: '{1}'",
+                firstArtifact.AreDocumentReferencesReadOnly, secondArtifact.AreDocumentReferencesReadOnly);
+            Assert.AreEqual(firstArtifact.AreTracesReadOnly, secondArtifact.AreTracesReadOnly,
+                "First artifact AreTracesReadOnly: '{0}' doesn't match second artifact AreTracesReadOnly: '{1}'",
+                firstArtifact.AreTracesReadOnly, secondArtifact.AreTracesReadOnly);
+            Assert.AreEqual(firstArtifact.ArtifactTypeId, secondArtifact.ArtifactTypeId,
+                "First artifact ArtifactTypeId: '{0}' doesn't match second artifact ArtifactTypeId: '{1}'",
+                firstArtifact.ArtifactTypeId, secondArtifact.ArtifactTypeId);
+            Assert.AreEqual(firstArtifact.ArtifactTypeName, secondArtifact.ArtifactTypeName,
+                "First artifact ArtifactTypeName: '{0}' doesn't match second artifact ArtifactTypeName: '{1}'",
+                firstArtifact.ArtifactTypeName, secondArtifact.ArtifactTypeName);
+            Assert.AreEqual(firstArtifact.BaseArtifactType, secondArtifact.BaseArtifactType,
+                "First artifact BaseArtifactType: '{0}' doesn't match second artifact BaseArtifactType: '{1}'",
+                firstArtifact.BaseArtifactType, secondArtifact.BaseArtifactType);
+
+            if (compareBlueprintUrls)
+            {
+                Assert.AreEqual(firstArtifact.BlueprintUrl, secondArtifact.BlueprintUrl,
+                    "First artifact BlueprintUrl: '{0}' doesn't match second artifact BlueprintUrl: '{1}'",
+                    firstArtifact.BlueprintUrl, secondArtifact.BlueprintUrl);
+            }
+
+            Assert.AreEqual(firstArtifact.Id, secondArtifact.Id,
+                "First artifact ID: '{0}' doesn't match second artifact ID: '{1}'",
+                firstArtifact.Id, secondArtifact.Id);
+            Assert.AreEqual(firstArtifact.Name, secondArtifact.Name,
+                "First artifact Name: '{0}' doesn't match second artifact Name: '{1}'",
+                firstArtifact.Name, secondArtifact.Name);
+            Assert.AreEqual(firstArtifact.ProjectId, secondArtifact.ProjectId,
+                "First artifact ProjectId: '{0}' doesn't match second artifact ProjectId: '{1}'",
+                firstArtifact.ProjectId, secondArtifact.ProjectId);
+
+            if (compareVersions)
+            {
+                Assert.AreEqual(firstArtifact.Version, secondArtifact.Version,
+                    "First artifact Version: '{0}' doesn't match second artifact Version: '{1}'",
+                    firstArtifact.Version, secondArtifact.Version);
+            }
+        }
+
+        #endregion Custom Asserts
 
         #region Members inherited from IDisposable
 

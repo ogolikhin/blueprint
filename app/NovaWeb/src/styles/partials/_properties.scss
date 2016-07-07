@@ -197,6 +197,16 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
       min-height: #{3 * $property-min-height};
     }
 
+    .form-tinymce-toolbar {
+      position: relative;
+
+      .mce-tinymce {
+        bottom: 0;
+        position: absolute;
+        top: auto !important;
+      }
+    }
+
     .has-error {
       input {
         border-color: $gray-lightest;

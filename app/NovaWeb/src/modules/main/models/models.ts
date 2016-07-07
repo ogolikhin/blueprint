@@ -82,11 +82,11 @@ export interface IPropertyType {
     name: string;
     primitiveType: IPrimitiveType;
     instancePropertyTypeId?: number;
-    isRichText: boolean;
+    isRichText?: boolean;
     decimalDefaultValue?: number;
     dateDefaultValue?: Date;
-    userGroupDefaultValue: any[];
-    stringDefaultValue: string;
+    userGroupDefaultValue?: any[];
+    stringDefaultValue?: string;
     decimalPlaces?: number;
     maxNumber?: number;
     minNumber?: number;
@@ -95,8 +95,11 @@ export interface IPropertyType {
     isMultipleAllowed?: boolean;
     isRequired?: boolean;
     isValidated?: boolean;
-    validValues: string[];
+    validValues?: string[];
     defaultValidValueIndex?: number;
+    
+    // Extra properties. Maintaned by client
+    disabled?: boolean;
 }
 
 export interface IArtifactDetails extends IArtifact {

@@ -24,7 +24,7 @@ bp-discussion-panel {
 
         .comment-edit-button-bar {
             margin-top: $padding-smallest;
-            clear:both;
+            clear: both;
         }
     }
 
@@ -34,26 +34,35 @@ bp-discussion-panel {
 
     .comment {
         word-wrap: break-word;
+        line-height: initial;
+        overflow: auto;
 
-        ul{
-            padding:0;
+        ul, ol {
+            margin-left: 15px !important;
+            padding-left: 10px !important;
         }
-    }   
+
+        p {
+            // margin-left: 0 !important;
+        }
+    }
+
     .info {
         margin-left: 50px;
-        margin-top: -40px;
+        margin-top: -30px;
         line-height: $font-size-bigger;
     }
 
     .version, .timestamp {
         display: inline-block;
     }
+
     .version {
         padding-right: $padding-smaller;
     }
 
     .reply-count, .delete-comment, .edit-comment {
-        font-size:$font-size-normal;
+        font-size: $font-size-normal;
 
         &.active {
             color: $gray-darker;
@@ -84,8 +93,12 @@ bp-discussion-panel {
             height: $item-gap;
             background: $gray-lighter;
             position: absolute;
-            top: -$item-gap; 
+            top: -$item-gap;
             left: 28px;
+        }
+
+        .author {
+            @include text-ellipsis-flex-width(160px);
         }
     }
 }

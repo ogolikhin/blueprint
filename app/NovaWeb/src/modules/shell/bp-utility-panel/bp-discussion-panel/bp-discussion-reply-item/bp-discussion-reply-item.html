@@ -1,7 +1,7 @@
 ﻿<div class="reply-separator"></div>
 <div>
     <div>
-        <bp-avatar icon=""
+        <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
                    name="{{ $ctrl.replyInfo.userName }}"
                    color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
         </bp-avatar>

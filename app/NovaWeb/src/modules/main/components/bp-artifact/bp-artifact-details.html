@@ -11,7 +11,7 @@
                     </div>
                 </perfect-scrollbar>
             </div>
-            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}">
+            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}" ng-if="$ctrl.isCustomPropertyAvailable">
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">

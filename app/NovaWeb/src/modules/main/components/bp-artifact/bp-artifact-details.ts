@@ -2,7 +2,7 @@
 
 export class BpArtifactDetails implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-details.html");
-    public controller: Function = BpArtifactRetailsController;
+    public controller: Function = BpArtifactDetailsController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         currentArtifact: "<",
@@ -10,7 +10,7 @@ export class BpArtifactDetails implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpArtifactRetailsController {
+export class BpArtifactDetailsController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
     private _artifact: Models.IArtifactDetails;
@@ -41,6 +41,9 @@ export class BpArtifactRetailsController {
         noteFields: []
     };
 
+    public get isCustomPropertyAvailable(): boolean {
+        return this.fields && this.fields.customFields && this.fields.customFields.length > 0;
+    }
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });

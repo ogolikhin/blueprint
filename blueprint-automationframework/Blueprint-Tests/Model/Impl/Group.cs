@@ -9,14 +9,11 @@ namespace Model.Impl
 {
     public class Group : IGroup
     {
+        /*TODO reuse/remove objArraytoStringList and dateTimeToString; create private function
+        to run SQL query and reuse it*/
         public const string GROUPS_TABLE = "[dbo].[Groups]";
         public const string GROUPUSER_TABLE = "[dbo].[GroupUser]";
         public const string ROLEASSIGNMENTS_TABLE = "[dbo].[RoleAssignments]";
-
-        //These fields must be kept in alphabetical order!
-        public const string ALL_USER_FIELDS =
-            "[GroupId],[CurrentVersion],[Name],[Description],[Email],[Source],[LicenseId],[StartTimestamp],"+
-            "[EndTimestamp],[ProjectId],[Parent_GroupId]";
 
         #region Properties
         public int GroupId { get; set; }
@@ -27,7 +24,7 @@ namespace Model.Impl
 
         public string Email { get; set; }
 
-        public GroupSource Source { get; set; }
+        public GroupSource Source { get; set; }//for now Database groups only
 
         public GroupLicenseType LicenseType { get; set; }
 
@@ -50,15 +47,15 @@ namespace Model.Impl
         public Group (string name, string description, string email,
             GroupLicenseType licenseType = GroupLicenseType.Author)
         {
-            CurrentVersion = 0;
+            CurrentVersion = 0;//always 0(?)
             Name = name;
             Description = description;
             Email = email;
             Source = GroupSource.Database;
             LicenseType = licenseType;
-            EndTimestamp = null;
-            Scope = null;
-            Parent = null;
+            EndTimestamp = null;//to delete group it must be set to date of deletion
+            Scope = null;//for now we will create Instance level groups only
+            Parent = null;//this field allow to include one group into another
         }
 
         public void AddGroupToDatabase()
@@ -102,9 +99,6 @@ namespace Model.Impl
             }
         }
 
-        /// <summary>
-        /// Deletes a group from the Blueprint server.
-        /// </summary>
         public void DeleteGroup()
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())

@@ -39,15 +39,27 @@ namespace Model
         #endregion Properties
 
         #region Methods
+        /// <summary>
+        /// Adds Group to the Blueprint database.
+        /// </summary>
         void AddGroupToDatabase();
 
         /// <summary>
-        /// 
+        /// Adds user to the Group.
         /// </summary>
+        /// <param name="user">User to add to the Group.</param>
         void AddUser(IUser user);
 
+        /// <summary>
+        /// Deletes Groups from Blueprint database (updates Group related records in RoleAssignmet table,
+        /// deletes from User_Groups tables, set EndTimestamp in Groups table). 
+        /// </summary>
         void DeleteGroup();
 
+        /// <summary>
+        /// Assigns Author role in the specified project to the Group.
+        /// </summary>
+        /// <param name="project">Project in which role assignment will be created.</param>
         void AssignProjectAuthorRole(IProject project);
         #endregion Methods
     }

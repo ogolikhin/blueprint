@@ -13,11 +13,11 @@
         <div class="inner-details">
               <h6 bp-tooltip="{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}"
                 bp-tooltip-truncated="true">
-                <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
+                <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)" ng-class="{'no-access': !$ctrl.artifact.hasAccess}">
                     <i class="icon-textual"></i>  {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}
                 </a>
                 </h6>
-                <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId" class="bolded-text"><span>Main artifact: </span>{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
+                <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId" ><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
                     <div>

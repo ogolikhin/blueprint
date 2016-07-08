@@ -5,9 +5,9 @@
                    name="{{ $ctrl.replyInfo.userName }}"
                    color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
         </bp-avatar>
+        <div class="author" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
     </div>
     <div class="info">
-        <div class="author" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
         <div class="comment" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
         <div class="version">v{{$ctrl.replyInfo.version}}</div>
         <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>

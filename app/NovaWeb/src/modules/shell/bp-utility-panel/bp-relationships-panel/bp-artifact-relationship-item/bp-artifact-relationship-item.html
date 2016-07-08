@@ -11,23 +11,27 @@
 
         </div>
         <div class="inner-details">
-            <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
-                <bp-item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></bp-item-type-icon> {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}
-            </a>
-            <div><bp-item-type-icon data-predefined-type="{{$ctrl.artifact.primitiveItemTypePredefined}}"></bp-item-type-icon>{{$ctrl.artifact.projectName}} </div>
-            <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
-                <div>
-                    <ul class="wrappable-breadcrumbs" >
-                        <li ng-repeat="o in $ctrl.relationshipExtendedInfo.pathToProject">
-                            <a ng-click="$ctrl.navigateToArtifact(o.itemId)">{{o.itemName}}</a>
-                        </li>
-                    </ul>
+              <h6 bp-tooltip="{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}"
+                bp-tooltip-truncated="true">
+                <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
+                    <i class="icon-textual"></i>  {{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName}}
+                </a>
+                </h6>
+                <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId" class="bolded-text"><span>Main artifact: </span>{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
+                <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
+                <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
+                    <div>
+                        <ul class="wrappable-breadcrumbs">
+                            <li ng-repeat="o in $ctrl.relationshipExtendedInfo.pathToProject">
+                                <a ng-click="$ctrl.navigateToArtifact(o.itemId)">{{o.itemName}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="bolded-text">Description:</span>{{$ctrl.limitChars($ctrl.relationshipExtendedInfo.description)}}
+                    </div>
                 </div>
-                <div>
-                    {{$ctrl.limitChars($ctrl.relationshipExtendedInfo.description)}}
-                </div>
-            </div>
-        </div>
+</div>
     </div>
 
     <div class="icons">

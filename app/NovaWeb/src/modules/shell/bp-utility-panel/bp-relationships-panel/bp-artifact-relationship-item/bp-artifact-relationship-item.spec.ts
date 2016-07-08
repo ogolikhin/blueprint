@@ -72,7 +72,7 @@ describe("Component BPDiscussionReplyItem", () => {
     it("limitChars, short text", () => {
         //Assert
         var result = vm.limitChars('<html><body>&#x200b;<div><span>ABC</span></div></body></html>');
-        expect(result.length).toBe(3);
+       expect(result.length).toBe(4); //zero width space included
     });
 
     it("limitChars, no text", () => {

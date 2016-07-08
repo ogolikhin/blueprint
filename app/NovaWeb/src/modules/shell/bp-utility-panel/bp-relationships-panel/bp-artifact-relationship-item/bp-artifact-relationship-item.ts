@@ -1,4 +1,4 @@
-﻿import { ILocalizationService } from "../../../../core";
+﻿import { ILocalizationService, Helper } from "../../../../core";
 import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
 
@@ -42,19 +42,16 @@ export class BPArtifactRelationshipItemController {
 
     public limitChars(str) {
         if (str) {
-            var text = str.replace(/(<\/?[^>]+>)([&#x200b;]+)?/gi, '');
+            var text = Helper.decodeHtmlText(str);
             if (text) {
                 if (text.length > 100) {
                     return text.substring(0, 100) + "...";
-                } else {
-                    return text;
                 }
-            } else {
-                return '';
+                return text
             }
+            return '';
         }
         return '';
-
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {

@@ -8,10 +8,10 @@ bp-relationships-panel {
         .utility-panel-artifact-item {
             padding: 0;
 
-            [class^="fonticon-"],
-            [class*=" fonticon-"] {
+            [class^="fonticon2-"],
+            [class*=" fonticon2-"] {
                 &::before {
-                    font-size: 1.5rem;
+                    font-size: 1.4rem;
                 }
             }
         }
@@ -36,7 +36,8 @@ bp-relationships-panel {
                 border: 2px solid $gray-lighter;
                 border-radius: 50%;
                 float: left;
-                line-height: 2em;
+                line-height: 1.9em;
+                text-align:center;
 
                 .status {
                     display: inline-block;

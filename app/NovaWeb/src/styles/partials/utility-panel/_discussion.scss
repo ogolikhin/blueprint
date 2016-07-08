@@ -29,7 +29,13 @@ bp-discussion-panel {
     }
 
     .author {
-        @include text-ellipsis-flex-width(125px);
+        @include text-ellipsis-flex-width(180px);
+        display:inline-block;
+        vertical-align:middle;
+    }
+
+    .comment-header{
+        margin-top:5px;
     }
 
     .comment {
@@ -47,9 +53,12 @@ bp-discussion-panel {
         }
     }
 
+    bp-avatar{
+        display:inline-block;
+        vertical-align:middle;
+    }
+
     .info {
-        margin-left: 50px;
-        margin-top: -30px;
         line-height: $font-size-bigger;
     }
 

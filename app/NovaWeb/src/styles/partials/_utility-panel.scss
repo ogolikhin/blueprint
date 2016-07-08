@@ -10,7 +10,7 @@ bp-utility-panel {
     }
 
     .bp-accordion-panel-content {
-        bp-attachments-panel, bp-history-panel, bp-discussion-panel {
+        bp-attachments-panel, bp-history-panel, bp-discussion-panel, bp-relationships-panel {
             display: flex;
             flex-flow: column;
             height: 100%;

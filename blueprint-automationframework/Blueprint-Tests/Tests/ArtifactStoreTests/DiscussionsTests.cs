@@ -28,14 +28,16 @@ namespace ArtifactStoreTests
             _authorsGroup = GroupFactory.CreateGroup("authors", "test", "auth@auth.net");
             _authorsGroup.AddGroupToDatabase();
 
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens,
-                instanceAdminRole: null);
+            _user = Helper.CreateUserAndAddToDatabase("debug", "Blueprint1!", instanceAdminRole: null);
             _authorsGroup.AddUser(_user);
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
             _authorsGroup.AssignProjectAuthorRole(_project);
+
+            Helper.AdminStore.AddSession(_user);
+            Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);
         }
 
         [TearDown]
@@ -53,8 +55,7 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            //var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
 
             // Execute:

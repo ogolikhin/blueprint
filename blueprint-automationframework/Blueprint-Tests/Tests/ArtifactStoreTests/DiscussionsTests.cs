@@ -9,6 +9,7 @@ using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -25,10 +26,11 @@ namespace ArtifactStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-            _authorsGroup = GroupFactory.CreateGroup("authors", "test", "auth@auth.net");
+            _authorsGroup = GroupFactory.CreateGroup(RandomGenerator.RandomAlphaNumeric(6),
+                RandomGenerator.RandomAlphaNumeric(6), "auth@auth.net");
             _authorsGroup.AddGroupToDatabase();
 
-            _user = Helper.CreateUserAndAddToDatabase("debug", "Blueprint1!", instanceAdminRole: null);
+            _user = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
             _authorsGroup.AddUser(_user);
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);

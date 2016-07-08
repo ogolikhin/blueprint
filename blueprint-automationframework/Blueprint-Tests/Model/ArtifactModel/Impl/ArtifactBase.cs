@@ -56,6 +56,7 @@ namespace Model.ArtifactModel.Impl
         public bool IsMarkedForDeletion { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
         public bool ShouldDeleteChildren { get; set; } = false;
+        public IUser LockOwner { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
@@ -452,6 +453,62 @@ namespace Model.ArtifactModel.Impl
                     var value = sourcePropertyInfo.GetValue(sourceArtifactBase);
                     destinationPropertyInfo.SetValue(destinationArtifactBase, value);
                 }
+            }
+        }
+
+        /// <summary>
+        /// A helper function to dispose a list of artifacts.  Call this inside Dispose() methods of objects containing artifacts.
+        /// </summary>
+        /// <param name="artifactList">The list of artifacts to dispose.</param>
+        /// <param name="observer">The observer to notify when artifacts are disposed.</param>
+        public static void DisposeArtifacts(List<IArtifactBase> artifactList, IArtifactObserver observer)
+        {
+            if (artifactList == null)
+            {
+                return;
+            }
+
+            var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
+
+            // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
+            foreach (var artifact in artifactList.ToArray())
+            {
+                if (artifact.IsPublished)
+                {
+                    if (artifact.IsMarkedForDeletion)
+                    {
+                        artifact.Publish(artifact.LockOwner);
+                    }
+                    else
+                    {
+                        artifact.Delete(artifact.LockOwner);
+                        artifact.Publish(artifact.LockOwner);
+                    }
+                }
+                else if (artifact.IsSaved)
+                {
+                    if ((artifact.LockOwner != null) && savedArtifactsDictionary.ContainsKey(artifact.LockOwner))
+                    {
+                        savedArtifactsDictionary[artifact.LockOwner].Add(artifact);
+                    }
+                    else if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
+                    {
+                        savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
+                    }
+                    else
+                    {
+                        savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
+                    }
+                }
+
+                artifact.UnregisterObserver(observer);
+            }
+
+            // For each user that created artifacts, discard the list of artifacts they created.
+            foreach (IUser user in savedArtifactsDictionary.Keys)
+            {
+                Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+                Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
             }
         }
     }

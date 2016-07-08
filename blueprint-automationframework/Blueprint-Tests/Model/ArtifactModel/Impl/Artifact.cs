@@ -540,7 +540,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Lock Artifact(s) 
+        /// Lock Artifact(s).
+        /// (Runs:  /svc/shared/artifacts/lock  with artifact IDs in the request body)
         /// </summary>
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="address">The base url of the API</param>
@@ -578,6 +579,19 @@ namespace Model.ArtifactModel.Impl
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
+
+            // Update artifacts with lock info.
+            foreach (var artifact in artifactsToLock)
+            {
+                var lockResultInfo = response.Find(x => x.Info.ArtifactId == artifact.Id);
+
+                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
+
+                if (lockResultInfo.Result == LockResult.Success)
+                {
+                    artifact.LockOwner = user;
+                }
+            }
 
             return response;
         }

@@ -18,14 +18,17 @@ bp-relationships-panel {
 
         .details {
             display: inline-block;
-            padding: $padding-smaller $padding-root;
+            padding: $padding-smaller 0 $padding-smaller $padding-root;
             width: 100%;
 
-            .status {
-                & > span {
-                    margin: 2px;
+            .trace-icon-regular {
+                    color: $blue-light;
                 }
-            }
+
+                .trace-icon-suspect {
+                    background-color: $brand-error;
+                    color: white;
+                }
 
             .trace-icon {
                 width: 2em;
@@ -35,21 +38,35 @@ bp-relationships-panel {
                 float: left;
                 line-height: 2em;
 
-                .trace-icon-regular {
-                    color: $blue-light;
+                .status {
+                    display: inline-block;
+
+                    & > span {
+                        margin: 2px;
+                    }
                 }
 
-                .trace-icon-suspect {
-                    background-color: $brand-error;
-                    color: white;
-                }
+                
             }
 
             .inner-details {
                 width: 85%;
                 float: left;
-                padding-left: $padding-root;
-                padding-right: $padding-root;
+                padding-left: 3px;
+
+                .desc {
+                    font-size: $font-size-smaller;
+                    padding-left: 2px;
+                }
+
+                .left-arrow {
+                    border-left: 1px solid $gray-lighter;
+                    border-bottom: 1px solid $gray-lighter;
+                    width: 10px;
+                    height: 10px;
+                    display: inline-block;
+                    margin-left: 8px;
+                }
 
                 .bolded-text {
                     font-weight: 700;
@@ -63,12 +80,16 @@ bp-relationships-panel {
                     display: none;
                 }
 
+                & h6 {
+                    width: 90%;
+                }
+
                 & a {
                     text-decoration: none;
                     cursor: pointer;
                 }
 
-                & a.no-access{
+                & a.no-access {
                     cursor: default;
                 }
 

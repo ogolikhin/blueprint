@@ -123,7 +123,7 @@ namespace Helper
         /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
-        /// <param name="project">The project where the artifact is to be created in.</param>
+        /// <param name="project">The project where the artifact is to be created.</param>
         /// <param name="user">The user who will create the artifact.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
@@ -142,9 +142,9 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a list of new pubished artifacts.
+        /// Creates a list of new published artifacts.
         /// </summary>
-        /// <param name="project">The project where the artifacts are to be created in.</param>
+        /// <param name="project">The project where the artifacts are to be created.</param>
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactType">The type of artifacts to create.</param>
         /// <param name="numberOfArtifacts">The number of artifacts to create.</param>

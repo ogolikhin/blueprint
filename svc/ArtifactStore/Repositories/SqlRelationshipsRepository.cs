@@ -144,7 +144,8 @@ namespace ArtifactStore.Repositories
 
             foreach (var otherLink in otherLinks)
             {
-                otherTraceRelationships.Add(NewRelationship(otherLink, TraceDirection.To));
+                var traceDirection = otherLink.SourceItemId == itemId ? TraceDirection.To : TraceDirection.From;
+                otherTraceRelationships.Add(NewRelationship(otherLink, traceDirection));
             }
 
             var distinctItemIds = new HashSet<int>();

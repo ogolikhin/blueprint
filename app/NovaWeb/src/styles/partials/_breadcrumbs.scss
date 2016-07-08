@@ -65,16 +65,13 @@
   padding-right: 20px;
 }
 
-
 .wrappable-breadcrumbs {
   align-items: center; 
   box-sizing: border-box;
   color: $gray;
-  display: flex;
-  flex-flow: row wrap; 
-  justify-content: flex-start;
   margin: 0;
   padding: 0;
+  word-break:break-all;
 
   &::after {
     clear: both;
@@ -82,16 +79,16 @@
     display: table;
   }
 
-  li {
-    @include text-ellipsis-flex-width(500px);
+  li {   
     color: $gray;
     list-style-type: none;
     padding-left: 2px;
     padding-right: 2px;
-    transition: flex .4s ease;
-
+    display:inline;
+    word-break:break-all;
+   
     &::before {
-      content: ' > ';
+      content: '>';
     }
 
     &:first-child {
@@ -101,13 +98,6 @@
         content: ' ';
       }
     }
-
-    &:last-child
-    {
-      @include text-ellipsis-flex-width(999px);
-      flex: none;
-    }   
-
     a {
       color: $gray-darker;
        text-decoration: none;

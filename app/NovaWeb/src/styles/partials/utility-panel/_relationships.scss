@@ -1,74 +1,90 @@
 bp-relationships-panel {
-    .tabs{
-        padding-bottom:$padding-root; 
-        padding-left:$padding-root;
-        width:100%;
+    .tabs {
+        padding-bottom: $padding-root;
+        padding-left: $padding-root;
+        width: 100%;
     }
-    bp-artifact-relationship-item {   
-      
+
+    bp-artifact-relationship-item {
         .utility-panel-artifact-item {
-             padding: 0;     
-          }
-
-        [class^="fonticon-"],
-        [class*=" fonticon-"] {
-            &::before {
-                font-size: 1.5rem;
-            }
+            padding: 0;
+             [class^="fonticon-"],
+                [class*=" fonticon-"] {
+                    &::before {
+                        font-size: 1.5rem;
+                    }
+                }
         }
-
-        .details{
-
-            display:inline-block; 
+        .details {          
+            display: inline-block;
             padding: $padding-smaller $padding-root;
-     
-            .trace-icon{
-            width:2em;
-            height:2em;
-            border: 2px solid $gray-lighter;
-            border-radius: 50%;
-            float:left;
-            line-height:2em;          
+            width:100%;
+
+            .status {             
+                & > span {margin:2px;}
+
+            }
+
+            .trace-icon {
+                width: 2em;
+                height: 2em;
+                border: 2px solid $gray-lighter;
+                border-radius: 50%;
+                float: left;
+                line-height: 2em;
+
+                .trace-icon-regular {
+                    color: $blue-light;
+                }
+
+                .trace-icon-suspect {
+                    background-color: $brand-error;
+                    color: white;
+                }               
+            }
+
+             .inner-details {
+                    width: 85%;
+                    float: left;
+                    padding-left: $padding-root;
+                    padding-right: $padding-root;
+                  
+                    .bolded-text {
+                        font-weight: 700;
+                    }
+
+                    .desc-visible {
+                        display: block;
+                    }
+
+                    .desc-hidden {
+                        display: none;
+                    }
+
+                    & a {                    
+                        text-decoration: none;
+                        cursor: pointer;
+                    }
+
+                    div {
+                        padding-top: 2px;
+                    }
+                }
+
+           
         }
 
-        .trace-icon-regular{           
-            color:$blue-light;
-          }
-        
-         .trace-icon-suspect{           
-            background-color:$brand-error;
-            color:white;
-         }
+         .icons {
+                color: $gray;
+                display: inline-block;
+                width: 100%;
+                padding: 5px;
+                border-top: 1px solid $gray-lighter;
+                div {
+                    float: right;
+                }
 
-        .inner-details{
-            width:85%;
-            float:left;            
-            padding-left:$padding-root;
-            padding-right:$padding-root;
-            .desc-visible{
-                display:block;
+               
             }
-            .desc-hidden{
-                display:none;
-            }
-            &>a{
-                 text-decoration: none;
-                 cursor:pointer;
-            }
-            div{
-                padding-top:2px;
-            }
-        }
-        }
-        .icons{     
-            color:  $gray;    
-            display:inline-block; 
-            width:100%;           
-            padding:5px;
-            border-top: 1px solid $gray-lighter;
-            div{
-                 float:right;            
-             }
-        }
     }
 }

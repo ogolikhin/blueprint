@@ -60,6 +60,7 @@ export class BPArtifactRelationshipItemController {
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
+                relationshipExtendedInfo.pathToProject.shift();
                 return relationshipExtendedInfo;
             });
     }

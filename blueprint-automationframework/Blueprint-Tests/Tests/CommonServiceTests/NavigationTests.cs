@@ -71,8 +71,6 @@ namespace CommonServiceTests
 
                 //Add an artifact to artifact list for navigation call
                 _artifacts.Add(artifact);
-
-                _artifacts.Add(artifact);
             }
 
             // Execute:

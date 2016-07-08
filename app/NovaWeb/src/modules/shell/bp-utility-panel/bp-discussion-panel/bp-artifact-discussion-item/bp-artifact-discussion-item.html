@@ -6,13 +6,16 @@
     <i class="icon fonticon-circle-up"></i>
 </div>
 
-<bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
-           name="{{ $ctrl.discussionInfo.userName }}"
-           color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
-</bp-avatar>
+<div class="comment-header">
+    <bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
+               class="avetar"
+               name="{{ $ctrl.discussionInfo.userName }}"
+               color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+    </bp-avatar>
+    <div class="author" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+</div>
 
 <div class="info">
-    <div class="author" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
     <div class="comment" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
     <div class="version">v{{$ctrl.discussionInfo.version}}</div>
     <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
@@ -31,6 +34,6 @@
 
     <a class="reply-link"
        bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Reply_Tooltip')}}"
-     ng-click="$ctrl.newReplyClick()"
+       ng-click="$ctrl.newReplyClick()"
        ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">Reply</a>
 </div>

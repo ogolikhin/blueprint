@@ -9,7 +9,9 @@ bp-relationships-panel {
             padding: 0;
 
             [class^="fonticon2-"],
-            [class*=" fonticon2-"] {
+            [class*=" fonticon2-"], 
+            [class^="fonticon-"],
+            [class*=" fonticon-"] {
                 &::before {
                     font-size: 1.4rem;
                 }

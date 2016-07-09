@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 
-                <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
+                <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.artifactTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
                     <div class="left-arrow"></div>

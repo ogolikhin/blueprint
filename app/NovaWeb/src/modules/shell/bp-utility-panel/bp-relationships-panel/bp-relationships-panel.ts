@@ -25,7 +25,6 @@ export class BPRelationshipsPanelController {
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
     public option: string = "1";
-    public traceTypes = Relationships.ITraceType;
     public isLoading: boolean = false;
 
     constructor(

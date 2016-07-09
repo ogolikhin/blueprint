@@ -47,8 +47,3 @@ export interface IItemIdItemNameParentId {
     parentId: number;
     itemName: string;
 }
-
-export enum ITraceType {
-    Manual = 0,
-    Other = 1
-}

@@ -64,7 +64,7 @@ export class BPArtifactRelationshipItemController {
 
     public navigateToArtifact(artifact: Relationships.IRelationship) {
         var art = this.projectManager.getArtifact(artifact.artifactId);
-        if (art) {
+        if (art && artifact.hasAccess) {
             this.projectManager.setCurrentArtifact(art);
         }
     }

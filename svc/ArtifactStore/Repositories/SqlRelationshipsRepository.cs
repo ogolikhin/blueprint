@@ -50,6 +50,16 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        private async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return (await ConnectionWrapper.QueryAsync<ItemLabel>("GetItemsLabels", parameters, commandType: CommandType.StoredProcedure));
+        }
+
         private async Task<string> GetItemDescription (int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
@@ -60,9 +70,10 @@ namespace ArtifactStore.Repositories
             return (await ConnectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private void PopulateRelationshipInfos(List<Relationship> relationships, Dictionary<int, ItemDetails> itemDetailsDictionary)
+        private void PopulateRelationshipInfos(List<Relationship> relationships, IDictionary<int, ItemDetails> itemDetailsDictionary, IDictionary<int, ItemLabel> itemLabelsDictionary)
         {
             ItemDetails item, project, artifact;
+            ItemLabel itemLabel;
             foreach (var relationship in relationships)
             {
                 if (itemDetailsDictionary.TryGetValue(relationship.ItemId, out item))
@@ -74,6 +85,10 @@ namespace ArtifactStore.Repositories
                     }
                     relationship.ItemName = item.Name;
                     relationship.ItemTypePrefix = item.Prefix;
+                    if (itemLabelsDictionary.TryGetValue(relationship.ItemId, out itemLabel))
+                    {
+                        relationship.ItemLabel = itemLabel.Label;
+                    }
                     relationship.PrimitiveItemTypePredefined = item.PrimitiveItemTypePredefined;
                     relationship.ArtifactName = relationship.ItemName;
                     relationship.ArtifactTypePrefix = relationship.ItemTypePrefix;
@@ -159,10 +174,10 @@ namespace ArtifactStore.Repositories
                 distinctItemIds.Add(result.DestinationProjectId);
             }
 
-            var itemDetails = await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue);
-            var itemDetailsDictionary = itemDetails.ToDictionary(a => a.HolderId);
-            PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary);
-            PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary);
+            var itemDetailsDictionary = (await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
+            var itemLabelsDictionary = (await GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
+            PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
+            PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
         }
 

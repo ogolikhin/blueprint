@@ -10,6 +10,46 @@ export class BpArtifactDetails implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
+interface IFieldTab {
+    title: string,
+    index: number,
+    fields: [AngularFormly.IFieldConfigurationObject],
+    active?: boolean
+};
+
+class FieldType {
+    public id: number;
+    public name: string;
+    public value: any;
+    public predefinedType: Models.PropertyTypePredefined;
+    public propertyType: Models.IPropertyType;
+    public get group(): string {
+        if (this.predefinedType == Models.PropertyTypePredefined.name)
+            return "system";
+        //else {
+        //    return "tabbed"
+        //}
+        return "custom";
+    }
+
+    constructor(name: string | number, value: any, predefinedType?: Models.PropertyTypePredefined) {
+        this.predefinedType = predefinedType; 
+        if (typeof name === "string") {
+            this.name = name;
+            if (!this.predefinedType) {
+                this.predefinedType = Models.PropertyTypePredefined[name];
+            }
+        } else {
+            this.id = <number>name;
+            this.name = Models.PropertyTypePredefined[predefinedType] || `property_${name}`;
+        }
+         
+        this.value = value;
+        
+    }
+}
+
+
 export class BpArtifactDetailsController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
@@ -18,8 +58,6 @@ export class BpArtifactDetailsController {
     public currentArtifact: string;
 
     constructor(private $scope, private projectManager: IProjectManager) {
-
-        
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -31,6 +69,7 @@ export class BpArtifactDetailsController {
     }
     public model = {};
     public tabs = [];
+    public activeTab: number = 1;
 
 
     public fields: Models.IArtifactDetailFields = {
@@ -52,46 +91,88 @@ export class BpArtifactDetailsController {
 
     }
 
-    private createModel(artifact: Models.IArtifactDetails): any {
+
+
+    private createModel(artifact: Models.IArtifact): any {
+        let system: [Models.PropertyTypePredefined] = [
+            Models.PropertyTypePredefined.name,
+            Models.PropertyTypePredefined.createdby,
+            Models.PropertyTypePredefined.createdon,
+            Models.PropertyTypePredefined.lasteditedby,
+            Models.PropertyTypePredefined.lasteditedon,
+        ]
+
         let _model = {
             name: artifact.name,
-            type: artifact.predefinedType.toString(),
-            createdBy: "user",
-            createdOn: new Date(),
-            lastEditedBy: "user",
-            lastEditedOn: new Date(),
+            type: artifact.typeId.toString(),
         };
         for (let key in artifact) {
             if (key.toLowerCase() === "properyValues") {
-                    <Models.IPropertyValue>artifact[key].forEach((it: Models.IPropertyValue) => {
-                        _model[`property_${it.typeId}`] = it.value;
-                    })
+                <Models.IPropertyValue>artifact[key].forEach((it: Models.IPropertyValue) => {
+                    
+                    let name: string;
+                    if (system.indexOf(it.propertyTypePredefined) > -1) {
+                        name = Models.PropertyTypePredefined[it.propertyTypePredefined];
+                    } else {
+                        name = `property_${it.propertyTypeId}`;
+                    }
+                    _model[name] = it.value;
+                })
             }
         };
         return _model;
     }
-    private updateArtifact(artifact: Models.IArtifactDetails): any {
+    private createFields(artifact: Models.IArtifact): any {
+        let fields: FieldType[] = [];
+        //let _model = {
+        //    id: artifact.id,
+        //    name: artifact.name,
+        //    itemTypeId: artifact.predefinedType.toString(),
+        //};
+        for (let key in artifact) {
+            switch (key.toLowerCase()) {
+                case "properyvalues":
+                    <Models.IPropertyValue>artifact[key].forEach((it: Models.IPropertyValue) => {
+                        fields.push(new FieldType(it.propertyTypeId, it.value, it.propertyTypePredefined))
+                    });
+                    break;
+
+                default:
+                    let predefined = Models.PropertyTypePredefined[key.toLowerCase()];
+                    if (predefined)
+                        fields.push(new FieldType(key, artifact[key]));
+                    break;
+
+
+            }
+        };
+        return fields;
+    }
+
+    private updateArtifact(artifact: Models.IArtifact): any {
         return {};
     }
 
 //    private properties: Models.IPropertyType[];
-    public loadView(artifact: Models.IArtifactDetails) {
+    public loadView(artifact: Models.IArtifact) {
         if (!artifact) {
             return;
         }
+        this.activeTab = -1;
         this._artifact = angular.copy(artifact);
         this.model = this.createModel(this._artifact);
         this.fields = this.projectManager.getArtifactPropertyFileds(this._artifact);
         this.tabs = this.fields.noteFields.map((it: AngularFormly.IFieldConfigurationObject, index: number) => {
-            let tab = {
+            let tab = <IFieldTab>{
                 title: it.templateOptions.label,
+                index: index,
                 fields: [it],
-                active: index === 0,
-                disable: it.templateOptions.disabled
             };
             delete it.templateOptions.label;
             return tab;
-        })
+        });
+        
+        this.activeTab = 0;
 
     }
 

@@ -81,12 +81,41 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     formlyConfig.setType({
         name: 'tinymce',
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["bootstrapLabel"]
+        wrapper: ["bootstrapLabel"],
+        defaultOptions: {
+            data: { // using data property
+                tinymceOption: { // this will goes to ui-tinymce directive
+                    // standard tinymce option
+                    inline: true,
+                    plugins: "advlist autolink link image paste lists charmap print noneditable",
+                    fixed_toolbar_container: ".form-tinymce-toolbar"
+                }
+            }
+        }
     });
     formlyConfig.setType({
-        name: 'tinymceInline',
+        name: 'tinymceInline',  
         template: `<div class="form-tinymce-toolbar"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
-        wrapper: ["bootstrapLabel"]
+        wrapper: ["bootstrapLabel"],
+        defaultOptions: {
+            data: { // using data property
+                tinymceOption: { // this will goes to ui-tinymce directive
+                    // standard tinymce option
+                    inline: true,
+                    fixed_toolbar_container: ".form-tinymce-toolbar",
+                    plugins: "advlist autolink link image paste lists charmap print noneditable", //mentions
+                    //mentions: {
+                    //    source: tinymceMentionsData,
+                    //    delay: 100,
+                    //    items: 5,
+                    //    queryBy: "fullname",
+                    //    insert: function (item) {
+                    //        return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                    //    }
+                    //},
+                }
+            }
+        }
     });
 }
 formlyConfigTinyMCE.$inject = ["formlyConfig"];

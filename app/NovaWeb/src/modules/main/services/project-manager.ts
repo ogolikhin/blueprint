@@ -295,10 +295,8 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-
     public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
         try {
-
             let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
                 systemFields: [],
                 customFields: [],
@@ -310,7 +308,7 @@ export class ProjectManager implements IProjectManager {
             let project = this.getProject(artifact.projectId);
             if (!project || !project.meta) {
                 throw new Error(this.localization.get("Project_NotFound"));
-            }
+            } 
             let artifactType: Models.IItemType
             if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
                 artifactType = <Models.IItemType>{
@@ -324,19 +322,20 @@ export class ProjectManager implements IProjectManager {
                 })[0];
             }
 
+            let t = Models.PropertyTypePredefined[Models.PropertyTypePredefined.almintegrationsettings]; 
 
             let field: AngularFormly.IFieldConfigurationObject;
 
             fields.systemFields.push(this.createField("name", <Models.IPropertyType>{
                 id: -1,
                 name: "Name",
-                primitiveType: Models.IPrimitiveType.Text,
+                primitiveType: Models.PrimitiveType.Text,
                 isRequired: true
             }));
-            fields.systemFields.push(field = this.createField("type", <Models.IPropertyType>{
+            fields.systemFields.push(field = this.createField("typeId", <Models.IPropertyType>{
                 id: -1,
                 name: "Type",
-                primitiveType: Models.IPrimitiveType.Choice,
+                primitiveType: Models.PrimitiveType.Choice,
                 isRequired: true
             }));
 
@@ -352,41 +351,37 @@ export class ProjectManager implements IProjectManager {
             };
 
             fields.systemFields.push(this.createField("createdBy", <Models.IPropertyType>{
-                id: -1,
                 name: "Created by",
-                primitiveType: Models.IPrimitiveType.Text,
+                primitiveType: Models.PrimitiveType.Text,
                 disabled: true
             }));
             fields.systemFields.push(this.createField("createdOn", <Models.IPropertyType>{
-                id: -1,
                 name: "Created on",
-                primitiveType: Models.IPrimitiveType.Date,
+                primitiveType: Models.PrimitiveType.Date,
                 disabled: true
             }));
+
             fields.systemFields.push(this.createField("lastEditedBy", <Models.IPropertyType>{
-                id: -1,
                 name: "Last edited by",
-                primitiveType: Models.IPrimitiveType.Text,
+                primitiveType: Models.PrimitiveType.Text,
                 disabled: true
             }));
             fields.systemFields.push(this.createField("lastEditedOn", <Models.IPropertyType>{
-                id: -1,
                 name: "Last edited on",
-                primitiveType: Models.IPrimitiveType.Date,
+                primitiveType: Models.PrimitiveType.Date,
                 disabled: true
             }));
 
             fields.noteFields.push(this.createField("description", <Models.IPropertyType>{
-                id: -1,
                 name: "Description",
-                primitiveType: Models.IPrimitiveType.Text,
+                primitiveType: Models.PrimitiveType.Text,
                 isRichText: true
             }));
 
             if (artifactType) {
                 project.meta.propertyTypes.map((it: Models.IPropertyType) => {
                     if ((artifactType.customPropertyTypeIds || []).indexOf(it.id) >= 0) {
-                        field = this.createField(`property_${it.id}`, it);
+                        field = this.createField(`property_${it}`, it);
                         if (field) {
                             if (it.isRichText) {
                                 fields.noteFields.push(field);
@@ -428,27 +423,27 @@ export class ProjectManager implements IProjectManager {
 
 
         switch (type.primitiveType) {
-            case Models.IPrimitiveType.Text:
+            case Models.PrimitiveType.Text:
                 field.type = type.isRichText ? "tinymce" : (type.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = type.stringDefaultValue;
                 //field.templateOptions.minlength;
                 //field.templateOptions.maxlength;
                 break;
-            case Models.IPrimitiveType.Date:
+            case Models.PrimitiveType.Date:
                 field.type = "input";
                 field.templateOptions.type = "date";
                 field.defaultValue = type.dateDefaultValue;
                 //field.templateOptions.min = type.minDate;
                 //field.templateOptions.max = type.maxDate;
                 break;
-            case Models.IPrimitiveType.Number:
+            case Models.PrimitiveType.Number:
                 field.type = "input";
                 field.templateOptions.type = "number";
                 field.defaultValue = type.decimalDefaultValue;
                 field.templateOptions.min = type.minNumber;
                 field.templateOptions.max = type.maxNumber;
                 break;
-            case Models.IPrimitiveType.Choice:
+            case Models.PrimitiveType.Choice:
                 field.type = "select";
                 field.defaultValue = (type.defaultValidValueIndex || 0).toString();
                 if (type.validValues) {
@@ -464,57 +459,6 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-    private createNotePropertyFileds(artifactType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        fields.push({
-            key: "tinymceControl",
-            type: "tinymce",
-            data: { // using data property
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    }
-                }
-            },
-            templateOptions: {
-                label: "TinyMCE control"
-            }
-        });
-        fields.push({
-            key: "tinymceInlineControl",
-            type: "tinymceInline",
-            data: { // using data property
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    inline: true,
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    },
-                    fixed_toolbar_container: ".form-tinymce-toolbar"
-                }
-            },
-            templateOptions: {
-                label: "TinyMCE Inline control"
-            }
-        });
-
-        return fields;
-    }
 
 
 }

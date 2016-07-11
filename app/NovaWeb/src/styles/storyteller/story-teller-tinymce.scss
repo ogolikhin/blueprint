@@ -1,0 +1,25 @@
+﻿@import "modules/variables";
+@import "modules/typography";
+
+body.mce-content-body {
+    min-height: 92px;
+    padding: 6px 0 0;
+    margin: 0;
+    font-weight: 400;
+    font-size: 16px;
+    color: #0c0c0c;
+}
+body.mce-content-body a, body.mce-content-body a:hover {
+    cursor: pointer !important;
+}
+#mce_noneditablecaret {
+    font-size: 0;
+    line-height: 0;
+    height: 0;
+    display: none;
+}
+p {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+}

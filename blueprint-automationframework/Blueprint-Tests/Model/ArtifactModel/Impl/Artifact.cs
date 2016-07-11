@@ -622,7 +622,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            const string path = "/svc/shared/artifacts/publish";
+            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
             RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
 
             var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,

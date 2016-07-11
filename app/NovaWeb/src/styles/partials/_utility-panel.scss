@@ -53,6 +53,7 @@ bp-utility-panel {
         clear: both;
         padding-top: 7px;
         margin-bottom: 0;
+        border-bottom: 1px solid $gray-lightest;
 
         > li, > li.active {
             font-size: $font-size-small;
@@ -60,7 +61,6 @@ bp-utility-panel {
 
         > li > a {
             margin: 0;
-            border-bottom: 1px solid $gray-lighter;
             padding-left: 7px;
             padding-right: 7px;
         }

@@ -57,11 +57,11 @@ export class BPDiagramController {
 
     private isDiagram(artifact: Models.IArtifact): boolean {
         switch (artifact.predefinedType) {
-            case <Models.ArtifactTypeEnum>4108:
-            case Models.ArtifactTypeEnum.GenericDiagram:
-            case Models.ArtifactTypeEnum.UseCaseDiagram:
-            case Models.ArtifactTypeEnum.Storyboard:
-            case Models.ArtifactTypeEnum.UseCase:
+            case Models.ItemTypePredefined.DomainDiagram:
+            case Models.ItemTypePredefined.GenericDiagram:
+            case Models.ItemTypePredefined.UseCaseDiagram:
+            case Models.ItemTypePredefined.Storyboard:
+            case Models.ItemTypePredefined.UseCase:
                 return true;
             default:
                 return false;

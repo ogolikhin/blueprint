@@ -1,5 +1,4 @@
-﻿// #DEBUG 
-// import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
+﻿import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
 
 module Storyteller {
 
@@ -88,7 +87,7 @@ module Storyteller {
         private mode: divMode; 
         private shortContent: string;
         private visibility: string;
-        // private executionEnvironmentDetector: ExecutionEnvironmentDetector;
+        private executionEnvironmentDetector: ExecutionEnvironmentDetector;
         
         public get text() {
             return this._text;
@@ -107,10 +106,8 @@ module Storyteller {
         }
 
         private isIe11(): boolean {
-            // #DEBUG
-            //let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-            //return (myBrowser.msie && (myBrowser.version == 11));
-            return true;
+            let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
+            return (myBrowser.msie && (myBrowser.version == 11));
         }
 
         constructor(private callback: any,
@@ -127,7 +124,7 @@ module Storyteller {
                 this._text = "";
             }
 
-            //this.executionEnvironmentDetector = new ExecutionEnvironmentDetector();
+            this.executionEnvironmentDetector = new ExecutionEnvironmentDetector();
             this.mode = divMode.VIEW;
         }
 

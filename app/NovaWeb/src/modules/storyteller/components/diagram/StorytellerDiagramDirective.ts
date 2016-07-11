@@ -123,7 +123,7 @@ module Storyteller {
         constructor() { }
         public restrict = "E";
         public scope = { };
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/diagram/StorytellerDiagramTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Editor/StorytellerDiagramTemplate.html";
         public controller = StorytellerDiagramDirectiveController;
         public controllerAs = "vm";
         public bindToController = true;

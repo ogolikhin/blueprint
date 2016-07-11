@@ -1,15 +1,14 @@
 ﻿module Storyteller {
-    // #DEBUG
-    //import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
+    import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
 
     export class NodeLabelEditor {
         private divs;
         private divIndex = {};
         private currentDiv = null;
-        //private executionEnvironmentDetector: ExecutionEnvironmentDetector;
+        private executionEnvironmentDetector: ExecutionEnvironmentDetector;
 
         constructor(private container: HTMLElement) {
-            //this.executionEnvironmentDetector = new ExecutionEnvironmentDetector();
+            this.executionEnvironmentDetector = new ExecutionEnvironmentDetector();
             // Make sure the "blur" event will be fired on every outside click 
             if (this.isIe11()) {
                 container.addEventListener("pointerdown", this.pointerDown, true);
@@ -90,20 +89,12 @@
         }
 
         private isIe11(): boolean {
-            // #DEBUG
-            /*
             let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
             return (myBrowser.msie && (myBrowser.version == 11));
-            */
-            return true;
         }
 
         private isFF(): boolean {
-            // #DEBUG
-            /*
             return this.executionEnvironmentDetector.getBrowserInfo().firefox;
-            */
-            return false;
         }
 
         private pointerDown = (e) => {

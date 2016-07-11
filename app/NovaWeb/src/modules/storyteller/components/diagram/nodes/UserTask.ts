@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../DiagramNode.ts" />
+/// <reference path="IUserTask.ts" />
 
 module Storyteller {
     export class UserStoryProperties implements IUserStoryProperties {

@@ -1,4 +1,6 @@
-﻿module Storyteller {
+﻿/// <reference path="../DiagramElement.ts" />
+
+module Storyteller {
 
     export interface IOverlayHandler {
         updateOverlay(graph: MxGraph);

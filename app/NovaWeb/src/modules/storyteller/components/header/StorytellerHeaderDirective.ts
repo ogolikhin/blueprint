@@ -82,7 +82,7 @@
 
         public restrict = "E";
         public scope = {};
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/header/StorytellerHeaderTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Header/StorytellerHeaderTemplate.html";
         public controller = StorytellerHeaderDirectiveController;
         public controllerAs = "vm";
         public bindToController = true;

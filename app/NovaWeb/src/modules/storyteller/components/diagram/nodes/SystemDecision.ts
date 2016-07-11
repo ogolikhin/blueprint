@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../DiagramNode.ts" />
+
 module Storyteller {
 
     export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {

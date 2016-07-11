@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../DiagramNode.ts" />
+
 module Storyteller {
 
     export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {

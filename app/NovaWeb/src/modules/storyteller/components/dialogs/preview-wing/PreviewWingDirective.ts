@@ -50,7 +50,7 @@ module Storyteller {
         public controllerAs = "wingCtrl";
         public bindToController = true;
 
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/dialogs/preview-wing/PreviewWingTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Directives/PreviewWingTemplate.html";
 
         public link(scope, elem, attr, ctrl) {
             function activateLinks() {

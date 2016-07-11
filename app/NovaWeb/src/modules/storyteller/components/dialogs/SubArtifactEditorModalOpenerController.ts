@@ -142,7 +142,7 @@
 
         private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph, propertiesMw: Shell.IPropertiesMw) {
             this.open("",
-                "/Areas/Web/App/Components/Storyteller/components/dialogs/subartifact-editor/SubArtifactEditorModalTemplate.html",
+                "SubArtifactEditorModalTemplate.html",
                 "SubArtifactEditorModalController",
                 this.getSubArtifactDialogModel(shapeId, graph, propertiesMw),
                 "storyteller-modal");
@@ -151,7 +151,7 @@
         // @todo: replace with proper controller / template
         private openUserSystemDecisionDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph, propertiesMw: Shell.IPropertiesMw) {
             this.open("",
-                "/Areas/Web/App/Components/Storyteller/components/dialogs/subartifact-decision-editor/SubArtifactDecisionEditorModalTemplate.html",
+                "SubArtifactDecisionEditorModalTemplate.html",
                 "SubArtifactDecisionEditorModalController",
                 this.getUserSystemDecisionDialogModel(shapeId, graph, propertiesMw),
                 "storyteller-modal");
@@ -181,7 +181,7 @@
         private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph, propertiesMw: Shell.IPropertiesMw) {
 
             this.open("",
-                "/Areas/Web/App/Components/Storyteller/components/dialogs/userstory-preview/UserStoryPreviewTemplate.html",
+                "UserStoryPreviewTemplate.html",
                 "UserStoryPreviewController",
                 this.getUserStoryDialogModel(shapeId, graph, propertiesMw),
                 "preview-modal");
@@ -199,7 +199,7 @@
         public open = (size, htmlFileName: string, controllerClassName: string, dialogModel: any, windowClass: string) => {
             this.$uibModal.open(<ModalSettings>{
                 animation: this.animationsEnabled,
-                templateUrl: htmlFileName,
+                templateUrl: `/Areas/Web/App/Components/Storyteller/Dialogs/${htmlFileName}`,
                 controller: controllerClassName,
                 controllerAs: "vm",
                 windowClass: windowClass,

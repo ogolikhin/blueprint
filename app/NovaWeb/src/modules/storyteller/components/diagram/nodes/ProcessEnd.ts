@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../DiagramNode.ts" />
+
 module Storyteller {
 
     export class ProcessEnd extends DiagramNode<IProcessShape> {

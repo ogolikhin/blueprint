@@ -125,7 +125,7 @@
 
         public scope = {};
 
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/toolbar/StorytellerToolbar.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Toolbar/StorytellerToolbar.html";
 
         public controller = StorytellerToolbarDirectiveController;
         public controllerAs = "vm";

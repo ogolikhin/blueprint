@@ -1,4 +1,4 @@
-﻿
+﻿/// <reference path="editor/layout.ts" />
 module Storyteller {
 
     export class StorytellerEditorController {

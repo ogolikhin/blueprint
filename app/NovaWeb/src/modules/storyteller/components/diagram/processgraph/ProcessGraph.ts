@@ -1,6 +1,5 @@
 ﻿module Storyteller {
-    // #DEBUG
-    // import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
+    import ExecutionEnvironmentDetector = ExecutionEnvironment.ExecutionEnvironmentDetector;
 
     export interface IIconRackListener {
         (element: IProcessShape): void;
@@ -533,7 +532,11 @@
         }
 
         public destroy() {
-
+            if (this.selectionListeners) {
+                for (let selectionListener of this.selectionListeners) {
+                    selectionListener([]);
+                }
+            }
             this.selectionListeners = null;
 
             if (this.viewModel.isSpa) {
@@ -1054,13 +1057,9 @@
         }
 
         private setIsIe11() {
-            //#DEBUG
-            /*
             var executionEnvironmentDetector = new ExecutionEnvironmentDetector();
             var myBrowser = executionEnvironmentDetector.getBrowserInfo();
             this.isIe11 = (myBrowser.msie && (myBrowser.version == 11));
-            */
-            this.isIe11 = true;
         }
 
         private initSelection() {

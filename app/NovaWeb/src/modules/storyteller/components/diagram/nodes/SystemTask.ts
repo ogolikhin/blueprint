@@ -1,4 +1,6 @@
-﻿
+﻿/// <reference path="../DiagramNode.ts" />
+/// <reference path="ISystemTask.ts" />
+
 module Storyteller {
     export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
         private LABEL_EDIT_MAXLENGTH = 35;

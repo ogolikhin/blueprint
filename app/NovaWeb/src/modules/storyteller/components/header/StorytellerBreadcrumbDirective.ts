@@ -51,7 +51,7 @@ module Storyteller {
         constructor() { }
         public restrict = "E";
         public scope = {};
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/header/StorytellerBreadcrumbTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Header/StorytellerBreadcrumbTemplate.html";
         public controller = StorytellerBreadcrumbDirectiveController;
         public controllerAs = "vm";
         public bindToController = true;

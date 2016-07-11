@@ -215,7 +215,7 @@
         public controller = PreviewCenterController;
         public controllerAs = "centerCtrl";
         public bindToController = true;
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/dialogs/preview-center/PreviewCenterTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Directives/PreviewCenterTemplate.html";
     }
 
     angular.module("Storyteller").directive("previewCenter", PreviewCenterDirective.directive);

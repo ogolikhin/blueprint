@@ -190,7 +190,7 @@ module Storyteller {
 
         public restrict = "E";
         public scope = { };
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/diagram/StorytellerArtifactRendererTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Editor/StorytellerArtifactRendererTemplate.html";
         public controller = StorytellerArtifactRendererDirectiveController;
         public controllerAs = "vm";
         public bindToController = true;

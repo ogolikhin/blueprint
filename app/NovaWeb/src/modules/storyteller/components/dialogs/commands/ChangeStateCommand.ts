@@ -23,7 +23,8 @@
                     publishButton: this.getLabel("ST_Confirm_Save_PublishButton_Label"),
                     saveButton: this.getLabel("ST_Confirm_Save_SaveButton_Label"),
                     discardButton: this.getLabel("ST_Confirm_Save_DiscardButton_Label"),
-                    discardDisabled: (this.processModelService.processModel == null || !this.processModelService.processModel.status.hasEverBeenPublished)
+                    discardDisabled: (this.processModelService.processModel == null || !this.processModelService.processModel.status.hasEverBeenPublished),
+                    saveDisabled: !new SaveProcessCommand(null, null, this.processModelService).canExecute()
                 };
                 this.dialogService.action(params)
                     .then(() => {

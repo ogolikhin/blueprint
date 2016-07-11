@@ -154,7 +154,7 @@
             $element.find("#upload-image-btn").text(imageUploaded ? "Change" : "Upload");
         }
 
-        public templateUrl = "/Areas/Web/App/Components/Storyteller/components/dialogs/upload-image/UploadImageTemplate.html";
+        public templateUrl = "/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html";
     }
 
     angular.module("Storyteller").directive("uploadImage", UploadImageDirective.factory());

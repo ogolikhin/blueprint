@@ -3,6 +3,7 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
+require("script!mxClient");
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
@@ -25,7 +26,10 @@ import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {config as routesConfig} from "./main.state";
-require("script!mxClient");
+import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
+import {DiagramService} from "./components/editors/graphic/diagram.svc";
+import {BPDiagram} from "./components/editors/graphic/bp-diagram";
+import {BPContentSelector} from "./components/content/bp-content-selector";
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -64,6 +68,8 @@ angular.module("app.main", [
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
+    .service("stencilService", StencilService)
+    .service("diagramService", DiagramService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())
@@ -73,10 +79,13 @@ angular.module("app.main", [
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
     .component("bpArtifactDetails", new BpArtifactDetails())
+    .component("bpDiagram", new BPDiagram())
+    .component("bpContentSelector", new BPContentSelector())
+    .value("mxUtils", mxUtils)
     .config(routesConfig)
     .run(formlyConfigTinyMCE);
 
-
+/* tslint:disable */
 function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     formlyConfig.setType({
         name: 'tinymce',
@@ -118,5 +127,6 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
         }
     });
 }
+/* tslint:enable */
 formlyConfigTinyMCE.$inject = ["formlyConfig"];
 

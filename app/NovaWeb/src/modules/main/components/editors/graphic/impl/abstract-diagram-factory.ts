@@ -29,7 +29,7 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
             this.initDefaultTemplates(this.templates);
             this.initTemplates(this.templates);
         }
-        var template = this.templates[shapeType];
+        let template = this.templates[shapeType];
         if (template != null) {
             return template;
         }
@@ -58,13 +58,13 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     public createDefaultVertex(shape: IShape, style?: Style, disableLabel?: boolean): MxCell {
-        var styleStr: string;
+        let styleStr: string;
         if (style) {
             styleStr = style.convertToString();
         } else {
             styleStr = this.styleBuilder.createDefaultShapeStyle(shape).convertToString();
         }
-        var cell = MxFactory.vertex(shape, MxFactory.geometry(shape.x, shape.y, shape.width, shape.height), styleStr);
+        let cell = MxFactory.vertex(shape, MxFactory.geometry(shape.x, shape.y, shape.width, shape.height), styleStr);
         if (disableLabel) {
             cell.getLabel = () => { return null; };
         }
@@ -76,15 +76,15 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     protected createConnector = (connection: IConnection): MxCell => {
-        var style = this.styleBuilder.createDefaultConnectionStyle(connection);
-        var edge = MxFactory.edge(connection, MxFactory.geometry(), style.convertToString());
+        let style = this.styleBuilder.createDefaultConnectionStyle(connection);
+        let edge = MxFactory.edge(connection, MxFactory.geometry(), style.convertToString());
         edge.geometry.relative = true;
         return edge;
     };
 
     public static convertToRgbaIfNeeded(color: string, opacity: number): string {
         if (opacity != null && opacity !== 1 && !Color.isTransparent(color)) {
-            var c = Color.parseHex(color);
+            let c = Color.parseHex(color);
             c.a = opacity;
             return c.toRgba();
         }
@@ -92,13 +92,13 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     private image = (shape: IShape): MxCell => {
-        var style = new Style();
+        let style = new Style();
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
-        var imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
+        let imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
         if (imageUrl != null) {
             style[mxConstants.STYLE_IMAGE] = imageUrl;
         }
-        var aspect = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_KEEP_ASPECT_RATIO);
+        let aspect = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_KEEP_ASPECT_RATIO);
         if (aspect != null && !aspect) {
             style[mxConstants.STYLE_IMAGE_ASPECT] = 0;
         }
@@ -106,12 +106,12 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     };
 
     private callout = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_SHAPE] = CalloutShape.getName;
         style[mxConstants.STYLE_FOLDABLE] = 0;
         this.moveCalloutAnchorPosition(shape, style);
         this.customizeCalloutStyle(shape, style);
-        var callout = this.createDefaultVertex(shape, style);
+        let callout = this.createDefaultVertex(shape, style);
         this.customizeCallout(shape, callout);
         return callout;
     };
@@ -129,7 +129,7 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     public moveCalloutAnchorPosition(shape: IShape, style: Style) {
-        var anchorPosition: IPoint = ShapeExtensions.getPropertyByName(shape, ShapeProps.ANCHOR_POSITION);
+        let anchorPosition: IPoint = ShapeExtensions.getPropertyByName(shape, ShapeProps.ANCHOR_POSITION);
         if (anchorPosition != null) {
             style["x"] = anchorPosition.x;
             style["y"] = anchorPosition.y;
@@ -137,36 +137,36 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     private textArea = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         return this.createDefaultVertex(shape, style);
     };
 
     private group = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_FOLDABLE] = 0;
         return this.createDefaultVertex(shape, style);
     };
 
     private rectangle = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         return this.createDefaultVertex(shape, style);
     };
 
     private ellipse = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
         return this.createDefaultVertex(shape, style);
     };
 
     private genericShape = (shape: IShape): MxCell => {
-        var imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
+        let imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
         if (imageUrl != null) {
             return this.image(shape);
         }
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
-        var rectGeometry = ShapeExtensions.getPropertyByName(shape, ShapeProps.RECT_GEOMETRY);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let rectGeometry = ShapeExtensions.getPropertyByName(shape, ShapeProps.RECT_GEOMETRY);
         if (rectGeometry != null) {
             style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
             if (rectGeometry.radiusX > 0 || rectGeometry.radiusY > 0) {
@@ -174,7 +174,7 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
             }
         } else {
             style[mxConstants.STYLE_SHAPE] = SvgImageShape.getName;
-            var path: string = ShapeExtensions.getPropertyByName(shape, ShapeProps.PATH);
+            let path: string = ShapeExtensions.getPropertyByName(shape, ShapeProps.PATH);
             if (path != null) {
                 style[ShapeProps.PATH] = path;
                 if (SvgImageShape.hasClosePathOp(path)) {
@@ -186,7 +186,7 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     };
 
     private fallback = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKECOLOR] = "black";
         style[mxConstants.STYLE_FILLCOLOR] = "white";

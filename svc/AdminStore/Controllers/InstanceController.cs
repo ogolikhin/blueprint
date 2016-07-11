@@ -57,7 +57,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get Instance Folder
+        /// Get Instance Folder Children
         /// </summary>
         /// <remarks>
         /// Returns child instance folders and live projects that the user has the read permission.

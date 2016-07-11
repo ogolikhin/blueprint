@@ -21,6 +21,7 @@ export class BPArtifactRelationshipItemController {
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
     public artifact: Relationships.IRelationship;
+    public fromOtherProject: boolean=false;
 
     constructor(
         private $log: ng.ILogService,
@@ -57,14 +58,20 @@ export class BPArtifactRelationshipItemController {
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
-                relationshipExtendedInfo.pathToProject.shift();
+                if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
+                    if (relationshipExtendedInfo.pathToProject[0].itemId === this.artifact.projectId) {
+                        relationshipExtendedInfo.pathToProject.shift();
+                    } else {
+                        this.fromOtherProject = true;
+                    }
+                }
                 return relationshipExtendedInfo;
             });
     }
 
     public navigateToArtifact(artifact: Relationships.IRelationship) {
         var art = this.projectManager.getArtifact(artifact.artifactId);
-        if (art) {
+        if (art && artifact.hasAccess) {
             this.projectManager.setCurrentArtifact(art);
         }
     }

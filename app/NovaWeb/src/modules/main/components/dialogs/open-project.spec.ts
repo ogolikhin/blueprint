@@ -104,7 +104,7 @@ describe("Open Project.", () => {
     });
     it("selectItem", () => {
         // Arrange
-        let item = { id: -1, name: "", description: "", typeId: -1 };
+        let item = { id: -1, name: "", description: "", itemTypeId: -1 };
         // Act
         controller["setSelectedItem"](null);
 

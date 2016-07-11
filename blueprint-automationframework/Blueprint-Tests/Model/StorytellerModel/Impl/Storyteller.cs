@@ -431,37 +431,7 @@ namespace Model.StorytellerModel.Impl
                 if (Artifacts != null)
                 {
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this Storyteller instance...");
-
-                    var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
-
-                    // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
-                    foreach (var artifact in Artifacts.ToArray())
-                    {
-                        if (artifact.IsPublished)
-                        {
-                            DeleteProcessArtifact(artifact);
-                        }
-                        else if (artifact.IsSaved)
-                        {
-                            if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
-                            {
-                                savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
-                            }
-                            else
-                            {
-                                savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
-                            }
-                        }
-
-                        artifact.UnregisterObserver(this);
-                    }
-
-                    // For each user that created artifacts, discard the list of artifacts they created.
-                    foreach (IUser user in savedArtifactsDictionary.Keys)
-                    {
-                        Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                        DiscardProcessArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
-                    }
+                    ArtifactBase.DisposeArtifacts(Artifacts.ConvertAll(o => (IArtifactBase)o), this);
                 }
             }
 

@@ -34,10 +34,6 @@ bp-discussion-panel {
         vertical-align:middle;
     }
 
-    .comment-header{
-        margin-top:5px;
-    }
-
     .comment {
         word-wrap: break-word;
         line-height: initial;
@@ -60,6 +56,16 @@ bp-discussion-panel {
 
     .info {
         line-height: $font-size-bigger;
+    }
+
+    .discussion-status{
+        font-size:$font-size-normal;
+        color: $gray-darker;
+        font-style:normal;
+
+        &.inactive {
+            color: $gray-light;
+        }
     }
 
     .version, .timestamp {
@@ -85,8 +91,8 @@ bp-discussion-panel {
         color: $blue-light;
         cursor: pointer;
 
-        .inactive {
-            color: #AAAAAA;
+        &.inactive {
+            color: $gray-light;
             cursor: default;
             pointer-events: none;
             text-decoration: none;

@@ -105,7 +105,8 @@ namespace Model.ArtifactModel
         RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Lock an Artifact.
+        /// Lock this Artifact.
+        /// (Runs:  /svc/shared/artifacts/lock  with artifact ID in the request body)
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
         /// of the user that created the artifact.</param>

@@ -21,6 +21,12 @@ export class Helper {
         return stringEscaper.innerHTML;
     };
 
+    static decodeHtmlText = (encodedText: string) : string => {
+        var dummy = document.createElement("div");
+        dummy.innerHTML = encodedText;   
+        return dummy.innerText || dummy.textContent;
+   };
+
     /* tslint:disable */
     static findAncestorByCssClass = (element: Element, className: string): any => {
         while ((element = element.parentElement) && !element.classList.contains(className)) {

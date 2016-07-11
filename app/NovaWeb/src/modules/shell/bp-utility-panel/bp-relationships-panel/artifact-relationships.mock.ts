@@ -96,20 +96,14 @@ export class ArtifactRelationshipsMock implements IArtifactRelationships {
     public getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const deferred = this.$q.defer<any>();
 
-        var artifactList = [
-            {
-                "id": 1
+        var details = {
 
-            },
-            {
-                "id": 2
-            },
-            {
-                "id": 3
-            }
-        ];
+            "artifactId" : "1",
+            "description": "desc",
+            "pathToProject": []
+        };
 
-        deferred.resolve(artifactList);
+        deferred.resolve(details);
         return deferred.promise;
     }
 }

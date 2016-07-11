@@ -1,4 +1,4 @@
-﻿import { ILocalizationService } from "../../../../core";
+﻿import { ILocalizationService, Helper } from "../../../../core";
 import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
 
@@ -42,27 +42,29 @@ export class BPArtifactRelationshipItemController {
 
     public limitChars(str) {
         if (str) {
-            var text = str.replace(/(<\/?[^>]+>)([&#x200b;]+)?/gi, '');
-            if (text && text.length > 100) {
-                return text.substring(0, 100) + "...";
-            } else {
-                return '';
+            var text = Helper.decodeHtmlText(str);
+            if (text) {
+                if (text.length > 100) {
+                    return text.substring(0, 100) + "...";
+                }
+                return text
             }
+            return '';
         }
         return '';
-
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
+                relationshipExtendedInfo.pathToProject.shift();
                 return relationshipExtendedInfo;
             });
     }
 
     public navigateToArtifact(artifact: Relationships.IRelationship) {
         var art = this.projectManager.getArtifact(artifact.artifactId);
-        if (art) {
+        if (art && artifact.hasAccess) {
             this.projectManager.setCurrentArtifact(art);
         }
     }

@@ -1,74 +1,117 @@
 bp-relationships-panel {
-    .tabs{
-        padding-bottom:$padding-root; 
-        padding-left:$padding-root;
-        width:100%;
+    .tabs {
+        padding-bottom: $padding-root;
+        width: 100%;
     }
-    bp-artifact-relationship-item {   
-      
+
+    bp-artifact-relationship-item {
         .utility-panel-artifact-item {
-             padding: 0;     
-          }
+            padding: 0;
 
-        [class^="fonticon-"],
-        [class*=" fonticon-"] {
-            &::before {
-                font-size: 1.5rem;
+            [class^="fonticon2-"],
+            [class*=" fonticon2-"], 
+            [class^="fonticon-"],
+            [class*=" fonticon-"] {
+                &::before {
+                    font-size: 1.4rem;
+                }
             }
         }
 
-        .details{
+        .details {
+            display: inline-block;
+            padding: $padding-smaller 0 $padding-smaller $padding-root;
+            width: 100%;
 
-            display:inline-block; 
-            padding: $padding-smaller $padding-root;
-     
-            .trace-icon{
-            width:2em;
-            height:2em;
-            border: 2px solid $gray-lighter;
-            border-radius: 50%;
-            float:left;
-            line-height:2em;          
+            .trace-icon-regular {
+                    color: $blue-light;
+                }
+
+                .trace-icon-suspect {
+                    background-color: $brand-error;
+                    color: white;
+                }
+
+            .trace-icon {
+                width: 2em;
+                height: 2em;
+                border: 2px solid $gray-lighter;
+                border-radius: 50%;
+                float: left;
+                line-height: 1.9em;
+                text-align:center;
+
+                .status {
+                    display: inline-block;
+
+                    & > span {
+                        margin: 2px;
+                    }
+                }
+
+                
+            }
+
+            .inner-details {
+                width: 85%;
+                float: left;
+                padding-left: 3px;
+
+                .desc {
+                    font-size: $font-size-smaller;
+                    padding-left: 2px;
+                }
+
+                .left-arrow {
+                    border-left: 1px solid $gray-lighter;
+                    border-bottom: 1px solid $gray-lighter;
+                    width: 10px;
+                    height: 10px;
+                    display: inline-block;
+                    margin-left: 8px;
+                }
+
+                .bolded-text {
+                    font-weight: 700;
+                }
+
+                .desc-visible {
+                    display: block;
+                }
+
+                .desc-hidden {
+                    display: none;
+                }
+
+                & h6 {
+                    width: 90%;
+                }
+
+                & a {
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+
+                & a.no-access {
+                    cursor: default;
+                }
+
+                div {
+                    padding-top: 2px;
+                }
+            }
         }
 
-        .trace-icon-regular{           
-            color:$blue-light;
-          }
-        
-         .trace-icon-suspect{           
-            background-color:$brand-error;
-            color:white;
-         }
-
-        .inner-details{
-            width:85%;
-            float:left;            
-            padding-left:$padding-root;
-            padding-right:$padding-root;
-            .desc-visible{
-                display:block;
-            }
-            .desc-hidden{
-                display:none;
-            }
-            &>a{
-                 text-decoration: none;
-                 cursor:pointer;
-            }
-            div{
-                padding-top:2px;
-            }
-        }
-        }
-        .icons{     
-            color:  $gray;    
-            display:inline-block; 
-            width:100%;           
-            padding:5px;
+        .icons {
+            color: $gray;
+            display: inline-block;
+            width: 100%;
+            padding: 5px;
             border-top: 1px solid $gray-lighter;
-            div{
-                 float:right;            
-             }
+
+            div {
+                float: right;
+            }
         }
     }
 }

@@ -144,7 +144,8 @@ namespace ArtifactStore.Repositories
 
             foreach (var otherLink in otherLinks)
             {
-                otherTraceRelationships.Add(NewRelationship(otherLink, TraceDirection.To));
+                var traceDirection = otherLink.SourceItemId == itemId ? TraceDirection.To : TraceDirection.From;
+                otherTraceRelationships.Add(NewRelationship(otherLink, traceDirection));
             }
 
             var distinctItemIds = new HashSet<int>();
@@ -165,9 +166,28 @@ namespace ArtifactStore.Repositories
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
         }
 
+        private IEnumerable<ItemIdItemNameParentId> GetPathToProject(int artifactId, IDictionary<int, ItemIdItemNameParentId> pathInfoDictionary)
+        {
+            var pathToProject = new List<ItemIdItemNameParentId>();
+            var itemId = artifactId;
+            ItemIdItemNameParentId item;
+            pathInfoDictionary.TryGetValue(itemId, out item);
+            while (item != null && item.ParentId != 0)
+            {
+                pathToProject.Add(item);
+                itemId = item.ParentId;
+                pathInfoDictionary.TryGetValue(itemId, out item);
+            }
+            pathToProject.Add(item);
+
+            pathToProject.Reverse();
+            return pathToProject;
+        }
+
         public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
         {
-            var pathToProject = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToList();
+            var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToDictionary(a => a.ItemId);
+            var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
             var description = (await GetItemDescription(artifactId, userId, addDraft, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }

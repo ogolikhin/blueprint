@@ -900,7 +900,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Reply_Post_Button_Text', 'en-US', N'Add reply')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Reply_Cancel_Button_Text', 'en-US', N'Cancel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Reply_Comment_Place_Holder', 'en-US', N'Add a reply...')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Show_Replies', 'en-US', N'Show replies.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Show_Replies', 'en-US', N'Show replies')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Hide_Replis', 'en-US', N'Hide replies')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_View_Comments_Tooltip', 'en-US', N'View comments')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Delete_Comment_Tooltip', 'en-US', N'Delete comment')

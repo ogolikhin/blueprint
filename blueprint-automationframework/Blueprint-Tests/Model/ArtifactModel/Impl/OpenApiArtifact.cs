@@ -695,8 +695,46 @@ namespace Model.ArtifactModel.Impl
             return JsonConvert.DeserializeObject<OpenApiAttachment>(response.Content);
         }
 
-            #endregion Static Methods
+        /// <summary>
+        /// add attachment to the specified artifact
+        /// </summary>
+        /// <param name="address">The base url of the Blueprint server</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment</param>
+        /// <param name="artifactId">Id of artifact to add attachment</param>
+        /// <param name="file">File to attach</param>
+        /// <param name="user">The user to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>OpenApiAttachment object</returns>
+        public static OpenApiTrace AddTraceBetweenArtifacts(string address, IArtifact sourceArtifact,
+            IArtifact targetArtifact, string traceDirection, string traceType, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var restApi = new RestApiFacade(address, tokenValue);
+            var additionalHeaders = new Dictionary<string, string>();
+
+            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}/traces", SVC_PATH, sourceArtifact.ProjectId, 
+                sourceArtifact.Id);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
+                fileName: file.FileName,
+                fileContent: file.Content.ToArray(),
+                contentType: file.FileType,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return JsonConvert.DeserializeObject<OpenApiAttachment>(response.Content);
         }
+
+        #endregion Static Methods
+    }
 
     public class ArtifactForUpdate
     {

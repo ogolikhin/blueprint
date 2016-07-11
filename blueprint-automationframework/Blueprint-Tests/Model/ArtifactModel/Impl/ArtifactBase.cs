@@ -229,7 +229,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Get ArtifactReference list which is used to represent breadcrumb navigation
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation.
+        /// (Runs:  svc/shared/navigation/{id1}/{id2}...)
         /// </summary>
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user credentials for breadcrumb navigation</param>

@@ -5,6 +5,7 @@
     itemId: number;
     itemTypePrefix: string;
     itemName: string;
+    itemLabel: string;
     projectId: number;
     projectName: string;
     rraceDirection: TraceDirection;

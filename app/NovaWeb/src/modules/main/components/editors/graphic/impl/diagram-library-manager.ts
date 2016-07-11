@@ -1,5 +1,6 @@
 import {Diagrams} from "./utils/constants";
 import {GenericDiagramShapeFactory} from "./generic-diagram";
+import {DomainDiagramShapeFactory} from "./domain-diagram";
 import {IShapeTemplateFactory} from "./abstract-diagram-factory";
 
 export class DiagramLibraryManager {
@@ -10,6 +11,8 @@ export class DiagramLibraryManager {
             //     return new BusinessProcessShapeFactory();
             case Diagrams.GENERIC_DIAGRAM:
                 return new GenericDiagramShapeFactory();
+            case Diagrams.DOMAIN_DIAGRAM:
+                return new DomainDiagramShapeFactory();
             // case Diagrams.UIMOCKUP:
             //     return new UiMockupShapeFactory();
             // case Diagrams.STORYBOARD:

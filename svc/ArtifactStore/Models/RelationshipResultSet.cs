@@ -60,6 +60,8 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public string ItemName { get; set; }
         [JsonProperty]
+        public string ItemLabel { get; set; }
+        [JsonProperty]
         public int ProjectId { get; set; }
         [JsonProperty]
         public string ProjectName { get; set; }

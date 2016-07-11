@@ -31,7 +31,7 @@ export class BPDiagramController {
 
         //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
+        const selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
 
         this._subscribers = [ selectedArtifactSubscriber ];
 
@@ -43,7 +43,7 @@ export class BPDiagramController {
         if (this.diagramView != null) {
             this.diagramView.destroy();
         }
-        //dispose all subscribers 
+        //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
     
@@ -57,7 +57,7 @@ export class BPDiagramController {
 
     private isDiagram(artifact: Models.IArtifact): boolean {
         switch (artifact.predefinedType) {
-            case <Models.ItemTypePredefined>4108:
+            case Models.ItemTypePredefined.DomainDiagram:
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.Storyboard:

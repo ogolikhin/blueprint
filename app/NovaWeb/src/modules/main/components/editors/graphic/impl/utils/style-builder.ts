@@ -37,7 +37,7 @@ export class Style {
 export class StyleBuilder {
 
     public createDefaultShapeStyle = (shape: IShape, shapeKey?: string): Style => {
-        var style = new Style();
+        const style = new Style();
         if (shapeKey != null) {
             style[mxConstants.STYLE_SHAPE] = shapeKey;
         }

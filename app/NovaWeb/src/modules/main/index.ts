@@ -13,6 +13,7 @@ import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
 import * as Enums from "./models/enums";
+import {Helper} from "../core/utils/helper";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import * as Relationships from "./models/relationshipModels";
@@ -46,7 +47,6 @@ declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
@@ -55,6 +55,11 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
+
+    if (!Helper.isFontFaceSupported() || !Helper.isWebfontAvailable("Open Sans")) {
+        $state.transitionTo("error:font");
+    }
+
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 

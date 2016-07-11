@@ -30,7 +30,6 @@ namespace AdminStoreTests
 
         [TestCase(1)]
         [TestCase(96238)]
-        [TestCase(96239, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]         // BUG: 1362
         [TestCase(int.MaxValue, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // BUG: 1362
         [Description("Call:  GET /licenses/transactions with the 'days' parameter > 0.  Verify a valid list of transactions is returned.")]
         [TestRail(146081)]

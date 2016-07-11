@@ -112,7 +112,7 @@ export class DiagramService implements IDiagramService {
     public getDiagram(id: number): ng.IPromise<IDiagram> {
         let promise: ng.IPromise<IDiagram> = this.promises[String(id)];
         if (!promise) {
-            var deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
+            const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
             this.$http.get<IDiagram>("/svc/components/RapidReview/diagram/" + id)
                 .success((diagaram: IDiagram) => {
                         if (diagaram.shapes) {

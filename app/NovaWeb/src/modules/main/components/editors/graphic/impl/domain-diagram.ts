@@ -10,18 +10,18 @@ export class DomainDiagramShapeFactory extends AbstractShapeFactory {
     }
 
     private entity = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_SWIMLANE);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_SWIMLANE);
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_STARTSIZE] = 47;
         style[mxConstants.STYLE_HORIZONTAL] = 1;
-        var entity = super.createDefaultVertex(shape, style);
+        let entity = super.createDefaultVertex(shape, style);
 
         return entity;
     };
     private element = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
-        var element = super.createDefaultVertex(shape, style);
+        let element = super.createDefaultVertex(shape, style);
         return element;
     };
 }

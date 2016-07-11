@@ -15,13 +15,13 @@ export class MxFactory {
     }
 
     public static edge(value?: any, geometry?: MxGeometry, style?: string) {
-        var mxCell = MxFactory.cell(value, geometry, style);
+        let mxCell = MxFactory.cell(value, geometry, style);
         mxCell.setEdge(true);
         return mxCell;
     }
 
     public static vertex(value?: any, geometry?: MxGeometry, style?: string) {
-        var mxCell = MxFactory.cell(value, geometry, style);
+        let mxCell = MxFactory.cell(value, geometry, style);
         mxCell.vertex = true;
         return mxCell;
     }
@@ -51,8 +51,8 @@ export class ConnectionExtensions {
 
     public static transformToConnectionPoint(connection: IConnection, labelSize: MxRectangle, isSource: boolean): MxPoint {
         if (connection.points && connection.points.length >= 2) {
-            var first: IPoint;
-            var second: IPoint;
+            let first: IPoint;
+            let second: IPoint;
             if (isSource) {
                 first = connection.points[0];
                 second = connection.points[1];
@@ -60,12 +60,12 @@ export class ConnectionExtensions {
                 first = connection.points[connection.points.length - 1];
                 second = connection.points[connection.points.length - 2];
             }
-            var position = MxFactory.point(first.x, first.y);
+            let position = MxFactory.point(first.x, first.y);
 
-            var vector: MxPoint = MathExtensions.subtract(position, MxFactory.point(second.x, second.y));
-            var angle: number = MathExtensions.getAngleBetween(MxFactory.point(0, 1), vector) % 360;
+            let vector: MxPoint = MathExtensions.subtract(position, MxFactory.point(second.x, second.y));
+            let angle: number = MathExtensions.getAngleBetween(MxFactory.point(0, 1), vector) % 360;
 
-            var thickness = connection.strokeWidth ? connection.strokeWidth : 1;
+            let thickness = connection.strokeWidth ? connection.strokeWidth : 1;
 
             return ConnectionExtensions.transformToConnectionPointInternal(position, angle, labelSize, thickness, ConnectionExtensions.decoratorSize + 4);
         }
@@ -77,13 +77,13 @@ export class ConnectionExtensions {
         labelSize: MxRectangle,
         thickness: number,
         decoratorSize: number): MxPoint {
-        var index: number = 1;
-        var offset: MxPoint = MxFactory.point(0, 0);
+        let index: number = 1;
+        let offset: MxPoint = MxFactory.point(0, 0);
 
-        var factor1: number = index > 0 ? 0.0 : index < 0 ? -1.0 : -0.5;
-        var factor2: number = index > 0 ? 1.0 : index < 0 ? -1.0 : 0.0;
+        let factor1: number = index > 0 ? 0.0 : index < 0 ? -1.0 : -0.5;
+        let factor2: number = index > 0 ? 1.0 : index < 0 ? -1.0 : 0.0;
 
-        var transformPoint: MxPoint = MxFactory.point(0, 0);
+        let transformPoint: MxPoint = MxFactory.point(0, 0);
         if (angle > 45 && angle < 135) {
             transformPoint.x = position.x + offset.x + decoratorSize;
             transformPoint.y = position.y + offset.y + labelSize.height * factor1 + thickness * factor2;
@@ -105,21 +105,21 @@ export class ConnectionExtensions {
         if (connectionConstrains.length === 0) {
             throw "connection constrains should not be empty";
         }
-        var sourcePoints = [];
-        var targetPoints = [];
+        let sourcePoints = [];
+        let targetPoints = [];
         connectionConstrains.forEach(c => {
             sourcePoints.push(MxFactory.point(sourceGeometry.x + sourceGeometry.width * c.x, sourceGeometry.y + sourceGeometry.height * c.y));
             targetPoints.push(MxFactory.point(targetGeometry.x + targetGeometry.width * c.x, targetGeometry.y + targetGeometry.height * c.y));
         });
 
-        var source: MxPoint = sourcePoints[0];
-        var target: MxPoint = targetPoints[0];
-        var minDistance = Number.MAX_VALUE;
-        for (var i = 0; i < connectionConstrains.length; i++) {
-            var p1 = sourcePoints[i];
-            for (var j = 0; j < connectionConstrains.length; j++) {
-                var p2 = targetPoints[j];
-                var distance = MathExtensions.distance(p1, p2);
+        let source: MxPoint = sourcePoints[0];
+        let target: MxPoint = targetPoints[0];
+        let minDistance = Number.MAX_VALUE;
+        for (let i = 0; i < connectionConstrains.length; i++) {
+            let p1 = sourcePoints[i];
+            for (let j = 0; j < connectionConstrains.length; j++) {
+                let p2 = targetPoints[j];
+                let distance = MathExtensions.distance(p1, p2);
                 if (distance <= minDistance) {
                     minDistance = distance;
                     source = p1;
@@ -138,10 +138,10 @@ export class ConnectionExtensions {
 */
 export class HierarchyHelper {
     public static createHierarchy(diagram: IDiagram, orderByZindex?: boolean): IHierarchyDiagram {
-        var lookup = {};
+        let lookup = {};
         (<IHierarchyDiagram>diagram).children = [];
         // Merge shapes and connections into one array
-        var diagramElements = [];
+        let diagramElements = [];
         diagram.connections.forEach((connection: IHierarchyElement) => {
             connection.isShape = false;
             diagramElements.push(connection);
@@ -153,12 +153,12 @@ export class HierarchyHelper {
             lookup[shape.id] = shape;
         });
         // Sort elements by their z-index
-        var elements = orderByZindex ? diagramElements.sort(HierarchyHelper.sortByZIndex) : diagramElements;
+        let elements = orderByZindex ? diagramElements.sort(HierarchyHelper.sortByZIndex) : diagramElements;
         elements.forEach((element: IHierarchyElement) => {
             element.children = [];
             (<IHierarchyDiagram>diagram).children.push(element);
             if (element.parentId != null) {
-                var key = element.parentId.toString();
+                let key = element.parentId.toString();
                 if (lookup.hasOwnProperty(key)) {
                     element.parent = lookup[key];
                 }
@@ -196,10 +196,10 @@ export class HierarchyHelper {
 export class MathExtensions {
 
     public static closestConnectionPoint(relativePoint: MxPoint, points: Array<MxPoint>): MxPoint {
-        var num1 = Number.MAX_VALUE;
-        var point = points[0];
+        let num1 = Number.MAX_VALUE;
+        let point = points[0];
         points.forEach((rhs: MxPoint) => {
-            var num2 = MathExtensions.distance(relativePoint, rhs);
+            let num2 = MathExtensions.distance(relativePoint, rhs);
             if (num1 > num2) {
                 num1 = num2;
                 point = rhs;
@@ -213,8 +213,8 @@ export class MathExtensions {
     }
 
     public static distance(lhs: MxPoint, rhs: MxPoint): number {
-        var num1 = lhs.x - rhs.x;
-        var num2 = lhs.y - rhs.y;
+        let num1 = lhs.x - rhs.x;
+        let num2 = lhs.y - rhs.y;
         return Math.sqrt(num1 * num1 + num2 * num2);
     }
 
@@ -238,8 +238,8 @@ export class MathExtensions {
      * Converts the angle between two vectors, represented by simple points.
      */
     public static getAngleBetween(lhs: MxPoint, rhs: MxPoint) {
-        var y: number = (lhs.x * rhs.y) - (rhs.x * lhs.y);
-        var x: number = (lhs.x * rhs.x) + (lhs.y * rhs.y);
+        let y: number = (lhs.x * rhs.y) - (rhs.x * lhs.y);
+        let x: number = (lhs.x * rhs.x) + (lhs.y * rhs.y);
 
         return MathExtensions.toPositiveDegree(Math.atan2(y, x));
     }
@@ -248,7 +248,7 @@ export class MathExtensions {
      * Converts an angle in radian to an angle in degree.
      */
     public static toPositiveDegree(rad: number): number {
-        var degree: number = rad * 180 / Math.PI;
+        let degree: number = rad * 180 / Math.PI;
 
         if (degree < 0) {
             degree += 360;
@@ -277,10 +277,10 @@ export class Color {
     public static parseHex(hex: string): Color {
         if (hex != null) {
             hex = hex.replace("#", "");
-            var bigint = parseInt(hex, 16);
-            var r = (bigint >> 16) & 255;
-            var g = (bigint >> 8) & 255;
-            var b = bigint & 255;
+            let bigint = parseInt(hex, 16);
+            let r = (bigint >> 16) & 255;
+            let g = (bigint >> 8) & 255;
+            let b = bigint & 255;
             return new Color(r, g, b);
         }
         return new Color(0, 0, 0);
@@ -297,8 +297,8 @@ export class Color {
 
 export class ShapeExtensions {
     public static getPropertyByName(el: IDiagramElement, propertyName: string): any {
-        for (var i = 0; i < el.props.length; i++) {
-            var prop = el.props[i];
+        for (let i = 0; i < el.props.length; i++) {
+            let prop = el.props[i];
             if (prop.name === propertyName) {
                 return prop.value;
             }
@@ -309,7 +309,7 @@ export class ShapeExtensions {
 
 export class DiagramHelper {
     public static findValueByName(items: IProp[], key: string): string {
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             if (items[i].name === key) {
                 return items[i] && items[i].value;
             }
@@ -325,15 +325,15 @@ export class DiagramHelper {
     //2015-07-27T06:00:00
     //2015-07-27T15:44:39.9733204-04:00
     public static normalizeDateFormat(dateTimeString: string): Date {
-        var finalDateTimeString = "";
+        let finalDateTimeString = "";
 
         if (dateTimeString) {
             if (dateTimeString.length < 20) {
 
-                var timeZoneOffSet = new Date().getTimezoneOffset(); //240
-                var timeZone = timeZoneOffSet / (-60); // -4
-                var absTimeZone = Math.abs(timeZone); // 4
-                var absTimeZoneString = "" + absTimeZone;
+                let timeZoneOffSet = new Date().getTimezoneOffset(); //240
+                let timeZone = timeZoneOffSet / (-60); // -4
+                let absTimeZone = Math.abs(timeZone); // 4
+                let absTimeZoneString = "" + absTimeZone;
                 if (absTimeZoneString.length < 2) {
                     absTimeZoneString = "0" + absTimeZoneString;
                 }
@@ -351,7 +351,7 @@ export class DiagramHelper {
         }
 
 
-        var dateTimeValue = new Date(finalDateTimeString);
+        let dateTimeValue = new Date(finalDateTimeString);
         if (dateTimeValue.toString() === "Invalid Date") {
             dateTimeValue = new Date(dateTimeString);
         }
@@ -359,7 +359,7 @@ export class DiagramHelper {
     }
 
     public static formatDateTime(dateTimeValue: Date, displayFormat: string, inputMode: string): string {
-        var formatDate: (date: Date, format: string) => string;
+        let formatDate: (date: Date, format: string) => string;
 
         try {
             formatDate = <(date: Date, format: string) => string>(<any>$)("body").injector().get("dateFilter");
@@ -367,7 +367,7 @@ export class DiagramHelper {
         } catch (e) {
         }
 
-        var rtn = "";
+        let rtn = "";
 
         if (formatDate) {
             if (displayFormat === "Long") {

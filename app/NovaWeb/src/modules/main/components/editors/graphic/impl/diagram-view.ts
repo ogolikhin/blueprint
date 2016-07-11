@@ -50,8 +50,8 @@ export class DiagramView implements IDiagramView {
 
     public drawDiagram(diagram: IDiagram) {
         this.registerStencils(diagram.diagramType, this.stencilService);
-        var manager = new DiagramLibraryManager();
-        var shapeFactory = manager.getDiagramFactory(diagram.diagramType);
+        let manager = new DiagramLibraryManager();
+        let shapeFactory = manager.getDiagramFactory(diagram.diagramType);
 
         if (shapeFactory.enabledToolTips()) {
             this.graph.setTooltips(true);
@@ -75,9 +75,9 @@ export class DiagramView implements IDiagramView {
 
     public setSelectedItems(selectedItems: Array<IDiagramElement>) {
         if (selectedItems != null) {
-            var cellsTobeSelected = [];
+            let cellsTobeSelected = [];
             selectedItems.forEach((s: IDiagramElement) => {
-                var cell = this.createdVertices[s.id];
+                let cell = this.createdVertices[s.id];
                 if (cell != null) {
                     cellsTobeSelected.push(cell);
                 }
@@ -87,7 +87,7 @@ export class DiagramView implements IDiagramView {
     }
 
     public setSelectedItem(id: number) {
-        var cell = this.createdVertices[id];
+        let cell = this.createdVertices[id];
         if (cell != null) {
             this.graph.setSelectionCell(cell);
         }
@@ -109,7 +109,7 @@ export class DiagramView implements IDiagramView {
     public sanitize: (html: string) => string = null;
 
     public zoomToRect(x: number, y: number, width: number, height: number) {
-        var rect = MxFactory.rectangle(0, 0, width, height);
+        let rect = MxFactory.rectangle(0, 0, width, height);
         return this.graph.zoomToRect(rect);
     }
 
@@ -128,9 +128,9 @@ export class DiagramView implements IDiagramView {
         // Enables clipping of vertex labels if no offset is defined
         this.graph.isLabelClipped = (cell: MxCell) => {
             if (cell.isVertex()) {
-                var state = this.graph.getView().getState(cell);
-                var align = mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
-                var overflow = mxUtils.getValue(state.style, mxConstants.STYLE_OVERFLOW, null);
+                let state = this.graph.getView().getState(cell);
+                let align = mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+                let overflow = mxUtils.getValue(state.style, mxConstants.STYLE_OVERFLOW, null);
                 return align === mxConstants.ALIGN_MIDDLE || overflow === "hidden";
             }
             return false;
@@ -148,7 +148,7 @@ export class DiagramView implements IDiagramView {
                     return cell.value.label;
                 }
             } else if (cell.isEdge()) {
-                var connection = <IConnection>cell.value;
+                let connection = <IConnection>cell.value;
                 if (connection != null && connection.label != null) {
                     return this.sanitizeInternal(connection.label);
                 }
@@ -178,7 +178,7 @@ export class DiagramView implements IDiagramView {
 
     private initSelection() {
         this.graph.getSelectionModel().setSingleSelection(true);
-        var baseIsEventIgnored = this.graph.isEventIgnored;
+        let baseIsEventIgnored = this.graph.isEventIgnored;
         this.graph.isEventIgnored = (evtName, me, sender) => {
             if (this.disabledUserSelection) {
                 return true;
@@ -189,9 +189,9 @@ export class DiagramView implements IDiagramView {
         this.graph.graphHandler.getInitialCellForEvent = this.getInitialCellForEvent;
 
         this.graph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            var cell = this.getLastSelectedCell();
+            let cell = this.getLastSelectedCell();
             if (cell != null) {
-                var element = this.getDiagramElement(cell);
+                let element = this.getDiagramElement(cell);
                 this.selectionListeners.forEach((listener: ISelectionListener) => {
                     listener([element]);
                 });
@@ -201,15 +201,15 @@ export class DiagramView implements IDiagramView {
     }
 
     private getLastSelectedCell() {
-        var selectedCells = this.graph.getSelectionCells();
+        let selectedCells = this.graph.getSelectionCells();
         return selectedCells[selectedCells.length - 1];
     }
 
     private getInitialCellForEvent = (me: MxMouseEvent) => {
-        var cell = me.getCell();
+        let cell = me.getCell();
 
-        var state = this.graph.getView().getState(cell);
-        var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
+        let state = this.graph.getView().getState(cell);
+        let style = (state != null) ? state.style : this.graph.getCellStyle(cell);
 
         while (cell != null && style[Styles.STYLE_SELECTABLE] === 0) {
             cell = cell.getParent();
@@ -225,11 +225,11 @@ export class DiagramView implements IDiagramView {
     }
 
     private getSelectedCell(sourceCell: MxCell): MxCell {
-        var selectedElement = <IHierarchyElement>this.getDiagramElement(sourceCell);
-        var parent = selectedElement != null ? selectedElement.parent : null;
-        var parentGroup: IHierarchyElement = null;
-        var lastSelectedElement = this.getLastSelectedElement();
-        var commonParent: IHierarchyElement = null;
+        let selectedElement = <IHierarchyElement>this.getDiagramElement(sourceCell);
+        let parent = selectedElement != null ? selectedElement.parent : null;
+        let parentGroup: IHierarchyElement = null;
+        let lastSelectedElement = this.getLastSelectedElement();
+        let commonParent: IHierarchyElement = null;
         if (lastSelectedElement !== selectedElement) {
             commonParent = this.getCommonParent(lastSelectedElement, selectedElement);
         }
@@ -243,8 +243,8 @@ export class DiagramView implements IDiagramView {
     }
 
     private getCommonParent(lastSelectedElement: IHierarchyElement, selectedElement: IHierarchyElement): IHierarchyElement {
-        var allParentIds = Object.create(null);
-        var parent = lastSelectedElement != null ? lastSelectedElement.parent : null;
+        let allParentIds = Object.create(null);
+        let parent = lastSelectedElement != null ? lastSelectedElement.parent : null;
         while (parent != null) {
             allParentIds[parent.id] = true;
             parent = parent.parent;
@@ -260,7 +260,7 @@ export class DiagramView implements IDiagramView {
     }
 
     private getLastSelectedElement(): IHierarchyElement {
-        var cell = this.graph.getSelectionCell();
+        let cell = this.graph.getSelectionCell();
         return cell != null ? <IHierarchyElement>this.getDiagramElement(cell) : null;
     }
 
@@ -284,7 +284,7 @@ export class DiagramView implements IDiagramView {
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
         // Creates the default style for vertices
         mxConstants.SHADOWCOLOR = "black";
-        var style = [];
+        let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = "black";
@@ -295,12 +295,12 @@ export class DiagramView implements IDiagramView {
     }
 
     private registerStencils(diagramType: string, stencilService: IStencilService): void {
-        var stencil = stencilService.getStencil(diagramType);
+        let stencil = stencilService.getStencil(diagramType);
         if (stencil != null) {
-            var shape = stencil.firstChild;
+            let shape = stencil.firstChild;
             while (shape != null) {
                 if (shape.nodeType === mxConstants.NODETYPE_ELEMENT) {
-                    var shapeName = (<Element>shape).getAttribute("name");
+                    let shapeName = (<Element>shape).getAttribute("name");
                     mxStencilRegistry.addStencil(shapeName.toLowerCase(), new mxStencil(shape));
                 }
                 shape = shape.nextSibling;
@@ -311,12 +311,12 @@ export class DiagramView implements IDiagramView {
     private drawDiagramInternal(diagram: IDiagram, shapeFactory: IShapeTemplateFactory) {
         // Gets the default parent for inserting new cells. This
         // is normally the first child of the root (ie. layer 0).
-        var parent = this.graph.getDefaultParent();
+        let parent = this.graph.getDefaultParent();
 
         // Adds cells to the model in a single step
         this.graph.getModel().beginUpdate();
         try {
-            var hierarchyDiagram = HierarchyHelper.createHierarchy(diagram, true);
+            let hierarchyDiagram = HierarchyHelper.createHierarchy(diagram, true);
             this.drawDiagramElementsRecursively(hierarchyDiagram.children, shapeFactory, parent);
 
             // Extended Connections for Use Case Diagrams need to be drawn after all shapes are drawn
@@ -336,10 +336,10 @@ export class DiagramView implements IDiagramView {
             return;
         }
 
-        var sourceOffset = this.computeOffset(sourceCell);
-        var targetOffset = this.computeOffset(targetCell);
+        let sourceOffset = this.computeOffset(sourceCell);
+        let targetOffset = this.computeOffset(targetCell);
 
-        var i = 0;
+        let i = 0;
         connection.points.forEach((point: MxPoint) => {
             if (i === 0) {
                 //apply source offset to first point
@@ -355,9 +355,9 @@ export class DiagramView implements IDiagramView {
     }
 
     private computeOffset(cell: MxCell): MxPoint {
-        var offset = MxFactory.point(0, 0);
+        let offset = MxFactory.point(0, 0);
         if (cell != null) {
-            var sourceParentCell: MxCell = cell.getParent();
+            let sourceParentCell: MxCell = cell.getParent();
             if (sourceParentCell != null) {
                 //add geometry of all parents
                 do {
@@ -373,12 +373,12 @@ export class DiagramView implements IDiagramView {
     }
 
     private drawDiagramElementsRecursively(children: Array<IHierarchyElement>, factory: IShapeTemplateFactory, parent: MxCell): Array<MxCell> {
-        var vertex: MxCell = null;
-        var createdCells = [];
+        let vertex: MxCell = null;
+        let createdCells = [];
         children.forEach((diagramElement) => {
             if (diagramElement.isShape) {
                 // Draw shape
-                var createCellFunct = factory.createShapeTemplate(diagramElement.type);
+                let createCellFunct = factory.createShapeTemplate(diagramElement.type);
                 if (createCellFunct != null) {
                     vertex = createCellFunct(diagramElement);
                     this.createdVertices[diagramElement.id] = vertex;
@@ -386,7 +386,7 @@ export class DiagramView implements IDiagramView {
                     createdCells.push(vertex);
                     if (diagramElement.children.length > 0) {
                         // If shape has children shapes - draw these too
-                        var cells = this.drawDiagramElementsRecursively(diagramElement.children, factory, parent);
+                        let cells = this.drawDiagramElementsRecursively(diagramElement.children, factory, parent);
                         if (diagramElement.type === Shapes.GROUP) {
                             this.graph.groupCells(vertex, null, cells);
                         } else {
@@ -410,14 +410,14 @@ export class DiagramView implements IDiagramView {
     }
 
     private drawDiagramConnection(diagramElement: IHierarchyElement, factory: IShapeTemplateFactory, parent: MxCell) {
-        var createConnectionFunct = factory.createConnectorTemplate();
-        var sourceCell = this.createdVertices[diagramElement.sourceId];
-        var targetCell = this.createdVertices[diagramElement.targetId];
+        let createConnectionFunct = factory.createConnectorTemplate();
+        let sourceCell = this.createdVertices[diagramElement.sourceId];
+        let targetCell = this.createdVertices[diagramElement.targetId];
 
         this.offsetConnectors(sourceCell, targetCell, diagramElement);
 
-        var index = this.graph.getModel().getChildCount(parent);
-        var edge = createConnectionFunct(diagramElement);
+        let index = this.graph.getModel().getChildCount(parent);
+        let edge = createConnectionFunct(diagramElement);
 
         this.initConnectionAnchorPoint(edge, sourceCell, targetCell, diagramElement);
 
@@ -431,36 +431,36 @@ export class DiagramView implements IDiagramView {
 
     private drawConnection(edge: MxCell, connection: IConnection, parent: MxCell) {
         if (connection.points != null && connection.points.length >= 2) {
-            var source = connection.points[0];
-            var target = connection.points[connection.points.length - 1];
+            let source = connection.points[0];
+            let target = connection.points[connection.points.length - 1];
 
             if (connection.sourceLabel) {
-                var sourceLabel = this.createConnectionLabel(connection, true);
+                let sourceLabel = this.createConnectionLabel(connection, true);
                 this.graph.addCell(sourceLabel, parent);
             }
 
             if (connection.targetLabel) {
-                var targetLabel = this.createConnectionLabel(connection, false);
+                let targetLabel = this.createConnectionLabel(connection, false);
                 this.graph.addCell(targetLabel, parent);
             }
 
             edge.geometry.setTerminalPoint(MxFactory.point(source.x, source.y), true);
             edge.geometry.setTerminalPoint(MxFactory.point(target.x, target.y), false);
 
-            var points: Array<MxPoint> = [];
+            let points: Array<MxPoint> = [];
             if (connection.points.length === 2 && source.x === target.x && source.y === target.y) {
                 points.push(MxFactory.point(connection.points[0].x + 3, connection.points[0].y));
             } else {
                 if (connection.type) {
                     switch (connection.type.toLowerCase()) {
                         case ConnectorTypes.CURVED:
-                            var centerX = Math.min(target.x, source.x) + Math.abs(target.x - source.x) / 2;
+                            let centerX = Math.min(target.x, source.x) + Math.abs(target.x - source.x) / 2;
                             points.push(MxFactory.point(centerX, source.y));
                             points.push(MxFactory.point(centerX, target.y));
                             break;
                         case ConnectorTypes.RIGHT_ANGLED:
-                            for (var i = 1; i < connection.points.length - 1; i++) {
-                                var point = connection.points[i];
+                            for (let i = 1; i < connection.points.length - 1; i++) {
+                                let point = connection.points[i];
                                 points.push(MxFactory.point(point.x, point.y));
                             }
                             break;
@@ -474,16 +474,16 @@ export class DiagramView implements IDiagramView {
     }
 
     private createConnectionLabel(connection: IConnection, isSource: boolean): MxCell {
-        var style = new Style();
+        let style = new Style();
         style[mxConstants.STYLE_RESIZABLE] = 0;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
 
-        var value = isSource ? connection.sourceLabel : connection.targetLabel;
-        var label = MxFactory.vertex(value, MxFactory.geometry(0, 0, 0, 0), style.convertToString());
-        var labelSize = this.getPreferredSizeForCell(label);
-        var labelPosition = ConnectionExtensions.transformToConnectionPoint(connection, labelSize, isSource);
+        let value = isSource ? connection.sourceLabel : connection.targetLabel;
+        let label = MxFactory.vertex(value, MxFactory.geometry(0, 0, 0, 0), style.convertToString());
+        let labelSize = this.getPreferredSizeForCell(label);
+        let labelPosition = ConnectionExtensions.transformToConnectionPoint(connection, labelSize, isSource);
         label.geometry.x = labelPosition.x;
         label.geometry.y = labelPosition.y;
         label.geometry.width = labelSize.width;
@@ -492,19 +492,19 @@ export class DiagramView implements IDiagramView {
     }
 
     private getPreferredSizeForCell(cell: MxCell) {
-        var cellSize = this.graph.getPreferredSizeForCell(cell);
+        let cellSize = this.graph.getPreferredSizeForCell(cell);
         cellSize.width += 5;
         return cellSize;
     }
 
     private initConnectionAnchorPoint(edge: MxCell, source: MxCell, target: MxCell, connection: IConnection) {
-        var sourcePoint: IPoint;
-        var targetPoint: IPoint;
+        let sourcePoint: IPoint;
+        let targetPoint: IPoint;
         if (connection.points == null || connection.points.length < 2) {
             if (source == null || target == null) {
                 return;
             }
-            var points = ConnectionExtensions.closestConnectionPoints(source.getGeometry(), target.getGeometry());
+            let points = ConnectionExtensions.closestConnectionPoints(source.getGeometry(), target.getGeometry());
             sourcePoint = points[0];
             targetPoint = points[1];
         } else {
@@ -520,10 +520,10 @@ export class DiagramView implements IDiagramView {
     }
 
     private setConnectionAnchor(edge: MxCell, vertex: MxCell, point: IPoint, source: boolean) {
-        var styleX = source ? mxConstants.STYLE_EXIT_X : mxConstants.STYLE_ENTRY_X;
-        var styleY = source ? mxConstants.STYLE_EXIT_Y : mxConstants.STYLE_ENTRY_Y;
-        var relativePoint = MathExtensions.toRelativePoint(vertex.getGeometry(), point);
-        var style = mxUtils.setStyle(edge.getStyle(), styleX, relativePoint.x);
+        let styleX = source ? mxConstants.STYLE_EXIT_X : mxConstants.STYLE_ENTRY_X;
+        let styleY = source ? mxConstants.STYLE_EXIT_Y : mxConstants.STYLE_ENTRY_Y;
+        let relativePoint = MathExtensions.toRelativePoint(vertex.getGeometry(), point);
+        let style = mxUtils.setStyle(edge.getStyle(), styleX, relativePoint.x);
         edge.setStyle(mxUtils.setStyle(style, styleY, relativePoint.y));
     }
 

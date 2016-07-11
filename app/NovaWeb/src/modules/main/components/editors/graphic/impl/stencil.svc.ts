@@ -1,16 +1,16 @@
 export interface IStencilService {
-        getStencil(diagramType: string): HTMLElement;
-    }
+    getStencil(diagramType: string): HTMLElement;
+}
 
 export class StencilService implements IStencilService {
 
-    public static $inject = ["mxUtils"];
+    public static $inject = ["mxUtils", "$http"];
 
     constructor(private mxUtils: MxUtils) {
     }
 
     public getStencil(diagramType: string): HTMLElement {
-        var pathToStencil = mxBasePath + "/stencils/";
+        let pathToStencil = mxBasePath + "/stencils/";
         switch (diagramType) {
             case "businessprocess":
                 pathToStencil += "bpmn.xml";
@@ -30,9 +30,9 @@ export class StencilService implements IStencilService {
             default:
                 return null;
         }
-        var stencil = null;
+        let stencil = null;
         try {
-            var req = <XMLHttpRequest>this.mxUtils.load(pathToStencil).request;
+            const req = <XMLHttpRequest>this.mxUtils.load(pathToStencil).request;
             stencil = req.responseXML.documentElement;
         } catch (e) {
 

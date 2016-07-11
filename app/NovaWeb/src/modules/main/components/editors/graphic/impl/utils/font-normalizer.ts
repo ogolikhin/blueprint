@@ -15,7 +15,7 @@ export class FontNormalizer {
 
     public static normalize(html: string) {
         return html ? html.replace(FontNormalizer.replacer, function (match, part1, part2) {
-            var replacement = FontNormalizer.subsitution[part2];
+            let replacement = FontNormalizer.subsitution[part2];
             return replacement ? part1 +  replacement + ";" : match;
         }) : html;
     }

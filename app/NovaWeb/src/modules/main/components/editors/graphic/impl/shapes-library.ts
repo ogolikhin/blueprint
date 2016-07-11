@@ -30,7 +30,7 @@ class CalloutHelper {
     }
 
     public static computeCorners(w: number, h: number, radius: number): Array<MxPoint> {
-        var points: Array<MxPoint> = [
+        let points: Array<MxPoint> = [
             MxFactory.point(0, radius),
             MxFactory.point(radius, 0),
             MxFactory.point(w - radius, 0),
@@ -56,14 +56,14 @@ export class CalloutShape extends mxActor {
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
 
-        var anchorRelativePoint = MxFactory.point(mxUtils.getValue(this.style, "x", 0), mxUtils.getValue(this.style, "y", 0));
+        let anchorRelativePoint = MxFactory.point(mxUtils.getValue(this.style, "x", 0), mxUtils.getValue(this.style, "y", 0));
 
-        var connectionPoint = CalloutHelper.closestConnectionPoint(anchorRelativePoint);
-        var isInside = CalloutHelper.isInside(anchorRelativePoint);
-        var anchorPoint = MxFactory.point(anchorRelativePoint.x * w, anchorRelativePoint.y * h);
+        let connectionPoint = CalloutHelper.closestConnectionPoint(anchorRelativePoint);
+        let isInside = CalloutHelper.isInside(anchorRelativePoint);
+        let anchorPoint = MxFactory.point(anchorRelativePoint.x * w, anchorRelativePoint.y * h);
 
-        var radius = Math.min(w, h) / 10.0;
-        var corners = CalloutHelper.computeCorners(w, h, radius);
+        let radius = Math.min(w, h) / 10.0;
+        let corners = CalloutHelper.computeCorners(w, h, radius);
         path.begin();
         path.moveTo(corners[0].x, corners[0].y);
         DiagramHelper.drawArcSegment(path, corners[1], radius);
@@ -79,10 +79,10 @@ export class CalloutShape extends mxActor {
 
     private drawSegment(path, start: MxPoint, end: MxPoint, anchor: MxPoint, connection: number, connectToAnchor: boolean): void {
         if (connectToAnchor) {
-            var p1 = MathExtensions.lerp(start, end, connection - 0.1);
+            let p1 = MathExtensions.lerp(start, end, connection - 0.1);
             path.lineTo(p1.x, p1.y);
             path.lineTo(anchor.x, anchor.y);
-            var p2 = MathExtensions.lerp(start, end, connection + 0.1);
+            let p2 = MathExtensions.lerp(start, end, connection + 0.1);
             path.lineTo(p2.x, p2.y);
         }
         path.lineTo(end.x, end.y);
@@ -102,8 +102,8 @@ export class ImageShape extends mxImageShape {
         if (this.image != null) {
             // FlipH/V are implicit via mxShape.updateTransform
             c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
-            var fill = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BACKGROUND, null);
-            var stroke = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BORDER, null);
+            let fill = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BACKGROUND, null);
+            let stroke = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BORDER, null);
 
             if (fill != null || stroke != null) {
                 c.setFillColor(fill);
@@ -140,23 +140,23 @@ export class ImageShape extends mxImageShape {
 */
 class ImageHelper {
     public static initFallback() {
-        var createElement = mxSvgCanvas2D.prototype.createElement;
+        let createElement = mxSvgCanvas2D.prototype.createElement;
         mxSvgCanvas2D.prototype.createElement = function (tagName: string, namespace: string) {
-            var mxSvgCanvas = this;
-            var element = createElement.call(mxSvgCanvas, tagName, namespace);
+            let mxSvgCanvas = this;
+            let element = createElement.call(mxSvgCanvas, tagName, namespace);
             if (tagName === "image") {
                 //workaround for IE
                 element.setAttribute("onerror", "this.onerror();");
                 element.onerror = function () {
-                    var x = parseFloat(this.getAttribute("x"));
-                    var y = parseFloat(this.getAttribute("y"));
-                    var w = parseFloat(this.getAttribute("width"));
-                    var h = parseFloat(this.getAttribute("height"));
-                    var parent: SVGElement = this.parentNode;
-                    var path = createElement.call(mxSvgCanvas, "path", null);
+                    let x = parseFloat(this.getAttribute("x"));
+                    let y = parseFloat(this.getAttribute("y"));
+                    let w = parseFloat(this.getAttribute("width"));
+                    let h = parseFloat(this.getAttribute("height"));
+                    let parent: SVGElement = this.parentNode;
+                    let path = createElement.call(mxSvgCanvas, "path", null);
 
                     // ReSharper disable once InconsistentNaming
-                    var c: MxAbstractCanvas2D = new mxAbstractCanvas2D();
+                    let c: MxAbstractCanvas2D = new mxAbstractCanvas2D();
                     ImageShape.drawFallbackImage(c, MxFactory.rectangle(x, y, w, h));
 
                     path.setAttribute("d", c.path.join(" "));
@@ -209,31 +209,31 @@ export class SvgImageShape extends mxActor {
     public static get getName(): string { return "svgimage"; }
 
     public paintVertexShape(canvas: any, x: number, y: number, w: number, h: number) {
-        var svgPath = mxUtils.getValue(this.style, ShapeProps.PATH, null);
+        let svgPath = mxUtils.getValue(this.style, ShapeProps.PATH, null);
         if (svgPath != null) {
             canvas.begin();
             canvas.path = svgPath.split(" ");
             canvas.fillAndStroke();
 
-            var nbbox = canvas.node.getBBox();
-            var sX = (w / nbbox.width) * this.scale;
-            var sY = (h / nbbox.height) * this.scale;
+            let nbbox = canvas.node.getBBox();
+            let sX = (w / nbbox.width) * this.scale;
+            let sY = (h / nbbox.height) * this.scale;
 
-            var tX = x * this.scale - nbbox.x * sX;
-            var tY = y * this.scale - nbbox.y * sY;
+            let tX = x * this.scale - nbbox.x * sX;
+            let tY = y * this.scale - nbbox.y * sY;
 
             if (isFinite(sX) && isFinite(sY)) {
                 canvas.node.setAttribute("transform", "translate(" + tX + ", " + tY + ") scale(" + sX + ", " + sY + ")");
             }
 
-            var shadow = mxUtils.getValue(this.style, mxConstants.STYLE_SHADOW, 0);
+            let shadow = mxUtils.getValue(this.style, mxConstants.STYLE_SHADOW, 0);
             if (shadow) {
-                var n = <SVGElement>canvas.node;
-                var shadowNode = n.previousSibling;
+                let n = <SVGElement>canvas.node;
+                let shadowNode = n.previousSibling;
                 if (shadowNode != null) {
 
-                    var shadowDx = canvas.state.shadowDx * canvas.state.scale;
-                    var shadowDy = canvas.state.shadowDy * canvas.state.scale;
+                    let shadowDx = canvas.state.shadowDx * canvas.state.scale;
+                    let shadowDy = canvas.state.shadowDy * canvas.state.scale;
 
                     if (isFinite(sX) && isFinite(sY)) {
                         let attr = "translate(" + (tX + shadowDx) + ", " + (tY + shadowDy) + ") scale(" + sX + ", " + sY + ")";
@@ -256,22 +256,22 @@ export class IconShape extends mxActor {
     public static iconData;
 
     public drawIcon(canvas: any, xContainer: number, yContainer: number, wContainer: number, hContainer: number) {
-        var iconKey = this.style.IconKey;
+        let iconKey = this.style.IconKey;
         if (iconKey === "undefined") {
             return;
         }
 
         canvas.begin();
-        var iconData = IconShape.iconData[iconKey];
+        let iconData = IconShape.iconData[iconKey];
         canvas.node.setAttribute("fill-rule", iconData.fillRule);
         canvas.path = [iconData.data];
         canvas.fillAndStroke();
         //canvas.fill();
         //canvas.stroke();
 
-        var originalBoundingBox = canvas.node.getBBox();
+        let originalBoundingBox = canvas.node.getBBox();
         //
-        var scaleX, scaleY, translateX, translateY;
+        let scaleX, scaleY, translateX, translateY;
 
         scaleX = (wContainer / originalBoundingBox.width) * this.scale;
         scaleY = (hContainer / originalBoundingBox.height) * this.scale;
@@ -290,15 +290,15 @@ export class IconShape extends mxActor {
             translateX = xContainer * this.scale - originalBoundingBox.x * scaleX + (wContainer * this.scale - originalBoundingBox.width * scaleX) / 2;
         }
 
-        var state = canvas.state;
+        let state = canvas.state;
         //adjustedStokeRatio is really a magic number, silveright's stroke width with path
         // is not compatible with svg, tweak it if it is necessary
-        var adjustedStokeRatio = 20;
+        let adjustedStokeRatio = 20;
         canvas.node.setAttribute("stroke-width", state.strokeWidth / adjustedStokeRatio);
 
-        var strokeDashArray = canvas.node.getAttribute("stroke-dasharray");
+        let strokeDashArray = canvas.node.getAttribute("stroke-dasharray");
         if (strokeDashArray) {
-            var newStrockDashArray = [];
+            let newStrockDashArray = [];
             strokeDashArray.split(" ").forEach(function (value) {
                 newStrockDashArray.push(value / adjustedStokeRatio);
             });
@@ -377,8 +377,8 @@ export class HighlightEllipse extends mxActor {
     public static get getName(): string { return "highlightEllipse"; }
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
-        var radius = Math.min(w, h) < 100 ? Math.min(w, h) / 10.0 : 5;
-        var corners = CalloutHelper.computeCorners(w, h, radius);
+        let radius = Math.min(w, h) < 100 ? Math.min(w, h) / 10.0 : 5;
+        let corners = CalloutHelper.computeCorners(w, h, radius);
         path.begin();
         path.moveTo(corners[0].x, corners[0].y);
         DiagramHelper.drawArcSegment(path, corners[1], radius);
@@ -406,12 +406,12 @@ export class Connector extends mxConnector {
         if (pts.length >= 4) {
             c.begin();
 
-            var pt = pts[0];
+            let pt = pts[0];
             c.moveTo(pt.x, pt.y);
 
-            var cp1 = pts[1];
-            var cp2 = pts[2];
-            var endPoint = pts[3];
+            let cp1 = pts[1];
+            let cp2 = pts[2];
+            let endPoint = pts[3];
 
             c.curveTo(cp1.x, cp1.y, cp2.x, cp2.y, endPoint.x, endPoint.y);
             c.stroke();
@@ -430,13 +430,13 @@ class MarkerHelper {
         // The angle of the forward facing arrow sides against the x axis is
         // 26.565 degrees, 1/sin(26.565) = 2.236 / 2 = 1.118 ( / 2 allows for
         // only half the strokewidth is processed ).
-        var endOffsetX = unitX * sw * 2.236;
-        var endOffsetY = unitY * sw * 2.236;
+        let endOffsetX = unitX * sw * 2.236;
+        let endOffsetY = unitY * sw * 2.236;
 
         unitX = unitX * (size + sw);
         unitY = unitY * (size + sw);
 
-        var pt = pe.clone();
+        let pt = pe.clone();
         pt.x += endOffsetX;
         pt.y += endOffsetY;
 
@@ -449,9 +449,9 @@ class MarkerHelper {
     }
 
     public static drawOval(canvas, shape, type, pe: MxPoint, unitX: number, unitY: number, size: number, source, sw, filled: boolean) {
-        var a = size / 2;
+        let a = size / 2;
 
-        var pt = pe.clone();
+        let pt = pe.clone();
         pe.x -= unitX * size;
         pe.y -= unitY * size;
 

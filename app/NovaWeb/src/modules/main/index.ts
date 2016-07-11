@@ -104,7 +104,7 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     });
     formlyConfig.setType({
         name: 'tinymceInline',  
-        template: `<div class="form-tinymce-toolbar"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
+        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
             data: { // using data property

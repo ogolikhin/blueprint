@@ -101,6 +101,8 @@ export interface IPropertyType {
     defaultValidValueIndex?: number;
     
     // Extra properties. Maintaned by client
+    key?: string;
+    propertyTypePredefined?: PropertyTypePredefined,
     disabled?: boolean;
 }
 export interface IPropertyValue {
@@ -127,30 +129,6 @@ export interface IProject extends IArtifact {
     meta?: IProjectMeta;
 }
 
-export class Artifact {
-    private _propertyValues: IPropertyValue[];
-    private _subArtifacts: IArtifact[];
-
-    constructor(...data: any[]) { //
-        angular.extend(this, ...data);
-    };
-    public id: number;
-
-    public name: string;
-
-    public projectId: number;
-    public parentId: number;
-    public predefinedType: ItemTypePredefined;
-    public itemTypeId: number;
-
-    public get propertyValues() {
-        return this._propertyValues || (this._propertyValues = []);
-    }
-    public get subArtifacts() {
-        return this._subArtifacts || (this._subArtifacts = []);
-    }
-    public artifacts: IArtifact[];
-}
 
 export class Project implements IProject {
     constructor(...data: any[]) { //
@@ -193,5 +171,29 @@ export interface IArtifactDetailFields {
 }
 
 
+export class Artifact {
+    private _propertyValues: IPropertyValue[];
+    private _subArtifacts: IArtifact[];
 
+    constructor(...data: any[]) { //
+        angular.extend(this, ...data);
+    };
+    public id: number;
 
+    public name: string;
+
+    public projectId: number;
+    public parentId: number;
+    public predefinedType: ItemTypePredefined;
+    public itemTypeId: number;
+
+    public get propertyValues() {
+        return this._propertyValues || (this._propertyValues = []);
+    }
+    public get subArtifacts() {
+        return this._subArtifacts || (this._subArtifacts = []);
+    }
+    public artifacts: IArtifact[];
+}
+
+  

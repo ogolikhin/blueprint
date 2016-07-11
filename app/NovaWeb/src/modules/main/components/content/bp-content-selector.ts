@@ -40,7 +40,7 @@ export class BPContentSelectorController {
 
     private getContentType(artifact: Models.IArtifact): string {
         switch (artifact.predefinedType) {
-            case <Models.ArtifactTypeEnum>4108:
+            case Models.ItemTypePredefined.GenericDiagram:
                 return "graphic";
             default:
                 return "other";

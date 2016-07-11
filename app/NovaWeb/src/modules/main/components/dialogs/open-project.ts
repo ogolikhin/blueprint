@@ -36,7 +36,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
 
     public propertyMap = {
         id: "id",
-        item: "type",
+        type: "type",
         name: "name", 
         hasChildren: "hasChildren"
     };

@@ -30,7 +30,8 @@ export interface IProjectManager {
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-    getArtifactPropertyFileds(project: Models.IArtifact): Models.IArtifactDetailFields;
+    getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[];
+//    getArtifactPropertyFileds(artyfact: Models.IArtifact, project: Models.IArtifact): Models.IArtifactDetailFields;
 }
 
 
@@ -298,170 +299,67 @@ export class ProjectManager implements IProjectManager {
     }
 
 
-    public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
-        try {
-            let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
-                systemFields: [],
-                customFields: [],
-                noteFields: []
-            };
-            if (!artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
+    public getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+        //add system properties  
+        properties.push(<Models.IPropertyType>{
+            name: "Name",
+            propertyTypePredefined: Models.PropertyTypePredefined.name,
+            primitiveType: Models.PrimitiveType.Text,
+            isRequired:true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: "Type",
+            propertyTypePredefined: Models.PropertyTypePredefined.name,
+            primitiveType: Models.PrimitiveType.Choice,
+            isRequired: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: "Created by",
+            propertyTypePredefined: Models.PropertyTypePredefined.createdby,
+            primitiveType: Models.PrimitiveType.Choice,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: "Created on",
+            propertyTypePredefined: Models.PropertyTypePredefined.createdon,
+            primitiveType: Models.PrimitiveType.Choice,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: "Last edited by",
+            propertyTypePredefined: Models.PropertyTypePredefined.lasteditedon,
+            primitiveType: Models.PrimitiveType.Choice,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: "Last edited on",
+            propertyTypePredefined: Models.PropertyTypePredefined.lasteditedon,
+            primitiveType: Models.PrimitiveType.Choice,
+            disabled: true
+        });
+        let artifactType: Models.IItemType;
+        let project = this.getProject(artifact.id);
+        //add custom properties
+        if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
+            artifactType = <Models.IItemType>{
+                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                baseType: Models.ItemTypePredefined.Project
             }
-            let project = this.getProject(artifact.projectId);
-            if (!project || !project.meta) {
-                throw new Error(this.localization.get("Project_NotFound"));
-            } 
-            let artifactType: Models.IItemType
-            if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
-                artifactType = <Models.IItemType>{
-                    id: -1,
-                    name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                    baseType: Models.ItemTypePredefined.Project
-                }
-            } else {
-                artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return it.id === artifact.itemTypeId;
-                })[0];
-            }
-
-            let t = Models.PropertyTypePredefined[Models.PropertyTypePredefined.almintegrationsettings]; 
-
-            let field: AngularFormly.IFieldConfigurationObject;
-
-            fields.systemFields.push(this.createField("name", <Models.IPropertyType>{
-                id: -1,
-                name: "Name",
-                primitiveType: Models.PrimitiveType.Text,
-                isRequired: true
-            }));
-            fields.systemFields.push(field = this.createField("typeId", <Models.IPropertyType>{
-                id: -1,
-                name: "Type",
-                primitiveType: Models.PrimitiveType.Choice,
-                isRequired: true
-            }));
-
-            field.templateOptions.options = artifactType ? [<AngularFormly.ISelectOption>{ value: artifactType.baseType.toString(), name: artifactType.name }] : [];
-            field.templateOptions.options = field.templateOptions.options.concat(project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return (artifactType && (artifactType.baseType === it.baseType));
-            }).map(function (it) {
-                return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
-            }));
-
-            field.expressionProperties = {
-                "templateOptions.disabled": "to.options.length < 2",
-            };
-
-            fields.systemFields.push(this.createField("createdBy", <Models.IPropertyType>{
-                name: "Created by",
-                primitiveType: Models.PrimitiveType.Text,
-                disabled: true
-            }));
-            fields.systemFields.push(this.createField("createdOn", <Models.IPropertyType>{
-                name: "Created on",
-                primitiveType: Models.PrimitiveType.Date,
-                disabled: true
-            }));
-
-            fields.systemFields.push(this.createField("lastEditedBy", <Models.IPropertyType>{
-                name: "Last edited by",
-                primitiveType: Models.PrimitiveType.Text,
-                disabled: true
-            }));
-            fields.systemFields.push(this.createField("lastEditedOn", <Models.IPropertyType>{
-                name: "Last edited on",
-                primitiveType: Models.PrimitiveType.Date,
-                disabled: true
-            }));
-
-            fields.noteFields.push(this.createField("description", <Models.IPropertyType>{
-                name: "Description",
-                primitiveType: Models.PrimitiveType.Text,
-                isRichText: true
-            }));
-
-            if (artifactType) {
-                project.meta.propertyTypes.map((it: Models.IPropertyType) => {
-                    if ((artifactType.customPropertyTypeIds || []).indexOf(it.id) >= 0) {
-                        field = this.createField(`property_${it}`, it);
-                        if (field) {
-                            if (it.isRichText) {
-                                fields.noteFields.push(field);
-                            } else {
-                                fields.customFields.push(field);
-                            }
-                        }
-                    }
-                });
-            }
-
-
-            return fields;
-
-
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+        } else {
+            artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                return it.id === artifact.itemTypeId;
+            })[0];
         }
+        project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(it);
+            }
+        });
 
+
+        return properties;
     }
-
-    private createField(modelName: string, type: Models.IPropertyType): AngularFormly.IFieldConfigurationObject {
-        if (!modelName) {
-            throw new Error(this.localization.get("Artifact_Details_FieldNameError"));
-        }
-        if (!type) {
-            throw new Error(this.localization.get("ArtifactType_NotFound"));
-        }
-        let field: AngularFormly.IFieldConfigurationObject = {
-            key: modelName,
-            templateOptions: {
-                label: type.name,
-                required: type.isRequired,
-                disabled: type.disabled
-            },
-            data: type,
-            expressionProperties: {},
-        };
-
-
-        switch (type.primitiveType) {
-            case Models.PrimitiveType.Text:
-                field.type = type.isRichText ? "tinymce" : (type.isMultipleAllowed ? "textarea" : "input");
-                field.defaultValue = type.stringDefaultValue;
-                //field.templateOptions.minlength;
-                //field.templateOptions.maxlength;
-                break;
-            case Models.PrimitiveType.Date:
-                field.type = "input";
-                field.templateOptions.type = "date";
-                field.defaultValue = type.dateDefaultValue;
-                //field.templateOptions.min = type.minDate;
-                //field.templateOptions.max = type.maxDate;
-                break;
-            case Models.PrimitiveType.Number:
-                field.type = "input";
-                field.templateOptions.type = "number";
-                field.defaultValue = type.decimalDefaultValue;
-                field.templateOptions.min = type.minNumber;
-                field.templateOptions.max = type.maxNumber;
-                break;
-            case Models.PrimitiveType.Choice:
-                field.type = "select";
-                field.defaultValue = (type.defaultValidValueIndex || 0).toString();
-                if (type.validValues) {
-                    field.templateOptions.options = type.validValues.map(function (it, index) {
-                        return <AngularFormly.ISelectOption>{ value: index.toString(), name: it };
-                    });
-                }
-                break;
-            default:
-                return undefined;
-        }
-        return field;
-    }
-
-
 
 
 }

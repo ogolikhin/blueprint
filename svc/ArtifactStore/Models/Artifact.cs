@@ -20,7 +20,7 @@ namespace ArtifactStore.Models
         public int? ParentId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? TypeId { get; set; }
+        public int? ItemTypeId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Prefix { get; set; }

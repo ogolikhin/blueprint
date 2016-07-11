@@ -53,7 +53,7 @@ class FieldType {
 export class BpArtifactDetailsController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
-    private _artifact: Models.IArtifactDetails;
+    private _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
@@ -102,26 +102,29 @@ export class BpArtifactDetailsController {
             Models.PropertyTypePredefined.lasteditedon,
         ]
 
-        let _model = {
-            name: artifact.name,
-            type: artifact.typeId.toString(),
-        };
+        let _model = {};
         for (let key in artifact) {
-            if (key.toLowerCase() === "properyValues") {
-                <Models.IPropertyValue>artifact[key].forEach((it: Models.IPropertyValue) => {
-                    
-                    let name: string;
-                    if (system.indexOf(it.propertyTypePredefined) > -1) {
-                        name = Models.PropertyTypePredefined[it.propertyTypePredefined];
-                    } else {
-                        name = `property_${it.propertyTypeId}`;
-                    }
-                    _model[name] = it.value;
-                })
-            }
-        };
+            switch (key.toLowerCase()) {
+                case "properyvalues":
+                    <Models.IPropertyValue>artifact[key].forEach((it: Models.IPropertyValue) => {
+                        let name: string;
+                        if (system.indexOf(it.propertyTypePredefined) > -1) {
+                            name = Models.PropertyTypePredefined[it.propertyTypePredefined];
+                        } else {
+                            name = `property_${it.propertyTypeId}`;
+                        }
+                        _model[name] = it.value;
+                    });
+                    break;
+                default:
+                    _model[key] = artifact[key];
+                    break;
+
+            };
+        }
         return _model;
     }
+
     private createFields(artifact: Models.IArtifact): any {
         let fields: FieldType[] = [];
         //let _model = {
@@ -157,7 +160,7 @@ export class BpArtifactDetailsController {
     public loadView(artifact: Models.IArtifact) {
         if (!artifact) {
             return;
-        }
+        } 
         this.activeTab = -1;
         this._artifact = angular.copy(artifact);
         this.model = this.createModel(this._artifact);

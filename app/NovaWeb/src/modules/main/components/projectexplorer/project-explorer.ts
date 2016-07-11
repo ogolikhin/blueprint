@@ -35,7 +35,7 @@ export class ProjectExplorerController {
     // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
-        typeId: "type",
+        itemTypeId: "type",
         name: "name",
         hasChildren: "hasChildren",
         artifacts: "children"
@@ -88,7 +88,7 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.projectManager.setCurrentArtifact(this.doSync(node));
+        this.projectManager.loadArtifact(this.doSync(node));
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
@@ -96,7 +96,7 @@ export class ProjectExplorerController {
         let artifact = this.projectManager.getArtifact(node.id);
         if (artifact.hasChildren) {
             angular.extend(artifact, {
-                loaded: node.loaded,
+//                loaded: node.loaded,
                 open: node.open
             });
         };

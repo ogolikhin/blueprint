@@ -6,7 +6,7 @@ export {Models}
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifact>;
+    getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
@@ -70,11 +70,11 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
-    public getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifact> {
+    public getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<any>();
 
         const request: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${artifactId}`,
+            url: `/svc/components/nova/artifacts/${artifactId}`,
             method: "GET",
             //params: {
             //    types: true

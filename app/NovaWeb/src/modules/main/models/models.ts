@@ -51,7 +51,7 @@ export interface IArtifact {
     name: string;
     projectId: number;
     parentId: number;
-    typeId: number;
+    itemTypeId: number;
     prefix?: string;
     predefinedType: ItemTypePredefined;
     orderIndex?: number;
@@ -63,6 +63,8 @@ export interface IArtifact {
 
     //for client use
     artifacts?: IArtifact[];
+    loaded?: boolean;
+
 }
 export interface IItemType {
     id: number;
@@ -139,7 +141,7 @@ export class Artifact {
     public projectId: number;
     public parentId: number;
     public predefinedType: ItemTypePredefined;
-    public typeId: number;
+    public itemTypeId: number;
 
     public get propertyValues() {
         return this._propertyValues || (this._propertyValues = []);
@@ -153,6 +155,7 @@ export class Artifact {
 export class Project implements IProject {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
+        this.itemTypeId = <number>ItemTypePredefined.Project;
     };
 
     public id: number;
@@ -161,7 +164,7 @@ export class Project implements IProject {
 
     public description: string;
 
-    public typeId: number;
+    public itemTypeId: number;
 
     public artifacts: IArtifact[];
 

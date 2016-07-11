@@ -69,7 +69,7 @@ export class ProjectManager implements IProjectManager {
         this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
         
-        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
+//        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
@@ -130,7 +130,6 @@ export class ProjectManager implements IProjectManager {
                     .then((result: Models.IArtifact[]) => {
                         _project = new Models.Project(project, {
                             artifacts: result,
-                            loaded: true,
                             open: true
                         });
                         _projectCollection.unshift(_project);
@@ -147,6 +146,7 @@ export class ProjectManager implements IProjectManager {
 
     public loadArtifact = (artifact: Models.IArtifact) => {
         try {
+            let self = this;
             if (artifact === null) {
                 return;
             }
@@ -154,47 +154,50 @@ export class ProjectManager implements IProjectManager {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
 
-            let self = this;
-            let _artifact = this.getArtifact(artifact.id);
-            if (!_artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
-            }
-            this._repository.getArtifacts(artifact.projectId, artifact.id)
-                .then((result: Models.IArtifact[]) => {
-                    angular.extend(_artifact, {
-                        artifacts: result,
-                        hasChildren: true,
-                        loaded: true,
-                        open: true
+            //let _artifact = this.getArtifact(artifact.id);
+            //if (!_artifact) {
+            //    throw new Error(this.localization.get("Artifact_NotFound"));
+            //}
+            if (artifact.hasChildren && (!artifact.artifacts || (angular.isArray(artifact.artifacts) && artifact.artifacts.length === 0))) {
+                this._repository.getArtifacts(artifact.projectId, artifact.id)
+                    .then((result: Models.IArtifact[]) => {
+                        angular.extend(artifact, {
+                            artifacts: result,
+                            hasChildren: true,
+                            open: true
+                        });
+                        self.projectCollection.onNext(self.projectCollection.getValue());
+                        //self.setCurrentArtifact(_artifact);
+                        self.loadArtifactDetails(artifact);
+                    }).catch((error: any) => {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                     });
-                    self.projectCollection.onNext(self.projectCollection.getValue());
-                    self.setCurrentArtifact(_artifact);
-                }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                });
+            } else {
+                self.loadArtifactDetails(artifact);
+            }
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
-
+    
     public loadArtifactDetails = (artifact: Models.IArtifact) => {
         try {
+            let self = this;
             if (artifact === null) {
                 return;
             }
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
-            //let self = this;
-            let _artifact = this.getArtifact(artifact.id);
-            if (!_artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
+            if (artifact.loaded) {
+                self.setCurrentArtifact(artifact);
+                return;
             }
-            this._repository.getArtifactDetails(artifact.projectId, artifact.id)
+            this._repository.getArtifactDetails(artifact.id)
                 .then((result: Models.IArtifactDetails) => {
-//                    angular.extend(_artifact, result);
-//                    self.setCurrentArtifact(_artifact);
+                    angular.extend(artifact, result, {loaded: true});
+                    self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 });
@@ -318,7 +321,7 @@ export class ProjectManager implements IProjectManager {
                 }
             } else {
                 artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return it.id === artifact.typeId;
+                    return it.id === artifact.itemTypeId;
                 })[0];
             }
 

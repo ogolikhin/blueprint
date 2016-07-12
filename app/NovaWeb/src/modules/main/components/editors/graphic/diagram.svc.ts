@@ -65,6 +65,7 @@ export class DiagramService implements IDiagramService {
             case ItemTypePredefined.Storyboard:
             case ItemTypePredefined.UseCaseDiagram:
             case ItemTypePredefined.UseCase:
+            case ItemTypePredefined.UIMockup:
                 return true;
             default:
                 return false;

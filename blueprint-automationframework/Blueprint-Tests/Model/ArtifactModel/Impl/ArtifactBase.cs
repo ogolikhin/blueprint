@@ -17,21 +17,6 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constants
 
-        public const string URL_LOCK                = RestPaths.Svc.Shared.Artifacts.LOCK;
-        public const string URL_RAPTOR_DISCUSSIONS  = RestPaths.Svc.Components.RapidReview.Artifacts.DISCUSSIONS;
-        public const string URL_RAPTOR_REPLY        = RestPaths.Svc.Components.RapidReview.Artifacts.Discussions.REPLY;
-        public const string URL_SEARCH              = RestPaths.Svc.Shared.Artifacts.SEARCH;
-        public const string URL_NOVADISCARD         = RestPaths.Svc.Shared.Artifacts.DISCARD;
-        public const string URL_ARTIFACT_INFO       = RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO;
-        public const string URL_DIAGRAM             = RestPaths.Svc.Components.RapidReview.DIAGRAM;
-        public const string URL_USECASE             = RestPaths.Svc.Components.RapidReview.USECASE;
-        public const string URL_GLOSSARY            = RestPaths.Svc.Components.RapidReview.GLOSSARY;
-        public const string URL_ARTIFACTPROPERTIES  = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
-        public const string URL_NAVIGATION          = RestPaths.Svc.Shared.NAVIGATION;
-
-        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT     = RestPaths.OpenApi.Projects.Artifacts.ATTACHMENTS;
-        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT  = RestPaths.OpenApi.Projects.Artifacts.SubArtifacts.ATTACHMENTS;
-
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         #endregion Constants
@@ -256,7 +241,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant(URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION, string.Join("/", artifactIds));
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -338,8 +323,9 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+
             var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
-                OpenApiArtifact.URL_PUBLISH,
+                RestPaths.OpenApi.VersionControl.PUBLISH,
                 RestRequestMethod.POST,
                 artifactsToPublish,
                 additionalHeaders: additionalHeaders,

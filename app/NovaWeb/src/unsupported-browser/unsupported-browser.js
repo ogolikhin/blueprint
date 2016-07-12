@@ -299,6 +299,11 @@ var appBootstrap = (function() {
                     divUnsupportedNoFont.id = "unsupported-nofont-container";
                     divUnsupportedNoFont.innerHTML = xhr.responseText;
                     document.body.insertBefore(divUnsupportedNoFont, document.body.firstChild);
+
+                    var appWrapper = document.getElementById("js-enabled");
+                    if (appWrapper) {
+                        appWrapper.parentNode.removeChild(appWrapper);
+                    }
                 }
             };
             xhr.open('GET', '/novaweb/static/unsupported-nofont.html');

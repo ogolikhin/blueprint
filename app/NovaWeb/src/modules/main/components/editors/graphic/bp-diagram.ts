@@ -54,8 +54,8 @@ export class BPDiagramController {
             this.diagramView.sanitize = this.$sanitize;
 
             this.diagramService.getDiagram(artifact.id, artifact.predefinedType).then(diagram => {
-                    this.diagramView.drawDiagram(diagram);
-                });
+                this.diagramView.drawDiagram(diagram);
+            });
         }
     }
 }

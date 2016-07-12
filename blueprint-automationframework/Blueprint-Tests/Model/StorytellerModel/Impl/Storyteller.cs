@@ -18,12 +18,6 @@ namespace Model.StorytellerModel.Impl
 {
     public class Storyteller : IStoryteller, IArtifactObserver
     {
-        private const string URL_GENERATE_USERSTORIES   = RestPaths.Svc.Components.Storyteller.Projects.Processes.USERSTORIES;
-        private const string URL_USERSTORY_ARTIFACTTYPE = RestPaths.Svc.Components.Storyteller.Projects.ArtifactTypes.USER_STORY;
-        private const string URL_PROCESS_ARTIFACT       = RestPaths.Svc.Components.Storyteller.PROCESSES;
-        private const string URL_PROJECT_PROCESSES      = RestPaths.Svc.Components.Storyteller.Projects.PROCESSES;
-        private const string URL_UPLOAD_PATH            = RestPaths.Svc.Components.FileStore.FILES;
-
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         public const string APPLICATION_SETTINGS_TABLE = "[dbo].[ApplicationSettings]";
@@ -143,7 +137,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(URL_GENERATE_USERSTORIES, process.ProjectId, process.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.Processes.USERSTORIES, process.ProjectId, process.Id);
 
             if (expectedStatusCodes == null)
             {
@@ -163,6 +157,7 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+
             var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
                 path,
                 RestRequestMethod.POST,
@@ -191,7 +186,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(URL_PROCESS_ARTIFACT, artifactId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES, artifactId);
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -203,6 +198,7 @@ namespace Model.StorytellerModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
+
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
@@ -228,10 +224,11 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(URL_PROJECT_PROCESSES, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.PROCESSES, projectId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(Storyteller), projectId);
+
             var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
                 path,
                 RestRequestMethod.GET,
@@ -262,11 +259,16 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            string path = I18NHelper.FormatInvariant(URL_USERSTORY_ARTIFACTTYPE, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.ArtifactTypes.USER_STORY, projectId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
-            var response = restApi.SendRequestAndDeserializeObject<OpenApiArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+
+            var response = restApi.SendRequestAndDeserializeObject<OpenApiArtifactType>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
 
             return response;
         }
@@ -312,8 +314,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             var additionalHeaders = new Dictionary<string, string>();
-
-            string path = I18NHelper.FormatInvariant(URL_UPLOAD_PATH, file.FileName);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.FileStore.FILES, file.FileName);
 
             if (expireDate != null)
             {
@@ -325,7 +326,16 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(Storyteller), file.FileName, bytes.Length);
-            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+
+            var artifactResult = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                fileName: file.FileName,
+                fileContent: bytes,
+                contentType: "application/json;charset=utf8",
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
 
             return artifactResult.Content;
         }
@@ -552,10 +562,11 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(URL_PROCESS_ARTIFACT, process.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES, process.Id);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+
             var restResponse = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,

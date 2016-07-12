@@ -12,6 +12,42 @@ describe('executionEnvironmentDetector', function() {
         expect(browser).toBeTruthy();
     });
 
+    it("FontFace is supported", function () {
+        // Arrange
+        var detector = new executionEnvironmentDetector();
+        var isSupported;
+
+        // Act
+        isSupported = detector.isFontFaceSupported();
+
+        // Assert
+        expect(isSupported).toBeTruthy();
+    });
+
+    it("isWebfontAvailable returns false for non-existing fonts", function () {
+        // Arrange
+        var detector = new executionEnvironmentDetector();
+        var isAvailable;
+
+        // Act
+        isAvailable = detector.isWebfontAvailable("%$%^$&^$&");
+
+        // Assert
+        expect(isAvailable).toBeFalsy();
+    });
+
+    it("isWebfontAvailable returns true for non-standard fonts", function () {
+        // Arrange
+        var detector = new executionEnvironmentDetector();
+        var isAvailable;
+
+        // Act
+        isAvailable = detector.isWebfontAvailable("symbol");
+
+        // Assert
+        expect(isAvailable).toBeTruthy();
+    });
+
     it("Android 2.3", function () {
         // Arrange
         var userAgent =
@@ -1212,7 +1248,7 @@ describe('appBootstrap', function() {
         delete app;
     });
 
-    it('Launch app with unsupported browser', function() {
+    it('Launch app with unsupported browser (desktop)', function() {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
@@ -1224,6 +1260,26 @@ describe('appBootstrap', function() {
 
         // Assert
         expect(app.isSupportedVersion).toBeFalsy();
+    });
+
+    it('Launch app with unsupported browser (mobile)', function() {
+        // Arrange
+        var app = appBootstrap;
+        var detector = new executionEnvironmentDetector();
+        var uaUnsupported = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) CriOS/50.0.2272.58 Mobile/12F70 Safari/601.1 (000797)";
+
+        // Act
+        detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
+        app.executionEnvironment = detector;
+        app.orientationHandler();
+
+        // Assert
+        expect(app.isSupportedVersion).toBeFalsy();
+        if ((window.orientation && Math.abs(window.orientation) === 90)) {
+            expect(window.document.body.className).toContain("is-landscape");
+        } else {
+            expect(window.document.body.className).toContain("is-portrait");
+        }
     });
 
     /*it('Launch app with supported browser (iPad iOS Safari)', function() {

@@ -1,4 +1,4 @@
-import {IShape, IConnection, IPoint} from "../diagram.svc";
+import {IShape, IConnection, IPoint} from "./models";
 import {Shapes, ShapeProps} from "./utils/constants";
 import {MxFactory, ShapeExtensions, Color} from "./utils/helpers";
 import {Style, StyleBuilder} from "./utils/style-builder";

@@ -33,10 +33,18 @@ module.exports = function (config) {
                 included: false,
                 served: true,
                 nocache: false
+            },
+            {
+                pattern: './src/unsupported-browser/unsupported-nofont.html',
+                watched: false,
+                included: false,
+                served: true,
+                nocache: false
             }
         ],
         proxies: {
-            '/novaweb/static/unsupported-browser.html': '/base/src/unsupported-browser/unsupported-browser.html'
+            '/novaweb/static/unsupported-browser.html': '/base/src/unsupported-browser/unsupported-browser.html',
+            '/novaweb/static/unsupported-nofont.html': '/base/src/unsupported-browser/unsupported-nofont.html'
         },
         babelPreprocessor: {
             options: {

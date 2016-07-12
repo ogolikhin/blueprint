@@ -16,19 +16,6 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
-        public const string URL_LOCK = "svc/shared/artifacts/lock";
-        public const string URL_RAPTOR_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
-        public const string URL_RAPTOR_REPLY = "/svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
-        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/attachments";
-        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
-        public const string URL_SEARCH = "/svc/shared/artifacts/search";
-        public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
-        public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";
-        public const string URL_DIAGRAM = "svc/components/RapidReview/diagram";
-        public const string URL_USECASE = "svc/components/RapidReview/usecase";
-        public const string URL_GLOSSARY = "svc/components/RapidReview/glossary";
-        public const string URL_ARTIFACTPROPERTIES = "svc/components/RapidReview/artifacts/properties";
-        private const string URL_NAVIGATION = "svc/shared/navigation";
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
@@ -171,7 +158,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", OpenApiArtifact.SVC_PATH, artifactToDelete.ProjectId, artifactToDelete.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, artifactToDelete.ProjectId, artifactToDelete.Id);
 
             var queryparameters = new Dictionary<string, string>();
 
@@ -254,7 +241,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION, string.Join("/", artifactIds));
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -336,8 +323,9 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+
             var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
-                OpenApiArtifact.URL_PUBLISH,
+                RestPaths.OpenApi.VersionControl.PUBLISH,
                 RestRequestMethod.POST,
                 artifactsToPublish,
                 additionalHeaders: additionalHeaders,

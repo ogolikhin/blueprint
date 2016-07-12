@@ -75,6 +75,10 @@ bp-message {
   }
 }
 
+.error-page-wrapper {
+  position: relative;
+}
+
 .error-page {
   background-color: $blue-lightest;
   bottom: 0;
@@ -125,6 +129,10 @@ bp-message {
         font-weight: $font-weight-semibold;
         line-height: 1.6rem;
       }
+    }
+
+    .keep-together {
+      white-space: nowrap;
     }
   }
 }

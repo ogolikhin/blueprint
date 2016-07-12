@@ -177,7 +177,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -217,7 +217,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = project.DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -264,7 +264,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = ancestor3.DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -300,7 +300,7 @@ namespace ArtifactStore.Repositories
                     Name = input[2].Name,
                     Permissions = input[2].DirectPermissions,
                     LockedDateTime = input[2].LockedByUserTime,
-                    TypeId = input[2].ItemTypeId,
+                    ItemTypeId = input[2].ItemTypeId,
                     LockedByUserId = input[2].LockedByUserId,
                     Version = input[2].VersionsCount / 2,
                     ProjectId = input[2].VersionProjectId,
@@ -376,7 +376,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -440,7 +440,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -456,7 +456,7 @@ namespace ArtifactStore.Repositories
                     Name = collections.Name,
                     Permissions = collections.DirectPermissions,
                     LockedDateTime = collections.LockedByUserTime,
-                    TypeId = collections.ItemTypeId,
+                    ItemTypeId = collections.ItemTypeId,
                     LockedByUserId = collections.LockedByUserId,
                     Version = collections.VersionsCount,
                     ProjectId = collections.VersionProjectId,
@@ -474,7 +474,7 @@ namespace ArtifactStore.Repositories
                 //    Name = baselinesAndReviews.Name,
                 //    Permissions = baselinesAndReviews.DirectPermissions,
                 //    LockedDateTime = baselinesAndReviews.LockedByUserTime,
-                //    TypeId = baselinesAndReviews.ItemTypeId,
+                //    ItemTypeId = baselinesAndReviews.ItemTypeId,
                 //    LockedByUserId = baselinesAndReviews.LockedByUserId,
                 //    Version = baselinesAndReviews.VersionsCount,
                 //    ProjectId = baselinesAndReviews.VersionProjectId,
@@ -514,7 +514,7 @@ namespace ArtifactStore.Repositories
                     Name = input[1].Name,
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
-                    TypeId = input[1].ItemTypeId,
+                    ItemTypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
@@ -559,7 +559,7 @@ namespace ArtifactStore.Repositories
                     Name = inputOrphans[0].Name,
                     Permissions = inputOrphans[0].DirectPermissions,
                     LockedDateTime = inputOrphans[0].LockedByUserTime,
-                    TypeId = inputOrphans[0].ItemTypeId,
+                    ItemTypeId = inputOrphans[0].ItemTypeId,
                     LockedByUserId = inputOrphans[0].LockedByUserId,
                     Version = inputOrphans[0].VersionsCount,
                     ProjectId = inputOrphans[0].VersionProjectId,
@@ -604,7 +604,7 @@ namespace ArtifactStore.Repositories
                     Name = inputOrphans[1].Name,
                     Permissions = inputOrphans[1].DirectPermissions,
                     LockedDateTime = inputOrphans[1].LockedByUserTime,
-                    TypeId = inputOrphans[1].ItemTypeId,
+                    ItemTypeId = inputOrphans[1].ItemTypeId,
                     LockedByUserId = inputOrphans[1].LockedByUserId,
                     Version = inputOrphans[1].VersionsCount / 2,
                     ProjectId = inputOrphans[1].VersionProjectId,
@@ -651,7 +651,7 @@ namespace ArtifactStore.Repositories
                     Name = inputOrphans[0].Name,
                     Permissions = inputOrphans[0].DirectPermissions,
                     LockedDateTime = inputOrphans[0].LockedByUserTime,
-                    TypeId = inputOrphans[0].ItemTypeId,
+                    ItemTypeId = inputOrphans[0].ItemTypeId,
                     LockedByUserId = inputOrphans[0].LockedByUserId,
                     Version = inputOrphans[0].VersionsCount,
                     ProjectId = inputOrphans[0].VersionProjectId,
@@ -754,9 +754,9 @@ namespace ArtifactStore.Repositories
                     errorMessage = I18NHelper.FormatInvariant(template, i, "ProjectId", e.ProjectId, a.ProjectId);
                     return false;
                 }
-                if (e.TypeId != a.TypeId)
+                if (e.ItemTypeId != a.ItemTypeId)
                 {
-                    errorMessage = I18NHelper.FormatInvariant(template, i, "TypeId", e.TypeId, a.TypeId);
+                    errorMessage = I18NHelper.FormatInvariant(template, i, "TypeId", e.ItemTypeId, a.ItemTypeId);
                     return false;
                 }
                 if (e.Version != a.Version)

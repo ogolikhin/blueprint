@@ -1,4 +1,8 @@
 ﻿import {IProjectManager, Models} from "../..";
+import {ILocalizationService } from "../../../core";
+import {IMessageService, Message, MessageType} from "../../../shell";
+
+import {ArtifactEditor} from "./editor-view"
 
 export class BpArtifactDetails implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-details.html");
@@ -10,16 +14,26 @@ export class BpArtifactDetails implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
+interface IFieldTab {
+    title: string,
+    index: number,
+    fields: [AngularFormly.IFieldConfigurationObject],
+    active?: boolean
+};
+
+
+
 export class BpArtifactDetailsController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$scope", "projectManager"];
-    private _artifact: Models.IArtifactDetails;
+    static $inject: [string] = ["$scope", "localization", "messageService",  "projectManager"];
+    private _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
-    constructor(private $scope, private projectManager: IProjectManager) {
-
-        
+    constructor(private $scope,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private projectManager: IProjectManager) {
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -29,12 +43,11 @@ export class BpArtifactDetailsController {
             this.projectManager.currentArtifact.subscribeOnNext(this.loadView, this),
         ];
     }
-    public model = {
-        firstName: "John",
-        //sample data
-        tinymceControl: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nunc felis, ullamcorper sed egestas vel, vehicula at lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin scelerisque eget ipsum ac iaculis. Etiam sed feugiat nibh, sit amet dictum risus. Phasellus molestie lectus lobortis, luctus purus at, rutrum lectus.",
-        tinymceInlineControl: "Fusce pellentesque pellentesque augue, sit amet ultricies mauris dictum sit amet. Vestibulum sed leo suscipit, dignissim nisi non, dictum tellus. Etiam tincidunt nisl at ante vehicula, vitae pretium eros semper. Maecenas eu lacus faucibus, pretium sapien in, ullamcorper magna. Aenean eget bibendum orci, sit amet rutrum metus. Mauris non justo at mauris viverra ultricies sed vitae odio. Nunc volutpat nisi ac magna efficitur, ut dignissim erat sodales. In non lorem mi. Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi. Sed vehicula risus vitae dolor aliquet lacinia. Nam convallis gravida enim. Etiam congue quam in lectus iaculis, at pretium libero ultrices. Integer tempus nunc sed eleifend imperdiet. Cras sed tempus felis, sed sodales ante. Ut auctor vitae dolor eget blandit."
-    };
+    public model = {};
+    public tabs = [];
+    public activeTab: number = 1;
+
+
     public fields: Models.IArtifactDetailFields = {
         systemFields: [],
         customFields: [],
@@ -47,15 +60,47 @@ export class BpArtifactDetailsController {
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._artifact = null;
+        this.model = null;
+        this.fields = null;
+        this.tabs = null;
+        this.editor = null;
+
     }
 
+    private updateArtifact(artifact: Models.IArtifact): any { 
+        return {};
+    }
+
+    private editor: ArtifactEditor;
+
 //    private properties: Models.IPropertyType[];
-    public loadView(artifact: Models.IArtifactDetails) {
-        if (!artifact) {
-            return;
+    public loadView(artifact: Models.IArtifact) {
+        try {
+
+            if (!artifact) {
+                return;
+            }
+            this.activeTab = -1;
+
+            //this.editor = new ArtifactEditor(artifact, this.projectManager.getArtifctPropertyTypes(artifact));
+            //this.fields = this.editor.getFields();
+            //this.model = this.editor.getModel();
+            //this.tabs = this.fields.noteFields.map((it: AngularFormly.IFieldConfigurationObject, index: number) => {
+            //    let tab = <IFieldTab>{
+            //        title: it.templateOptions.label,
+            //        index: index,
+            //        fields: [it],
+            //    };
+            //    delete it.templateOptions.label;
+            //    return tab;
+            //});
+
+            this.activeTab = 0;
+        } catch(ex) {
+            this.messageService.addError(ex["message"]);
         }
-        this._artifact = artifact;
-        this.fields = this.projectManager.getArtifactPropertyFileds(artifact);
+
     }
 
 }

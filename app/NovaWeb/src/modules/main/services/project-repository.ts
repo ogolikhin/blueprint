@@ -6,7 +6,7 @@ export {Models}
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails>;
+    getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
@@ -35,6 +35,21 @@ export class ProjectRepository implements IProjectRepository {
             });
         return defer.promise;
     } 
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        var defer = this.$q.defer<any>();
+        this.$http.get<any>(`svc/adminstore/instance/projects/${id}`)
+            .success((result: Models.IProjectNode[]) => {
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
+                };
+                defer.reject(error);
+            });
+        return defer.promise;
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
@@ -55,20 +70,297 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
-    public getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails> {
+    public getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<any>();
 
         const request: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}`,
+            //url: `/svc/components/nova/artifacts/${artifactId}`,
             method: "GET",
-            params: {
-                types: true
-            }
+            //params: {
+            //    types: true
+            //}
         };
 
         this.$http(request)
-            .success((result: Models.IArtifactDetails[]) => {
-                defer.resolve(result);
+            .success((result: Models.IArtifact[]) => {
+                //fake response
+                let details: Models.IArtifact = {
+                    "id": 56318,
+                    "name": "Use Case Diagram (100004785 Enterprise Order Capture)",
+                    "parentId": 56316,
+                    "itemTypeId": 11995,
+                    "itemTypeVersionId": null,
+                    "projectId": 56313,
+                    "orderIndex": 18,
+                    "version": 1,
+                    "permissions": 0,
+                    "lockedByUserId": null,
+                    "propertyValues": [
+                        {
+                            "propertyTypeId": 12093,
+                            "propertyTypeVersionId": null,
+                            "propertyTypePredefined": 4099,
+                            "value": ""
+                        }
+                    ],
+                    "subArtifacts": [
+                        {
+                            "isDeleted": null,
+                            "id": 62345,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62346,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62347,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62348,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62349,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62350,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62351,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62352,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62353,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62354,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62355,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62356,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62357,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62358,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62359,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62360,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62361,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62362,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62363,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62364,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62365,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62366,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62367,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62368,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        },
+                        {
+                            "isDeleted": null,
+                            "id": 62369,
+                            "name": "Boundary",
+                            "parentId": 56318,
+                            "itemTypeId": 11941,
+                            "itemTypeVersionId": null,
+                            "propertyValues": [],
+                            "traces": []
+                        }
+                    ],
+                    "traces": []
+                }
+
+
+                defer.resolve(details);
             }).error((err: any, statusCode: number) => {
                 this.$log.error(err);
                 var error = {

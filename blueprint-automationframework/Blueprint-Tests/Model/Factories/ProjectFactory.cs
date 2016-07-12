@@ -13,15 +13,13 @@ namespace Model.Factories
 {
     public static class ProjectFactory
     {
-        private static string _address = getOpenApiUrl();
+        private static string _address = GetOpenApiUrl();
 
-        private static string getOpenApiUrl()
+        private static string GetOpenApiUrl()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
             return testConfig.BlueprintServerAddress;
         }
-
-        private const string SVC_PROJECTS_PATH = "/api/v1/projects";
 
         /// <summary>
         /// Creates a new project object with the values specified, or with random values for any unspecified parameters.
@@ -55,7 +53,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = I18NHelper.FormatInvariant("{0}", SVC_PROJECTS_PATH);
+            string path = RestPaths.OpenApi.PROJECTS;
 
             RestApiFacade restApi = new RestApiFacade(_address, user.Token?.OpenApiToken);
             List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };

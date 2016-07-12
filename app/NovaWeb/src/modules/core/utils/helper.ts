@@ -67,6 +67,44 @@ export class Helper {
     };
     /* tslint:enable */
 
+    static getFirstBrowserLanguage(): string {
+        // The most reliable way of getting the user's preferred langauge would be to read the Accept-Languages request
+        // header on the server. In Chrome 32+ and Firefox 32+ that header's value is available in navigator.languages
+        // In the returned array the languages are ordered by preference with the most preferred language first (see:
+        // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/languages
+        // For other browsers:
+        // - Internet Explorer:
+        //   navigator.userLanguage is the language set in Windows Control Panel / Regional Options
+        //   navigator.browserLanguage returns the language of the UI of the browser and it is decided by the version of
+        //   the executable installed
+        //   navigator.systemLanguage gives the locale used by Windows itself
+        // - Safari: uses the language set at the system level (similar to navigator.systemLanguage of IE above)
+        // The order of elements in browserLanguagePropertyKeys has been set based on the above information.
+        let nav = window.navigator,
+            browserLanguagePropertyKeys = ["userLanguage", "systemLanguage", "language", "browserLanguage"],
+            language;
+
+        // support for HTML 5.1 "navigator.languages"
+        if (Array.isArray((<any> nav).languages)) {
+            for (let i = 0; i < (<any> nav).languages.length; i++) {
+                language = (<any >nav).languages[i];
+                if (language && language.length) {
+                    return language;
+                }
+            }
+        }
+
+        // support for other well known properties in browsers
+        for (let i = 0; i < browserLanguagePropertyKeys.length; i++) {
+            language = nav[browserLanguagePropertyKeys[i]];
+            if (language && language.length) {
+                return language;
+            }
+        }
+
+        return null;
+    };
+
     public static toFlat(root: any): any[] {
         var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
         while (stack.length !== 0) {

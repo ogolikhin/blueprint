@@ -3,6 +3,7 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
+require("script!mxClient");
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
@@ -25,7 +26,10 @@ import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
 import {config as routesConfig} from "./main.state";
-require("script!mxClient");
+import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
+import {DiagramService} from "./components/editors/graphic/diagram.svc";
+import {BPDiagram} from "./components/editors/graphic/bp-diagram";
+import {BPContentSelector} from "./components/content/bp-content-selector";
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -42,7 +46,6 @@ declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
@@ -51,6 +54,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
+
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
@@ -64,6 +68,8 @@ angular.module("app.main", [
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
+    .service("stencilService", StencilService)
+    .service("diagramService", DiagramService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())
@@ -73,21 +79,54 @@ angular.module("app.main", [
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
     .component("bpArtifactDetails", new BpArtifactDetails())
+    .component("bpDiagram", new BPDiagram())
+    .component("bpContentSelector", new BPContentSelector())
+    .value("mxUtils", mxUtils)
     .config(routesConfig)
     .run(formlyConfigTinyMCE);
 
-
+/* tslint:disable */
 function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
     formlyConfig.setType({
         name: 'tinymce',
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["bootstrapLabel"]
+        wrapper: ["bootstrapLabel"],
+        defaultOptions: {
+            data: { // using data property
+                tinymceOption: { // this will goes to ui-tinymce directive
+                    // standard tinymce option
+                    inline: true,
+                    plugins: "advlist autolink link image paste lists charmap print noneditable",
+                    fixed_toolbar_container: ".form-tinymce-toolbar"
+                }
+            }
+        }
     });
     formlyConfig.setType({
-        name: 'tinymceInline',
-        template: `<div class="form-tinymce-toolbar"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
-        wrapper: ["bootstrapLabel"]
+        name: 'tinymceInline',  
+        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
+        wrapper: ["bootstrapLabel"],
+        defaultOptions: {
+            data: { // using data property
+                tinymceOption: { // this will goes to ui-tinymce directive
+                    // standard tinymce option
+                    inline: true,
+                    fixed_toolbar_container: ".form-tinymce-toolbar",
+                    plugins: "advlist autolink link image paste lists charmap print noneditable", //mentions
+                    //mentions: {
+                    //    source: tinymceMentionsData,
+                    //    delay: 100,
+                    //    items: 5,
+                    //    queryBy: "fullname",
+                    //    insert: function (item) {
+                    //        return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                    //    }
+                    //},
+                }
+            }
+        }
     });
 }
+/* tslint:enable */
 formlyConfigTinyMCE.$inject = ["formlyConfig"];
 

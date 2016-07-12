@@ -15,8 +15,6 @@ namespace CommonServiceTests
     [Category(Categories.Navigation)]
     public class NavigationTests : TestBase
     {
-        private const int MAXIUM_ALLOWABLE_NAVIGATION = 23;
-
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
@@ -58,10 +56,11 @@ namespace CommonServiceTests
 
         [TestRail(107167)]
         [TestCase]
-        [Description("Get the navigation with all available artifact types for the project in the url path " +
-            "which are accessible by the user. Verify that the returned artifact reference lists.")]
-        public void GetNavigationWithAllAccessibleArtifactTypes_VerifyReturnedNavigation()
+        [Description("Get the navigation with all available artifact types for the project in the URL path which are accessible by the user. " +
+            "Verify the returned artifact reference list contains the expected values.")]
+        public void GetNavigation_AllAccessibleArtifactTypes_ReturnsCorrectNavigationReferenceList()
         {
+            // Setup:
             //Create artifacts with distinct available artifactTypes 
             var baseArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
 
@@ -74,23 +73,28 @@ namespace CommonServiceTests
                 _artifacts.Add(artifact);
             }
 
+            // Execute:
             //Get Navigation
             var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
+            // Verify:
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107168)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // https://trello.com/c/v8zXJTty
         [TestCase]
-        [Description("Get the navigation with maxium allowable number of artifacts in the url path. " +
-            "Verify the expected error from the call.")]
-        public void GetNavigationWithMaximumArtifacts_VerifyExpectedError()
+        [Description("Get the navigation with maxium allowable number of artifacts in the URL path. " +
+            "Verify the returned artifact reference list contains the expected values.")]
+        public void GetNavigation_MaximumNumberOfArtifacts_ReturnsCorrectNavigationReferenceList()
         {
+            // Setup:
             //Create an artifact with process artifact type
             var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
             artifact.Save();
+
+            const int MAXIUM_ALLOWABLE_NAVIGATION = 23;     // TODO: Development needs to define a limit for us...  This is just what currently works because of IIS URL size limit.
 
             //Add the same artifact repeatedly in the artifact list to create a navigation list which exceeds the maximum
             //allowable number of artifacts
@@ -103,39 +107,46 @@ namespace CommonServiceTests
             //Add the artifact at the end of artifact list for navigation call
             _artifacts.Add(artifact);
 
+            // Execute:
             //Get Navigation
             var resultArtifactReferenceList = artifact.GetNavigation(_primaryUser, _artifacts);
 
+            // Verify:
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107169)]
-        [TestCase]
-        [Description("Get the navigation with invalid artifact ID data in the url path. " +
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(int.MaxValue)]
+        [Description("Get the navigation with invalid artifact ID data in the URL path. " +
             "Verify the Not Found exception.")]
-        public void GetNavigationWithInvalidData_VerifyNotFoundException()
+        public void GetNavigation_InvalidArtifactId_404NotFound(int artifactId)
         {
+            // Setup:
             //Create invalid artifact
-            var invalidArtifact = CreateInvalidArtifact();
+            var invalidArtifact = CreateInvalidArtifact(artifactId);
 
             //Add the artifact to artifact list for navigation call
             _artifacts.Add(invalidArtifact);
 
+            // Execute & Verify:
             //Get Navigation and check the Not Found exception
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 invalidArtifact.GetNavigation(_primaryUser, _artifacts);
-            }, "The GET /navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the url!");
+            }, "The GET svc/shared/navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the URL!");
         }
 
         [TestRail(107170)]
         [TestCase(1)]
         [TestCase(3)]
-        [Description("Get the navigation with process artifact(s) in the url path are accessible by the user." +
-             "Verify that the returned artifact reference lists.")]
-        public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
+        [Description("Get the navigation with process artifact(s) in the URL path are accessible by the user.  " +
+             "Verify the returned artifact reference lists.")]
+        public void GetNavigation_AccessibleProcessArtifacts_ReturnsCorrectNavigationReferenceList(int numberOfArtifacts)
         {
+            // Setup:
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
@@ -144,9 +155,11 @@ namespace CommonServiceTests
                 _artifacts.Add(artifact);
             }
 
+            // Execute:
             //Get Navigation
             var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
+            // Verify:
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
@@ -157,13 +170,13 @@ namespace CommonServiceTests
         [TestCase(5, new[] { 3 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>a>NE>a>a")]
         [TestCase(4, new[] { 1, 2 }, Description = "Test for sequential nonexistent artifacts in breadcrumb, a>NE>NE>a>a>a")]
         [TestCase(6, new[] { 1, 3, 6 }, Description = "Test for non-sequential nonexistent artifacts in breadcrumb, a>NE>a>NE>a>a>NE>a>a")]
-        [Description("Get navigation with a single or multiple non-existent artifacts in the url path. " +
-             "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
-             "artifact reference lists.")]
-        public void GetNavigationWithNonexistentArtifacts_VerifyReturnedNavigation(
+        [Description("Get navigation with a single or multiple non-existent artifacts in the URL path. " +
+             "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned artifact reference lists.")]
+        public void GetNavigation_NonExistentArtifacts_ReturnsCorrectNavigationReferenceList(
             int numberOfArtifacts,
             int[] nonExistentArtifactIndexes)
         {
+            // Setup:
             ThrowIf.ArgumentNull(nonExistentArtifactIndexes, nameof(nonExistentArtifactIndexes));
 
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
@@ -181,9 +194,11 @@ namespace CommonServiceTests
                 _artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
             }
 
+            // Execute:
             //Get Navigation
             var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
+            // Verify:
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
@@ -194,13 +209,14 @@ namespace CommonServiceTests
         [TestCase(5, new int[] { 3 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>a>IA>a>a")]
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb, a>IA>IA>a>a>a")]
         [TestCase(6, new int[] { 1, 3, 6 }, Description = "Test for non-sequential inaccessible artifacts in breadcrumb, a>IA>a>IA>a>a>IA>a>")]
-        [Description("Get navigation with a single or multiple inaccessible artifacts in the url path. " +
+        [Description("Get navigation with a single or multiple inaccessible artifacts in the URL path. " +
                      "Verify that the inaccessible artifacts are marked as <Inaccessible> in the returned " +
                      "artifact reference lists.")]
-        public void GetNavigationWithInaccessibleArtifacts_VerifyReturnedNavigation(
+        public void GetNavigation_InaccessibleArtifacts_ReturnsCorrectNavigationReferenceList(
             int numberOfArtifacts,
             int[] inaccessibleArtifactIndexes)
         {
+            // Setup:
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
@@ -219,9 +235,11 @@ namespace CommonServiceTests
                 _artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
+            // Execute:
             //Get Navigation
             var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
+            // Verify:
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
@@ -235,26 +253,21 @@ namespace CommonServiceTests
         /// <returns>The non-existent artifact.</returns>
         private IArtifact CreateNonExistentArtifact(BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
         {
-            // Non-existence artifact Id sample
-            const int NONEXISTENT_ARTIFACT_ID = 99999999;
-
             var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
-            nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+            nonExistingArtifact.Id = CommonServiceHelper.NONEXISTENT_ARTIFACT_ID;
             return nonExistingArtifact;
         }
 
         /// <summary>
         /// Creates an artifact with an invalid ID.
         /// </summary>
+        /// <param name="artifactId">The invalid artifact ID to give the artifact.</param>
         /// <param name="baseArtifactType">(optional) The artifact type.</param>
         /// <returns>The invalid artifact.</returns>
-        private IArtifact CreateInvalidArtifact(BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
+        private IArtifact CreateInvalidArtifact(int artifactId, BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
         {
-            // Invalid process artifact Id sample
-            const int INVALID_ID = -33;
-
             var invalidArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
-            invalidArtifact.Id = INVALID_ID;
+            invalidArtifact.Id = artifactId;
             return invalidArtifact;
         }
     }

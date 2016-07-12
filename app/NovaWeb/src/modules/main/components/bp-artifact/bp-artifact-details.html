@@ -1,5 +1,5 @@
 ﻿<div class="artifact-overview">
-    <div class="heading">Overview</div>
+    <div class="heading">Overview {{$ctrl.activeTab}}</div>
     <div class="content">
         <form novalidate>
             <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
@@ -20,14 +20,20 @@
                     </div>
                 </perfect-scrollbar>
             </div>
+            <formly-form model="$ctrl.model" fields="$ctrl.fields.noteFields">
+            </formly-form>
 
-            <uib-tabset>
-                <uib-tab index="0" heading="Description">
-                    <formly-form model="$ctrl.model" fields="$ctrl.fields.noteFields">
+
+            <!--<uib-tabset active="$ctrl.activeTab">
+                <uib-tab ng-repeat="field in $ctrl.tabs"
+                         heading="{{field.title}}"
+                         index="field.index"
+                         >
+                    <formly-form model="$ctrl.model" fields="field.fields" >
                     </formly-form>
                 </uib-tab>
-                <uib-tab index="1" heading="Additional notes">Fusce pellentesque pellentesque augue, sit amet ultricies mauris dictum sit amet. Vestibulum sed leo suscipit, dignissim nisi non, dictum tellus. Etiam tincidunt nisl at ante vehicula, vitae pretium eros semper. Maecenas eu lacus faucibus, pretium sapien in, ullamcorper magna. Aenean eget bibendum orci, sit amet rutrum metus. Mauris non justo at mauris viverra ultricies sed vitae odio. Nunc volutpat nisi ac magna efficitur, ut dignissim erat sodales. In non lorem mi. Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi. Sed vehicula risus vitae dolor aliquet lacinia. Nam convallis gravida enim. Etiam congue quam in lectus iaculis, at pretium libero ultrices. Integer tempus nunc sed eleifend imperdiet. Cras sed tempus felis, sed sodales ante. Ut auctor vitae dolor eget blandit.</uib-tab>
-            </uib-tabset>
+            </uib-tabset>-->
+
         </form>
     </div>
 </div>

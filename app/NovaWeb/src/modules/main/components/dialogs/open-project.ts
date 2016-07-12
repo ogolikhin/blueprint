@@ -37,7 +37,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public propertyMap = {
         id: "id",
         type: "type",
-        name: "name",
+        name: "name", 
         hasChildren: "hasChildren"
     };
 
@@ -54,7 +54,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     }
 
     public get isProjectSelected(): boolean {
-        return this.returnValue && this.returnValue.typeId === 1;
+        return this.returnValue && this.returnValue.itemTypeId === 1;
     }
 
     public get selectedItem() {
@@ -66,7 +66,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             id: (item && item["id"]) || -1,
             name: (item && item["name"]) || "",
             description: (item && item["description"]) || "",
-            typeId: (item && item["type"]) || -1
+            itemTypeId: (item && item["type"]) || -1
             
         };
 

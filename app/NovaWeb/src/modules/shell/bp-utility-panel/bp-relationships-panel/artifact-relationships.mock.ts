@@ -100,7 +100,7 @@ export class ArtifactRelationshipsMock implements IArtifactRelationships {
 
             "artifactId" : "1",
             "description": "desc",
-            "pathToProject": []
+            "pathToProject": [{ "itemId": 1, "itemName": "Item1", "parentId": 0}]
         };
 
         deferred.resolve(details);

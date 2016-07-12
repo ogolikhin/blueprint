@@ -1,4 +1,4 @@
-import {IShape, IConnection, ILabelStyle} from "../../diagram.svc";
+import {IShape, IConnection, ILabelStyle} from "../models";
 import {AbstractShapeFactory} from "../abstract-diagram-factory";
 import {ArrowHeads, ConnectorTypes} from "./constants";
 

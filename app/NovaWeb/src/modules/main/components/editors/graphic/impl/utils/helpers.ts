@@ -1,4 +1,4 @@
-import {IDiagram, IConnection, IDiagramElement, IHierarchyDiagram, IHierarchyElement, IPoint, IProp} from "../../diagram.svc";
+import {IDiagram, IConnection, IDiagramElement, IHierarchyDiagram, IHierarchyElement, IPoint, IProp} from "../models";
 
 export class MxFactory {
 

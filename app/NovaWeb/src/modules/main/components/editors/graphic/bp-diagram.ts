@@ -18,7 +18,7 @@ export class BPDiagramController {
         "projectManager"
     ];
 
-    private _subscribers: Rx.IDisposable[];
+    private subscribers: Rx.IDisposable[];
     private diagramView: DiagramView;
 
     constructor(
@@ -33,38 +33,29 @@ export class BPDiagramController {
     public $onInit(o) {
         const selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
 
-        this._subscribers = [ selectedArtifactSubscriber ];
-
-        this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-        this.diagramView.sanitize = this.$sanitize;
+        this.subscribers = [ selectedArtifactSubscriber ];
     }
 
     public $onDestroy() {
-        if (this.diagramView != null) {
+        if (this.diagramView) {
             this.diagramView.destroy();
         }
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
     
     private setArtifactId = (artifact: Models.IArtifact) => {
-        if (artifact !== null && this.isDiagram(artifact)) {
-            this.diagramService.getDiagram(artifact.id).then((diagram) => {
-                this.diagramView.drawDiagram(diagram);
-            });
+        if (this.diagramView) {
+            this.diagramView.destroy();
         }
-    }
 
-    private isDiagram(artifact: Models.IArtifact): boolean {
-        switch (artifact.predefinedType) {
-            case <Models.ArtifactTypeEnum>4108:
-            case Models.ArtifactTypeEnum.GenericDiagram:
-            case Models.ArtifactTypeEnum.UseCaseDiagram:
-            case Models.ArtifactTypeEnum.Storyboard:
-            case Models.ArtifactTypeEnum.UseCase:
-                return true;
-            default:
-                return false;
+        if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
+            this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+            this.diagramView.sanitize = this.$sanitize;
+
+            this.diagramService.getDiagram(artifact.id, artifact.predefinedType).then(diagram => {
+                    this.diagramView.drawDiagram(diagram);
+                });
         }
     }
 }

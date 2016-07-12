@@ -1,4 +1,4 @@
-import {IShape} from "../diagram.svc";
+import {IShape} from "../impl/models";
 import {Shapes} from "./utils/constants";
 import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
 

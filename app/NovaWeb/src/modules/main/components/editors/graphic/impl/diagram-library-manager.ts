@@ -1,5 +1,6 @@
 import {Diagrams} from "./utils/constants";
 import {GenericDiagramShapeFactory} from "./generic-diagram";
+import {UsecaseShapeFactory} from "./activity-flow-diagram";
 import {IShapeTemplateFactory} from "./abstract-diagram-factory";
 
 export class DiagramLibraryManager {
@@ -18,8 +19,8 @@ export class DiagramLibraryManager {
             //     return new DomainDiagramShapeFactory();
             // case Diagrams.USECASE_DIAGRAM:
             //     return new UseCaseDiagramShapeFactory();
-            // case Diagrams.USECASE:
-            //     return new UsecaseShapeFactory();
+            case Diagrams.USECASE:
+                return new UsecaseShapeFactory();
             default:
                 throw "Unknown diagram type: " + diagramType;
         }

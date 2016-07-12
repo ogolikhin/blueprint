@@ -16,19 +16,21 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
-        public const string URL_LOCK = "svc/shared/artifacts/lock";
-        public const string URL_RAPTOR_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
-        public const string URL_RAPTOR_REPLY = "/svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
-        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/attachments";
-        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
-        public const string URL_SEARCH = "/svc/shared/artifacts/search";
-        public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
-        public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";
-        public const string URL_DIAGRAM = "svc/components/RapidReview/diagram";
-        public const string URL_USECASE = "svc/components/RapidReview/usecase";
-        public const string URL_GLOSSARY = "svc/components/RapidReview/glossary";
-        public const string URL_ARTIFACTPROPERTIES = "svc/components/RapidReview/artifacts/properties";
-        private const string URL_NAVIGATION = "svc/shared/navigation";
+
+        public const string URL_LOCK                = RestPaths.Svc.Shared.Artifacts.LOCK;
+        public const string URL_RAPTOR_DISCUSSIONS  = RestPaths.Svc.Components.RapidReview.Artifacts.DISCUSSIONS;
+        public const string URL_RAPTOR_REPLY        = RestPaths.Svc.Components.RapidReview.Artifacts.Discussions.REPLY;
+        public const string URL_SEARCH              = RestPaths.Svc.Shared.Artifacts.SEARCH;
+        public const string URL_NOVADISCARD         = RestPaths.Svc.Shared.Artifacts.DISCARD;
+        public const string URL_ARTIFACT_INFO       = RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO;
+        public const string URL_DIAGRAM             = RestPaths.Svc.Components.RapidReview.DIAGRAM;
+        public const string URL_USECASE             = RestPaths.Svc.Components.RapidReview.USECASE;
+        public const string URL_GLOSSARY            = RestPaths.Svc.Components.RapidReview.GLOSSARY;
+        public const string URL_ARTIFACTPROPERTIES  = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
+        public const string URL_NAVIGATION          = RestPaths.Svc.Shared.NAVIGATION;
+
+        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT     = RestPaths.OpenApi.Projects.Artifacts.ATTACHMENTS;
+        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT  = RestPaths.OpenApi.Projects.Artifacts.SubArtifacts.ATTACHMENTS;
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
@@ -171,7 +173,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", OpenApiArtifact.SVC_PATH, artifactToDelete.ProjectId, artifactToDelete.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, artifactToDelete.ProjectId, artifactToDelete.Id);
 
             var queryparameters = new Dictionary<string, string>();
 
@@ -254,7 +256,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(URL_NAVIGATION, String.Join("/", artifactIds));
 
             var queryParameters = new Dictionary<string, string>();
 

@@ -1,4 +1,4 @@
-import {IDiagram, IConnection, IDiagramElement, IHierarchyElement, IPoint} from "../diagram.svc";
+import {IDiagram, IConnection, IDiagramElement, IHierarchyElement, IPoint} from "./models";
 import {IStencilService} from "./stencil.svc";
 import {Shapes, ConnectorTypes} from "./utils/constants";
 import {MxFactory, MathExtensions, ConnectionExtensions, HierarchyHelper} from "./utils/helpers";

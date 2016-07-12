@@ -47,6 +47,32 @@ namespace Model
 
         public static class Svc
         {
+            [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]       // Ignore this warning.
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class AccessControl
+            {
+                public const string SESSIONS                        = "svc/accesscontrol/sessions/{0}";
+                public const string SESSION                         = "svc/accesscontrol/sessions";
+                public const string STATUS                          = "svc/accesscontrol/status";
+
+                public static class Licenses
+                {
+                    public const string ACTIVE                      = "svc/accesscontrol/licenses/active";
+                    public const string LOCKED                      = "svc/accesscontrol/licenses/locked";
+                    public const string TRANSACTIONS                = "svc/accesscontrol/licenses/transactions";
+                }
+
+                public static class Sessions
+                {
+                    public const string SELECT                      = "svc/accesscontrol/sessions/select";
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/accesscontrol/status/upcheck";
+                }
+            }
+
             public static class Components
             {
                 public static class FileStore

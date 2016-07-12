@@ -45,14 +45,16 @@ namespace Model.Impl
 
         #region Members inherited from IAccessControl
 
+        /// <seealso cref="IAccessControl.Sessions"/>
         public List<ISession> Sessions { get; } = new List<ISession>();
 
+        /// <seealso cref="IAccessControl.AuthorizeOperation(ISession, string, int?)"/>
         public ISession AuthorizeOperation(ISession session, string operation = null, int? artifactId = null)    // PUT /sessions?op={op}&aid={artifactId}
         {
             ThrowIf.ArgumentNull(session, nameof(session));
 
             var restApi = new RestApiFacade(Address, session.SessionId);
-            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
+            string path = RestPaths.Svc.AccessControl.SESSION;
             Dictionary<string, string> queryParameters = null;
 
             if ((operation != null) || artifactId.HasValue)
@@ -66,11 +68,16 @@ namespace Model.Impl
 
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Put Session for User ID: {0}.", session.UserId);
-            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT, queryParameters: queryParameters);
+
+            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(
+                path,
+                RestRequestMethod.PUT,
+                queryParameters: queryParameters);
 
             return returnedSession;
         }
 
+        /// <seealso cref="IAccessControl.AddSession(int, string, DateTime?, DateTime?, bool?, int?, List{HttpStatusCode})"/>
         public ISession AddSession(int userId,
             string username = null,
             DateTime? beginTime = null,
@@ -79,8 +86,7 @@ namespace Model.Impl
             int? licenseLevel = null,
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
-            var restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, userId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS, userId);
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
             // Add all the query parameters for the POST call.
@@ -98,7 +104,13 @@ namespace Model.Impl
 
             // Execute POST and get session token from the response.
             Logger.WriteInfo("Creating session for User ID: {0}.", userId);
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            var restApi = new RestApiFacade(Address);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
 
             string token = GetToken(response);
             ISession session = new Session(userId, username, licenseLevel.GetValueOrDefault(), isSso.GetValueOrDefault(), token, beginTime, endTime);
@@ -110,6 +122,7 @@ namespace Model.Impl
             return session;
         }
 
+        /// <seealso cref="IAccessControl.AddSession(ISession, List{HttpStatusCode})"/>
         public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)   // POST /sessions/{userId}
         {
             ThrowIf.ArgumentNull(session, nameof(session));
@@ -123,34 +136,45 @@ namespace Model.Impl
                 expectedStatusCodes);
         }
 
+        /// <seealso cref="IAccessControl.DeleteSession(ISession, List{HttpStatusCode})"/>
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
             var restApi = new RestApiFacade(Address, session?.SessionId);
-            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
+            string path = RestPaths.Svc.AccessControl.SESSION;
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+
+            restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
 
             // Remove the session from the list of created sessions.
             Sessions.Remove(session);
         }
 
+        /// <seealso cref="IAccessControl.GetSession(int?)"/>
         public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
             var restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS,
+                (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
 
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Getting Session for User ID: {0}.", userId);
+
             ISession session = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.GET);
+
             return session;
         }
 
+        /// <seealso cref="IAccessControl.GetSession(string, uint, uint)"/>
         public List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber) // GET /sessions/select?ps={ps}&pn={pn}
         {
             throw new NotImplementedException();
         }
 
+        /// <seealso cref="IAccessControl.GetStatus(List{HttpStatusCode})"/>
         public string GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
             return GetStatus(SVC_PATH, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
@@ -162,9 +186,9 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
+        /// <seealso cref="IAccessControl.GetLicensesInfo(LicenseState, ISession, List{HttpStatusCode})"/>
         public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address);
             string path;
 
             Dictionary<string, string> additionalHeaders = null;
@@ -176,17 +200,24 @@ namespace Model.Impl
             switch (state)
             {
                 case LicenseState.active:
-                    path = I18NHelper.FormatInvariant("{0}/licenses/active", SVC_PATH);
+                    path = RestPaths.Svc.AccessControl.Licenses.ACTIVE;
                     break;
                 case LicenseState.locked:
-                    path = I18NHelper.FormatInvariant("{0}/licenses/locked", SVC_PATH);
+                    path = RestPaths.Svc.AccessControl.Licenses.LOCKED;
                     break;
                 default:
                     throw new ArgumentException("state must be in LicenseState enum");
             }
 
             Logger.WriteInfo("Getting license information...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            var restApi = new RestApiFacade(Address);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
             switch (state)
             {
                 case LicenseState.active:
@@ -198,26 +229,34 @@ namespace Model.Impl
                 default:
                     throw new ArgumentException("state must be in LicenseState enum");
             }
-            
         }
 
+        /// <seealso cref="IAccessControl.GetLicenseTransactions(int, int, ISession, List{HttpStatusCode})"/>
         public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+            string path = RestPaths.Svc.AccessControl.Licenses.TRANSACTIONS;
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             queryParameters.Add("consumerType", consumerType.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
             {
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
             }
+
             try
             {
                 Logger.WriteInfo("Getting list of License Transactions...");
-                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+                RestResponse response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.GET,
+                    additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes);
+
                 var licenseTransactions = JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
                 return licenseTransactions.ConvertAll(o => (ILicenseActivity)o);
             }
@@ -229,37 +268,47 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAccessControl.GetActiveSessions(int?, int?, ISession, List{HttpStatusCode})"/>
         public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions/select", SVC_PATH);
-
-
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+
             if (pageSize != null)
             {
                 queryParameters.Add("ps", pageSize.ToString());
             }
+
             if (pageNumber != null)
             {
                 queryParameters.Add("pn", pageNumber.ToString());
             }
 
+            RestApiFacade restApi = new RestApiFacade(Address);
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
             {
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
             }
+
             try
             {
                 Logger.WriteInfo("Getting list of active sessions...");
-                RestResponse response = null;
+
                 if (queryParameters.Count == 0)
                 {
                     queryParameters = null;
                 }
-                response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                    queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+                string path = RestPaths.Svc.AccessControl.Sessions.SELECT;
+
+                RestResponse response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.GET,
+                    additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes);
+
                 var sessions = JsonConvert.DeserializeObject<List<Session>>(response.Content);
                 return sessions.ConvertAll(o => (ISession)o);
             }

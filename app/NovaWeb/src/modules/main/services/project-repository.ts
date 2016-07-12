@@ -73,25 +73,25 @@ export class ProjectRepository implements IProjectRepository {
     public getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<any>();
 
-        const request: ng.IRequestConfig = {
-            url: `/svc/components/nova/artifacts/${artifactId}`,
-            method: "GET",
-            //params: {
-            //    types: true
-            //}
-        };
+        //const request: ng.IRequestConfig = {
+        //    url: `/svc/components/nova/artifacts/${artifactId}`,
+        //    method: "GET",
+        //    //params: {
+        //    //    types: true
+        //    //}
+        //};
 
-        this.$http(request)
-            .success((result: Models.IArtifact[]) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
-                this.$log.error(err);
-                var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound")
-                };
-                defer.reject(error);
-            });
+        //this.$http(request)
+        //    .success((result: Models.IArtifact[]) => {
+        //        defer.resolve(result);
+        //    }).error((err: any, statusCode: number) => {
+        //        this.$log.error(err);
+        //        var error = {
+        //            statusCode: statusCode,
+        //            message: (err ? err.message : "") || this.localization.get("Artifact_NotFound")
+        //        };
+        //        defer.reject(error);
+        //    });
         return defer.promise;
     }
 

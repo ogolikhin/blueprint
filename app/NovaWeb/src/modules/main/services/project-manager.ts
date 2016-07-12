@@ -168,8 +168,7 @@ export class ProjectManager implements IProjectManager {
                             open: true
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
-                        //self.setCurrentArtifact(_artifact);
-                        self.loadArtifactDetails(artifact);
+                        self.loadArtifactDetails(artifact); 
                     }).catch((error: any) => {
                         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                     });

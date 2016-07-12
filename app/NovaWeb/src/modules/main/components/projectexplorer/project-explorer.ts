@@ -88,6 +88,7 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
+
         this.projectManager.loadArtifact(this.doSync(node));
     };
 

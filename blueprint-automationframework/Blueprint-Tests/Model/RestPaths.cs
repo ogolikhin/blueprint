@@ -59,9 +59,9 @@ namespace Model
 
                 public static class RapidReview
                 {
-                    public const string DIAGRAM                     = "svc/components/RapidReview/diagram";
-                    public const string GLOSSARY                    = "svc/components/RapidReview/glossary";
-                    public const string USECASE                     = "svc/components/RapidReview/usecase";
+                    public const string DIAGRAM                     = "svc/components/RapidReview/diagram/{0}";
+                    public const string GLOSSARY                    = "svc/components/RapidReview/glossary/{0}";
+                    public const string USECASE                     = "svc/components/RapidReview/usecase/{0}";
 
                     [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                     public static class Artifacts
@@ -83,7 +83,7 @@ namespace Model
 
                 public static class Storyteller
                 {
-                    public const string ARTIFACT_INFO               = "svc/components/storyteller/artifactInfo";
+                    public const string ARTIFACT_INFO               = "svc/components/storyteller/artifactInfo/{0}";
 
                     /// <summary>
                     /// Get the Storyteller process for the specified Artifact ID.  {0} = artifactId.

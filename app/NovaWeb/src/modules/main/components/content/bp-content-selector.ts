@@ -41,6 +41,7 @@ export class BPContentSelectorController {
     private getContentType(artifact: Models.IArtifact): string {
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.DomainDiagram:
+            case Models.ItemTypePredefined.BusinessProcess:
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.UseCase:
                 return "graphic";

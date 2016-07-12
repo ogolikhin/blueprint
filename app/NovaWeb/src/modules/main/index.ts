@@ -13,7 +13,6 @@ import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
 import * as Enums from "./models/enums";
-import {Helper} from "../core/utils/helper";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import * as Relationships from "./models/relationshipModels";
@@ -25,12 +24,13 @@ import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
-import {BpArtifactDetails} from "./components/bp-artifact/bp-artifact-details";
+import {BpArtifact} from "./components/editors/general/bp-artifact";
+import {ArtifactService} from "./components/editors/general/artifact.svc";
 import {config as routesConfig} from "./main.state";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
 import {BPDiagram} from "./components/editors/graphic/bp-diagram";
-import {BPContentSelector} from "./components/content/bp-content-selector";
+
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -41,12 +41,12 @@ export {
     IProjectManager, ProjectManager,
 };
 
-
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
+
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
@@ -55,11 +55,6 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
-
-    if (!Helper.isFontFaceSupported() || !Helper.isWebfontAvailable("Open Sans")) {
-        $state.transitionTo("error:font");
-    }
-
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
@@ -75,6 +70,7 @@ angular.module("app.main", [
     .service("projectManager", ProjectManager)
     .service("stencilService", StencilService)
     .service("diagramService", DiagramService)
+    .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())
@@ -83,9 +79,9 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    .component("bpArtifactDetails", new BpArtifactDetails())
+    .component("bpArtifact", new BpArtifact())
     .component("bpDiagram", new BPDiagram())
-    .component("bpContentSelector", new BPContentSelector())
+//    .component("bpContentSelector", new BPContentSelector())
     .value("mxUtils", mxUtils)
     .config(routesConfig)
     .run(formlyConfigTinyMCE);

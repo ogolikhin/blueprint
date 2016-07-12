@@ -58,7 +58,6 @@ export interface ITreeNode {
     hasChildren: boolean;
     parentNode?: ITreeNode;
     children?: ITreeNode[];
-    loaded?: boolean;
     open?: boolean;
 }
 export interface IBPTreeController {
@@ -237,7 +236,6 @@ export class BPTreeController implements IBPTreeController  {
             if (node) {
                 node = angular.extend(node, {
                     open: true,
-                    loaded: true,
                     children: nodes
                 });
             }
@@ -245,6 +243,7 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this._datasource = nodes;
         }
+
         //HACk: have to clear cell selection
         this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
 
@@ -316,7 +315,7 @@ export class BPTreeController implements IBPTreeController  {
         let self = this;
 
         let node = params.node;
-        if (node.data.hasChildren && !node.data.loaded) {
+        if (node.data.hasChildren && (!node.data.children || (angular.isArray(node.data.children) && node.data.children.length === 0))) {
             if (angular.isFunction(self.onLoad)) {
                 let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
                 if (row) {

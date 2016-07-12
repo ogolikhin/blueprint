@@ -183,7 +183,7 @@ namespace ArtifactStore.Repositories
                 Name = v.Name,
                 ProjectId = v.VersionProjectId,
                 ParentId = v.ParentId,
-                TypeId = v.ItemTypeId,
+                ItemTypeId = v.ItemTypeId,
                 Prefix = v.Prefix,
                 PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
                 Version = v.VersionsCount,

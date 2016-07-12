@@ -6,7 +6,7 @@ export {Models}
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails>;
+    getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
@@ -35,6 +35,21 @@ export class ProjectRepository implements IProjectRepository {
             });
         return defer.promise;
     } 
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        var defer = this.$q.defer<any>();
+        this.$http.get<any>(`svc/adminstore/instance/projects/${id}`)
+            .success((result: Models.IProjectNode[]) => {
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
+                };
+                defer.reject(error);
+            });
+        return defer.promise;
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
@@ -55,19 +70,19 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
-    public getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails> {
+    public getArtifactDetails(artifactId: number): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<any>();
 
         const request: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${artifactId}`,
+            url: `/svc/components/nova/artifacts/${artifactId}`,
             method: "GET",
-            params: {
-                types: true
-            }
+            //params: {
+            //    types: true
+            //}
         };
 
         this.$http(request)
-            .success((result: Models.IArtifactDetails[]) => {
+            .success((result: Models.IArtifact[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 this.$log.error(err);

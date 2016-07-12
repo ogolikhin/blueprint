@@ -14,7 +14,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 export class BpArtifactInfoController  {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
-    private _artifact: Models.IArtifactDetails;
+    private _artifact: Models.IArtifact
 
     public currentArtifact: string;
 
@@ -30,13 +30,13 @@ export class BpArtifactInfoController  {
         ];
     }
     
-
+     
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private updateInfo = (artifact: Models.IArtifactDetails) => {
+    private updateInfo = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
     }
 

@@ -121,6 +121,40 @@ export enum PropertyTypePredefined {
     groupmask = 61440                                       //GroupMask = 61440
 }
 
+export enum TraceType {
+    /// <summary>
+    /// Parent
+    /// </summary>
+    Parent = 0,
+    /// <summary>
+    /// Child
+    /// </summary>
+    Child = 1,
+    /// <summary>
+    /// Manual
+    /// </summary>
+    Manual = 2,
+    /// <summary>
+    /// All other traces including inherits from etc
+    /// </summary>
+    Other = 4,
+    /// <summary>
+    /// Reuse
+    /// </summary>
+    Reuse = 8
+}
+
+export enum TraceDirection {
+    /// <summary>
+    /// Child link always has direction To
+    /// </summary>
+    To, //Child link always has direction To
+    /// <summary>
+    /// Parent link always has direction From
+    /// </summary>
+    From, //Parent link always has direction From
+    Bidirectional
+}
 
 
 

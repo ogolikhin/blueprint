@@ -25,13 +25,13 @@ export class BPContentSelectorController {
             this.projectManager.currentArtifact.subscribeOnNext(this.selectView, this),
         ];
     }
-
+    
     public $onDestroy() {
         //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private selectView(artifact: Models.IArtifactDetails) {
+    private selectView(artifact: Models.IArtifact) {
         if (!artifact) {
             return;
         }

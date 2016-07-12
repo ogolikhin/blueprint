@@ -25,7 +25,7 @@ export class BPContentSelectorController {
             this.projectManager.currentArtifact.subscribeOnNext(this.selectView, this),
         ];
     }
-    
+
     public $onDestroy() {
         //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });

@@ -19,9 +19,10 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constants
 
-        public const string SVC_PATH = "api/v1/projects";
-        public const string URL_PUBLISH = "api/v1/vc/publish";
-        public const string URL_DISCARD = "api/v1/vc/discard";
+        public const string URL_ARTIFACT    = RestPaths.OpenApi.Projects.ARTIFACT;
+        public const string URL_ARTIFACTS   = RestPaths.OpenApi.Projects.ARTIFACTS;
+        public const string URL_PUBLISH     = RestPaths.OpenApi.VersionControl.PUBLISH;
+        public const string URL_DISCARD     = RestPaths.OpenApi.VersionControl.DISCARD;
 
         #endregion Constants
 
@@ -176,7 +177,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToSave.ProjectId);
+            string path = I18NHelper.FormatInvariant(URL_ARTIFACTS, artifactToSave.ProjectId);
 
             if (expectedStatusCodes == null)
             {
@@ -247,7 +248,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToUpdate.ProjectId);
+            string path = I18NHelper.FormatInvariant(URL_ARTIFACTS, artifactToUpdate.ProjectId);
 
             //TODO: Remove this when solution to have the property to update configurable
             var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
@@ -403,7 +404,7 @@ namespace Model.ArtifactModel.Impl
             if (richTextAsPlain != null) { queryParameters.Add("RichTextAsPlain", richTextAsPlain.ToString()); }
 
             RestApiFacade restApi = new RestApiFacade(baseAddress, user.Token?.OpenApiToken);
-            var path = I18NHelper.FormatInvariant("api/v1/projects/{0}/artifacts/{1}", project.Id, artifactId);
+            var path = I18NHelper.FormatInvariant(URL_ARTIFACT, project.Id, artifactId);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 resourcePath: path,
@@ -444,7 +445,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(artifact.Address, tokenValue);
-            var path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", SVC_PATH, artifact.ProjectId, artifact.Id);
+            var path = I18NHelper.FormatInvariant(URL_ARTIFACT, artifact.ProjectId, artifact.Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
                 resourcePath: path,
                 method: RestRequestMethod.GET,

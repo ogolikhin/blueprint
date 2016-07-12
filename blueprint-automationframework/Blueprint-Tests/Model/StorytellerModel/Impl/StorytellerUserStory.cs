@@ -12,9 +12,6 @@ namespace Model.StorytellerModel.Impl
 {
     public class StorytellerUserStory : IStorytellerUserStory
     {
-        private const string SVC_PATH = "svc/components/RapidReview";
-        private const string items = "items";
-        private const string properties = "properties";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         #region Properties
@@ -51,7 +48,7 @@ namespace Model.StorytellerModel.Impl
         public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, items, Id, properties);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items.PROPERTIES, Id);
                         
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();

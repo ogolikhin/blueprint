@@ -5,7 +5,7 @@ namespace Model
     // ********************************************************************************************
     // NOTE:  PLEASE keep everything here in alphabetical order and keep the literal strings
     //        lined up virtically so it's easy to see what here and what isn't.
-    //        If Visual Studio screws up the formatting, fit it.
+    //        If Visual Studio screws up the formatting, fix it.
     // ********************************************************************************************
     public static class RestPaths
     {

@@ -1,5 +1,5 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType } from "./enums"
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType }
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums"
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection }
 
 export enum ArtifactTypeEnum {
     Project = -1,
@@ -46,23 +46,42 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
-export interface IArtifact {
+export interface ITrace {
+    traceType?: TraceType;
+    traceId: number;
+    Direction: TraceDirection;
+    isDeleted?: boolean;
+    isSuspect?: boolean;
+}
+
+export interface IItem {
     id: number;
     name: string;
-    projectId: number;
     parentId: number;
     itemTypeId: number;
+    itemTypeVersionId: number;
+    version?: number;
+    propertyValues?: IPropertyValue[];
+    traces?: ITrace[];
+}
+
+export interface ISubArtifact extends IItem {
+    isDeleted?: boolean;
+}
+
+export interface IArtifact extends IItem {
+    projectId: number;
     prefix?: string;
-    predefinedType: ItemTypePredefined;
     orderIndex?: number;
     version?: number;
     permissions?: number;
+    lockedByUserId?: number;
     hasChildren?: boolean;
-    propertyValues?: IPropertyValue[];
-    subArtifacts?: IArtifact[];
+    subArtifacts?: ISubArtifact[];
 
     //for client use
     artifacts?: IArtifact[];
+    predefinedType?: ItemTypePredefined;
     loaded?: boolean;
 
 }
@@ -112,11 +131,6 @@ export interface IPropertyValue {
     value: any;
 }
 
-
-export interface IArtifactDetails extends IArtifact {
-//    links: ILink[];
-    //flags:
-}
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];
@@ -143,6 +157,8 @@ export class Project implements IProject {
     public description: string;
 
     public itemTypeId: number;
+
+    public itemTypeVersionId: number;
 
     public artifacts: IArtifact[];
 
@@ -171,7 +187,7 @@ export interface IArtifactDetailFields {
 }
 
 
-export class Artifact {
+export class Artifact implements IArtifact {
     private _propertyValues: IPropertyValue[];
     private _subArtifacts: IArtifact[];
 
@@ -186,6 +202,7 @@ export class Artifact {
     public parentId: number;
     public predefinedType: ItemTypePredefined;
     public itemTypeId: number;
+    public itemTypeVersionId: number;
 
     public get propertyValues() {
         return this._propertyValues || (this._propertyValues = []);

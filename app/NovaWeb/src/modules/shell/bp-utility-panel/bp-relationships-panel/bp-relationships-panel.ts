@@ -48,7 +48,7 @@ export class BPRelationshipsPanelController {
         this.artifactList = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifactDetails) => {     
+    private setArtifactId = (artifact: Models.IArtifact) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
             this.getRelationships()

@@ -195,8 +195,8 @@ export class ProjectManager implements IProjectManager {
                 return;
             }
             this._repository.getArtifactDetails(artifact.id)
-                .then((result: Models.IArtifactDetails) => {
-                    angular.extend(artifact, result, {loaded: true});
+                .then((result: Models.IArtifact) => {
+//                    angular.extend(artifact, result, {loaded: true});
                     self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));

@@ -1,10 +1,9 @@
-﻿import {IShape} from "../diagram.svc";
-import {UIMockupShapes, UIMockupShapeProps} from "./utils/constants";
+﻿import {UIMockupShapes, UIMockupShapeProps} from "./utils/constants";
 import {Style, Styles, MenuStyleObject} from "./utils/style-builder";
 import {ShapeExtensions, MxFactory, DiagramHelper} from "./utils/helpers";
 import {IconShape, CalloutShape, HighlightEllipse, CheckboxShape, TableCursorShape} from "./shapes-library";
 import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
-import {IProp} from "./models";
+import {IShape, IProp} from "./models";
 import {Helper} from "../../../../../core/utils/helper";
 
 export class UiMockupShapeFactory extends AbstractShapeFactory {

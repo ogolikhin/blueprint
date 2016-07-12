@@ -43,6 +43,7 @@ export class BPContentSelectorController {
             case Models.ItemTypePredefined.DomainDiagram:
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.UseCase:
+            case Models.ItemTypePredefined.UIMockup:
                 return "graphic";
             default:
                 return "other";

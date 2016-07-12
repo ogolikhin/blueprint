@@ -73,6 +73,53 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class AdminStore
+            {
+                public const string LOG                             = "svc/adminstore/log";
+                public const string SESSIONS                        = "svc/adminstore/sessions";
+                public const string STATUS                          = "svc/adminstore/status";
+
+                public static class Config
+                {
+                    public const string SETTINGS                    = "svc/adminstore/config/settings";
+                    public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
+                }
+
+                [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+                public static class Instance
+                {
+                    public const string FOLDERS                     = "svc/adminstore/instance/folders/{0}";
+                    public const string PROJECTS                    = "svc/adminstore/instance/projects/{0}";
+
+                    public static class Folders
+                    {
+                        public const string CHILDREN                = "svc/adminstore/instance/folders/{0}/children";
+                    }
+                }
+
+                public static class Licenses
+                {
+                    public const string TRANSACTIONS                = "svc/adminstore/licenses/transactions";
+                }
+
+                public static class Sessions
+                {
+                    public const string SSO                         = "svc/adminstore/sessions/sso";
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/adminstore/status/upcheck";
+                }
+
+                public static class Users
+                {
+                    public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
+                    public const string RESET                       = "svc/adminstore/users/reset";
+                }
+            }
+
             public static class Components
             {
                 public static class FileStore

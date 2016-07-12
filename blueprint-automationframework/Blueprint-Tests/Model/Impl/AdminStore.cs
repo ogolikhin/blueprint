@@ -55,7 +55,7 @@ namespace Model.Impl
         public ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions/sso", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.Sessions.SSO;
 
             string encodedSamlResponse = HashingUtilities.EncodeTo64UTF8(samlResponse);
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
@@ -67,8 +67,14 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Adding SSO session for user '{0}'...", username);
-            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
-                encodedSamlResponse, expectedStatusCodes);
+
+            RestResponse response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                additionalHeaders,
+                queryParameters,
+                encodedSamlResponse,
+                expectedStatusCodes);
 
             string token = GetToken(response);
 
@@ -103,7 +109,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.SESSIONS;
 
             string encodedUsername = HashingUtilities.EncodeTo64UTF8(username);
             string encodedPassword = (password != null) ? HashingUtilities.EncodeTo64UTF8(password) : null;
@@ -118,8 +124,14 @@ namespace Model.Impl
             try
             {
                 Logger.WriteInfo("Adding session for user '{0}'...", username);
-                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
-                    encodedPassword, expectedStatusCodes);
+
+                RestResponse response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    additionalHeaders,
+                    queryParameters,
+                    encodedPassword,
+                    expectedStatusCodes);
 
                 string token = GetToken(response);
                 //similar to code in SessionController.cs from AdminStore
@@ -163,7 +175,7 @@ namespace Model.Impl
         public void DeleteSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.SESSIONS;
 
             Dictionary<string, string> additionalHeaders = null;
 
@@ -173,7 +185,12 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Deleting session '{0}'...", token);
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.DELETE,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
 
             // Remove token from the list of created sessions.
             Sessions.RemoveAll(session => session.SessionId == token);
@@ -182,16 +199,21 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address, token: token);
-            string path = I18NHelper.FormatInvariant("{0}/users/loginuser", SVC_PATH);
+            RestApiFacade restApi = new RestApiFacade(Address, token);
+            string path = RestPaths.Svc.AdminStore.Users.LOGINUSER;
 
             try
             {
                 Logger.WriteInfo("Getting logged in user's info...");
-                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+                RestResponse response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.GET,
+                    expectedStatusCodes: expectedStatusCodes);
 
                 Logger.WriteInfo("Deserializing user object...");
                 AdminStoreUser adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+
                 IUser user = UserFactory.CreateUserOnly();
                 user.Department = adminStoreUser.Department;
                 user.DisplayName = adminStoreUser.DisplayName;
@@ -201,7 +223,8 @@ namespace Model.Impl
                 user.License = adminStoreUser.License;
                 user.Username = adminStoreUser.Username;
                 user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
-                user.SetToken(token: token);
+                user.SetToken(token);
+
                 return user;
             }
             catch (WebException ex)
@@ -247,7 +270,7 @@ namespace Model.Impl
         public ConfigSettings GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.Config.SETTINGS;
 
             Dictionary<string, string> additionalHeaders = null;
 
@@ -257,7 +280,13 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Getting settings...");
-            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            RestResponse response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
             var settingsDictionary = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(response.Content);
 
             // We can't deserialize directly into a ConfigSettings object because AdminStore returns a dictionary inside a dictionary...
@@ -276,7 +305,7 @@ namespace Model.Impl
         public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.Config.CONFIG_JS;
 
             Dictionary<string, string> additionalHeaders = null;
 
@@ -286,7 +315,13 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Getting config.js...");
-            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            RestResponse response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
             return response.Content;
         }
 
@@ -294,7 +329,7 @@ namespace Model.Impl
         public IList<LicenseActivity> GetLicenseTransactions(int? numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+            string path = RestPaths.Svc.AdminStore.Licenses.TRANSACTIONS;
 
             Dictionary<string, string> additionalHeaders = null;
             Dictionary<string, string> queryParameters = null;
@@ -302,7 +337,7 @@ namespace Model.Impl
             if (numberOfDays != null)
             {
                 Logger.WriteDebug("Adding 'days={0}' as a query parameter.", numberOfDays);
-                queryParameters = new Dictionary<string, string> { { "days", numberOfDays.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+                queryParameters = new Dictionary<string, string> { { "days", numberOfDays.Value.ToStringInvariant() } };
             }
 
             if (session != null)
@@ -315,8 +350,12 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting list of License Transactions...");
 
-                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                RestResponse response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.GET,
+                    additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes);
 
                 return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
             }
@@ -335,11 +374,10 @@ namespace Model.Impl
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
         }
 
+        /// <seealso cref="IAdminStore.GetFolderById(int, IUser, List{HttpStatusCode})"/>
         public IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string instanceFolderPath = "{0}/instance/folders/{1}";
-
-            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.FOLDERS, id);
             string token = user?.Token?.AccessControlToken;
 
             RestResponse response = GetResponseFromRequest(path, id, token, expectedStatusCodes);
@@ -350,28 +388,28 @@ namespace Model.Impl
             return primitiveFolder;
         }
 
+        /// <seealso cref="IAdminStore.GetFolderChildrenByFolderId(int, IUser, List{HttpStatusCode})"/>
         public List<PrimitiveFolder> GetFolderChildrenByFolderId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string instanceFolderPath = "{0}/instance/folders/{1}/children";
-            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.Folders.CHILDREN, id);
             List<PrimitiveFolder> primitiveFolderList = null;
-
             string token = user?.Token?.AccessControlToken;
 
             RestResponse response = GetResponseFromRequest(path, id, token, expectedStatusCodes);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                    primitiveFolderList = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
-                    Assert.IsNotNull(primitiveFolderList, "Object could not be deserialized properly");
+                primitiveFolderList = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                Assert.IsNotNull(primitiveFolderList, "Object could not be deserialized properly");
             }
+
             return primitiveFolderList;
         }
 
+        /// <seealso cref="IAdminStore.GetProjectById(int, IUser, List{HttpStatusCode})"/>
         public IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant("{0}/instance/projects/{1}", SVC_PATH, id);
-
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.PROJECTS, id);
             string token = user?.Token?.AccessControlToken;
 
             RestResponse response = GetResponseFromRequest(path, id, token, expectedStatusCodes);
@@ -382,17 +420,31 @@ namespace Model.Impl
             return project;
         }
 
+        /// <summary>
+        /// Executes the REST request and returns the response.
+        /// </summary>
+        /// <param name="path">The REST path.</param>
+        /// <param name="id">An 'id' to add as a query parameter.</param>
+        /// <param name="token">The token for the request.</param>
+        /// <param name="expectedStatusCodes">The expected status codes.</param>
+        /// <returns>The RestResponse from the request.</returns>
         private RestResponse GetResponseFromRequest(string path, int id, string token, List<HttpStatusCode> expectedStatusCodes)
         {
             RestApiFacade restApi = new RestApiFacade(Address, token);
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToStringInvariant() } };
             Dictionary<string, string> additionalHeaders = null;
 
             try
             {
-                Logger.WriteInfo("Getting artifact - " + id);
-                return restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                Logger.WriteInfo("Getting artifact - {0}", id);
+
+                return restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.GET,
+                    additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes);
             }
             catch (WebException ex)
             {
@@ -407,8 +459,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var path = I18NHelper.FormatInvariant("{0}/users/reset", SVC_PATH);
-
+            var path = RestPaths.Svc.AdminStore.Users.RESET;
             var bodyObject = new Dictionary<string, string>();
 
             if (user.Password != null)

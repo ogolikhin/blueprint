@@ -221,6 +221,17 @@ namespace Model.Impl
             return attachment;
         }
 
+        public Relationships GetRelationships(int itemId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/relationships", SVC_PATH, itemId);
+
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(path,
+                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return relationships;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

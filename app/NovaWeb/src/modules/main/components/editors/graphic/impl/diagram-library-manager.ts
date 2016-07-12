@@ -4,6 +4,7 @@ import {UsecaseShapeFactory} from "./activity-flow-diagram";
 import {DomainDiagramShapeFactory} from "./domain-diagram";
 import {UiMockupShapeFactory} from "./uimockup-diagram";
 import {IShapeTemplateFactory} from "./abstract-diagram-factory";
+import {StoryboardShapeFactory} from "./storyboard";
 
 export class DiagramLibraryManager {
     public getDiagramFactory(diagramType: string): IShapeTemplateFactory {
@@ -17,6 +18,8 @@ export class DiagramLibraryManager {
                 return new DomainDiagramShapeFactory();
             case Diagrams.UIMOCKUP:
                 return new UiMockupShapeFactory();
+            case Diagrams.STORYBOARD:
+                return new StoryboardShapeFactory();
             // case Diagrams.UIMOCKUP:
             //     return new UiMockupShapeFactory();
             // case Diagrams.STORYBOARD:

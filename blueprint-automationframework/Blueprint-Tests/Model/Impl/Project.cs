@@ -72,7 +72,9 @@ namespace Model.Impl
         public List<IProject> GetProjects(string address, IUser user = null)
         {
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(RestPaths.OpenApi.PROJECTS, RestRequestMethod.GET);
+            const string path = RestPaths.OpenApi.PROJECTS;
+
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);

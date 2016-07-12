@@ -173,7 +173,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(OpenApiArtifact.URL_ARTIFACT, artifactToDelete.ProjectId, artifactToDelete.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, artifactToDelete.ProjectId, artifactToDelete.Id);
 
             var queryparameters = new Dictionary<string, string>();
 

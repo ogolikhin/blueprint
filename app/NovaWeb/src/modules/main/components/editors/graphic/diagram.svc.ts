@@ -1,12 +1,12 @@
-import {ArtifactTypeEnum} from "../../../../main/models/models";
+import {ItemTypePredefined} from "../../../models/enums";
 import {FontNormalizer} from "./impl/utils/font-normalizer";
 import {IDiagram} from "./impl/models";
 import {IUseCase} from "./impl/usecase/models";
 import {UsecaseToDiagram} from "./impl/usecase/usecase-to-diagram";
 
 export interface IDiagramService {
-    getDiagram(id: number, itemType: ArtifactTypeEnum): ng.IPromise<IDiagram>;
-    isDiagram(itemType: ArtifactTypeEnum): boolean;
+    getDiagram(id: number, itemType: ItemTypePredefined): ng.IPromise<IDiagram>;
+    isDiagram(itemType: ItemTypePredefined): boolean;
 }
 
 export class DiagramService implements IDiagramService {
@@ -18,7 +18,7 @@ export class DiagramService implements IDiagramService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    public getDiagram(id: number, itemType: ArtifactTypeEnum): ng.IPromise<IDiagram> {
+    public getDiagram(id: number, itemType: ItemTypePredefined): ng.IPromise<IDiagram> {
         let promise: ng.IPromise<IDiagram> = this.promises[String(id)];
         if (!promise) {
             const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
@@ -26,7 +26,7 @@ export class DiagramService implements IDiagramService {
             let diagaram: IDiagram = null;
             this.$http.get<IDiagram | IUseCase>(path)
                 .success(result => {
-                    if (itemType === 4105) {
+                    if (itemType === ItemTypePredefined.UseCase) {
                         diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
                     } else {
                         diagaram = (<IDiagram>result);
@@ -57,22 +57,22 @@ export class DiagramService implements IDiagramService {
         return promise;
     }
 
-    public isDiagram(itemType: ArtifactTypeEnum) {
+    public isDiagram(itemType: ItemTypePredefined) {
         switch (itemType) {
-            case 4108:
-            case 4105:
-            case ArtifactTypeEnum.GenericDiagram:
-            case ArtifactTypeEnum.UseCaseDiagram:
-            case ArtifactTypeEnum.Storyboard:
-            case ArtifactTypeEnum.UseCase:
+            case ItemTypePredefined.GenericDiagram:
+            case ItemTypePredefined.BusinessProcess:
+            case ItemTypePredefined.DomainDiagram:
+            case ItemTypePredefined.Storyboard:
+            case ItemTypePredefined.UseCaseDiagram:
+            case ItemTypePredefined.UseCase:
                 return true;
             default:
                 return false;
         }
     }
 
-    private getPath(id: number, itemType: ArtifactTypeEnum): string {
-        if (itemType === 4105) {
+    private getPath(id: number, itemType: ItemTypePredefined): string {
+        if (itemType === ItemTypePredefined.UseCase) {
             return `/svc/components/RapidReview/usecase/${id}`;
         }
         return `/svc/components/RapidReview/diagram/${id}`;

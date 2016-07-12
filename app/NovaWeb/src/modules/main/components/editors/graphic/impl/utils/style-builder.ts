@@ -34,6 +34,15 @@ export class Style {
     }
 }
 
+
+export class MenuStyleObject {
+    public styleFontStyle = "";
+    public textStyle = "";
+    public blankAreaStyle = "";
+    public checkMarkStyle = "";
+    public rgbaColor = "";
+}
+
 export class StyleBuilder {
 
     public createDefaultShapeStyle = (shape: IShape, shapeKey?: string): Style => {

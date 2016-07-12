@@ -25,7 +25,7 @@ export class BPContentSelectorController {
             this.projectManager.currentArtifact.subscribeOnNext(this.selectView, this),
         ];
     }
-    
+
     public $onDestroy() {
         //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
@@ -43,6 +43,7 @@ export class BPContentSelectorController {
             case Models.ItemTypePredefined.DomainDiagram:
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.UseCase:
+            case Models.ItemTypePredefined.UIMockup:
                 return "graphic";
             default:
                 return "other";

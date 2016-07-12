@@ -53,6 +53,12 @@ var executionEnvironmentDetector = (function () {
         }
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
+// Removing tablet and mobile support for MVP
+        if (browser.mobile || browser.tablet) {
+            browser.blueprintSupportedBrowser = false;
+            return browser;
+        }
+/*
         if (browser.mobile) {
             if (!browser.tablet) {
                 browser.blueprintSupportedBrowser = false;
@@ -61,26 +67,30 @@ var executionEnvironmentDetector = (function () {
                 browser.mobile = false;
             }
         }
+*/
 
         if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.win7plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 50 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.osx && browser.osx10_9plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 50 && browser.osx && browser.osx10_9plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.ios && browser.osMajorVersion >= 9) {
+// Removing tablet and mobile support for MVP
+/*
+        else if (browser.chrome && parseInt(browser.version, 10) >= 50 && browser.ios && browser.osMajorVersion >= 9) {
             browser.blueprintSupportedBrowser = true;
         }
         else if (!browser.chrome && browser.safari && parseInt(browser.version, 10) >= 7 && browser.ios && browser.osMajorVersion >= 9) {
             //Chrome UA in iOS has "Safari" too, so we need to make sure that is not Chrome when we test Safari
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.android && browser.osMajorVersion >= 5) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 50 && browser.android && browser.osMajorVersion >= 5) {
             browser.blueprintSupportedBrowser = true;
         }
+*/
         return browser;
     };
     executionEnvironmentDetector.prototype.isSupportedVersion = function() {

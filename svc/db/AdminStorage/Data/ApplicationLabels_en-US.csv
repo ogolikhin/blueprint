@@ -146,6 +146,11 @@ ArtifactType_NotFound, "Couldn't find the artifact type"
 #
 Artifact_Details_FieldNameError, "The field name isn't specified"
 
+#
+Property_Cannot_Be_Empty, "Value cannot be empty"
+Property_Must_Be_Greater, "Value must be greater than or equal to Min Value = "
+Property_Must_Be_Less, "Value must be less than or equal to Max Value = "
+
 #Messages
 Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."
 Error_Page_Message1, "An error ocurred while loading the page."

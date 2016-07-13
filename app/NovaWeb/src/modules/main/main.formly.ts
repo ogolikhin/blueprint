@@ -1,6 +1,7 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
+import {ILocalizationService} from "../core";
 import {Helper} from "../core/utils/helper";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
@@ -28,8 +29,8 @@ export function formlyDecorate($provide): void {
 
 /* tslint:disable */
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages"];
-export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages): void {
+formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
+export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService): void {
     var attributes = [
         "date-disabled",
         "custom-class",
@@ -156,7 +157,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"Value cannot be empty"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty", "Value cannot be empty") + `"`
                 }
             },
             validators: {
@@ -173,7 +174,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         }
                         return true;
                     },
-                    message: `"Value is not in the correct interval"`
+                    message: `"` + localization.get("Property_Must_Be_Greater", "Value must be greater than or equal to Min Value =") + `"`
                 }
             }
         },

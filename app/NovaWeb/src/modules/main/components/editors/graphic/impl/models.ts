@@ -93,3 +93,8 @@ export interface IPoint {
     y: number;
     x: number;
 }
+
+export class Point implements IPoint {
+    public y: number;
+    public x: number;
+}

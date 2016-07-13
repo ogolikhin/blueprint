@@ -3,6 +3,7 @@ import {GenericDiagramShapeFactory} from "./generic-diagram";
 import {UsecaseShapeFactory} from "./activity-flow-diagram";
 import {DomainDiagramShapeFactory} from "./domain-diagram";
 import {UiMockupShapeFactory} from "./uimockup-diagram";
+import {BusinessProcessShapeFactory} from "./business-process-diagram";
 import {IShapeTemplateFactory} from "./abstract-diagram-factory";
 import {StoryboardShapeFactory} from "./storyboard";
 
@@ -10,8 +11,8 @@ export class DiagramLibraryManager {
     public getDiagramFactory(diagramType: string): IShapeTemplateFactory {
 
         switch (diagramType) {
-            // case Diagrams.BUSINESS_PROCESS:
-            //     return new BusinessProcessShapeFactory();
+             case Diagrams.BUSINESS_PROCESS:
+                 return new BusinessProcessShapeFactory();
             case Diagrams.GENERIC_DIAGRAM:
                 return new GenericDiagramShapeFactory();
             case Diagrams.DOMAIN_DIAGRAM:

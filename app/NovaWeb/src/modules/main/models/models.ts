@@ -144,6 +144,55 @@ export interface IProject extends IArtifact {
 }
 
 
+export interface IDiagramElement {
+    id: number;
+    type: string;
+    name: string;
+    props: IProp[];
+    zIndex: number;
+    isShape: boolean;
+}
+
+interface IProp {
+    name: string;
+    value: any;
+}
+interface ILabelStyle {
+    textAlignment: string;
+    fontFamily: string;
+    fontSize: string;
+    isItalic: boolean;
+    isBold: boolean;
+    isUnderline: boolean;
+    foreground: string;
+}
+
+interface IConnection {
+    id: number;
+    type: string;
+    parentId: number;
+    name: string;
+    sourceId: number;
+    targetId: number;
+    stroke: string;
+    strokeOpacity: number;
+    strokeWidth: number;
+    strokeDashPattern: string;
+    label: string;
+    sourceLabel: string;
+    targetLabel: string;
+    points: IPoint[];
+    startArrow: string;
+    endArrow: string;
+    zIndex: number;
+    props: IProp[];
+}
+
+interface IPoint {
+    y: number;
+    x: number;
+}
+
 export class Project implements IProject {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);

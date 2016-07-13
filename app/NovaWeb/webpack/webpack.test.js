@@ -6,7 +6,7 @@ var path = require('path');
 var postLoaders = [
       {
           test: /^((?!\.spec\.ts).)*.ts$/,
-          exclude: /(node_modules|bower_components)/,
+          exclude: [/node_modules/, /bower_components/, /storyteller/],
           loader: 'istanbul-instrumenter'
       }
 ];
@@ -54,7 +54,11 @@ module.exports = {
       // Tslint loader support for *.ts files
       //
       // See: https://github.com/wbuchwalter/tslint-loader
-        { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
+        {
+            test: /\.ts$/,
+            loader: 'tslint-loader',
+            exclude: [/node_modules/, /storyteller/]
+        }
     ],
     noParse: [/angular-perfect-scrollbar-2/]
   }

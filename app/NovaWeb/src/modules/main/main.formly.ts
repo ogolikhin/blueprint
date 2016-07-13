@@ -158,7 +158,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 messages: {
                     required: `"Value cannot be empty"`
                 }
-            }/*,
+            },
             validators: {
                 dateIsBetweenMinMax: {
                     expression: function($viewValue, $modelValue, scope) {
@@ -170,7 +170,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     },
                     message: `"Value must be greater than or equal to Min Value ="`
                 }
-            }*/
+            }
         },
         controller: ["$scope", function ($scope) {
             $scope.datepicker = {};

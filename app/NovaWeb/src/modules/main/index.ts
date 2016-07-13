@@ -1,4 +1,5 @@
 import "angular";
+import "angular-messages";
 import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
@@ -72,7 +73,7 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
-    "ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "ui.tinymce", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2", "formly", "formlyBootstrap"])
+    "ngMessages", "ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "ui.tinymce", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2", "formly", "formlyBootstrap"])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

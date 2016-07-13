@@ -4,6 +4,7 @@ import {IStencilService} from "./impl/stencil.svc";
 import {IDiagramService} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {IProjectManager, Models} from "../../../../main";
+import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
     public controller: Function = BPDiagramController;
@@ -27,6 +28,7 @@ export class BPDiagramController {
         private stencilService: IStencilService,
         private diagramService: IDiagramService,
         private projectManager: IProjectManager) {
+            new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
         //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -54,8 +56,26 @@ export class BPDiagramController {
             this.diagramView.sanitize = this.$sanitize;
 
             this.diagramService.getDiagram(artifact.id, artifact.predefinedType).then(diagram => {
+                this.stylizeSvg(this.$element, diagram.width, diagram.height);
                 this.diagramView.drawDiagram(diagram);
             });
         }
+    }
+
+    private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {
+        var w = width + "px";
+        var h = height + "px";
+        var svg = $element.find("svg");
+
+        svg.css("width", w);
+        svg.css("height", h);
+        svg.css("min-width", w);
+        svg.css("min-height", h);
+        svg.css("max-width", w);
+        svg.css("max-height", h);
+
+        $element.css("width", w);
+        $element.css("height", h);
+        $element.css("overflow", "hidden");
     }
 }

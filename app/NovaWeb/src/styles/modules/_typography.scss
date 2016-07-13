@@ -98,7 +98,7 @@ body {
 // The following is needed to reliably test for webfont download.
 // The test font face uses the same files as Open Sans so not to require additional resources/files
 @font-face {
-  font-family: 'Webfont Test';
+  font-family: 'Blueprint Webfont Test';
   src: url('fonts/opensans-regular.eot?#iefix') format('embedded-opentype'),
   url('fonts/opensans-regular.ttf') format('truetype'),
   url('fonts/opensans-regular.woff') format('woff');
@@ -108,7 +108,7 @@ body {
 // Some browsers require an actual element to download the webfont
 #webfont-tester {
   display: block;
-  font: normal 1px 'Webfont Test';
+  font: normal 1px 'Blueprint Webfont Test';
   position: absolute;
   top: -100px;
 }

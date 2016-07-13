@@ -1,0 +1,37 @@
+﻿<div class="artifact-overview">
+    <div class="heading">Overview {{$ctrl.activeTab}}</div>
+    <div class="content">
+        <form novalidate>
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
+                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
+                <perfect-scrollbar>
+                    <div class="content" uib-collapse="isSystemPropertiesCollapsed">
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields">
+                        </formly-form>
+                    </div>
+                </perfect-scrollbar>
+            </div>
+            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}" ng-if="$ctrl.isCustomPropertyAvailable">
+                <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
+                <perfect-scrollbar>
+                    <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields.customFields">
+                        </formly-form>
+                    </div>
+                </perfect-scrollbar>
+            </div>
+
+
+            <uib-tabset active="$ctrl.activeTab">
+                <uib-tab ng-repeat="field in $ctrl.tabs"
+                         heading="{{field.title}}"
+                         index="field.index"
+                         >
+                    <formly-form model="$ctrl.model" fields="field.fields" >
+                    </formly-form>
+                </uib-tab>
+            </uib-tabset>
+
+        </form>
+    </div>
+</div>

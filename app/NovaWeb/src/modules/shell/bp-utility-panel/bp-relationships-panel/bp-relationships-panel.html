@@ -13,21 +13,27 @@
 
 <div ng-if="$ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length"
      class="scrollable-content" perfect-scrollbar>
+
     <h6 ng-if="$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter !== 2">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
-    <div ng-if="$ctrl.categoryFilter!==2" ng-repeat="artifact in $ctrl.artifactList.manualTraces" 
-         class="artifact-item-wrapper">
-        <div class="separator"></div>
-        <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+    <div ng-if="$ctrl.categoryFilter!==2">
+        <div ng-repeat="artifact in $ctrl.artifactList.manualTraces"
+             class="artifact-item-wrapper">
+            <div class="separator"></div>
+            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+        </div>
     </div>
-    <div ng-if="!$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter !==2"
+    <div ng-if="!$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter ===1"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}</div>
+
     <h6 ng-if="$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
-    <div ng-if="$ctrl.categoryFilter!==1" ng-repeat="artifact in $ctrl.artifactList.otherTraces" 
-         class="artifact-item-wrapper">
-        <div class="separator"></div>
-        <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+    <div ng-if="$ctrl.categoryFilter!==1">
+        <div  ng-repeat="artifact in $ctrl.artifactList.otherTraces"
+             class="artifact-item-wrapper">
+            <div class="separator"></div>
+            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+        </div>
     </div>
-    <div ng-if="!$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter !==1"
+    <div ng-if="!$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter ===2"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Association') }}</div>
 </div>
 

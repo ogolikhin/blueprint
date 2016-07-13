@@ -424,8 +424,13 @@ namespace ArtifactStore.Repositories
                     IsRequired = ptVersions[0].Required,
                     IsValidated = ptVersions[0].Validate,
                     IsMultipleAllowed = ptVersions[0].AllowMultiple,
-                    ValidValues = new List<string>{"Low", "Medium", "High"},
-                    DefaultValidValueIndex = 1
+                    ValidValues = new List<ValidValue>
+                    {
+                        new ValidValue { Id = 6447, Value = "Low" },
+                        new ValidValue { Id = 6448, Value = "Medium" },
+                        new ValidValue { Id = 6449, Value = "High" }
+                    },
+                    DefaultValidValueId = 6448
                 }
             };
 

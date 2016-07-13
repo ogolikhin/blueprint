@@ -5,7 +5,8 @@ import "angular-sanitize";
 import {Shapes, ShapeProps, Diagrams, ConnectorTypes} from "./utils/constants";
 import {DiagramServiceMock, Prop} from '../diagram.svc.mock';
 import {BPDiagram} from "../../../../components/editors/graphic/bp-diagram";
-import {StencilServiceMock} from '../StencilServiceMock';
+import {StencilServiceMock} from '../stencil.svc.mock';
+require("script!mxClient");
 
 describe("Rendering common shapes", () => {
     var validUseDirectiveHtml = "<div data-diagram></div>";

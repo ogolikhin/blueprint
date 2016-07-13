@@ -13,6 +13,7 @@
     "node_modules",
     "dist",
     "dev",
-    "reports"
+    "reports",
+    "src/modules/storyteller"
   ]
 }

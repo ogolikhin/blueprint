@@ -10,8 +10,9 @@
         <div class="page-heading">
             <bp-artifact-info></bp-artifact-info>
         </div>
-        <div class="page-body">
-            <bp-content-selector/>
+        <div class="page-body" ng-switch="$content.contentType">
+            <bp-diagram ng-switch-when="diagram"></bp-diagram>
+            <bp-artifact ng-switch-default context="$content.context" ></bp-artifact>
         </div>
     </div>
 </div>

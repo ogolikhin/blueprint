@@ -13,6 +13,7 @@ import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
 import * as Enums from "./models/enums";
+import {Helper} from "../core/utils/helper";
 import {ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import * as Relationships from "./models/relationshipModels";
@@ -46,7 +47,6 @@ declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
@@ -55,6 +55,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
+
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 
@@ -84,27 +85,92 @@ angular.module("app.main", [
 //    .component("bpContentSelector", new BPContentSelector())
     .value("mxUtils", mxUtils)
     .config(routesConfig)
-    .run(formlyConfigTinyMCE);
+    .config(Decorate)
+    .run(formlyConfigExtendedFields);
+
+function Decorate($provide) {
+    function Delegated($delegate) {
+        var value = $delegate.DATETIME_FORMATS;
+
+        value.SHORTDAY = [
+            "S",
+            "M",
+            "T",
+            "W",
+            "T",
+            "F",
+            "S"
+        ];
+
+        return $delegate;
+    }
+    Delegated.$inject = ["$delegate"];
+
+    $provide.decorator('$locale', Delegated);
+}
+Decorate.$inject = ["$provide"];
 
 /* tslint:disable */
-function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
+
+function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig) {
+    var attributes = [
+        "date-disabled",
+        "custom-class",
+        "show-weeks",
+        "starting-day",
+        "init-date",
+        "min-mode",
+        "max-mode",
+        "format-day",
+        "format-month",
+        "format-year",
+        "format-day-header",
+        "format-day-title",
+        "format-month-title",
+        "year-range",
+        "shortcut-propagation",
+        "datepicker-popup",
+        "show-button-bar",
+        "current-text",
+        "clear-text",
+        "close-text",
+        "close-on-date-selection",
+        "datepicker-append-to-body"
+    ];
+
+    var bindings = [
+        "datepicker-mode",
+        "min-date",
+        "max-date"
+    ];
+
+    var ngModelAttrs = {};
+
+    angular.forEach(attributes, function(attr) {
+        ngModelAttrs[Helper.camelCase(attr)] = {attribute: attr};
+    });
+
+    angular.forEach(bindings, function(binding) {
+        ngModelAttrs[Helper.camelCase(binding)] = {bound: binding};
+    });
+
+    //console.log(ngModelAttrs);
+
     formlyConfig.setType({
-        name: 'tinymce',
+        name: "tinymce",
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
             data: { // using data property
                 tinymceOption: { // this will goes to ui-tinymce directive
                     // standard tinymce option
-                    inline: true,
-                    plugins: "advlist autolink link image paste lists charmap print noneditable",
-                    fixed_toolbar_container: ".form-tinymce-toolbar"
+                    plugins: "advlist autolink link image paste lists charmap print noneditable"
                 }
             }
         }
     });
     formlyConfig.setType({
-        name: 'tinymceInline',  
+        name: "tinymceInline",
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
@@ -127,7 +193,50 @@ function formlyConfigTinyMCE(formlyConfig: AngularFormly.IFormlyConfig) {
             }
         }
     });
+    formlyConfig.setType({
+        name: "datepicker",
+        template: `<div class="form-datepicker input-group">
+            <input type="text"
+                id="{{::id}}"
+                name="{{::id}}"
+                ng-model="model[options.key]"
+                class="form-control "
+                ng-click="datepicker.open($event)"
+                uib-datepicker-popup="{{to.datepickerOptions.format}}"
+                is-open="datepicker.opened"
+                datepicker-append-to-body="to.datepickerAppendToBody" 
+                datepicker-options="to.datepickerOptions" />
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+        </div>`,
+        wrapper: ["bootstrapLabel", "bootstrapHasError"],
+        defaultOptions: {
+            ngModelAttrs: ngModelAttrs,
+            templateOptions: {
+                datepickerOptions: {
+                    format: "dd/MM/yyyy",
+                    formatDay: "d",
+                    formatDayHeader: "EEE",
+                    initDate: new Date(),
+                    maxDate: "2016-07-30",
+                    minDate: "2016-07-01",
+                    showWeeks: false
+                },
+                datepickerAppendToBody: true
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.datepicker = {};
+
+            $scope.datepicker.opened = false;
+
+            $scope.datepicker.open = function ($event) {
+                $scope.datepicker.opened = !$scope.datepicker.opened;
+            };
+        }]
+    });
 }
 /* tslint:enable */
-formlyConfigTinyMCE.$inject = ["formlyConfig"];
+formlyConfigExtendedFields.$inject = ["formlyConfig"];
 

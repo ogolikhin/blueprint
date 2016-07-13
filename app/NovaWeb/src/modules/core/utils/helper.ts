@@ -6,8 +6,18 @@ export class Helper {
             var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
             /* tslint:enable:no-bitwise */
             return v.toString(16);
-        });        
+        });
     }
+
+    static camelCase(token: string): string {
+        token = token.replace(/[\-_\s]+(.)?/g, function(match, chr) {
+            return chr ? chr.toUpperCase() : "";
+        });
+        // Ensure 1st char is always lowercase
+        return token.replace(/^([A-Z])/, function(match, chr) {
+            return chr ? chr.toLowerCase() : "";
+        });
+    };
 
     static stripHTMLTags = (stringToSanitize: string): string => {
         var stringSanitizer = window.document.createElement("DIV");

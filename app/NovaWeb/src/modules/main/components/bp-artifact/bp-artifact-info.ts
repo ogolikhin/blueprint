@@ -14,7 +14,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 export class BpArtifactInfoController  {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
-    private _artifact: Models.IArtifact
+    private _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
@@ -44,7 +44,9 @@ export class BpArtifactInfoController  {
         return this._artifact ? this._artifact.name : null;
     }
     public get artifactType(): string {
-        return this._artifact ? `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` : null;
+        return this._artifact ?
+            `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
+            null;
     }
 
     public get isReadonly(): boolean {

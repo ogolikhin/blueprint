@@ -82,7 +82,6 @@ angular.module("app.main", [
     .component("bpArtifactInfo", new BpArtifactInfo())
     .component("bpArtifact", new BpArtifact())
     .component("bpDiagram", new BPDiagram())
-//    .component("bpContentSelector", new BPContentSelector())
     .value("mxUtils", mxUtils)
     .config(routesConfig)
     .config(Decorate)
@@ -106,7 +105,7 @@ function Decorate($provide) {
     }
     Delegated.$inject = ["$delegate"];
 
-    $provide.decorator('$locale', Delegated);
+    $provide.decorator("$locale", Delegated);
 }
 Decorate.$inject = ["$provide"];
 
@@ -221,6 +220,7 @@ function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig) {
                     initDate: new Date(),
                     showWeeks: false
                 },
+                datepickerPopup: "dd-MMMM-yyyy",
                 datepickerAppendToBody: true
             }
         },

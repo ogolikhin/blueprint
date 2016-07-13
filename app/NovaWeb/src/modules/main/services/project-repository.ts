@@ -357,7 +357,7 @@ export class ProjectRepository implements IProjectRepository {
                         }
                     ],
                     "traces": []
-                }
+                };
 
 
                 defer.resolve(details);

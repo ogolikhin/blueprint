@@ -1,44 +1,63 @@
 import "angular";
 import "angular-mocks";
 import "angular-sanitize";
+require("script!mxClient");
 
 import {Shapes, ShapeProps, Diagrams, ConnectorTypes} from "./utils/constants";
 import {DiagramServiceMock, Prop} from '../diagram.svc.mock';
 import {BPDiagram} from "../../../../components/editors/graphic/bp-diagram";
 import {StencilServiceMock} from '../stencil.svc.mock';
-require("script!mxClient");
+import {Point} from "../impl/models";
+import {ProjectManager} from "../../../../services/project-manager";
+import {ItemTypePredefined} from "../../../../models/enums";
+import {ProjectRepository} from "../../../../services/project-repository";
+import {MessageServiceMock} from "../../../../../shell/messages/message.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization.mock";
+import {ComponentTest} from "../../../../../util/component.test";
+import {BPDiagramController} from "../bp-diagram";
 
 describe("Rendering common shapes", () => {
-    var validUseDirectiveHtml = "<div data-diagram></div>";
+    const validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
 
-    var element: ng.IAugmentedJQuery;
+    let element: ng.IAugmentedJQuery;
 
     beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.component("diagram", <any>new BPDiagram());
+        $compileProvider.component("bpDiagram", new BPDiagram());
         $provide.service("stencilService", StencilServiceMock);
-       // $provide.service("artifactSelector", ArtifactSelector);
+        $provide.service("diagramService", DiagramServiceMock);
+        $provide.service("projectManager", ProjectManager);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("projectRepository", ProjectRepository);
     }));
 
-    xit("Frame Shape Test, First Frame With Mockup", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
+    let componentTest: ComponentTest<BPDiagramController>;
+    let template = "<bp-diagram></bp-diagram>";
+    let vm: BPDiagramController;
 
-        // Act
+    beforeEach(inject((projectManager: ProjectManager) => {
+        projectManager.initialize();
+        componentTest = new ComponentTest<BPDiagramController>(template, "bp-diagram");
+        vm = componentTest.createComponent({});
+        element = componentTest.element;
+    }));
+
+
+    it("Frame Shape Test, First Frame With Mockup", inject(($compile: ng.ICompileService, diagramService: DiagramServiceMock, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        // Arrange
+        const eventShapes = [];
         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: true };
+        eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
 
-
-        var frameShapes = [];
-        frameShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, [], Diagrams.STORYBOARD);
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
-
+        
         // Assert
-
         var frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
         expect(frameBoundary.length).toEqual(1);
 
@@ -52,22 +71,18 @@ describe("Rendering common shapes", () => {
         expect(labelShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Not First Frame With Mockup", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Frame Shape Test, Not First Frame With Mockup", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
+        const eventShapes = [];
         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
+        eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
 
-
-        var frameShapes = [];
-        frameShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, [], Diagrams.STORYBOARD);
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
 
         // Assert
@@ -84,23 +99,20 @@ describe("Rendering common shapes", () => {
         expect(labelShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Description at the bottom of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Frame Shape Test, Description at the bottom of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
+        const eventShapes = [];
         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-
-        var frameShapes = [];
         var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
-        shape.description = DiagramServiceMock.createRichText("test description text");
-        frameShapes.push(shape);
+        shape.description = DiagramServiceMock.createRichText("test description text");       
+        eventShapes.push(shape);
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
 
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, [], Diagrams.STORYBOARD);
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
 
         // Assert
@@ -108,23 +120,20 @@ describe("Rendering common shapes", () => {
         expect(descriptionShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
-        var props = new Array<Prop>();
+        const eventShapes = [];
+         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-
-        var frameShapes = [];
         var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramServiceMock.createRichText("test description text");
-        frameShapes.push(shape);
+        eventShapes.push(shape);
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
 
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, [], Diagrams.STORYBOARD);
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
 
         // Assert
@@ -132,23 +141,20 @@ describe("Rendering common shapes", () => {
         expect(descriptionShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
+        const eventShapes = [];
         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-
-        var frameShapes = [];
         var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramServiceMock.createRichText("test description text");
-        frameShapes.push(shape);
+        eventShapes.push(shape);
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
 
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, [], Diagrams.STORYBOARD);
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
 
         // Assert
@@ -156,20 +162,15 @@ describe("Rendering common shapes", () => {
         expect(descriptionShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Two connected frames", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    xit("Frame Shape Test, Two connected frames", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        var scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
+        const eventShapes = [];
         var props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-
-        var frameShapes = [];
-        frameShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 1, 50, 100, 250));
-        frameShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 2, 300, 50, 100, 250));
+       
+        eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 1, 50, 100, 250));
+        eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 2, 300, 50, 100, 250));
 
         var connections = [];
         var points = [{ x: 51, y: 252 }, { x: 51, y: 310 }, { x: 150, y: 310 }, { x: 150, y: 25 }, { x: 350, y: 25 }, { x: 350, y: 98 }];
@@ -179,7 +180,11 @@ describe("Rendering common shapes", () => {
 
         connections.push(connection);
 
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(frameShapes, connections, Diagrams.STORYBOARD);
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        diagramService.diagramMock = diagramMock;
+
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
         $rootScope.$apply();
 
         // Assert

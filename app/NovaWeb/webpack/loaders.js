@@ -1,12 +1,14 @@
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var path = require("path");
 module.exports = [
-    {test: /\.ts(x?)$/, loader: 'ts-loader'},
     {
+        test: /\.ts(x?)$/,
+        exclude: /storyteller/,
+        loader: 'ts-loader'
+    },     {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')
-    },
-    {
+    },     {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!sass?sourceMap')
     }, {

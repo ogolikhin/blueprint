@@ -119,7 +119,7 @@ describe("Project Explorer Test", () => {
         $rootScope.$digest();
 
         // Act
-//        expect(isReloadCalled).toEqual(1);
+         //expect(isReloadCalled).toEqual(1);
 
     }));
 

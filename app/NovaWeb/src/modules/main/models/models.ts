@@ -1,5 +1,5 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums"
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection }
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
 
 export enum ArtifactTypeEnum {
     Project = -1,
@@ -85,6 +85,10 @@ export interface IArtifact extends IItem {
     loaded?: boolean;
 
 }
+export interface IOption {
+    id: number;
+    value: string;
+}
 export interface IItemType {
     id: number;
     name: string;
@@ -101,7 +105,7 @@ export interface IPropertyType {
     id?: number;
     versionId?: number;
     name?: string;
-    primitiveType: PrimitiveType;
+    primitiveType?: PrimitiveType;
     instancePropertyTypeId?: number;
     isRichText?: boolean;
     decimalDefaultValue?: number;
@@ -116,17 +120,17 @@ export interface IPropertyType {
     isMultipleAllowed?: boolean;
     isRequired?: boolean;
     isValidated?: boolean;
-    validValues?: string[];
-    defaultValidValueIndex?: number;
+    validValues?: IOption[];
+    defaultValidValueId?: number;
     
     // Extra properties. Maintaned by client
-    propertyTypePredefined?: PropertyTypePredefined,
+    propertyTypePredefined?: PropertyTypePredefined;
     disabled?: boolean;
 }
 export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
-    propertyTypePredefined?: PropertyTypePredefined, 
+    propertyTypePredefined?: PropertyTypePredefined;
     value: any;
 }
 
@@ -140,6 +144,10 @@ export interface IProjectMeta {
 export interface IProject extends IArtifact {
     description: string;
     meta?: IProjectMeta;
+
+    getArtifactTypes(id?: number): IItemType[];
+
+    getPropertyTypes(id?: number): IPropertyType[];
 }
 
 
@@ -159,6 +167,8 @@ export class Project implements IProject {
 
     public itemTypeVersionId: number;
 
+    public meta: IProjectMeta;
+
     public artifacts: IArtifact[];
 
     public get projectId() {
@@ -175,6 +185,30 @@ export class Project implements IProject {
 
     public get hasChildren() {
         return this.artifacts && this.artifacts.length > 0;
+    }
+
+    public getArtifactTypes(id?: number): IItemType[] {
+
+        let itemTypes: IItemType[] = [];
+
+        if (this.meta && this.meta.artifactTypes) {
+            itemTypes = this.meta.artifactTypes.filter((it) => {
+                return !angular.isNumber(id) || it.id === id;
+            })
+        }
+
+        return itemTypes;
+    }
+    public getPropertyTypes(id?: number): IPropertyType[] {
+
+        let propertyTypes: IPropertyType[] = [];
+
+        if (this.meta && this.meta.propertyTypes) {
+            propertyTypes = this.meta.propertyTypes.filter((it) => {
+                return !angular.isNumber(id) || it.id === id;
+            })
+        }
+        return propertyTypes;
     }
 
 }

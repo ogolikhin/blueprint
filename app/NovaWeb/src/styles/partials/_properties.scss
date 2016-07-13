@@ -313,6 +313,9 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   }
 
   table.uib-daypicker {
+    margin: 0 -1px;
+    width: #{$property-input-width - 1px};
+
     thead tr:first-child th {
       button {
         border-color: $brand-secondary;

@@ -280,6 +280,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
     }
 
+    .error-messages {
+      position: relative;
+
+      .message {
+        font-size: $font-size-smaller;
+        position: absolute;
+        right: 0;
+      }
+    }
+
     .has-error {
       input {
         border-color: $gray-lightest;
@@ -288,6 +298,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
       select {
         border-color: $brand-error;
+      }
+
+      .error-messages {
+        color: $brand-error;
       }
     }
   }

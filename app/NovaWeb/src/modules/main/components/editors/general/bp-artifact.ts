@@ -32,7 +32,6 @@ export class BpArtifactController {
         "artifactService"
     ];
 
-    private _subscribers: Rx.IDisposable[];
     private editor: ArtifactEditor;
 
     constructor(
@@ -48,6 +47,20 @@ export class BpArtifactController {
     public $onDestroy() {
     }
 
+    public $onChanges(changesObj) {
+        if (changesObj.context) {
+            this._context = changesObj.context.currentValue;
+
+            if (this._context && this._context.artifact && this._context.project) {
+                this.artifactService.getArtifact(this._context.artifact.id).then((artifactDetails) => {
+                    //TODO: change
+                    angular.extend(this._context.artifact, artifactDetails);
+                    this.load(this._context.artifact, this._context.project);
+                });
+            }
+        }
+    }
+
     public model = {};
     public tabs = [];
     public activeTab: number = 1;
@@ -58,18 +71,6 @@ export class BpArtifactController {
     };
 
     private _context: IEditorContext;
-
-    public set context(value: IEditorContext) {
-        this._context = value;
-
-        if (this.artifactService && this._context && this._context.artifact && this._context.project) {
-            this.artifactService.getArtifact(this._context.artifact.id).then((artifactDetails) => {
-                //TODO: change
-                angular.extend(this._context.artifact, artifactDetails);
-                this.load(this._context.artifact, this._context.project);
-            });
-        }
-    }
 
     public get isCustomPropertyAvailable(): boolean {
         return this.fields && this.fields.customFields && this.fields.customFields.length > 0;

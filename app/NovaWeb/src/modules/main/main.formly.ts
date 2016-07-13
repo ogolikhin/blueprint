@@ -162,13 +162,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             validators: {
                 dateIsBetweenMinMax: {
                     expression: function($viewValue, $modelValue, scope) {
-                        var value = $modelValue || $viewValue;
+                        let value = $modelValue || $viewValue;
                         if (value) {
-                            return false;
+                            let minDate = scope.to["datepickerOptions"].minDate || value;
+                            let maxDate = scope.to["datepickerOptions"].maxDate || value;
+                            let isAfterMin = (<any>Date).compare(Date.parse(value), Date.parse(minDate)) >= 0;
+                            let isBeforeMax = (<any>Date).compare(Date.parse(value), Date.parse(maxDate)) <= 0;
+
+                            return isAfterMin && isBeforeMax;
                         }
                         return true;
                     },
-                    message: `"Value must be greater than or equal to Min Value ="`
+                    message: `"Value is not in the correct interval"`
                 }
             }
         },
@@ -176,7 +181,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             $scope.datepicker = {};
 
             // make sure the initial value is of type DATE!
-            var currentModelVal = $scope.model[$scope.options.key];
+            let currentModelVal = $scope.model[$scope.options.key];
             if (typeof (currentModelVal) == 'string'){
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }

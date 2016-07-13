@@ -101,7 +101,10 @@ export class ArtifactEditor implements IArtifactEditor {
                 field.templateOptions.type = "text";
                 field.templateOptions["datepickerPopup"] = "dd-MMMM-yyyy";
                 field.defaultValue = propertyType.dateDefaultValue || new Date();
-                //field.templateOptions.min = type.minDate;
+                field.templateOptions["datepickerOptions"] = {
+                    maxDate: propertyType.maxDate,
+                    minDate: propertyType.minDate
+                };
                 //field.templateOptions.max = type.maxDate;
                 break;
             case Models.PrimitiveType.Number:
@@ -183,6 +186,9 @@ export class ArtifactEditor implements IArtifactEditor {
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
+            isRequired: true,
+            maxDate: new Date("2016-07-31"),
+            minDate: new Date("2016-07-01")
             //disabled: true
         });
         properties.push(<Models.IPropertyType>{

@@ -219,8 +219,6 @@ function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig) {
                     formatDay: "d",
                     formatDayHeader: "EEE",
                     initDate: new Date(),
-                    maxDate: "2016-07-30",
-                    minDate: "2016-07-01",
                     showWeeks: false
                 },
                 datepickerAppendToBody: true

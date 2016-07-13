@@ -308,10 +308,26 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   border-color: $brand-secondary;
   padding: 0 0 7px;
 
+  li > .uib-datepicker {
+    margin-top: -1px;
+  }
+
   table.uib-daypicker {
+    thead tr:first-child th {
+      button {
+        border-color: $brand-secondary;
+      }
+
+      &:first-child button,
+      &:last-child button {
+        color: $brand-secondary;
+      }
+    }
+
     thead tr:last-child th,
     tbody td {
       border: solid 1px transparent;
+      line-height: 28px;
 
       &:first-child {
         padding-left: 4px;
@@ -322,6 +338,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
     }
   }
+
   .uib-button-bar {
     padding: 10px 6px 0;
   }

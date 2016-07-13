@@ -100,9 +100,15 @@ export class DiagramServiceMock implements IDiagramService {
 
     public getDiagram(id: number): ng.IPromise<IDiagram> {
         var deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
-        deferred.resolve(DiagramServiceMock.genericDiagram);
+        if (this.diagramMock) {
+            deferred.resolve(this.diagramMock);
+        } else {
+            deferred.resolve(DiagramServiceMock.genericDiagram);
+        }
         return deferred.promise;
     }
+
+    public diagramMock: IDiagram;
 
     private static createGenericDiagramMock(): IDiagram {
         var diagram = new Diagram();

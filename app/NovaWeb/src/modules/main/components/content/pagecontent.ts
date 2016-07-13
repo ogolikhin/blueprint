@@ -1,5 +1,6 @@
-﻿import { IProjectManager, Models} from "../..";
-import { IMessageService, Message } from "../../../shell";
+﻿import {IProjectManager, Models} from "../..";
+import {IMessageService} from "../../../shell";
+import {IDiagramService} from "../editors/graphic/diagram.svc";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -15,8 +16,10 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["messageService", "projectManager"];
-    constructor(private messageService: IMessageService, private projectManager: IProjectManager) {
+    public static $inject: [string] = ["messageService", "projectManager", "diagramService"];
+    constructor(private messageService: IMessageService,
+                private projectManager: IProjectManager,
+                private diagramService: IDiagramService) {
     }
     //TODO remove after testing
     public addMsg() {
@@ -51,16 +54,13 @@ class PageContentCtrl {
         this.context = {
             artifact: angular.copy(artifact),
             project : this.projectManager.currentProject.getValue()
-        } 
+        };
     }
 
     private getContentType(artifact: Models.IArtifact): string {
-        switch (artifact.predefinedType) {
-            case Models.ItemTypePredefined.DomainDiagram:
-            case Models.ItemTypePredefined.GenericDiagram:
-                return "graphic";
-            default:
-                return "other";
+        if (this.diagramService.isDiagram(artifact.predefinedType)) {
+            return "diagram";
         }
+        return "other";
     }
 }

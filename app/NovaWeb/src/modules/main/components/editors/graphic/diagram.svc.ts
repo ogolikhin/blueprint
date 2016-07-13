@@ -76,6 +76,6 @@ export class DiagramService implements IDiagramService {
         if (itemType === ItemTypePredefined.UseCase) {
             return `/svc/components/RapidReview/usecase/${id}`;
         }
-        return `/svc/components/RapidReview/diagram/${id}`;
+        return `/svc/components/RapidReview/diagram/${id}?addDraft=true`;
     }
 }

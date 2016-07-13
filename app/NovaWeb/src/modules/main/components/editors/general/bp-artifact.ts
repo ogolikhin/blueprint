@@ -1,14 +1,14 @@
-﻿import { Models } from "../../../";
-import {IMessageService,} from "../../../../shell/";
+﻿import {Models} from "../../../";
+import {IMessageService} from "../../../../shell/";
 import {IArtifactService} from "./artifact.svc";
-import {ArtifactEditor} from "./bp-artifact-editor"
+import {ArtifactEditor} from "./bp-artifact-editor";
 
 
 interface IFieldTab {
-    title: string,
-    index: number,
-    fields: [AngularFormly.IFieldConfigurationObject],
-    active?: boolean
+    title: string;
+    index: number;
+    fields: [AngularFormly.IFieldConfigurationObject];
+    active?: boolean;
 };
 
 interface IEditorContext {
@@ -28,13 +28,12 @@ export class BpArtifact implements ng.IComponentOptions {
 
 export class BpArtifactController {
     public static $inject: [string] = [
-        "messageService", "artifactService"
+        "messageService",
+        "artifactService"
     ];
 
-    
     private _subscribers: Rx.IDisposable[];
     private editor: ArtifactEditor;
-
 
     constructor(
         private messageService: IMessageService,
@@ -63,7 +62,7 @@ export class BpArtifactController {
     public set context(value: IEditorContext) {
         this._context = value;
 
-        if (this._context && this._context.artifact && this._context.project) {
+        if (this.artifactService && this._context && this._context.artifact && this._context.project) {
             this.artifactService.getArtifact(this._context.artifact.id).then((artifactDetails) => {
                 //TODO: change
                 angular.extend(this._context.artifact, artifactDetails);
@@ -107,6 +106,4 @@ export class BpArtifactController {
         }
 
     }
-
-
 }

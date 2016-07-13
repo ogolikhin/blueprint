@@ -302,6 +302,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       width: 100%;
     }
   }
+
+  .formly-field-datepicker {
+    button {
+      border-radius: 0;
+    }
+
+    .has-error button {
+      border-bottom-color: $brand-error !important;
+    }
+  }
 }
 
 .uib-datepicker-popup {

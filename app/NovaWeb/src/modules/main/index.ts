@@ -222,6 +222,18 @@ function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig) {
                     showWeeks: false
                 },
                 datepickerAppendToBody: true
+            },
+            validators: {
+                dateIsBetweenMinMax: function($viewValue, $modelValue, scope) {
+                    var value = $modelValue || $viewValue;
+                    if (value) {
+                        console.log(value);
+                        // call the validateDriversLicense function
+                        // which either returns true or false
+                        // depending on whether the entry is valid
+                        return false;
+                    }
+                }
             }
         },
         controller: ["$scope", function ($scope) {

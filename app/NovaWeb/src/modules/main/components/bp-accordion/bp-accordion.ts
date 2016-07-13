@@ -20,7 +20,7 @@ import { ILocalizationService } from "../../../core";
     </bp-accordion>
 */
 
-interface IBpAccordionController {
+export interface IBpAccordionController {
     accordionId?: string;
     accordionHeadingHeight?: number;
     panels: IBpAccordionPanelController[];
@@ -34,13 +34,14 @@ interface IBpAccordionController {
     recalculateLayout();
 }
 
-interface IBpAccordionPanelController {
+export interface IBpAccordionPanelController {
     accordionPanelId?: string;
     accordionPanelHeading?: string;
     accordionPanelHeadingHeight?: any;
     accordionPanelClass?: string;
     accordionGroup: IBpAccordionController;
 
+    isOpenSubject: Rx.BehaviorSubject<boolean>;
     isOpen: boolean;
     isPinned: boolean;
 
@@ -185,6 +186,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public accordionPanelHeadingHeight: number;
     public accordionPanelClass: string;
     
+    public isOpenSubject: Rx.BehaviorSubject<boolean>;
     public isOpen: boolean;
     public isPinned: boolean;
 
@@ -192,6 +194,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
         this.isOpen = false;
+        this.isOpenSubject = new Rx.BehaviorSubject(this.isOpen);
         this.isPinned = false;
     }
 
@@ -202,6 +205,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public openPanel = () => {
         if (!this.isOpen) {
             this.isOpen = true;
+            this.isOpenSubject.onNext(this.isOpen);
             this.$element[0].className += " bp-accordion-panel-open";
             this.accordionGroup.openPanel(this);
         }
@@ -209,6 +213,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
 
     public closePanel = () => {
         this.isOpen = false;
+        this.isOpenSubject.onNext(this.isOpen);
         this.$element[0].className = this.$element[0].className.replace(" bp-accordion-panel-open", "");
     };
 

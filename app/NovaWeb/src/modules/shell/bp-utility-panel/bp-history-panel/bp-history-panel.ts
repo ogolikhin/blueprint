@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 
 interface ISortOptions {
@@ -10,6 +11,9 @@ interface ISortOptions {
 export class BPHistoryPanel implements ng.IComponentOptions {
     public template: string = require("./bp-history-panel.html");
     public controller: Function = BPHistoryPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
 export class BPHistoryPanelController {
@@ -24,6 +28,7 @@ export class BPHistoryPanelController {
     private artifactId: number;
     private _subscribers: Rx.IDisposable[];
 
+    public bpAccordionPanel: IBpAccordionPanelController;
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
@@ -43,10 +48,21 @@ export class BPHistoryPanelController {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
-
-        this._subscribers = [ selectedArtifactSubscriber ];
+    public $onInit() {
+        const selectedArtifact: Rx.Observable<Models.IArtifact> = this.projectManager.currentArtifact.asObservable();
+        const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenSubject.asObservable(); 
+        const artifactOrVisibilityChange: Rx.IDisposable = 
+            Rx.Observable
+                .combineLatest(selectedArtifact, panelVisibility, 
+                    (artifact, visibility) => {
+                        return { artifact: artifact, isVisible: visibility };
+                    })
+                .filter(o => o.isVisible)
+                .map(o => o.artifact)
+                .distinctUntilChanged(o => o && o.id)
+                .subscribe(this.setArtifactId);
+        
+        this._subscribers = [ artifactOrVisibilityChange ];
     }
 
     public $onDestroy() {

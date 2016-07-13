@@ -2,6 +2,7 @@
 import { IProjectManager, Models} from "../../../main";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface ISortOptions {
     value: boolean;
@@ -16,9 +17,8 @@ export class BPHistoryPanel implements ng.IComponentOptions {
     };
 }
 
-export class BPHistoryPanelController {
+export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log", 
         "localization",
         "artifactHistory",
         "projectManager"
@@ -26,9 +26,7 @@ export class BPHistoryPanelController {
 
     private loadLimit: number = 10;
     private artifactId: number;
-    private _subscribers: Rx.IDisposable[];
 
-    public bpAccordionPanel: IBpAccordionPanelController;
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
@@ -36,10 +34,12 @@ export class BPHistoryPanelController {
     public isLoading: boolean = false;
     
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private projectManager: IProjectManager) {
+        protected projectManager: IProjectManager,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -47,27 +47,12 @@ export class BPHistoryPanelController {
         ];
     }
 
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        const selectedArtifact: Rx.Observable<Models.IArtifact> = this.projectManager.currentArtifact.asObservable();
-        const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenObservable; 
-        const artifactOrVisibilityChange: Rx.IDisposable = 
-            Rx.Observable
-                .combineLatest(selectedArtifact, panelVisibility, 
-                    (artifact, visibility) => {
-                        return { artifact: artifact, isVisible: visibility };
-                    })
-                .filter(o => o.isVisible)
-                .map(o => o.artifact)
-                .distinctUntilChanged(o => o && o.id)
-                .subscribe(this.setArtifactId);
-        
-        this._subscribers = [ artifactOrVisibilityChange ];
+        super.$onInit();
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
 
         // clean up history list
         this.artifactHistoryList = null;
@@ -81,7 +66,7 @@ export class BPHistoryPanelController {
             });
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    protected setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactHistoryList = [];
 
         if (artifact !== null) {

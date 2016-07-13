@@ -425,21 +425,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Start Signal) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Event Shape(Start Signal) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Signal" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -451,21 +447,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(End Signal) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Event Shape(End Signal) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Signal" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -477,21 +469,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Intermediate Catching Link) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Event Shape(Intermediate Catching Link) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "IntermediateCatching" };
         props[1] = { name: "EventTrigger", value: "Link" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -503,21 +491,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Intermediate Throwing Link) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(Intermediate Throwing Link) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "IntermediateThrowing" };
         props[1] = { name: "EventTrigger", value: "Link" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -529,21 +513,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Start Multiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(Start Multiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Multiple" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -555,21 +535,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(End Multiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(End Multiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Multiple" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -581,21 +557,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Start Escalation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(Start Escalation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Escalation" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -607,21 +579,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(End Escalation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(End Escalation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Escalation" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -633,21 +601,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(Start ParallelMultiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(Start ParallelMultiple) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "ParallelMultiple" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -659,21 +623,17 @@ describe("Rendering common shapes", () => {
         expect(eventPathElement1.length).toEqual(1);
     }));
 
-    xit("Event Shape(End Terminate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Event Shape(End Terminate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Terminate" };
-
-        const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Event", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Event", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -685,20 +645,16 @@ describe("Rendering common shapes", () => {
         expect(filledEllipseElement.length).toEqual(1);
     }));
 
-    xit("Gateway (ExclusiveData) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (ExclusiveData) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
-        props.push({ name: "GatewayType", value: "ExclusiveData" });
-
+        props[0] = { name: "GatewayType", value: "ExclusiveData" };
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -712,20 +668,16 @@ describe("Rendering common shapes", () => {
         expect(visibilityAttribute).toBeNull();
     }));
 
-    xit("Gateway (ExclusiveDataWithMarker) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (ExclusiveDataWithMarker) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveDataWithMarker" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -748,20 +700,16 @@ describe("Rendering common shapes", () => {
         expect(visibilityAttribute).toBeNull();
     }));
 
-    xit("Gateway (ExclusiveEvent) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (ExclusiveEvent) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveEvent" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -805,20 +753,16 @@ describe("Rendering common shapes", () => {
         expect(parseFloat(ryAttribute)).toBeCloseTo(25.75, 1);
     }));
 
-    xit("Gateway (ExclusiveEventInstantiate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (ExclusiveEventInstantiate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveEventInstantiate" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -853,20 +797,16 @@ describe("Rendering common shapes", () => {
         expect(parseFloat(ryAttribute)).toBeCloseTo(30, 0);
     }));
 
-    xit("Gateway (ParallelEventInstantiate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (ParallelEventInstantiate) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ParallelEventInstantiate" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -901,20 +841,16 @@ describe("Rendering common shapes", () => {
         expect(parseFloat(ryAttribute)).toBeCloseTo(30, 0);
     }));
 
-    xit("Gateway (Inclusive) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (Inclusive) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Inclusive" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -928,20 +864,16 @@ describe("Rendering common shapes", () => {
         expect(dAttribute).toEqual("M 120 150 C 120 133.43 133.43 120 150 120 C 166.57 120 180 133.43 180 150 C 180 166.57 166.57 180 150 180 C 133.43 180 120 166.57 120 150 Z M 127.5 150 C 127.5 162.43 137.57 172.5 150 172.5 C 162.43 172.5 172.5 162.43 172.5 150 C 172.5 137.57 162.43 127.5 150 127.5 C 137.57 127.5 127.5 137.57 127.5 150 Z");
     }));
 
-    xit("Gateway (Parallel) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (Parallel) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Parallel" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -964,20 +896,16 @@ describe("Rendering common shapes", () => {
         expect(visibilityAttribute).toBeNull();
     }));
 
-    xit("Gateway (Complex) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Gateway (Complex) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Complex" });
-
         const shapes = [];
         shapes.push(DiagramServiceMock.createShape("Gateway", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1000,13 +928,8 @@ describe("Rendering common shapes", () => {
         expect(visibilityAttribute).toBeNull();
     }));
 
-    xit("Task Shape(Standard+adHoc+Compensation+Call) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(Standard+adHoc+Compensation+Call) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "Standard" };
         props[1] = { name: "IsAdHoc", value: true };
@@ -1014,11 +937,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: true };
         props[4] = { name: "IsCollapsed", value: true };
         props[5] = { name: "BoundaryType", value: "Call" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1039,13 +963,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement6.length).toEqual(2);
     }));
 
-    xit("Task Shape(ParallelMultiInstance+Service+Event) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(ParallelMultiInstance+Service+Event) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "ParallelMultiInstance" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1053,11 +972,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Event" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1072,13 +992,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement4.length).toEqual(1);
     }));
 
-    xit("Task Shape(SequentialMultiInstance+Receive+Transaction) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(SequentialMultiInstance+Receive+Transaction) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "SequentialMultiInstance" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1086,11 +1001,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Transaction" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1107,13 +1023,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement4.length).toEqual(1);
     }));
 
-    xit("Task Shape(Send) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(Send) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1121,11 +1032,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1138,13 +1050,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement2.length).toEqual(2);
     }));
 
-    xit("Task Shape(InstantiatingReceive) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(InstantiatingReceive) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1152,11 +1059,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1169,13 +1077,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement2.length).toEqual(2);
     }));
 
-    xit("Task Shape(Manual) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(Manual) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1183,11 +1086,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1198,13 +1102,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement1.length).toEqual(1);
     }));
 
-    xit("Task Shape(BusinessRule) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(BusinessRule) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1212,11 +1111,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1230,13 +1130,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement1.length).toEqual(2);
     }));
 
-    xit("Task Shape(User) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(User) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1244,11 +1139,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1263,13 +1159,8 @@ describe("Rendering common shapes", () => {
         expect(taskPathElement3.length).toEqual(1);
     }));
 
-    xit("Task Shape(Script) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Task Shape(Script) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "None" };
         props[1] = { name: "IsAdHoc", value: false };
@@ -1277,11 +1168,12 @@ describe("Rendering common shapes", () => {
         props[3] = { name: "IsCompensation", value: false };
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
-
-        const taskShapes = [];
-        taskShapes.push(DiagramServiceMock.createShape("Task", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(taskShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("Task", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1295,23 +1187,19 @@ describe("Rendering common shapes", () => {
     }));
 
 
-    xit("Sub Process Shape(ParallelMultiInstance+Event) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Sub Process Shape(ParallelMultiInstance+Event) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "ParallelMultiInstance" };
         props[1] = { name: "IsAdHoc", value: false };
         props[2] = { name: "IsCompensation", value: false };
         props[3] = { name: "BoundaryType", value: "Event" };
-
-        const subProcessShapes = [];
-        subProcessShapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(subProcessShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1324,23 +1212,19 @@ describe("Rendering common shapes", () => {
         expect(subProcessPathElement2.length).toEqual(1);
     }));
 
-    xit("Sub Process Shape(SequentialMultiInstance+Call+adHoc+compensation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Sub Process Shape(SequentialMultiInstance+Call+adHoc+compensation) Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
-
-        // Act
         const props = new Array<Prop>();
         props[0] = { name: "LoopType", value: "SequentialMultiInstance" };
         props[1] = { name: "IsAdHoc", value: true };
         props[2] = { name: "IsCompensation", value: true };
         props[3] = { name: "BoundaryType", value: "Event" };
-
-        const subProcessShapes = [];
-        subProcessShapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
-
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(subProcessShapes, [], Diagrams.BUSINESS_PROCESS);
+        const shapes = [];
+        shapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
+        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert
@@ -1359,11 +1243,7 @@ describe("Rendering common shapes", () => {
         expect(subProcessPathElement5.length).toEqual(1);
     }));
 
-    xit("annotation Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        // Arrange
-        const scope = $rootScope.$new();
-        element = $compile(validUseDirectiveHtml)(scope);
-        scope.$digest();
+    it("annotation Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
 
         // Act
         const props = new Array<Prop>();
@@ -1378,7 +1258,10 @@ describe("Rendering common shapes", () => {
         const connection = DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points);
         connections.push(connection);
 
-        scope["diagram"] = DiagramServiceMock.createDiagramMock(annotationShapes, connections, Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramServiceMock.createDiagramMock(annotationShapes, connections, Diagrams.BUSINESS_PROCESS);
+        diagramService.diagramMock = diagramMock;
+        // Act
+        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.BusinessProcess });
         $rootScope.$apply();
 
         // Assert

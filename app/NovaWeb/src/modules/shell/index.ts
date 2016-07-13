@@ -39,7 +39,6 @@ export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSe
         from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 export { IMessage, Message, MessageType} from "./messages/message";
 
-
 angular.module("app.shell",
     [
         core,

@@ -120,7 +120,6 @@ export interface IPropertyType {
     defaultValidValueIndex?: number;
     
     // Extra properties. Maintaned by client
-    key?: string;
     propertyTypePredefined?: PropertyTypePredefined,
     disabled?: boolean;
 }

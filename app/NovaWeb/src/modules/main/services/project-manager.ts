@@ -30,7 +30,7 @@ export interface IProjectManager {
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-    getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[];
+//    getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[];
 //    getArtifactPropertyFileds(artyfact: Models.IArtifact, project: Models.IArtifact): Models.IArtifactDetailFields;
 }
 
@@ -296,69 +296,4 @@ export class ProjectManager implements IProjectManager {
     public get isArtifactSelected(): boolean {
         return !!this.currentArtifact.getValue();
     }
-
-
-    public getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[] {
-        let properties: Models.IPropertyType[] = [];
-        //add system properties  
-        properties.push(<Models.IPropertyType>{
-            name: "Name",
-            propertyTypePredefined: Models.PropertyTypePredefined.name,
-            primitiveType: Models.PrimitiveType.Text,
-            isRequired:true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Type",
-            propertyTypePredefined: Models.PropertyTypePredefined.name,
-            primitiveType: Models.PrimitiveType.Choice,
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Created by",
-            propertyTypePredefined: Models.PropertyTypePredefined.createdby,
-            primitiveType: Models.PrimitiveType.Choice,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Created on",
-            propertyTypePredefined: Models.PropertyTypePredefined.createdon,
-            primitiveType: Models.PrimitiveType.Choice,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Last edited by",
-            propertyTypePredefined: Models.PropertyTypePredefined.lasteditedon,
-            primitiveType: Models.PrimitiveType.Choice,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Last edited on",
-            propertyTypePredefined: Models.PropertyTypePredefined.lasteditedon,
-            primitiveType: Models.PrimitiveType.Choice,
-            disabled: true
-        });
-        let artifactType: Models.IItemType;
-        let project = this.getProject(artifact.id);
-        //add custom properties
-        if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
-            artifactType = <Models.IItemType>{
-                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                baseType: Models.ItemTypePredefined.Project
-            }
-        } else {
-            artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === artifact.itemTypeId;
-            })[0];
-        }
-        project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
-
-
-        return properties;
-    }
-
-
 }

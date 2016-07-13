@@ -708,7 +708,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="traceType">(optional) The type of the trace - 'Manual'.</param>
         /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
-        /// <returns>List of OpenApiTrace objects.</returns>
+        /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address, IArtifactBase sourceArtifact,
             IArtifactBase targetArtifact, string traceDirection, IUser user, string traceType = "Manual",
             bool isSuspect = false, List<HttpStatusCode> expectedStatusCodes = null)

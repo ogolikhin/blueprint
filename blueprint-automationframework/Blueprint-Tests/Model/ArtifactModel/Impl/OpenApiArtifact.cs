@@ -698,17 +698,17 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Add trace between two artifacts with specified properties
+        /// Add trace between two artifacts with specified properties.
         /// </summary>
-        /// <param name="address">The base url of the Blueprint server</param>
-        /// <param name="sourceArtifact">first artifact to which call adds trace</param>
-        /// <param name="targetArtifact">second artifact to which call adds trace</param>
-        /// <param name="traceDirection">direction of the trace 'To', 'From', 'Both'</param>
-        /// <param name="user">The user to authenticate with</param>
-        /// <param name="traceType">(optional)type of the trace - 'Manual'</param>
-        /// <param name="isSuspect">(optional)Should trace be marked as suspected</param>
-        /// <param name="expectedStatusCodes"></param>
-        /// <returns>List of OpenApiTrace objects</returns>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="sourceArtifact">The first artifact to which the call adds a trace.</param>
+        /// <param name="targetArtifact">The second artifact to which the call adds a trace.</param>
+        /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="traceType">(optional) The type of the trace - 'Manual'.</param>
+        /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of OpenApiTrace objects.</returns>
         public static List<OpenApiTrace> AddTrace(string address, IArtifactBase sourceArtifact,
             IArtifactBase targetArtifact, string traceDirection, IUser user, string traceType = "Manual",
             bool isSuspect = false, List<HttpStatusCode> expectedStatusCodes = null)

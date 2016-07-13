@@ -50,7 +50,7 @@ export class BPHistoryPanelController {
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
         const selectedArtifact: Rx.Observable<Models.IArtifact> = this.projectManager.currentArtifact.asObservable();
-        const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenSubject.asObservable(); 
+        const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
             Rx.Observable
                 .combineLatest(selectedArtifact, panelVisibility, 

@@ -26,7 +26,6 @@ export interface IBpAccordionController {
     panels: IBpAccordionPanelController[];
     openPanels: IBpAccordionPanelController[];
 
-    getId();
     addPanel(panel: IBpAccordionPanelController);
     getPanels(): IBpAccordionPanelController[];
     openPanel(panel: IBpAccordionPanelController);
@@ -94,10 +93,6 @@ export class BpAccordionCtrl implements IBpAccordionController {
         this.accordionId = this.accordionId || "bp-accordion-" + Math.floor(Math.random() * 10000);
         this.accordionHeadingHeight = this.accordionHeadingHeight || this.defaultHeadingHeight;
     }
-
-    public getId = (): string => {
-        return this.accordionId;
-    };
 
     public addPanel = (accordionPanel: IBpAccordionPanelController) => {
         this.panels.push(accordionPanel);
@@ -181,12 +176,12 @@ export class BpAccordionCtrl implements IBpAccordionController {
 export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     static $inject: [string] = ["localization", "$element"];
     
+    private isOpenSubject: Rx.BehaviorSubject<boolean>;
+
     public accordionGroup: BpAccordionCtrl;
     public accordionPanelId: string;
     public accordionPanelHeadingHeight: number;
     public accordionPanelClass: string;
-    
-    private isOpenSubject: Rx.BehaviorSubject<boolean>;
     public isPinned: boolean;
 
     constructor(private localization: ILocalizationService, private $element) {

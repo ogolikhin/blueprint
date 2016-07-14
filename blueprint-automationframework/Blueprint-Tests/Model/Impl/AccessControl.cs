@@ -12,7 +12,6 @@ namespace Model.Impl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
     public class AccessControl : NovaServiceBase, IAccessControl
     {
-        private const string SVC_PATH = "svc/accesscontrol";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         /// <summary>
@@ -177,13 +176,13 @@ namespace Model.Impl
         /// <seealso cref="IAccessControl.GetStatus(List{HttpStatusCode})"/>
         public string GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
-            return GetStatus(SVC_PATH, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.AccessControl.STATUS, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IAccessControl.GetStatusUpcheck"/>
+        /// <seealso cref="IAccessControl.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.AccessControl.Status.UPCHECK, expectedStatusCodes);
         }
 
         /// <seealso cref="IAccessControl.GetLicensesInfo(LicenseState, ISession, List{HttpStatusCode})"/>

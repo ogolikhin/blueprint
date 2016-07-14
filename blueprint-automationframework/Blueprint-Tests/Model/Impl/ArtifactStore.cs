@@ -4,18 +4,12 @@ using System.Net;
 using Common;
 using Model.ArtifactModel.Impl;
 using Utilities;
-using Model.Factories;
 using Utilities.Facades;
-using Newtonsoft.Json;
-using NUnit.Framework;
 
 namespace Model.Impl
 {
     public class ArtifactStore : NovaServiceBase, IArtifactStore
     {
-        private const string SVC_PATH = "svc/artifactstore";
-        private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -29,16 +23,16 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
-        /// <seealso cref="IArtifactStore.GetStatus"/>
+        /// <seealso cref="IArtifactStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.AdminStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetStatusUpcheck"/>
+        /// <seealso cref="IArtifactStore.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.AdminStore.Status.UPCHECK, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetCustomArtifactTypes(IProject, IUser, List{HttpStatusCode})"/>

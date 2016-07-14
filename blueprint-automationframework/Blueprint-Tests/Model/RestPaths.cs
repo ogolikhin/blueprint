@@ -46,8 +46,11 @@ namespace Model
             }
         }
 
+        [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class Svc
         {
+            public const string STATUS                              = "svc/status";
+
             [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]       // Ignore this warning.
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class AccessControl
@@ -289,6 +292,11 @@ namespace Model
                 /// {0} = all the Artifact IDs in the breadcrumb.  Ex.  1/2/3/4
                 /// </summary>
                 public const string NAVIGATION_ids_             = "svc/shared/navigation/{0}";
+            }
+
+            public static class Status
+            {
+                public const string UPCHECK                     = "svc/status/upcheck";
             }
         }
     }

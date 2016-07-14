@@ -13,7 +13,6 @@ namespace Model.Impl
 {
     public class AdminStore : NovaServiceBase, IAdminStore
     {
-        private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
@@ -247,16 +246,16 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IAdminStore.GetStatus"/>
+        /// <seealso cref="IAdminStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.AdminStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
-        /// <seealso cref="IAdminStore.GetStatusUpcheck"/>
+        /// <seealso cref="IAdminStore.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.AdminStore.Status.UPCHECK, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>

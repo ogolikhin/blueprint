@@ -120,6 +120,47 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class ArtifactStore
+            {
+                public const string ARTIFACTS_id_                   = "svc/artifactstore/artifacts/{0}";
+                public const string STATUS                          = "svc/artifactstore/status";
+
+                public static class Artifacts_id_
+                {
+                    public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";
+                    public const string DISCUSSIONS                 = "svc/artifactstore/artifacts/{0}/discussions";
+                    public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
+                    public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
+                    public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
+
+                    public static class Discussions_id_
+                    {
+                        public const string REPLIES                 = "svc/artifactstore/artifacts/{0}/discussions/{1}/replies";
+                    }
+                }
+                
+                public static class Projects_id_
+                {
+                    public const string CHILDREN                    = "svc/artifactstore/projects/{0}/children";
+
+                    public static class Artifacts_id_
+                    {
+                        public const string CHILDREN                = "svc/artifactstore/projects/{0}/artifacts/{1}/children";
+                    }
+
+                    public static class Meta
+                    {
+                        public const string CUSTOM_TYPES            = "svc/artifactstore/projects/{0}/meta/customtypes";
+                    }
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/artifactstore/status/upcheck";
+                }
+            }
+
             public static class Components
             {
                 public static class FileStore

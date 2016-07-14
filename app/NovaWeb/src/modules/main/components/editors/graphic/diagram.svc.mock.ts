@@ -201,7 +201,7 @@ export class DiagramServiceMock implements IDiagramService {
         return <IHierarchyElement><any>shape;
     }
 
-    public static createConnection(connectionType?: string, points?: Array<Point>): IConnection {
+    public static createConnection(connectionType?: string, points?: Array<Point>, props?: Array<Prop>): IConnection {
         var connection = new Connection();
         if (connectionType) {
             connection.type = connectionType;
@@ -223,6 +223,7 @@ export class DiagramServiceMock implements IDiagramService {
         connection.stroke = "black";
         connection.strokeOpacity = 1;
         connection.strokeWidth = 1;
+        connection.props = props ? props : [];
         return connection;
     }
 

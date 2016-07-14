@@ -13,7 +13,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
-import "datejs";
+import * as moment from "moment";
 import * as Enums from "./models/enums";
 import {Helper} from "../core/utils/helper";
 import {ProjectRepository} from "./services/project-repository";
@@ -61,10 +61,8 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
 
     tinymce.baseURL = "../novaweb/libs/tinymce";
 
-    (<any>Date).Config.i18n = "../novaweb/libs/datejs/i18n"; //need typings
-    let language = Helper.getFirstBrowserLanguage();
-    language = /^[a-z]{2}-[A-Z]{2}$/g.test(language) ? language : "en-US"; // default to US if language is not in the expected IETF format
-    (<any>Date).i18n.setLanguage(language);
+    moment.locale(Helper.getFirstBrowserLanguage());
+    //console.log("language: " + moment.locale(), "date format: " + moment.localeData().longDateFormat("L"));
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {
@@ -73,7 +71,17 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
-    "ngMessages", "ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "ui.tinymce", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2", "formly", "formlyBootstrap"])
+    "ngMessages",
+    "ngSanitize",
+    "app.shell",
+    "ui.router",
+    "ui.bootstrap",
+    "ui.tinymce",
+    "agGrid",
+    "ngDraggable",
+    "angular-perfect-scrollbar-2",
+    "formly",
+    "formlyBootstrap"])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

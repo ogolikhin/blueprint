@@ -158,7 +158,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, artifactToDelete.ProjectId, artifactToDelete.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId, artifactToDelete.Id);
 
             var queryparameters = new Dictionary<string, string>();
 
@@ -241,7 +241,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION, string.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactIds));
 
             var queryParameters = new Dictionary<string, string>();
 

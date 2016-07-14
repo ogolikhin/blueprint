@@ -54,7 +54,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(session, nameof(session));
 
             var restApi = new RestApiFacade(Address, session.SessionId);
-            string path = RestPaths.Svc.AccessControl.SESSION;
+            string path = RestPaths.Svc.AccessControl.SESSIONS;
             Dictionary<string, string> queryParameters = null;
 
             if ((operation != null) || artifactId.HasValue)
@@ -86,7 +86,7 @@ namespace Model.Impl
             int? licenseLevel = null,
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS, userId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS_id_, userId);
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
             // Add all the query parameters for the POST call.
@@ -140,7 +140,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
             var restApi = new RestApiFacade(Address, session?.SessionId);
-            string path = RestPaths.Svc.AccessControl.SESSION;
+            string path = RestPaths.Svc.AccessControl.SESSIONS;
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
 
@@ -157,7 +157,7 @@ namespace Model.Impl
         public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
             var restApi = new RestApiFacade(Address);
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS,
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS_id_,
                 (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
 
             Logger.WriteTrace("path = '{0}'.", path);

@@ -168,7 +168,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACTS, artifactToSave.ProjectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToSave.ProjectId);
 
             if (expectedStatusCodes == null)
             {
@@ -243,7 +243,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACTS, artifactToUpdate.ProjectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
 
             //TODO: Remove this when solution to have the property to update configurable
             var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
@@ -399,7 +399,7 @@ namespace Model.ArtifactModel.Impl
             if (richTextAsPlain != null) { queryParameters.Add("RichTextAsPlain", richTextAsPlain.ToString()); }
 
             RestApiFacade restApi = new RestApiFacade(baseAddress, user.Token?.OpenApiToken);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, project.Id, artifactId);
+            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 path,
@@ -440,7 +440,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(artifact.Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.ARTIFACT, artifact.ProjectId, artifact.Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
                 path,
@@ -485,7 +485,7 @@ namespace Model.ArtifactModel.Impl
                 { "includeDraft", includeDraft.ToString() }
             };
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts.DISCUSSIONS, itemId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussion>(
@@ -567,7 +567,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts.DISCUSSIONS, itemId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
@@ -595,7 +595,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(comment, nameof(comment));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts.Discussions.REPLY, comment.ItemId, comment.DiscussionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY, comment.ItemId, comment.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
@@ -623,7 +623,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.Artifacts.ATTACHMENTS, projectId, artifactId);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.ATTACHMENTS, projectId, artifactId);
 
             return AddItemAttachment(address, path, file, user, expectedStatusCodes);
         }
@@ -645,7 +645,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.Artifacts.SubArtifacts.ATTACHMENTS,
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.SubArtifacts_id_.ATTACHMENTS,
                 projectId, artifactId, subArtifactId);
 
             return AddItemAttachment(address, path, file, user, expectedStatusCodes);

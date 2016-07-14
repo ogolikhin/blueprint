@@ -9,7 +9,7 @@ import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 
-describe("Component BP Attachments Panel", () => {
+xdescribe("Component BP Attachments Panel", () => {
 
     let componentTest: ComponentTest<BPAttachmentsPanelController>;
     let template = `<bp-attachments-panel></bp-attachments-panel>`;

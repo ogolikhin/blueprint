@@ -33,7 +33,7 @@ describe("Component BPHistoryPanel", () => {
         vm = null;
     });
 
-    it("should be visible by default", () => {
+    fit("should be visible by default", () => {
         //Assert
         expect(directiveTest.element.find(".filter-bar").length).toBe(0);
         expect(directiveTest.element.find(".empty-state").length).toBe(1);

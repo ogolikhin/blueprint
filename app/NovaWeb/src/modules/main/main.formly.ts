@@ -140,7 +140,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 </span>
             </div>
             <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                <div ng-message="{{ ::name }}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
             </div>`,
         wrapper: ["bootstrapLabel", "bootstrapHasError"],
         defaultOptions: {
@@ -161,20 +161,53 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             },
             validators: {
-                dateIsBetweenMinMax: {
+                dateIsGreaterThanMin: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
-                        if (value) {
-                            let minDate = scope.to["datepickerOptions"].minDate || value;
-                            let maxDate = scope.to["datepickerOptions"].maxDate || value;
-                            let isAfterMin = (<any>Date).compare(Date.parse(value), Date.parse(minDate)) >= 0;
-                            let isBeforeMax = (<any>Date).compare(Date.parse(value), Date.parse(maxDate)) <= 0;
+                        let minDate = scope.to["datepickerOptions"].minDate;
 
-                            return isAfterMin && isBeforeMax;
+                        if (value && minDate) {
+                            value = (<any>Date).parse(value).clearTime();
+                            minDate = (<any>Date).parse(minDate).clearTime();
+
+                            let isGreaterThanMin = (<any>Date).compare(value, minDate) >= 0;
+                            let messageText = localization.get("Property_Must_Be_Greater") + " " + minDate.toString("dd/MM/yyyy");
+                            let messageId = scope.id + "-dateIsGreaterThanMin";
+
+                            if (!isGreaterThanMin) {
+                                setTimeout(function() {
+                                    document.getElementById(messageId).innerHTML = messageText;
+                                }, 100);
+                                return false;
+                            }
                         }
                         return true;
                     },
-                    message: `"` + localization.get("Property_Must_Be_Greater", "Value must be greater than or equal to Min Value =") + `"`
+                    message: `""`
+                },
+                dateIsLessThanMax: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = $modelValue || $viewValue;
+                        let maxDate = scope.to["datepickerOptions"].maxDate;
+
+                        if (value && maxDate) {
+                            value = (<any>Date).parse(value).clearTime();
+                            maxDate = (<any>Date).parse(maxDate).clearTime();
+
+                            let isLessThanMax = (<any>Date).compare(value, maxDate) <= 0;
+                            let messageText = localization.get("Property_Must_Be_Greater") + " " + maxDate.toString("dd/MM/yyyy");
+                            let messageId = scope.id + "-dateIsLessThanMax";
+
+                            if (!isLessThanMax) {
+                                setTimeout(function() {
+                                    document.getElementById(messageId).innerHTML = messageText;
+                                }, 100);
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    message: `""`
                 }
             }
         },

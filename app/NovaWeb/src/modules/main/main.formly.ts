@@ -8,19 +8,17 @@ import {Helper} from "../core/utils/helper";
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];
 export function formlyDecorate($provide): void {
+    moment.locale(Helper.getFirstBrowserLanguage());
+    let weekedays = moment.weekdays();
+    weekedays.forEach(function(item, index, arr) {
+        arr[index] = item.substr(0, 1).toUpperCase();
+    });
+
     delegated.$inject = ["$delegate"];
     function delegated($delegate) {
         let value = $delegate.DATETIME_FORMATS;
 
-        value.SHORTDAY = [
-            "S",
-            "M",
-            "T",
-            "W",
-            "T",
-            "F",
-            "S"
-        ];
+        value.SHORTDAY = weekedays;
 
         return $delegate;
     }
@@ -161,7 +159,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     formatDay: "d",
                     formatDayHeader: "EEE",
                     initDate: new Date(),
-                    showWeeks: false
+                    showWeeks: false,
+                    startingDay: (<any> moment.localeData()).firstDayOfWeek()
                 },
                 datepickerAppendToBody: true
             },

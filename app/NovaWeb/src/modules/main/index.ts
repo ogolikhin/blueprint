@@ -61,8 +61,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
 
     tinymce.baseURL = "../novaweb/libs/tinymce";
 
-    let language = Helper.getFirstBrowserLanguage();
-    moment.locale(language);
+    moment.locale(Helper.getFirstBrowserLanguage());
     //console.log("language: " + moment.locale(), "date format: " + moment.localeData().longDateFormat("L"));
 }
 

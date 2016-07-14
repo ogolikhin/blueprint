@@ -195,7 +195,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             maxDate = (<any>Date).parse(maxDate).clearTime();
 
                             let isLessThanMax = (<any>Date).compare(value, maxDate) <= 0;
-                            let messageText = localization.get("Property_Must_Be_Greater") + " " + maxDate.toString("dd/MM/yyyy");
+                            let messageText = localization.get("Property_Must_Be_Less") + " " + maxDate.toString("dd/MM/yyyy");
                             let messageId = scope.id + "-dateIsLessThanMax";
 
                             if (!isLessThanMax) {

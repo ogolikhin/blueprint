@@ -1,6 +1,8 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface ISortOptions {
     value: boolean;
@@ -10,11 +12,13 @@ interface ISortOptions {
 export class BPHistoryPanel implements ng.IComponentOptions {
     public template: string = require("./bp-history-panel.html");
     public controller: Function = BPHistoryPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
-export class BPHistoryPanelController {
+export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log", 
         "localization",
         "artifactHistory",
         "projectManager"
@@ -22,7 +26,6 @@ export class BPHistoryPanelController {
 
     private loadLimit: number = 10;
     private artifactId: number;
-    private _subscribers: Rx.IDisposable[];
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
@@ -31,10 +34,12 @@ export class BPHistoryPanelController {
     public isLoading: boolean = false;
     
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private projectManager: IProjectManager) {
+        protected projectManager: IProjectManager,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -42,16 +47,12 @@ export class BPHistoryPanelController {
         ];
     }
 
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
-
-        this._subscribers = [ selectedArtifactSubscriber ];
+    public $onInit() {
+        super.$onInit();
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
 
         // clean up history list
         this.artifactHistoryList = null;
@@ -65,7 +66,7 @@ export class BPHistoryPanelController {
             });
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    protected setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactHistoryList = [];
 
         if (artifact !== null) {

@@ -9,7 +9,7 @@ import { ProjectRepositoryMock } from "../../../main/services/project-repository
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 import {IReply} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
-describe("Component BPDiscussionPanel", () => {
+xdescribe("Component BPDiscussionPanel", () => {
 
     let directiveTest: ComponentTest<BPDiscussionPanelController>;
     let template = `<bp-discussion-panel></bp-discussion-panel>`;

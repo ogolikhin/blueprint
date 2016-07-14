@@ -12,7 +12,7 @@ import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachm
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../main/services/project-manager";
 
-describe("Component BPUtilityPanel", () => {
+xdescribe("Component BPUtilityPanel", () => {
 
     let directiveTest: ComponentTest<BPUtilityPanelController>;
     let template = `<bp-utility-panel></bp-utility-panel>`;

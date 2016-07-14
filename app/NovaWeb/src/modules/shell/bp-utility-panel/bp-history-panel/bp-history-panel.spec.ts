@@ -8,7 +8,7 @@ import { ArtifactHistoryMock } from "./artifact-history.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 
-describe("Component BPHistoryPanel", () => {
+xdescribe("Component BPHistoryPanel", () => {
 
     let directiveTest: ComponentTest<BPHistoryPanelController>;
     let template = `<bp-history-panel></bp-history-panel>`;

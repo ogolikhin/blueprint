@@ -1,6 +1,8 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Relationships, Models} from "../../../main";
 import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface IOptions {
     value: string;
@@ -10,45 +12,47 @@ interface IOptions {
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
     public controller: Function = BPRelationshipsPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
-export class BPRelationshipsPanelController {
+export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log",
         "localization",
         "projectManager",
         "artifactRelationships"
     ];
 
     private artifactId: number;
-    private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
     public option: string = "1";
     public isLoading: boolean = false;
 
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
-        private artifactRelationships: IArtifactRelationships) {
+        protected projectManager: IProjectManager,
+        private artifactRelationships: IArtifactRelationships,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           
         ];
     }
 
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
-        this._subscribers = [selectedArtifactSubscriber];
+    public $onInit() {
+        super.$onInit();
     }
 
     public $onDestroy() {
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });   
+        super.$onDestroy();   
         this.artifactList = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {     
+    protected setArtifactId = (artifact: Models.IArtifact) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
             this.getRelationships()

@@ -53,33 +53,33 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private hotspot = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#646464";
         style[mxConstants.STYLE_FILLCOLOR] = "#BDD0E6";
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_OPACITY] = 40;
-        var vertex = super.createDefaultVertex(shape, style);
+        let vertex = super.createDefaultVertex(shape, style);
         this.applyHighlightedDisabledStates(shape, vertex);
         return vertex;
     };
 
     private hyperlinkLabelParagraph = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
         style[mxConstants.STYLE_FOLDABLE] = 0;
         this.applyDisabledStateForText(shape, style);
-        var textContainer = super.createDefaultVertex(shape, style);
+        let textContainer = super.createDefaultVertex(shape, style);
         this.applyHighlightedDisabledStates(shape, textContainer);
         return textContainer;
     };
 
     private textBox = (shape: IShape): MxCell => {
-        var textProperty = ShapeExtensions.getPropertyByName(shape, UIMockupShapeProps.TEXT);
+        const textProperty = ShapeExtensions.getPropertyByName(shape, UIMockupShapeProps.TEXT);
         shape.label = textProperty;
 
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
 
         if (!shape.strokeWidth || shape.stroke === "Transparent") {
             style[mxConstants.STYLE_STROKEWIDTH] = 1;
@@ -88,13 +88,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         style[mxConstants.STYLE_FOLDABLE] = 0;
         this.applyDisabledStateForText(shape, style);
-        var vertex = super.createDefaultVertex(shape, style);
+        let vertex = super.createDefaultVertex(shape, style);
         this.applyHighlightedDisabledStates(shape, vertex);
         return vertex;
     };
 
     private button = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         style[mxConstants.STYLE_FILLCOLOR] = "#DBE6F4";
@@ -102,53 +102,53 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         style[mxConstants.STYLE_FOLDABLE] = 0;
         this.applyDisabledStateForText(shape, style);
-        var button = super.createDefaultVertex(shape, style);
+        let button = super.createDefaultVertex(shape, style);
         this.applyHighlightedDisabledStates(shape, button);
         return button;
     };
 
     private dropdownButton = (shape: IShape): MxCell => {
-        var ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         ddbstyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         ddbstyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         ddbstyle[mxConstants.STYLE_FILLCOLOR] = "white";
         ddbstyle[mxConstants.STYLE_GRADIENTCOLOR] = "#DBE6F4";
         ddbstyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         ddbstyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var markSize = { height: 3, width: 6 };
-        var dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
+        const markSize = { height: 3, width: 6 };
+        const dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
         //mark
-        var markStyle = new Style();
+        const markStyle = new Style();
         markStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         markStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         markStyle[mxConstants.STYLE_STROKECOLOR] = "black";
         markStyle[mxConstants.STYLE_FILLCOLOR] = "black";
         markStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         markStyle[Styles.STYLE_SELECTABLE] = 0;
-        var markGeometry = MxFactory.geometry(
+        const markGeometry = MxFactory.geometry(
             (1 - (markSize.width / shape.width)) - 0.01, 0.5 - (markSize.height / shape.height) / 2,
             markSize.width,
             markSize.height);
         markGeometry.relative = true;
-        var mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
+        const mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
         dropdownButton.insert(mark);
 
-        var labelText = "";
-        for (var i = 0; i < shape.props.length; i++) {
+        let labelText = "";
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem" && shape.props[i].value.checked) {
                 labelText = Helper.escapeHTMLText(shape.props[i].value.name);
             }
         }
         //label
-        var labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         labelStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(0, 0.05, shape.width * 0.9, shape.height * 0.9);
+        const labelGeometry = MxFactory.geometry(0, 0.05, shape.width * 0.9, shape.height * 0.9);
         labelGeometry.relative = true;
-        var label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
+        const label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
         dropdownButton.insert(label);
 
         this.applyHighlightedDisabledStates(shape, dropdownButton);
@@ -157,23 +157,23 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     private frame = (shape: IShape): MxCell => {
 
-        var style = this.styleBuilder.createDefaultShapeStyle.call(shape, shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle.call(shape, shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = "#FFFFFF";
         style[mxConstants.STYLE_FOLDABLE] = 0;
-        var frame = this.createDefaultVertex(shape, style, true);
+        const frame = this.createDefaultVertex(shape, style, true);
 
-        var geometry = MxFactory.geometry(0, 0, shape.width, shape.height - 20);
+        let geometry = MxFactory.geometry(0, 0, shape.width, shape.height - 20);
         geometry.relative = true;
         geometry.offset = MxFactory.point(0, 20);
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
-        var border = MxFactory.vertex(null, geometry, style.convertToString());
+        const border = MxFactory.vertex(null, geometry, style.convertToString());
         frame.insert(border);
 
-        var size = this.getSizeForString(shape.label);
+        const size = this.getSizeForString(shape.label);
         geometry = MxFactory.geometry(0, 0, shape.width - 20, size.height);
         geometry.relative = true;
         geometry.offset = MxFactory.point(20, -(size.height / 2 - 16));
@@ -182,7 +182,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, style);
-        var labelShape = MxFactory.vertex(shape.label, geometry, style.convertToString());
+        const labelShape = MxFactory.vertex(shape.label, geometry, style.convertToString());
         labelShape.getGeometry().relative = true;
         frame.insert(labelShape);
 
@@ -191,7 +191,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private getSizeForString = (text) => {
-        var div = document.createElement("div");
+        const div = document.createElement("div");
         div.style.position = "absolute";
         div.style.visibility = "hidden";
         div.style.display = "inline-block";
@@ -199,24 +199,24 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         div.style.whiteSpace = "nowrap";
         div.innerHTML = text;
         document.body.appendChild(div);
-        var clientRect = div.getBoundingClientRect();
-        var size = new mxRectangle(0, 0, clientRect.width, clientRect.height);
+        let clientRect = div.getBoundingClientRect();
+        let size = new mxRectangle(0, 0, clientRect.width, clientRect.height);
         document.body.removeChild(div);
         return size;
     };
 
     private dateTimePicker = (shape: IShape): MxCell => {
         //
-        var calendarStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const calendarStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         calendarStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         calendarStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         calendarStyle[mxConstants.STYLE_FOLDABLE] = 0;
         //
-        var calendar = this.createDefaultVertex(shape, calendarStyle, true);
+        const calendar = this.createDefaultVertex(shape, calendarStyle, true);
         //
         //create calendarButton and add it to calendar
         //
-        var calendarButtonStyle = new Style();
+        const calendarButtonStyle = new Style();
         calendarButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         calendarButtonStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         calendarButtonStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
@@ -226,7 +226,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         calendarButtonStyle[mxConstants.STYLE_FOLDABLE] = 0;
         calendarButtonStyle[Styles.STYLE_SELECTABLE] = 0;
         //
-        var calendarButton = MxFactory.vertex(null,
+        const calendarButton = MxFactory.vertex(null,
             MxFactory.geometry(shape.width - 20, //X
                 0, //Y
                 20, //W
@@ -234,7 +234,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             calendarButtonStyle.convertToString());
 
 
-        var calendarIconStyle = new Style();
+        const calendarIconStyle = new Style();
         calendarIconStyle["selectable"] = 0;
         calendarIconStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         calendarIconStyle[mxConstants.STYLE_FILLCOLOR] = "black";
@@ -242,7 +242,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         calendarIconStyle[Styles.STYLE_SELECTABLE] = 0;
 
 
-        var calendarIcon = MxFactory.cell("", MxFactory.geometry((20 - 10) / 2, (shape.height - 10) / 2, 10, 10));
+        const calendarIcon = MxFactory.cell("", MxFactory.geometry((20 - 10) / 2, (shape.height - 10) / 2, 10, 10));
         calendarIcon.vertex = true;
         calendarButton.insert(calendarIcon);
         calendarIcon.setStyle(calendarIconStyle.convertToString());
@@ -252,21 +252,21 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         //create a lable and add to calendar
         //
 
-        var dateTimeString = DiagramHelper.findValueByName(shape.props, "DateTimeValue");
-        var dateTimeValue = DiagramHelper.normalizeDateFormat(dateTimeString);
-        var inputMode = DiagramHelper.findValueByName(shape.props, "InputMode");
-        var displayFormat = DiagramHelper.findValueByName(shape.props, "DisplayFormat");
+        const dateTimeString = DiagramHelper.findValueByName(shape.props, "DateTimeValue");
+        const dateTimeValue = DiagramHelper.normalizeDateFormat(dateTimeString);
+        const inputMode = DiagramHelper.findValueByName(shape.props, "InputMode");
+        const displayFormat = DiagramHelper.findValueByName(shape.props, "DisplayFormat");
 
         //use angular date filter
-        var labelText = DiagramHelper.formatDateTime(dateTimeValue, displayFormat, inputMode);
+        const labelText = DiagramHelper.formatDateTime(dateTimeValue, displayFormat, inputMode);
 
-        var labelStyle = new Style();
+        const labelStyle = new Style();
         labelStyle[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         labelStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(
+        const labelGeometry = MxFactory.geometry(
             0,
             0,
             shape.width,
@@ -287,75 +287,75 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private uIMockuptextArea = (shape: IShape): MxCell => {
-        var textAreaStyle = new Style();
+        const textAreaStyle = new Style();
         textAreaStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
         textAreaStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
         textAreaStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var textArea = this.createDefaultVertex(shape, textAreaStyle, true);
+        const textArea = this.createDefaultVertex(shape, textAreaStyle, true);
 
-        var scrollBar = ShapeExtensions.getPropertyByName(shape, "ScrollBar") === "true";
-        var labelWidth: number;
+        const scrollBar = ShapeExtensions.getPropertyByName(shape, "ScrollBar") === "true";
+        let labelWidth: number;
         if (scrollBar) {
             labelWidth = shape.width - 22;
         } else {
             labelWidth = shape.width;
         }
 
-        var labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         labelStyle[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         labelStyle[mxConstants.STYLE_OVERFLOW] = "hidden";
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(1, 1, labelWidth - 2, shape.height - 2); //offsets the container boarder width
+        const labelGeometry = MxFactory.geometry(1, 1, labelWidth - 2, shape.height - 2); //offsets the container boarder width
         labelGeometry.relative = false;
-        var label = MxFactory.vertex(shape.label, labelGeometry, labelStyle.convertToString());
+        const label = MxFactory.vertex(shape.label, labelGeometry, labelStyle.convertToString());
         textArea.insert(label);
 
         //scroll bar
         if (scrollBar) {
-            var scrollBarStyle = new Style();
+            const scrollBarStyle = new Style();
             scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
             scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "white";
             scrollBarStyle[mxConstants.STYLE_GRADIENTCOLOR] = "#F2F4F6";
             scrollBarStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_WEST;
             scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
             scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
-            var scrollBarGeometry = MxFactory.geometry(labelWidth, 0, 20, shape.height - 1);
+            const scrollBarGeometry = MxFactory.geometry(labelWidth, 0, 20, shape.height - 1);
             scrollBarGeometry.relative = false;
-            var scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+            const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-            var markSize = { height: 3, width: 6 };
+            const markSize = { height: 3, width: 6 };
 
             //mark
-            var mark1Style = new Style();
+            const mark1Style = new Style();
             mark1Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
             mark1Style[mxConstants.STYLE_STROKEWIDTH] = 1;
             mark1Style[mxConstants.STYLE_STROKECOLOR] = "black";
             mark1Style[mxConstants.STYLE_FILLCOLOR] = "black";
             mark1Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
             mark1Style[Styles.STYLE_SELECTABLE] = 0;
-            var mark1Geometry = MxFactory.geometry(7, shape.height - 11, markSize.width, markSize.height);
+            const mark1Geometry = MxFactory.geometry(7, shape.height - 11, markSize.width, markSize.height);
             mark1Geometry.relative = false;
-            var mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
+            const mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
             scrollBarBox.insert(mark1);
 
             //mark2
-            var mark2Style = new Style();
+            const mark2Style = new Style();
             mark2Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
             mark2Style[mxConstants.STYLE_STROKEWIDTH] = 1;
             mark2Style[mxConstants.STYLE_STROKECOLOR] = "black";
             mark2Style[mxConstants.STYLE_FILLCOLOR] = "black";
             mark2Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
             mark2Style[Styles.STYLE_SELECTABLE] = 0;
-            var mark2Geometry = MxFactory.geometry(7, 10, markSize.width, markSize.height);
+            const mark2Geometry = MxFactory.geometry(7, 10, markSize.width, markSize.height);
             mark2Geometry.relative = false;
-            var mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
+            const mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
             scrollBarBox.insert(mark2);
 
             //scrollbar stub
             if (shape.height > 55) {
-                var scrollBarStubStyle = new Style();
+                const scrollBarStubStyle = new Style();
                 scrollBarStubStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
                 scrollBarStubStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
                 scrollBarStubStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -363,9 +363,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 scrollBarStubStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_WEST;
                 scrollBarStubStyle[Styles.STYLE_SELECTABLE] = 0;
                 scrollBarStubStyle[mxConstants.STYLE_FOLDABLE] = 0;
-                var scrollBarStubGeometry = MxFactory.geometry(0, 20, 19, shape.height / 5);
+                const scrollBarStubGeometry = MxFactory.geometry(0, 20, 19, shape.height / 5);
                 scrollBarStubGeometry.relative = false;
-                var scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
+                const scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
                 scrollBarBox.insert(scrollBarStub);
             }
             textArea.insert(scrollBarBox);
@@ -376,57 +376,57 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private splitButton = (shape: IShape): MxCell => {
-        var splitButtonstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const splitButtonstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         splitButtonstyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         splitButtonstyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         splitButtonstyle[mxConstants.STYLE_FILLCOLOR] = "white";
         splitButtonstyle[mxConstants.STYLE_GRADIENTCOLOR] = "#DBE6F4";
         splitButtonstyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         splitButtonstyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var markSize = { height: 3, width: 6 };
-        var splitButton = this.createDefaultVertex(shape, splitButtonstyle, true);
+        const markSize = { height: 3, width: 6 };
+        const splitButton = this.createDefaultVertex(shape, splitButtonstyle, true);
         //mark
-        var markStyle = new Style();
+        const markStyle = new Style();
         markStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         markStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         markStyle[mxConstants.STYLE_STROKECOLOR] = "black";
         markStyle[mxConstants.STYLE_FILLCOLOR] = "black";
         markStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         markStyle[Styles.STYLE_SELECTABLE] = 0;
-        var markGeometry = MxFactory.geometry(
+        const markGeometry = MxFactory.geometry(
             (1 - (markSize.width / shape.width)) - 0.01, 0.5 - (markSize.height / shape.height) / 2,
             markSize.width,
             markSize.height);
         markGeometry.relative = true;
-        var mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
+        const mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
         splitButton.insert(mark);
-        var labelText = "";
-        for (var i = 0; i < shape.props.length; i++) {
+        let labelText = "";
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem" && shape.props[i].value.checked) {
                 labelText = Helper.escapeHTMLText(shape.props[i].value.name);
             }
         }
         //box
-        var boxStyle = new Style();
+        const boxStyle = new Style();
         boxStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         boxStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         boxStyle[Styles.STYLE_SELECTABLE] = 0;
-        var boxGeometry = MxFactory.geometry(0.94, 0, shape.width * 0.06, shape.height);
+        const boxGeometry = MxFactory.geometry(0.94, 0, shape.width * 0.06, shape.height);
         boxGeometry.relative = true;
-        var box = MxFactory.vertex(null, boxGeometry, boxStyle.convertToString());
+        const box = MxFactory.vertex(null, boxGeometry, boxStyle.convertToString());
         splitButton.insert(box);
 
         //label
-        var labelStyle = new Style();
+        const labelStyle = new Style();
         this.styleBuilder.applyLabelStyle(labelStyle, shape.labelStyle);
         labelStyle[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         labelStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(0, 0.06, shape.width * 0.94, shape.height * 0.9);
+        const labelGeometry = MxFactory.geometry(0, 0.06, shape.width * 0.94, shape.height * 0.9);
         labelGeometry.relative = true;
-        var label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
+        const label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
         splitButton.insert(label);
         this.applyHighlightedDisabledStates(shape, splitButton);
         return splitButton;
@@ -434,82 +434,82 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
 
     private dropDownList = (shape: IShape): MxCell => {
-        var ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         ddbstyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         ddbstyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         ddbstyle[mxConstants.STYLE_FOLDABLE] = 0;
         //
-        var markSize = { height: 3, width: 6 };
-        var dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
+        const markSize = { height: 3, width: 6 };
+        const dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
 
         //box
-        var boxStyle = new Style();
+        const boxStyle = new Style();
         boxStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         boxStyle[mxConstants.STYLE_FILLCOLOR] = "#DBE6F4";
         boxStyle[mxConstants.STYLE_GRADIENTCOLOR] = "#FBFDFE";
         boxStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
 
         boxStyle[Styles.STYLE_SELECTABLE] = 0;
-        var boxGeometry = MxFactory.geometry(0.94, 0, shape.width * 0.06, shape.height);
+        const boxGeometry = MxFactory.geometry(0.94, 0, shape.width * 0.06, shape.height);
         boxGeometry.relative = true;
-        var box = MxFactory.vertex(null, boxGeometry, boxStyle.convertToString());
+        const box = MxFactory.vertex(null, boxGeometry, boxStyle.convertToString());
         dropdownButton.insert(box);
         //mark
-        var markStyle = new Style();
+        const markStyle = new Style();
         markStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         markStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         markStyle[mxConstants.STYLE_STROKECOLOR] = "black";
         markStyle[mxConstants.STYLE_FILLCOLOR] = "black";
         markStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         markStyle[Styles.STYLE_SELECTABLE] = 0;
-        var markGeometry = MxFactory.geometry(
+        const markGeometry = MxFactory.geometry(
             (1 - (markSize.width / shape.width)) - 0.01, 0.5 - (markSize.height / shape.height) / 2,
             markSize.width,
             markSize.height);
         markGeometry.relative = true;
-        var mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
+        const mark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
         dropdownButton.insert(mark);
-        var labelText = "";
-        for (var i = 0; i < shape.props.length; i++) {
+        let labelText = "";
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem" && shape.props[i].value.checked) {
                 labelText = Helper.escapeHTMLText(shape.props[i].value.name);
             }
         }
         //label
-        var labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         labelStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(0, 0.06, shape.width * 0.94, shape.height * 0.9);
+        const labelGeometry = MxFactory.geometry(0, 0.06, shape.width * 0.94, shape.height * 0.9);
         labelGeometry.relative = true;
-        var label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
+        const label = MxFactory.vertex(labelText, labelGeometry, labelStyle.convertToString());
         dropdownButton.insert(label);
         this.applyHighlightedDisabledStates(shape, dropdownButton);
         return dropdownButton;
     };
 
     private checkbox = (shape: IShape): MxCell => {
-        var checkBoxSize = 12;
-        var innerRectSize = 8;
-        var innerRectOffset = 2;
-        var labelOffset = 2;
-        var borderColor = "#A0AFC3";
-        var checkMarkColor = "#1E395B";
-        var brightGradientColor = "#F9FAFC";
-        var darkGradientColor = "#C7D5E9";
+        const checkBoxSize = 12;
+        const innerRectSize = 8;
+        const innerRectOffset = 2;
+        const labelOffset = 2;
+        const borderColor = "#A0AFC3";
+        const checkMarkColor = "#1E395B";
+        const brightGradientColor = "#F9FAFC";
+        const darkGradientColor = "#C7D5E9";
 
-        var checkbox = this.createCheckboxShape(shape, checkBoxSize, labelOffset);
+        const checkbox = this.createCheckboxShape(shape, checkBoxSize, labelOffset);
 
-        var rectangleStyle = new Style();
-        var rectangle = this.createCheckboxRectangle(shape, rectangleStyle, checkBoxSize, borderColor);
+        const rectangleStyle = new Style();
+        const rectangle = this.createCheckboxRectangle(shape, rectangleStyle, checkBoxSize, borderColor);
         checkbox.insert(rectangle);
 
-        var innerRect = this.createCheckboxInnerRectangle(shape, rectangleStyle, brightGradientColor, darkGradientColor, innerRectOffset, innerRectSize);
+        const innerRect = this.createCheckboxInnerRectangle(shape, rectangleStyle, brightGradientColor, darkGradientColor, innerRectOffset, innerRectSize);
         rectangle.insert(innerRect);
 
-        var isChecked = ShapeExtensions.getPropertyByName(shape, "Checked");
+        const isChecked = ShapeExtensions.getPropertyByName(shape, "Checked");
         if (isChecked === "true") {
             innerRect.insert(this.createCheckboxMark(shape, checkMarkColor, innerRectSize));
         }
@@ -637,29 +637,29 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
 
     private radioButton = (shape: IShape): MxCell => {
-        var circleBoxSize = 12;
-        var innerCircleSize = 8;
-        var dotSize = 4;
-        var innerCircleOffset = 2;
-        var labelOffset = 2;
-        var borderColor = "#A0AFC3";
+        const circleBoxSize = 12;
+        const innerCircleSize = 8;
+        const dotSize = 4;
+        const innerCircleOffset = 2;
+        const labelOffset = 2;
+        const borderColor = "#A0AFC3";
 
-        var brightGradientColor = "#F9FAFC";
-        var darkGradientColor = "#C7D5E9";
+        const brightGradientColor = "#F9FAFC";
+        const darkGradientColor = "#C7D5E9";
 
-        var dotBrightMarkColor = "#98A8BE";
-        var dotDarkMarkColor = "#2C4667";
+        const dotBrightMarkColor = "#98A8BE";
+        const dotDarkMarkColor = "#2C4667";
 
-        var radioButton = this.createRadioButtonShape(shape, circleBoxSize, labelOffset);
+        const radioButton = this.createRadioButtonShape(shape, circleBoxSize, labelOffset);
 
-        var circleStyle = new Style();
-        var rectangle = this.createRadioButtonCircle(shape, circleStyle, circleBoxSize, borderColor);
+        const circleStyle = new Style();
+        const rectangle = this.createRadioButtonCircle(shape, circleStyle, circleBoxSize, borderColor);
         radioButton.insert(rectangle);
 
-        var innerRect = this.createRadioButtonInnerCircle(shape, circleStyle, brightGradientColor, darkGradientColor, innerCircleOffset, innerCircleSize);
+        const innerRect = this.createRadioButtonInnerCircle(shape, circleStyle, brightGradientColor, darkGradientColor, innerCircleOffset, innerCircleSize);
         rectangle.insert(innerRect);
 
-        var isChecked = ShapeExtensions.getPropertyByName(shape, "Checked");
+        const isChecked = ShapeExtensions.getPropertyByName(shape, "Checked");
         if (isChecked === "true") {
             innerRect.insert(this.createRadioButtonMark(shape, dotBrightMarkColor, dotDarkMarkColor, borderColor, dotSize, innerCircleOffset));
         }
@@ -732,23 +732,23 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     private numericSpinner = (shape: IShape): MxCell => {
 
-        var borderColor = "#A8BED5";
-        var buttonFillColor = "#DBE6F4";
-        var buttonGradientColor = "#FBFDFE";
-        var spinnerButtonWidth = 14;
-        var markColor = "Black";
-        var markSize = { height: 2, width: 4 };
-        var spinnerInnerButtonHeight = shape.height / 2;
+        const borderColor = "#A8BED5";
+        const buttonFillColor = "#DBE6F4";
+        const buttonGradientColor = "#FBFDFE";
+        const spinnerButtonWidth = 14;
+        const markColor = "Black";
+        const markSize = { height: 2, width: 4 };
+        const spinnerInnerButtonHeight = shape.height / 2;
 
-        var style = new Style();
+        const style = new Style();
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = borderColor;
         style[mxConstants.STYLE_FOLDABLE] = 0;
-        var numericSpinner = this.createDefaultVertex(shape, style, true);
+        const numericSpinner = this.createDefaultVertex(shape, style, true);
 
         // buttons
-        var buttonStyle = new Style();
+        const buttonStyle = new Style();
         buttonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         buttonStyle[mxConstants.STYLE_STROKEWIDTH] = 0.5;
         buttonStyle[mxConstants.STYLE_STROKECOLOR] = borderColor;
@@ -758,93 +758,93 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         buttonStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         buttonStyle[Styles.STYLE_SELECTABLE] = 0;
 
-        var topButtonGeometry = MxFactory.geometry(shape.width - spinnerButtonWidth, 0, spinnerButtonWidth, spinnerInnerButtonHeight);
-        var topButton = MxFactory.vertex(null, topButtonGeometry, buttonStyle.convertToString());
+        const topButtonGeometry = MxFactory.geometry(shape.width - spinnerButtonWidth, 0, spinnerButtonWidth, spinnerInnerButtonHeight);
+        const topButton = MxFactory.vertex(null, topButtonGeometry, buttonStyle.convertToString());
 
-        var bottomButtonGeometry = MxFactory.geometry(shape.width - spinnerButtonWidth, shape.height / 2, spinnerButtonWidth, spinnerInnerButtonHeight);
-        var bottomButton = MxFactory.vertex(null, bottomButtonGeometry, buttonStyle.convertToString());
+        const bottomButtonGeometry = MxFactory.geometry(shape.width - spinnerButtonWidth, shape.height / 2, spinnerButtonWidth, spinnerInnerButtonHeight);
+        const bottomButton = MxFactory.vertex(null, bottomButtonGeometry, buttonStyle.convertToString());
 
 
         //mark
-        var markStyle = new Style();
+        const markStyle = new Style();
         markStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         markStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         markStyle[mxConstants.STYLE_STROKECOLOR] = markColor;
         markStyle[mxConstants.STYLE_FILLCOLOR] = markColor;
         markStyle[Styles.STYLE_SELECTABLE] = 0;
         markStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
-        var markGeometry = MxFactory.geometry(
+        const markGeometry = MxFactory.geometry(
             spinnerButtonWidth / 2 - markSize.width / 2, spinnerInnerButtonHeight / 2 - markSize.height / 2,
             markSize.width,
             markSize.height);
-        var topMark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
+        const topMark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
         topButton.insert(topMark);
         numericSpinner.insert(topButton);
 
         markStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
-        var bottomMark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
+        const bottomMark = MxFactory.vertex(null, markGeometry, markStyle.convertToString());
         bottomButton.insert(bottomMark);
         numericSpinner.insert(bottomButton);
 
 
         //label
-        var spinnerValue = ShapeExtensions.getPropertyByName(shape, "Defaultnumber");
-        var spinnerIntValue = parseInt(spinnerValue, 10);
+        const spinnerValue = ShapeExtensions.getPropertyByName(shape, "Defaultnumber");
+        const spinnerIntValue = parseInt(spinnerValue, 10);
 
-        var labelStyle = new Style();
+        const labelStyle = new Style();
         this.styleBuilder.applyLabelStyle(labelStyle, shape.labelStyle);
         labelStyle[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_RIGHT;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, labelStyle);
-        var labelGeometry = MxFactory.geometry(0, 0, shape.width - spinnerButtonWidth, shape.height);
-        var label = MxFactory.vertex(spinnerIntValue.toLocaleString(), labelGeometry, labelStyle.convertToString());
+        const labelGeometry = MxFactory.geometry(0, 0, shape.width - spinnerButtonWidth, shape.height);
+        const label = MxFactory.vertex(spinnerIntValue.toLocaleString(), labelGeometry, labelStyle.convertToString());
         numericSpinner.insert(label);
         this.applyHighlightedDisabledStates(shape, numericSpinner);
         return numericSpinner;
     };
 
     private browser = (shape: IShape): MxCell => {
-        var browserStyle = new Style();
+        const browserStyle = new Style();
         browserStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
         browserStyle[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
         browserStyle[mxConstants.STYLE_FILLCOLOR] = "none";
         browserStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var browser = this.createDefaultVertex(shape, browserStyle, true);
+        const browser = this.createDefaultVertex(shape, browserStyle, true);
         //top bar
-        var topBarStyle = new Style();
+        const topBarStyle = new Style();
         topBarStyle[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
         topBarStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
         topBarStyle[mxConstants.STYLE_FILLCOLOR] = "#DBE5F3";
         topBarStyle[Styles.STYLE_SELECTABLE] = 0;
         topBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var topBarGeometry = MxFactory.geometry(0, 0, shape.width, 70);
+        const topBarGeometry = MxFactory.geometry(0, 0, shape.width, 70);
         topBarGeometry.relative = false;
-        var topBar = MxFactory.vertex(null, topBarGeometry, topBarStyle.convertToString());
+        const topBar = MxFactory.vertex(null, topBarGeometry, topBarStyle.convertToString());
 
         //icons
-        var backButtonStyle = new Style();
+        const backButtonStyle = new Style();
         backButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         backButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         backButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/Back32.png";
         backButtonStyle[Styles.STYLE_SELECTABLE] = 0;
-        var backButtonGeometry = MxFactory.geometry(0, 42.5, 25, 25);
-        var backButton = MxFactory.vertex(null, backButtonGeometry, backButtonStyle.convertToString());
+        const backButtonGeometry = MxFactory.geometry(0, 42.5, 25, 25);
+        const backButton = MxFactory.vertex(null, backButtonGeometry, backButtonStyle.convertToString());
 
-        var forwardButtonStyle = new Style();
+        const forwardButtonStyle = new Style();
         forwardButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         forwardButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         forwardButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/Forward32.png";
         forwardButtonStyle[Styles.STYLE_SELECTABLE] = 0;
-        var forwardButtonGeometry = MxFactory.geometry(25, 42.5, 25, 25);
-        var forwardButton = MxFactory.vertex(null, forwardButtonGeometry, forwardButtonStyle.convertToString());
+        const forwardButtonGeometry = MxFactory.geometry(25, 42.5, 25, 25);
+        const forwardButton = MxFactory.vertex(null, forwardButtonGeometry, forwardButtonStyle.convertToString());
 
         topBar.insert(backButton);
         topBar.insert(forwardButton);
 
         //navigation label
-        var urlText: string = ShapeExtensions.getPropertyByName(shape, "URL");
-        var navigationLabelStyle = new Style();
+        const urlText: string = ShapeExtensions.getPropertyByName(shape, "URL");
+        const navigationLabelStyle = new Style();
         navigationLabelStyle[Styles.STYLE_SELECTABLE] = 0;
         navigationLabelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         navigationLabelStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -853,33 +853,33 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         navigationLabelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         navigationLabelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, navigationLabelStyle);
-        var navigationLabelGeometry = MxFactory.geometry(51, 42.5, (shape.width - 125) * 14 / 19, 22.5);
+        const navigationLabelGeometry = MxFactory.geometry(51, 42.5, (shape.width - 125) * 14 / 19, 22.5);
         navigationLabelGeometry.relative = false;
-        var navigationLabel = MxFactory.vertex(urlText, navigationLabelGeometry, navigationLabelStyle.convertToString());
+        const navigationLabel = MxFactory.vertex(urlText, navigationLabelGeometry, navigationLabelStyle.convertToString());
         topBar.insert(navigationLabel);
 
-        var refreshButtonStyle = new Style();
+        const refreshButtonStyle = new Style();
         refreshButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         refreshButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         refreshButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/Refresh32.png";
         refreshButtonStyle[Styles.STYLE_SELECTABLE] = 0;
-        var refreshButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + 51, 42.5, 25, 25);
-        var refreshButton = MxFactory.vertex(null, refreshButtonGeometry, refreshButtonStyle.convertToString());
+        const refreshButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + 51, 42.5, 25, 25);
+        const refreshButton = MxFactory.vertex(null, refreshButtonGeometry, refreshButtonStyle.convertToString());
 
-        var stopButtonStyle = new Style();
+        const stopButtonStyle = new Style();
         stopButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         stopButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         stopButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/Stop32.png";
         stopButtonStyle[Styles.STYLE_SELECTABLE] = 0;
-        var stopButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + 76, 42.5, 25, 25);
-        var stopButton = MxFactory.vertex(null, stopButtonGeometry, stopButtonStyle.convertToString());
+        const stopButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + 76, 42.5, 25, 25);
+        const stopButton = MxFactory.vertex(null, stopButtonGeometry, stopButtonStyle.convertToString());
 
         topBar.insert(refreshButton);
         topBar.insert(stopButton);
 
         //search label
-        var searchText: string = ShapeExtensions.getPropertyByName(shape, "SearchText");
-        var searchLabelStyle = new Style();
+        const searchText: string = ShapeExtensions.getPropertyByName(shape, "SearchText");
+        const searchLabelStyle = new Style();
         searchLabelStyle[Styles.STYLE_SELECTABLE] = 0;
         searchLabelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         searchLabelStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -887,22 +887,22 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         searchLabelStyle[mxConstants.STYLE_OVERFLOW] = "hidden";
         searchLabelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         this.applyDisabledStateForText(shape, searchLabelStyle);
-        var searchLabelGeometry = MxFactory.geometry((shape.width - 125) * 14 / 19 + 100, 42.5, (shape.width - 125) * 5 / 19, 22.5);
+        const searchLabelGeometry = MxFactory.geometry((shape.width - 125) * 14 / 19 + 100, 42.5, (shape.width - 125) * 5 / 19, 22.5);
         searchLabelGeometry.relative = false;
-        var searchLabel = MxFactory.vertex(searchText, searchLabelGeometry, searchLabelStyle.convertToString());
+        const searchLabel = MxFactory.vertex(searchText, searchLabelGeometry, searchLabelStyle.convertToString());
         topBar.insert(searchLabel);
 
-        var searchButtonStyle = new Style();
+        const searchButtonStyle = new Style();
         searchButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         searchButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         searchButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/Search32.png";
         searchButtonStyle[Styles.STYLE_SELECTABLE] = 0;
-        var searchButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + searchLabel.geometry.width + 100, 42.5, 25, 25);
-        var searchButton = MxFactory.vertex(null, searchButtonGeometry, searchButtonStyle.convertToString());
+        const searchButtonGeometry = MxFactory.geometry(navigationLabel.geometry.width + searchLabel.geometry.width + 100, 42.5, 25, 25);
+        const searchButton = MxFactory.vertex(null, searchButtonGeometry, searchButtonStyle.convertToString());
         topBar.insert(searchButton);
 
         //label
-        var browserLabelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const browserLabelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         browserLabelStyle[Styles.STYLE_SELECTABLE] = 0;
         browserLabelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         browserLabelStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -912,57 +912,57 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         browserLabelStyle[mxConstants.STYLE_OVERFLOW] = "hidden";
         browserLabelStyle[Styles.STYLE_SELECTABLE] = 0;
         this.applyDisabledStateForText(shape, browserLabelStyle);
-        var browserLabelGeometry = MxFactory.geometry(1, 1, shape.width - 3, 35);
+        const browserLabelGeometry = MxFactory.geometry(1, 1, shape.width - 3, 35);
         browserLabelGeometry.relative = false;
-        var browserLabel = MxFactory.vertex(shape.label, browserLabelGeometry, browserLabelStyle.convertToString());
+        const browserLabel = MxFactory.vertex(shape.label, browserLabelGeometry, browserLabelStyle.convertToString());
         topBar.insert(browserLabel);
         browser.insert(topBar);
 
         //content box
-        var contentBoxStyle = new Style();
+        const contentBoxStyle = new Style();
         contentBoxStyle[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
         contentBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
         contentBoxStyle[Styles.STYLE_SELECTABLE] = 0;
-        var contentBoxGeometry = MxFactory.geometry(4, 74, shape.width - 9, shape.height - 79);
-        var contentBox = MxFactory.vertex(null, contentBoxGeometry, contentBoxStyle.convertToString());
-        var scrollBar = ShapeExtensions.getPropertyByName(shape, "ScrollBar") === "true";
+        const contentBoxGeometry = MxFactory.geometry(4, 74, shape.width - 9, shape.height - 79);
+        const contentBox = MxFactory.vertex(null, contentBoxGeometry, contentBoxStyle.convertToString());
+        const scrollBar = ShapeExtensions.getPropertyByName(shape, "ScrollBar") === "true";
         if (scrollBar) {
             //scroll bar
             if (scrollBar) {
-                var scrollBarStyle = new Style();
+                const scrollBarStyle = new Style();
                 scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
                 scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "#F6F9FE";
                 scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
                 scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
-                var scrollBarGeometry = MxFactory.geometry(contentBox.geometry.width - 18, 0, 18, contentBox.geometry.height);
+                const scrollBarGeometry = MxFactory.geometry(contentBox.geometry.width - 18, 0, 18, contentBox.geometry.height);
                 scrollBarGeometry.relative = false;
-                var scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
-                var scrollbarMarkSize = { height: 3, width: 6 };
+                const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+                const scrollbarMarkSize = { height: 3, width: 6 };
 
                 //mark
-                var mark1Style = new Style();
+                const mark1Style = new Style();
                 mark1Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
                 mark1Style[mxConstants.STYLE_STROKEWIDTH] = 1;
                 mark1Style[mxConstants.STYLE_STROKECOLOR] = "black";
                 mark1Style[mxConstants.STYLE_FILLCOLOR] = "black";
                 mark1Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
                 mark1Style[Styles.STYLE_SELECTABLE] = 0;
-                var mark1Geometry = MxFactory.geometry(6, contentBox.geometry.height - 11, scrollbarMarkSize.width, scrollbarMarkSize.height);
+                const mark1Geometry = MxFactory.geometry(6, contentBox.geometry.height - 11, scrollbarMarkSize.width, scrollbarMarkSize.height);
                 mark1Geometry.relative = false;
-                var mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
+                const mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
                 scrollBarBox.insert(mark1);
 
                 //mark2
-                var mark2Style = new Style();
+                const mark2Style = new Style();
                 mark2Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
                 mark2Style[mxConstants.STYLE_STROKEWIDTH] = 1;
                 mark2Style[mxConstants.STYLE_STROKECOLOR] = "black";
                 mark2Style[mxConstants.STYLE_FILLCOLOR] = "black";
                 mark2Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
                 mark2Style[Styles.STYLE_SELECTABLE] = 0;
-                var mark2Geometry = MxFactory.geometry(6, 10, scrollbarMarkSize.width, scrollbarMarkSize.height);
+                const mark2Geometry = MxFactory.geometry(6, 10, scrollbarMarkSize.width, scrollbarMarkSize.height);
                 mark2Geometry.relative = false;
-                var mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
+                const mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
                 scrollBarBox.insert(mark2);
 
                 contentBox.insert(scrollBarBox);
@@ -975,9 +975,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     private uIMockupmenu = (shape: IShape): MxCell => {
         shape.gradientFill = null;
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
-        var isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
-        var containerMargin = 5;
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
+        const containerMargin = 5;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         style[mxConstants.STYLE_FILLCOLOR] = "#F1F5FB";
@@ -985,8 +985,8 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         style[mxConstants.STYLE_FOLDABLE] = 0;
 
-        var labelText = "";
-        var menuStyle = new MenuStyleObject();
+        let labelText = "";
+        const menuStyle = new MenuStyleObject();
         this.setMenuFontStyle(shape, menuStyle, isVertical);
         for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "TreeItem") {
@@ -1000,8 +1000,8 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             }
         }
 
-        var labelcontainer = this.createMenuLabelContainer(shape, containerMargin, labelText, menuStyle);
-        var menu = this.createDefaultVertex(shape, style, true);
+        const labelcontainer = this.createMenuLabelContainer(shape, containerMargin, labelText, menuStyle);
+        const menu = this.createDefaultVertex(shape, style, true);
         menu.insert(labelcontainer);
         this.applyHighlightedDisabledStates(shape, menu);
         return menu;
@@ -1112,14 +1112,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     private window = (shape: IShape): MxCell => {
 
-        var windowStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const windowStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         windowStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
         windowStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         windowStyle[mxConstants.STYLE_FOLDABLE] = 0;
 
-        var windowShape = this.createDefaultVertex(shape, windowStyle, true);
+        const windowShape = this.createDefaultVertex(shape, windowStyle, true);
 
-        var headerStyle = new Style();
+        const headerStyle = new Style();
         headerStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         headerStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
         headerStyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
@@ -1129,7 +1129,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         headerStyle[mxConstants.STYLE_FOLDABLE] = 0;
         headerStyle[Styles.STYLE_SELECTABLE] = 0;
         //
-        var headerShape = MxFactory.vertex(null,
+        const headerShape = MxFactory.vertex(null,
             MxFactory.geometry(0, //X
                 0, //Y
                 shape.width, //W
@@ -1138,10 +1138,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
 
         windowShape.insert(headerShape);
-        var showButtons = DiagramHelper.findValueByName(shape.props, "ShowButtons");
-        var titleWidth = shape.width;
+        const showButtons = DiagramHelper.findValueByName(shape.props, "ShowButtons");
+        let titleWidth = shape.width;
         if (showButtons === "All" || showButtons === "CloseOnly") {
-            var closeButtonStyle = new Style();
+            const closeButtonStyle = new Style();
             closeButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
             closeButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
             closeButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/window-close.png";
@@ -1162,7 +1162,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
         if (showButtons === "All") {
 
-            var resizeButtonStyle = new Style();
+            const resizeButtonStyle = new Style();
             resizeButtonStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
             resizeButtonStyle[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
             resizeButtonStyle[mxConstants.STYLE_IMAGE] = "/Scripts/mxClient/images/window-resize.png";
@@ -1182,9 +1182,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
         }
 
-        var scrollBar = DiagramHelper.findValueByName(shape.props, "ScrollBar");
+        const scrollBar = DiagramHelper.findValueByName(shape.props, "ScrollBar");
         if (scrollBar === "true") {
-            var scrollBarStyle = new Style();
+            const scrollBarStyle = new Style();
             scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
             scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "white";
             scrollBarStyle[mxConstants.STYLE_GRADIENTCOLOR] = "#F2F4F6";
@@ -1192,16 +1192,16 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
             scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
 
-            var scrollBarGeometry = MxFactory.geometry(shape.width - 21, 36, 20, shape.height - 37);
+            const scrollBarGeometry = MxFactory.geometry(shape.width - 21, 36, 20, shape.height - 37);
 
-            var scrollBarShape = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+            const scrollBarShape = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
             windowShape.insert(scrollBarShape);
 
-            var markSize = { height: 3, width: 6 };
+            const markSize = { height: 3, width: 6 };
 
             //upTriangle
-            var upTriangleStyle = new Style();
+            const upTriangleStyle = new Style();
             upTriangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
             upTriangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
             upTriangleStyle[mxConstants.STYLE_STROKECOLOR] = "black";
@@ -1209,13 +1209,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             upTriangleStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
             upTriangleStyle[Styles.STYLE_SELECTABLE] = 0;
 
-            var upTriangleGeometry = MxFactory.geometry(7, 11, markSize.width, markSize.height);
+            const upTriangleGeometry = MxFactory.geometry(7, 11, markSize.width, markSize.height);
             upTriangleGeometry.relative = false;
             //
             scrollBarShape.insert(MxFactory.vertex(null, upTriangleGeometry, upTriangleStyle.convertToString()));
 
 
-            var downTriangleStyle = new Style();
+            const downTriangleStyle = new Style();
             downTriangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
             downTriangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
             downTriangleStyle[mxConstants.STYLE_STROKECOLOR] = "black";
@@ -1223,14 +1223,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             downTriangleStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
             downTriangleStyle[Styles.STYLE_SELECTABLE] = 0;
 
-            var downTriangleGeometry = MxFactory.geometry(7, shape.height - 36 - 11, markSize.width, markSize.height);
+            const downTriangleGeometry = MxFactory.geometry(7, shape.height - 36 - 11, markSize.width, markSize.height);
             downTriangleGeometry.relative = false;
             //
             scrollBarShape.insert(MxFactory.vertex(null, downTriangleGeometry, downTriangleStyle.convertToString()));
         }
 
         if (shape.label) {
-            var titleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+            const titleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
             titleStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
             titleStyle[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
 
@@ -1240,9 +1240,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
             titleStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
             titleStyle[mxConstants.STYLE_OVERFLOW] = "hidden";
-            var labelGeometry = MxFactory.geometry(1, 0, titleWidth - 2, 36 - 2); //offsets the container boarder width
+            const labelGeometry = MxFactory.geometry(1, 0, titleWidth - 2, 36 - 2); //offsets the container boarder width
             labelGeometry.relative = false;
-            var label = MxFactory.vertex(shape.label, labelGeometry, titleStyle.convertToString());
+            const label = MxFactory.vertex(shape.label, labelGeometry, titleStyle.convertToString());
             headerShape.insert(label);
         }
         this.applyHighlightedDisabledStates(shape, windowShape);
@@ -1251,13 +1251,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private slider = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
-        var isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
         style[mxConstants.STYLE_FOLDABLE] = 0;
-        var slider = this.createDefaultVertex(shape, style, true);
-        var rectMargin = 4;
-        var mainRect = this.createSliderMainRect(shape, isVertical, rectMargin);
-        var valueRect = this.createSliderValueRect(shape, isVertical, rectMargin);
+        const slider = this.createDefaultVertex(shape, style, true);
+        const rectMargin = 4;
+        const mainRect = this.createSliderMainRect(shape, isVertical, rectMargin);
+        const valueRect = this.createSliderValueRect(shape, isVertical, rectMargin);
         slider.insert(mainRect);
         slider.insert(valueRect);
         this.applyHighlightedDisabledStates(shape, slider);
@@ -1291,7 +1291,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private createSliderValueRect(shape: IShape, isVertical: boolean, rectMargin: number): MxCell {
-        var rectangleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const rectangleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         rectangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         rectangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         rectangleStyle[mxConstants.STYLE_STROKECOLOR] = "#687B8B";
@@ -1299,26 +1299,26 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         rectangleStyle[mxConstants.STYLE_FILLCOLOR] = "#FFFFFF";
         rectangleStyle[mxConstants.STYLE_ROUNDED] = 1;
         rectangleStyle[Styles.STYLE_SELECTABLE] = 0;
-        var rectGreaterSize = 18;
-        var rectSmallerSize = 10;
-        var sliderValue = 0;
-        for (var i = 0; i < shape.props.length; i++) {
+        const rectGreaterSize = 18;
+        const rectSmallerSize = 10;
+        let sliderValue = 0;
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "SliderValue") {
                 sliderValue = shape.props[i].value;
             }
         }
-        var rectHeight = rectGreaterSize;
-        var rectWidth = rectSmallerSize;
-        var rectX = (sliderValue / 100) * (shape.width - rectMargin);
-        var rectY = (shape.height / 2) - (rectGreaterSize / 2);
+        let rectHeight = rectGreaterSize;
+        let rectWidth = rectSmallerSize;
+        let rectX = (sliderValue / 100) * (shape.width - rectMargin);
+        let rectY = (shape.height / 2) - (rectGreaterSize / 2);
         if (isVertical) {
             rectHeight = rectSmallerSize;
             rectWidth = rectGreaterSize;
             rectX = (shape.width / 2) - (rectGreaterSize / 2);
             rectY = ((100 - sliderValue) / 100) * (shape.height - rectMargin);
         }
-        var geometry = MxFactory.geometry(rectX, rectY, rectWidth, rectHeight);
-        var mainRect = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        let geometry = MxFactory.geometry(rectX, rectY, rectWidth, rectHeight);
+        const mainRect = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
 
         //Inside Rectangle
         rectangleStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
@@ -1328,31 +1328,31 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         //rectangleStyle[mxConstants.STYLE_ROUNDED] = 0;
         rectangleStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
 
-        var insideRectDiffSize = 3;
+        const insideRectDiffSize = 3;
         rectHeight -= insideRectDiffSize;
         rectWidth -= insideRectDiffSize;
         geometry = MxFactory.geometry(insideRectDiffSize / 2, insideRectDiffSize / 2, rectWidth, rectHeight);
-        var insideRect = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        const insideRect = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
         mainRect.insert(insideRect);
 
         return mainRect;
     }
 
     private scrollbar = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#91C3FF";
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_FILLCOLOR] = "#F6F9FE";
         //style[Styles.STYLE_SELECTABLE] = 0;
-        var isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
-        var scrollbar = this.createDefaultVertex(shape, style, true);
-        var firstTriangle = this.createScrollTriangle(shape, isVertical, true);
+        const isVertical = (ShapeExtensions.getPropertyByName(shape, "Orientation") === "Vertical");
+        const scrollbar = this.createDefaultVertex(shape, style, true);
+        const firstTriangle = this.createScrollTriangle(shape, isVertical, true);
         scrollbar.insert(firstTriangle);
-        var secondTriangle = this.createScrollTriangle(shape, isVertical, false);
+        const secondTriangle = this.createScrollTriangle(shape, isVertical, false);
         scrollbar.insert(secondTriangle);
-        var stud = this.createScrollStud(shape, isVertical);
+        const stud = this.createScrollStud(shape, isVertical);
         scrollbar.insert(stud);
         this.applyHighlightedDisabledStates(shape, scrollbar);
         return scrollbar;
@@ -1389,7 +1389,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private createScrollStud(shape: IShape, isVertical: boolean): MxCell {
-        var rectangleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const rectangleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         rectangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         rectangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         rectangleStyle[mxConstants.STYLE_STROKECOLOR] = "#BBC6D5";
@@ -1399,26 +1399,26 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         rectangleStyle[mxConstants.STYLE_ROUNDED] = 1;
         rectangleStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         rectangleStyle[Styles.STYLE_SELECTABLE] = 0;
-        var rectSmallerSize = 18;
-        var scrollValue = 0;
-        for (var i = 0; i < shape.props.length; i++) {
+        const rectSmallerSize = 18;
+        let scrollValue = 0;
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ScrollValue") {
                 scrollValue = shape.props[i].value;
             }
         }
-        var rectHeight = shape.height;
-        var rectWidth = rectSmallerSize;
-        var startMargin = 25;
-        var rectX = startMargin + (scrollValue / 100) * (shape.width - startMargin * 2) - (rectWidth / 2);
-        var rectY = 0;
+        let rectHeight = shape.height;
+        let rectWidth = rectSmallerSize;
+        let startMargin = 25;
+        let rectX = startMargin + (scrollValue / 100) * (shape.width - startMargin * 2) - (rectWidth / 2);
+        let rectY = 0;
         if (isVertical) {
             rectHeight = rectSmallerSize;
             rectWidth = shape.width;
             rectX = 0;
             rectY = startMargin + (scrollValue / 100) * (shape.height - startMargin * 2) - (rectHeight / 2);
         }
-        var geometry = MxFactory.geometry(rectX, rectY, rectWidth, rectHeight);
-        var stud = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        let geometry = MxFactory.geometry(rectX, rectY, rectWidth, rectHeight);
+        const stud = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
 
         //Inside Lines
         rectangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LINE;
@@ -1429,10 +1429,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         rectangleStyle[Styles.STYLE_SELECTABLE] = 0;
         rectangleStyle[mxConstants.STYLE_FOLDABLE] = 0;
 
-        var eachLineSpace = 3;
-        var lineWidth = 7;
-        var startX = (rectWidth / 2) - (lineWidth / 2);
-        var startY = (rectHeight / 2) - eachLineSpace;
+        const eachLineSpace = 3;
+        const lineWidth = 7;
+        let startX = (rectWidth / 2) - (lineWidth / 2);
+        let startY = (rectHeight / 2) - eachLineSpace;
         if (isVertical === false) {
             startY = (rectHeight / 2) - (lineWidth / 2);
             startX = (rectWidth / 2) - eachLineSpace;
@@ -1440,13 +1440,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
         geometry = isVertical ? MxFactory.geometry(startX, startY, lineWidth, 1) :
             MxFactory.geometry(startX, startY, 1, lineWidth);
-        var line1 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        const line1 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
         geometry = isVertical ? MxFactory.geometry(startX, startY + eachLineSpace, lineWidth, 1) :
             MxFactory.geometry(startX + eachLineSpace, startY, 1, lineWidth);
-        var line2 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        const line2 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
         geometry = isVertical ? MxFactory.geometry(startX, startY + (eachLineSpace * 2), lineWidth, 1) :
             MxFactory.geometry(startX + (eachLineSpace * 2), startY, 1, lineWidth);
-        var line3 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
+        const line3 = MxFactory.vertex(null, geometry, rectangleStyle.convertToString());
 
         stud.insert(line1);
         stud.insert(line2);
@@ -1456,13 +1456,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private progressbar = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = HighlightEllipse.getName;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#657581";
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
-        var progressBarStyle: string;
+        let progressBarStyle: string;
         for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ProgressBarStyle") {
                 progressBarStyle = shape.props[i].value;
@@ -1477,9 +1477,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_GRADIENTCOLOR] = "#E4E6E7";
         style[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         //style[mxConstants.STYLE_ROUNDED] = 1;
-        var progressbar = this.createDefaultVertex(shape, style, true);
+        const progressbar = this.createDefaultVertex(shape, style, true);
         if (progressBarStyle === "Standard") {
-            var valueRect = this.createProgressValueRect(shape);
+            const valueRect = this.createProgressValueRect(shape);
             progressbar.insert(valueRect);
         }
         this.applyHighlightedDisabledStates(shape, progressbar, style[mxConstants.STYLE_SHAPE]);
@@ -1487,25 +1487,25 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private tab = (shape: IShape): MxCell => {
-        var innerBoxGeometry, initialHeight = 0, height, length, itemsHeight;
+        let innerBoxGeometry, initialHeight = 0, height, length, itemsHeight;
 
-        var style = this.styleBuilder.createDefaultShapeStyle.call(shape, shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle.call(shape, shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = "#FFFFFF";
         style[mxConstants.STYLE_FOLDABLE] = 0;
         this.applyDisabledStateForText(shape, style);
-        var tab = this.createDefaultVertex(shape, style, true);
+        const tab = this.createDefaultVertex(shape, style, true);
 
-        var geometry = MxFactory.geometry(0, 0, shape.width, shape.height);
+        const geometry = MxFactory.geometry(0, 0, shape.width, shape.height);
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
-        var border = MxFactory.vertex(null, geometry, style.convertToString());
+        const border = MxFactory.vertex(null, geometry, style.convertToString());
 
-        var orientation;
-        var listItems = [];
-        for (var i = 0; i < shape.props.length; i++) {
+        let orientation;
+        const listItems = [];
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem") {
                 listItems.push(shape.props[i]);
             }
@@ -1514,20 +1514,20 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             }
         }
 
-        var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
 
         innerBoxGeometry = MxFactory.geometry(1, 1, shape.width, 50);
 
-        var innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
+        const innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
 
-        var o = this.getTabRows(listItems, shape);
+        const o = this.getTabRows(listItems, shape);
         length = o.listItemRows.length;
         height = o.height;
         itemsHeight = height * (length + 1);
 
-        for (var j = length - 1; j > -1; j--) {
+        for (let j = length - 1; j > -1; j--) {
             if (orientation === "Bottom" || orientation === "Left") {
                 initialHeight = (length - j) * height;
             } else if (orientation === "Top" || orientation === "Right") {
@@ -1560,9 +1560,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         tab.insert(border);
         tab.insert(innerBox);
 
-        var scrollBar = DiagramHelper.findValueByName(shape.props, "Scrollbar");
+        const scrollBar = DiagramHelper.findValueByName(shape.props, "Scrollbar");
         if (scrollBar.toString() === "true") {
-            var scrollBarStyle = new Style();
+            const scrollBarStyle = new Style();
             scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
             scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "white";
             scrollBarStyle[mxConstants.STYLE_GRADIENTCOLOR] = "#F2F4F6";
@@ -1570,8 +1570,8 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
             scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
 
-            var scrollBarHeight = border.getGeometry().height;
-            var scrollBarGeometry: MxGeometry;
+            const scrollBarHeight = border.getGeometry().height;
+            let scrollBarGeometry: MxGeometry;
             if (orientation === "Top") {
                 scrollBarGeometry = MxFactory.geometry(shape.width - 21, shape.height - scrollBarHeight, 20, scrollBarHeight);
             } else if (orientation === "Bottom" || orientation === "Left") {
@@ -1580,15 +1580,15 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 scrollBarGeometry = MxFactory.geometry(border.getGeometry().width - 21, shape.height - scrollBarHeight, 20, scrollBarHeight);
             }
 
-            var scrollBarShape = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+            const scrollBarShape = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
             tab.insert(scrollBarShape);
 
-            var markSize = { height: 3, width: 6 };
+            const markSize = { height: 3, width: 6 };
 
             if (scrollBarHeight > 0) {
                 //upTriangle
-                var upTriangleStyle = new Style();
+                const upTriangleStyle = new Style();
                 upTriangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
                 upTriangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
                 upTriangleStyle[mxConstants.STYLE_STROKECOLOR] = "black";
@@ -1596,13 +1596,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 upTriangleStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
                 upTriangleStyle[Styles.STYLE_SELECTABLE] = 0;
 
-                var upTriangleGeometry = MxFactory.geometry(7, 11, markSize.width, markSize.height);
+                const upTriangleGeometry = MxFactory.geometry(7, 11, markSize.width, markSize.height);
                 upTriangleGeometry.relative = false;
                 //
                 scrollBarShape.insert(MxFactory.vertex(null, upTriangleGeometry, upTriangleStyle.convertToString()));
 
 
-                var downTriangleStyle = new Style();
+                const downTriangleStyle = new Style();
                 downTriangleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
                 downTriangleStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
                 downTriangleStyle[mxConstants.STYLE_STROKECOLOR] = "black";
@@ -1610,7 +1610,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 downTriangleStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
                 downTriangleStyle[Styles.STYLE_SELECTABLE] = 0;
 
-                var downTriangleGeometry = MxFactory.geometry(7, scrollBarHeight - 11, markSize.width, markSize.height);
+                const downTriangleGeometry = MxFactory.geometry(7, scrollBarHeight - 11, markSize.width, markSize.height);
                 downTriangleGeometry.relative = false;
                 //
                 scrollBarShape.insert(MxFactory.vertex(null, downTriangleGeometry, downTriangleStyle.convertToString()));
@@ -1629,7 +1629,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         if (row.listItemsRow) {
             for (let s = row.listItemsRow.length - 1; s > -1; s--) {
                 item = row.listItemsRow[s];
-                var listItemEntryStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+                const listItemEntryStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
                 listItemEntryStyle[mxConstants.STYLE_FOLDABLE] = 0;
                 listItemEntryStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
                 listItemEntryStyle[Styles.STYLE_SELECTABLE] = 0;
@@ -1742,29 +1742,29 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private list = (shape: IShape): MxCell => {
-        var ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const ddbstyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         ddbstyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         ddbstyle[mxConstants.STYLE_STROKECOLOR] = "#808080";
         ddbstyle[mxConstants.STYLE_FILLCOLOR] = "white";
         ddbstyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var list = this.createDefaultVertex(shape, ddbstyle, true);
+        const list = this.createDefaultVertex(shape, ddbstyle, true);
 
-        var listItems = [];
+        const listItems = [];
         for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem") {
                 listItems.push(shape.props[i]);
             }
         }
 
-        var scrollBarSize = 18;
-        var innerBoxWidth = shape.width - scrollBarSize - 2;
-        var innerBoxHeight = shape.height - 1;
-        var textWidth = 0, originalTextHeight = 0, textHeight = 0, minTextHeight = 20, needHorizaontalScroll = false;
+        const scrollBarSize = 18;
+        const innerBoxWidth = shape.width - scrollBarSize - 2;
+        let innerBoxHeight = shape.height - 1;
+        let textWidth = 0, originalTextHeight = 0, textHeight = 0, minTextHeight = 20, needHorizaontalScroll = false;
 
         //Calculating the max width and height
         for (let k = 0; k < listItems.length; k++) {
-            var textSize;
-            var sampleRect = mxUtils.getSizeForString(listItems[k].value.name, ddbstyle["fontSize"], ddbstyle["fontFamily"], textSize);
+            let textSize;
+            let sampleRect = mxUtils.getSizeForString(listItems[k].value.name, ddbstyle["fontSize"], ddbstyle["fontFamily"], textSize);
             originalTextHeight = sampleRect.height * 0.9;
             textHeight = (textHeight < 40) ? sampleRect.height * 1.9 : sampleRect.height * 1.3;
             if (textHeight < minTextHeight) {
@@ -1786,20 +1786,20 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
 
         //Creating Inner Box
-        var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FILLCOLOR] = "#FCFCFC";
-        var innerBoxGeometry = MxFactory.geometry(1, 1, innerBoxWidth, innerBoxHeight);
-        var innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
+        const innerBoxGeometry = MxFactory.geometry(1, 1, innerBoxWidth, innerBoxHeight);
+        const innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
 
         //Creating Items
         for (let j = 0; j < listItems.length; j++) {
             if (j * textHeight < innerBoxHeight) {
-                var listItemEntry = this.getListBoxItemEntry(shape, j, textHeight, innerBoxHeight, innerBoxWidth, listItems[j].value);
+                const listItemEntry = this.getListBoxItemEntry(shape, j, textHeight, innerBoxHeight, innerBoxWidth, listItems[j].value);
 
                 //Creating Label
-                var labelEntry = this.getListLabelInside(shape, j, textHeight, innerBoxWidth, listItems, listItemEntry, originalTextHeight);
+                const labelEntry = this.getListLabelInside(shape, j, textHeight, innerBoxWidth, listItems, listItemEntry, originalTextHeight);
                 listItemEntry.insert(labelEntry);
 
                 innerBox.insert(listItemEntry);
@@ -1809,13 +1809,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         list.insert(innerBox);
 
         //Creating Vertical ScrollBar
-        var verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll, scrollBarSize);
+        const verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll, scrollBarSize);
         this.makeVertexUnselectable(verticalScroll);
         list.insert(verticalScroll);
 
         //Creating Horizontal ScrollBar
         if (needHorizaontalScroll) {
-            var horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll, scrollBarSize);
+            const horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll, scrollBarSize);
             this.makeVertexUnselectable(horizontalScroll);
             list.insert(horizontalScroll);
             list.insert(this.createSquareBetweenScrolls(shape, scrollBarSize));
@@ -1871,7 +1871,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private makeScrollBar = (xPosition: number, shapeHeight: number, strokeColor: string, makeStub: boolean): MxCell => {
-        var scrollBarStyle = new Style();
+        const scrollBarStyle = new Style();
         //scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
         scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = strokeColor;
         scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -1879,41 +1879,41 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         scrollBarStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_WEST;
         scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
         scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var scrollBarGeometry = MxFactory.geometry(xPosition, 1, 19, shapeHeight - 2);
+        const scrollBarGeometry = MxFactory.geometry(xPosition, 1, 19, shapeHeight - 2);
         scrollBarGeometry.relative = false;
-        var scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+        const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-        var markSize = { height: 3, width: 6 };
+        const markSize = { height: 3, width: 6 };
 
         //mark
-        var mark1Style = new Style();
+        const mark1Style = new Style();
         mark1Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         mark1Style[mxConstants.STYLE_STROKEWIDTH] = 1;
         mark1Style[mxConstants.STYLE_STROKECOLOR] = "black";
         mark1Style[mxConstants.STYLE_FILLCOLOR] = "black";
         mark1Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         mark1Style[Styles.STYLE_SELECTABLE] = 0;
-        var mark1Geometry = MxFactory.geometry(7, shapeHeight - 11, markSize.width, markSize.height);
+        const mark1Geometry = MxFactory.geometry(7, shapeHeight - 11, markSize.width, markSize.height);
         mark1Geometry.relative = false;
-        var mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
+        const mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
         scrollBarBox.insert(mark1);
 
         //mark2
-        var mark2Style = new Style();
+        const mark2Style = new Style();
         mark2Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         mark2Style[mxConstants.STYLE_STROKEWIDTH] = 1;
         mark2Style[mxConstants.STYLE_STROKECOLOR] = "black";
         mark2Style[mxConstants.STYLE_FILLCOLOR] = "black";
         mark2Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_NORTH;
         mark2Style[Styles.STYLE_SELECTABLE] = 0;
-        var mark2Geometry = MxFactory.geometry(7, 10, markSize.width, markSize.height);
+        const mark2Geometry = MxFactory.geometry(7, 10, markSize.width, markSize.height);
         mark2Geometry.relative = false;
-        var mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
+        const mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
         scrollBarBox.insert(mark2);
 
         //scrollbar stub
         if (makeStub && shapeHeight > 55) {
-            var scrollBarStubStyle = new Style();
+            const scrollBarStubStyle = new Style();
             scrollBarStubStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
             scrollBarStubStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
             scrollBarStubStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -1921,9 +1921,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             scrollBarStubStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_WEST;
             scrollBarStubStyle[Styles.STYLE_SELECTABLE] = 0;
             scrollBarStubStyle[mxConstants.STYLE_FOLDABLE] = 0;
-            var scrollBarStubGeometry = MxFactory.geometry(0, 20, 19, shapeHeight / 5);
+            const scrollBarStubGeometry = MxFactory.geometry(0, 20, 19, shapeHeight / 5);
             scrollBarStubGeometry.relative = false;
-            var scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
+            const scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
             scrollBarBox.insert(scrollBarStub);
         }
         return scrollBarBox;
@@ -1954,7 +1954,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private accordion = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#657581";
@@ -1962,11 +1962,11 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
 
-        var accordion = this.createDefaultVertex(shape, style, true);
+        const accordion = this.createDefaultVertex(shape, style, true);
 
-        var listItems = [];
-        var minimumBlankHeight = 0;
-        for (var i = 0; i < shape.props.length; i++) {
+        const listItems = [];
+        let minimumBlankHeight = 0;
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "ListItem") {
                 listItems.push(shape.props[i]);
                 if (shape.props[i].value.checked) {
@@ -1975,21 +1975,21 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             }
         }
 
-        var scrollBarSize = 18;
-        var drawerIconWidth = 35;
-        var textWidth = 0;
-        var textHeight = 0;
-        var minTextHeight = 20;
-        var needVerticalScroll = false;
-        var needHorizaontalScroll = false;
-        var innerBoxHeight = shape.height;
-        var innerBoxWidth = shape.width - 1;
-        //var allowedCollapse = (ShapeExtensions.getPropertyByName(shape, "AllowCollapse") === "true");
+        const scrollBarSize = 18;
+        const drawerIconWidth = 35;
+        let textWidth = 0;
+        let textHeight = 0;
+        const minTextHeight = 20;
+        let needVerticalScroll = false;
+        let needHorizaontalScroll = false;
+        let innerBoxHeight = shape.height;
+        let innerBoxWidth = shape.width - 1;
+        //const allowedCollapse = (ShapeExtensions.getPropertyByName(shape, "AllowCollapse") === "true");
 
         //Calculating the max width and height
-        for (var k = 0; k < listItems.length; k++) {
-            var textSize;
-            var sampleRect = mxUtils.getSizeForString(listItems[k].value.name, style["fontSize"], style["fontFamily"], textSize);
+        for (let k = 0; k < listItems.length; k++) {
+            let textSize;
+            const sampleRect = mxUtils.getSizeForString(listItems[k].value.name, style["fontSize"], style["fontFamily"], textSize);
             textHeight = (textHeight < 30) ? sampleRect.height * 1.32 : sampleRect.height * 1.22;
             if (textHeight < minTextHeight) {
                 textHeight = minTextHeight;
@@ -2022,26 +2022,26 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
 
         //Creating Inner Box
-        var innerBox: MxCell;
+        let innerBox: MxCell;
         if (needHorizaontalScroll || needVerticalScroll) {
-            var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+            const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
             innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
             innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
             innerBoxStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
             innerBoxStyle[mxConstants.STYLE_FILLCOLOR] = "#FCFCFC";
-            var innerBoxGeometry = MxFactory.geometry(1, 1, innerBoxWidth, innerBoxHeight);
+            const innerBoxGeometry = MxFactory.geometry(1, 1, innerBoxWidth, innerBoxHeight);
             innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
         } else {
             innerBox = accordion;
         }
 
         //Creating Items
-        var useBlankSpaceBefore = false;
-        for (var j = 0; j < listItems.length; j++) {
-            var actualMinBlankHeight = useBlankSpaceBefore ? minimumBlankHeight : 0;
+        let useBlankSpaceBefore = false;
+        for (let j = 0; j < listItems.length; j++) {
+            const actualMinBlankHeight = useBlankSpaceBefore ? minimumBlankHeight : 0;
             //Check if the height is enough
             if (j * textHeight + actualMinBlankHeight < innerBoxHeight) {
-                var listItemEntryStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+                const listItemEntryStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
                 listItemEntryStyle[mxConstants.STYLE_FOLDABLE] = 0;
                 listItemEntryStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
                 listItemEntryStyle[Styles.STYLE_SELECTABLE] = 0;
@@ -2052,14 +2052,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 listItemEntryStyle[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
                 listItemEntryStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_SOUTH;
                 //Creating Last List Item if the height is not enough
-                var adjustedHeight: number;
+                let adjustedHeight: number;
                 if ((j + 1) * textHeight + actualMinBlankHeight > innerBoxHeight) {
                     adjustedHeight = innerBoxHeight - (j * textHeight) - actualMinBlankHeight - 1;
                 } else {
                     adjustedHeight = textHeight;
                 }
                 //Setting the height of blank space inside default Item
-                var whiteSpaceHeight = 0;
+                let whiteSpaceHeight = 0;
                 if (useBlankSpaceBefore) {
                     if (needVerticalScroll) {
                         whiteSpaceHeight = actualMinBlankHeight;
@@ -2067,16 +2067,16 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                         whiteSpaceHeight = innerBoxHeight - listItems.length * textHeight;
                     }
                 }
-                var listItemEntryGeometry = MxFactory.geometry(0, j * textHeight + whiteSpaceHeight, innerBoxWidth, adjustedHeight);
+                const listItemEntryGeometry = MxFactory.geometry(0, j * textHeight + whiteSpaceHeight, innerBoxWidth, adjustedHeight);
                 //listItemEntryGeometry.relative = true;
                 this.applyDisabledStateForText(shape, listItemEntryStyle);
-                var listItemEntry = MxFactory.vertex(
+                const listItemEntry = MxFactory.vertex(
                     Helper.escapeHTMLText(listItems[j].value.name),
                     listItemEntryGeometry,
                     listItemEntryStyle.convertToString());
                 //Adding Drawer Icon
                 if (needHorizaontalScroll === false && listItemEntryGeometry.height === textHeight) {
-                    var drawerStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+                    const drawerStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
                     drawerStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LINE;
                     drawerStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
                     drawerStyle[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_EAST;
@@ -2086,8 +2086,8 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     drawerStyle[Styles.STYLE_SELECTABLE] = 0;
                     drawerStyle[mxConstants.STYLE_ROTATION] = listItems[j].value.checked ? "45" : "-45";
 
-                    var drawerGeometry = MxFactory.geometry(listItemEntryGeometry.width - (drawerIconWidth / 2) + 5, listItemEntryGeometry.height / 2, 6, 1);
-                    var drawerRect = MxFactory.vertex(null, drawerGeometry, drawerStyle.convertToString());
+                    let drawerGeometry = MxFactory.geometry(listItemEntryGeometry.width - (drawerIconWidth / 2) + 5, listItemEntryGeometry.height / 2, 6, 1);
+                    let drawerRect = MxFactory.vertex(null, drawerGeometry, drawerStyle.convertToString());
                     listItemEntry.insert(drawerRect);
 
                     drawerStyle[mxConstants.STYLE_ROTATION] = listItems[j].value.checked ? "-45" : "45";
@@ -2104,13 +2104,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         //Creating Horizontal ScrollBar
         accordion.insert(innerBox);
         if (needHorizaontalScroll) {
-            var horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
+            const horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
             this.makeVertexUnselectable(horizontalScroll);
             accordion.insert(horizontalScroll);
         }
         //Creating Vertical ScrollBar
         if (needVerticalScroll) {
-            var verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
+            const verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
             this.makeVertexUnselectable(verticalScroll);
             accordion.insert(verticalScroll);
         }
@@ -2125,7 +2125,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private createSquareBetweenScrolls = (shape: IShape, scrollBarSize: number): MxCell => {
-        var squareStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const squareStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         squareStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         squareStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
         //squareStyle[mxConstants.STYLE_STROKECOLOR] = "#F6F9FE";
@@ -2133,14 +2133,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         squareStyle[mxConstants.STYLE_FOLDABLE] = 0;
         squareStyle[Styles.STYLE_SELECTABLE] = 0;
 
-        var squareGeometry = MxFactory.geometry(shape.width - scrollBarSize, shape.height - scrollBarSize, scrollBarSize, scrollBarSize);
-        var squareRect = MxFactory.vertex(null, squareGeometry, squareStyle.convertToString());
+        const squareGeometry = MxFactory.geometry(shape.width - scrollBarSize, shape.height - scrollBarSize, scrollBarSize, scrollBarSize);
+        const squareRect = MxFactory.vertex(null, squareGeometry, squareStyle.convertToString());
         return squareRect;
     };
 
     //Makes the Vertex Unselectable
     public makeVertexUnselectable = (vertex: MxCell) => {
-        var vertexStyle = vertex.getStyle();
+        let vertexStyle = vertex.getStyle();
         if (vertexStyle.indexOf("selectable") < 0) {
             vertexStyle += "selectable=0;";
         }
@@ -2149,7 +2149,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //Creates Scrollbar To Be Used By Accordion
     private getScrollBar = (shape: IShape, isHorizontal: boolean, hasBothScrollBars: boolean, scrollBarSize: number): MxCell => {
-        var scroll = {
+        const scroll = {
             width: (isHorizontal ? (hasBothScrollBars ? shape.width - scrollBarSize : shape.width) : scrollBarSize),
             height: (isHorizontal ? scrollBarSize : (hasBothScrollBars ? shape.height - scrollBarSize : shape.height)),
             x: (isHorizontal ? 0 : shape.width - scrollBarSize),
@@ -2161,12 +2161,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             ]
         };
 
-        var scrollShape = this.scrollbar(<IShape>scroll);
+        const scrollShape = this.scrollbar(<IShape>scroll);
         return scrollShape;
     };
 
     private contextMenu = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#657581";
@@ -2175,23 +2175,23 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
         style[mxConstants.STYLE_WHITE_SPACE] = "nowrap";
 
-        var contextmenu = this.createDefaultVertex(shape, style, true);
+        const contextmenu = this.createDefaultVertex(shape, style, true);
 
-        var treeItems = [];
-        for (var i = 0; i < shape.props.length; i++) {
+        const treeItems = [];
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "TreeItem") {
                 treeItems.push(shape.props[i]);
             }
         }
 
-        var leftRectSize = 28, triangleIconWidth = 35, textWidth = 0, textHeight = 0, minTextHeight = 20, needVerticalScroll = false;
-        var needHorizaontalScroll = false, innerBoxHeight = shape.height, verticalDrawerHeight = 10, originalTextHeight = 0;
-        var innerBoxWidth = shape.width - 1 - leftRectSize;
+        let leftRectSize = 28, triangleIconWidth = 35, textWidth = 0, textHeight = 0, minTextHeight = 20, needVerticalScroll = false;
+        let needHorizaontalScroll = false, innerBoxHeight = shape.height, verticalDrawerHeight = 10, originalTextHeight = 0;
+        const innerBoxWidth = shape.width - 1 - leftRectSize;
 
         //Calculating the max width and height
-        for (var k = 0; k < treeItems.length; k++) {
-            var textSize;
-            var sampleRect = mxUtils.getSizeForString(treeItems[k].value.text, style["fontSize"], style["fontFamily"], textSize);
+        for (let k = 0; k < treeItems.length; k++) {
+            let textSize;
+            const sampleRect = mxUtils.getSizeForString(treeItems[k].value.text, style["fontSize"], style["fontFamily"], textSize);
             originalTextHeight = sampleRect.height * 1.1;
             textHeight = (textHeight < 30) ? sampleRect.height * 1.8 : sampleRect.height * 1.4;
             if (textHeight < minTextHeight) {
@@ -2217,38 +2217,38 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
 
         //Creating Left Rectangle
-        var leftRect = this.getContextMenuLeftRect(shape, leftRectSize);
+        const leftRect = this.getContextMenuLeftRect(shape, leftRectSize);
         contextmenu.insert(leftRect);
 
         //Creating Inner Box
-        var innerBox: MxCell;
-        var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        let innerBox: MxCell;
+        const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
         innerBoxStyle[mxConstants.STYLE_FILLCOLOR] = "#FCFCFC";
-        var innerBoxGeometry = MxFactory.geometry(leftRectSize + 1, 1, innerBoxWidth - 1, innerBoxHeight - 2);
+        const innerBoxGeometry = MxFactory.geometry(leftRectSize + 1, 1, innerBoxWidth - 1, innerBoxHeight - 2);
         innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
 
         //Creating Items
-        for (var j = 0; j < treeItems.length; j++) {
+        for (let j = 0; j < treeItems.length; j++) {
             //Check if the height is enough
             if (j * textHeight < innerBoxHeight) {
-                var listItemEntry = this.getContextMenuListItemEntry(shape, j, textHeight, innerBoxHeight, innerBoxWidth);
+                const listItemEntry = this.getContextMenuListItemEntry(shape, j, textHeight, innerBoxHeight, innerBoxWidth);
 
                 //Creating Label
-                var labelEntry = this.getContextMenuLabelInside(shape, j, textHeight, innerBoxWidth, treeItems, listItemEntry, originalTextHeight);
+                const labelEntry = this.getContextMenuLabelInside(shape, j, textHeight, innerBoxWidth, treeItems, listItemEntry, originalTextHeight);
                 listItemEntry.insert(labelEntry);
 
                 //Adding Check Mark
                 if (treeItems[j].value.isSelected === true) {
-                    var markEntry = this.getContextMenuMarkEntry(shape, j, textHeight, innerBoxHeight, treeItems, listItemEntry, labelEntry, leftRectSize);
+                    const markEntry = this.getContextMenuMarkEntry(shape, j, textHeight, innerBoxHeight, treeItems, listItemEntry, labelEntry, leftRectSize);
                     contextmenu.insert(markEntry);
                 }
 
                 //Adding Has Child Icon
                 if (treeItems[j].value.hasChildTreeItems === true && needHorizaontalScroll === false && textHeight - listItemEntry.getGeometry().height < 10) {
-                    var hasChildTriangle = this.getContextMenuHasChild(shape, j, treeItems, listItemEntry, labelEntry, innerBoxWidth);
+                    const hasChildTriangle = this.getContextMenuHasChild(shape, j, treeItems, listItemEntry, labelEntry, innerBoxWidth);
                     listItemEntry.insert(hasChildTriangle);
                 }
 
@@ -2267,7 +2267,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     };
 
     private table = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#91C3FF";
@@ -2275,40 +2275,40 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
         style[mxConstants.STYLE_WHITE_SPACE] = "nowrap";
-        var table = this.createDefaultVertex(shape, style, true);
-        var tableDataObject = ShapeExtensions.getPropertyByName(shape, "TableDataObject");
-        var columnHeaders = ShapeExtensions.getPropertyByName(shape, "TableColumnHeaders");
-        var includeHeaderRow = ShapeExtensions.getPropertyByName(shape, "IncludeHeaderRow").toLowerCase() === "true";
-        var showBorder = ShapeExtensions.getPropertyByName(shape, "ShowBorder").toLowerCase() === "true";
-        var showScrollBars = ShapeExtensions.getPropertyByName(shape, "ShowScrollBars").toLowerCase() === "true";
-        var showHorizontalScrollBar = false;
-        var tableStyle = ShapeExtensions.getPropertyByName(shape, "TableStyle");
-        var cellHeight = 25;
-        var tableDataRows = [];
-        var idx = 0;
-        var highlighterHeight = cellHeight; //to be populated when we render the first data row.
+        const table = this.createDefaultVertex(shape, style, true);
+        const tableDataObject = ShapeExtensions.getPropertyByName(shape, "TableDataObject");
+        const columnHeaders = ShapeExtensions.getPropertyByName(shape, "TableColumnHeaders");
+        const includeHeaderRow = ShapeExtensions.getPropertyByName(shape, "IncludeHeaderRow").toLowerCase() === "true";
+        const showBorder = ShapeExtensions.getPropertyByName(shape, "ShowBorder").toLowerCase() === "true";
+        const showScrollBars = ShapeExtensions.getPropertyByName(shape, "ShowScrollBars").toLowerCase() === "true";
+        let showHorizontalScrollBar = false;
+        const tableStyle = ShapeExtensions.getPropertyByName(shape, "TableStyle");
+        const cellHeight = 25;
+        const tableDataRows = [];
+        let idx = 0;
+        let highlighterHeight = cellHeight; //to be populated when we render the first data row.
         while (idx < tableDataObject.length) {
-            var row = [];
-            for (var i = 0; i < columnHeaders.length; i++) {
+            const row = [];
+            for (let i = 0; i < columnHeaders.length; i++) {
                 row.push(tableDataObject[idx]);
                 idx++;
             }
             tableDataRows.push(row);
         }
-        var matrix = this.generatePreprocessingMatrix(shape, columnHeaders, tableDataRows, includeHeaderRow);
-        var processedMatrix = this.generateDimensionProcessedMatrix(matrix);
-        var innerBoxWidth = shape.width - 6;
+        const matrix = this.generatePreprocessingMatrix(shape, columnHeaders, tableDataRows, includeHeaderRow);
+        let processedMatrix = this.generateDimensionProcessedMatrix(matrix);
+        let innerBoxWidth = shape.width - 6;
         if (showScrollBars) {
             innerBoxWidth -= 25;
         }
-        var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var innerBoxGeometry = MxFactory.geometry(3, 3, innerBoxWidth, shape.height - 6);
-        var innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
+        const innerBoxGeometry = MxFactory.geometry(3, 3, innerBoxWidth, shape.height - 6);
+        const innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
 
-        var totalTheoreticalLengthOfData = 0;
-        for (var z = 0; z < processedMatrix[0].length; z++) {
+        let totalTheoreticalLengthOfData = 0;
+        for (let z = 0; z < processedMatrix[0].length; z++) {
             totalTheoreticalLengthOfData += processedMatrix[0][z].width;
         }
         if (totalTheoreticalLengthOfData > innerBoxGeometry.width) {
@@ -2318,21 +2318,21 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
 
         highlighterHeight = processedMatrix[0][0].height;
-        var renderedDataIndex = 1;
+        let renderedDataIndex = 1;
         if (includeHeaderRow) {
             renderedDataIndex = 0;
             highlighterHeight = processedMatrix[1][0].height;
         }
-        var yPosn = 0;
-        var nextRowRequired = true; //we always render the next row
-        for (var j = 0; j < processedMatrix.length; j++) {
+        let yPosn = 0;
+        let nextRowRequired = true; //we always render the next row
+        for (let j = 0; j < processedMatrix.length; j++) {
             if (nextRowRequired) {
-                var correctedRowHeight = processedMatrix[j][0].height;
+                let correctedRowHeight = processedMatrix[j][0].height;
                 if (yPosn + processedMatrix[j][0].height > innerBoxGeometry.height) {
                     nextRowRequired = false;
                     correctedRowHeight = innerBoxGeometry.height - yPosn;
                 }
-                var rowShape = this.makeTableRow(
+                const rowShape = this.makeTableRow(
                     shape,
                     processedMatrix[j],
                     processedMatrix[j][0].isHeader,
@@ -2348,63 +2348,63 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             }
         }
         //highlight first column
-        var highlightYPosn = processedMatrix[0][0].height + 2;
+        let highlightYPosn = processedMatrix[0][0].height + 2;
         if (!includeHeaderRow) {
             highlightYPosn = 2;
         }
-        var highlightContainerStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const highlightContainerStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         highlightContainerStyle[Styles.STYLE_SELECTABLE] = 0;
         highlightContainerStyle[mxConstants.STYLE_FOLDABLE] = 0;
         highlightContainerStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         highlightContainerStyle[mxConstants.STYLE_STROKECOLOR] = "#7DA2CE";
-        var highlightContainerGeometry = MxFactory.geometry(30 + 2, highlightYPosn, innerBox.geometry.width - 30 - 4, highlighterHeight - 4);
-        var highlightContainter = MxFactory.vertex(null, highlightContainerGeometry, highlightContainerStyle.convertToString());
+        const highlightContainerGeometry = MxFactory.geometry(30 + 2, highlightYPosn, innerBox.geometry.width - 30 - 4, highlighterHeight - 4);
+        const highlightContainter = MxFactory.vertex(null, highlightContainerGeometry, highlightContainerStyle.convertToString());
 
-        var highlightBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const highlightBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         highlightBoxStyle[mxConstants.STYLE_FILLCOLOR] = "#EBF3FD";
         highlightBoxStyle[mxConstants.STYLE_OPACITY] = 25;
         highlightBoxStyle[Styles.STYLE_SELECTABLE] = 0;
-        var highlightBoxGeometry = MxFactory.geometry(0, 0, highlightContainerGeometry.width, highlightContainerGeometry.height);
-        var highlightBox = MxFactory.vertex(null, highlightBoxGeometry, highlightBoxStyle.convertToString());
+        const highlightBoxGeometry = MxFactory.geometry(0, 0, highlightContainerGeometry.width, highlightContainerGeometry.height);
+        const highlightBox = MxFactory.vertex(null, highlightBoxGeometry, highlightBoxStyle.convertToString());
         highlightContainter.insert(highlightBox);
 
         innerBox.insert(highlightContainter);
         table.insert(innerBox);
 
-        var innerBoxBorderStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const innerBoxBorderStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxBorderStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxBorderStyle[mxConstants.STYLE_FOLDABLE] = 0;
         innerBoxBorderStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         innerBoxBorderStyle[mxConstants.STYLE_STROKECOLOR] = "#C0CBD9";
         innerBoxBorderStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
-        var innerBoxBorderGeometry = MxFactory.geometry(3, 3, innerBoxWidth, shape.height - 6);
-        var innerBoxBorder = MxFactory.vertex(null, innerBoxBorderGeometry, innerBoxBorderStyle.convertToString());
+        const innerBoxBorderGeometry = MxFactory.geometry(3, 3, innerBoxWidth, shape.height - 6);
+        const innerBoxBorder = MxFactory.vertex(null, innerBoxBorderGeometry, innerBoxBorderStyle.convertToString());
         table.insert(innerBoxBorder);
 
         //scrollbar stuff
         if (showScrollBars && shape.height > 20 && shape.width > 20) {
-            var scrollBarHeight = shape.height + 1;
+            let scrollBarHeight = shape.height + 1;
             if (showHorizontalScrollBar) {
                 scrollBarHeight -= 19;
             }
-            var verticalScrollBar = this.makeScrollBar(shape.width - 19, scrollBarHeight, "#91C3FF", true);
+            const verticalScrollBar = this.makeScrollBar(shape.width - 19, scrollBarHeight, "#91C3FF", true);
             table.insert(verticalScrollBar);
         }
         if (showHorizontalScrollBar && shape.height > 20 && shape.width > 20) {
-            var scrollBarWidth = shape.width + 1;
+            let scrollBarWidth = shape.width + 1;
             if (showScrollBars) {
                 scrollBarWidth -= 19;
             }
-            var horizontalScrollBar = this.makeTableHorizontalScrollBar(shape.height - 19, scrollBarWidth, "#91C3FF", true);
+            const horizontalScrollBar = this.makeTableHorizontalScrollBar(shape.height - 19, scrollBarWidth, "#91C3FF", true);
             table.insert(horizontalScrollBar);
         }
         this.applyHighlightedDisabledStates(shape, table);
         return table;
     };
     private generatePreprocessingMatrix(shape: IShape, headerColumn: any[], tableData: any[], showHeaderRow: boolean): any[] {
-        var fontSize = shape.labelStyle.fontSize;
-        var fontFamily = shape.labelStyle.fontFamily;
-        var div = document.createElement("div");
+        const fontSize = shape.labelStyle.fontSize;
+        const fontFamily = shape.labelStyle.fontFamily;
+        const div = document.createElement("div");
         div.style.fontFamily = fontFamily;
         div.style.fontSize = Math.round(parseInt(fontSize, 10)) + "px";
         div.style.lineHeight = Math.round(parseInt(fontSize, 10) * parseInt(mxConstants.LINE_HEIGHT, 10)) + "px";
@@ -2417,14 +2417,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         div.innerHTML = "";
         document.body.appendChild(div);
         //we can do stuff here
-        var matrix = [];
-        var nextRow: any[];
-        var contentText: string;
-        var widthToUse: number;
-        var heightToUse: number;
+        const matrix = [];
+        let nextRow: any[];
+        let contentText: string;
+        let widthToUse: number;
+        let heightToUse: number;
         if (showHeaderRow) {
             nextRow = [];
-            for (var i = 0; i < headerColumn.length; i++) {
+            for (let i = 0; i < headerColumn.length; i++) {
                 contentText = headerColumn[i].header;
                 if (contentText === "") {
                     widthToUse = 70;
@@ -2434,14 +2434,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     widthToUse = div.offsetWidth * 1.1;
                     heightToUse = div.offsetHeight * 1.4;
                 }
-                var processedHeaderCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: true };
+                const processedHeaderCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: true };
                 nextRow.push(processedHeaderCell);
             }
             matrix.push(nextRow);
         }
-        for (var j = 0; j < tableData.length; j++) {
+        for (let j = 0; j < tableData.length; j++) {
             nextRow = [];
-            for (var k = 0; k < tableData[j].length; k++) {
+            for (let k = 0; k < tableData[j].length; k++) {
                 contentText = tableData[j][k].tableCellValue.contentText;
                 if (contentText === "") {
                     widthToUse = 70;
@@ -2451,7 +2451,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     widthToUse = div.offsetWidth * 1.1;
                     heightToUse = div.offsetHeight * 1.4;
                 }
-                var processedCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: false, rowNumber: j };
+                const processedCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: false, rowNumber: j };
                 nextRow.push(processedCell);
             }
             matrix.push(nextRow);
@@ -2523,7 +2523,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         showBorder: boolean,
         renderedIndex: number) {
 
-        var rowStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const rowStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         rowStyle[Styles.STYLE_SELECTABLE] = 0;
         rowStyle[mxConstants.STYLE_FOLDABLE] = 0;
         if (isHeader) {
@@ -2535,23 +2535,23 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 rowStyle[mxConstants.STYLE_FILLCOLOR] = "#F5F7FB";
             }
         }
-        var rowGeometry = MxFactory.geometry(0, yPosn, containerWidth, rowHeight);
-        var rowShape = MxFactory.vertex(null, rowGeometry, rowStyle.convertToString());
-        var nextCellRequired = true; //we always make the first cell, regardless of width.
-        var xPosn = 0; //keep track of xposition.
-        for (var i = 0; i < row.length; i++) {
+        const rowGeometry = MxFactory.geometry(0, yPosn, containerWidth, rowHeight);
+        const rowShape = MxFactory.vertex(null, rowGeometry, rowStyle.convertToString());
+        let nextCellRequired = true; //we always make the first cell, regardless of width.
+        let xPosn = 0; //keep track of xposition.
+        for (let i = 0; i < row.length; i++) {
             if (nextCellRequired) {
-                var cellWidth = row[i].width;
+                let cellWidth = row[i].width;
                 if (xPosn + cellWidth > containerWidth) {
                     nextCellRequired = false;
                     cellWidth = containerWidth - xPosn;
                 }
-                var text = row[i].displayText;
-                var cellStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+                const text = row[i].displayText;
+                const cellStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
                 cellStyle[Styles.STYLE_SELECTABLE] = 0;
                 cellStyle[mxConstants.STYLE_FOLDABLE] = 0;
                 cellStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
-                var cellGeometry = MxFactory.geometry(xPosn, 0, cellWidth, rowHeight);
+                const cellGeometry = MxFactory.geometry(xPosn, 0, cellWidth, rowHeight);
                 if (!isHeader) {
                     if (i === 0) {
                         cellStyle[mxConstants.STYLE_FILLCOLOR] = "#E8EFFC"; //first cell of the row has a different color.
@@ -2567,10 +2567,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     cellStyle[mxConstants.STYLE_STROKECOLOR] = "none";
                 }
                 this.applyDisabledStateForText(shape, cellStyle);
-                var label = { label: text, isRichText: false };
-                var cellShape = MxFactory.vertex(label, cellGeometry, cellStyle.convertToString());
+                const label = { label: text, isRichText: false };
+                const cellShape = MxFactory.vertex(label, cellGeometry, cellStyle.convertToString());
                 if (!isHeader && i === 0 && renderedIndex === 1) {
-                    var tableCursorMark = this.createTableCursorMark(shape, "#8CA3C2", cellWidth, rowHeight);
+                    const tableCursorMark = this.createTableCursorMark(shape, "#8CA3C2", cellWidth, rowHeight);
                     if (shape.width > 50 && shape.height > 50) {
                         cellShape.insert(tableCursorMark);
                     }
@@ -2584,7 +2584,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //makes vertical scroll bar for table shape.
     private makeTableHorizontalScrollBar = (yPosition: number, shapeWidth: number, strokeColor: string, makeStub: boolean): MxCell => {
-        var scrollBarStyle = new Style();
+        const scrollBarStyle = new Style();
         scrollBarStyle[mxConstants.STYLE_STROKECOLOR] = strokeColor;
         scrollBarStyle[mxConstants.STYLE_FILLCOLOR] = "white";
         scrollBarStyle[mxConstants.STYLE_GRADIENTCOLOR] = "#F2F4F6";
@@ -2593,41 +2593,41 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         scrollBarStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_SOUTH;
         scrollBarStyle[Styles.STYLE_SELECTABLE] = 0;
         scrollBarStyle[mxConstants.STYLE_FOLDABLE] = 0;
-        var scrollBarGeometry = MxFactory.geometry(0, yPosition, shapeWidth - 1, 19);
+        const scrollBarGeometry = MxFactory.geometry(0, yPosition, shapeWidth - 1, 19);
         scrollBarGeometry.relative = false;
-        var scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
+        const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-        var markSize = { height: 6, width: 3 };
+        const markSize = { height: 6, width: 3 };
 
         //mark
-        var mark1Style = new Style();
+        const mark1Style = new Style();
         mark1Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         mark1Style[mxConstants.STYLE_STROKEWIDTH] = 1;
         mark1Style[mxConstants.STYLE_STROKECOLOR] = "black";
         mark1Style[mxConstants.STYLE_FILLCOLOR] = "black";
         mark1Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_WEST;
         mark1Style[Styles.STYLE_SELECTABLE] = 0;
-        var mark1Geometry = MxFactory.geometry(7, 7, markSize.width, markSize.height);
+        const mark1Geometry = MxFactory.geometry(7, 7, markSize.width, markSize.height);
         mark1Geometry.relative = false;
-        var mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
+        const mark1 = MxFactory.vertex(null, mark1Geometry, mark1Style.convertToString());
         scrollBarBox.insert(mark1);
 
         //mark2
-        var mark2Style = new Style();
+        const mark2Style = new Style();
         mark2Style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_TRIANGLE;
         mark2Style[mxConstants.STYLE_STROKEWIDTH] = 1;
         mark2Style[mxConstants.STYLE_STROKECOLOR] = "black";
         mark2Style[mxConstants.STYLE_FILLCOLOR] = "black";
         mark2Style[mxConstants.STYLE_DIRECTION] = mxConstants.DIRECTION_EAST;
         mark2Style[Styles.STYLE_SELECTABLE] = 0;
-        var mark2Geometry = MxFactory.geometry(shapeWidth - 11, 7, markSize.width, markSize.height);
+        const mark2Geometry = MxFactory.geometry(shapeWidth - 11, 7, markSize.width, markSize.height);
         mark2Geometry.relative = false;
-        var mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
+        const mark2 = MxFactory.vertex(null, mark2Geometry, mark2Style.convertToString());
         scrollBarBox.insert(mark2);
 
         //scrollbar stub
         if (makeStub && shapeWidth > 55) {
-            var scrollBarStubStyle = new Style();
+            const scrollBarStubStyle = new Style();
             scrollBarStubStyle[mxConstants.STYLE_STROKECOLOR] = "#7F98A9";
             scrollBarStubStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
             scrollBarStubStyle[mxConstants.STYLE_FILLCOLOR] = "white";
@@ -2635,9 +2635,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             scrollBarStubStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_WEST;
             scrollBarStubStyle[Styles.STYLE_SELECTABLE] = 0;
             scrollBarStubStyle[mxConstants.STYLE_FOLDABLE] = 0;
-            var scrollBarStubGeometry = MxFactory.geometry(20, 0, shapeWidth / 5, 19);
+            const scrollBarStubGeometry = MxFactory.geometry(20, 0, shapeWidth / 5, 19);
             scrollBarStubGeometry.relative = false;
-            var scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
+            const scrollBarStub = MxFactory.vertex(null, scrollBarStubGeometry, scrollBarStyle.convertToString());
             scrollBarBox.insert(scrollBarStub);
         }
         return scrollBarBox;
@@ -2810,24 +2810,24 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private iconShape = (shape: IShape): MxCell => {
-        var style = <any>this.styleBuilder.createDefaultShapeStyle(shape, IconShape.shapeName);
+        const style = <any>this.styleBuilder.createDefaultShapeStyle(shape, IconShape.shapeName);
         style[mxConstants.STYLE_FOLDABLE] = 0;
 
         style.IconKey = DiagramHelper.findValueByName(shape.props, "IconKey");
         if (!style.IconKey) {
             return null;
         }
-        var icon = this.createDefaultVertex(shape, style, true);
+        const icon = this.createDefaultVertex(shape, style, true);
 
         this.applyHighlightedDisabledStates(shape, icon);
         return icon;
     };
 
     private treeview = (shape: IShape): MxCell => {
-        var showLines = (ShapeExtensions.getPropertyByName(shape, "ConnectingLines") === "Show");
-        var treeIcon = ShapeExtensions.getPropertyByName(shape, "TreeIcon");
-        var showFolder = (ShapeExtensions.getPropertyByName(shape, "Folder") === "Show");
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const showLines = (ShapeExtensions.getPropertyByName(shape, "ConnectingLines") === "Show");
+        const treeIcon = ShapeExtensions.getPropertyByName(shape, "TreeIcon");
+        const showFolder = (ShapeExtensions.getPropertyByName(shape, "Folder") === "Show");
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_STROKECOLOR] = "#657581";
@@ -2836,10 +2836,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
         style[mxConstants.STYLE_WHITE_SPACE] = "nowrap";
 
-        var treeview = this.createDefaultVertex(shape, style, true);
+        const treeview = this.createDefaultVertex(shape, style, true);
 
-        var treeItems = [];
-        for (var i = 0; i < shape.props.length; i++) {
+        const treeItems = [];
+        for (let i = 0; i < shape.props.length; i++) {
             if (shape.props[i].name === "TreeItem") {
                 shape.props[i].value.type = "TreeItem";
                 treeItems.push(shape.props[i]);
@@ -2849,20 +2849,20 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             }
         }
 
-        var levelIndentSize = 20, textWidth = 0, textHeight = 0, minTextHeight = 20, needVerticalScroll = false, sampleRect;
-        var needHorizaontalScroll = false, innerBoxHeight = shape.height - 1, originalTextHeight = 0, scrollBarSize = 18, textSize;
-        var innerBoxWidth = shape.width - 5, horzLineWidth = 10, folderIconSize = 14;
+        let levelIndentSize = 20, textWidth = 0, textHeight = 0, minTextHeight = 20, needVerticalScroll = false, sampleRect;
+        let needHorizaontalScroll = false, innerBoxHeight = shape.height - 1, originalTextHeight = 0, scrollBarSize = 18, textSize;
+        let innerBoxWidth = shape.width - 5, horzLineWidth = 10, folderIconSize = 14;
 
         //Calculating the max width and height
-        for (var j = 0; j < treeItems.length; j++) {
+        for (let j = 0; j < treeItems.length; j++) {
             sampleRect = mxUtils.getSizeForString(treeItems[j].value.text, style["fontSize"], style["fontFamily"], textSize);
             originalTextHeight = sampleRect.height * 1.1;
             textHeight = (textHeight < 30) ? sampleRect.height * 1.7 : sampleRect.height * 1.4;
             if (textHeight < minTextHeight) {
                 textHeight = minTextHeight;
             }
-            //var effectiveWidth = sampleRect.width + levelIndentSize * (childTreeItems[l].value.level.match(/./g) || []).length;
-            var leftIndent = levelIndentSize * (treeItems[j].value.level.split(".").length);
+            //const effectiveWidth = sampleRect.width + levelIndentSize * (childTreeItems[l].value.level.match(/./g) || []).length;
+            const leftIndent = levelIndentSize * (treeItems[j].value.level.split(".").length);
             if (sampleRect.width + leftIndent > textWidth) {
                 textWidth = sampleRect.width + leftIndent;
             }
@@ -2893,39 +2893,39 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
 
         //Creating Inner Box
-        var innerBox: MxCell;
-        var innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        let innerBox: MxCell;
+        const innerBoxStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         innerBoxStyle[Styles.STYLE_SELECTABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_FOLDABLE] = 0;
         innerBoxStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
         innerBoxStyle[mxConstants.STYLE_FILLCOLOR] = "#FFFFFF";
         innerBoxStyle[mxConstants.STYLE_STROKECOLOR] = "transparent";
-        var innerBoxGeometry = MxFactory.geometry(5, 1, innerBoxWidth - 1, innerBoxHeight - 1);
+        const innerBoxGeometry = MxFactory.geometry(5, 1, innerBoxWidth - 1, innerBoxHeight - 1);
         innerBox = MxFactory.vertex(null, innerBoxGeometry, innerBoxStyle.convertToString());
 
         //Creating Items
-        var lastItemEntry;
-        for (var k = 0; k < treeItems.length; k++) {
-            var listItemEntry = this.getTreeListItemEntry(shape, k, textHeight, innerBoxHeight, innerBoxWidth, treeItems[k].value);
+        let lastItemEntry;
+        for (let k = 0; k < treeItems.length; k++) {
+            const listItemEntry = this.getTreeListItemEntry(shape, k, textHeight, innerBoxHeight, innerBoxWidth, treeItems[k].value);
             //Check if the height is enough
             if (k * textHeight < innerBoxHeight) {
                 treeItems[k].value.itemGenerated = true;
 
                 //Creating Folder
-                var folderEntry = this.getTreeFolderInside(shape, k, textHeight, innerBoxWidth, treeItems, listItemEntry,
+                const folderEntry = this.getTreeFolderInside(shape, k, textHeight, innerBoxWidth, treeItems, listItemEntry,
                     originalTextHeight, showFolder, folderIconSize);
                 if (folderEntry) {
                     listItemEntry.insert(folderEntry);
                 }
 
                 //Creating Label
-                var labelEntry = this.getTreeLabelInside(shape, k, textHeight, innerBoxWidth, treeItems, listItemEntry,
+                const labelEntry = this.getTreeLabelInside(shape, k, textHeight, innerBoxWidth, treeItems, listItemEntry,
                     originalTextHeight, showFolder, folderIconSize);
                 listItemEntry.insert(labelEntry);
 
                 //adding Connecting Lines
                 if (showLines) {
-                    var reducedHeight = textHeight - listItemEntry.getGeometry().height;
+                    const reducedHeight = textHeight - listItemEntry.getGeometry().height;
                     if (reducedHeight < 10) {
                         innerBox.insert(this.getTreeHorizontalLine(shape, listItemEntry, horzLineWidth));
                     }
@@ -2937,7 +2937,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
                 //Adding Has Child Icon
                 if (treeItems[k].value.hasChildTreeItems === true && textHeight - listItemEntry.getGeometry().height < 10) {
-                    var hasChildShape;
+                    let hasChildShape;
                     if (treeIcon === "Triangle") {
                         hasChildShape = this.getTreeHasChildTriangle(shape, k, treeItems, listItemEntry, horzLineWidth);
                     } else if (treeIcon === "PlusMinus") {
@@ -2951,10 +2951,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 lastItemEntry = listItemEntry;
                 innerBox.insert(listItemEntry);
             } else if (showLines) {
-                var vertLine = this.getTreeVerticalLine(shape, listItemEntry, lastItemEntry, treeItems, k, horzLineWidth,
+                const vertLine = this.getTreeVerticalLine(shape, listItemEntry, lastItemEntry, treeItems, k, horzLineWidth,
                     textHeight, treeIcon, innerBoxHeight);
                 if (vertLine) {
-                    var lineGeometry = vertLine.getGeometry();
+                    const lineGeometry = vertLine.getGeometry();
                     if (lineGeometry.y + lineGeometry.height < innerBox.getGeometry().height + 5) {
                         innerBox.insert(vertLine);
                     }
@@ -2965,13 +2965,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         //Creating Horizontal ScrollBar
         treeview.insert(innerBox);
         if (needHorizaontalScroll) {
-            var horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
+            const horizontalScroll = this.getScrollBar(shape, true, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
             this.makeVertexUnselectable(horizontalScroll);
             treeview.insert(horizontalScroll);
         }
         //Creating Vertical ScrollBar
         if (needVerticalScroll) {
-            var verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
+            const verticalScroll = this.getScrollBar(shape, false, needHorizaontalScroll && needVerticalScroll, scrollBarSize);
             this.makeVertexUnselectable(verticalScroll);
             treeview.insert(verticalScroll);
         }
@@ -3128,7 +3128,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         vertLineStyle[Styles.STYLE_SELECTABLE] = 0;
         //vertLineStyle[mxConstants.STYLE_] = 0;
 
-        var height = this.getTreeLineHeight(listItemEntry, lastItemEntry, treeItems, k, textHeight, treeIcon);
+        let height = this.getTreeLineHeight(listItemEntry, lastItemEntry, treeItems, k, textHeight, treeIcon);
         if (height <= 0) {
             return null;
         }

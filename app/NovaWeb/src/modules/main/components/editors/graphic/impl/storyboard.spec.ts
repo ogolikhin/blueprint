@@ -46,7 +46,7 @@ describe("Rendering common shapes", () => {
     it("Frame Shape Test, First Frame With Mockup", inject(($compile: ng.ICompileService, diagramService: DiagramServiceMock, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-        var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: true };
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
@@ -58,23 +58,23 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
         
         // Assert
-        var frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
+        const frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
         expect(frameBoundary.length).toEqual(1);
 
-        var border = element.find("rect[x='100'][y='148'][width='100'][height='154'][stroke='black']");
+        const border = element.find("rect[x='100'][y='148'][width='100'][height='154'][stroke='black']");
         expect(border.length).toEqual(1);
 
-        var indicator = element.find("image[x='100'][y='286'][width='16'][height='16']");
+        const indicator = element.find("image[x='100'][y='286'][width='16'][height='16']");
         expect(indicator.length).toEqual(1);
 
-        var labelShape = element.find("rect[x='100'][y='100'][width='100'][height='48'][fill='none'][stroke='none']");
+        const labelShape = element.find("rect[x='100'][y='100'][width='100'][height='48'][fill='none'][stroke='none']");
         expect(labelShape.length).toEqual(1);
     }));
 
     it("Frame Shape Test, Not First Frame With Mockup", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-        var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
@@ -86,26 +86,26 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
 
         // Assert
-        var frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
+        const frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
         expect(frameBoundary.length).toEqual(1);
 
-        var border = element.find("rect[x='100'][y='148'][width='100'][height='154'][stroke='black']");
+        const border = element.find("rect[x='100'][y='148'][width='100'][height='154'][stroke='black']");
         expect(border.length).toEqual(1);
 
-        var indicator = element.find("rect[width='16'][height='16'][fill='#c3e4f5'][stroke='#455261']");
+        const indicator = element.find("rect[width='16'][height='16'][fill='#c3e4f5'][stroke='#455261']");
         expect(indicator.length).toEqual(0);
 
-        var labelShape = element.find("rect[x='100'][y='100'][width='100'][height='48'][fill='none'][stroke='none']");
+        const labelShape = element.find("rect[x='100'][y='100'][width='100'][height='48'][fill='none'][stroke='none']");
         expect(labelShape.length).toEqual(1);
     }));
 
     it("Frame Shape Test, Description at the bottom of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-        var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-        var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
+        const shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramServiceMock.createRichText("test description text");       
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
@@ -116,17 +116,17 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
 
         // Assert
-        var descriptionShape = element.find("rect[x='100'][y='302'][width='100'][height='48'][fill='none'][stroke='none']");
+        const descriptionShape = element.find("rect[x='100'][y='302'][width='100'][height='48'][fill='none'][stroke='none']");
         expect(descriptionShape.length).toEqual(1);
     }));
 
     it("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-         var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-        var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
+        const shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramServiceMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
@@ -137,17 +137,17 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
 
         // Assert
-        var descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
+        const descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
         expect(descriptionShape.length).toEqual(1);
     }));
 
     it("Frame Shape Test, Description at the center of the shape", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-        var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
-        var shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
+        const shape = DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramServiceMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
@@ -158,23 +158,23 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
 
         // Assert
-        var descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
+        const descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
         expect(descriptionShape.length).toEqual(1);
     }));
 
     xit("Frame Shape Test, Two connected frames", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
-        var props = new Array<Prop>();
+        const props = new Array<Prop>();
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
        
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 1, 50, 100, 250));
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 2, 300, 50, 100, 250));
 
-        var connections = [];
-        var points = [{ x: 51, y: 252 }, { x: 51, y: 310 }, { x: 150, y: 310 }, { x: 150, y: 25 }, { x: 350, y: 25 }, { x: 350, y: 98 }];
-        var connection = DiagramServiceMock.createConnection(ConnectorTypes.RIGHT_ANGLED, points);
+        const connections = [];
+        const points = [{ x: 51, y: 252 }, { x: 51, y: 310 }, { x: 150, y: 310 }, { x: 150, y: 25 }, { x: 350, y: 25 }, { x: 350, y: 98 }];
+        const connection = DiagramServiceMock.createConnection(ConnectorTypes.RIGHT_ANGLED, points);
         connection.sourceId = 1;
         connection.targetId = 1;
 
@@ -188,19 +188,19 @@ describe("Rendering common shapes", () => {
         $rootScope.$apply();
 
         // Assert
-        var frame1 = element.find("rect[x='1'][y='50'][width='100'][height='250'][fill='white'][stroke='none']");
+        const frame1 = element.find("rect[x='1'][y='50'][width='100'][height='250'][fill='white'][stroke='none']");
         expect(frame1.length).toEqual(1);
 
-        var frame2 = element.find("rect[x='300'][y='50'][width='100'][height='250'][fill='white'][stroke='none']");
+        const frame2 = element.find("rect[x='300'][y='50'][width='100'][height='250'][fill='white'][stroke='none']");
         expect(frame2.length).toEqual(1);
 
-        var pathElement = element.find("path");
+        const pathElement = element.find("path");
         expect(pathElement.length).toBe(2);
 
-        var visibility = pathElement[0].getAttribute("visibility");
+        let visibility = pathElement[0].getAttribute("visibility");
         expect(visibility).toEqual("hidden");
 
-        var dAttribute = pathElement[0].getAttribute("d");
+        let dAttribute = pathElement[0].getAttribute("d");
         expect(dAttribute).toEqual("M 51 252 L 51 310 L 150 310 L 150 25 L 350 25 L 350 98");
 
         visibility = pathElement[1].getAttribute("visibility");

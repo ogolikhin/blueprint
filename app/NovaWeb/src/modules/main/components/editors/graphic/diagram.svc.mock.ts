@@ -99,7 +99,7 @@ export class DiagramServiceMock implements IDiagramService {
     }
 
     public getDiagram(id: number): ng.IPromise<IDiagram> {
-        var deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
+        const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
         if (this.diagramMock) {
             deferred.resolve(this.diagramMock);
         } else {
@@ -111,7 +111,7 @@ export class DiagramServiceMock implements IDiagramService {
     public diagramMock: IDiagram;
 
     private static createGenericDiagramMock(): IDiagram {
-        var diagram = new Diagram();
+        const diagram = new Diagram();
         diagram.id = 555;
         diagram.diagramType = Diagrams.GENERIC_DIAGRAM;
         diagram.height = 800;
@@ -119,7 +119,7 @@ export class DiagramServiceMock implements IDiagramService {
         diagram.shapes = new Array<Shape>();
         diagram.connections = new Array<Connection>();
 
-        var shape1 = new Shape();
+        const shape1 = new Shape();
         shape1.id = 1;
         shape1.height = 80;
         shape1.width = 100;
@@ -128,7 +128,7 @@ export class DiagramServiceMock implements IDiagramService {
         shape1.label = "shape1 label";
         diagram.shapes.push(shape1);
 
-        var shape2 = new Shape();
+        const shape2 = new Shape();
         shape2.id = 2;
         shape2.height = 180;
         shape2.width = 200;
@@ -137,7 +137,7 @@ export class DiagramServiceMock implements IDiagramService {
         shape2.label = "shape2 label";
         diagram.shapes.push(shape2);
 
-        var connection1 = new Connection();
+        const connection1 = new Connection();
         connection1.id = 3;
         connection1.label = "connection label";
         connection1.sourceId = 1;
@@ -149,7 +149,7 @@ export class DiagramServiceMock implements IDiagramService {
     }
 
     public static createDiagramMock(shapes: Array<IShape>, connections?: Array<Connection>, diagramType?: string): IDiagram {
-        var diagram = new Diagram();
+        const diagram = new Diagram();
         diagram.id = 555;
         diagram.diagramType = diagramType ? diagramType : Diagrams.GENERIC_DIAGRAM;
         diagram.height = 800;
@@ -160,7 +160,7 @@ export class DiagramServiceMock implements IDiagramService {
     }
 
     public static createImageShape(x: number, y: number, w: number, h: number, aspectRatio?: boolean, url?: string): IShape {
-        var shape = new Shape();
+        const shape = new Shape();
         shape.type = "Image";
         shape.id = 2;
         shape.height = h;
@@ -170,7 +170,7 @@ export class DiagramServiceMock implements IDiagramService {
         shape.label = "Image: " + "x=" + x + "; y=" + y + "; width=" + w + "; height=" + h;
         shape.props = [];
 
-        var prop;
+        let prop;
         if (aspectRatio != null) {
             prop = new Prop();
             prop.name = "IsKeepAspectRatio";
@@ -187,7 +187,7 @@ export class DiagramServiceMock implements IDiagramService {
     }
 
     public static createShape(shapeType: string, props?: Array<Prop>, id?: number, x?: number, y?: number, w?: number, h?: number): IHierarchyElement {
-        var shape = new Shape();
+        const shape = new Shape();
         shape.type = shapeType;
         shape.id = id ? id : 1;
         shape.parentId = null;
@@ -195,14 +195,14 @@ export class DiagramServiceMock implements IDiagramService {
         shape.width = w ? w : 100;
         shape.x = x ? x : 100;
         shape.y = y ? y : 100;
-        var label = shapeType + ": " + "x=" + shape.x + "; y=" + shape.y + "; width=" + shape.width + "; height=" + shape.height;
+        const label = shapeType + ": " + "x=" + shape.x + "; y=" + shape.y + "; width=" + shape.width + "; height=" + shape.height;
         shape.label = DiagramServiceMock.createRichText(label);
         shape.props = props ? props : [];
         return <IHierarchyElement><any>shape;
     }
 
     public static createConnection(connectionType?: string, points?: Array<Point>, props?: Array<Prop>): IConnection {
-        var connection = new Connection();
+        const connection = new Connection();
         if (connectionType) {
             connection.type = connectionType;
         }

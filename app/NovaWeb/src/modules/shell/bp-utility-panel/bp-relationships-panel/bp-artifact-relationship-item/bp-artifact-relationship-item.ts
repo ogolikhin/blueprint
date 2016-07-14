@@ -59,6 +59,8 @@ export class BPArtifactRelationshipItemController {
         return this.artifactRelationships.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
+                    this.artifact.projectId = relationshipExtendedInfo.pathToProject[0].itemId;
+                    this.artifact.projectName = relationshipExtendedInfo.pathToProject[0].itemName;
                     if (relationshipExtendedInfo.pathToProject[0].itemId === this.artifact.projectId) {
                         relationshipExtendedInfo.pathToProject.shift();
                     } else {

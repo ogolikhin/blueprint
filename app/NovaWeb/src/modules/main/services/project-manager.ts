@@ -3,7 +3,7 @@ import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
 //import {IArtifactService} from "./artifact-service";
-import {tinymceMentionsData} from "../../util/tinymce-mentions.mock.ts";
+//import {tinymceMentionsData} from "../../util/tinymce-mentions.mock.ts";
 
 export {Models}
 
@@ -30,8 +30,6 @@ export interface IProjectManager {
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-//    getArtifctPropertyTypes(artifact: Models.IArtifact): Models.IPropertyType[];
-//    getArtifactPropertyFileds(artyfact: Models.IArtifact, project: Models.IArtifact): Models.IArtifactDetailFields;
 }
 
 
@@ -291,7 +289,6 @@ export class ProjectManager implements IProjectManager {
         //NOTE: current Project must have a refference if project collection has any items
         return !!this.currentProject.getValue();
     }
-
 
     public get isArtifactSelected(): boolean {
         return !!this.currentArtifact.getValue();

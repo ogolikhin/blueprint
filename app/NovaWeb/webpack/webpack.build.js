@@ -81,6 +81,7 @@ module.exports = {
          new CopyWebpackPlugin([
             // {output}/file.txt             
              { from: '**/*.view.html' },
+             { from: './web.config' },
              { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
              { from: './unsupported-browser', to: './static' },
              { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },

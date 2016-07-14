@@ -6,7 +6,59 @@ export interface IArtifactEditor {
     getModel(): any;
 }
 
+export class FieldContext implements Models.IPropertyType{
+    public id: number;
+    public versionId: number;
+    public name: string;
+    public primitiveType: Models.PrimitiveType;
+    public instancePropertyTypeId: number;
+    public isRichText: boolean;
+    public decimalDefaultValue: number;
+    public dateDefaultValue: Date;
+    public userGroupDefaultValue: any[];
+    public stringDefaultValue: string;
+    public decimalPlaces: number;
+    public maxNumber: number;
+    public minNumber: number;
+    public maxDate: Date;
+    public minDate: Date;
+    public isMultipleAllowed: boolean;
+    public isRequired: boolean;
+    public isValidated: boolean;
+    public validValues: Models.IOption[];
+    public defaultValidValueId: number;
+    public propertyTypePredefined: Models.PropertyTypePredefined;
+    public disabled: boolean;
+    //extension
+    public group: string;
+    public fieldPropertyName: string;
+    public modelPropertyName: string | number;
 
+    constructor(type: Models.IPropertyType, modelPropertyName?: string ) {
+        angular.extend(this, type);
+
+        let txtType: string = String(Models.PropertyTypePredefined[this.propertyTypePredefined]);
+        if (modelPropertyName) {
+            this.fieldPropertyName = `property_${modelPropertyName}`;
+            this.modelPropertyName = modelPropertyName;
+        } else if (angular.isDefined(type.id)) {
+            this.fieldPropertyName = `property_${this.id.toString()}`;
+            this.modelPropertyName = this.id;
+        } else if (angular.isDefined(type.propertyTypePredefined)) {
+            this.fieldPropertyName = `property_${txtType.toLowerCase()}`;
+            this.modelPropertyName = txtType.toLowerCase();
+        }
+
+        if (["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(txtType.toLowerCase()) >= 0) {
+            this.group = "system";
+        } else if (type.isRichText) {
+            this.group = "tabbed";
+        } else {
+            this.group = "custom";
+        }
+        //}
+    }
+}
 
 export class ArtifactEditor implements IArtifactEditor {
     private _artifact: Models.IArtifact;
@@ -22,11 +74,26 @@ export class ArtifactEditor implements IArtifactEditor {
         }
         this._artifact = artifact;
         this._project = project;
-        this.getArtifctPropertyTypes().forEach((it: Models.IPropertyType) => {
-            this.fields.push(this.createField(it));
+        let types = this.getArtifctPropertyTypes();
+        types.forEach((it: FieldContext) => {
+            if (it.fieldPropertyName && it.modelPropertyName) {
+                let field = this.createPropertyField(it);
+                this.fields.push(field);
+                if (typeof it.modelPropertyName === "number") {
+                    let propertyValue = this._artifact.propertyValues.filter((value) => {
+                        return value.propertyTypeId === <number>it.modelPropertyName;
+                    })[0];
+                    if (propertyValue) {
+                        this._model[it.fieldPropertyName] = propertyValue.value;
+                    }
+                } else {
+                    if (angular.isDefined(this._artifact[it.modelPropertyName])) {
+                        this._model[it.fieldPropertyName] = this._artifact[it.modelPropertyName];
+                    }
+                }
+            }
         });
     }
-
 
     public getFields(): Models.IArtifactDetailFields {
         let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
@@ -40,8 +107,7 @@ export class ArtifactEditor implements IArtifactEditor {
 
             if ("system" === it.data["group"]) {
                 fields.systemFields.push(it);
-            }
-            else if ("tabbed" === it.data["group"]) {
+            } else if ("tabbed" === it.data["group"]) {
                 fields.noteFields.push(it);
             } else {
                 fields.customFields.push(it);
@@ -55,78 +121,160 @@ export class ArtifactEditor implements IArtifactEditor {
         return this._model;
     }
 
+    private getArtifctPropertyTypes(): Models.IPropertyType[] {
+        let properties: FieldContext[] = [];
 
-    private createField(propertyType: Models.IPropertyType, name?: string): AngularFormly.IFieldConfigurationObject {
-        let field: AngularFormly.IFieldConfigurationObject = {
-            key: function () {
-                if (name) {
-                    return name;
-                }
-                if (angular.isDefined(propertyType.id))
-                    return `property_${propertyType.id}`;
-                else if (angular.isDefined(propertyType.propertyTypePredefined)) {
-                    return `property_${String(Models.PropertyTypePredefined[propertyType.propertyTypePredefined]).toLowerCase()}`;
-                }
-                return undefined;
-            } (),
-            templateOptions: {
-                label: propertyType.name,
-                required: propertyType.isRequired,
-                disabled: propertyType.disabled
-            },
-            expressionProperties: {},
-            data: {
-                group: function () {
-                    var t = String(Models.PropertyTypePredefined[propertyType.propertyTypePredefined]).toLowerCase();
-                    if (["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(t) >= 0)
-                        return "system";
-                    else if (propertyType.isRichText) {
-                        return "tabbed"
-                    }
-                    return "custom";
-                } (),
-                propertyType : propertyType
-            }
+        let _artifactType: Models.IItemType;
+        //add custom properties
+        if (this._artifact.predefinedType === Models.ItemTypePredefined.Project) {
+            _artifactType = <Models.IItemType>{
+                id: -1,
+                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                baseType: Models.ItemTypePredefined.Project,
+                customPropertyTypeIds: []
+            };
+        } else {
+            _artifactType = this._project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                return it.id === this._artifact.itemTypeId;
+            })[0];
         }
+        
+        
+        //add system properties  
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Name",
+            propertyTypePredefined: Models.PropertyTypePredefined.Name,
+            primitiveType: Models.PrimitiveType.Text,
+            isRequired: true
+        }, "name"));
+
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            
+            propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
+            primitiveType: Models.PrimitiveType.Choice,
+            validValues: function (meta: Models.IProjectMeta) {
+                if (_artifactType.baseType === Models.ItemTypePredefined.Project) {
+                    return [_artifactType];
+                }
+                return meta.artifactTypes.filter((it: Models.IItemType) => {
+                    return (_artifactType && (_artifactType.baseType === it.baseType));
+                });
+            } (this._project.meta).map(function (it) {
+                return <Models.IOption>{
+                    id: it.id,
+                    value: it.name
+                };
+            }),
+            isRequired: true
+        }, "itemTypeId"));
+
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Created by",
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
+            primitiveType: Models.PrimitiveType.Text,
+            disabled: true
+        }));
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Created on",
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            disabled: true
+        }));
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Last edited by",
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
+            primitiveType: Models.PrimitiveType.Text,
+            disabled: true
+        }));
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Last edited on",
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            disabled: true
+        }));
+        properties.push(new FieldContext(<Models.IPropertyType>{
+            name: "Description",
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            primitiveType: Models.PrimitiveType.Text,
+            isRichText: true
+        }));
+        //custom properties
+        this._project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(new FieldContext(it));
+            }
+        });
+        return properties;
+    }
+
+    private createPropertyField(context: FieldContext): AngularFormly.IFieldConfigurationObject {
+        
+        let field: AngularFormly.IFieldConfigurationObject = {
+            key: context.fieldPropertyName,
+            data: context,
+            templateOptions: {
+                label: context.name,
+                required: context.isRequired,
+                disabled: context.disabled
+            },
+            expressionProperties: {}
+        };
         //        this.data = this.propertyType;
-        switch (propertyType.primitiveType) {
+        switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
-                field.type = propertyType.isRichText ? "tinymceInline" : (propertyType.isMultipleAllowed ? "textarea" : "input");
-                field.defaultValue = propertyType.stringDefaultValue;
+                field.type = context.isRichText ? "tinymceInline" : (context.isMultipleAllowed ? "textarea" : "input");
+                field.defaultValue = context.stringDefaultValue;
                 //field.templateOptions.minlength;
                 //field.templateOptions.maxlength;
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "datepicker";
                 field.templateOptions.type = "text";
-                field.templateOptions.required = propertyType.isRequired;
-                field.templateOptions["datepickerPopup"] = "dd-MMMM-yyyy";
-                field.defaultValue = propertyType.dateDefaultValue || new Date();
                 field.templateOptions["datepickerOptions"] = {
-                    maxDate: propertyType.maxDate,
-                    minDate: propertyType.minDate
+                    maxDate: context.maxDate,
+                    minDate: context.minDate
                 };
-                //field.templateOptions.max = type.maxDate;
+                field.defaultValue = context.dateDefaultValue || new Date();
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "input";
                 field.templateOptions.type = "number";
-                field.defaultValue = propertyType.decimalDefaultValue;
-                field.templateOptions.min = propertyType.minNumber;
-                field.templateOptions.max = propertyType.maxNumber;
+                field.defaultValue = context.decimalDefaultValue;
+                field.templateOptions.min = context.minNumber;
+                field.templateOptions.max = context.maxNumber;
                 break;
             case Models.PrimitiveType.Choice:
                 field.type = "select";
-                field.defaultValue = (propertyType.defaultValidValueIndex || 0).toString();
-                if (propertyType.validValues) {
-                    field.templateOptions.options = propertyType.validValues.map(function (it, index) {
-                        return <AngularFormly.ISelectOption>{ value: index.toString(), name: it };
+                field.defaultValue = (context.defaultValidValueId || 0).toString();
+                field.templateOptions.options = [];
+                if (context.validValues) {
+                    field.templateOptions.options = context.validValues.map(function (it) {
+                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                    });
+                }
+                break;
+            case Models.PrimitiveType.User:
+                field.type = "select"; // needs to be changed to user selection
+                field.defaultValue = (context.defaultValidValueId || 0).toString();
+                field.templateOptions.options = [];
+                if (context.validValues) {
+                    field.templateOptions.options = context.validValues.map(function (it) {
+                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                    });
+                }
+                break;
+            default:
+            //case Models.PrimitiveType.Image:
+                field.type = "input"; // needs to be changed to image editor
+                field.defaultValue = (context.defaultValidValueId || 0).toString();
+                field.templateOptions.options = [];
+                if (context.validValues) {
+                    field.templateOptions.options = context.validValues.map(function (it) {
+                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
                     });
                 }
                 break;
         }
-
-
 
         return field;
 
@@ -136,89 +284,6 @@ export class ArtifactEditor implements IArtifactEditor {
     } 
 
 
-    private getArtifctPropertyTypes(): Models.IPropertyType[] {
-        let properties: Models.IPropertyType[] = [];
-        
-        let _artifactType: Models.IItemType;
-        //add custom properties
-        if (this._artifact.predefinedType === Models.ItemTypePredefined.Project) {
-            _artifactType = <Models.IItemType>{
-                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                baseType: Models.ItemTypePredefined.Project,
-                customPropertyTypeIds: []
-            }
-        } else {
-            _artifactType = this._project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === this._artifact.itemTypeId;
-            })[0];
-        }
-        
-        
-        //add system properties  
-        properties.push(<Models.IPropertyType>{
-            name: "Name",
-            propertyTypePredefined: Models.PropertyTypePredefined.Name,
-            primitiveType: Models.PrimitiveType.Text,
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Type",
-            propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
-            primitiveType: Models.PrimitiveType.Choice,
-            validValues: function (meta: Models.IProjectMeta) {
-                if (_artifactType.baseType === Models.ItemTypePredefined.Project)
-                    return [_artifactType];
-                return meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return (_artifactType && (_artifactType.baseType === it.baseType));
-                })
-            } (this._project.meta).map(function (it) {
-                return it.name;
-            }),
-            isRequired: true
-        });
-
-        properties.push(<Models.IPropertyType>{
-            name: "Created by",
-            propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-            primitiveType: Models.PrimitiveType.Text,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Created on",
-            propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
-            primitiveType: Models.PrimitiveType.Date,
-            isRequired: true,
-            // the following are test values, using DateJS
-            maxDate: (<any>(15)).days().fromNow(),
-            minDate: (<any>(15)).days().ago()
-            //disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Last edited by",
-            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
-            primitiveType: Models.PrimitiveType.Text,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Last edited on",
-            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
-            primitiveType: Models.PrimitiveType.Date,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Description",
-            propertyTypePredefined: Models.PropertyTypePredefined.Description,
-            primitiveType: Models.PrimitiveType.Text,
-            isRichText: true
-        });
-        //custom properties
-        this._project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
-        return properties;
-    }
 
 }
 

@@ -313,11 +313,11 @@ export class IconShape extends mxActor {
         if (shadow) {
             let n = <SVGElement>canvas.node;
             let shadowNode = n.previousSibling;
-            
+
             if (shadowNode != null) {
                 if (stroke) {
                     (<any>shadowNode).setAttribute("stroke-width", 0);
-                } 
+                }
                 let shadowDx = canvas.state.shadowDx * canvas.state.scale;
                 let shadowDy = canvas.state.shadowDy * canvas.state.scale;
 
@@ -330,19 +330,19 @@ export class IconShape extends mxActor {
     }
 
     public paintVertexShape(canvas: any, x: number, y: number, w: number, h: number) {
-        if (IconShape.iconData) {
-            this.drawIcon(canvas, x, y, w, h);
-        } else {
-            $.ajax({
-                type: "GET",
-                url: mxBasePath + "/icons/main.json",
-                dataType: "json",
-                async: false
-            }).then((data) => {
-                IconShape.iconData = data;
-                this.drawIcon(canvas, x, y, w, h);
-            });
+        if (!IconShape.iconData) {
+            var xmlhttp = new XMLHttpRequest();
+            var url = mxBasePath + "/icons/main.json";
+
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    IconShape.iconData = JSON.parse(xmlhttp.responseText);
+                }
+            };
+            xmlhttp.open("GET", url, false);
+            xmlhttp.send();
         }
+        this.drawIcon(canvas, x, y, w, h);
     }
 }
 

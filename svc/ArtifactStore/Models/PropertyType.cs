@@ -49,9 +49,18 @@ namespace ArtifactStore.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For JSON serialization, the property sometimes needs to be null")]
-        public List<string> ValidValues { get; set; }
+        public List<ValidValue> ValidValues { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? DefaultValidValueIndex { get; set; }
+        public int? DefaultValidValueId { get; set; }
+    }
+
+    [JsonObject]
+    public class ValidValue
+    {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; set; }
     }
 }

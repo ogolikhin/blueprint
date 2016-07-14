@@ -6,8 +6,6 @@ export interface IArtifactService {
 
 export class ArtifactService implements IArtifactService {
 
-    private promises: { [id: string]: ng.IPromise<any> } = {};
-
     public static $inject = ["$http", "$q"];
 
     constructor(private $http: ng.IHttpService, private $q: ng.IQService, private fontNormalizer: any) {
@@ -28,7 +26,7 @@ export class ArtifactService implements IArtifactService {
         this.$http(request)
             .success((result: Models.IArtifact[]) => {
                 //fake response
-                let details ={
+                let details = {
                     "orderIndex": 1,
                     "version": 1,
                     "permissions": 0,
@@ -119,9 +117,7 @@ export class ArtifactService implements IArtifactService {
 
                     ],
                     "traces": []
-                }
-
-
+                };
                 defer.resolve(details);
             }).error((err: any, statusCode: number) => {
                 var error = {

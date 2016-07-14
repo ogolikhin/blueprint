@@ -90,7 +90,6 @@ angular.module("app.main", [
     .component("bpArtifactInfo", new BpArtifactInfo())
     .component("bpArtifact", new BpArtifact())
     .component("bpDiagram", new BPDiagram())
-//    .component("bpContentSelector", new BPContentSelector())
     .value("mxUtils", mxUtils)
     .config(routesConfig)
     .config(formlyDecorate)

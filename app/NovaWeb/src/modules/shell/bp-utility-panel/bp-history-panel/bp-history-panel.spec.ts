@@ -8,7 +8,7 @@ import { ArtifactHistoryMock } from "./artifact-history.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 
-describe("Component BPHistoryPanel", () => {
+xdescribe("Component BPHistoryPanel", () => {
 
     let directiveTest: ComponentTest<BPHistoryPanelController>;
     let template = `<bp-history-panel></bp-history-panel>`;
@@ -33,7 +33,7 @@ describe("Component BPHistoryPanel", () => {
         vm = null;
     });
 
-    fit("should be visible by default", () => {
+    it("should be visible by default", () => {
         //Assert
         expect(directiveTest.element.find(".filter-bar").length).toBe(0);
         expect(directiveTest.element.find(".empty-state").length).toBe(1);

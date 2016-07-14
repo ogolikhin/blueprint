@@ -191,7 +191,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO, Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, Id);
 
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
@@ -232,7 +232,7 @@ namespace Model.ArtifactModel.Impl
                 case ItemTypePredefined.Storyboard:
                 case ItemTypePredefined.UseCaseDiagram:
                 case ItemTypePredefined.UIMockup:
-                    path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.DIAGRAM, Id);
+                    path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.DIAGRAM_id_, Id);
                     break;
                 default:
                     throw new ArgumentException("Method works for graphical artifacts only.");
@@ -269,7 +269,7 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
-                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE, Id);
+                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, Id);
                 RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
                 var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
@@ -308,7 +308,7 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
-                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY, Id);
+                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, Id);
                 RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
                 var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(

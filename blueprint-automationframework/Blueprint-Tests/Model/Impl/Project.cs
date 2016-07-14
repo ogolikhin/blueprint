@@ -90,7 +90,7 @@ namespace Model.Impl
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
             RestApiFacade restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECT, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
             return project;
@@ -134,7 +134,7 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects.MetaData.ARTIFACT_TYPES, Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, Id);
             var queryParameters = new Dictionary<string, string>();
 
             if (shouldRetrievePropertyTypes)

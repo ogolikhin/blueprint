@@ -137,7 +137,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.Processes.USERSTORIES, process.ProjectId, process.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id);
 
             if (expectedStatusCodes == null)
             {
@@ -186,7 +186,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES, artifactId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, artifactId);
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -224,7 +224,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.PROCESSES, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.PROCESSES, projectId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(Storyteller), projectId);
@@ -259,7 +259,7 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects.ArtifactTypes.USER_STORY, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.ArtifactTypes.USER_STORY, projectId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
@@ -314,7 +314,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             var additionalHeaders = new Dictionary<string, string>();
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.FileStore.FILES, file.FileName);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.FileStore.FILES_filename_, file.FileName);
 
             if (expireDate != null)
             {
@@ -562,7 +562,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES, process.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, process.Id);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);

@@ -48,7 +48,7 @@ namespace Model.StorytellerModel.Impl
         public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items.PROPERTIES, Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items_id_.PROPERTIES, Id);
                         
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();

@@ -377,7 +377,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetFolderById(int, IUser, List{HttpStatusCode})"/>
         public IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.FOLDERS, id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.FOLDERS_id_, id);
             string token = user?.Token?.AccessControlToken;
 
             RestResponse response = GetResponseFromRequest(path, id, token, expectedStatusCodes);
@@ -391,7 +391,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetFolderChildrenByFolderId(int, IUser, List{HttpStatusCode})"/>
         public List<PrimitiveFolder> GetFolderChildrenByFolderId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.Folders.CHILDREN, id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.Folders_id_.CHILDREN, id);
             List<PrimitiveFolder> primitiveFolderList = null;
             string token = user?.Token?.AccessControlToken;
 
@@ -409,7 +409,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetProjectById(int, IUser, List{HttpStatusCode})"/>
         public IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.PROJECTS, id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.PROJECTS_id_, id);
             string token = user?.Token?.AccessControlToken;
 
             RestResponse response = GetResponseFromRequest(path, id, token, expectedStatusCodes);

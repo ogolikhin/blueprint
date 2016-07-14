@@ -233,6 +233,7 @@ export class DiagramServiceMock implements IDiagramService {
     public isDiagram(itemType: ItemTypePredefined) {
         switch (itemType) {
             case ItemTypePredefined.GenericDiagram:
+            case ItemTypePredefined.UIMockup:
             case ItemTypePredefined.BusinessProcess:
             case ItemTypePredefined.DomainDiagram:
             case ItemTypePredefined.Storyboard:

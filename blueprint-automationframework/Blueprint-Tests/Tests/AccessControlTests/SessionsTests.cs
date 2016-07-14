@@ -147,51 +147,6 @@ namespace AccessControlTests
         }
 
         [TestCase]
-        [TestRail(96107)]
-        [Description("Check that GET active licenses info returns 200 OK")]
-        public void GetActiveLicensesInfo_200OK()
-        {
-            // TODO: add expected results
-            Assert.DoesNotThrow(() =>
-            {
-                Helper.AccessControl.GetLicensesInfo(LicenseState.active);
-            });
-        }
-
-        [TestCase]
-        [TestRail(96110)]
-        [Description("Check that GET locked licenses info returns 200 OK")]
-        public void GetLockedLicensesInfo_200OK()
-        {
-            ISession session = CreateAndAddSessionToAccessControl();
-
-            // TODO: add expected results
-            Assert.DoesNotThrow(() =>
-            {
-                Helper.AccessControl.GetLicensesInfo(LicenseState.locked, session: session);
-            });
-        }
-
-        [TestCase]
-        [TestRail(96109)]
-        [Description("Check that GET info about license transactions returns 200 OK")]
-        public void GetLicenseTransactionsInfo_200OK()
-        {
-            // Setup: Create a session for test.
-            ISession session = CreateAndAddSessionToAccessControl();
-            int numberOfDays = 1;
-
-            // In our test environment we have only transactions related to consumerType = 1 - regular client
-            int consumerType = 1;
-
-            // TODO: add expected results
-            Assert.DoesNotThrow(() =>
-            {
-                Helper.AccessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
-            });
-        }
-
-        [TestCase]
         [TestRail(96108)]
         [Description("Check that GET active sessiones returns active sessions.")]
         public void GetActiveSessions_VerifySessionsWereFound()

@@ -335,7 +335,7 @@ export class IconShape extends mxActor {
             var url = mxBasePath + "/icons/main.json";
 
             xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                     IconShape.iconData = JSON.parse(xmlhttp.responseText);
                 }
             };

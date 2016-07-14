@@ -6,6 +6,7 @@ import {UiMockupShapeFactory} from "./uimockup-diagram";
 import {BusinessProcessShapeFactory} from "./business-process-diagram";
 import {IShapeTemplateFactory} from "./abstract-diagram-factory";
 import {StoryboardShapeFactory} from "./storyboard";
+import {UseCaseDiagramShapeFactory} from "./usecase-diagram";
 
 export class DiagramLibraryManager {
     public getDiagramFactory(diagramType: string): IShapeTemplateFactory {
@@ -27,8 +28,8 @@ export class DiagramLibraryManager {
             //     return new StoryboardShapeFactory();
             // case Diagrams.DOMAIN_DIAGRAM:
             //     return new DomainDiagramShapeFactory();
-            // case Diagrams.USECASE_DIAGRAM:
-            //     return new UseCaseDiagramShapeFactory();
+             case Diagrams.USECASE_DIAGRAM:
+                 return new UseCaseDiagramShapeFactory();
             case Diagrams.USECASE:
                 return new UsecaseShapeFactory();
             default:

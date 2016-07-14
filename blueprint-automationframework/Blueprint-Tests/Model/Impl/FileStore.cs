@@ -13,7 +13,6 @@ namespace Model.Impl
 {
     public class FileStore : NovaServiceBase, IFileStore
     {
-        private const string SVC_PATH = "svc/filestore";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
         private IUser _user = null;
 
@@ -146,13 +145,13 @@ namespace Model.Impl
         /// <seealso cref="IFileStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.FileStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
         /// <seealso cref="IFileStore.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.FileStore.Status.UPCHECK, expectedStatusCodes);
         }
 
         /// <seealso cref="IFileStore.PostFile(IFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>

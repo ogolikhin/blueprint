@@ -131,16 +131,16 @@ namespace Model.Impl
             return response;
         }
 
-        /// <seealso cref="IBlueprintServer.GetStatus"/>
+        /// <seealso cref="IBlueprintServer.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatus("svc", preAuthorizedKey, expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
-        /// <seealso cref="IBlueprintServer.GetStatusUpcheck"/>
+        /// <seealso cref="IBlueprintServer.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck("svc", expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.Status.UPCHECK, expectedStatusCodes);
         }
 
         #endregion Inherited from IBlueprintServer

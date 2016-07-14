@@ -7,10 +7,10 @@ import {IShape, IProp} from "./models";
 import {Helper} from "../../../../../core/utils/helper";
 
 export class UiMockupShapeFactory extends AbstractShapeFactory {
-    private static highlightStrokeWidth = 2;
-    private static highlightStrokeColor = "blue";
-    private static disableStateOpacity = 55;
-    private static disableStateFillColor = "#F6F6F6";
+    public static highlightStrokeWidth = 2;
+    public static highlightStrokeColor = "blue";
+    public static disableStateOpacity = 55;
+    public static disableStateFillColor = "#F6F6F6";
 
     public initTemplates(templates: IShapeTemplates) {
         templates[UIMockupShapes.HOTSPOT] = this.hotspot;

@@ -178,7 +178,11 @@ export class ArtifactEditor implements IArtifactEditor {
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            disabled: true
+            // the following are test values, using DateJS
+            maxDate: (<any>(15)).days().fromNow(),
+            minDate: (<any>(15)).days().ago(),
+            isRequired: true
+            //disabled: true
         }));
         properties.push(new FieldContext(<Models.IPropertyType>{
             name: "Last edited by",

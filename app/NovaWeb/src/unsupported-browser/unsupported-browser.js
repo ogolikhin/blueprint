@@ -291,7 +291,7 @@ var appBootstrap = (function() {
             document.body.className += " is-safari";
         }
 
-        if (!this.executionEnvironment.isWebfontAvailable("Webfont Test") || !this.executionEnvironment.isFontFaceSupported()) {
+        if (!this.executionEnvironment.isWebfontAvailable("Blueprint Webfont Test") || !this.executionEnvironment.isFontFaceSupported()) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {

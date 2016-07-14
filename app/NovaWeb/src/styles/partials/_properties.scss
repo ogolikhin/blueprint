@@ -280,6 +280,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
     }
 
+    .error-messages {
+      position: relative;
+
+      .message {
+        font-size: $font-size-smaller;
+        position: absolute;
+        right: 0;
+      }
+    }
+
     .has-error {
       input {
         border-color: $gray-lightest;
@@ -288,6 +298,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
       select {
         border-color: $brand-error;
+      }
+
+      .error-messages {
+        color: $brand-error;
       }
     }
   }
@@ -300,6 +314,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     label {
       display: block;
       width: 100%;
+    }
+  }
+
+  .formly-field-datepicker {
+    button {
+      border-radius: 0;
+    }
+
+    .has-error button {
+      border-bottom-color: $brand-error !important;
     }
   }
 }

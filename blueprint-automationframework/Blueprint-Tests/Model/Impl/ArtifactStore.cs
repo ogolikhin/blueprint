@@ -26,13 +26,13 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatus(RestPaths.Svc.AdminStore.STATUS, preAuthorizedKey, expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.ArtifactStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(RestPaths.Svc.AdminStore.Status.UPCHECK, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.ArtifactStore.Status.UPCHECK, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetCustomArtifactTypes(IProject, IUser, List{HttpStatusCode})"/>

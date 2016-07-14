@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using Common;
 using Model.ArtifactModel.Impl;
-using Model.ArtifactModel;
 using Utilities;
 using Model.Factories;
 using Utilities.Facades;
@@ -49,7 +48,7 @@ namespace Model.Impl
 
             Logger.WriteInfo("Getting artifact types for project ID: {0}.", project.Id);
 
-            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/meta/customtypes", SVC_PATH, project.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Meta.CUSTOM_TYPES, project.Id);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectCustomArtifactTypesResult>(
@@ -79,145 +78,125 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
         public List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
-            ISession session = null;
-            List<Artifact> artifactList = null;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            if (user != null)
-                session = SessionFactory.CreateSessionWithToken(user);
-
-            RestResponse response = GetResponseFromRequest(path, projectId, session, expectedStatusCodes);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                artifactList = JsonConvert.DeserializeObject<List<Artifact>>(response.Content);
-                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
-            }
-
-            return artifactList;
+            return restApi.SendRequestAndDeserializeObject<List<Artifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
         public List<Artifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);
-            ISession session = null;
-            List <Artifact> artifactList = null;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            if (user != null)
-                session = SessionFactory.CreateSessionWithToken(user);
-
-            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                artifactList = JsonConvert.DeserializeObject<List<Artifact>>(response.Content);
-                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
-            }
-
-            return artifactList;
+            return restApi.SendRequestAndDeserializeObject<List<Artifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
-        private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
-        {
-            RestApiFacade restApi;
-            if (session != null)
-                restApi = new RestApiFacade(Address, string.Empty);
-            else
-                restApi = new RestApiFacade(Address, null);
-
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
-            Dictionary<string, string> additionalHeaders = null;
-
-            if (session != null)
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
-
-            try
-            {
-                Logger.WriteInfo("Getting artifact - " + id);
-                return restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            }
-            catch (WebException ex)
-            {
-                Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while getting response - {0}", ex.Message);
-                throw;
-            }
-        }
-
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
         public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
             bool? sortByDateAsc = null, int? limit = null, int? offset = null, 
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/version", SVC_PATH, artifactId);
 
-            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
-
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION, artifactId);
             Dictionary<string, string> queryParameters = null;
+
             if ((sortByDateAsc != null) || (limit != null) || (offset != null))
             {
                 queryParameters = new Dictionary<string, string>();
+
                 if (sortByDateAsc != null)
                 {
                     queryParameters.Add("asc", sortByDateAsc.ToString());
-                };
+                }
+
                 if (limit != null)
                 {
                     queryParameters.Add("limit", limit.ToString());
                 }
+
                 if (offset != null)
                 {
                     queryParameters.Add("offset", offset.ToString());
                 }
             }
 
-            var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
 
             return artifactHistory.ArtifactHistoryVersions;
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactDiscussions(int, IUser, List{HttpStatusCode})"/>
         public Discussions GetArtifactDiscussions(int itemId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions", SVC_PATH, itemId);
 
-            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
-            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(path,
-                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, itemId);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
             return artifactDiscussions;
         }
 
+        /// <seealso cref="IArtifactStore.GetDiscussionsReplies(Comment, IUser, List{HttpStatusCode})"/>
         public List<Reply> GetDiscussionsReplies(Comment comment, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(comment, nameof(comment));
-                string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions/{2}/replies", SVC_PATH, comment.ItemId, comment.DiscussionId);
 
-                var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
-                var discussionReplies = restApi.SendRequestAndDeserializeObject<List<Reply>>(path,
-                    RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-                return discussionReplies;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.Discussions_id_.REPLIES, comment.ItemId, comment.DiscussionId);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var discussionReplies = restApi.SendRequestAndDeserializeObject<List<Reply>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return discussionReplies;
         }
 
+        /// <seealso cref="IArtifactStore.GetItemsAttachment(int, IUser, bool?, List{HttpStatusCode})"/>
         public Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/attachment", SVC_PATH, itemId);
 
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, itemId);
             Dictionary<string, string> queryParameters = null;
+
             if (addDrafts != null)
             {
                 queryParameters = new Dictionary<string, string> { { "addDrafts", addDrafts.ToString() } };
             }
 
-            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
-            var attachment = restApi.SendRequestAndDeserializeObject<Attachment>(path,
-                RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var attachment = restApi.SendRequestAndDeserializeObject<Attachment>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
             return attachment;
         }
 

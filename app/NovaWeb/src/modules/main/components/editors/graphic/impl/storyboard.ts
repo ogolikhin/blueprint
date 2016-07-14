@@ -1,8 +1,8 @@
 import {Shapes, ShapeProps, Diagrams} from "./utils/constants";
-import {MxFactory, ShapeExtensions, Color} from "./utils/helpers";
+import {MxFactory, ShapeExtensions} from "./utils/helpers";
 import {IShape} from "./models";
 import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
-import {Style, StyleBuilder} from "./utils/style-builder";
+import {Style} from "./utils/style-builder";
 
 
 export class StoryboardShapeFactory extends AbstractShapeFactory {
@@ -15,22 +15,22 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
     }
 
     private frame = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_LABEL_POSITION] = mxConstants.ALIGN_CENTER;
 
-        var frame = this.createDefaultVertex(shape, style, true);
-        var geometry = MxFactory.geometry(0, 0, shape.width, shape.height - this.frameMargin * 2);
+        const frame = this.createDefaultVertex(shape, style, true);
+        const geometry = MxFactory.geometry(0, 0, shape.width, shape.height - this.frameMargin * 2);
         geometry.relative = true;
         geometry.offset = MxFactory.point(0, this.frameMargin);
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKECOLOR] = "black";
-        var border = MxFactory.vertex(null, geometry, style.convertToString());
+        const border = MxFactory.vertex(null, geometry, style.convertToString());
         frame.insert(border);
 
-        var isFirst = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_FIRST);
+        const isFirst = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_FIRST);
         if (isFirst) {
             frame.insert(this.createIndicator());
         }
@@ -44,38 +44,38 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
     };
 
     private createIndicator(): MxCell {
-        var style = new Style();
+        const style = new Style();
         style[mxConstants.STYLE_SHAPE] = "first";
         style[Diagrams.STYLE_SELECTABLE] = 0;
-        var indicator = MxFactory.vertex(null, MxFactory.geometry(0, 1, 16, 16), style.convertToString());
+        const indicator = MxFactory.vertex(null, MxFactory.geometry(0, 1, 16, 16), style.convertToString());
         indicator.getGeometry().relative = true;
         indicator.getGeometry().offset = MxFactory.point(0, -16 - this.frameMargin);
         return indicator;
     }
 
     private createLabelShape(shape: IShape): MxCell {
-        var style = new Style();
+        const style = new Style();
         style[Diagrams.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_ALIGN] = shape.labelTextAlignment;
         style[mxConstants.STYLE_WHITE_SPACE] = "nowrap";
-        var labelShape = MxFactory.vertex(shape.label, MxFactory.geometry(0, 0, shape.width, this.frameMargin), style.convertToString());
+        const labelShape = MxFactory.vertex(shape.label, MxFactory.geometry(0, 0, shape.width, this.frameMargin), style.convertToString());
         labelShape.getGeometry().relative = true;
         return labelShape;
     }
 
     private createDescriptionShape(shape: IShape, hasMockup: boolean): MxCell {
-        var style = new Style();
+        const style = new Style();
         style[Diagrams.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         style[mxConstants.STYLE_WHITE_SPACE] = "nowrap";
-        var geometry: MxGeometry;
-        var offset: MxPoint;
+        let geometry: MxGeometry;
+        let offset: MxPoint;
         if (hasMockup) {
             geometry = MxFactory.geometry(0, 0, shape.width, this.frameMargin);
             offset = MxFactory.point(0, shape.height - this.frameMargin);
@@ -83,7 +83,7 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
             geometry = MxFactory.geometry(0, 0, shape.width, shape.height - this.frameMargin * 2);
             offset = MxFactory.point(0, this.frameMargin);
         }
-        var labelShape = MxFactory.vertex(shape.description, geometry, style.convertToString());
+        const labelShape = MxFactory.vertex(shape.description, geometry, style.convertToString());
         geometry.relative = true;
         geometry.offset = offset;
         return labelShape;

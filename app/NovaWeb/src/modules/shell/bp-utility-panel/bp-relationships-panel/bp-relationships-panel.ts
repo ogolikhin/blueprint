@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Relationships, Models} from "../../../main";
+import { IProjectManager, Models} from "../../../main";
 import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";

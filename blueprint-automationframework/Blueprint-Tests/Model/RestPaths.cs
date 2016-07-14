@@ -210,6 +210,23 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class FileStore
+            {
+                public const string FILES                           = "svc/filestore/files";
+
+                /// <summary>
+                /// Delete/Get/Head/Put files in FileStore.  {0} = File GUID.
+                /// </summary>
+                public const string FILES_id_                       = "svc/filestore/files/{0}";
+                public const string STATUS                          = "svc/filestore/status";
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/filestore/status/upcheck";
+                }
+            }
+
             public static class Shared
             {
                 public static class Artifacts

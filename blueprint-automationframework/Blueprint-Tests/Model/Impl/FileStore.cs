@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
-using System.Text;
 using System.Web;
 using Common;
 using NUnit.Framework;
@@ -18,10 +17,6 @@ namespace Model.Impl
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
         private IUser _user = null;
 
-        #region Inherited from IFileStore
-
-        public List<IFileMetadata> Files { get; } = new List<IFileMetadata>();
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -33,7 +28,12 @@ namespace Model.Impl
             Address = address;
         }
 
-        /// <seealso cref="IFileStore.AddFile"/>
+        #region Inherited from IFileStore
+
+        /// <seealso cref="IFileStore.Files"/>
+        public List<IFileMetadata> Files { get; } = new List<IFileMetadata>();
+
+        /// <seealso cref="IFileStore.AddFile(IFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
         public IFile AddFile(IFile file,
             IUser user,
             DateTime? expireTime = null,
@@ -79,19 +79,19 @@ namespace Model.Impl
             return postedFile;
         }
 
-        /// <seealso cref="IFileStore.GetFile"/>
+        /// <seealso cref="IFileStore.GetFile(string, IUser, List{HttpStatusCode}, bool)"/>
         public IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             return GetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        /// <seealso cref="IFileStore.GetFileMetadata"/>
+        /// <seealso cref="IFileStore.GetFileMetadata(string, IUser, List{HttpStatusCode}, bool)"/>
         public IFileMetadata GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        /// <seealso cref="IFileStore.DeleteFile"/>
+        /// <seealso cref="IFileStore.DeleteFile(string, IUser, DateTime?, List{HttpStatusCode}, bool)"/>
         public void DeleteFile(string fileId,
             IUser user,
             DateTime? expireTime = null,
@@ -122,7 +122,7 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.FileStore.FILES_id_, fileId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             try
@@ -143,19 +143,19 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IFileStore.GetStatus"/>
+        /// <seealso cref="IFileStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
         }
 
-        /// <seealso cref="IFileStore.GetStatusUpcheck"/>
+        /// <seealso cref="IFileStore.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
-        /// <seealso cref="IFileStore.PostFile"/>
+        /// <seealso cref="IFileStore.PostFile(IFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>
         public IFile PostFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
@@ -197,9 +197,9 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/files", SVC_PATH);
-
+            var path = RestPaths.Svc.FileStore.FILES;
             var restApi = new RestApiFacade(Address, tokenValue);
+
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.POST,
@@ -225,7 +225,7 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="IFileStore.PutFile"/>
+        /// <seealso cref="IFileStore.PutFile(IFile, byte[], IUser, bool, List{HttpStatusCode}, bool)"/>
         public IFile PutFile(IFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
@@ -255,8 +255,9 @@ namespace Model.Impl
                         HttpUtility.UrlEncode(file.FileName, System.Text.Encoding.UTF8)));
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.FileStore.FILES_id_, file.Id);
             var restApi = new RestApiFacade(Address, tokenValue);
+
             restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PUT,
@@ -271,6 +272,15 @@ namespace Model.Impl
             return file;
         }
 
+        /// <summary>
+        /// Gets a file from FileStore.
+        /// </summary>
+        /// <param name="fileId">The GUID of the file to get.</param>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="webRequestMethod">The request method (GET, HEAD...).</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.OK.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header.</param>
+        /// <returns>The file that was requested.</returns>
         private IFile GetFile(string fileId,
             IUser user,
             RestRequestMethod webRequestMethod,
@@ -292,7 +302,7 @@ namespace Model.Impl
             }
 
             var restApi = new RestApiFacade(Address, tokenValue);
-            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.FileStore.FILES_id_, fileId);
 
             var response = restApi.SendRequestAndGetResponse(
                 path, 

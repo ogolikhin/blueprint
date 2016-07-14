@@ -162,7 +162,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     showWeeks: false,
                     startingDay: (<any> moment.localeData()).firstDayOfWeek()
                 },
-                datepickerAppendToBody: true
+                datepickerAppendToBody: true,
+                clearText: localization.get("Datepicker_Clear"),
+                closeText: localization.get("Datepicker_Done"),
+                currentText: localization.get("Datepicker_Today")
             },
             validation: {
                 messages: {

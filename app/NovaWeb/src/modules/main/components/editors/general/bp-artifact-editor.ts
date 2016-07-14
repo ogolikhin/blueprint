@@ -1,12 +1,12 @@
-﻿import { Models} from "../../..";
-
+﻿import * as moment from "moment";
+import { Models} from "../../..";
 
 export interface IArtifactEditor {
     getFields(): Models.IArtifactDetailFields;
     getModel(): any;
 }
 
-export class FieldContext implements Models.IPropertyType{
+export class FieldContext implements Models.IPropertyType {
     public id: number;
     public versionId: number;
     public name: string;
@@ -179,8 +179,8 @@ export class ArtifactEditor implements IArtifactEditor {
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
             // the following are test values, using DateJS
-            maxDate: (<any>(15)).days().fromNow(),
-            minDate: (<any>(15)).days().ago(),
+            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
+            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
             isRequired: true
             //disabled: true
         }));

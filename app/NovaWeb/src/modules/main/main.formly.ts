@@ -1,6 +1,7 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
+import * as moment from "moment";
 import {ILocalizationService} from "../core";
 import {Helper} from "../core/utils/helper";
 
@@ -9,7 +10,7 @@ formlyDecorate.$inject = ["$provide"];
 export function formlyDecorate($provide): void {
     delegated.$inject = ["$delegate"];
     function delegated($delegate) {
-        var value = $delegate.DATETIME_FORMATS;
+        let value = $delegate.DATETIME_FORMATS;
 
         value.SHORTDAY = [
             "S",
@@ -27,11 +28,12 @@ export function formlyDecorate($provide): void {
     $provide.decorator("$locale", delegated);
 }
 
-/* tslint:disable */
-
 formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
-export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService): void {
-    var attributes = [
+/* tslint:disable */
+export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
+): void {
+/* tslint:enable */
+    let attributes = [
         "date-disabled",
         "custom-class",
         "show-weeks",
@@ -56,13 +58,17 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         "datepicker-append-to-body"
     ];
 
-    var bindings = [
+    let bindings = [
         "datepicker-mode",
         "min-date",
         "max-date"
     ];
+    
+    let ngModelAttrs = {};
 
-    var ngModelAttrs = {};
+    function uiDatePickerFormatAdaptor(format: string): string  {
+        return format.replace(/D/g, "d").replace(/Y/g, "y");
+    }
 
     angular.forEach(attributes, function(attr) {
         ngModelAttrs[Helper.camelCase(attr)] = {attribute: attr};
@@ -71,8 +77,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     angular.forEach(bindings, function(binding) {
         ngModelAttrs[Helper.camelCase(binding)] = {bound: binding};
     });
-
-    //console.log(ngModelAttrs);
 
     formlyConfig.setType({
         name: "tinymce",
@@ -87,9 +91,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
         }
     });
+
     formlyConfig.setType({
         name: "tinymceInline",
+        /* tslint:disable */
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
+        /* tslint:enable */
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
             data: { // using data property
@@ -122,8 +129,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
      </div>`
      });*/
     //formlyValidationMessages.addStringMessage("dateIsBetweenMinMax", "This field is required");
+
     formlyConfig.setType({
         name: "datepicker",
+        /* tslint:disable */
         template: `<div class="form-datepicker input-group">
                 <input type="text"
                     id="{{::id}}"
@@ -142,12 +151,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                 <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
             </div>`,
+        /* tslint:enable */
         wrapper: ["bootstrapLabel", "bootstrapHasError"],
         defaultOptions: {
             ngModelAttrs: ngModelAttrs,
             templateOptions: {
                 datepickerOptions: {
-                    format: "dd/MM/yyyy",
+                    format: uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L")),
                     formatDay: "d",
                     formatDayHeader: "EEE",
                     initDate: new Date(),
@@ -167,11 +177,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         let minDate = scope.to["datepickerOptions"].minDate;
 
                         if (value && minDate) {
-                            value = (<any>Date).parse(value).clearTime();
-                            minDate = (<any>Date).parse(minDate).clearTime();
+                            value = moment(value).startOf("day");
+                            minDate = moment(minDate).startOf("day");
 
-                            let isGreaterThanMin = (<any>Date).compare(value, minDate) >= 0;
-                            let messageText = localization.get("Property_Must_Be_Greater") + " " + minDate.toString("dd/MM/yyyy");
+                            let isGreaterThanMin = value.isSameOrAfter(minDate, "day");
+                            let messageText = localization.get("Property_Must_Be_Greater") + " " + minDate.format("L");
                             let messageId = scope.id + "-dateIsGreaterThanMin";
 
                             if (!isGreaterThanMin) {
@@ -191,11 +201,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         let maxDate = scope.to["datepickerOptions"].maxDate;
 
                         if (value && maxDate) {
-                            value = (<any>Date).parse(value).clearTime();
-                            maxDate = (<any>Date).parse(maxDate).clearTime();
+                            value = moment(value).startOf("day");
+                            maxDate = moment(maxDate).startOf("day");
 
-                            let isLessThanMax = (<any>Date).compare(value, maxDate) <= 0;
-                            let messageText = localization.get("Property_Must_Be_Less") + " " + maxDate.toString("dd/MM/yyyy");
+                            let isLessThanMax = value.isSameOrBefore(maxDate, "day");
+                            let messageText = localization.get("Property_Must_Be_Less") + " " + maxDate.format("L");
                             let messageId = scope.id + "-dateIsLessThanMax";
 
                             if (!isLessThanMax) {
@@ -216,7 +226,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (typeof (currentModelVal) == 'string'){
+            if (typeof (currentModelVal) === "string") {
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
@@ -228,4 +238,3 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         }]
     });
 }
-/* tslint:enable */

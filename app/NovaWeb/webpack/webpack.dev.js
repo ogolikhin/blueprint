@@ -39,7 +39,7 @@ module.exports = {
             'angular-perfect-scrollbar-2',
             'tinymce',
             'mxClient',
-            'datejs'
+            'moment'
         ]
 },
     output: {
@@ -103,7 +103,6 @@ module.exports = {
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' },
-             { from: '../node_modules/datejs/src/i18n', to: './libs/datejs/i18n' },
              { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
              { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }

@@ -30,7 +30,7 @@ namespace Model.Impl
         public IFile GetLog(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address);
-            var path = I18NHelper.FormatInvariant("{0}/log/getlog", SVC_PATH);
+            var path = RestPaths.Svc.ConfigControl.Log.GET_LOG;
 
             var response = restApi.SendRequestAndGetResponse(
                 path,

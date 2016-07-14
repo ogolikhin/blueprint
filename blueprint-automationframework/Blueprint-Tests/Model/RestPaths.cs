@@ -225,6 +225,32 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class ConfigControl
+            {
+                public const string LOG                             = "svc/configcontrol/log";
+
+                /// <summary>
+                /// Gets config settings.  {0} is a bool for the allowRestricted parameter.
+                /// </summary>
+                public const string SETTINGS_bool_                  = "svc/configcontrol/settings/{0}";
+                public const string STATUS                          = "svc/configcontrol/status";
+
+                public static class Log
+                {
+                    public const string CLOG                        = "svc/configcontrol/log/CLog";
+                    public const string STANDARD_LOG                = "svc/configcontrol/log/StandardLog";
+                    public const string PERFORMANCE_LOG             = "svc/configcontrol/log/PerformanceLog";
+                    public const string SQL_TRACE_LOG               = "svc/configcontrol/log/SQLTraceLog";
+                    public const string GET_LOG                     = "svc/configcontrol/log/GetLog";
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/configcontrol/status/upcheck";
+                }
+            }
+
             public static class Shared
             {
                 public static class Artifacts

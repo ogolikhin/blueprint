@@ -3,7 +3,6 @@ import {IDiagram, IShape, IConnection, IProp, ILabelStyle, IPoint, IHierarchyEle
 import {IDiagramService} from "./diagram.svc";
 import {Diagrams} from "./impl/utils/constants";
 
-
 export class Diagram implements IDiagram {
     public id: number;
     public diagramType: string;
@@ -12,7 +11,6 @@ export class Diagram implements IDiagram {
     public shapes: IShape[];
     public connections: IConnection[];
     public libraryVersion: number;
-
 }
 
 export class Shape implements IShape {
@@ -97,15 +95,9 @@ export class DiagramServiceMock implements IDiagramService {
 
     public getDiagram(id: number): ng.IPromise<IDiagram> {
         const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
-        if (this.diagramMock) {
-            deferred.resolve(this.diagramMock);
-        } else {
-            deferred.resolve(DiagramServiceMock.genericDiagram);
-        }
+        deferred.resolve(DiagramServiceMock.genericDiagram);
         return deferred.promise;
     }
-
-    public diagramMock: IDiagram;
 
     private static createGenericDiagramMock(): IDiagram {
         const diagram = new Diagram();

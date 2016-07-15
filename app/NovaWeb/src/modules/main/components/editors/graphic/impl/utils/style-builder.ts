@@ -77,6 +77,7 @@ export class StyleBuilder {
             style[mxConstants.STYLE_DASHED] = 1;
             style[mxConstants.STYLE_DASH_PATTERN] = shape.strokeDashPattern;
         }
+        style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         return this.applyLabelStyle(style, shape.labelStyle);
     };
 

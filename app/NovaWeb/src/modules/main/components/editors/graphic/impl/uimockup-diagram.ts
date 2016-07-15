@@ -255,6 +255,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         labelStyle[mxConstants.STYLE_FILLCOLOR] = "transparent";
         labelStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
         labelStyle[Styles.STYLE_SELECTABLE] = 0;
+        labelStyle[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         this.applyDisabledStateForText(shape, labelStyle);
         const labelGeometry = MxFactory.geometry(
             0,

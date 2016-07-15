@@ -3,21 +3,14 @@ import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");
 
-import {BPDiagram} from "../../../../components/editors/graphic/bp-diagram";
-import {StencilServiceMock} from '../stencil.svc.mock';
 import {DiagramServiceMock, Prop, LabelStyle} from '../diagram.svc.mock';
+import {DiagramView} from "./diagram-view";
 import {UIMockupShapes, UIMockupShapeProps, Diagrams, Shapes} from "./utils/constants";
 import {UiMockupShapeFactory} from "./uimockup-diagram";
-import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
+import {IShapeTemplates} from "./abstract-diagram-factory";
 import {IShape, IProp} from "./models";
 import {CalloutShape, IconShape} from "./shapes-library";
-import {ProjectManager} from "../../../../services/project-manager";
-import {LocalizationServiceMock} from "../../../../../core/localization.mock";
-import {MessageServiceMock} from "../../../../../shell/messages/message.mock";
-import {ProjectRepository} from "../../../../services/project-repository";
-import {ComponentTest} from "../../../../../util/component.test";
-import {BPDiagramController} from "../bp-diagram";
-import {ItemTypePredefined} from "../../../../models/enums";
+import {StencilServiceMock} from "../stencil.svc.mock";
 
 export var uiMockupShapesTestHelper = {
     getStyleObject: (styleString: string): any => {
@@ -32,40 +25,27 @@ export var uiMockupShapesTestHelper = {
 };
 
 describe("UIMockup", () => {
-    let componentTest: ComponentTest<BPDiagramController>;
-    const validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
-    let vm: BPDiagramController;
-
     let element: ng.IAugmentedJQuery;
+    let diagramView: DiagramView;
 
     beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.component("bpDiagram", new BPDiagram());
         $provide.service("stencilService", StencilServiceMock);
-        $provide.service("diagramService", DiagramServiceMock);
-        $provide.service("projectManager", ProjectManager);
-        $provide.service("localization", LocalizationServiceMock);
-        $provide.service("messageService", MessageServiceMock);
-        $provide.service("projectRepository", ProjectRepository);
-        //$provide.service("artifactSelector", ArtifactSelector);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
-        componentTest = new ComponentTest<BPDiagramController>(validUseDirectiveHtml, "bp-diagram");
-        vm = componentTest.createComponent({});
-        element = componentTest.element;
+    beforeEach(inject((stencilService: StencilServiceMock) => {
+        const divElement = document.createElement("div");
+        element = angular.element(divElement);
+        diagramView = new DiagramView(element[0], stencilService);
     }));
 
-    it("Hotspot Test, Element Exists", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Hotspot Test, Element Exists", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HOTSPOT));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const hotspotElement = element.find("rect");
@@ -73,26 +53,24 @@ describe("UIMockup", () => {
         const rectNode = hotspotElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#646464");
         expect(rectNode.getAttribute("fill").toLowerCase()).toEqual("#bdd0e6");
-    }));
+    });
 
-    it("Hyperlink Test, Label css", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Hyperlink Test, Label css", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HYPERLINK));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const labelContainer = element.find("div:contains('Hyperlink:')");
         expect(labelContainer.css("vertical-align")).toEqual("top");
         expect(labelContainer.css("overflow")).toEqual("hidden");
-    }));
+    });
 
-    it("TextBox label styling test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("TextBox label styling test", () => {
         // Arrange
         const eventShapes = [];
         const shape = DiagramServiceMock.createShape(UIMockupShapes.TEXTBOX);
@@ -113,11 +91,9 @@ describe("UIMockup", () => {
 
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const textBoxContainer = element.find("div:contains('TextBoxValue')");
@@ -131,36 +107,32 @@ describe("UIMockup", () => {
         expect(textBoxContainer.css("text-decoration")).toEqual("underline");
 
         expect(textBoxContainer.css("color")).toEqual("rgb(0, 0, 255)");
-    }));
+    });
 
-    it("Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Button Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.BUTTON));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const buttonElement = element.find("rect");
         expect(buttonElement.length).toEqual(1);
         const rectNode = buttonElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
-    }));
+    });
 
-    it("Drop Down Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Drop Down Button Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DROPDOWNBUTTON));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const buttonElement = element.find("rect");
@@ -174,18 +146,16 @@ describe("UIMockup", () => {
         expect(markElement.length).toEqual(1);
         const mark = markElement[0];
         expect(mark.getAttribute("stroke").toLowerCase()).toEqual("black");
-    }));
+    });
 
-    it("Split Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Split Button Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.SPLITBUTTON));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const buttonElement = element.find("rect");
@@ -202,11 +172,11 @@ describe("UIMockup", () => {
         expect(markElement.length).toEqual(1);
         const mark = markElement[0];
         expect(mark.getAttribute("stroke").toLowerCase()).toEqual("black");
-    }));
+    });
 
 
 
-    it("Checkbox checked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Checkbox checked Test", () => {
         // Arrange
         const eventShapes = [];
         const checkedProperty = new Prop();
@@ -214,36 +184,32 @@ describe("UIMockup", () => {
         checkedProperty.value = "true";
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX, [checkedProperty]));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const path = element.find("path");
         expect(path.length === 1).toBeTruthy();
-    }));
+    });
 
-    it("Checkbox unchecked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Checkbox unchecked Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const checkBoxContainer = element.find("div:contains('CheckBox:')");
         expect(checkBoxContainer !== null).toBeTruthy();
         const path = element.find("path");
         expect(path.length === 0).toBeTruthy();
-    }));
+    });
 
-    it("RadioButton checked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("RadioButton checked Test", () => {
         // Arrange
         const eventShapes = [];
         const checkedProperty = new Prop();
@@ -251,64 +217,56 @@ describe("UIMockup", () => {
         checkedProperty.value = "true";
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON, [checkedProperty]));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const ellipse = element.find("ellipse");
         expect(ellipse.length === 3).toBeTruthy();
-    }));
+    });
 
-    it("RadioButton unchecked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("RadioButton unchecked Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const ellipse = element.find("ellipse");
         expect(ellipse.length === 2).toBeTruthy();
-    }));
+    });
 
 
-    it("frame Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("frame Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.FRAME));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const frameElement = element.find("rect");
         expect(frameElement.length).toEqual(4);
         const rectNode = frameElement[2];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#a9bfd6");
-    }));
+    });
 
 
-    it("date time picker test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $injector, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("date time picker test", inject(($injector) => {
         // Arrange
         $.fn.injector = () => $injector;
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const rect = element.find("rect");
@@ -325,42 +283,38 @@ describe("UIMockup", () => {
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
     }));
 
-    it("Numeric spinner Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Numeric spinner Test", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.NUMERIC_SPINNER));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const triangle = element.find("path");
         expect(triangle.length === 2).toBeTruthy();
-    }));
+    });
 
 
-    it("Text Area", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Text Area", () => {
         // Arrange
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.TEXT_AREA));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const textAreaElement = element.find("rect");
         expect(textAreaElement.length).toEqual(2);
         const rectNode = textAreaElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#7f98a9");
-    }));
+    });
 
-    it("Menu General Test", inject(() => {
+    it("Menu General Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -414,9 +368,9 @@ describe("UIMockup", () => {
         expect(menuLabel.indexOf("File")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("View")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("&#10004;")).toBeGreaterThan(0);
-    }));
+    });
 
-    it("Menu Bold Underlined Test", inject(() => {
+    it("Menu Bold Underlined Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -461,9 +415,9 @@ describe("UIMockup", () => {
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("5");
 
-    }));
+    });
 
-    it("Menu Underlined Test", inject(() => {
+    it("Menu Underlined Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -508,9 +462,9 @@ describe("UIMockup", () => {
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("4");
 
-    }));
+    });
 
-    it("Menu Italic Underlined Test", inject(() => {
+    it("Menu Italic Underlined Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -555,9 +509,9 @@ describe("UIMockup", () => {
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("6");
 
-    }));
+    });
 
-    it("Menu Italic Test", inject(() => {
+    it("Menu Italic Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -602,9 +556,9 @@ describe("UIMockup", () => {
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("2");
 
-    }));
+    });
 
-    it("Menu Horizontal Test", inject(() => {
+    it("Menu Horizontal Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -646,9 +600,9 @@ describe("UIMockup", () => {
         const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
-    }));
+    });
 
-    it("Alpha Hex Color To RGB Test", inject(() => {
+    it("Alpha Hex Color To RGB Test", () => {
         // Arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const normalHexColor = "#52d57e";
@@ -667,9 +621,9 @@ describe("UIMockup", () => {
         expect(wrongHexColorResult).toEqual(wrongHexColor);
         expect(shortHexColorResult).toEqual(shortHexColor);
         expect(emptyHexColorResult).toEqual(emptyHexColor);
-    }));
+    });
 
-    it("Browser Template Test", inject(() => {
+    it("Browser Template Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -699,9 +653,9 @@ describe("UIMockup", () => {
         const contentBoxStyleString = browserShape["children"][1].getStyle();
         const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
-    }));
+    });
 
-    it("Browser Template Test Scroll Bar", inject(() => {
+    it("Browser Template Test Scroll Bar", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -732,9 +686,9 @@ describe("UIMockup", () => {
         const contentBoxStyleString = browserShape["children"][1].getStyle();
         const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
-    }));
+    });
 
-    it("window shape test", inject(() => {
+    it("window shape test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -792,9 +746,9 @@ describe("UIMockup", () => {
         const childShape = uiMockupShapesTestHelper.getStyleObject(windowShape.children[1].style);
         //children are not selectable
         expect(childShape.selectable).toEqual("0");
-    }));
+    });
 
-    it("Highlight Test", inject(() => {
+    it("Highlight Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -816,9 +770,9 @@ describe("UIMockup", () => {
         const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["strokeWidth"]).toEqual(UiMockupShapeFactory.highlightStrokeWidth.toString());
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
-    }));
+    });
 
-    it("Highlight callout Test", inject(() => {
+    it("Highlight callout Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -843,9 +797,9 @@ describe("UIMockup", () => {
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
         expect(style["shape"]).toEqual(CalloutShape.getName);
 
-    }));
+    });
 
-    it("Disable Test", inject(() => {
+    it("Disable Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -867,9 +821,9 @@ describe("UIMockup", () => {
         const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["fillColor"]).toEqual(UiMockupShapeFactory.disableStateFillColor);
         expect(style["opacity"]).toEqual(UiMockupShapeFactory.disableStateOpacity.toString());
-    }));
+    });
 
-    it("DropDown List Test", inject(() => {
+    it("DropDown List Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -894,9 +848,9 @@ describe("UIMockup", () => {
         expect(cellChildren.length > 0).toBeTruthy();
         const lastChild = cellChildren[cellChildren.length - 1];
         expect(lastChild.value).toEqual(itemName);
-    }));
+    });
 
-    it("Text Area No Scroll Bar", inject(() => {
+    it("Text Area No Scroll Bar", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -922,9 +876,9 @@ describe("UIMockup", () => {
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(1);
-    }));
+    });
 
-    it("Text Area Scroll Bar", inject(() => {
+    it("Text Area Scroll Bar", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -951,9 +905,9 @@ describe("UIMockup", () => {
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(2);
-    }));
+    });
 
-    it("Slider Test", inject(() => {
+    it("Slider Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -979,9 +933,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["rounded"]).toEqual("1");
-    }));
+    });
 
-    it("Scrollbar Vertical Test", inject(() => {
+    it("Scrollbar Vertical Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1007,9 +961,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
-    }));
+    });
 
-    it("Scrollbar Horizontal Test", inject(() => {
+    it("Scrollbar Horizontal Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1035,9 +989,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
-    }));
+    });
 
-    it("ProgressBar Test", inject(() => {
+    it("ProgressBar Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1063,9 +1017,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("highlightEllipse");
-    }));
+    });
 
-    it("List Box", inject(() => {
+    it("List Box", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1092,9 +1046,9 @@ describe("UIMockup", () => {
         expect(style.strokeWidth).toEqual("1");
         expect(style.strokeColor).toEqual("#808080");
         expect(mxCell["children"].length).toEqual(2);
-    }));
+    });
 
-    it("Accordion Normal Test", inject(() => {
+    it("Accordion Normal Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1131,9 +1085,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Accordion With Scrollbars Test", inject(() => {
+    it("Accordion With Scrollbars Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1191,9 +1145,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Tab", inject(() => {
+    it("Tab", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1254,9 +1208,9 @@ describe("UIMockup", () => {
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(2);
         expect(mxCell["children"][1].children.length).toEqual(6);
-    }));
+    });
 
-    it("Tab Orientation left", inject(() => {
+    it("Tab Orientation left", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1322,9 +1276,9 @@ describe("UIMockup", () => {
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(3);
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("Tab Orientation right", inject(() => {
+    it("Tab Orientation right", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1387,9 +1341,9 @@ describe("UIMockup", () => {
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(3);
-    }));
+    });
 
-    it("Tab Orientation botttom", inject(() => {
+    it("Tab Orientation botttom", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1453,9 +1407,9 @@ describe("UIMockup", () => {
         expect(mxCell).not.toBeNull();
 
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("Tab Orientation top", inject(() => {
+    it("Tab Orientation top", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1518,9 +1472,9 @@ describe("UIMockup", () => {
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("ContextMenu General Test", inject(() => {
+    it("ContextMenu General Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1572,9 +1526,9 @@ describe("UIMockup", () => {
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("ContextMenu Small Shape Test", inject(() => {
+    it("ContextMenu Small Shape Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1626,9 +1580,9 @@ describe("UIMockup", () => {
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("icon shape data's IconKey can be extracted and passed alone", inject(() => {
+    it("icon shape data's IconKey can be extracted and passed alone", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = {};
@@ -1650,9 +1604,9 @@ describe("UIMockup", () => {
         const iconStyle = uiMockupShapesTestHelper.getStyleObject(iconShape.style);
         expect(iconStyle.IconKey).toEqual("_new1");
         expect(iconStyle.shape).toEqual(IconShape.shapeName);
-    }));
+    });
 
-    it("TreeView General Test", inject(() => {
+    it("TreeView General Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1718,9 +1672,9 @@ describe("UIMockup", () => {
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("TreeView Small Width & Height Test", inject(() => {
+    it("TreeView Small Width & Height Test", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -1801,9 +1755,9 @@ describe("UIMockup", () => {
         const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Table Test, no horizontal scroll bar.", inject(() => {
+    it("Table Test, no horizontal scroll bar.", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -2004,10 +1958,10 @@ describe("UIMockup", () => {
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");
         expect(innerBoxStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
 
-    it("Table Test, horizontal scroll bar.", inject(() => {
+    it("Table Test, horizontal scroll bar.", () => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -2208,6 +2162,6 @@ describe("UIMockup", () => {
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");
         expect(innerBoxStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
 });

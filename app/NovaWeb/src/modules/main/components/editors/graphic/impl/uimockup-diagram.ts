@@ -176,8 +176,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
         const rect = mxUtils.getSizeForString(shape.label, style["fontSize"], style["fontFamily"], null);
         let labelWidth = rect.width + 5;
-        if (labelWidth > shape.width - 30)
+        if (labelWidth > shape.width - 30) {
             labelWidth = shape.width - 30;
+        }
         geometry = MxFactory.geometry(0, 0, labelWidth, rect.height * 1.22);
         geometry.relative = true;
         geometry.offset = MxFactory.point(20, -(rect.height / 2 - 16));
@@ -192,21 +193,6 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
         this.applyHighlightedDisabledStates(shape, frame);
         return frame;
-    };
-
-    private getSizeForString = (text) => {
-        const div = document.createElement("div");
-        div.style.position = "absolute";
-        div.style.visibility = "hidden";
-        div.style.display = "inline-block";
-        div.style.zoom = "1";
-        div.style.whiteSpace = "nowrap";
-        div.innerHTML = text;
-        document.body.appendChild(div);
-        let clientRect = div.getBoundingClientRect();
-        let size = new mxRectangle(0, 0, clientRect.width, clientRect.height);
-        document.body.removeChild(div);
-        return size;
     };
 
     private dateTimePicker = (shape: IShape): MxCell => {

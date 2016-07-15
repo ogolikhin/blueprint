@@ -1,10 +1,7 @@
 import {ItemTypePredefined} from "../../../models/enums";
-import {FontNormalizer} from "./impl/utils/font-normalizer";
 import {IDiagram, IShape, IConnection, IProp, ILabelStyle, IPoint, IHierarchyElement} from "./impl/models";
-import {IUseCase} from "./impl/usecase/models";
-import {UsecaseToDiagram} from "./impl/usecase/usecase-to-diagram";
 import {IDiagramService} from "./diagram.svc";
-import {Shapes, ShapeProps, Diagrams} from "./impl/utils/constants";
+import {Diagrams} from "./impl/utils/constants";
 
 
 export class Diagram implements IDiagram {
@@ -227,9 +224,11 @@ export class DiagramServiceMock implements IDiagramService {
         return connection;
     }
 
+    /* tslint:disable:max-line-length */
     public static createRichText(plainText: string) {
         return "<html><head></head><body style=\"padding: 1px 0px 0px; font-size: 11px\"><div style=\"font-size: 11px\"><p style=\"margin: 0px; font-size: 11px; text-align: center\"><span style=\"font-size: 11px\">" + plainText + "</span></p></div></body></html>";
     }
+    /* tslint:enable:max-line-length */
 
     public isDiagram(itemType: ItemTypePredefined) {
         switch (itemType) {

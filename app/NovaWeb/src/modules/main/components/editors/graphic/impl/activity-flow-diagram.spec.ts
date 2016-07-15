@@ -3,11 +3,11 @@ import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");
 
-import {Shapes, ShapeProps} from "./utils/constants";
+import {Shapes} from "./utils/constants";
 import {IShape, IConnection} from "../impl/models";
 import {StepOfType} from "../impl/usecase/models";
 import {Style} from "./utils/style-builder";
-import {UsecaseToDiagram, IUseCaseShape} from "./usecase/usecase-to-diagram";
+import {IUseCaseShape} from "./usecase/usecase-to-diagram";
 import {UsecaseShapeFactory} from "./activity-flow-diagram";
 import {IShapeTemplates} from "./abstract-diagram-factory";
 

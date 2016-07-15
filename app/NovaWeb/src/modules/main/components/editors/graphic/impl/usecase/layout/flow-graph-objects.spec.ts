@@ -4,7 +4,6 @@ import {FlowGraph} from "./flow-graph";
 import {LayoutResult} from "./layout-result";
 import {ConnectionInfo} from "./connection-info";
 
-
 describe("FlowGraphObjects", () => {
     it("Flow.addNode method throws error 'Node is already part of another flow'", () => {
         //arrange
@@ -14,7 +13,7 @@ describe("FlowGraphObjects", () => {
         //act
         var act = () => {
             flow.addNode(node);
-        }
+        };
         //assert
         expect(act).toThrow(Error("Node is already part of another flow"));
     });
@@ -26,7 +25,7 @@ describe("FlowGraphObjects", () => {
         //act
         var act = () => {
             node.addAlternateFlow(flow);
-        }
+        };
         //assert
         expect(act).toThrow(Error("Alternate flow is already assigned"));
     });

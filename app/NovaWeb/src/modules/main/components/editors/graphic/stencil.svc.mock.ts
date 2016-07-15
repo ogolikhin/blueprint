@@ -1,5 +1,6 @@
 ﻿import {IStencilService} from "./impl/stencil.svc";
     export class StencilServiceMock implements IStencilService {
+        /* tslint:disable:max-line-length */
         public getStencil(diagramType: string): HTMLElement {
             let data: string;
             switch (diagramType) {
@@ -33,6 +34,5 @@
                 return stencil;
             }
         }
+        /* tslint:enable:max-line-length */
     }
-
-

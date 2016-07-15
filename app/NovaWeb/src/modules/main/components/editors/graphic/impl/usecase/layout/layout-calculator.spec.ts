@@ -4,6 +4,8 @@ import {AlternateFlow, Node} from "./flow-graph-objects";
 import {ConnectionInfo} from "./connection-info";
 import {UsecaseToDiagram} from "../usecase-to-diagram";
 
+
+/* tslint:disable:max-line-length */
 describe("LayoutCalculator ", () => {
     var calculator: LayoutCalculator;
     beforeEach(() => {
@@ -17,12 +19,12 @@ describe("LayoutCalculator ", () => {
     });
     var createNode = (graph: FlowGraph): Node => {
         var node = graph.createNode();
-        node.size = { width: 150, height: 60 }
+        node.size = { width: 150, height: 60 };
         return node;
     };
     var createBranchingNode = (graph: FlowGraph): Node => {
         var node = graph.createNode();
-        node.size = { width: 30, height: 30 }
+        node.size = { width: 30, height: 30 };
         return node;
     };
 
@@ -33,7 +35,7 @@ describe("LayoutCalculator ", () => {
         //act
         var act = () => {
             calculator.arrangeGraph(graph);
-        }
+        };
         //assert
         expect(act).toThrow(Error("At least one flow has no nodes"));
     });
@@ -46,7 +48,7 @@ describe("LayoutCalculator ", () => {
         //act
         var act = () => {
             calculator.arrangeGraph(graph);
-        }
+        };
         //assert
         expect(act).toThrow(Error("At least one alternate row has no start node"));
     });
@@ -62,7 +64,7 @@ describe("LayoutCalculator ", () => {
         //act
         var act = () => {
             calculator.arrangeGraph(graph);
-        }
+        };
         //assert
         expect(act).toThrow(Error("At least one alternate row has no end node"));
     });
@@ -74,7 +76,7 @@ describe("LayoutCalculator ", () => {
         //act
         var act = () => {
             calculator.arrangeGraph(graph);
-        }
+        };
         //assert
         expect(act).toThrow(Error("At least one node is not part of any flow"));
     });

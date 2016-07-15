@@ -4,7 +4,7 @@ import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");
 
-import {Shapes, ShapeProps, Diagrams, ConnectorTypes} from "./utils/constants";
+import {Diagrams, ConnectorTypes} from "./utils/constants";
 import {DiagramServiceMock, Prop} from "../diagram.svc.mock";
 import {StencilServiceMock} from "../stencil.svc.mock";
 import {Point} from "../impl/models";

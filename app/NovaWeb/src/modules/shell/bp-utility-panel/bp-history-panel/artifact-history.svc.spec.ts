@@ -1,8 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
-import { IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
-import { Models } from "../../../main";
+import {IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
+import {Models} from "../../../main";
 
 describe("Artifact History Service", () => {
 

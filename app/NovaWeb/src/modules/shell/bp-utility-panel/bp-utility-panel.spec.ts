@@ -12,13 +12,14 @@ import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachm
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../main/services/project-manager";
 
-xdescribe("Component BPUtilityPanel", () => {
+describe("Component BPUtilityPanel", () => {
 
     let directiveTest: ComponentTest<BPUtilityPanelController>;
     let template = `<bp-utility-panel></bp-utility-panel>`;
     let vm: BPUtilityPanelController;
 
     beforeEach(angular.mock.module("app.shell"));
+    beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);

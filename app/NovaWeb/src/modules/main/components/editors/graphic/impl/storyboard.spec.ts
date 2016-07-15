@@ -5,23 +5,19 @@ require("script!mxClient");
 
 import {Shapes, ShapeProps, Diagrams, ConnectorTypes} from "./utils/constants";
 import {DiagramServiceMock, Prop} from '../diagram.svc.mock';
-import {BPDiagram} from "../../../../components/editors/graphic/bp-diagram";
 import {StencilServiceMock} from '../stencil.svc.mock';
 import {Point} from "../impl/models";
 import {ProjectManager} from "../../../../services/project-manager";
-import {ItemTypePredefined} from "../../../../models/enums";
 import {ProjectRepository} from "../../../../services/project-repository";
 import {MessageServiceMock} from "../../../../../shell/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization.mock";
-import {ComponentTest} from "../../../../../util/component.test";
 import {DiagramView} from "./diagram-view";
 
 describe("Rendering common shapes", () => {
     let element: ng.IAugmentedJQuery;
     let diagramView: DiagramView;
 
-    beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-      //  $compileProvider.component("bpDiagram", new BPDiagram());
+    beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {     
         $provide.service("stencilService", StencilServiceMock);
         $provide.service("diagramService", DiagramServiceMock);
         $provide.service("projectManager", ProjectManager);

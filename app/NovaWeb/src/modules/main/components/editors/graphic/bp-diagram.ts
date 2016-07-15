@@ -4,6 +4,8 @@ import {IStencilService} from "./impl/stencil.svc";
 import {IDiagramService} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {IProjectManager, Models} from "../../../../main";
+import {ILocalizationService } from "../../../../core";
+import {IMessageService} from "../../../../shell";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -16,7 +18,9 @@ export class BPDiagramController {
         "$sanitize",
         "stencilService", 
         "diagramService",
-        "projectManager"
+        "projectManager",
+        "localization",
+        "messageService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -27,7 +31,9 @@ export class BPDiagramController {
         private $sanitize: any,
         private stencilService: IStencilService,
         private diagramService: IDiagramService,
-        private projectManager: IProjectManager) {
+        private projectManager: IProjectManager,
+        private localization: ILocalizationService,
+        private messageService: IMessageService) {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
@@ -52,12 +58,16 @@ export class BPDiagramController {
         }
 
         if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
-            this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-            this.diagramView.sanitize = this.$sanitize;
-
             this.diagramService.getDiagram(artifact.id, artifact.predefinedType).then(diagram => {
-                this.stylizeSvg(this.$element, diagram.width, diagram.height);
-                this.diagramView.drawDiagram(diagram);
+                if (diagram.libraryVersion === 0) {
+                    const message = this.localization.get("Diagram_OldFormat_Message");
+                    this.messageService.addError(message);
+                } else {
+                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                    this.diagramView.sanitize = this.$sanitize;
+                    this.stylizeSvg(this.$element, diagram.width, diagram.height);
+                    this.diagramView.drawDiagram(diagram);
+                }
             });
         }
     }

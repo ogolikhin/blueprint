@@ -33,7 +33,7 @@ export var uiMockupShapesTestHelper = {
 
 describe("UIMockup", () => {
     let componentTest: ComponentTest<BPDiagramController>;
-    let validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
+    const validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
     let vm: BPDiagramController;
 
     let element: ng.IAugmentedJQuery;
@@ -188,19 +188,19 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let buttonElement = element.find("rect");
+        const buttonElement = element.find("rect");
         expect(buttonElement.length).toEqual(3);
-        let rectNode1 = buttonElement[0];
+        const rectNode1 = buttonElement[0];
         expect(rectNode1.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
-        let rectNode2 = buttonElement[1];
+        const rectNode2 = buttonElement[1];
         expect(rectNode2.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
-        let rectNode3 = buttonElement[1];
+        const rectNode3 = buttonElement[1];
         expect(rectNode3.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         expect(rectNode3.getAttribute("fill").toLowerCase()).toEqual("transparent");
-        let markElement = element.find("path");
+        const markElement = element.find("path");
         expect(markElement.length).toEqual(1);
-        let mark = markElement[0];
+        const mark = markElement[0];
         expect(mark.getAttribute("stroke").toLowerCase()).toEqual("black");
     }));
 
@@ -221,7 +221,7 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let path = element.find("path");
+        const path = element.find("path");
         expect(path.length === 1).toBeTruthy();
     }));
 
@@ -237,9 +237,9 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let checkBoxContainer = element.find("div:contains('CheckBox:')");
+        const checkBoxContainer = element.find("div:contains('CheckBox:')");
         expect(checkBoxContainer !== null).toBeTruthy();
-        let path = element.find("path");
+        const path = element.find("path");
         expect(path.length === 0).toBeTruthy();
     }));
 
@@ -258,7 +258,7 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let ellipse = element.find("ellipse");
+        const ellipse = element.find("ellipse");
         expect(ellipse.length === 3).toBeTruthy();
     }));
 
@@ -274,7 +274,7 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let ellipse = element.find("ellipse");
+        const ellipse = element.find("ellipse");
         expect(ellipse.length === 2).toBeTruthy();
     }));
 
@@ -291,18 +291,16 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let frameElement = element.find("rect");
+        const frameElement = element.find("rect");
         expect(frameElement.length).toEqual(4);
-        let rectNode = frameElement[2];
+        const rectNode = frameElement[2];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#a9bfd6");
     }));
 
 
     it("date time picker test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $injector, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
-        $.fn.injector = function () {
-            return $injector;
-        };
+        $.fn.injector = () => $injector;
         const eventShapes = [];
         eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
@@ -313,17 +311,17 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let rect = element.find("rect");
+        const rect = element.find("rect");
         expect(rect.length).toEqual(3);
 
         //
-        let rectNode0 = rect[0];
+        const rectNode0 = rect[0];
         expect(rectNode0.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         //
-        let rectNode1 = rect[1];
+        const rectNode1 = rect[1];
         expect(rectNode1.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         //
-        let rectNode2 = rect[2];
+        const rectNode2 = rect[2];
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
     }));
 
@@ -339,7 +337,7 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let triangle = element.find("path");
+        const triangle = element.find("path");
         expect(triangle.length === 2).toBeTruthy();
     }));
 
@@ -356,9 +354,9 @@ describe("UIMockup", () => {
         $rootScope.$apply();
 
         // Assert
-        let textAreaElement = element.find("rect");
+        const textAreaElement = element.find("rect");
         expect(textAreaElement.length).toEqual(2);
-        let rectNode = textAreaElement[0];
+        const rectNode = textAreaElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#7f98a9");
     }));
 
@@ -398,21 +396,21 @@ describe("UIMockup", () => {
         };
 
         //act
-        const menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
 
-        expect(menuShapeBIU["children"].length).toBeGreaterThan(0);
-        let contentStyleString = menuShapeBIU["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        expect(menuShapeBiu["children"].length).toBeGreaterThan(0);
+        const contentStyleString = menuShapeBiu["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["verticalAlign"]).toEqual("top");
 
-        let menuLabel: string = menuShapeBIU["children"][0].value;
+        const menuLabel: string = menuShapeBiu["children"][0].value;
         expect(menuLabel.indexOf("File")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("View")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("&#10004;")).toBeGreaterThan(0);
@@ -454,11 +452,11 @@ describe("UIMockup", () => {
         };
 
         //act
-        let menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("5");
@@ -501,11 +499,11 @@ describe("UIMockup", () => {
         };
 
         //act
-        let menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("4");
@@ -548,11 +546,11 @@ describe("UIMockup", () => {
         };
 
         //act
-        let menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("6");
@@ -595,11 +593,11 @@ describe("UIMockup", () => {
         };
 
         //act
-        let menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("2");
@@ -642,10 +640,10 @@ describe("UIMockup", () => {
         };
 
         //act
-        let menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
         //assert
-        let menuStyleString = menuShapeBIU["style"];
-        let menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
     }));
@@ -659,10 +657,10 @@ describe("UIMockup", () => {
         const emptyHexColor = "";
 
         // Act
-        let normalHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, normalHexColor);
-        let wrongHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, wrongHexColor);
-        let shortHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, shortHexColor);
-        let emptyHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, emptyHexColor);
+        const normalHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, normalHexColor);
+        const wrongHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, wrongHexColor);
+        const shortHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, shortHexColor);
+        const emptyHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, emptyHexColor);
 
         // Assert
         expect(normalHexColorResult).not.toEqual(normalHexColor);
@@ -684,22 +682,22 @@ describe("UIMockup", () => {
         };
 
         //act
-        let browserShape = templates["Browser"](<IShape>shape);
+        const browserShape = templates["Browser"](<IShape>shape);
         //assert
-        let browserStyleString = browserShape["style"];
-        let browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
+        const browserStyleString = browserShape["style"];
+        const browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
         expect(browserStyle["strokeWidth"]).toEqual("2");
         expect(browserStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(browserStyle["fillColor"]).toEqual("none");
 
-        let topBarStyleString = browserShape["children"][0].getStyle();
-        let topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
+        const topBarStyleString = browserShape["children"][0].getStyle();
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
         expect(topBarStyle["strokeWidth"]).toEqual("2");
         expect(topBarStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(topBarStyle["fillColor"]).toEqual("#DBE5F3");
 
-        let contentBoxStyleString = browserShape["children"][1].getStyle();
-        let contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
+        const contentBoxStyleString = browserShape["children"][1].getStyle();
+        const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
     }));
 
@@ -717,22 +715,22 @@ describe("UIMockup", () => {
         };
 
         //act
-        let browserShape = templates["Browser"](<IShape>shape);
+        const browserShape = templates["Browser"](<IShape>shape);
         //assert
-        let browserStyleString = browserShape["style"];
-        let browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
+        const browserStyleString = browserShape["style"];
+        const browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
         expect(browserStyle["strokeWidth"]).toEqual("2");
         expect(browserStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(browserStyle["fillColor"]).toEqual("none");
 
-        let topBarStyleString = browserShape["children"][0].getStyle();
-        let topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
+        const topBarStyleString = browserShape["children"][0].getStyle();
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
         expect(topBarStyle["strokeWidth"]).toEqual("2");
         expect(topBarStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(topBarStyle["fillColor"]).toEqual("#DBE5F3");
 
-        let contentBoxStyleString = browserShape["children"][1].getStyle();
-        let contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
+        const contentBoxStyleString = browserShape["children"][1].getStyle();
+        const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
     }));
 
@@ -776,27 +774,27 @@ describe("UIMockup", () => {
         };
 
         //act
-        let windowShape = <any>templates["Window"](<IShape>shape);
+        const windowShape = <any>templates["Window"](<IShape>shape);
 
         //assert
-        let windowStyle = uiMockupShapesTestHelper.getStyleObject(windowShape["style"]);
+        const windowStyle = uiMockupShapesTestHelper.getStyleObject(windowShape["style"]);
         //
         expect(windowStyle.strokeWidth).toEqual("2");
         expect(windowStyle.strokeColor).toEqual("#A8BED5");
 
-        let topBarStyle = uiMockupShapesTestHelper.getStyleObject(windowShape.children[0].style);
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(windowShape.children[0].style);
         expect(topBarStyle.strokeWidth).toEqual("2");
         expect(topBarStyle.strokeColor).toEqual("#A8BED5");
         expect(topBarStyle.fillColor).toEqual("#DBE6F4");
 
 
         //strokeColor=#A9BFD6;foldable=0;selectable=0;
-        let childShape = uiMockupShapesTestHelper.getStyleObject(windowShape.children[1].style);
+        const childShape = uiMockupShapesTestHelper.getStyleObject(windowShape.children[1].style);
         //children are not selectable
         expect(childShape.selectable).toEqual("0");
     }));
 
-    it("Highlight Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Highlight Test", inject(() => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
@@ -808,14 +806,14 @@ describe("UIMockup", () => {
         highlightProp.value = "true";
         shape.props = [highlightProp];
         //act
-        let mxCell = templates[UIMockupShapes.BUTTON](shape);
+        const mxCell = templates[UIMockupShapes.BUTTON](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(mxCell).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        let firstChild = cellChildren[0];
-        let style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[0];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["strokeWidth"]).toEqual(UiMockupShapeFactory.highlightStrokeWidth.toString());
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
     }));
@@ -827,46 +825,46 @@ describe("UIMockup", () => {
         uiMockupShapeFactory.initDefaultTemplates(templates);
         //uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        let shape = <IShape>{};
-        let highlightProp = <IProp>{};
+        const shape = <IShape>{};
+        const highlightProp = <IProp>{};
         highlightProp.name = "IsNodeHighlighted";
         highlightProp.value = "true";
         shape.props = [highlightProp];
         //act
-        let mxCell = templates[Shapes.CALLOUT](shape);
+        const mxCell = templates[Shapes.CALLOUT](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        let firstChild = cellChildren[0];
-        let style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[0];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["strokeWidth"]).toEqual(UiMockupShapeFactory.highlightStrokeWidth.toString());
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
         expect(style["shape"]).toEqual(CalloutShape.getName);
 
     }));
 
-    it("Disable Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Disable Test", inject(() => {
         //arrange
         const uiMockupShapeFactory = new UiMockupShapeFactory();
         const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
         const shape = <IShape>{};
-        let stateProperty = <IProp>{};
+        const stateProperty = <IProp>{};
         stateProperty.name = "State";
         stateProperty.value = "Disabled";
         shape.props = [stateProperty];
         //act
-        let mxCell = templates[UIMockupShapes.NUMERIC_SPINNER](shape);
+        const mxCell = templates[UIMockupShapes.NUMERIC_SPINNER](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 3).toBeTruthy();
-        let firstChild = cellChildren[3];
-        let style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[3];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["fillColor"]).toEqual(UiMockupShapeFactory.disableStateFillColor);
         expect(style["opacity"]).toEqual(UiMockupShapeFactory.disableStateOpacity.toString());
     }));
@@ -877,24 +875,24 @@ describe("UIMockup", () => {
         const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape properties here.
-        let shape = <IShape>{};
-        let listItemProp = <IProp>{};
+        const shape = <IShape>{};
+        const listItemProp = <IProp>{};
         listItemProp.name = "ListItem";
-        let itemName = "ItemName";
-        let value = {
+        const itemName = "ItemName";
+        const value = {
             checked: true,
             name: itemName
         };
         listItemProp.value = value;
         shape.props = [listItemProp];
         //act
-        let mxCell = templates[UIMockupShapes.DROPDOWN_LIST](shape);
+        const mxCell = templates[UIMockupShapes.DROPDOWN_LIST](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        let lastChild = cellChildren[cellChildren.length - 1];
+        const lastChild = cellChildren[cellChildren.length - 1];
         expect(lastChild.value).toEqual(itemName);
     }));
 
@@ -917,10 +915,10 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(1);
@@ -946,10 +944,10 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(2);
@@ -972,13 +970,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let sliderShape = templates["Slider"](<IShape>shape);
+        const sliderShape = templates["Slider"](<IShape>shape);
 
         //assert
 
         expect(sliderShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = sliderShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = sliderShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["rounded"]).toEqual("1");
     }));
@@ -1000,13 +998,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let scrollShape = templates["Scrollbar"](<IShape>shape);
+        const scrollShape = templates["Scrollbar"](<IShape>shape);
 
         //assert
 
         expect(scrollShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = scrollShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = scrollShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
     }));
@@ -1028,13 +1026,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let scrollShape = templates["Scrollbar"](<IShape>shape);
+        const scrollShape = templates["Scrollbar"](<IShape>shape);
 
         //assert
 
         expect(scrollShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = scrollShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = scrollShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
     }));
@@ -1056,13 +1054,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let progressShape = templates["ProgressBar"](<IShape>shape);
+        const progressShape = templates["ProgressBar"](<IShape>shape);
 
         //assert
 
         expect(progressShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = progressShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = progressShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("highlightEllipse");
     }));
@@ -1087,10 +1085,10 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.LIST](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.LIST](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("1");
         expect(style.strokeColor).toEqual("#808080");
         expect(mxCell["children"].length).toEqual(2);
@@ -1124,13 +1122,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let accordionShape = templates["Accordion"](<IShape>shape);
+        const accordionShape = templates["Accordion"](<IShape>shape);
 
         //assert
 
         expect(accordionShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = accordionShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = accordionShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
     }));
@@ -1184,13 +1182,13 @@ describe("UIMockup", () => {
         };
 
         //act
-        let accordionShape = templates["Accordion"](<IShape>shape);
+        const accordionShape = templates["Accordion"](<IShape>shape);
 
         //assert
 
         expect(accordionShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = accordionShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = accordionShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
     }));
@@ -1249,10 +1247,10 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(2);
         expect(mxCell["children"][1].children.length).toEqual(6);
@@ -1317,10 +1315,10 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        let style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(3);
         expect(mxCell["children"][1].children.length).toEqual(5);
@@ -1385,7 +1383,7 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(3);
@@ -1450,7 +1448,7 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
 
@@ -1516,7 +1514,7 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        let mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(5);
@@ -1560,17 +1558,17 @@ describe("UIMockup", () => {
         };
 
         //act
-        let contextMenuShape = templates["ContextMenu"](<IShape>shape);
+        const contextMenuShape = templates["ContextMenu"](<IShape>shape);
 
         //assert
-        let contextMenuStyleString = contextMenuShape["style"];
-        let contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = contextMenuShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FCFCFC");
 
         expect(contextMenuShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = contextMenuShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = contextMenuShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
@@ -1614,17 +1612,17 @@ describe("UIMockup", () => {
         };
 
         //act
-        let contextMenuShape = templates["ContextMenu"](<IShape>shape);
+        const contextMenuShape = templates["ContextMenu"](<IShape>shape);
 
         //assert
-        let contextMenuStyleString = contextMenuShape["style"];
-        let contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = contextMenuShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FCFCFC");
 
         expect(contextMenuShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = contextMenuShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = contextMenuShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
@@ -1647,9 +1645,9 @@ describe("UIMockup", () => {
         };
 
         //act
-        let iconShape = templates[IconShape.shapeName](<IShape>shape);
+        const iconShape = templates[IconShape.shapeName](<IShape>shape);
         //
-        let iconStyle = uiMockupShapesTestHelper.getStyleObject(iconShape.style);
+        const iconStyle = uiMockupShapesTestHelper.getStyleObject(iconShape.style);
         expect(iconStyle.IconKey).toEqual("_new1");
         expect(iconStyle.shape).toEqual(IconShape.shapeName);
     }));
@@ -1706,17 +1704,17 @@ describe("UIMockup", () => {
         };
 
         //act
-        let treeViewShape = templates["Tree"](<IShape>shape);
+        const treeViewShape = templates["Tree"](<IShape>shape);
 
         //assert
-        let contextMenuStyleString = treeViewShape["style"];
-        let contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = treeViewShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FFFFFF");
 
         expect(treeViewShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = treeViewShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = treeViewShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
@@ -1790,17 +1788,17 @@ describe("UIMockup", () => {
         };
 
         //act
-        let treeViewShape = templates["Tree"](<IShape>shape);
+        const treeViewShape = templates["Tree"](<IShape>shape);
 
         //assert
-        let contextMenuStyleString = treeViewShape["style"];
-        let contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = treeViewShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FFFFFF");
 
         expect(treeViewShape["children"].length).toBeGreaterThan(0);
-        let contentStyleString = treeViewShape["children"][0].getStyle();
-        let contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = treeViewShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
     }));
@@ -1990,18 +1988,18 @@ describe("UIMockup", () => {
         };
 
         //act
-        let tableShape = templates["Table"](<IShape>shape);
+        const tableShape = templates["Table"](<IShape>shape);
 
         //assert
-        let tableStyle = tableShape["style"];
-        let tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
+        const tableStyle = tableShape["style"];
+        const tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
         expect(tableStyleString["strokeWidth"]).toEqual("1");
         expect(tableStyleString["strokeColor"]).toEqual("#91C3FF");
         expect(tableStyleString["fillColor"]).toEqual("white");
 
         expect(tableShape["children"].length).toEqual(3); //no horizontal scroll bar.
-        let innerBoxStyleString = tableShape["children"][0].getStyle();
-        let innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
+        const innerBoxStyleString = tableShape["children"][0].getStyle();
+        const innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
         expect(innerBoxStyle["strokeWidth"]).toEqual("1");
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");
@@ -2194,18 +2192,18 @@ describe("UIMockup", () => {
         };
 
         //act
-        let tableShape = templates["Table"](<IShape>shape);
+        const tableShape = templates["Table"](<IShape>shape);
 
         //assert
-        let tableStyle = tableShape["style"];
-        let tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
+        const tableStyle = tableShape["style"];
+        const tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
         expect(tableStyleString["strokeWidth"]).toEqual("1");
         expect(tableStyleString["strokeColor"]).toEqual("#91C3FF");
         expect(tableStyleString["fillColor"]).toEqual("white");
 
         expect(tableShape["children"].length).toEqual(4); //horizontal scroll bar is the extra shape.
-        let innerBoxStyleString = tableShape["children"][0].getStyle();
-        let innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
+        const innerBoxStyleString = tableShape["children"][0].getStyle();
+        const innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
         expect(innerBoxStyle["strokeWidth"]).toEqual("1");
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");

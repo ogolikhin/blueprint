@@ -170,13 +170,17 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = "#A9BFD6";
+        style[Styles.STYLE_SELECTABLE] = 0;
         const border = MxFactory.vertex(null, geometry, style.convertToString());
         frame.insert(border);
 
-        const size = this.getSizeForString(shape.label);
-        geometry = MxFactory.geometry(0, 0, shape.width - 20, size.height);
+        const rect = mxUtils.getSizeForString(shape.label, style["fontSize"], style["fontFamily"], null);
+        let labelWidth = rect.width + 5;
+        if (labelWidth > shape.width - 30)
+            labelWidth = shape.width - 30;
+        geometry = MxFactory.geometry(0, 0, labelWidth, rect.height * 1.22);
         geometry.relative = true;
-        geometry.offset = MxFactory.point(20, -(size.height / 2 - 16));
+        geometry.offset = MxFactory.point(20, -(rect.height / 2 - 16));
         style[mxConstants.STYLE_FILLCOLOR] = "#FFFFFF";
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;

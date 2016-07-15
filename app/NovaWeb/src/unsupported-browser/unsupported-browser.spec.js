@@ -1248,6 +1248,18 @@ describe('appBootstrap', function() {
         delete app;
     });
 
+    it('Launch app and force page visibility', function() {
+        // Arrange
+        var app = appBootstrap;
+
+        // Act
+        app.pageVisibilityHandler({type: "fakeEvent"});
+
+        // Assert
+        expect(app.isPageHidden).toBeFalsy();
+        expect(window.document.body.className).toContain("is-visible");
+    });
+
     it('Launch app with unsupported browser (desktop)', function() {
         // Arrange
         var app = appBootstrap;

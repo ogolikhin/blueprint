@@ -162,7 +162,7 @@ describe("Rendering common shapes", () => {
         expect(descriptionShape.length).toEqual(1);
     }));
 
-    xit("Frame Shape Test, Two connected frames", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Frame Shape Test, Two connected frames", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
@@ -180,7 +180,7 @@ describe("Rendering common shapes", () => {
 
         connections.push(connection);
 
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, connections, Diagrams.STORYBOARD);
         diagramService.diagramMock = diagramMock;
 
         // Act

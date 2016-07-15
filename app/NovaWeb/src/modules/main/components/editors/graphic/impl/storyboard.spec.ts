@@ -14,15 +14,14 @@ import {ProjectRepository} from "../../../../services/project-repository";
 import {MessageServiceMock} from "../../../../../shell/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization.mock";
 import {ComponentTest} from "../../../../../util/component.test";
-import {BPDiagramController} from "../bp-diagram";
+import {DiagramView} from "./diagram-view";
 
 describe("Rendering common shapes", () => {
-    const validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
-
     let element: ng.IAugmentedJQuery;
+    let diagramView: DiagramView;
 
     beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.component("bpDiagram", new BPDiagram());
+      //  $compileProvider.component("bpDiagram", new BPDiagram());
         $provide.service("stencilService", StencilServiceMock);
         $provide.service("diagramService", DiagramServiceMock);
         $provide.service("projectManager", ProjectManager);
@@ -31,15 +30,10 @@ describe("Rendering common shapes", () => {
         $provide.service("projectRepository", ProjectRepository);
     }));
 
-    let componentTest: ComponentTest<BPDiagramController>;
-    let template = "<bp-diagram></bp-diagram>";
-    let vm: BPDiagramController;
-
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
-        componentTest = new ComponentTest<BPDiagramController>(template, "bp-diagram");
-        vm = componentTest.createComponent({});
-        element = componentTest.element;
+    beforeEach(inject((stencilService: StencilServiceMock) => {
+        const divElement = document.createElement("div");
+        element = angular.element(divElement);
+        diagramView = new DiagramView(element[0], stencilService);
     }));
 
 
@@ -50,12 +44,10 @@ describe("Rendering common shapes", () => {
         props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
         props[1] = { name: ShapeProps.IS_FIRST, value: true };
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
+        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);      
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
         
         // Assert
         const frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
@@ -79,11 +71,9 @@ describe("Rendering common shapes", () => {
         props[1] = { name: ShapeProps.IS_FIRST, value: false };
         eventShapes.push(DiagramServiceMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
-
+     
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
@@ -109,11 +99,9 @@ describe("Rendering common shapes", () => {
         shape.description = DiagramServiceMock.createRichText("test description text");       
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
-
+        
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const descriptionShape = element.find("rect[x='100'][y='302'][width='100'][height='48'][fill='none'][stroke='none']");
@@ -130,11 +118,9 @@ describe("Rendering common shapes", () => {
         shape.description = DiagramServiceMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
-
+       
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
@@ -151,11 +137,9 @@ describe("Rendering common shapes", () => {
         shape.description = DiagramServiceMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
-
+        
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const descriptionShape = element.find("rect[x='100'][y='148'][width='100'][height='154'][fill='none'][stroke='none']");
@@ -181,11 +165,9 @@ describe("Rendering common shapes", () => {
         connections.push(connection);
 
         const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, connections, Diagrams.STORYBOARD);
-        diagramService.diagramMock = diagramMock;
-
+       
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.Storyboard });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
         const frame1 = element.find("rect[x='1'][y='50'][width='100'][height='250'][fill='white'][stroke='none']");

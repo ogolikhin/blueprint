@@ -1,4 +1,5 @@
 ﻿import "angular";
+import * as moment from "moment";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
@@ -348,14 +349,18 @@ export class ProjectManager implements IProjectManager {
         properties.push(<Models.IPropertyType>{
             name: "Created by",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-            primitiveType: Models.PrimitiveType.Text,
+            primitiveType: Models.PrimitiveType.Text, 
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            disabled: true
+            // the following are test values, using DateJS
+            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
+            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
+            isRequired: true
+            //disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: "Last edited by",

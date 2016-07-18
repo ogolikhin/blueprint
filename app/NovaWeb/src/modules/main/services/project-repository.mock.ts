@@ -54,11 +54,11 @@ export class ProjectRepositoryMock implements IProjectRepository {
             items = null;
         } else if (id && !artifactId) {
             items = ([0, 1, 2]).map((it) => {
-                return ProjectRepositoryMock.createArtifact(id, id * 10 + it);
+                return ProjectRepositoryMock.createArtifact(id * 10 + it, id);
             }) as Models.IArtifact[];
         } else if (id && artifactId) {
             items = ([0, 1, 2, 3, 4]).map(function (it) {
-                return ProjectRepositoryMock.createArtifact(id, (artifactId || id) * 100 + it);
+                return ProjectRepositoryMock.createArtifact((artifactId || id) * 100 + it, id);
             }.bind(this)) as Models.IArtifact[];
         }
         deferred.resolve(items);
@@ -74,14 +74,15 @@ export class ProjectRepositoryMock implements IProjectRepository {
     }
 
     public static createArtifact(artifactId: number, projectId?: number, children?: number): Models.IArtifact {
-        let artifact = new Models.Artifact({
+        let artifact = {
             id: artifactId,
+            parentId: 1,
             name: "Artifact " + artifactId,
             projectId: projectId || artifactId,
             itemTypeId: Math.floor(Math.random() * 100),
             itemTypeVersionId: Math.floor(Math.random() * 100),
             predefinedType: Math.floor(Math.random() * 100),
-        });
+        } as Models.IArtifact;
         if (children) {
             this.createDependentArtifacts(artifact, children)
         }

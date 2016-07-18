@@ -24,7 +24,6 @@ describe("Artifact Repository", () => {
             var data: Models.IArtifact;
             artifactService.getArtifact(100).then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
-            $httpBackend.flush();
 
             // Assert
             expect(error).toBeUndefined();

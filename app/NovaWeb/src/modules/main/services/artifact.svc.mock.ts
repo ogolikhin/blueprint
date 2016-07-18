@@ -23,31 +23,31 @@ export class ArtifactServiceMock implements IArtifactService {
     }
     public static createSystemProperty(artifact: Models.IArtifact) {
         var result: Models.IPropertyValue[] = [];
-        let id: number = Math.floor(Math.random() * 100)
+        let id: number = Math.floor(Math.random() * 100);
         result.push({
             propertyTypeId: id,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
             value: "Creator"
-        })        
+        });       
         result.push({
-            propertyTypeId: id+1,
+            propertyTypeId: id + 1,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             value: new Date()
-        })        
+        });       
         result.push({
-            propertyTypeId: id+2,
+            propertyTypeId: id + 2,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             value: "Editor"
-        })        
+        });       
         result.push({
-            propertyTypeId: id+3,
+            propertyTypeId: id + 3,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             value: new Date()
-        })    
+        });
         artifact.propertyValues = (artifact.propertyValues || []).concat(result);
     
     }
@@ -56,24 +56,24 @@ export class ArtifactServiceMock implements IArtifactService {
     public static createPropertyValues(id: number, count?: number): any[] {
 
         var result: Models.IPropertyValue[] = [];
-        for (var i = 0; i < (count||0); i++) {
+        for (var i = 0; i < (count || 0); i++) {
             result.push({
-                propertyTypeId: id+i,
-                propertyTypeVersionId: id*10,
-                propertyTypePredefined: id/5,
-                value: "Property "+id
+                propertyTypeId: id + i,
+                propertyTypeVersionId: id * 10,
+                propertyTypePredefined: id / 5,
+                value: "Property " + id
             });
         }
         return result;
     }
-    public static createSubArtifacts(id: number, count?:number): any[] {
+    public static createSubArtifacts(id: number, count?: number): any[] {
         var result: Models.ISubArtifact[] = [];
-        for (var i = 0; i < (count||0); i++) {
+        for (var i = 0; i < (count || 0); i++) {
             result.push({
-                id: id+1000,
+                id: id + 1000,
                 name: "SubArtifact",
                 parentId: id,
-                itemTypeId: id+10000,
+                itemTypeId: id + 10000,
                 itemTypeVersionId: id + 1000,
                 propertyValues : this.createPropertyValues(id, count),
                 traces: []

@@ -56,10 +56,10 @@ export interface ITrace {
 
 export interface IItem {
     id: number;
-    name: string;
-    parentId: number;
-    itemTypeId: number;
-    itemTypeVersionId: number;
+    name?: string;
+    parentId?: number;
+    itemTypeId?: number;
+    itemTypeVersionId?: number;
     version?: number;
     propertyValues?: IPropertyValue[];
     traces?: ITrace[];
@@ -142,12 +142,8 @@ export interface IProjectMeta {
 }
 
 export interface IProject extends IArtifact {
-    description: string;
+    description?: string;
     meta?: IProjectMeta;
-
-    getArtifactTypes(id?: number): IItemType[];
-
-    getPropertyTypes(id?: number): IPropertyType[];
 }
 
 
@@ -194,7 +190,7 @@ export class Project implements IProject {
         if (this.meta && this.meta.artifactTypes) {
             itemTypes = this.meta.artifactTypes.filter((it) => {
                 return !angular.isNumber(id) || it.id === id;
-            })
+            });
         }
 
         return itemTypes;
@@ -208,7 +204,7 @@ export class Project implements IProject {
         if (this.meta && this.meta.propertyTypes) {
             propertyTypes = this.meta.propertyTypes.filter((it) => {
                 return !angular.isNumber(id) || it.id === id;
-            })
+            });
         }
         return propertyTypes;
     }

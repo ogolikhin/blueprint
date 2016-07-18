@@ -58,12 +58,12 @@ describe("Project Manager Test", () => {
         it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             $rootScope.$digest();
 
             let project: Models.IProject = projectManager.currentProject.getValue();
 
-            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(1000, 1, 5));
+            projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
@@ -94,7 +94,7 @@ describe("Project Manager Test", () => {
         it("Load project children. undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             projectManager.loadArtifact(undefined as Models.IArtifact);
             $rootScope.$digest();
 
@@ -240,11 +240,9 @@ describe("Project Manager Test", () => {
             });
 
             //Act
-            let project = new Models.Project({ id: 1, name: "Project 1" })
-            ProjectRepositoryMock.createDependentArtifacts(project, 5);
-            projectManager.loadProject(project);
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             $rootScope.$digest();
-            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(101, 1));
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(10, 1));
             $rootScope.$digest();
 
             //Asserts

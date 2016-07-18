@@ -95,13 +95,13 @@ export class BpArtifactController {
             let fieldContexts = propertyTypes.map((it: Models.IPropertyType) => {
                 switch (it.propertyTypePredefined) {
                     case Models.PropertyTypePredefined.Name:
-                        return new FieldContext(it, "name");        
+                        return new FieldContext(it, "name");
                     case Models.PropertyTypePredefined.ItemType:
                         return new FieldContext(it, "itemTypeId");
                     default:
                         return new FieldContext(it);
                 }
-            })
+            });
 
 
             this.editor = new PropertyEditor(artifact, fieldContexts);

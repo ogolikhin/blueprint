@@ -42,12 +42,18 @@ pagecontent {
   }
 
   .artifact-heading,
-  .artifact-icon {
+  .artifact-icon  {
     display: inline-block;
     margin: 0 10px 15px 0;
     min-height: 30px;
     vertical-align: top;
   }
+
+  .legacy-icon {
+    display: inline-block;
+  
+  }
+
 
   .artifact-icon::before {
     color: $gray;

@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models} from "../..";
+﻿import {IProjectManager, Models, Enums} from "../..";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -11,7 +11,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 }
 
 
-export class BpArtifactInfoController  {
+export class BpArtifactInfoController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
     private _artifact: Models.IArtifact;
@@ -19,7 +19,7 @@ export class BpArtifactInfoController  {
     public currentArtifact: string;
 
     constructor(private $scope, private projectManager: IProjectManager) {
-        
+
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -29,8 +29,8 @@ export class BpArtifactInfoController  {
             this.projectManager.currentArtifact.subscribeOnNext(this.updateInfo, this),
         ];
     }
-    
-     
+
+
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
@@ -60,4 +60,19 @@ export class BpArtifactInfoController  {
         return false;
     }
 
+    public get isDiagram(): boolean {
+        return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram);
+
+    }
 }
+
+
+
+
+  

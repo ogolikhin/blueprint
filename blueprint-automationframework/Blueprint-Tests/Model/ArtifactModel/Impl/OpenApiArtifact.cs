@@ -720,8 +720,8 @@ namespace Model.ArtifactModel.Impl
             string tokenValue = user.Token?.OpenApiToken;
             var restApi = new RestApiFacade(address, tokenValue);
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}/traces", SVC_PATH, sourceArtifact.ProjectId, 
-                sourceArtifact.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.TRACES,
+                sourceArtifact.ProjectId, sourceArtifact.Id);
 
             if (expectedStatusCodes == null)
             {

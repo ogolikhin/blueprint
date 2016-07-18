@@ -197,7 +197,7 @@ namespace Model.Impl
         public Relationships GetRelationships(int itemId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/relationships", SVC_PATH, itemId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, itemId);
 
             var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
             var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(path,

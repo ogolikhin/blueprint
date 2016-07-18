@@ -27,7 +27,7 @@
 
     <h6 ng-if="$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
 
-    <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">Association</h6>
+    <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Association') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div ng-repeat="artifact in $ctrl.associations"
              class="artifact-item-wrapper">
@@ -35,7 +35,7 @@
             <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
         </div>
     </div>
-    <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">Actor Inheritance</h6>
+    <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div ng-repeat="artifact in $ctrl.actorInherits"
              class="artifact-item-wrapper">
@@ -43,7 +43,7 @@
             <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
         </div>
     </div>
-    <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">Document Reference</h6>
+    <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Document_Reference') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div  ng-repeat="artifact in $ctrl.documentReferences"
              class="artifact-item-wrapper">
@@ -51,11 +51,11 @@
             <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
         </div>
     </div>
-    <div ng-if="!$ctrl.artifactList.associations.length && !$ctrl.artifactList.documentReferences.length && !$ctrl.artifactList.actorInherits.length && $ctrl.categoryFilter ===2"
+    <div ng-if="!($ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && $ctrl.categoryFilter ===2"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Association') }}</div>
 </div>
 
-<div ng-if="!$ctrl.artifactList.manualTraces.length && !$ctrl.artifactList.otherTraces.length && !$ctrl.isLoading"
+<div ng-if="!($ctrl.artifactList.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
      class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</div>
 
 

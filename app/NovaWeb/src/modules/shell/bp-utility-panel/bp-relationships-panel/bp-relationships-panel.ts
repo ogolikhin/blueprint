@@ -88,11 +88,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         for (let otherTrace of this.artifactList.otherTraces)
         {
-            if (otherTrace.traceType == 8) {
+            if (otherTrace.traceType === 8) {
                 associations.push(otherTrace);
-            } else if (otherTrace.traceType == 16) {
+            } else if (otherTrace.traceType === 16) {
                 actorInherits.push(otherTrace);
-            } else if (otherTrace.traceType == 32) {
+            } else if (otherTrace.traceType === 32) {
                 documentReferences.push(otherTrace);
             }
         }

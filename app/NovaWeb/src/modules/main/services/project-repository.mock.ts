@@ -65,6 +65,14 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
+
+        var deferred = this.$q.defer<Models.IProjectNode>();
+        let item: Models.IProjectNode;
+        deferred.resolve(item);
+        return deferred.promise;
+    }
+
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
         var deferred = this.$q.defer<Models.IProjectMeta>();
@@ -101,6 +109,60 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return artifact;
     }
 
+    public static populateMetaData(): Models.IProjectMeta {
+        let meta: Models.IProjectMeta = {
+            artifactTypes: ProjectRepositoryMock.populateItemTypes(10, 3),
+            propertyTypes: ProjectRepositoryMock.populatePropertyTypes(100, 3),
+            subArtifactTypes: ProjectRepositoryMock.populateItemTypes(1000, 3)
+        };
 
+        return meta;
+    }
+    public static populatePropertyTypes(id: number, count?: number) {
+        var result: Models.IPropertyType[] = [];
+        for (var i = 0; i < (count || 0); i++) {
+            result.push({
+                id: id + 1000,
+                name: "Item Type " + id,
+                versionId: 1,
+                //primitiveType?: PrimitiveType;
+                //instancePropertyTypeId?: number;
+                //isRichText?: boolean;
+                //decimalDefaultValue?: number;
+                //dateDefaultValue?: Date;
+                //userGroupDefaultValue?: any[];
+                //stringDefaultValue?: string;
+                //decimalPlaces?: number;
+                //maxNumber?: number;
+                //minNumber?: number;
+                //maxDate?: Date;
+                //minDate?: Date;
+                //isMultipleAllowed?: boolean;
+                //isRequired?: boolean;
+                //isValidated?: boolean;
+                //validValues?: IOption[];
+                //defaultValidValueId?: number;
+            });
+        }
+        return result;
+
+    }
+    public static populateItemTypes(id: number, count?: number) {
+        var result: Models.IItemType[] = [];
+        for (var i = 0; i < (count || 0); i++) {
+            result.push({
+                id: id + 1000,
+                name: "Item Type " + id,
+                projectId: 1,
+                versionId: 1,
+                prefix: "it_",
+                baseType: 1,
+                iconImageId: 1,
+                usedInThisProject: true,
+                customPropertyTypeIds: [1,2,3]
+            });
+        }
+        return result;
+    }
 }
 

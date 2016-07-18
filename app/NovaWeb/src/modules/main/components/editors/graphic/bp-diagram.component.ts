@@ -73,7 +73,7 @@ export class BPDiagramController {
         if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(artifact.id, artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
-                if (diagram.libraryVersion === 0) {
+                if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     const message = this.localization.get("Diagram_OldFormat_Message");
                     this.messageService.addError(message);
                 } else {

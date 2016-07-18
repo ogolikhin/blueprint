@@ -6,7 +6,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
     public controller: Function = BPArtifactRelationshipItemController;
     public bindings: any = {
-        artifact: "="
+        artifact: "=",
+        selectedTraces: "="
     };
 }
 
@@ -21,14 +22,20 @@ export class BPArtifactRelationshipItemController {
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
     public artifact: Relationships.IRelationship;
+    public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
+    public _isSelected: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private artifactRelationships: IArtifactRelationships,     
-        private projectManager: IProjectManager) {
+        private projectManager: IProjectManager) {       
        
+    }
+
+    public get isSelected() {
+        return this._isSelected;
     }
 
     public expand() {
@@ -39,6 +46,19 @@ export class BPArtifactRelationshipItemController {
                 });
         }
         this.expanded = !this.expanded;
+    }
+
+    public select(art) {
+        if (!this._isSelected) {
+            if (this.selectedTraces) {
+                this.selectedTraces.push(art);
+            }
+        } else {
+            if (this.selectedTraces) {
+                this.selectedTraces.pop();
+            }
+        }
+        this._isSelected = !this._isSelected;
     }
 
     public limitChars(str) {

@@ -29,7 +29,6 @@ export class DiagramService implements IDiagramService {
             let diagaram: IDiagram = null;
             this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
                 .success(result => {
-                    setTimeout(() => {
                     if (itemType === ItemTypePredefined.UseCase) {
                         diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
                     } else {
@@ -50,7 +49,6 @@ export class DiagramService implements IDiagramService {
                     }
                     delete this.promises[id];
                     deferred.resolve(diagaram);
-                    }, 2000);
                 }).error((data: any, status: number) => {
                     delete this.promises[id];
                     data.statusCode = status;

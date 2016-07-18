@@ -53,7 +53,8 @@ class PageContentCtrl {
 
         this.context = {
             artifact: angular.copy(artifact),
-            project : this.projectManager.currentProject.getValue()
+            project: this.projectManager.currentProject.getValue(),
+            propertyTypes: this.projectManager.getArtifactPropertyTypes(artifact)
         };
     }
 

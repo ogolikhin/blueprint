@@ -1,9 +1,9 @@
 ﻿import { Models} from "../../..";
 
-
-export interface IArtifactEditor {
-    getFields(): Models.IArtifactDetailFields;
-    getModel(): any;
+enum LookupEnum {
+    ByName = 0,
+    ById = 1,
+    ByType = 2,
 }
 
 export class FieldContext implements Models.IPropertyType{
@@ -12,7 +12,7 @@ export class FieldContext implements Models.IPropertyType{
     public name: string;
     public primitiveType: Models.PrimitiveType;
     public instancePropertyTypeId: number;
-    public isRichText: boolean;
+    public isRichText: boolean; 
     public decimalDefaultValue: number;
     public dateDefaultValue: Date;
     public userGroupDefaultValue: any[];
@@ -33,6 +33,7 @@ export class FieldContext implements Models.IPropertyType{
     public group: string;
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
+    public lookup: LookupEnum;
 
     constructor(type: Models.IPropertyType, modelPropertyName?: string ) {
         angular.extend(this, type);
@@ -41,12 +42,15 @@ export class FieldContext implements Models.IPropertyType{
         if (modelPropertyName) {
             this.fieldPropertyName = `property_${modelPropertyName}`;
             this.modelPropertyName = modelPropertyName;
+            this.lookup = LookupEnum.ByName;
         } else if (angular.isDefined(type.id)) {
             this.fieldPropertyName = `property_${this.id.toString()}`;
             this.modelPropertyName = this.id;
+            this.lookup = LookupEnum.ById;
         } else if (angular.isDefined(type.propertyTypePredefined)) {
             this.fieldPropertyName = `property_${txtType.toLowerCase()}`;
-            this.modelPropertyName = txtType.toLowerCase();
+            this.modelPropertyName = <number>this.propertyTypePredefined;
+            this.lookup = LookupEnum.ByType;
         }
 
         if (["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(txtType.toLowerCase()) >= 0) {
@@ -60,65 +64,60 @@ export class FieldContext implements Models.IPropertyType{
     }
 }
 
-export class ArtifactEditor implements IArtifactEditor {
+export class PropertyEditor  {
     private _artifact: Models.IArtifact;
     private _project: Models.IProject;
 
-    private fields: AngularFormly.IFieldConfigurationObject[] = [];
+    private _fields: AngularFormly.IFieldConfigurationObject[] = [];
     private _model: any = {};
 
-    constructor(artifact: Models.IArtifact, project: Models.IProject) {
+    constructor(artifact: Models.IArtifact, filedContexts: FieldContext[]) {
 
-        if (!artifact || !project) {
+        if (!artifact || !filedContexts) {
             return;
         }
         this._artifact = artifact;
-        this._project = project;
-        let types = this.getArtifctPropertyTypes();
-        types.forEach((it: FieldContext) => {
+
+//        let types = this.getArtifctPropertyTypes();
+
+
+        filedContexts.forEach((it: FieldContext) => {
             if (it.fieldPropertyName && it.modelPropertyName) {
                 let field = this.createPropertyField(it);
-                this.fields.push(field);
-                if (typeof it.modelPropertyName === "number") {
-                    let propertyValue = this._artifact.propertyValues.filter((value) => {
-                        return value.propertyTypeId === <number>it.modelPropertyName;
+                let value: any;
+
+                if (it.lookup === LookupEnum.ByName) {
+                    value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
+                } else { 
+                    var propertyValue = this._artifact.propertyValues.filter((value) => {
+                        return it.lookup === LookupEnum.ById ?
+                            value.propertyTypeId === <number>it.modelPropertyName :
+                            value.propertyTypePredefined === <number>it.modelPropertyName;
                     })[0];
-                    if (propertyValue) {
-                        this._model[it.fieldPropertyName] = propertyValue.value;
-                    }
-                } else {
-                    if (angular.isDefined(this._artifact[it.modelPropertyName])) {
-                        this._model[it.fieldPropertyName] = this._artifact[it.modelPropertyName];
-                    }
+                    value = propertyValue ? propertyValue.value : undefined;
+                } 
+                if (angular.isDefined(value)) {
+                    this._model[it.fieldPropertyName] = it.primitiveType === Models.PrimitiveType.Choice ? value.toString() : value;
                 }
+                this._fields.push(field);
             }
         });
     }
 
-    public getFields(): Models.IArtifactDetailFields {
-        let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
-            systemFields: [],
-            customFields: [],
-            noteFields: []
-        };
+    public destroy() {
+        delete this._fields;
+        delete this._model;
+        delete this._artifact;
+        delete this._project;
+    }
 
-        this.fields.forEach((it: AngularFormly.IFieldConfigurationObject) => {
-            //this._model[it.key] = this._atrifact[]
+    public getFields(): AngularFormly.IFieldConfigurationObject[] {
 
-            if ("system" === it.data["group"]) {
-                fields.systemFields.push(it);
-            } else if ("tabbed" === it.data["group"]) {
-                fields.noteFields.push(it);
-            } else {
-                fields.customFields.push(it);
-            }
-        });
-
-        return fields;
+        return this._fields;
     }
 
     public getModel(): any {
-        return this._model;
+        return this._model || {};
     }
 
     private getArtifctPropertyTypes(): Models.IPropertyType[] {
@@ -128,7 +127,7 @@ export class ArtifactEditor implements IArtifactEditor {
         //add custom properties
         if (this._artifact.predefinedType === Models.ItemTypePredefined.Project) {
             _artifactType = <Models.IItemType>{
-                id: -1,
+                id: Models.ItemTypePredefined.Project,
                 name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
                 baseType: Models.ItemTypePredefined.Project,
                 customPropertyTypeIds: []
@@ -149,7 +148,7 @@ export class ArtifactEditor implements IArtifactEditor {
         }, "name"));
 
         properties.push(new FieldContext(<Models.IPropertyType>{
-            
+            name: "Type",
             propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
@@ -178,11 +177,7 @@ export class ArtifactEditor implements IArtifactEditor {
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            // the following are test values, using DateJS
-            maxDate: (<any>(15)).days().fromNow(),
-            minDate: (<any>(15)).days().ago(),
-            isRequired: true
-            //disabled: true
+            disabled: true
         }));
         properties.push(new FieldContext(<Models.IPropertyType>{
             name: "Last edited by",
@@ -222,14 +217,12 @@ export class ArtifactEditor implements IArtifactEditor {
                 disabled: context.disabled
             },
             expressionProperties: {}
-        };
+        }; 
         //        this.data = this.propertyType;
         switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
                 field.type = context.isRichText ? "tinymceInline" : (context.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = context.stringDefaultValue;
-                //field.templateOptions.minlength;
-                //field.templateOptions.maxlength;
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "datepicker";
@@ -243,15 +236,19 @@ export class ArtifactEditor implements IArtifactEditor {
             case Models.PrimitiveType.Number:
                 field.type = "input";
                 field.templateOptions.type = "number";
-                field.defaultValue = context.decimalDefaultValue;
+                if (angular.isNumber(context.defaultValidValueId)) {
+                    field.defaultValue = context.decimalDefaultValue;
+                }
                 field.templateOptions.min = context.minNumber;
                 field.templateOptions.max = context.maxNumber;
                 break;
             case Models.PrimitiveType.Choice:
                 field.type = "select";
-                field.defaultValue = (context.defaultValidValueId || 0).toString();
+                if (angular.isNumber(context.defaultValidValueId)) {
+                    field.defaultValue = context.defaultValidValueId.toString();
+                }
                 field.templateOptions.options = [];
-                if (context.validValues) {
+                if (context.validValues && context.validValues.length) {
                     field.templateOptions.options = context.validValues.map(function (it) {
                         return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
                     });
@@ -259,9 +256,11 @@ export class ArtifactEditor implements IArtifactEditor {
                 break;
             case Models.PrimitiveType.User:
                 field.type = "select"; // needs to be changed to user selection
-                field.defaultValue = (context.defaultValidValueId || 0).toString();
+                if (angular.isNumber(context.defaultValidValueId)) {
+                    field.defaultValue = context.defaultValidValueId.toString();
+                }
                 field.templateOptions.options = [];
-                if (context.validValues) {
+                if (context.validValues && context.validValues.length) {
                     field.templateOptions.options = context.validValues.map(function (it) {
                         return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
                     });

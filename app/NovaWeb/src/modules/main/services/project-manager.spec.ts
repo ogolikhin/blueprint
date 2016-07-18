@@ -4,7 +4,7 @@ import {LocalizationServiceMock} from "../../core/localization.mock";
 import {ConfigValueHelper } from "../../core";
 import {MessageService} from "../../shell/";
 import {ProjectRepositoryMock} from "./project-repository.mock";
-import {ProjectManager, Models} from "../services/project-manager";
+import {ProjectManager, Models} from "../";
 
 
 describe("Project Manager Test", () => {
@@ -28,7 +28,7 @@ describe("Project Manager Test", () => {
     describe("Load projects: ", () => {
         it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
             //Act
             let project = projectManager.currentProject.getValue();
@@ -41,8 +41,8 @@ describe("Project Manager Test", () => {
 
         it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+            projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
             $rootScope.$digest();
 
             //Act
@@ -58,12 +58,12 @@ describe("Project Manager Test", () => {
         it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
-            //let project: Models.IProject = projectManager.currentProject.getValue();
+            let project: Models.IProject = projectManager.currentProject.getValue();
 
-            projectManager.loadArtifact({ id: 10, projectId: 1 } as Models.IArtifact);
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(1000, 1, 5));
             $rootScope.$digest();
 
             //Act
@@ -71,9 +71,9 @@ describe("Project Manager Test", () => {
 
             //Asserts
             expect(artifact).toBeDefined();
-            //expect(artifact.artifacts).toEqual(jasmine.any(Array));
-            //expect(artifact.artifacts.length).toEqual(5);
-            //expect(artifact.artifacts[0].id).toEqual(1000);
+            expect(artifact.artifacts).toEqual(jasmine.any(Array));
+            expect(artifact.artifacts.length).toEqual(5);
+            expect(artifact.artifacts[0].id).toEqual(1000);
         }));
         it("Load project children. Null. Project not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
@@ -94,7 +94,7 @@ describe("Project Manager Test", () => {
         it("Load project children. undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             projectManager.loadArtifact(undefined as Models.IArtifact);
             $rootScope.$digest();
 
@@ -110,7 +110,7 @@ describe("Project Manager Test", () => {
         it("Load project children. Null. Artifact not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             projectManager.loadArtifact(null as Models.IArtifact);
             $rootScope.$digest();
 
@@ -125,7 +125,7 @@ describe("Project Manager Test", () => {
         it("Load project children. Undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             projectManager.loadArtifact(undefined as Models.IArtifact);
             $rootScope.$digest();
 
@@ -142,9 +142,9 @@ describe("Project Manager Test", () => {
             projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
             //let error;
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
-            projectManager.loadArtifact({ id: 88, projectId: 2 } as Models.IArtifact);
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(88,2));
             $rootScope.$digest();
 
             //Act
@@ -162,7 +162,7 @@ describe("Project Manager Test", () => {
             //let error;
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
-            projectManager.loadArtifact({ id: 999, projectId: 1 } as Models.IArtifact);
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(999, 1));
             $rootScope.$digest();
 
             //Act
@@ -180,7 +180,7 @@ describe("Project Manager Test", () => {
         it("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
             //Act
@@ -201,7 +201,7 @@ describe("Project Manager Test", () => {
             });
 
             //Act
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
             //Asserts
@@ -219,7 +219,7 @@ describe("Project Manager Test", () => {
             });
 
             //Act
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
             //Asserts
@@ -240,9 +240,11 @@ describe("Project Manager Test", () => {
             });
 
             //Act
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            let project = new Models.Project({ id: 1, name: "Project 1" })
+            ProjectRepositoryMock.createDependentArtifacts(project, 5);
+            projectManager.loadProject(project);
             $rootScope.$digest();
-            projectManager.loadArtifact({ id: 10, projectId: 1 } as Models.IArtifact);
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(101, 1));
             $rootScope.$digest();
 
             //Asserts
@@ -265,13 +267,13 @@ describe("Project Manager Test", () => {
 
 
             //Act
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
 
             //Asserts
@@ -288,11 +290,11 @@ describe("Project Manager Test", () => {
     describe("Delete Project: ", () => {
         it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
             $rootScope.$digest();
-            projectManager.loadProject({ id: 3, name: "Project 3" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 3, name: "Project 3" }));
             $rootScope.$digest();
 
             //Act
@@ -310,11 +312,11 @@ describe("Project Manager Test", () => {
         }));
         it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
             $rootScope.$digest();
-            projectManager.loadProject({ id: 3, name: "Project 3" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 3, name: "Project 3" }));
             $rootScope.$digest();
 
 
@@ -336,7 +338,7 @@ describe("Project Manager Test", () => {
     describe("properties", () => {
         it("should a project be un-selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 
             //Act
             
@@ -346,7 +348,7 @@ describe("Project Manager Test", () => {
         }));
         it("should project be selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 
             //Act
             $rootScope.$digest();

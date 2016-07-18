@@ -1,7 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization.mock";
-import {IProjectRepository, ProjectRepository, Models} from "./project-repository";
+import {Models} from "../../main/";;
+import {IProjectRepository, ProjectRepository} from "./";;
 
 describe("Project Repository", () => {
 

@@ -89,7 +89,7 @@ export class ProjectExplorerController {
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
 
-        this.projectManager.loadArtifact(this.doSync(node));
+        this.projectManager.setCurrentArtifact(this.doSync(node));
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
@@ -97,7 +97,7 @@ export class ProjectExplorerController {
         let artifact = this.projectManager.getArtifact(node.id);
         if (artifact.hasChildren) {
             angular.extend(artifact, {
-//                loaded: node.loaded,
+                loaded: node.loaded,
                 open: node.open
             });
         };

@@ -89,15 +89,15 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
     formlyConfig.setType({
         name: "tinymceInline",
-        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
+        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
-            data: { // using data property
+            templateOptions: { // using data property
                 tinymceOption: { // this will goes to ui-tinymce directive
                     // standard tinymce option
                     inline: true,
                     fixed_toolbar_container: ".form-tinymce-toolbar",
-                    plugins: "advlist autolink link image paste lists charmap print noneditable", //mentions
+                    plugins: ["advlist autolink link image paste lists charmap print noneditable"], //mentions
                     //mentions: {
                     //    source: tinymceMentionsData,
                     //    delay: 100,

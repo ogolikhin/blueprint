@@ -1,8 +1,8 @@
 ﻿<div class="artifact-overview">
-    <div class="heading">Overview {{$ctrl.activeTab}}</div>
+    <div class="heading">Overview</div>
     <div class="content">
         <form novalidate>
-            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" ng-if="$ctrl.isSystemPropertyAvailable">
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isSystemPropertiesCollapsed">
@@ -22,12 +22,11 @@
             </div>
 
 
-            <uib-tabset active="$ctrl.activeTab">
-                <uib-tab ng-repeat="field in $ctrl.tabs"
-                         heading="{{field.title}}"
-                         index="field.index"
+            <uib-tabset active="$ctrl.activeTab" ng-if="$ctrl.isTabPropertyAvailable">
+                <uib-tab ng-repeat="field in $ctrl.fields.tabFields"
+                         heading="{{field.data.name}}"
                          >
-                    <formly-form model="$ctrl.model" fields="field.fields" >
+                    <formly-form model="$ctrl.model" fields="[field]" >
                     </formly-form>
                 </uib-tab>
             </uib-tabset>

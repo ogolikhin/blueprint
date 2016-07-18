@@ -131,6 +131,10 @@ bp-relationships-panel {
             }
         }
 
+        .unauthorized-details {
+                min-height: 0px;
+        }
+
         .icons {
             border-top: 1px solid $gray-lighter;
             color: $gray;

@@ -144,8 +144,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
-            <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
         /* tslint:enable */

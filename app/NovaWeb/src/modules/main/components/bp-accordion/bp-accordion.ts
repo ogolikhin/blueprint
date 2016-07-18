@@ -211,14 +211,14 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public openPanel = () => {
         if (!this.isOpen) {
             this.isOpen = true;
-            this.$element[0].className += " bp-accordion-panel-open";
+            this.getElement().className += " bp-accordion-panel-open";
             this.accordionGroup.openPanel(this);
         }
     };
 
     public closePanel = () => {
         this.isOpen = false;
-        this.$element[0].className = this.$element[0].className.replace(" bp-accordion-panel-open", "");
+        this.getElement().className = this.getElement().className.replace(" bp-accordion-panel-open", "");
     };
 
     public pinPanel = () => {

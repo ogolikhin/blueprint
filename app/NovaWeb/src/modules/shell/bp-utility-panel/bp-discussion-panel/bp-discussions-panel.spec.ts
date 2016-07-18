@@ -9,11 +9,15 @@ import { ProjectRepositoryMock } from "../../../main/services/project-repository
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 import {IReply} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
-xdescribe("Component BPDiscussionPanel", () => {
+
+describe("Component BPDiscussionPanel", () => {
 
     let directiveTest: ComponentTest<BPDiscussionPanelController>;
     let template = `<bp-discussion-panel></bp-discussion-panel>`;
     let vm: BPDiscussionPanelController;
+    let bpAccordionPanelController = {
+        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+    };
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -28,7 +32,7 @@ xdescribe("Component BPDiscussionPanel", () => {
     beforeEach(inject((projectManager: ProjectManager) => {
         projectManager.initialize();
         directiveTest = new ComponentTest<BPDiscussionPanelController>(template, "bp-discussion-panel");
-        vm = directiveTest.createComponent({});
+        vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
     }));
 
     afterEach(() => {

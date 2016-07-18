@@ -120,6 +120,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     order: 1;
   }
 
+  > div:last-child {
+    display: none;
+  }
+
   .formly-field {
     align-items: flex-start;
     border-left: solid $property-horiz-spacing transparent;
@@ -357,6 +361,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
   table.uib-daypicker {
     margin: 0 -1px;
+    outline: none;
     width: #{$property-input-width - 1px};
 
     thead tr:first-child th {
@@ -392,6 +397,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   .btn {
     color: $gray-dark;
     min-width: 36px;
+    outline: none;
     padding: 5px 10px;
 
     &.btn-info,
@@ -421,7 +427,6 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
   }
 }
-
 /* DO NOT DELETE. Commented out while testing Formly
 .property-group {
   align-items: flex-start;

@@ -1,6 +1,5 @@
 ﻿import { ILocalizationService } from "../../core";
 import { IProjectManager, Models} from "../../main";
-// import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");

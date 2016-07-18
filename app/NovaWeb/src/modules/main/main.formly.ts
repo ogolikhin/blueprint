@@ -144,8 +144,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
-            <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
         /* tslint:enable */
@@ -171,12 +171,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue;
                     let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
                     if (momentInit.isValid()) {
-                        initValue = momentInit.startOf("day").format("L")
+                        initValue = momentInit.startOf("day").format("L");
                     }
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
                     let momentInput = moment(inputValue, moment.localeData().longDateFormat("L"));
                     if (momentInput.isValid()) {
-                        inputValue = momentInput.startOf("day").format("L")
+                        inputValue = momentInput.startOf("day").format("L");
                     }
                     let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
                     if (artifactNameDiv) {
@@ -184,7 +184,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         if (dirtyIcon) {
                             artifactNameDiv.removeChild(dirtyIcon);
                         }
-                        if(initValue !== inputValue) {
+                        if (initValue !== inputValue) {
                             let div = document.createElement("DIV");
                             div.innerHTML = `<i class="dirty-indicator"></i>`;
                             artifactNameDiv.appendChild(div.firstChild);

@@ -56,10 +56,10 @@ export interface ITrace {
 
 export interface IItem {
     id: number;
-    name: string;
-    parentId: number;
-    itemTypeId: number;
-    itemTypeVersionId: number;
+    name?: string;
+    parentId?: number;
+    itemTypeId?: number;
+    itemTypeVersionId?: number;
     version?: number;
     propertyValues?: IPropertyValue[];
     traces?: ITrace[];
@@ -70,7 +70,7 @@ export interface ISubArtifact extends IItem {
 }
 
 export interface IArtifact extends IItem {
-    projectId: number;
+    projectId?: number;
     prefix?: string;
     orderIndex?: number;
     version?: number;
@@ -142,63 +142,10 @@ export interface IProjectMeta {
 }
 
 export interface IProject extends IArtifact {
-    description: string;
+    description?: string;
     meta?: IProjectMeta;
-
-    getArtifactTypes(id?: number): IItemType[];
-
-    getPropertyTypes(id?: number): IPropertyType[];
 }
 
-
-export interface IDiagramElement {
-    id: number;
-    type: string;
-    name: string;
-    props: IProp[];
-    zIndex: number;
-    isShape: boolean;
-}
-
-interface IProp {
-    name: string;
-    value: any;
-}
-interface ILabelStyle {
-    textAlignment: string;
-    fontFamily: string;
-    fontSize: string;
-    isItalic: boolean;
-    isBold: boolean;
-    isUnderline: boolean;
-    foreground: string;
-}
-
-interface IConnection {
-    id: number;
-    type: string;
-    parentId: number;
-    name: string;
-    sourceId: number;
-    targetId: number;
-    stroke: string;
-    strokeOpacity: number;
-    strokeWidth: number;
-    strokeDashPattern: string;
-    label: string;
-    sourceLabel: string;
-    targetLabel: string;
-    points: IPoint[];
-    startArrow: string;
-    endArrow: string;
-    zIndex: number;
-    props: IProp[];
-}
-
-interface IPoint {
-    y: number;
-    x: number;
-}
 
 export class Project implements IProject {
     constructor(...data: any[]) { //
@@ -243,11 +190,13 @@ export class Project implements IProject {
         if (this.meta && this.meta.artifactTypes) {
             itemTypes = this.meta.artifactTypes.filter((it) => {
                 return !angular.isNumber(id) || it.id === id;
-            })
+            });
         }
 
         return itemTypes;
     }
+
+
     public getPropertyTypes(id?: number): IPropertyType[] {
 
         let propertyTypes: IPropertyType[] = [];
@@ -255,44 +204,28 @@ export class Project implements IProject {
         if (this.meta && this.meta.propertyTypes) {
             propertyTypes = this.meta.propertyTypes.filter((it) => {
                 return !angular.isNumber(id) || it.id === id;
-            })
+            });
         }
         return propertyTypes;
     }
-
 }
-
-export interface IArtifactDetailFields {
-    systemFields: AngularFormly.IFieldConfigurationObject[];
-    customFields: AngularFormly.IFieldConfigurationObject[];
-    noteFields: AngularFormly.IFieldConfigurationObject[];
-}
-
 
 export class Artifact implements IArtifact {
-    private _propertyValues: IPropertyValue[];
-    private _subArtifacts: IArtifact[];
+    public propertyValues: IPropertyValue[];
+    public artifacts: IArtifact[];
+    public subArtifacts: ISubArtifact[];
 
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
     };
     public id: number;
-
     public name: string;
-
     public projectId: number;
     public parentId: number;
     public predefinedType: ItemTypePredefined;
     public itemTypeId: number;
     public itemTypeVersionId: number;
 
-    public get propertyValues() {
-        return this._propertyValues || (this._propertyValues = []);
-    }
-    public get subArtifacts() {
-        return this._subArtifacts || (this._subArtifacts = []);
-    }
-    public artifacts: IArtifact[];
 }
 
   

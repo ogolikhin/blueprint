@@ -45,16 +45,7 @@ class BPToolbarController implements IBPToolbarController {
                 this.projectManager.closeProject(true);
                 break;
             case `deleteartifact`:
-//                this.deleteArtifact();
-                //NOTE: this is temporary solution to show differetnt type of messages. 
-                //TODO:: Will be removed
-                /* tslint:disable:max-line-length */
-                this.messageService.addMessage(new Message(1, "<b>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</b>"));
-                this.messageService.addMessage(new Message(2, "2"));
-                this.messageService.addMessage(new Message(3, "3"));
-                this.messageService.addMessage(new Message(1, "Section 1.10.32 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC"));
-                this.messageService.addMessage(new Message(2, "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."));
-                this.messageService.addMessage(new Message(3, "It is a long established fact that a reader will be distracted by the "));
+                this.deleteArtifact();
         /* tslint:enable:max-line-length */
 
                 break;
@@ -89,12 +80,21 @@ class BPToolbarController implements IBPToolbarController {
 
     //temporary
     private deleteArtifact() {
-        this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.", "Please confirm")
-            .then((confirmed: boolean) => {
-                if (confirmed) {
-                    this.dialogService.alert("Delete is confirmed");
-                }
-            });
+        //NOTE: this is temporary solution to show differetnt type of messages. 
+        //TODO:: Will be removed
+        /* tslint:disable:max-line-length */
+        this.messageService.addMessage(new Message(1, "<b>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</b>"));
+        this.messageService.addMessage(new Message(2, "2"));
+        this.messageService.addMessage(new Message(3, "3"));
+        this.messageService.addMessage(new Message(1, "Section 1.10.32 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC"));
+        this.messageService.addMessage(new Message(2, "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."));
+        this.messageService.addMessage(new Message(3, "It is a long established fact that a reader will be distracted by the "));
+        //this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.", "Please confirm")
+        //    .then((confirmed: boolean) => {
+        //        if (confirmed) {
+        //            this.dialogService.alert("Delete is confirmed");
+        //        }
+        //    });
     }
 
     public goToImpactAnalysis() {
@@ -118,7 +118,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.version !==0 ? artifact.id : null;
+        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.version !== 0 ? artifact.id : null;
     }
 
 }

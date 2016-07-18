@@ -38,6 +38,8 @@ export class DiagramView implements IDiagramView {
 
     private disabledUserSelection: boolean;
 
+    private static regesteredStencils: [string];
+
     constructor(divContainer: HTMLElement, private stencilService: IStencilService) {
         // Creates the graph inside the given container
         this.graph = MxFactory.graph(divContainer);
@@ -295,6 +297,10 @@ export class DiagramView implements IDiagramView {
     }
 
     private registerStencils(diagramType: string, stencilService: IStencilService): void {
+        DiagramView.regesteredStencils = DiagramView.regesteredStencils || <any>[];
+        if (DiagramView.regesteredStencils.indexOf(diagramType) >= 0) {
+            return;
+        }
         let stencil = stencilService.getStencil(diagramType);
         if (stencil != null) {
             let shape = stencil.firstChild;
@@ -306,6 +312,7 @@ export class DiagramView implements IDiagramView {
                 shape = shape.nextSibling;
             }
         }
+        DiagramView.regesteredStencils.push(diagramType);
     }
 
     private drawDiagramInternal(diagram: IDiagram, shapeFactory: IShapeTemplateFactory) {

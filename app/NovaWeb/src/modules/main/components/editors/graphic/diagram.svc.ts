@@ -51,8 +51,12 @@ export class DiagramService implements IDiagramService {
                     deferred.resolve(diagaram);
                 }).error((data: any, status: number) => {
                     delete this.promises[id];
-                    data.statusCode = status;
-                    deferred.reject(data);
+                    if (status <= 0) {
+                        deferred.reject("Cancelled");
+                    } else {
+                        data.statusCode = status;
+                        deferred.reject(data);
+                    }
                 });
 
             promise = this.promises[String(id)] = deferred.promise;

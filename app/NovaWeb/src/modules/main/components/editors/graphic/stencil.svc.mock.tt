@@ -6,8 +6,9 @@
 <# /* prevent removal of style attribute */ #>
 import {IStencilService} from "./impl/stencil.svc";
     export class StencilServiceMock implements IStencilService {
+        /* tslint:disable:max-line-length */
         public getStencil(diagramType: string): HTMLElement {
-            var data: string;
+            let data: string;
             switch (diagramType) {
                     case "businessprocess":
                         data = "<#= this.GetStencilText("bpmn.xml")#>";
@@ -30,15 +31,16 @@ import {IStencilService} from "./impl/stencil.svc";
                     default:
                         throw "Unknown diagram type: " + diagramType;
             }
-            var stencil = null;
+            let stencil = null;
             try {
-                var xml = $.parseXML(data);
+                let xml = $.parseXML(data);
                 stencil = xml.documentElement;
             }
             finally {
                 return stencil;
             }
         }
+        /* tslint:enable:max-line-length */
     }
 
 

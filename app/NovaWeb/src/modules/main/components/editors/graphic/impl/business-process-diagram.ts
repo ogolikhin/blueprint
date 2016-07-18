@@ -1,7 +1,7 @@
 ﻿import {IShape} from "../impl/models";
 import {Shapes} from "./utils/constants";
 import {Style} from "./utils/style-builder";
-import {MxFactory, ShapeExtensions, Color} from "./utils/helpers";
+import {MxFactory, ShapeExtensions} from "./utils/helpers";
 import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
 
 export class BusinessProcessShapeFactory extends AbstractShapeFactory {
@@ -220,6 +220,8 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
                 case "Transaction":
                     boundaryStyle[mxConstants.STYLE_STROKEWIDTH] = "1";
                     break;
+                default:
+                    break;
             }
 
             this.setMarkerStyleAndInsert(boundary, taskOrSubprocess, (shape.width - boundaryWidth) / 2, (shape.height - boundaryHeight) / 2, boundaryStyle);
@@ -254,6 +256,8 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
                     break;
                 case "Script":
                     taskTypeStyle[mxConstants.STYLE_SHAPE] = "taskscript";
+                    break;
+                default:
                     break;
             }
             tasktypeMarker = MxFactory.cell("", MxFactory.geometry(0, 0, 15, 15));
@@ -331,18 +335,36 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
                     }
                     loopStyle[mxConstants.STYLE_FILLCOLOR] = "black";
                     break;
+                default:
+                    break;
             }
             loopMarker = MxFactory.cell("", MxFactory.geometry(0, 0, markerSize, markerSize));
         }
 
 
-        this.setMarkerStyleAndInsert(isCompensationMarker, taskOrSubprocess, isCompensationMarkerHorizontalOffset - isCompensationMarkerHorizontalLeftShift * (markerSize / 2 + 3), isCompensationMarkerVerticalOffset, isCompensationStyle);
+        this.setMarkerStyleAndInsert (isCompensationMarker,
+            taskOrSubprocess,
+            isCompensationMarkerHorizontalOffset - isCompensationMarkerHorizontalLeftShift * (markerSize / 2 + 3),
+            isCompensationMarkerVerticalOffset,
+            isCompensationStyle);
 
-        this.setMarkerStyleAndInsert(isAdhocMarker, taskOrSubprocess, isAdhocMarkerHorizontalOffset - isAdHocMarkerHorizontalLeftShift * (markerSize / 2 + 3), isAdhocMarkerVerticalOffset, isAdhocStyle);
+        this.setMarkerStyleAndInsert(isAdhocMarker,
+            taskOrSubprocess,
+            isAdhocMarkerHorizontalOffset - isAdHocMarkerHorizontalLeftShift * (markerSize / 2 + 3),
+            isAdhocMarkerVerticalOffset,
+            isAdhocStyle);
 
-        this.setMarkerStyleAndInsert(isCollapsedMarker, taskOrSubprocess, isCollapsedMarkerHorizontalOffset - isCollapsedMarkerHorizontalLeftShift * (markerSize / 2 + 3), isCollapsedMarkerVerticalOffset, isCollapsedStyle);
+        this.setMarkerStyleAndInsert(isCollapsedMarker,
+            taskOrSubprocess,
+            isCollapsedMarkerHorizontalOffset - isCollapsedMarkerHorizontalLeftShift * (markerSize / 2 + 3),
+            isCollapsedMarkerVerticalOffset,
+            isCollapsedStyle);
 
-        this.setMarkerStyleAndInsert(loopMarker, taskOrSubprocess, loopMarkerHorizontalOffset - loopMarkerHorizontalLeftShift * (markerSize / 2 + 4), loopMarkerVerticalOffset, loopStyle);
+        this.setMarkerStyleAndInsert(loopMarker,
+            taskOrSubprocess,
+            loopMarkerHorizontalOffset - loopMarkerHorizontalLeftShift * (markerSize / 2 + 4),
+            loopMarkerVerticalOffset,
+            loopStyle);
 
         return taskOrSubprocess;
     };
@@ -373,7 +395,9 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         var event = super.createDefaultVertex(shape, style);
 
-        if (eventType != null && (eventType === "IntermediateThrowing" || eventType === "IntermediateCatching" || eventType === "IntermediateNonInterrupting")) {
+        if (eventType != null
+            && (eventType === "IntermediateThrowing"
+                || eventType === "IntermediateCatching" || eventType === "IntermediateNonInterrupting")) {
             var innerEllipseWidth = (shape.width - 5) < 0 ? 0 : shape.width - 5;
             var innerEllipseHeight = (shape.height - 5) < 0 ? 0 : shape.height - 5;
             if (innerEllipseHeight % 2 === 1) {

@@ -213,9 +213,37 @@ var executionEnvironmentDetector = (function () {
 
 var appBootstrap = (function() {
     appBootstrap.prototype.executionEnvironment = {};
+    appBootstrap.prototype.isPageHidden = false;
+
+    // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
+    var documentHiddenProperty = "hidden";
 
     function appBootstrap() {
         this.executionEnvironment = new executionEnvironmentDetector();
+
+        // W3C standards:
+        if (documentHiddenProperty in document) {
+            document.addEventListener("visibilitychange", this.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "mozHidden") in document) { // Firefox 10+
+            document.addEventListener("mozvisibilitychange", this.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "webkitHidden") in document) { // Chrome 13+
+            document.addEventListener("webkitvisibilitychange", this.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "msHidden") in document) { // IE 10+
+            document.addEventListener("msvisibilitychange", this.pageVisibilityHandler);
+        } else if ("onfocusin" in document) { // IE 9-
+            document.onfocusin = document.onfocusout = this.pageVisibilityHandler;
+        } else { // everything else
+            window.onpageshow
+                = window.onpagehide
+                = window.onfocus
+                = window.onblur
+                = this.pageVisibilityHandler;
+        }
+
+        // set the initial state but only if browser supports the Page Visibility API
+        if (document[documentHiddenProperty] !== undefined) {
+            this.pageVisibilityHandler({type: document[documentHiddenProperty] ? "blur" : "focus"});
+        }
     }
 
     appBootstrap.prototype.isSupportedVersion = (function () {
@@ -257,6 +285,27 @@ var appBootstrap = (function() {
         }
     };
 
+    appBootstrap.prototype.pageVisibilityHandler = function (evt) {
+        var visible = false, hidden = true;
+        var eventMap = {
+            focus: visible,
+            focusin: visible,
+            pageshow: visible,
+            blur: hidden,
+            focusout: hidden,
+            pagehide: hidden
+        };
+
+        evt = evt || window.event;
+        if (evt.type in eventMap) {
+            this.isPageHidden = eventMap[evt.type];
+        } else {
+            this.isPageHidden = document[documentHiddenProperty];
+        }
+        document.body.classList.remove(this.isPageHidden ? "is-visible" : "is-hidden");
+        document.body.classList.add(this.isPageHidden ? "is-hidden" : "is-visible");
+    };
+
     appBootstrap.prototype.initApp = function() {
         var self = this;
         var app = angular.module("app", ["app.main"]);
@@ -291,7 +340,10 @@ var appBootstrap = (function() {
             document.body.className += " is-safari";
         }
 
-        if (!this.executionEnvironment.isWebfontAvailable("Blueprint Webfont Test") || !this.executionEnvironment.isFontFaceSupported()) {
+        if (// test for web font support only if the page is actually visible
+            (!this.isPageHidden && !this.executionEnvironment.isWebfontAvailable("Blueprint Webfont Test"))
+            || !this.executionEnvironment.isFontFaceSupported()
+        ) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {

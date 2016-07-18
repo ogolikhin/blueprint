@@ -44,6 +44,11 @@ namespace ServiceLibrary.Helpers
             return DateTimeOffset.Parse(s, CultureInfo.InvariantCulture);
         }
 
+        public static string DateTimeParseToIso8601Invariant(DateTime dateTime)
+        {
+            return dateTime.ToString("o", CultureInfo.InvariantCulture);
+        }
+
         #endregion Parse methods
 
         #region Compare methods

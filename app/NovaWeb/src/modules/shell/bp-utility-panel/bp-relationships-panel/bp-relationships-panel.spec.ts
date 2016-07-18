@@ -13,6 +13,9 @@ describe("Component BPRelationshipsPanel", () => {
     let directiveTest: ComponentTest<BPRelationshipsPanelController>;
     let template = `<bp-relationships-panel></bp-relationships-panel>`;
     let vm: BPRelationshipsPanelController;
+    let bpAccordionPanelController = {
+        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+    };
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -26,7 +29,7 @@ describe("Component BPRelationshipsPanel", () => {
     beforeEach(inject((projectManager: ProjectManager) => {
         projectManager.initialize();
         directiveTest = new ComponentTest<BPRelationshipsPanelController>(template, "bp-relationships-panel");
-        vm = directiveTest.createComponent({});
+        vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
     }));
 
     afterEach(() => {

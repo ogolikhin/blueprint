@@ -1,18 +1,24 @@
-﻿import { Models} from "../../..";
+﻿import * as moment from "moment";
+import { Models} from "../../..";
 
 enum LookupEnum {
     ByName = 0,
     ById = 1,
     ByType = 2,
 }
+export interface IArtifactEditor {
+    getFields(): AngularFormly.IFieldConfigurationObject[];
+    getModel(): any;
+}
 
-export class FieldContext implements Models.IPropertyType{
+
+export class FieldContext implements Models.IPropertyType {
     public id: number;
     public versionId: number;
     public name: string;
     public primitiveType: Models.PrimitiveType;
     public instancePropertyTypeId: number;
-    public isRichText: boolean; 
+    public isRichText: boolean;
     public decimalDefaultValue: number;
     public dateDefaultValue: Date;
     public userGroupDefaultValue: any[];
@@ -95,12 +101,12 @@ export class PropertyEditor  {
                             value.propertyTypePredefined === <number>it.modelPropertyName;
                     })[0];
                     value = propertyValue ? propertyValue.value : undefined;
-                } 
+                    }
                 if (angular.isDefined(value)) {
                     this._model[it.fieldPropertyName] = it.primitiveType === Models.PrimitiveType.Choice ? value.toString() : value;
-                }
+                    }
                 this._fields.push(field);
-            }
+                }
         });
     }
 
@@ -177,7 +183,11 @@ export class PropertyEditor  {
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            disabled: true
+            // the following are test values, using DateJS
+            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
+            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
+            isRequired: true
+            //disabled: true
         }));
         properties.push(new FieldContext(<Models.IPropertyType>{
             name: "Last edited by",
@@ -217,12 +227,17 @@ export class PropertyEditor  {
                 disabled: context.disabled
             },
             expressionProperties: {}
-        }; 
+        };
         //        this.data = this.propertyType;
         switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
                 field.type = context.isRichText ? "tinymceInline" : (context.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = context.stringDefaultValue;
+                if (context.isRichText) {
+                    field.templateOptions["tinymceOption"] = {
+                        //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                    };
+                }
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "datepicker";
@@ -237,7 +252,7 @@ export class PropertyEditor  {
                 field.type = "input";
                 field.templateOptions.type = "number";
                 if (angular.isNumber(context.defaultValidValueId)) {
-                    field.defaultValue = context.decimalDefaultValue;
+                field.defaultValue = context.decimalDefaultValue;
                 }
                 field.templateOptions.min = context.minNumber;
                 field.templateOptions.max = context.maxNumber;

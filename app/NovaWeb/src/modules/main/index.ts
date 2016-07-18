@@ -1,4 +1,5 @@
 import "angular";
+import "angular-messages";
 import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
@@ -12,6 +13,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
 import "tinymce";
+import * as moment from "moment";
 import * as Enums from "./models/enums";
 import {Helper} from "../core/utils/helper";
 import * as Models from "./models/models";
@@ -29,7 +31,7 @@ import {BpArtifact} from "./components/editors/general/bp-artifact";
 import {config as routesConfig} from "./main.state";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
-import {BPDiagram} from "./components/editors/graphic/bp-diagram";
+import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
 
 
 config.$inject = ["$rootScope", "$state"];
@@ -57,6 +59,9 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     }
 
     tinymce.baseURL = "../novaweb/libs/tinymce";
+
+    moment.locale(Helper.getFirstBrowserLanguage());
+    //console.log("language: " + moment.locale(), "date format: " + moment.localeData().longDateFormat("L"));
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {
@@ -65,7 +70,17 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
-    "ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "ui.tinymce", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2", "formly", "formlyBootstrap"])
+    "ngMessages",
+    "ngSanitize",
+    "app.shell",
+    "ui.router",
+    "ui.bootstrap",
+    "ui.tinymce",
+    "agGrid",
+    "ngDraggable",
+    "angular-perfect-scrollbar-2",
+    "formly",
+    "formlyBootstrap"])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

@@ -136,7 +136,8 @@ namespace CommonServiceTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 invalidArtifact.GetNavigation(_primaryUser, _artifacts);
-            }, "The GET svc/shared/navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the URL!");
+            }, "The GET {0} endpoint should return 404 NotFound when we pass an invalid artifact ID in the URL!",
+                RestPaths.Svc.Shared.NAVIGATION_ids_);
         }
 
         [TestRail(107170)]

@@ -2,15 +2,19 @@
 import { IProjectManager, Models} from "../../../main";
 import {IMessageService} from "../../../shell";
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
     public controller: Function = BPDiscussionPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
-export class BPDiscussionPanelController {
+export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log",
         "localization",
         "artifactDiscussions",
         "projectManager",
@@ -20,7 +24,6 @@ export class BPDiscussionPanelController {
 
     //private loadLimit: number = 10;
     private artifactId: number;
-    private _subscribers: Rx.IDisposable[];
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
@@ -31,12 +34,14 @@ export class BPDiscussionPanelController {
     public showAddComment: boolean = false;
 
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
-        private projectManager: IProjectManager,
+        protected projectManager: IProjectManager,
         private messageService: IMessageService,
-        private $q: ng.IQService) {
+        private $q: ng.IQService,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -44,25 +49,18 @@ export class BPDiscussionPanelController {
         //];
     }
 
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
-            .distinctUntilChanged((v: Models.IArtifact) => v ? v.id : -1) // do not reload if same id is re-selected
-            .asObservable()
-            .subscribe(this.setArtifactId);
-
-        this._subscribers = [selectedArtifactSubscriber];
+    public $onInit() {
+        super.$onInit();
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
 
         // clean up history list
         this.artifactDiscussionList = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    protected setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {

@@ -282,7 +282,6 @@ export class ProjectManager implements IProjectManager {
         return !!this.currentArtifact.getValue();
     }
 
-
     public getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[] {
         let _artifact: Models.IArtifact;
         if (typeof artifact === "number") {
@@ -302,9 +301,9 @@ export class ProjectManager implements IProjectManager {
         }
 
         let properties: Models.IPropertyType[] = [];
-
         let _artifactType: Models.IItemType;
-        //add custom properties
+        
+        //create list of suystem properties
         if (_artifact.predefinedType === Models.ItemTypePredefined.Project) {
             _artifactType = <Models.IItemType>{
                 id: Models.ItemTypePredefined.Project,
@@ -346,7 +345,6 @@ export class ProjectManager implements IProjectManager {
             }),
             isRequired: true
         });
-
         properties.push(<Models.IPropertyType>{
             name: "Created by",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
@@ -377,7 +375,8 @@ export class ProjectManager implements IProjectManager {
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
         });
-        //custom properties
+        
+        //add custom property types
         _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
             if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
                 properties.push(it);

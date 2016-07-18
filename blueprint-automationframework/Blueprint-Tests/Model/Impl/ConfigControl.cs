@@ -11,8 +11,6 @@ namespace Model.Impl
 {
     public class ConfigControl : NovaServiceBase, IConfigControl
     {
-        private const string SVC_PATH = "/svc/configcontrol";
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -30,7 +28,7 @@ namespace Model.Impl
         public IFile GetLog(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address);
-            var path = I18NHelper.FormatInvariant("{0}/log/getlog", SVC_PATH);
+            var path = RestPaths.Svc.ConfigControl.Log.GET_LOG;
 
             var response = restApi.SendRequestAndGetResponse(
                 path,
@@ -57,13 +55,13 @@ namespace Model.Impl
         /// <see cref="IConfigControl.GetStatus(List{HttpStatusCode})"/>
         public string GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
-            return GetStatus(SVC_PATH, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
+            return GetStatus(RestPaths.Svc.ConfigControl.STATUS, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IConfigControl.GetStatusUpcheck"/>
+        /// <seealso cref="IConfigControl.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+            return GetStatusUpcheck(RestPaths.Svc.ConfigControl.Status.UPCHECK, expectedStatusCodes);
         }
 
         #endregion Inherited from IConfigControl

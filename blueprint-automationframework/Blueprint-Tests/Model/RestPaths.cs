@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+// ReSharper disable InconsistentNaming
 
 namespace Model
 {
@@ -12,20 +13,20 @@ namespace Model
         [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class OpenApi
         {
-            public const string PROJECT                             = "api/v1/projects/{0}";
+            public const string PROJECTS_id_                        = "api/v1/projects/{0}";
             public const string PROJECTS                            = "api/v1/projects";
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
-            public static class Projects
+            public static class Projects_id_
             {
-                public const string ARTIFACT                        = "api/v1/projects/{0}/artifacts/{1}";
+                public const string ARTIFACTS_id_                   = "api/v1/projects/{0}/artifacts/{1}";
                 public const string ARTIFACTS                       = "api/v1/projects/{0}/artifacts";
 
-                public static class Artifacts
+                public static class Artifacts_id_
                 {
                     public const string ATTACHMENTS                 = "api/v1/projects/{0}/artifacts/{1}/attachments";
 
-                    public static class SubArtifacts
+                    public static class SubArtifacts_id_
                     {
                         public const string ATTACHMENTS             = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
                     }
@@ -45,14 +46,17 @@ namespace Model
             }
         }
 
+        [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class Svc
         {
+            public const string STATUS                              = "svc/status";
+
             [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]       // Ignore this warning.
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class AccessControl
             {
-                public const string SESSIONS                        = "svc/accesscontrol/sessions/{0}";
-                public const string SESSION                         = "svc/accesscontrol/sessions";
+                public const string SESSIONS_id_                    = "svc/accesscontrol/sessions/{0}";
+                public const string SESSIONS                        = "svc/accesscontrol/sessions";
                 public const string STATUS                          = "svc/accesscontrol/status";
 
                 public static class Licenses
@@ -89,10 +93,10 @@ namespace Model
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                 public static class Instance
                 {
-                    public const string FOLDERS                     = "svc/adminstore/instance/folders/{0}";
-                    public const string PROJECTS                    = "svc/adminstore/instance/projects/{0}";
+                    public const string FOLDERS_id_                 = "svc/adminstore/instance/folders/{0}";
+                    public const string PROJECTS_id_                = "svc/adminstore/instance/projects/{0}";
 
-                    public static class Folders
+                    public static class Folders_id_
                     {
                         public const string CHILDREN                = "svc/adminstore/instance/folders/{0}/children";
                     }
@@ -120,6 +124,47 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class ArtifactStore
+            {
+                public const string ARTIFACTS_id_                   = "svc/artifactstore/artifacts/{0}";
+                public const string STATUS                          = "svc/artifactstore/status";
+
+                public static class Artifacts_id_
+                {
+                    public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";
+                    public const string DISCUSSIONS                 = "svc/artifactstore/artifacts/{0}/discussions";
+                    public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
+                    public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
+                    public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
+
+                    public static class Discussions_id_
+                    {
+                        public const string REPLIES                 = "svc/artifactstore/artifacts/{0}/discussions/{1}/replies";
+                    }
+                }
+                
+                public static class Projects_id_
+                {
+                    public const string CHILDREN                    = "svc/artifactstore/projects/{0}/children";
+
+                    public static class Artifacts_id_
+                    {
+                        public const string CHILDREN                = "svc/artifactstore/projects/{0}/artifacts/{1}/children";
+                    }
+
+                    public static class Meta
+                    {
+                        public const string CUSTOM_TYPES            = "svc/artifactstore/projects/{0}/meta/customtypes";
+                    }
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/artifactstore/status/upcheck";
+                }
+            }
+
             public static class Components
             {
                 public static class FileStore
@@ -127,28 +172,33 @@ namespace Model
                     /// <summary>
                     /// Path to upload files to FileStore.  {0} = Filename.
                     /// </summary>
-                    public const string FILES                       = "svc/components/filestore/files/{0}";
+                    public const string FILES_filename_             = "svc/components/filestore/files/{0}";
                 }
 
                 public static class RapidReview
                 {
-                    public const string DIAGRAM                     = "svc/components/RapidReview/diagram/{0}";
-                    public const string GLOSSARY                    = "svc/components/RapidReview/glossary/{0}";
-                    public const string USECASE                     = "svc/components/RapidReview/usecase/{0}";
+                    public const string DIAGRAM_id_                 = "svc/components/RapidReview/diagram/{0}";
+                    public const string GLOSSARY_id_                = "svc/components/RapidReview/glossary/{0}";
+                    public const string USECASE_id_                 = "svc/components/RapidReview/usecase/{0}";
 
-                    [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                     public static class Artifacts
                     {
-                        public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
-                        public const string PROPERTIES              = "svc/components/RapidReview/artifacts/properties";
+                        public const string PROPERTIES = "svc/components/RapidReview/artifacts/properties";
+                    }
 
-                        public static class Discussions
+                    [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+                    public static class Artifacts_id_
+                    {
+                        public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
+                        
+
+                        public static class Discussions_id_
                         {
                             public const string REPLY               = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
                         }
                     }
 
-                    public static class Items
+                    public static class Items_id_
                     {
                         public const string PROPERTIES              = "svc/components/RapidReview/items/{0}/properties";
                     }
@@ -156,15 +206,15 @@ namespace Model
 
                 public static class Storyteller
                 {
-                    public const string ARTIFACT_INFO               = "svc/components/storyteller/artifactInfo/{0}";
+                    public const string ARTIFACT_INFO_id_           = "svc/components/storyteller/artifactInfo/{0}";
 
                     /// <summary>
                     /// Get the Storyteller process for the specified Artifact ID.  {0} = artifactId.
                     /// </summary>
-                    public const string PROCESSES                   = "svc/components/storyteller/processes/{0}";
+                    public const string PROCESSES_id_               = "svc/components/storyteller/processes/{0}";
 
                     [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
-                    public static class Projects
+                    public static class Projects_id_
                     {
                         public const string PROCESSES               = "svc/components/storyteller/projects/{0}/processes";
 
@@ -176,11 +226,54 @@ namespace Model
                             public const string USER_STORY          = "svc/components/storyteller/projects/{0}/artifacttypes/userstory";
                         }
 
-                        public static class Processes
+                        public static class Processes_id_
                         {
                             public const string USERSTORIES         = "svc/components/storyteller/projects/{0}/processes/{1}/userstories";
                         }
                     }
+                }
+            }
+
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class ConfigControl
+            {
+                public const string LOG                             = "svc/configcontrol/log";
+
+                /// <summary>
+                /// Gets config settings.  {0} is a bool for the allowRestricted parameter.
+                /// </summary>
+                public const string SETTINGS_bool_                  = "svc/configcontrol/settings/{0}";
+                public const string STATUS                          = "svc/configcontrol/status";
+
+                public static class Log
+                {
+                    public const string CLOG                        = "svc/configcontrol/log/CLog";
+                    public const string STANDARD_LOG                = "svc/configcontrol/log/StandardLog";
+                    public const string PERFORMANCE_LOG             = "svc/configcontrol/log/PerformanceLog";
+                    public const string SQL_TRACE_LOG               = "svc/configcontrol/log/SQLTraceLog";
+                    public const string GET_LOG                     = "svc/configcontrol/log/GetLog";
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/configcontrol/status/upcheck";
+                }
+            }
+
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class FileStore
+            {
+                public const string FILES                           = "svc/filestore/files";
+
+                /// <summary>
+                /// Delete/Get/Head/Put files in FileStore.  {0} = File GUID.
+                /// </summary>
+                public const string FILES_id_                       = "svc/filestore/files/{0}";
+                public const string STATUS                          = "svc/filestore/status";
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/filestore/status/upcheck";
                 }
             }
 
@@ -198,7 +291,12 @@ namespace Model
                 /// Get the Artifact Reference list (Breadcrumb) for the specified Artifact IDs.
                 /// {0} = all the Artifact IDs in the breadcrumb.  Ex.  1/2/3/4
                 /// </summary>
-                public const string NAVIGATION                  = "svc/shared/navigation/{0}";
+                public const string NAVIGATION_ids_             = "svc/shared/navigation/{0}";
+            }
+
+            public static class Status
+            {
+                public const string UPCHECK                     = "svc/status/upcheck";
             }
         }
     }

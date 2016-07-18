@@ -22,12 +22,6 @@ export class DiagramLibraryManager {
                 return new UiMockupShapeFactory();
             case Diagrams.STORYBOARD:
                 return new StoryboardShapeFactory();
-            // case Diagrams.UIMOCKUP:
-            //     return new UiMockupShapeFactory();
-            // case Diagrams.STORYBOARD:
-            //     return new StoryboardShapeFactory();
-            // case Diagrams.DOMAIN_DIAGRAM:
-            //     return new DomainDiagramShapeFactory();
              case Diagrams.USECASE_DIAGRAM:
                  return new UseCaseDiagramShapeFactory();
             case Diagrams.USECASE:

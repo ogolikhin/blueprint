@@ -21,7 +21,7 @@ export class BPArtifactRelationshipItemController {
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
     public artifact: Relationships.IRelationship;
-    public fromOtherProject: boolean=false;
+    public fromOtherProject: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
@@ -48,11 +48,11 @@ export class BPArtifactRelationshipItemController {
                 if (text.length > 100) {
                     return text.substring(0, 100) + "...";
                 }
-                return text
+                return text;
             }
-            return '';
+            return "";
         }
-        return '';
+        return "";
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {

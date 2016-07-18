@@ -62,7 +62,7 @@ interface IStepNameToNodeMap {
 
 export class FlowGraphDiagramBuilder {
 
-    private diagramOffset = 10;
+    private diagramOffset = 30;
 
     /**
      * Bulds IDiagram object based on LayoutResult

@@ -362,7 +362,7 @@ export class DiagramHelper {
         let formatDate: (date: Date, format: string) => string;
 
         try {
-            formatDate = <(date: Date, format: string) => string>(<any>$)("body").injector().get("dateFilter");
+            formatDate = <(date: Date, format: string) => string>angular.injector(["ng"]).get("$filter")("date");
 
         } catch (e) {
         }

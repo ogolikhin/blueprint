@@ -3,21 +3,14 @@ import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");
 
-import {BPDiagram} from "../../../../components/editors/graphic/bp-diagram";
-import {StencilServiceMock} from '../stencil.svc.mock';
-import {DiagramServiceMock, Prop, LabelStyle} from '../diagram.svc.mock';
+import {DiagramMock, Prop, LabelStyle} from "../diagram.mock";
+import {DiagramView} from "./diagram-view";
 import {UIMockupShapes, UIMockupShapeProps, Diagrams, Shapes} from "./utils/constants";
 import {UiMockupShapeFactory} from "./uimockup-diagram";
-import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
+import {IShapeTemplates} from "./abstract-diagram-factory";
 import {IShape, IProp} from "./models";
 import {CalloutShape, IconShape} from "./shapes-library";
-import {ProjectManager} from "../../../../services/project-manager";
-import {LocalizationServiceMock} from "../../../../../core/localization.mock";
-import {MessageServiceMock} from "../../../../../shell/messages/message.mock";
-import {ProjectRepository} from "../../../../services/project-repository";
-import {ComponentTest} from "../../../../../util/component.test";
-import {BPDiagramController} from "../bp-diagram";
-import {ItemTypePredefined} from "../../../../models/enums";
+import {StencilServiceMock} from "../stencil.svc.mock";
 
 export var uiMockupShapesTestHelper = {
     getStyleObject: (styleString: string): any => {
@@ -32,72 +25,57 @@ export var uiMockupShapesTestHelper = {
 };
 
 describe("UIMockup", () => {
-    let componentTest: ComponentTest<BPDiagramController>;
-    let validUseDirectiveHtml = "<bp-diagram></bp-diagram>";
-    let vm: BPDiagramController;
-
     let element: ng.IAugmentedJQuery;
+    let diagramView: DiagramView;
 
     beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.component("bpDiagram", new BPDiagram());
         $provide.service("stencilService", StencilServiceMock);
-        $provide.service("diagramService", DiagramServiceMock);
-        $provide.service("projectManager", ProjectManager);
-        $provide.service("localization", LocalizationServiceMock);
-        $provide.service("messageService", MessageServiceMock);
-        $provide.service("projectRepository", ProjectRepository);
-        //$provide.service("artifactSelector", ArtifactSelector);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
-        componentTest = new ComponentTest<BPDiagramController>(validUseDirectiveHtml, "bp-diagram");
-        vm = componentTest.createComponent({});
-        element = componentTest.element;
+    beforeEach(inject((stencilService: StencilServiceMock) => {
+        const divElement = document.createElement("div");
+        element = angular.element(divElement);
+        diagramView = new DiagramView(element[0], stencilService);
     }));
 
-    it("Hotspot Test, Element Exists", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Hotspot Test, Element Exists", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HOTSPOT));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.HOTSPOT));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var hotspotElement = element.find("rect");
+        const hotspotElement = element.find("rect");
         expect(hotspotElement.length).toEqual(1);
-        var rectNode = hotspotElement[0];
+        const rectNode = hotspotElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#646464");
         expect(rectNode.getAttribute("fill").toLowerCase()).toEqual("#bdd0e6");
-    }));
+    });
 
-    it("Hyperlink Test, Label css", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Hyperlink Test, Label css", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HYPERLINK));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.HYPERLINK));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var labelContainer = element.find("div:contains('Hyperlink:')");
+        const labelContainer = element.find("div:contains('Hyperlink:')");
         expect(labelContainer.css("vertical-align")).toEqual("top");
         expect(labelContainer.css("overflow")).toEqual("hidden");
-    }));
+    });
 
-    it("TextBox label styling test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("TextBox label styling test", () => {
         // Arrange
         const eventShapes = [];
-        var shape = DiagramServiceMock.createShape(UIMockupShapes.TEXTBOX);
+        const shape = DiagramMock.createShape(UIMockupShapes.TEXTBOX);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -106,269 +84,243 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
         shape.labelStyle = labelStyle;
 
-        var textProperty = new Prop();
+        const textProperty = new Prop();
         textProperty.name = UIMockupShapeProps.TEXT;
         textProperty.value = "TextBoxValue";
         shape.props.push(textProperty);
 
         eventShapes.push(shape);
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var textBoxContainer = element.find("div:contains('TextBoxValue')");
+        const textBoxContainer = element.find("div:contains('TextBoxValue')");
         expect(textBoxContainer.css("font-family")).toEqual("Arial");
         expect(textBoxContainer.css("font-size")).toEqual("20px");
 
-        var actualFontWeight = textBoxContainer.css("font-weight");
+        const actualFontWeight = textBoxContainer.css("font-weight");
         // for IE its 700 instead of bold
         expect(actualFontWeight === "bold" || actualFontWeight === "700").toBeTruthy();
         expect(textBoxContainer.css("font-style")).toEqual("italic");
         expect(textBoxContainer.css("text-decoration")).toEqual("underline");
 
         expect(textBoxContainer.css("color")).toEqual("rgb(0, 0, 255)");
-    }));
+    });
 
-    it("Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.BUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.BUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var buttonElement = element.find("rect");
+        const buttonElement = element.find("rect");
         expect(buttonElement.length).toEqual(1);
-        var rectNode = buttonElement[0];
+        const rectNode = buttonElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
-    }));
+    });
 
-    it("Drop Down Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Drop Down Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DROPDOWNBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.DROPDOWNBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var buttonElement = element.find("rect");
+        const buttonElement = element.find("rect");
         expect(buttonElement.length).toEqual(2);
-        var rectNode1 = buttonElement[0];
+        const rectNode1 = buttonElement[0];
         expect(rectNode1.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
-        var rectNode2 = buttonElement[1];
+        const rectNode2 = buttonElement[1];
         expect(rectNode2.getAttribute("stroke").toLowerCase()).toEqual("none");
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
-        var markElement = element.find("path");
+        const markElement = element.find("path");
         expect(markElement.length).toEqual(1);
-        var mark = markElement[0];
+        const mark = markElement[0];
         expect(mark.getAttribute("stroke").toLowerCase()).toEqual("black");
-    }));
+    });
 
-    it("Split Button Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Split Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.SPLITBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.SPLITBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var buttonElement = element.find("rect");
+        const buttonElement = element.find("rect");
         expect(buttonElement.length).toEqual(3);
-        var rectNode1 = buttonElement[0];
+        const rectNode1 = buttonElement[0];
         expect(rectNode1.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
-        var rectNode2 = buttonElement[1];
+        const rectNode2 = buttonElement[1];
         expect(rectNode2.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
-        var rectNode3 = buttonElement[1];
+        const rectNode3 = buttonElement[1];
         expect(rectNode3.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         expect(rectNode3.getAttribute("fill").toLowerCase()).toEqual("transparent");
-        var markElement = element.find("path");
+        const markElement = element.find("path");
         expect(markElement.length).toEqual(1);
-        var mark = markElement[0];
+        const mark = markElement[0];
         expect(mark.getAttribute("stroke").toLowerCase()).toEqual("black");
-    }));
+    });
 
 
 
-    it("Checkbox checked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Checkbox checked Test", () => {
         // Arrange
         const eventShapes = [];
-        var checkedProperty = new Prop();
+        const checkedProperty = new Prop();
         checkedProperty.name = "Checked";
         checkedProperty.value = "true";
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX, [checkedProperty]));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.CHECKBOX, [checkedProperty]));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var path = element.find("path");
+        const path = element.find("path");
         expect(path.length === 1).toBeTruthy();
-    }));
+    });
 
-    it("Checkbox unchecked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Checkbox unchecked Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.CHECKBOX));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var checkBoxContainer = element.find("div:contains('CheckBox:')");
+        const checkBoxContainer = element.find("div:contains('CheckBox:')");
         expect(checkBoxContainer !== null).toBeTruthy();
-        var path = element.find("path");
+        const path = element.find("path");
         expect(path.length === 0).toBeTruthy();
-    }));
+    });
 
-    it("RadioButton checked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("RadioButton checked Test", () => {
         // Arrange
         const eventShapes = [];
-        var checkedProperty = new Prop();
+        const checkedProperty = new Prop();
         checkedProperty.name = "Checked";
         checkedProperty.value = "true";
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON, [checkedProperty]));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.RADIOBUTTON, [checkedProperty]));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var ellipse = element.find("ellipse");
+        const ellipse = element.find("ellipse");
         expect(ellipse.length === 3).toBeTruthy();
-    }));
+    });
 
-    it("RadioButton unchecked Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("RadioButton unchecked Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.RADIOBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var ellipse = element.find("ellipse");
+        const ellipse = element.find("ellipse");
         expect(ellipse.length === 2).toBeTruthy();
-    }));
+    });
 
 
-    it("frame Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("frame Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.FRAME));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.FRAME));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var frameElement = element.find("rect");
+        const frameElement = element.find("rect");
         expect(frameElement.length).toEqual(4);
-        var rectNode = frameElement[2];
+        const rectNode = frameElement[2];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#a9bfd6");
-    }));
+    });
 
 
-    it("date time picker test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $injector, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("date time picker test", inject(($injector) => {
         // Arrange
-        $.fn.injector = function () {
-            return $injector;
-        };
+        $.fn.injector = () => $injector;
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var rect = element.find("rect");
+        const rect = element.find("rect");
         expect(rect.length).toEqual(3);
 
         //
-        var rectNode0 = rect[0];
+        const rectNode0 = rect[0];
         expect(rectNode0.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         //
-        var rectNode1 = rect[1];
+        const rectNode1 = rect[1];
         expect(rectNode1.getAttribute("stroke").toLowerCase()).toEqual("#a8bed5");
         //
-        var rectNode2 = rect[2];
+        const rectNode2 = rect[2];
         expect(rectNode2.getAttribute("fill").toLowerCase()).toEqual("transparent");
     }));
 
-    it("Numeric spinner Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Numeric spinner Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.NUMERIC_SPINNER));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.NUMERIC_SPINNER));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var triangle = element.find("path");
+        const triangle = element.find("path");
         expect(triangle.length === 2).toBeTruthy();
-    }));
+    });
 
 
-    it("Text Area", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, diagramService: DiagramServiceMock, projectManager: ProjectManager) => {
+    it("Text Area", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.TEXT_AREA));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
-        diagramService.diagramMock = diagramMock;
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.TEXT_AREA));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
-        projectManager.currentArtifact.onNext(<any>{ id: 1, predefinedType: ItemTypePredefined.UIMockup });
-        $rootScope.$apply();
+        diagramView.drawDiagram(diagramMock);
 
         // Assert
-        var textAreaElement = element.find("rect");
+        const textAreaElement = element.find("rect");
         expect(textAreaElement.length).toEqual(2);
-        var rectNode = textAreaElement[0];
+        const rectNode = textAreaElement[0];
         expect(rectNode.getAttribute("stroke").toLowerCase()).toEqual("#7f98a9");
-    }));
+    });
 
-    it("Menu General Test", inject(() => {
+    it("Menu General Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -377,7 +329,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -398,33 +350,33 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
 
-        expect(menuShapeBIU["children"].length).toBeGreaterThan(0);
-        var contentStyleString = menuShapeBIU["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        expect(menuShapeBiu["children"].length).toBeGreaterThan(0);
+        const contentStyleString = menuShapeBiu["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["verticalAlign"]).toEqual("top");
 
-        var menuLabel: string = menuShapeBIU["children"][0].value;
+        const menuLabel: string = menuShapeBiu["children"][0].value;
         expect(menuLabel.indexOf("File")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("View")).toBeGreaterThan(0);
         expect(menuLabel.indexOf("&#10004;")).toBeGreaterThan(0);
-    }));
+    });
 
-    it("Menu Bold Underlined Test", inject(() => {
+    it("Menu Bold Underlined Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -433,7 +385,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -454,24 +406,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("5");
 
-    }));
+    });
 
-    it("Menu Underlined Test", inject(() => {
+    it("Menu Underlined Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = false;
         labelStyle.isUnderline = true;
@@ -480,7 +432,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -501,24 +453,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("4");
 
-    }));
+    });
 
-    it("Menu Italic Underlined Test", inject(() => {
+    it("Menu Italic Underlined Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = false;
         labelStyle.isUnderline = true;
@@ -527,7 +479,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -548,24 +500,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("6");
 
-    }));
+    });
 
-    it("Menu Italic Test", inject(() => {
+    it("Menu Italic Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = false;
         labelStyle.isUnderline = false;
@@ -574,7 +526,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -595,24 +547,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
 
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
         expect(menuStyle["fontStyle"]).toEqual("2");
 
-    }));
+    });
 
-    it("Menu Horizontal Test", inject(() => {
+    it("Menu Horizontal Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -621,7 +573,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             props: [
                 { name: "length", value: "3" },
@@ -642,74 +594,74 @@ describe("UIMockup", () => {
         };
 
         //act
-        var menuShapeBIU = templates["Menu"](<IShape>shape);
+        const menuShapeBiu = templates["Menu"](<IShape>shape);
         //assert
-        var menuStyleString = menuShapeBIU["style"];
-        var menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
+        const menuStyleString = menuShapeBiu["style"];
+        const menuStyle = uiMockupShapesTestHelper.getStyleObject(menuStyleString);
         expect(menuStyle["strokeWidth"]).toEqual("1");
         expect(menuStyle["fillColor"]).toEqual("#F1F5FB");
-    }));
+    });
 
-    it("Alpha Hex Color To RGB Test", inject(() => {
+    it("Alpha Hex Color To RGB Test", () => {
         // Arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var normalHexColor = "#52d57e";
-        var wrongHexColor = "52d57e";
-        var shortHexColor = "#52d";
-        var emptyHexColor = "";
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const normalHexColor = "#52d57e";
+        const wrongHexColor = "52d57e";
+        const shortHexColor = "#52d";
+        const emptyHexColor = "";
 
         // Act
-        var normalHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, normalHexColor);
-        var wrongHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, wrongHexColor);
-        var shortHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, shortHexColor);
-        var emptyHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, emptyHexColor);
+        const normalHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, normalHexColor);
+        const wrongHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, wrongHexColor);
+        const shortHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, shortHexColor);
+        const emptyHexColorResult = uiMockupShapeFactory.convertAlphaHexToRgb(0.5, emptyHexColor);
 
         // Assert
         expect(normalHexColorResult).not.toEqual(normalHexColor);
         expect(wrongHexColorResult).toEqual(wrongHexColor);
         expect(shortHexColorResult).toEqual(shortHexColor);
         expect(emptyHexColorResult).toEqual(emptyHexColor);
-    }));
+    });
 
-    it("Browser Template Test", inject(() => {
+    it("Browser Template Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             props: [
                 { name: "length", value: "2" }
             ]
         };
 
         //act
-        var browserShape = templates["Browser"](<IShape>shape);
+        const browserShape = templates["Browser"](<IShape>shape);
         //assert
-        var browserStyleString = browserShape["style"];
-        var browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
+        const browserStyleString = browserShape["style"];
+        const browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
         expect(browserStyle["strokeWidth"]).toEqual("2");
         expect(browserStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(browserStyle["fillColor"]).toEqual("none");
 
-        var topBarStyleString = browserShape["children"][0].getStyle();
-        var topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
+        const topBarStyleString = browserShape["children"][0].getStyle();
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
         expect(topBarStyle["strokeWidth"]).toEqual("2");
         expect(topBarStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(topBarStyle["fillColor"]).toEqual("#DBE5F3");
 
-        var contentBoxStyleString = browserShape["children"][1].getStyle();
-        var contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
+        const contentBoxStyleString = browserShape["children"][1].getStyle();
+        const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
-    }));
+    });
 
-    it("Browser Template Test Scroll Bar", inject(() => {
+    it("Browser Template Test Scroll Bar", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             props: [
                 { name: "length", value: "2" },
                 { name: "ScrollBar", value: "true" }
@@ -717,32 +669,32 @@ describe("UIMockup", () => {
         };
 
         //act
-        var browserShape = templates["Browser"](<IShape>shape);
+        const browserShape = templates["Browser"](<IShape>shape);
         //assert
-        var browserStyleString = browserShape["style"];
-        var browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
+        const browserStyleString = browserShape["style"];
+        const browserStyle = uiMockupShapesTestHelper.getStyleObject(browserStyleString);
         expect(browserStyle["strokeWidth"]).toEqual("2");
         expect(browserStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(browserStyle["fillColor"]).toEqual("none");
 
-        var topBarStyleString = browserShape["children"][0].getStyle();
-        var topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
+        const topBarStyleString = browserShape["children"][0].getStyle();
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(topBarStyleString);
         expect(topBarStyle["strokeWidth"]).toEqual("2");
         expect(topBarStyle["strokeColor"]).toEqual("#A9BFD6");
         expect(topBarStyle["fillColor"]).toEqual("#DBE5F3");
 
-        var contentBoxStyleString = browserShape["children"][1].getStyle();
-        var contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
+        const contentBoxStyleString = browserShape["children"][1].getStyle();
+        const contentBoxStyle = uiMockupShapesTestHelper.getStyleObject(contentBoxStyleString);
         expect(contentBoxStyle["strokeColor"]).toEqual("#A9BFD6");
-    }));
+    });
 
-    it("window shape test", inject(() => {
+    it("window shape test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             props: [
                 {
                     "name": "IsKeepAspectRatio",
@@ -776,135 +728,135 @@ describe("UIMockup", () => {
         };
 
         //act
-        var windowShape = <any>templates["Window"](<IShape>shape);
+        const windowShape = <any>templates["Window"](<IShape>shape);
 
         //assert
-        var windowStyle = uiMockupShapesTestHelper.getStyleObject(windowShape["style"]);
+        const windowStyle = uiMockupShapesTestHelper.getStyleObject(windowShape["style"]);
         //
         expect(windowStyle.strokeWidth).toEqual("2");
         expect(windowStyle.strokeColor).toEqual("#A8BED5");
 
-        var topBarStyle = uiMockupShapesTestHelper.getStyleObject(windowShape.children[0].style);
+        const topBarStyle = uiMockupShapesTestHelper.getStyleObject(windowShape.children[0].style);
         expect(topBarStyle.strokeWidth).toEqual("2");
         expect(topBarStyle.strokeColor).toEqual("#A8BED5");
         expect(topBarStyle.fillColor).toEqual("#DBE6F4");
 
 
         //strokeColor=#A9BFD6;foldable=0;selectable=0;
-        var childShape = uiMockupShapesTestHelper.getStyleObject(windowShape.children[1].style);
+        const childShape = uiMockupShapesTestHelper.getStyleObject(windowShape.children[1].style);
         //children are not selectable
         expect(childShape.selectable).toEqual("0");
-    }));
+    });
 
-    it("Highlight Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Highlight Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = <IShape>{};
-        var highlightProp = <IProp>{};
+        const shape = <IShape>{};
+        const highlightProp = <IProp>{};
         highlightProp.name = "IsNodeHighlighted";
         highlightProp.value = "true";
         shape.props = [highlightProp];
         //act
-        var mxCell = templates[UIMockupShapes.BUTTON](shape);
+        const mxCell = templates[UIMockupShapes.BUTTON](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(mxCell).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        var firstChild = cellChildren[0];
-        var style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[0];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["strokeWidth"]).toEqual(UiMockupShapeFactory.highlightStrokeWidth.toString());
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
-    }));
+    });
 
-    it("Highlight callout Test", inject(() => {
+    it("Highlight callout Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initDefaultTemplates(templates);
         //uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = <IShape>{};
-        var highlightProp = <IProp>{};
+        const shape = <IShape>{};
+        const highlightProp = <IProp>{};
         highlightProp.name = "IsNodeHighlighted";
         highlightProp.value = "true";
         shape.props = [highlightProp];
         //act
-        var mxCell = templates[Shapes.CALLOUT](shape);
+        const mxCell = templates[Shapes.CALLOUT](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        var firstChild = cellChildren[0];
-        var style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[0];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["strokeWidth"]).toEqual(UiMockupShapeFactory.highlightStrokeWidth.toString());
         expect(style["strokeColor"]).toEqual(UiMockupShapeFactory.highlightStrokeColor);
         expect(style["shape"]).toEqual(CalloutShape.getName);
 
-    }));
+    });
 
-    it("Disable Test", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Disable Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = <IShape>{};
-        var stateProperty = <IProp>{};
+        const shape = <IShape>{};
+        const stateProperty = <IProp>{};
         stateProperty.name = "State";
         stateProperty.value = "Disabled";
         shape.props = [stateProperty];
         //act
-        var mxCell = templates[UIMockupShapes.NUMERIC_SPINNER](shape);
+        const mxCell = templates[UIMockupShapes.NUMERIC_SPINNER](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 3).toBeTruthy();
-        var firstChild = cellChildren[3];
-        var style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
+        const firstChild = cellChildren[3];
+        const style = uiMockupShapesTestHelper.getStyleObject(firstChild["style"]);
         expect(style["fillColor"]).toEqual(UiMockupShapeFactory.disableStateFillColor);
         expect(style["opacity"]).toEqual(UiMockupShapeFactory.disableStateOpacity.toString());
-    }));
+    });
 
-    it("DropDown List Test", inject(() => {
+    it("DropDown List Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape properties here.
-        var shape = <IShape>{};
-        var listItemProp = <IProp>{};
+        const shape = <IShape>{};
+        const listItemProp = <IProp>{};
         listItemProp.name = "ListItem";
-        var itemName = "ItemName";
-        var value = {
+        const itemName = "ItemName";
+        const value = {
             checked: true,
             name: itemName
         };
         listItemProp.value = value;
         shape.props = [listItemProp];
         //act
-        var mxCell = templates[UIMockupShapes.DROPDOWN_LIST](shape);
+        const mxCell = templates[UIMockupShapes.DROPDOWN_LIST](shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var cellChildren = mxCell["children"];
+        const cellChildren = mxCell["children"];
         expect(cellChildren).not.toBeNull();
         expect(cellChildren.length > 0).toBeTruthy();
-        var lastChild = cellChildren[cellChildren.length - 1];
+        const lastChild = cellChildren[cellChildren.length - 1];
         expect(lastChild.value).toEqual(itemName);
-    }));
+    });
 
-    it("Text Area No Scroll Bar", inject(() => {
+    it("Text Area No Scroll Bar", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             props: [
                 {
                     "name": "IsKeepAspectRatio",
@@ -917,22 +869,22 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(1);
-    }));
+    });
 
-    it("Text Area Scroll Bar", inject(() => {
+    it("Text Area Scroll Bar", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             height: 60,
             props: [
                 {
@@ -946,23 +898,23 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TEXT_AREA](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(style.strokeColor).toEqual("#7F98A9");
         expect(mxCell["children"].length).toEqual(2);
-    }));
+    });
 
-    it("Slider Test", inject(() => {
+    it("Slider Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             //labelStyle: labelStyle,
             props: [
                 { name: "length", value: "2" },
@@ -972,25 +924,25 @@ describe("UIMockup", () => {
         };
 
         //act
-        var sliderShape = templates["Slider"](<IShape>shape);
+        const sliderShape = templates["Slider"](<IShape>shape);
 
         //assert
 
         expect(sliderShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = sliderShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = sliderShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["rounded"]).toEqual("1");
-    }));
+    });
 
-    it("Scrollbar Vertical Test", inject(() => {
+    it("Scrollbar Vertical Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             //labelStyle: labelStyle,
             props: [
                 { name: "length", value: "2" },
@@ -1000,25 +952,25 @@ describe("UIMockup", () => {
         };
 
         //act
-        var scrollShape = templates["Scrollbar"](<IShape>shape);
+        const scrollShape = templates["Scrollbar"](<IShape>shape);
 
         //assert
 
         expect(scrollShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = scrollShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = scrollShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
-    }));
+    });
 
-    it("Scrollbar Horizontal Test", inject(() => {
+    it("Scrollbar Horizontal Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             //labelStyle: labelStyle,
             props: [
                 { name: "length", value: "2" },
@@ -1028,25 +980,25 @@ describe("UIMockup", () => {
         };
 
         //act
-        var scrollShape = templates["Scrollbar"](<IShape>shape);
+        const scrollShape = templates["Scrollbar"](<IShape>shape);
 
         //assert
 
         expect(scrollShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = scrollShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = scrollShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("triangle");
-    }));
+    });
 
-    it("ProgressBar Test", inject(() => {
+    it("ProgressBar Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             //labelStyle: labelStyle,
             props: [
                 { name: "length", value: "2" },
@@ -1056,24 +1008,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var progressShape = templates["ProgressBar"](<IShape>shape);
+        const progressShape = templates["ProgressBar"](<IShape>shape);
 
         //assert
 
         expect(progressShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = progressShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = progressShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("highlightEllipse");
-    }));
+    });
 
-    it("List Box", inject(() => {
+    it("List Box", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
-        var shape = {
+        const shape = {
             height: 60,
             props: [
                 {
@@ -1087,23 +1039,23 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.LIST](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.LIST](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("1");
         expect(style.strokeColor).toEqual("#808080");
         expect(mxCell["children"].length).toEqual(2);
-    }));
+    });
 
-    it("Accordion Normal Test", inject(() => {
+    it("Accordion Normal Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             width: 300,
             height: 450,
             props: [
@@ -1124,24 +1076,24 @@ describe("UIMockup", () => {
         };
 
         //act
-        var accordionShape = templates["Accordion"](<IShape>shape);
+        const accordionShape = templates["Accordion"](<IShape>shape);
 
         //assert
 
         expect(accordionShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = accordionShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = accordionShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Accordion With Scrollbars Test", inject(() => {
+    it("Accordion With Scrollbars Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1150,7 +1102,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             labelStyle: labelStyle,
             width: 200,
             height: 150,
@@ -1184,25 +1136,25 @@ describe("UIMockup", () => {
         };
 
         //act
-        var accordionShape = templates["Accordion"](<IShape>shape);
+        const accordionShape = templates["Accordion"](<IShape>shape);
 
         //assert
 
         expect(accordionShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = accordionShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = accordionShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Tab", inject(() => {
+    it("Tab", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1210,7 +1162,7 @@ describe("UIMockup", () => {
         labelStyle.fontFamily = "Arial";
         labelStyle.fontSize = "20";
 
-        var shape = {
+        const shape = {
             height: 60,
             labelStyle: labelStyle,
             props: [
@@ -1249,23 +1201,23 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(2);
         expect(mxCell["children"][1].children.length).toEqual(6);
-    }));
+    });
 
-    it("Tab Orientation left", inject(() => {
+    it("Tab Orientation left", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1273,7 +1225,7 @@ describe("UIMockup", () => {
         labelStyle.fontFamily = "Arial";
         labelStyle.fontSize = "20";
 
-        var shape = {
+        const shape = {
             height: 60,
             width: 200,
             labelStyle: labelStyle,
@@ -1317,23 +1269,23 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
-        var style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
+        const style = uiMockupShapesTestHelper.getStyleObject(mxCell["style"]);
         expect(style.strokeWidth).toEqual("2");
         expect(mxCell["children"].length).toEqual(3);
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("Tab Orientation right", inject(() => {
+    it("Tab Orientation right", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1341,7 +1293,7 @@ describe("UIMockup", () => {
         labelStyle.fontFamily = "Arial";
         labelStyle.fontSize = "20";
 
-        var shape = {
+        const shape = {
             height: 60,
             width: 200,
             labelStyle: labelStyle,
@@ -1385,20 +1337,20 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(3);
-    }));
+    });
 
-    it("Tab Orientation botttom", inject(() => {
+    it("Tab Orientation botttom", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1406,7 +1358,7 @@ describe("UIMockup", () => {
         labelStyle.fontFamily = "Arial";
         labelStyle.fontSize = "20";
 
-        var shape = {
+        const shape = {
             height: 60,
             width: 200,
             labelStyle: labelStyle,
@@ -1450,21 +1402,21 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
 
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("Tab Orientation top", inject(() => {
+    it("Tab Orientation top", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
         //mock a shape here.
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = false;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1472,7 +1424,7 @@ describe("UIMockup", () => {
         labelStyle.fontFamily = "Arial";
         labelStyle.fontSize = "20";
 
-        var shape = {
+        const shape = {
             height: 60,
             width: 200,
             labelStyle: labelStyle,
@@ -1516,19 +1468,19 @@ describe("UIMockup", () => {
             ]
         };
         //act
-        var mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
+        const mxCell = templates[UIMockupShapes.TAB](<IShape>shape);
         //assert
         expect(mxCell).not.toBeNull();
         expect(mxCell["children"][1].children.length).toEqual(5);
-    }));
+    });
 
-    it("ContextMenu General Test", inject(() => {
+    it("ContextMenu General Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1537,7 +1489,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             width: 300,
             height: 450,
             labelStyle: labelStyle,
@@ -1560,29 +1512,29 @@ describe("UIMockup", () => {
         };
 
         //act
-        var contextMenuShape = templates["ContextMenu"](<IShape>shape);
+        const contextMenuShape = templates["ContextMenu"](<IShape>shape);
 
         //assert
-        var contextMenuStyleString = contextMenuShape["style"];
-        var contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = contextMenuShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FCFCFC");
 
         expect(contextMenuShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = contextMenuShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = contextMenuShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("ContextMenu Small Shape Test", inject(() => {
+    it("ContextMenu Small Shape Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1591,7 +1543,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             width: 90,
             height: 90,
             labelStyle: labelStyle,
@@ -1614,29 +1566,29 @@ describe("UIMockup", () => {
         };
 
         //act
-        var contextMenuShape = templates["ContextMenu"](<IShape>shape);
+        const contextMenuShape = templates["ContextMenu"](<IShape>shape);
 
         //assert
-        var contextMenuStyleString = contextMenuShape["style"];
-        var contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = contextMenuShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FCFCFC");
 
         expect(contextMenuShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = contextMenuShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = contextMenuShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("1");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("icon shape data's IconKey can be extracted and passed alone", inject(() => {
+    it("icon shape data's IconKey can be extracted and passed alone", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = {};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = {};
         uiMockupShapeFactory.initTemplates(<IShapeTemplates>templates);
 
-        var shape = {
+        const shape = {
             "type": "Icon",
             "props": [
                 {
@@ -1647,20 +1599,20 @@ describe("UIMockup", () => {
         };
 
         //act
-        var iconShape = templates[IconShape.shapeName](<IShape>shape);
+        const iconShape = templates[IconShape.shapeName](<IShape>shape);
         //
-        var iconStyle = uiMockupShapesTestHelper.getStyleObject(iconShape.style);
+        const iconStyle = uiMockupShapesTestHelper.getStyleObject(iconShape.style);
         expect(iconStyle.IconKey).toEqual("_new1");
         expect(iconStyle.shape).toEqual(IconShape.shapeName);
-    }));
+    });
 
-    it("TreeView General Test", inject(() => {
+    it("TreeView General Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1669,7 +1621,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             width: 300,
             height: 450,
             labelStyle: labelStyle,
@@ -1706,29 +1658,29 @@ describe("UIMockup", () => {
         };
 
         //act
-        var treeViewShape = templates["Tree"](<IShape>shape);
+        const treeViewShape = templates["Tree"](<IShape>shape);
 
         //assert
-        var contextMenuStyleString = treeViewShape["style"];
-        var contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = treeViewShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FFFFFF");
 
         expect(treeViewShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = treeViewShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = treeViewShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
 
-    }));
+    });
 
-    it("TreeView Small Width & Height Test", inject(() => {
+    it("TreeView Small Width & Height Test", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1737,7 +1689,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             width: 150,
             height: 200,
             labelStyle: labelStyle,
@@ -1790,28 +1742,28 @@ describe("UIMockup", () => {
         };
 
         //act
-        var treeViewShape = templates["Tree"](<IShape>shape);
+        const treeViewShape = templates["Tree"](<IShape>shape);
 
         //assert
-        var contextMenuStyleString = treeViewShape["style"];
-        var contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
+        const contextMenuStyleString = treeViewShape["style"];
+        const contextMenuStyle = uiMockupShapesTestHelper.getStyleObject(contextMenuStyleString);
         expect(contextMenuStyle["strokeWidth"]).toEqual("1");
         expect(contextMenuStyle["fillColor"]).toEqual("#FFFFFF");
 
         expect(treeViewShape["children"].length).toBeGreaterThan(0);
-        var contentStyleString = treeViewShape["children"][0].getStyle();
-        var contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
+        const contentStyleString = treeViewShape["children"][0].getStyle();
+        const contentStyle = uiMockupShapesTestHelper.getStyleObject(contentStyleString);
         expect(contentStyle["strokeWidth"]).toEqual("0");
         expect(contentStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
-    it("Table Test, no horizontal scroll bar.", inject(() => {
+    it("Table Test, no horizontal scroll bar.", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -1820,7 +1772,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             "id": 151,
             "name": "Table",
             "parentId": 51,
@@ -1990,32 +1942,32 @@ describe("UIMockup", () => {
         };
 
         //act
-        var tableShape = templates["Table"](<IShape>shape);
+        const tableShape = templates["Table"](<IShape>shape);
 
         //assert
-        var tableStyle = tableShape["style"];
-        var tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
+        const tableStyle = tableShape["style"];
+        const tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
         expect(tableStyleString["strokeWidth"]).toEqual("1");
         expect(tableStyleString["strokeColor"]).toEqual("#91C3FF");
         expect(tableStyleString["fillColor"]).toEqual("white");
 
         expect(tableShape["children"].length).toEqual(3); //no horizontal scroll bar.
-        var innerBoxStyleString = tableShape["children"][0].getStyle();
-        var innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
+        const innerBoxStyleString = tableShape["children"][0].getStyle();
+        const innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
         expect(innerBoxStyle["strokeWidth"]).toEqual("1");
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");
         expect(innerBoxStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
 
-    it("Table Test, horizontal scroll bar.", inject(() => {
+    it("Table Test, horizontal scroll bar.", () => {
         //arrange
-        var uiMockupShapeFactory = new UiMockupShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const uiMockupShapeFactory = new UiMockupShapeFactory();
+        const templates = <IShapeTemplates>{};
         uiMockupShapeFactory.initTemplates(templates);
 
-        var labelStyle = new LabelStyle();
+        const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
         labelStyle.isBold = true;
         labelStyle.isUnderline = true;
@@ -2024,7 +1976,7 @@ describe("UIMockup", () => {
         labelStyle.fontSize = "20";
 
         //mock a shape here.
-        var shape = {
+        const shape = {
             "id": 151,
             "name": "Table",
             "parentId": 51,
@@ -2194,22 +2146,22 @@ describe("UIMockup", () => {
         };
 
         //act
-        var tableShape = templates["Table"](<IShape>shape);
+        const tableShape = templates["Table"](<IShape>shape);
 
         //assert
-        var tableStyle = tableShape["style"];
-        var tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
+        const tableStyle = tableShape["style"];
+        const tableStyleString = uiMockupShapesTestHelper.getStyleObject(tableStyle);
         expect(tableStyleString["strokeWidth"]).toEqual("1");
         expect(tableStyleString["strokeColor"]).toEqual("#91C3FF");
         expect(tableStyleString["fillColor"]).toEqual("white");
 
         expect(tableShape["children"].length).toEqual(4); //horizontal scroll bar is the extra shape.
-        var innerBoxStyleString = tableShape["children"][0].getStyle();
-        var innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
+        const innerBoxStyleString = tableShape["children"][0].getStyle();
+        const innerBoxStyle = uiMockupShapesTestHelper.getStyleObject(innerBoxStyleString);
         expect(innerBoxStyle["strokeWidth"]).toEqual("1");
         expect(innerBoxStyle["strokeColor"]).toEqual("Transparent");
         expect(innerBoxStyle["fillColor"]).toEqual("Transparent");
         expect(innerBoxStyle["shape"]).toEqual("rectangle");
-    }));
+    });
 
 });

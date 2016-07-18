@@ -328,6 +328,20 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   }
 }
 
+.tab-pane {
+  .formly {
+    margin: 0;
+    padding: 0;
+
+    .formly-field,
+    .form-tinymce {
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
 .uib-datepicker-popup {
   border-color: $brand-secondary;
   padding: 0 0 7px;

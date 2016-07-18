@@ -1,13 +1,10 @@
 ﻿<div class="utility-panel-artifact-item">
-
-    <div class="details">
-        
+    <div class="details" ng-class="{'selected' : $ctrl.isSelected}" ng-click="$ctrl.select()">
         <div class="trace-icon" data-ng-class="{'false': 'trace-icon-regular', 'true' : 'trace-icon-suspect'}[$ctrl.artifact.suspect]">
             <i data-ng-class="{'0': 'fonticon2-relationship-right', '1' : 'fonticon2-relationship-left', '2' : 'fonticon2-relationship-bi'}[$ctrl.artifact.traceDirection]"></i>
 
         </div>
         <div class="inner-details">
-           
             <div>
                 <div>
                     <h6 bp-tooltip="{{$ctrl.artifact.itemTypePrefix}}{{$ctrl.artifact.itemId}} - {{$ctrl.artifact.itemName ? $ctrl.artifact.itemName : $ctrl.artifact.itemLabel }}"
@@ -22,7 +19,7 @@
                         <i class="icon fonticon-circle-up"></i>
                     </div>
                 </div>
-                
+
                 <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.artifactTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
@@ -38,10 +35,12 @@
                     </div>
                 </div>
             </div>
-</div>
+        </div>
     </div>
-
     <div class="icons">
+        <div>
+            <input type="checkbox" ng-if="$ctrl.isSelected" ng-checked="$ctrl.isSelected" ng-click="$ctrl.select()" />
+        </div>
         <div>
             <i class="fonticon-exchange"></i>
             <i class="fonticon-flag-1"></i>

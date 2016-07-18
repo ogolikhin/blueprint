@@ -3,6 +3,7 @@ import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization.mock";
 import {Models} from "../../main/";;
 import {IProjectRepository, ProjectRepository} from "./";;
+import {ProjectRepositoryMock} from "./project-repository.mock";;
 
 describe("Project Repository", () => {
 
@@ -10,7 +11,7 @@ describe("Project Repository", () => {
         $provide.service("projectRepository", ProjectRepository);
         $provide.service("localization", LocalizationServiceMock);
     }));
-
+    
     describe("getFolders", () => {
 
         it("get one folder - success", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
@@ -50,6 +51,54 @@ describe("Project Repository", () => {
             expect(error).toBeDefined();
             expect(error.statusCode).toEqual(401);
             expect(error.message).toEqual("Folder_NotFound");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
+    describe("getProjects", () => {
+
+        it("get one project", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
+            // Arrange
+            $httpBackend.expectGET(`svc/adminstore/instance/projects/10`)
+                .respond(200, [
+                    {
+                        id: 10, name: "Project 10", typeId: 0, hasChildren: true, description: "Description"
+                    }
+                ]);
+
+            // Act
+            var error: any;
+            var data: Models.IProjectNode;
+            projectRepository.getProject(10).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data[0].id).toEqual(10);
+            expect(data[0].name).toEqual("Project 10");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+
+        it("get project - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
+            // Arrange
+            $httpBackend.expectGET("svc/adminstore/instance/projects/10")
+                .respond(401);
+
+            // Act
+            var error: any;
+            var data: Models.IProjectNode;
+            projectRepository.getProject(10).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(data).toBeUndefined();
+            expect(error.statusCode).toEqual(401);
+            expect(error.message).toEqual("Project_NotFound");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -135,5 +184,54 @@ describe("Project Repository", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
     });
+
+    describe("getProjectMeta", () => {
+
+        it("get - successful", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
+            // Arrange
+            $httpBackend.expectGET(`svc/artifactstore/projects/10/meta/customtypes`)
+                .respond(200, ProjectRepositoryMock.populateMetaData());
+
+            // Act
+            var error: any;
+            var data: Models.IProjectMeta;
+            projectRepository.getProjectMeta(10).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toBeDefined();
+            expect(data.propertyTypes).toEqual(jasmine.any(Array));
+            expect(data.artifactTypes).toEqual(jasmine.any(Array));
+            expect(data.subArtifactTypes).toEqual(jasmine.any(Array));
+            expect(data.propertyTypes.length).toEqual(3);
+            expect(data.artifactTypes.length).toEqual(3);
+            expect(data.artifactTypes.length).toEqual(3);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+
+        it("get - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
+            // Arrange
+            $httpBackend.expectGET(`svc/artifactstore/projects/10/meta/customtypes`)
+                .respond(401);
+
+            // Act
+            var error: any;
+            var data: Models.IProjectMeta;
+            projectRepository.getProjectMeta(10).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(data).toBeUndefined();
+            expect(error.statusCode).toEqual(401);
+            expect(error.message).toEqual("Project_NotFound");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
 
 });

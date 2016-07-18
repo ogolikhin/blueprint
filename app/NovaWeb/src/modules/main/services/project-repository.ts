@@ -5,6 +5,7 @@ export { Models }
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
+    getProject(id?: number): ng.IPromise<Models.IProjectNode>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
@@ -33,10 +34,10 @@ export class ProjectRepository implements IProjectRepository {
             });
         return defer.promise;
     } 
-    public getProject(id?: number): ng.IPromise<Models.IProjectNode[]> {
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
         var defer = this.$q.defer<any>();
         this.$http.get<any>(`svc/adminstore/instance/projects/${id}`)
-            .success((result: Models.IProjectNode[]) => {
+            .success((result: Models.IProjectNode) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 this.$log.error(err);

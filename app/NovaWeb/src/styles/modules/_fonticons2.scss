@@ -17,14 +17,12 @@
   font-family: "bp-font2";
   font-style: normal;
   font-weight: normal;
-  font-size: 3.2rem;
+  font-size: 1.8rem;
   speak: none;
 
   /* TODO: tried to fix suspect icon issue */
   display: inline-block;
   text-decoration: inherit;
-  width: 1em;
-  margin-right: .2em;
   text-align: center;
   /* opacity: .8; */
 
@@ -33,7 +31,7 @@
   text-transform: none;
 
   /* fix buttons height, for twitter bootstrap */
-  line-height: 0.8em;
+  line-height: 1.8rem;
 
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */

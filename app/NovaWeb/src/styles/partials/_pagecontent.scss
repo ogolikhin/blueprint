@@ -51,7 +51,7 @@ pagecontent {
 
   .legacy-icon {
     display: inline-block;
-  
+    color: $gray;
   }
 
 
@@ -73,6 +73,11 @@ pagecontent {
       span:first-child {
         margin-left: 5px;
       }
+        [class*="fonticon2-"]::before, [class*=" fonticon2-"]::before{
+            font-size: 1.4rem;
+            vertical-align: middle;
+            margin-bottom: 0.3rem;
+        }
     }
 
     > .type-id {

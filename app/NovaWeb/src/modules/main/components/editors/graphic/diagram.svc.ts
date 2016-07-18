@@ -5,7 +5,7 @@ import {IUseCase} from "./impl/usecase/models";
 import {UsecaseToDiagram} from "./impl/usecase/usecase-to-diagram";
 
 export interface IDiagramService {
-    getDiagram(id: number, itemType: ItemTypePredefined): ng.IPromise<IDiagram>;
+    getDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram>;
     isDiagram(itemType: ItemTypePredefined): boolean;
 }
 
@@ -18,14 +18,18 @@ export class DiagramService implements IDiagramService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    public getDiagram(id: number, itemType: ItemTypePredefined): ng.IPromise<IDiagram> {
+    public getDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram> {
         let promise: ng.IPromise<IDiagram> = this.promises[String(id)];
         if (!promise) {
             const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
+            cancelationToken.then(() => {
+                deferred.reject("Cancelled");
+            });
             const path = this.getPath(id, itemType);
             let diagaram: IDiagram = null;
-            this.$http.get<IDiagram | IUseCase>(path)
+            this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
                 .success(result => {
+                    setTimeout(() => {
                     if (itemType === ItemTypePredefined.UseCase) {
                         diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
                     } else {
@@ -46,6 +50,7 @@ export class DiagramService implements IDiagramService {
                     }
                     delete this.promises[id];
                     deferred.resolve(diagaram);
+                    }, 2000);
                 }).error((data: any, status: number) => {
                     delete this.promises[id];
                     data.statusCode = status;

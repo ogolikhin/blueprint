@@ -4,9 +4,8 @@ import "angular-sanitize";
 require("script!mxClient");
 
 import {Shapes, ShapeProps, Diagrams, ConnectorTypes} from "./utils/constants";
-import {DiagramServiceMock, Prop} from "../diagram.svc.mock";
+import {DiagramMock, Prop} from "../diagram.mock";
 import {StencilServiceMock} from "../stencil.svc.mock";
-import {Point} from "../impl/models";
 import {DiagramView} from "./diagram-view";
 import {UCDLinkType} from "./utils/enums";
 
@@ -29,8 +28,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
 
-        eventShapes.push(DiagramServiceMock.createShape(Shapes.USECASE));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
+        eventShapes.push(DiagramMock.createShape(Shapes.USECASE));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -43,8 +42,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
 
-        eventShapes.push(DiagramServiceMock.createShape(Shapes.ACTOR));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
+        eventShapes.push(DiagramMock.createShape(Shapes.ACTOR));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -63,8 +62,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         const imageUrl = "imageUrl";
         props[0] = { name: ShapeProps.IMAGE, value: imageUrl };        
-        eventShapes.push(DiagramServiceMock.createShape(Shapes.ACTOR, props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
+        eventShapes.push(DiagramMock.createShape(Shapes.ACTOR, props));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -78,8 +77,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
 
-        eventShapes.push(DiagramServiceMock.createShape(Shapes.BOUNDARY));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
+        eventShapes.push(DiagramMock.createShape(Shapes.BOUNDARY));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -94,8 +93,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.Include };     
         var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];        
         const connections = [];
-        connections.push(DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
-        const diagramMock = DiagramServiceMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
+        connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
+        const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -110,8 +109,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.Extended };
         var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];        
         const connections = [];
-        connections.push(DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
-        const diagramMock = DiagramServiceMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
+        connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
+        const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -130,8 +129,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.IncludeAndExtended };
         var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];
         const connections = [];
-        connections.push(DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
-        const diagramMock = DiagramServiceMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
+        connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
+        const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -150,8 +149,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.ActorInheritance };
         var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];
         const connections = [];
-        connections.push(DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
-        const diagramMock = DiagramServiceMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
+        connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
+        const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);

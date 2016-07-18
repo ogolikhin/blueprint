@@ -1,6 +1,4 @@
-import {ItemTypePredefined} from "../../../models/enums";
 import {IDiagram, IShape, IConnection, IProp, ILabelStyle, IPoint, IHierarchyElement} from "./impl/models";
-import {IDiagramService} from "./diagram.svc";
 import {Diagrams} from "./impl/utils/constants";
 
 export class Diagram implements IDiagram {
@@ -84,58 +82,7 @@ export class Prop implements IProp {
     public value: any;
 }
 
-export class DiagramServiceMock implements IDiagramService {
-
-    public static $inject = ["$http", "$q"];
-
-    public static genericDiagram = DiagramServiceMock.createGenericDiagramMock();
-
-    constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
-    }
-
-    public getDiagram(id: number): ng.IPromise<IDiagram> {
-        const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
-        deferred.resolve(DiagramServiceMock.genericDiagram);
-        return deferred.promise;
-    }
-
-    private static createGenericDiagramMock(): IDiagram {
-        const diagram = new Diagram();
-        diagram.id = 555;
-        diagram.diagramType = Diagrams.GENERIC_DIAGRAM;
-        diagram.height = 800;
-        diagram.width = 1024;
-        diagram.shapes = new Array<Shape>();
-        diagram.connections = new Array<Connection>();
-
-        const shape1 = new Shape();
-        shape1.id = 1;
-        shape1.height = 80;
-        shape1.width = 100;
-        shape1.x = 100;
-        shape1.y = 100;
-        shape1.label = "shape1 label";
-        diagram.shapes.push(shape1);
-
-        const shape2 = new Shape();
-        shape2.id = 2;
-        shape2.height = 180;
-        shape2.width = 200;
-        shape2.x = 200;
-        shape2.y = 200;
-        shape2.label = "shape2 label";
-        diagram.shapes.push(shape2);
-
-        const connection1 = new Connection();
-        connection1.id = 3;
-        connection1.label = "connection label";
-        connection1.sourceId = 1;
-        connection1.targetId = 2;
-
-        diagram.connections.push(connection1);
-
-        return diagram;
-    }
+export class DiagramMock {
 
     public static createDiagramMock(shapes: Array<IShape>, connections?: Array<Connection>, diagramType?: string): IDiagram {
         const diagram = new Diagram();
@@ -185,7 +132,7 @@ export class DiagramServiceMock implements IDiagramService {
         shape.x = x ? x : 100;
         shape.y = y ? y : 100;
         const label = shapeType + ": " + "x=" + shape.x + "; y=" + shape.y + "; width=" + shape.width + "; height=" + shape.height;
-        shape.label = DiagramServiceMock.createRichText(label);
+        shape.label = DiagramMock.createRichText(label);
         shape.props = props ? props : [];
         return <IHierarchyElement><any>shape;
     }
@@ -221,19 +168,4 @@ export class DiagramServiceMock implements IDiagramService {
         return "<html><head></head><body style=\"padding: 1px 0px 0px; font-size: 11px\"><div style=\"font-size: 11px\"><p style=\"margin: 0px; font-size: 11px; text-align: center\"><span style=\"font-size: 11px\">" + plainText + "</span></p></div></body></html>";
     }
     /* tslint:enable:max-line-length */
-
-    public isDiagram(itemType: ItemTypePredefined) {
-        switch (itemType) {
-            case ItemTypePredefined.GenericDiagram:
-            case ItemTypePredefined.UIMockup:
-            case ItemTypePredefined.BusinessProcess:
-            case ItemTypePredefined.DomainDiagram:
-            case ItemTypePredefined.Storyboard:
-            case ItemTypePredefined.UseCaseDiagram:
-            case ItemTypePredefined.UseCase:
-                return true;
-            default:
-                return false;
-        }
-    }
 }

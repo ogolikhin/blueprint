@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models, Relationships} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
+import { IProjectManager, Models, Relationships } from "../../../main";
+import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
+import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -27,6 +28,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     private artifactId: number;
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
+    public associations: IRelationship[];
+    public actorInherits: IRelationship[];
+    public documentReferences: IRelationship[];
     public option: string = "1";
     public isLoading: boolean = false;
     public selectedTraces: Relationships.IRelationship[] = [];
@@ -52,6 +56,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         super.$onDestroy();   
         this.artifactList = null;
         this.selectedTraces = null;
+        this.associations = null;
+        this.documentReferences = null;
+        this.actorInherits = null;
     }
 
     protected setArtifactId = (artifact: Models.IArtifact) => {     
@@ -60,7 +67,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             this.getRelationships()
                 .then((list: any) => {
                     this.artifactList = list;
-                                     
+                    this.populateOtherTraceLists();
                 });
         }
     }
@@ -75,4 +82,25 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 this.isLoading = false;
             });
     }
+
+    private populateOtherTraceLists() {
+        let associations = new Array<IRelationship>();
+        let actorInherits = new Array<IRelationship>();
+        let documentReferences = new Array<IRelationship>();
+
+        for (let otherTrace of this.artifactList.otherTraces)
+        {
+            if (otherTrace.traceType === LinkType.Association) {
+                associations.push(otherTrace);
+            } else if (otherTrace.traceType === LinkType.ActorInheritsFrom) {
+                actorInherits.push(otherTrace);
+            } else if (otherTrace.traceType === LinkType.DocumentReference) {
+                documentReferences.push(otherTrace);
+            }
+        }
+        this.associations = associations;
+        this.actorInherits = actorInherits;
+        this.documentReferences = documentReferences;
+    }
+
 }

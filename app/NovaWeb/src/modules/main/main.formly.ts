@@ -165,38 +165,15 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: moment.localeData().longDateFormat("L")/*,
-                onChange:  function($viewValue, $modelValue, scope) {
-                    console.log($viewValue, $modelValue, scope);
-                }*/
+                placeholder: moment.localeData().longDateFormat("L")
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty", "Value cannot be empty") + `"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty", "Value cannot be empty") + `"`,
+                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + moment.localeData().longDateFormat("L") + `)"`
                 }
             },
             validators: {
-                dateIsInCorrectFormat: {
-                    expression: function($viewValue, $modelValue, scope) {
-                        let value = $modelValue || $viewValue;
-
-                        if (value) {
-                            let isInCorrectFormat = moment(value, moment.localeData().longDateFormat("L"), true).isValid();
-
-                            let messageText = localization.get("Property_Wrong_Format") + " " + moment.localeData().longDateFormat("L");
-                            let messageId = scope.id + "-dateIsInCorrectFormat";
-
-                            if (!isInCorrectFormat) {
-                                setTimeout(function() {
-                                    document.getElementById(messageId).innerHTML = messageText;
-                                }, 100);
-                                return false;
-                            }
-                        }
-                        return true;
-                    },
-                    message: `""`
-                },
                 dateIsGreaterThanMin: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;

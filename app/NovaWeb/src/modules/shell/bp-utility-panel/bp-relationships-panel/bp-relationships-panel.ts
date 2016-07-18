@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
-import {Relationships} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
+import { IProjectManager, Models } from "../../../main";
+import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
+import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -28,9 +28,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     private artifactId: number;
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
-    public associations: Relationships.IRelationship[];
-    public actorInherits: Relationships.IRelationship[];
-    public documentReferences: Relationships.IRelationship[];
+    public associations: IRelationship[];
+    public actorInherits: IRelationship[];
+    public documentReferences: IRelationship[];
     public option: string = "1";
     public isLoading: boolean = false;
 
@@ -82,17 +82,17 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     private populateOtherTraceLists() {
-        let associations: Array<Relationships.IRelationship> = new Array<Relationships.IRelationship>();
-        let actorInherits: Array<Relationships.IRelationship> = new Array<Relationships.IRelationship>();
-        let documentReferences: Array<Relationships.IRelationship> = Array<Relationships.IRelationship>();
+        let associations = new Array<IRelationship>();
+        let actorInherits = new Array<IRelationship>();
+        let documentReferences = new Array<IRelationship>();
 
         for (let otherTrace of this.artifactList.otherTraces)
         {
-            if (otherTrace.traceType === 8) {
+            if (otherTrace.traceType === LinkType.Association) {
                 associations.push(otherTrace);
-            } else if (otherTrace.traceType === 16) {
+            } else if (otherTrace.traceType === LinkType.ActorInheritsFrom) {
                 actorInherits.push(otherTrace);
-            } else if (otherTrace.traceType === 32) {
+            } else if (otherTrace.traceType === LinkType.DocumentReference) {
                 documentReferences.push(otherTrace);
             }
         }

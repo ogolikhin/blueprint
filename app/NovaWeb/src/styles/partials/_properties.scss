@@ -199,6 +199,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     .form-datepicker {
       display: inline-table;
       vertical-align: top;
+      position: relative;
 
       input {
         border-bottom-right-radius: 0;
@@ -268,6 +269,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       font-size: $font-size-normal;
       font-weight: 400;
       min-height: #{3 * $property-min-height};
+      min-width: $property-input-width;
     }
 
     .form-tinymce-toolbar {
@@ -281,12 +283,13 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     .error-messages {
-      position: relative;
+      bottom: calc((#{$font-size-smaller} + 2px) * -1);
+      position: absolute;
+      right: 0;
 
       .message {
         font-size: $font-size-smaller;
-        position: absolute;
-        right: 0;
+        white-space: nowrap;
       }
     }
 
@@ -310,6 +313,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   .formly-field-tinymceInline {
     display: block;
     width: 100%;
+    max-width: 100%;
 
     label {
       display: block;
@@ -331,6 +335,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 .tab-pane {
   .formly {
     margin: 0;
+    min-width: $property-input-width;
     padding: 0;
 
     .formly-field,

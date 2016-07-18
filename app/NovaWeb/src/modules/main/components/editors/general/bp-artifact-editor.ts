@@ -228,8 +228,11 @@ export class ArtifactEditor implements IArtifactEditor {
             case Models.PrimitiveType.Text:
                 field.type = context.isRichText ? "tinymceInline" : (context.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = context.stringDefaultValue;
-                //field.templateOptions.minlength;
-                //field.templateOptions.maxlength;
+                if (context.isRichText) {
+                    field.templateOptions["tinymceOption"] = {
+                        //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                    };
+                }
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "datepicker";

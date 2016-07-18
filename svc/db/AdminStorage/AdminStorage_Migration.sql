@@ -972,6 +972,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Today',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Clear', 'en-US', N'Clear')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Done', 'en-US', N'Close')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Cannot_Be_Empty', 'en-US', N'Value cannot be empty')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Wrong_Format', 'en-US', N'Input is not in a correct format')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Must_Be_Greater', 'en-US', N'Value must be greater than or equal to Min Value =')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Must_Be_Less', 'en-US', N'Value must be less than or equal to Max Value =')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NoProjectsAvailable', 'en-US', N'Either no projects are available or you do not have the required permissions to access them.')

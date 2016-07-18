@@ -76,7 +76,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.camelCase(binding)] = {bound: binding};
     });
 
-    formlyConfig.setType({
+    /*formlyConfig.setType({
         name: "tinymce",
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
         wrapper: ["bootstrapLabel"],
@@ -88,21 +88,20 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             }
         }
-    });
+    });*/
 
     formlyConfig.setType({
         name: "tinymceInline",
         /* tslint:disable */
-        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
+        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
-            data: { // using data property
+            templateOptions: {        
                 tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
                     inline: true,
-                    fixed_toolbar_container: ".form-tinymce-toolbar",
-                    plugins: "advlist autolink link image paste lists charmap print noneditable", //mentions
+                    //fixed_toolbar_container: ".form-tinymce-toolbar",
+                    plugins: "advlist autolink link image paste lists charmap print noneditable" //mentions",
                     //mentions: {
                     //    source: tinymceMentionsData,
                     //    delay: 100,
@@ -165,7 +164,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 datepickerAppendToBody: true,
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
-                currentText: localization.get("Datepicker_Today")
+                currentText: localization.get("Datepicker_Today"),
+                placeholder: moment.localeData().longDateFormat("L")/*,
+                onChange:  function($viewValue, $modelValue, scope) {
+                    console.log($viewValue, $modelValue, scope);
+                }*/
             },
             validation: {
                 messages: {
@@ -173,6 +176,27 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             },
             validators: {
+                dateIsInCorrectFormat: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = $modelValue || $viewValue;
+
+                        if (value) {
+                            let isInCorrectFormat = moment(value, moment.localeData().longDateFormat("L"), true).isValid();
+
+                            let messageText = localization.get("Property_Wrong_Format") + " " + moment.localeData().longDateFormat("L");
+                            let messageId = scope.id + "-dateIsInCorrectFormat";
+
+                            if (!isInCorrectFormat) {
+                                setTimeout(function() {
+                                    document.getElementById(messageId).innerHTML = messageText;
+                                }, 100);
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    message: `""`
+                },
                 dateIsGreaterThanMin: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;

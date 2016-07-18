@@ -165,7 +165,32 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: moment.localeData().longDateFormat("L")
+                placeholder: moment.localeData().longDateFormat("L"),
+                onKeyup: function($viewValue, $modelValue, scope) {
+                    //This is just a stub!
+                    let initValue = $modelValue.initialValue || $modelValue.defaultValue;
+                    let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
+                    if (momentInit.isValid()) {
+                        initValue = momentInit.startOf("day").format("L")
+                    }
+                    let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
+                    let momentInput = moment(inputValue, moment.localeData().longDateFormat("L"));
+                    if (momentInput.isValid()) {
+                        inputValue = momentInput.startOf("day").format("L")
+                    }
+                    let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                    if (artifactNameDiv) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (dirtyIcon) {
+                            artifactNameDiv.removeChild(dirtyIcon);
+                        }
+                        if(initValue !== inputValue) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
             },
             validation: {
                 messages: {

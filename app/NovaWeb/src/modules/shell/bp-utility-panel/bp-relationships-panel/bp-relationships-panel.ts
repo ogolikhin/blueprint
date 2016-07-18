@@ -33,6 +33,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public documentReferences: IRelationship[];
     public option: string = "1";
     public isLoading: boolean = false;
+    public selectedTraces: Relationships.IRelationship[] = [];
 
     constructor(
         private localization: ILocalizationService,
@@ -54,6 +55,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public $onDestroy() {
         super.$onDestroy();   
         this.artifactList = null;
+        this.selectedTraces = null;
         this.associations = null;
         this.documentReferences = null;
         this.actorInherits = null;

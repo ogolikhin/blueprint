@@ -1,20 +1,21 @@
 ﻿import {Models} from "../../../";
 import {IMessageService} from "../../../../shell/";
-import {IArtifactService} from "./artifact.svc";
-import {ArtifactEditor} from "./bp-artifact-editor";
+import {IArtifactService} from "../../../services/";
+import {PropertyEditor, FieldContext} from "./bp-artifact-editor";
 
-
-interface IFieldTab {
-    title: string;
-    index: number;
-    fields: [AngularFormly.IFieldConfigurationObject];
-    active?: boolean;
-};
 
 interface IEditorContext {
     artifact?: Models.IArtifact;
     project?: Models.IProject;
+    propertyTypes?: Models.IPropertyType[];
 }
+
+interface IArtifactDetailFields {
+    systemFields: AngularFormly.IFieldConfigurationObject[];
+    customFields: AngularFormly.IFieldConfigurationObject[];
+    tabFields: AngularFormly.IFieldConfigurationObject[];
+}
+
 
 export class BpArtifact implements ng.IComponentOptions {
     public template: string = require("./bp-artifact.html");
@@ -23,7 +24,6 @@ export class BpArtifact implements ng.IComponentOptions {
     public bindings: any = {
         context: "<",
     };
-
 }
 
 export class BpArtifactController {
@@ -32,7 +32,7 @@ export class BpArtifactController {
         "artifactService"
     ];
 
-    private editor: ArtifactEditor;
+    private editor: PropertyEditor;
 
     constructor(
         private messageService: IMessageService,
@@ -51,23 +51,27 @@ export class BpArtifactController {
         if (changesObj.context) {
             this._context = changesObj.context.currentValue;
 
-            if (this._context && this._context.artifact && this._context.project) {
+//            this.activeTab = -1;
+            this.fields = null;
+            this.model = null;
+
+            if (this._context && this._context.artifact && this._context.propertyTypes) {
                 this.artifactService.getArtifact(this._context.artifact.id).then((artifactDetails) => {
                     //TODO: change
-                    angular.extend(this._context.artifact, artifactDetails);
-                    this.load(this._context.artifact, this._context.project);
+                    angular.extend(this._context.artifact, { propertyValues: artifactDetails.propertyValues });
+                    this.load(this._context.artifact, this._context.propertyTypes);
                 });
             }
         }
     }
 
     public model = {};
-    public tabs = [];
-    public activeTab: number = 1;
-    public fields: Models.IArtifactDetailFields = {
+    public activeTab: number;
+
+    public fields: IArtifactDetailFields = {
         systemFields: [],
         customFields: [],
-        noteFields: []
+        tabFields: []
     };
 
     private _context: IEditorContext;
@@ -75,29 +79,47 @@ export class BpArtifactController {
     public get isCustomPropertyAvailable(): boolean {
         return this.fields && this.fields.customFields && this.fields.customFields.length > 0;
     }
+    public get isSystemPropertyAvailable(): boolean {
+        return this.fields && this.fields.systemFields && this.fields.systemFields.length > 0;
+    }
+    public get isTabPropertyAvailable(): boolean {
+        return this.fields && this.fields.tabFields && this.fields.tabFields.length > 0;
+    }
 
-    private load(artifact: Models.IArtifact, project: Models.IProject) {
+    private load(artifact: Models.IArtifact, propertyTypes: Models.IPropertyType[]) {
         try {
 
-            if (!artifact || !project) {
-                if (!artifact || !project) {
-                    throw new Error("#Project_NotFound");
-                }
-
+            if (!artifact) {
+                throw new Error("#Project_NotFound");
             }
-            this.activeTab = -1;
+            let fieldContexts = propertyTypes.map((it: Models.IPropertyType) => {
+                switch (it.propertyTypePredefined) {
+                    case Models.PropertyTypePredefined.Name:
+                        return new FieldContext(it, "name");
+                    case Models.PropertyTypePredefined.ItemType:
+                        return new FieldContext(it, "itemTypeId");
+                    default:
+                        return new FieldContext(it);
+                }
+            });
 
-            this.editor = new ArtifactEditor(artifact, this._context.project);
-            this.fields = this.editor.getFields();
+
+            this.editor = new PropertyEditor(artifact, fieldContexts);
             this.model = this.editor.getModel();
-            this.tabs = this.fields.noteFields.map((it: AngularFormly.IFieldConfigurationObject, index: number) => {
-                let tab = <IFieldTab>{
-                    title: it.templateOptions.label,
-                    index: index,
-                    fields: [it],
-                };
-                delete it.templateOptions.label;
-                return tab;
+
+            this.fields = <IArtifactDetailFields>{
+                systemFields: [],
+                customFields: [],
+                tabFields: []
+            };
+            this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
+                if ("system" === it.data["group"]) {
+                    this.fields.systemFields.push(it);
+                } else if ("tabbed" === it.data["group"]) {
+                    this.fields.tabFields.push(it);
+                } else {
+                    this.fields.customFields.push(it);
+                }
             });
 
             this.activeTab = 0;

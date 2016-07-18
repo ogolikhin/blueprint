@@ -22,4 +22,21 @@ export class ComponentTest<TController> {
         this.scope.$digest();
         return this.element.controller(this.registerName);
     }
+    
+    public createComponentWithMockParent(attributes: any, parentName: string, parentController: any): TController {
+        this.scope = this.rootScope.$new();
+        // TODO: figure out how to add scope variables to child controller
+        // for (var key in attributes) {
+        //     this.scope[key] = attributes[key];
+        // }
+        this.template = "<div>" + this.template + "</div>";
+        let el = angular.element(this.template);
+        el.data("$" + parentName + "Controller", parentController);
+
+        this.element = this.compile(el)(this.scope);
+        this.scope.$digest();
+
+        let controller = this.element.find(this.registerName).isolateScope()["$ctrl"];
+        return controller;
+    }
 }

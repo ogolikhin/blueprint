@@ -1,4 +1,14 @@
 ﻿<div class="filter-bar" ng-if="$ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length">
+    <div class="icons" ng-if="$ctrl.selectedTraces.length>0">
+        <div >
+            {{$ctrl.selectedTraces.length}} items selected
+        </div>
+        <div>
+            <i class="fonticon-exchange"></i>
+            <i class="fonticon-flag-1"></i>
+            <i class="fonticon-delete-filled"></i>
+        </div>
+    </div>
     <bp-select ng-model="$ctrl.option"
                options="$ctrl.options">
     </bp-select>
@@ -19,7 +29,7 @@
         <div ng-repeat="artifact in $ctrl.artifactList.manualTraces"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter ===1"
@@ -32,7 +42,7 @@
         <div ng-repeat="artifact in $ctrl.associations"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
         </div>
     </div>
     <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
@@ -40,7 +50,7 @@
         <div ng-repeat="artifact in $ctrl.actorInherits"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
         </div>
     </div>
     <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Document_Reference') }}</h6>
@@ -48,7 +58,7 @@
         <div  ng-repeat="artifact in $ctrl.documentReferences"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!($ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && $ctrl.categoryFilter ===2"

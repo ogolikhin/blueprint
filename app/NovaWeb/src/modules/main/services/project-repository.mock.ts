@@ -1,4 +1,6 @@
-﻿import {IProjectRepository, Models} from "./project-repository";
+﻿import * as Models from "../models/models";
+import {IProjectRepository} from "./project-repository";
+import {ArtifactServiceMock} from "./artifact.svc.mock";
 
 export class ProjectRepositoryMock implements IProjectRepository {
 
@@ -43,17 +45,6 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
-    private createArtifact(projectId: number, artifactId?: number) {
-        return {
-            id: artifactId,
-            name: `Artifact ${artifactId}`,
-            typeId: Math.floor(Math.random() * 100),
-            parentId: 0,
-            predefinedType: Math.floor(Math.random() * 100),
-            projectId: projectId,
-            hasChildren: false
-        } ;
-    }
 
     public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
 
@@ -62,30 +53,116 @@ export class ProjectRepositoryMock implements IProjectRepository {
         if (!id && !artifactId) {
             items = null;
         } else if (id && !artifactId) {
-            items = ([0, 1, 2]).map(function (it) {
-                return this.createArtifact(id, id * 10 + it);
-            }.bind(this)) as Models.IArtifact[];
+            items = ([0, 1, 2]).map((it) => {
+                return ProjectRepositoryMock.createArtifact(id * 10 + it, id);
+            }) as Models.IArtifact[];
         } else if (id && artifactId) {
             items = ([0, 1, 2, 3, 4]).map(function (it) {
-                return this.createArtifact(id, (artifactId || id) * 100 + it);
+                return ProjectRepositoryMock.createArtifact((artifactId || id) * 100 + it, id);
             }.bind(this)) as Models.IArtifact[];
         }
         deferred.resolve(items);
         return deferred.promise;
     }
-    public getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifact> {
 
-        var deferred = this.$q.defer<Models.IArtifact>();
-        let artifact = new Models.Artifact({ id: artifactId });
-        deferred.resolve(artifact);
+    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
+
+        var deferred = this.$q.defer<Models.IProjectNode>();
+        let item: Models.IProjectNode;
+        deferred.resolve(item);
         return deferred.promise;
     }
+
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
         var deferred = this.$q.defer<Models.IProjectMeta>();
         let meta = {} as Models.IProjectMeta;
         deferred.resolve(meta);
         return deferred.promise;
+    }
+
+    public static createArtifact(artifactId: number, projectId?: number, children?: number): Models.IArtifact {
+        let artifact = {
+            id: artifactId,
+            parentId: 1,
+            name: "Artifact " + artifactId,
+            projectId: projectId || artifactId,
+            itemTypeId: Math.floor(Math.random() * 100),
+            itemTypeVersionId: Math.floor(Math.random() * 100),
+            predefinedType: Math.floor(Math.random() * 100),
+        } as Models.IArtifact;
+        if (children) {
+            this.createDependentArtifacts(artifact, children)
+        }
+        return artifact;
+    }
+
+    public static createDependentArtifacts(artifact: Models.IArtifact, count: number): Models.IArtifact {
+        if (!count)
+            return;
+        artifact.artifacts = artifact.artifacts || [];
+        for (var i = 0; i < count; i++) {
+            let child = this.createArtifact(artifact.id + 100, artifact.projectId);
+
+            artifact.artifacts.push(child);
+        }
+        return artifact;
+    }
+
+    public static populateMetaData(): Models.IProjectMeta {
+        let meta: Models.IProjectMeta = {
+            artifactTypes: ProjectRepositoryMock.populateItemTypes(10, 3),
+            propertyTypes: ProjectRepositoryMock.populatePropertyTypes(100, 3),
+            subArtifactTypes: ProjectRepositoryMock.populateItemTypes(1000, 3)
+        };
+
+        return meta;
+    }
+    public static populatePropertyTypes(id: number, count?: number) {
+        var result: Models.IPropertyType[] = [];
+        for (var i = 0; i < (count || 0); i++) {
+            result.push({
+                id: id + 1000,
+                name: "Item Type " + id,
+                versionId: 1,
+                //primitiveType?: PrimitiveType;
+                //instancePropertyTypeId?: number;
+                //isRichText?: boolean;
+                //decimalDefaultValue?: number;
+                //dateDefaultValue?: Date;
+                //userGroupDefaultValue?: any[];
+                //stringDefaultValue?: string;
+                //decimalPlaces?: number;
+                //maxNumber?: number;
+                //minNumber?: number;
+                //maxDate?: Date;
+                //minDate?: Date;
+                //isMultipleAllowed?: boolean;
+                //isRequired?: boolean;
+                //isValidated?: boolean;
+                //validValues?: IOption[];
+                //defaultValidValueId?: number;
+            });
+        }
+        return result;
+
+    }
+    public static populateItemTypes(id: number, count?: number) {
+        var result: Models.IItemType[] = [];
+        for (var i = 0; i < (count || 0); i++) {
+            result.push({
+                id: id + 1000,
+                name: "Item Type " + id,
+                projectId: 1,
+                versionId: 1,
+                prefix: "it_",
+                baseType: 1,
+                iconImageId: 1,
+                usedInThisProject: true,
+                customPropertyTypeIds: [1,2,3]
+            });
+        }
+        return result;
     }
 }
 

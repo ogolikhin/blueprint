@@ -1,4 +1,38 @@
 bp-relationships-panel {
+    .filter-bar {
+        padding-top: 0px;
+        padding-left:0px;
+        padding-right:0px;
+    }
+
+    .icons {
+        color: $gray-dark;
+        display: inline-block;
+        width: 100%;
+        padding: 5px;
+        background-color: $gray;
+
+        div:first-child {
+            float: left;
+        }
+
+        div:last-child {
+            float: right;
+        }
+    }
+
+
+    [class^="fonticon2-"],
+    [class*=" fonticon2-"],
+    [class^="fonticon-"],
+    [class*=" fonticon-"] {
+        &::before {
+            font-size: 1.4rem;
+        }
+    }
+
+    
+
     .tabs {
         padding-bottom: $padding-root;
         width: 100%;
@@ -7,30 +41,27 @@ bp-relationships-panel {
     bp-artifact-relationship-item {
         .utility-panel-artifact-item {
             padding: 0;
+        }
 
-            [class^="fonticon2-"],
-            [class*=" fonticon2-"], 
-            [class^="fonticon-"],
-            [class*=" fonticon-"] {
-                &::before {
-                    font-size: 1.4rem;
-                }
-            }
+        .selected {
+            background-color: $gray-lighter;
         }
 
         .details {
             display: inline-block;
             padding: $padding-smaller 0 $padding-smaller $padding-root;
             width: 100%;
+            margin-bottom: -2px;
+
 
             .trace-icon-regular {
-                    color: $blue-light;
-                }
+                color: $blue-light;
+            }
 
-                .trace-icon-suspect {
-                    background-color: $brand-error;
-                    color: white;
-                }
+            .trace-icon-suspect {
+                background-color: $brand-error;
+                color: white;
+            }
 
             .trace-icon {
                 width: 2em;
@@ -39,7 +70,7 @@ bp-relationships-panel {
                 border-radius: 50%;
                 float: left;
                 line-height: 1.9em;
-                text-align:center;
+                text-align: center;
 
                 .status {
                     display: inline-block;
@@ -48,8 +79,6 @@ bp-relationships-panel {
                         margin: 2px;
                     }
                 }
-
-                
             }
 
             .inner-details {
@@ -103,15 +132,9 @@ bp-relationships-panel {
         }
 
         .icons {
-            color: $gray;
-            display: inline-block;
-            width: 100%;
-            padding: 5px;
             border-top: 1px solid $gray-lighter;
-
-            div {
-                float: right;
-            }
+            color: $gray;
+            background-color: $white;
         }
     }
 }

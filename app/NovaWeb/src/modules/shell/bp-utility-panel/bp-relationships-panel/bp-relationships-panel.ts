@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
+import {Relationships} from "../../../main";
 import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -27,6 +28,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     private artifactId: number;
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
+    public associations: Relationships.IRelationship[];
+    public actorInherits: Relationships.IRelationship[];
+    public documentReferences: Relationships.IRelationship[];
     public option: string = "1";
     public isLoading: boolean = false;
 
@@ -50,6 +54,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public $onDestroy() {
         super.$onDestroy();   
         this.artifactList = null;
+        this.associations = null;
+        this.documentReferences = null;
+        this.actorInherits = null;
     }
 
     protected setArtifactId = (artifact: Models.IArtifact) => {     
@@ -58,7 +65,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             this.getRelationships()
                 .then((list: any) => {
                     this.artifactList = list;
-                                     
+                    this.populateOtherTraceLists();
                 });
         }
     }
@@ -73,4 +80,25 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 this.isLoading = false;
             });
     }
+
+    private populateOtherTraceLists() {
+        let associations: Array<Relationships.IRelationship> = new Array<Relationships.IRelationship>();
+        let actorInherits: Array<Relationships.IRelationship> = new Array<Relationships.IRelationship>();
+        let documentReferences: Array<Relationships.IRelationship> = Array<Relationships.IRelationship>();
+
+        for (let otherTrace of this.artifactList.otherTraces)
+        {
+            if (otherTrace.traceType == 8) {
+                associations.push(otherTrace);
+            } else if (otherTrace.traceType == 16) {
+                actorInherits.push(otherTrace);
+            } else if (otherTrace.traceType == 32) {
+                documentReferences.push(otherTrace);
+            }
+        }
+        this.associations = associations;
+        this.actorInherits = actorInherits;
+        this.documentReferences = documentReferences;
+    }
+
 }

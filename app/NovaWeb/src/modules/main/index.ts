@@ -33,7 +33,7 @@ import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
-import {BPDiagram} from "./components/editors/graphic/bp-diagram";
+import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
 
 
 config.$inject = ["$rootScope", "$state"];

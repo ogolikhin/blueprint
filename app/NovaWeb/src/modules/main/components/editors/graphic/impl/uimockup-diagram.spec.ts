@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");
 
-import {DiagramServiceMock, Prop, LabelStyle} from '../diagram.svc.mock';
+import {DiagramMock, Prop, LabelStyle} from "../diagram.mock";
 import {DiagramView} from "./diagram-view";
 import {UIMockupShapes, UIMockupShapeProps, Diagrams, Shapes} from "./utils/constants";
 import {UiMockupShapeFactory} from "./uimockup-diagram";
@@ -41,8 +41,8 @@ describe("UIMockup", () => {
     it("Hotspot Test, Element Exists", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HOTSPOT));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.HOTSPOT));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -58,8 +58,8 @@ describe("UIMockup", () => {
     it("Hyperlink Test, Label css", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.HYPERLINK));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.HYPERLINK));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -73,7 +73,7 @@ describe("UIMockup", () => {
     it("TextBox label styling test", () => {
         // Arrange
         const eventShapes = [];
-        const shape = DiagramServiceMock.createShape(UIMockupShapes.TEXTBOX);
+        const shape = DiagramMock.createShape(UIMockupShapes.TEXTBOX);
 
         const labelStyle = new LabelStyle();
         labelStyle.isItalic = true;
@@ -90,7 +90,7 @@ describe("UIMockup", () => {
         shape.props.push(textProperty);
 
         eventShapes.push(shape);
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -112,8 +112,8 @@ describe("UIMockup", () => {
     it("Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.BUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.BUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -128,8 +128,8 @@ describe("UIMockup", () => {
     it("Drop Down Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DROPDOWNBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.DROPDOWNBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -151,8 +151,8 @@ describe("UIMockup", () => {
     it("Split Button Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.SPLITBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.SPLITBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -182,8 +182,8 @@ describe("UIMockup", () => {
         const checkedProperty = new Prop();
         checkedProperty.name = "Checked";
         checkedProperty.value = "true";
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX, [checkedProperty]));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.CHECKBOX, [checkedProperty]));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -196,8 +196,8 @@ describe("UIMockup", () => {
     it("Checkbox unchecked Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.CHECKBOX));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.CHECKBOX));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -215,8 +215,8 @@ describe("UIMockup", () => {
         const checkedProperty = new Prop();
         checkedProperty.name = "Checked";
         checkedProperty.value = "true";
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON, [checkedProperty]));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.RADIOBUTTON, [checkedProperty]));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -229,8 +229,8 @@ describe("UIMockup", () => {
     it("RadioButton unchecked Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.RADIOBUTTON));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.RADIOBUTTON));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -244,8 +244,8 @@ describe("UIMockup", () => {
     it("frame Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.FRAME));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.FRAME));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -262,8 +262,8 @@ describe("UIMockup", () => {
         // Arrange
         $.fn.injector = () => $injector;
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.DATE_TIME_PICKER));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -286,8 +286,8 @@ describe("UIMockup", () => {
     it("Numeric spinner Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.NUMERIC_SPINNER));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.NUMERIC_SPINNER));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -301,8 +301,8 @@ describe("UIMockup", () => {
     it("Text Area", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape(UIMockupShapes.TEXT_AREA));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
+        eventShapes.push(DiagramMock.createShape(UIMockupShapes.TEXT_AREA));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.UIMOCKUP);
 
         // Act
         diagramView.drawDiagram(diagramMock);

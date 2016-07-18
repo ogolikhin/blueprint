@@ -4,7 +4,7 @@ import "angular-sanitize";
 require("script!mxClient");
 
 import {Shapes, Diagrams} from "./utils/constants";
-import {DiagramServiceMock} from "../diagram.svc.mock";
+import {DiagramMock} from "../diagram.mock";
 import {StencilServiceMock} from "../stencil.svc.mock";
 import {DiagramView} from "./diagram-view";
 
@@ -25,8 +25,8 @@ describe("Rendering common shapes", () => {
     it("Triangle Down Shape Test", () => {
         // Arrange
         const triangleDownShapes = [];
-        triangleDownShapes.push(DiagramServiceMock.createShape(Shapes.TRIANGLE_DOWN));
-        const diagramMock = DiagramServiceMock.createDiagramMock(triangleDownShapes, [], Diagrams.GENERIC_DIAGRAM);
+        triangleDownShapes.push(DiagramMock.createShape(Shapes.TRIANGLE_DOWN));
+        const diagramMock = DiagramMock.createDiagramMock(triangleDownShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -38,9 +38,9 @@ describe("Rendering common shapes", () => {
     it("Triangle Up Shape Test", () => {
         // Arrange
         const triangleUpShapes = [];
-        triangleUpShapes.push(DiagramServiceMock.createShape(Shapes.TRIANGLE_UP));
+        triangleUpShapes.push(DiagramMock.createShape(Shapes.TRIANGLE_UP));
 
-        const diagramMock = DiagramServiceMock.createDiagramMock(triangleUpShapes, [], Diagrams.GENERIC_DIAGRAM);
+        const diagramMock = DiagramMock.createDiagramMock(triangleUpShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -52,8 +52,8 @@ describe("Rendering common shapes", () => {
     it("Triangle Left Shape Test", () => {
         // Arrange
         const triangleLeftShapes = [];
-        triangleLeftShapes.push(DiagramServiceMock.createShape(Shapes.TRIANGLE_LEFT));
-        const diagramMock = DiagramServiceMock.createDiagramMock(triangleLeftShapes, [], Diagrams.GENERIC_DIAGRAM);
+        triangleLeftShapes.push(DiagramMock.createShape(Shapes.TRIANGLE_LEFT));
+        const diagramMock = DiagramMock.createDiagramMock(triangleLeftShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -65,8 +65,8 @@ describe("Rendering common shapes", () => {
     it("Triangle Right Shape Test", () => {
         // Arrange
         const triangleRightShapes = [];
-        triangleRightShapes.push(DiagramServiceMock.createShape(Shapes.TRIANGLE_Right));
-        const diagramMock = DiagramServiceMock.createDiagramMock(triangleRightShapes, [], Diagrams.GENERIC_DIAGRAM);
+        triangleRightShapes.push(DiagramMock.createShape(Shapes.TRIANGLE_Right));
+        const diagramMock = DiagramMock.createDiagramMock(triangleRightShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -78,8 +78,8 @@ describe("Rendering common shapes", () => {
     it("Vertical Cylinder Shape Test", () => {
         // Arrange
         const cylinderVerticalShapes = [];
-        cylinderVerticalShapes.push(DiagramServiceMock.createShape(Shapes.CYLINDER_VERTICAL));
-        const diagramMock = DiagramServiceMock.createDiagramMock(cylinderVerticalShapes, [], Diagrams.GENERIC_DIAGRAM);
+        cylinderVerticalShapes.push(DiagramMock.createShape(Shapes.CYLINDER_VERTICAL));
+        const diagramMock = DiagramMock.createDiagramMock(cylinderVerticalShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -94,8 +94,8 @@ describe("Rendering common shapes", () => {
     it("Horizontal Cylinder Shape Test", () => {
         // Arrange
         const cylinderHorizontalShapes = [];
-        cylinderHorizontalShapes.push(DiagramServiceMock.createShape(Shapes.CYLINDER_HONRIZONTAL));
-        const diagramMock = DiagramServiceMock.createDiagramMock(cylinderHorizontalShapes, [], Diagrams.GENERIC_DIAGRAM);
+        cylinderHorizontalShapes.push(DiagramMock.createShape(Shapes.CYLINDER_HONRIZONTAL));
+        const diagramMock = DiagramMock.createDiagramMock(cylinderHorizontalShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -110,8 +110,8 @@ describe("Rendering common shapes", () => {
     it("Page Shape Test", () => {
         // Arrange
         const pageShapes = [];
-        pageShapes.push(DiagramServiceMock.createShape(Shapes.PAGE));
-        const diagramMock = DiagramServiceMock.createDiagramMock(pageShapes, [], Diagrams.GENERIC_DIAGRAM);
+        pageShapes.push(DiagramMock.createShape(Shapes.PAGE));
+        const diagramMock = DiagramMock.createDiagramMock(pageShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -126,8 +126,8 @@ describe("Rendering common shapes", () => {
     it("Document Shape Test", () => {
         // Arrange
         const documentShapes = [];
-        documentShapes.push(DiagramServiceMock.createShape(Shapes.DOCUMENT));
-        const diagramMock = DiagramServiceMock.createDiagramMock(documentShapes, [], Diagrams.GENERIC_DIAGRAM);
+        documentShapes.push(DiagramMock.createShape(Shapes.DOCUMENT));
+        const diagramMock = DiagramMock.createDiagramMock(documentShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -139,8 +139,8 @@ describe("Rendering common shapes", () => {
     it("Trapezoid Shape Test", () => {
         // Arrange
         const trapezoidShapes = [];
-        trapezoidShapes.push(DiagramServiceMock.createShape(Shapes.TRAPEZOID));
-        const diagramMock = DiagramServiceMock.createDiagramMock(trapezoidShapes, [], Diagrams.GENERIC_DIAGRAM);
+        trapezoidShapes.push(DiagramMock.createShape(Shapes.TRAPEZOID));
+        const diagramMock = DiagramMock.createDiagramMock(trapezoidShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -152,8 +152,8 @@ describe("Rendering common shapes", () => {
     it("Parallelogram Shape Test", () => {
         // Arrange
         const parallelogramShapes = [];
-        parallelogramShapes.push(DiagramServiceMock.createShape(Shapes.PARALLELOGRAM));
-        const diagramMock = DiagramServiceMock.createDiagramMock(parallelogramShapes, [], Diagrams.GENERIC_DIAGRAM);
+        parallelogramShapes.push(DiagramMock.createShape(Shapes.PARALLELOGRAM));
+        const diagramMock = DiagramMock.createDiagramMock(parallelogramShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -165,8 +165,8 @@ describe("Rendering common shapes", () => {
     it("RoundedRectangle Shape Test", () => {
         // Arrange
         const roundedRectangleShapes = [];
-        roundedRectangleShapes.push(DiagramServiceMock.createShape(Shapes.ROUNDED_RECTANGLE));
-        const diagramMock = DiagramServiceMock.createDiagramMock(roundedRectangleShapes, [], Diagrams.GENERIC_DIAGRAM);
+        roundedRectangleShapes.push(DiagramMock.createShape(Shapes.ROUNDED_RECTANGLE));
+        const diagramMock = DiagramMock.createDiagramMock(roundedRectangleShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert
@@ -178,12 +178,12 @@ describe("Rendering common shapes", () => {
     it("Gradient & Shadow Test", () => {
         // Arrange
         const parallelogramShapes = [];
-        const parallelogram = DiagramServiceMock.createShape(Shapes.PARALLELOGRAM);
+        const parallelogram = DiagramMock.createShape(Shapes.PARALLELOGRAM);
         parallelogram.gradientFill = "true";
         parallelogram.shadow = false;
         parallelogram.fillOpacity = 1;
         parallelogramShapes.push(parallelogram);
-        const diagramMock = DiagramServiceMock.createDiagramMock(parallelogramShapes, [], Diagrams.GENERIC_DIAGRAM);
+        const diagramMock = DiagramMock.createDiagramMock(parallelogramShapes, [], Diagrams.GENERIC_DIAGRAM);
         // Act
         diagramView.drawDiagram(diagramMock);
         // Assert

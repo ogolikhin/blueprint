@@ -5,7 +5,7 @@ import "angular-sanitize";
 require("script!mxClient");
 
 import {Diagrams, ConnectorTypes} from "./utils/constants";
-import {DiagramServiceMock, Prop} from "../diagram.svc.mock";
+import {DiagramMock, Prop} from "../diagram.mock";
 import {StencilServiceMock} from "../stencil.svc.mock";
 import {Point} from "../impl/models";
 import {DiagramView} from "./diagram-view";
@@ -28,8 +28,8 @@ describe("Rendering common shapes", () => {
     it("Pool Shape Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Pool"));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        eventShapes.push(DiagramMock.createShape("Pool"));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -44,8 +44,8 @@ describe("Rendering common shapes", () => {
     it("Lane Shape Test", () => {
         // Arrange
         const eventShapes = [];
-        eventShapes.push(DiagramServiceMock.createShape("Lane"));
-        const diagramMock = DiagramServiceMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
+        eventShapes.push(DiagramMock.createShape("Lane"));
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.BUSINESS_PROCESS);
         // Act
         diagramView.drawDiagram(diagramMock);
 
@@ -63,8 +63,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props[0] = { name: "IsInitiating", value: true };
         const messageShapes = [];
-        messageShapes.push(DiagramServiceMock.createShape("Message", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(messageShapes, [], Diagrams.BUSINESS_PROCESS);
+        messageShapes.push(DiagramMock.createShape("Message", props));
+        const diagramMock = DiagramMock.createDiagramMock(messageShapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -81,8 +81,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("DataObject", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("DataObject", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -98,8 +98,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props[0] = { name: "IsCollection", value: true };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("DataObject", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("DataObject", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -119,8 +119,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("DataStore", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("DataStore", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -135,8 +135,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("GateWay", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("GateWay", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -151,8 +151,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Group", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Group", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -167,8 +167,8 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -186,8 +186,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Message" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -210,8 +210,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "IntermediateThrowing" };
         props[1] = { name: "EventTrigger", value: "Message" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -233,8 +233,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Error" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -254,8 +254,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Error" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -275,8 +275,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Timer" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -296,8 +296,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Compensation" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -317,8 +317,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Compensation" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -339,8 +339,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "IntermediateCatching" };
         props[1] = { name: "EventTrigger", value: "Cancel" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -360,8 +360,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Cancel" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -381,8 +381,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Conditional" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -402,8 +402,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Signal" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -423,8 +423,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Signal" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -444,8 +444,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "IntermediateCatching" };
         props[1] = { name: "EventTrigger", value: "Link" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -465,8 +465,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "IntermediateThrowing" };
         props[1] = { name: "EventTrigger", value: "Link" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -486,8 +486,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Multiple" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -507,8 +507,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Multiple" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -528,8 +528,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "Escalation" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -549,8 +549,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Escalation" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -570,8 +570,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "Start" };
         props[1] = { name: "EventTrigger", value: "ParallelMultiple" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -591,8 +591,8 @@ describe("Rendering common shapes", () => {
         props[0] = { name: "EventType", value: "End" };
         props[1] = { name: "EventTrigger", value: "Terminate" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Event", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Event", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -611,8 +611,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props[0] = { name: "GatewayType", value: "ExclusiveData" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -633,8 +633,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveDataWithMarker" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -664,8 +664,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveEvent" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -716,8 +716,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ExclusiveEventInstantiate" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -759,8 +759,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "ParallelEventInstantiate" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -802,8 +802,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Inclusive" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -824,8 +824,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Parallel" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -855,8 +855,8 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
         props.push({ name: "GatewayType", value: "Complex" });
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Gateway", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Gateway", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -891,8 +891,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: true };
         props[5] = { name: "BoundaryType", value: "Call" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -925,8 +925,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Event" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -953,8 +953,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Transaction" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -983,8 +983,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1009,8 +1009,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1035,8 +1035,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1059,8 +1059,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1086,8 +1086,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1114,8 +1114,8 @@ describe("Rendering common shapes", () => {
         props[4] = { name: "IsCollapsed", value: false };
         props[5] = { name: "BoundaryType", value: "Default" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("Task", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("Task", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1139,8 +1139,8 @@ describe("Rendering common shapes", () => {
         props[2] = { name: "IsCompensation", value: false };
         props[3] = { name: "BoundaryType", value: "Event" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("ExpandedSubProcess", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1163,8 +1163,8 @@ describe("Rendering common shapes", () => {
         props[2] = { name: "IsCompensation", value: true };
         props[3] = { name: "BoundaryType", value: "Event" };
         const shapes = [];
-        shapes.push(DiagramServiceMock.createShape("ExpandedSubProcess", props));
-        const diagramMock = DiagramServiceMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
+        shapes.push(DiagramMock.createShape("ExpandedSubProcess", props));
+        const diagramMock = DiagramMock.createDiagramMock(shapes, [], Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);
@@ -1191,16 +1191,16 @@ describe("Rendering common shapes", () => {
         const props = new Array<Prop>();
 
         const annotationShapes = [];
-        annotationShapes.push(DiagramServiceMock.createShape("TextAnnotation", props));
+        annotationShapes.push(DiagramMock.createShape("TextAnnotation", props));
 
         const connections = [];
         const points = [];
         points.push(<Point>{ x: 100, y: 150 });
         points.push(<Point>{ x: 0, y: 0 });
-        const connection = DiagramServiceMock.createConnection(ConnectorTypes.STRAIGHT, points);
+        const connection = DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points);
         connections.push(connection);
 
-        const diagramMock = DiagramServiceMock.createDiagramMock(annotationShapes, connections, Diagrams.BUSINESS_PROCESS);
+        const diagramMock = DiagramMock.createDiagramMock(annotationShapes, connections, Diagrams.BUSINESS_PROCESS);
         
         // Act
         diagramView.drawDiagram(diagramMock);

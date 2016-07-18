@@ -71,6 +71,7 @@
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
+    <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />

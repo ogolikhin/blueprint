@@ -121,6 +121,7 @@ namespace Model.ArtifactModel.Impl
                 richTextAsPlain: richTextAsPlain);
         }
 
+        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode}, bool)" />
         public int GetVersion(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -134,6 +135,17 @@ namespace Model.ArtifactModel.Impl
             int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
 
             return artifactVersion;
+        }
+
+        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, List{HttpStatusCode})" />
+        public List<OpenApiTrace> AddTrace(IUser user,
+            IArtifactBase targetArtifact,
+            TraceDirection traceDirection,
+            TraceTypes traceType = TraceTypes.Manual,
+            bool isSuspect = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return AddTrace(Address, this, targetArtifact, traceDirection, user, traceType, isSuspect, expectedStatusCodes);
         }
 
         #endregion Methods
@@ -705,21 +717,24 @@ namespace Model.ArtifactModel.Impl
         /// <param name="targetArtifact">The second artifact to which the call adds a trace.</param>
         /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="traceType">(optional) The type of the trace - 'Manual'.</param>
+        /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
         /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
-        public static List<OpenApiTrace> AddTrace(string address, IArtifactBase sourceArtifact,
-            IArtifactBase targetArtifact, string traceDirection, IUser user, string traceType = "Manual",
-            bool isSuspect = false, List<HttpStatusCode> expectedStatusCodes = null)
+        public static List<OpenApiTrace> AddTrace(string address,
+            IArtifactBase sourceArtifact,
+            IArtifactBase targetArtifact,
+            TraceDirection traceDirection,
+            IUser user,
+            TraceTypes traceType = TraceTypes.Manual,
+            bool isSuspect = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
 
             string tokenValue = user.Token?.OpenApiToken;
-            var restApi = new RestApiFacade(address, tokenValue);
-
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.TRACES,
                 sourceArtifact.ProjectId, sourceArtifact.Id);
 
@@ -727,16 +742,28 @@ namespace Model.ArtifactModel.Impl
             {
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
-            OpenApiTrace traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact.Id,
+
+            OpenApiTrace traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
                 traceDirection, traceType, isSuspect);
 
-            var openApitraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(path, RestRequestMethod.POST,
-                new List<OpenApiTrace> { traceToCreate }, expectedStatusCodes: expectedStatusCodes);
-            string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
-                sourceArtifact.Id, targetArtifact.Id);
-            Assert.AreEqual(1, openApitraces.Count);
-            Assert.AreEqual(traceCreatedMessage, openApitraces[0].Message);
-            Assert.AreEqual(201, openApitraces[0].ResultCode);
+            var restApi = new RestApiFacade(address, tokenValue);
+
+            var openApitraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
+                path,
+                RestRequestMethod.POST,
+                new List<OpenApiTrace> { traceToCreate },
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (expectedStatusCodes.Contains(HttpStatusCode.Created))
+            {
+                Assert.AreEqual(1, openApitraces.Count);
+                Assert.AreEqual(201, openApitraces[0].ResultCode);
+
+                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
+                    sourceArtifact.Id, targetArtifact.Id);
+
+                Assert.AreEqual(traceCreatedMessage, openApitraces[0].Message);
+            }
 
             return openApitraces;
         }

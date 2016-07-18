@@ -2,17 +2,13 @@
 using Model;
 using NUnit.Framework;
 using CustomAttributes;
-using System.Collections.Generic;
 using TestCommon;
-using Utilities;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
-using Model.StorytellerModel.Impl;
 
 namespace ArtifactStoreTests
 {
-
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class RelationshipsTests : TestBase
@@ -34,90 +30,159 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase("To")]
-        [TestCase("From")]
+        [TestCase(TraceDirection.To)]
+        [TestCase(TraceDirection.From)]
         [TestRail(153694)]
-        [Description("Create manual trace between 2 artifacts, get relationships, check that returned trace has expected value")]
-        public void GetRelationships_ManualTraceDirection_ReturnsCorrectTraces(string direction)
+        [Description("Create manual trace between 2 artifacts, get relationships.  Verify that returned trace has expected value.")]
+        public void GetRelationships_ManualTraceDirection_ReturnsCorrectTraces(TraceDirection direction)
         {
+            // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, direction, _user);
+
+            Assert.AreEqual(traces[0].IsSuspect, false,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
             Relationships relationships = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(sourceArtifact.Id, _user);
-            }, "GetArtifactRelationships shouldn't throw any error.");
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces");
-            Assert.IsTrue(traces[0].Equals(relationships.ManualTraces[0]), "Returned trace should have expected values");
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase(true)]
         [TestCase(false)]
         [TestRail(153698)]
-        [Description("Create manual trace between 2 artifacts, get relationships, check that returned trace has expected value")]
+        [Description("Create manual trace between 2 artifacts, get relationships.  Verify returned trace has expected value.")]
         public void GetRelationships_ManualTraceHasSuspect_ReturnsCorrectTraces(bool suspected)
         {
+            // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, "To", user: _user, isSuspect: suspected);
+                targetArtifact, TraceDirection.To, _user, isSuspect: suspected);
+
             Relationships relationships = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(sourceArtifact.Id, _user);
-            }, "GetArtifactRelationships shouldn't throw any error.");
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces");
-            Assert.IsTrue(traces[0].Equals(relationships.ManualTraces[0]), "Returned trace should have expected values");
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase]
         [TestRail(153702)]
-        [Description("Create manual trace between 2 artifacts, delete 1 artifact, get relationships, check that no traces returned")]
-        public void GetRelationships_DeletedArtifact_ReturnsNoTraces()
+        [Description("Create manual trace between 2 artifacts, delete the source artifact, get relationships.  Verify no traces are returned.")]
+        public void GetRelationships_DeleteSourceArtifact_ReturnsNoTraces()
         {
+            // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
             OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, "From", _user);
+                targetArtifact, TraceDirection.From, _user);
+
             sourceArtifact.Delete(_user);
             sourceArtifact.Publish(_user);
 
             Relationships relationships = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(sourceArtifact.Id, _user);
-            }, "GetArtifactRelationships shouldn't throw any error.");
-            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships shouldn't have manual traces");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces");
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a deleted artifact.");
+
+            // Verify:
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships shouldn't have manual traces when the source artifact is deleted.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+        }
+
+        [TestCase]
+        [TestRail(153795)]
+        [Description("Create manual trace between 2 artifacts, delete the target artifact, get relationships.  Verify no traces are returned.")]
+        public void GetRelationships_DeleteTargetArtifact_ReturnsNoTraces()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.From, _user);
+
+            targetArtifact.Delete(_user);
+            targetArtifact.Publish(_user);
+
+            Relationships relationships = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships shouldn't have manual traces when the target artifact is deleted.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
         }
 
         [TestCase]
         [TestRail(153703)]
-        [Description("Create manual trace between 2 artifacts, delete 1 artifact, get relationships, check that no traces returned")]
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships.  Verify no traces are returned.")]
         public void GetRelationships_SavedNeverPublishedArtifact_ReturnsCorrectTraces()
         {
+            // Setup:
             IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            sourceArtifact.Save(_user);
             IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            sourceArtifact.Save(_user);
             targetArtifact.Save(_user);
+
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, "To", user: _user);
+                targetArtifact, TraceDirection.To, _user);
+
             Relationships relationships = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(sourceArtifact.Id, _user);
-            }, "GetArtifactRelationships shouldn't throw any error.");
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces");
-            Assert.IsTrue(traces[0].Equals(relationships.ManualTraces[0]), "Returned trace should have expected values");
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid Unpublished Draft artifact.");
+
+            // Verify:
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+        }
+
+        /// <summary>
+        /// Compares two Trace objects and asserts that each of their properties are equal.
+        /// </summary>
+        /// <param name="trace1">The OpenApiTrace to compare.</param>
+        /// <param name="trace2">The NovaTrace to compare.</param>
+        private static void AssertTracesAreEqual(ITrace trace1, ITrace trace2)
+        {
+            Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
+            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
+            Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
         }
     }
 }

@@ -1,17 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Model.ArtifactModel.Impl
 {
     public class Relationships
     {
-        public List<Trace> ManualTraces { get; } = new List<Trace>();
-        public List<Trace> OtherTraces { get; } = new List<Trace>();
+        public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
+        public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
     }
-    public class Trace
+
+    public class NovaTrace : ITrace
     {
+        #region Inherited from ITrace
+
+        public int ProjectId { get; set; }
+
         public int ArtifactId { get; set; }
+
+        [JsonProperty("TraceDirection")]
+        public TraceDirection Direction { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public TraceTypes TraceType { get; set; }
+
+        [JsonProperty("Suspect")]
+        public bool IsSuspect { get; set; }
+
+        #endregion Inherited from ITrace
+
+        #region Additional Properties
 
         public string ArtifactTypePrefix { get; set; }
 
@@ -23,20 +42,13 @@ namespace Model.ArtifactModel.Impl
 
         public string ItemName { get; set; }
 
-        public int ProjectId { get; set; }
-
         public string ProjectName { get; set; }
-
-        [JsonProperty("TraceDirection")]
-        public TraceDirection Direction { get; set; }
-
-        public TraceTypes TraceType { get; set; }
-
-        public bool Suspect { get; set; }
 
         public bool HasAccess { get; set; }
 
         public int PrimitiveItemTypePredefined { get; set; }
+
+        #endregion Additional Properties
     }
 
     public enum TraceDirection
@@ -46,7 +58,7 @@ namespace Model.ArtifactModel.Impl
         Both
     }
 
-    [FlagsAttribute]
+    [Flags]
     public enum TraceTypes
     {
         None = 0,

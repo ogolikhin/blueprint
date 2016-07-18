@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
@@ -194,12 +195,14 @@ namespace Model.Impl
             return attachment;
         }
 
-        public Relationships GetRelationships(int itemId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, itemId);
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
             var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(path,
                 RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
             return relationships;

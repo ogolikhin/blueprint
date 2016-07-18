@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
+import { IProjectManager, Models, Relationships} from "../../../main";
 import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -29,6 +29,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public artifactList: IArtifactRelationshipsResultSet;
     public option: string = "1";
     public isLoading: boolean = false;
+    public selectedTraces: Relationships.IRelationship[] = [];
 
     constructor(
         private localization: ILocalizationService,
@@ -50,6 +51,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public $onDestroy() {
         super.$onDestroy();   
         this.artifactList = null;
+        this.selectedTraces = null;
     }
 
     protected setArtifactId = (artifact: Models.IArtifact) => {     

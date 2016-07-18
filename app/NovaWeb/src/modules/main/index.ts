@@ -16,8 +16,8 @@ import "tinymce";
 import * as moment from "moment";
 import * as Enums from "./models/enums";
 import {Helper} from "../core/utils/helper";
-import {ProjectRepository} from "./services/project-repository";
-import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
+import * as Models from "./models/models";
+import {IArtifactService, ArtifactService, ProjectRepository, IProjectManager, ProjectManager} from "./services/";
 import * as Relationships from "./models/relationshipModels";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
@@ -28,7 +28,6 @@ import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {BpArtifact} from "./components/editors/general/bp-artifact";
-import {ArtifactService} from "./components/editors/general/artifact.svc";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
@@ -41,7 +40,8 @@ export {
     Enums,
     Models,
     Relationships,
-    ProjectRepository,
+//    IProjectRepository, ProjectRepository,
+    IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
 };
 

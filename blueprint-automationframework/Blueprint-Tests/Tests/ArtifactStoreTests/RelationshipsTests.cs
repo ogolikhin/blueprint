@@ -30,6 +30,20 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        /// <summary>
+        /// Compares two Trace objects and asserts that each of their properties are equal.
+        /// </summary>
+        /// <param name="trace1">The first Trace to compare.</param>
+        /// <param name="trace2">The second Trace to compare.</param>
+        private static void AssertTracesAreEqual(ITrace trace1, ITrace trace2)
+        {
+            Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
+            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
+            Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
+        }
+
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestRail(153694)]
@@ -169,20 +183,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
             AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
-        }
-
-        /// <summary>
-        /// Compares two Trace objects and asserts that each of their properties are equal.
-        /// </summary>
-        /// <param name="trace1">The OpenApiTrace to compare.</param>
-        /// <param name="trace2">The NovaTrace to compare.</param>
-        private static void AssertTracesAreEqual(ITrace trace1, ITrace trace2)
-        {
-            Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
-            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
-            Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
         }
     }
 }

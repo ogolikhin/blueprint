@@ -195,16 +195,24 @@ namespace Model.Impl
             return attachment;
         }
 
-        public Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, List{HttpStatusCode})"/>
+        public Relationships GetRelationships(IUser user,
+            IArtifactBase artifact,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
-
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(path,
-                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
             return relationships;
         }
 

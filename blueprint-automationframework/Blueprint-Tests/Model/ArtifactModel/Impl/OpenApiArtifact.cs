@@ -723,7 +723,7 @@ namespace Model.ArtifactModel.Impl
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address,
             IArtifactBase sourceArtifact,
-            IArtifactBase targetArtifact,
+            IArtifactBase targetArtifact,   // TODO: Create an AddTrace() that takes a list of target artifacts.
             TraceDirection traceDirection,
             IUser user,
             TraceTypes traceType = TraceTypes.Manual,

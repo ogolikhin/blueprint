@@ -30,6 +30,7 @@ import {MessageComponent} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as errorStateRouteConfig} from "./error/error.state";
+import {ErrorComponent} from "./error/error.component";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -70,7 +71,8 @@ angular.module("app.shell",
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
     .component("bpCommentEdit", new BPCommentEdit())   
     .component("message", new MessageComponent())
-    .component("messagesContainer", new MessageContainerComponent())   
+    .component("messagesContainer", new MessageContainerComponent())  
+    .component("error", new ErrorComponent())    
     .config(Logger)
     .config(errorStateRouteConfig)
     .config(initializeInterceptors);

@@ -24,8 +24,7 @@ export class BPArtifactRelationshipItemController {
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
     public artifact: Relationships.IRelationship;
     public selectedTraces: Relationships.IRelationship[];
-    public fromOtherProject: boolean = false;
-    public _isSelected: boolean = false;
+    public fromOtherProject: boolean = false;  
     public selectable: boolean = false;
 
     constructor(
@@ -37,7 +36,7 @@ export class BPArtifactRelationshipItemController {
     }
 
     public get isSelected() {
-        return this._isSelected;
+        return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
     public expand() {
@@ -52,7 +51,7 @@ export class BPArtifactRelationshipItemController {
 
     public select(art) {
         if (this.selectable.toString() === "true") {
-            if (!this._isSelected) {
+            if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
                     this.selectedTraces.push(art);
                 }
@@ -61,7 +60,7 @@ export class BPArtifactRelationshipItemController {
                     this.selectedTraces.pop();
                 }
             }
-            this._isSelected = !this._isSelected;
+            this.artifact.isSelected = !this.artifact.isSelected;
         }
     }
 

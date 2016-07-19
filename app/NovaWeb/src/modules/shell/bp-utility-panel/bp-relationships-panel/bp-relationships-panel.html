@@ -1,14 +1,15 @@
-﻿<div class="filter-bar" ng-if="$ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length">
-    <div class="icons" ng-if="$ctrl.selectedTraces.length>0">
-        <div >
-            {{$ctrl.selectedTraces.length}} items selected
-        </div>
-        <div>
-            <i class="fonticon-exchange"></i>
-            <i class="fonticon-flag-1"></i>
-            <i class="fonticon-delete-filled"></i>
-        </div>
+﻿<div class="icons" ng-if="($ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length) && $ctrl.selectedTraces.length>0 && $ctrl.categoryFilter === 1">
+    <div>
+        {{$ctrl.selectedTraces.length}} items selected
     </div>
+    <div>
+        <i class="fonticon-exchange"></i>
+        <i class="fonticon-flag-1"></i>
+        <i class="fonticon-delete-filled"></i>
+    </div>
+</div>
+<div class="filter-bar" ng-if="$ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length">
+
     <bp-select ng-model="$ctrl.option"
                options="$ctrl.options">
     </bp-select>

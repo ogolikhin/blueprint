@@ -1,11 +1,5 @@
 bp-relationships-panel {
-    .filter-bar {
-        padding-top: 0px;
-        padding-left:0px;
-        padding-right:0px;
-    }
-
-    .icons {
+     .icons {         
         color: $gray-dark;
         display: inline-block;
         width: 100%;
@@ -21,7 +15,6 @@ bp-relationships-panel {
         }
     }
 
-
     [class^="fonticon2-"],
     [class*=" fonticon2-"],
     [class^="fonticon-"],
@@ -29,12 +22,10 @@ bp-relationships-panel {
         &::before {
             font-size: 1.4rem;
         }
-    }
-
-    
+    }    
 
     .tabs {
-        padding-bottom: $padding-root;
+        padding: $padding-root;
         width: 100%;
     }
 

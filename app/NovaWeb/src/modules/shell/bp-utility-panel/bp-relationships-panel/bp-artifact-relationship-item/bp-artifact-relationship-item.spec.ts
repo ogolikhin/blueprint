@@ -62,7 +62,7 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.expanded = false;
 
             // Act
-            vm.expand();        
+            vm.expand({});        
             $httpBackend.flush();
 
             //Assert

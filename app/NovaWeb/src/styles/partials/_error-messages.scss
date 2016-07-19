@@ -88,7 +88,9 @@ bp-message {
   position: fixed;
   width: 100%;
 
-  .message {
+  }
+
+.message {
     background-color: $gray-lightest;
     border: 1px solid $gray-lighter;
     border-radius: $border-radius-amount;
@@ -104,7 +106,7 @@ bp-message {
 
     div {
       display: table-cell;
-      padding: 32px 40px;
+      padding: 10px 10px;
       text-align: center;
       vertical-align: middle;
 
@@ -125,8 +127,7 @@ bp-message {
       }
 
       &:last-child {
-        font-size: $font-size-big;
-        font-weight: $font-weight-semibold;
+        font-size: $font-size-big;      
         line-height: 1.6rem;
       }
     }
@@ -135,4 +136,4 @@ bp-message {
       white-space: nowrap;
     }
   }
-}
+

@@ -117,5 +117,17 @@ namespace Model
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
         Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets relationships for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifact">The artifact containing the relationship to get.</param>
+        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
+        Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -1,6 +1,6 @@
-﻿<div class="icons" ng-if="($ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length) && $ctrl.selectedTraces.length>0 && $ctrl.categoryFilter === 1">
+<div class="icons" ng-if="($ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length) && $ctrl.selectedTraces[$ctrl.artifactId].length>0 && $ctrl.categoryFilter === 1">
     <div>
-        {{$ctrl.selectedTraces.length}} items selected
+        {{$ctrl.selectedTraces[$ctrl.artifactId].length}} items selected
     </div>
     <div>
         <i class="fonticon-exchange"></i>
@@ -25,25 +25,24 @@
 <div ng-if="$ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length"
      class="scrollable-content" perfect-scrollbar>
 
-    <h6 ng-if="$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter !== 2">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
+    <h6 ng-if="$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==2">
         <div ng-repeat="artifact in $ctrl.artifactList.manualTraces"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}" selected-traces="$ctrl.selectedTraces[$ctrl.artifactId]"></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter ===1"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}</div>
-
-    <h6 ng-if="$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
+    <h6 ng-if="$ctrl.artifactList.otherTraces.length && $ctrl.categoryFilter !== 1" class="util-panel-heading util-heading-other">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
 
     <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Association') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div ng-repeat="artifact in $ctrl.associations"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
         </div>
     </div>
     <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
@@ -51,7 +50,7 @@
         <div ng-repeat="artifact in $ctrl.actorInherits"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
         </div>
     </div>
     <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Document_Reference') }}</h6>
@@ -59,7 +58,7 @@
         <div  ng-repeat="artifact in $ctrl.documentReferences"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!($ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && $ctrl.categoryFilter ===2"

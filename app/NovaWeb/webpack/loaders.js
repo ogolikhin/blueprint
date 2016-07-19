@@ -3,7 +3,9 @@ var path = require("path");
 module.exports = [
     {
         test: /\.ts(x?)$/,
-        exclude: /storyteller/,
+        exclude: [
+           path.resolve(__dirname, '../src/modules/storyteller')
+        ],
         loader: 'ts-loader'
     },     {
         test: /\.css$/,

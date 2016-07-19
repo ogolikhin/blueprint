@@ -123,6 +123,7 @@ namespace Model.ArtifactModel.Impl
                 if (discardArtifactResult.Result == NovaDiscardArtifactResult.ResultCode.Success)
                 {
                     IsSaved = false;
+                    IsMarkedForDeletion = false;
                 }
             }
 
@@ -469,7 +470,7 @@ namespace Model.ArtifactModel.Impl
 
             var discardedResultList = artifactResults.DiscardResults;
 
-            // When each artifact is successfully discarded, set IsSaved flag to false
+            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
             foreach (var discardedResult in discardedResultList)
             {
                 var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId) &&
@@ -479,7 +480,8 @@ namespace Model.ArtifactModel.Impl
 
                 if (discardedArtifact != null)
                 {
-                discardedArtifact.IsSaved = false;
+                    discardedArtifact.IsSaved = false;
+                    discardedArtifact.IsMarkedForDeletion = false;
                 }
             }
 

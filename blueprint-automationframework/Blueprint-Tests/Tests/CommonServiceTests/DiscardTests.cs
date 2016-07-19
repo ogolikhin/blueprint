@@ -53,10 +53,12 @@ namespace CommonServiceTests
             }, "Discard must not throw errors.");
 
             // Verify:
+            var expectedResultCode = NovaDiscardArtifactResult.ResultCode.ArtifactHasNothingToDiscard;
+
+            Assert.AreEqual(expectedResultCode, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                (int)expectedResultCode, discardResultList[0].Result);
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
 
             // Make sure artifact still exists.
             IOpenApiArtifact retrievedArtifact = null;
@@ -88,11 +90,13 @@ namespace CommonServiceTests
             }, "Discard must throw no errors.");
 
             // Verify:
+            var expectedResultCode = NovaDiscardArtifactResult.ResultCode.Success;
+
+            Assert.AreEqual(expectedResultCode, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                (int)expectedResultCode, discardResultList[0].Result);
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
-            
+
             // Make sure the artifact really is discarded.
             Assert.Throws<Http404NotFoundException>(() =>
             {
@@ -119,10 +123,12 @@ namespace CommonServiceTests
 
             // Verify:
             const string expectedMessage = "Successfully discarded";
+            var expectedResultCode = NovaDiscardArtifactResult.ResultCode.Success;
+
+            Assert.AreEqual(expectedResultCode, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                (int)expectedResultCode, discardResultList[0].Result);
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be '{0}', but '{1}' was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
 
             // Make sure artifact still exists.
             IOpenApiArtifact retrievedArtifact = null;
@@ -156,10 +162,12 @@ namespace CommonServiceTests
             }, "Discard must throw no errors.");
 
             // Verify:
+            var expectedResultCode = NovaDiscardArtifactResult.ResultCode.Failure;
+
+            Assert.AreEqual(expectedResultCode, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                (int)expectedResultCode, discardResultList[0].Result);
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be '{0}', but '{1}' was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                (int)NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
 
             // Make sure the artifact really is still deleted.
             Assert.Throws<Http404NotFoundException>(() =>

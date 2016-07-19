@@ -63,8 +63,8 @@
   <ItemGroup>
     <Compile Include="AccessControlDoubleTests.cs" />
     <Compile Include="FileTypeTests.cs" />
-    <Compile Include="CookiePositiveTests.cs" />
-    <Compile Include="CookieNegativeTests.cs" />
+    <Compile Include="ValidSessionTokenTests.cs" />
+    <Compile Include="InvalidSessionTokenTests.cs" />
     <Compile Include="NegativeTests.cs" />
     <Compile Include="BasicTests.cs" />
     <Compile Include="DeleteTests.cs" />

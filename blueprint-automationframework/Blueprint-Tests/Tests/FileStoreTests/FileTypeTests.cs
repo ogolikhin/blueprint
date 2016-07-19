@@ -34,7 +34,7 @@ namespace FileStoreTests
         [TestCase((uint)4096, "4KB_File.jpg", "image/jpeg")]
         [TestCase((uint)8192, "8KB_File.pdf", "application/pdf")]
         [Description("POST a file of a specific type using multipart mime. Verify that the file is returned and identical to file which was POSTed.")]
-        public void PostFileWithMultiPartMime_VerifyReturnedFileType(uint fileSize, string fakeFileName, string fileType)
+        public void PostFile_MultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -55,7 +55,7 @@ namespace FileStoreTests
         [TestCase((uint)4096, "4KB_File.jpg", "image/jpeg")]
         [TestCase((uint)8192, "8KB_File.pdf", "application/pdf")]
         [Description("POST a file of a specific type without using multipart mime. Verify that the file is returned and identical to file which was POSTed.")]
-        public void PostFileWithoutMultiPartMime_VerifyReturnedFileType(uint fileSize, string fakeFileName, string fileType)
+        public void PostFile_NoMultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);

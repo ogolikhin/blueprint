@@ -36,7 +36,7 @@ namespace FileStoreTests
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         [Description("DELETE a file and set a future expiry date for the file. Verify that the file still exists.")]
-        public void DeleteFileWithFutureExpiryDate_VerifyFileStillExists(uint fileSize, string fakeFileName, string fileType)
+        public void DeleteFile_ExpiryDateInFuture_FileStillExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: Create and add file to FileStore.
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
@@ -52,7 +52,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("DELETE a file immediately without an expiry date. Verify that the file is deleted.")]
-        public void DeleteFileImmediately_VerifyFileIsDeleted(uint fileSize, string fakeFileName, string fileType)
+        public void DeleteFile_Immediately_FileIsDeleted(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: Create and add file to FileStore.
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
@@ -69,7 +69,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("DELETE a file with an expiry date in the past. Verify that the file is deleted.")]
-        public void DeleteFileWithPastExpiryDate_VerifyFileIsDeleted(uint fileSize, string fakeFileName, string fileType)
+        public void DeleteFile_ExpiryDateInPast_FileIsDeleted(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: Create and add file to FileStore.
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);

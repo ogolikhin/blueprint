@@ -38,7 +38,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         [Description("POST a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
-        public void PostWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
+        public void PostFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -65,7 +65,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, null, typeof(Http400BadRequestException))]
         [Description("PUT a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
-        public void PutWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
+        public void PutFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -105,7 +105,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         [Description("GET a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
-        public void GetWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
+        public void GetFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -137,7 +137,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         [Description("GET HEAD for a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
-        public void GetHeadWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
+        public void GetFileHead_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -167,7 +167,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         [Description("DELETE a file with an invalid session token. Verify that an unauthorized or bad exception is returned.")]
-        public void DeleteFileWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
+        public void DeleteFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -194,7 +194,7 @@ namespace FileStoreTests
         [TestCase]
         [TestRail(98734)]
         [Description("POST a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PostFile().")]
-        public void PostFileWithBadMultiPartMime_Verify500Error()
+        public void PostFile_BadMultiPartMime_InternalServerException()
         {
             // Setup: Create a fake file with a random byte array.
             const uint fileSize = 1024;
@@ -218,7 +218,7 @@ namespace FileStoreTests
         [TestCase]
         [TestRail(98735)]
         [Description("PUT a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFileHttpContext().")]
-        public void PutFileWithBadMultiPartMime_Verify500Error()
+        public void PutFile_BadMultiPartMime_InternalServerException()
         {
             const uint fileSize = 1024;
             const string fakeFileName = "1KB_File.txt";
@@ -255,7 +255,7 @@ namespace FileStoreTests
         [TestCase]
         [TestRail(101572)]
         [Description("POST 2 multipart mime files in one request.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostTwoMultiPartMimeFilesInOneRequest_Verify400Error()
+        public void PostFile_TwoMultiPartMimeFilesInOneRequest_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = @"-------------------------------28947758029299
@@ -286,7 +286,7 @@ Content-Type: text/plain
         [TestCase]
         [TestRail(101585)]
         [Description("POST a corrupt multipart mime request (i.e. with a missing double quote).  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostCorruptMultiPartMimeWith_Verify400Error()
+        public void PostFile_CorruptMultiPartMime_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             // The Content-Disposition line below is missing the "" after the filename, causing it to be invalid.
@@ -313,7 +313,7 @@ Content-Type: text/plain
         [TestCase]
         [TestRail(101586)]
         [Description("POST a multipart mime request that starts with the end part.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostMultiPartMimeBodyStartingWithEndPart_Verify400Error()
+        public void PostFile_MultiPartMimeBodyStartingWithEndPart_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = "-------------------------------28947758029299\r\n"; // The end '\r\n' is important here.
@@ -335,7 +335,7 @@ Content-Type: text/plain
         [TestCase]
         [TestRail(101606)]
         [Description("POST a multipart mime request with no end part and that doesn't end with a CRLF.  This test is specifically to get code coverage of an if block in MultipartPartParser.MultipartPartParser().")]
-        public void PostMultiPartMimeWithNoEndPartAndNoCRLFAfterMimeHeader_Verify500Error()
+        public void PostFile_MultiPartMimeNoEndPartAndNoCRLFAfterMimeHeader_InternalServerException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = @"-------------------------------28947758029299
@@ -360,7 +360,7 @@ Content-Type: text/plain";
         [TestCase]
         [TestRail(98738)]
         [Description("PUT a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
-        public void PutFileWithoutPostingFirst_Verify404Error()
+        public void PutFile_WithoutPostingFirst_BadRequestException()
         {
             const uint fileSize = 1;
             const string fakeFileName = "1KB_File.txt";
@@ -381,7 +381,7 @@ Content-Type: text/plain";
 
         [TestCase((uint)1024, "1KB_File.txt", "")]
         [Description("POST a file with no content type header. Verify that a bad request exception is returned.")]
-        public void PostWithNoContentTypeHeader_VerifyBadRequest(
+        public void PostFile_NoContentTypeHeader_BadRequestException(
                 uint fileSize,
                 string fakeFileName,
                 string fileType)
@@ -398,7 +398,7 @@ Content-Type: text/plain";
 
         [TestCase((uint)1024, "", "text/plain")]
         [Description("POST a file with no filename in the header. Verify that a bad request exception is returned.")]
-        public void PostWithNoFileName_VerifyBadRequest(
+        public void PostFile_NoFileName_BadRequestException(
                 uint fileSize,
                 string fakeFileName,
                 string fileType)

@@ -6,6 +6,7 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
+import * as moment from "moment";
 import {LocalizationServiceMock} from "../core/localization.mock";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 
@@ -44,16 +45,16 @@ describe("Formly", () => {
         it("should be initialized properly", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
-            let fieldNode = node.querySelector(".formly-field-datepicker");
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
             triggerKey(angular.element(fieldInput), 27, "keyup");
 
-            (<any>fieldScope).datepicker.open();
+            (<any>fieldScope).frmlyDatepicker.open();
 
             expect(fieldNode).toBeDefined();
             expect(fieldScope).toBeDefined();
-            expect((<any>fieldScope).datepicker.opened).toBeTruthy();
+            expect((<any>fieldScope).frmlyDatepicker.opened).toBeTruthy();
             expect((<any>fieldScope).to.clearText).toEqual("Datepicker_Clear");
             expect((<any>fieldScope).to.closeText).toEqual("Datepicker_Done");
             expect((<any>fieldScope).to.currentText).toEqual("Datepicker_Today");
@@ -62,7 +63,7 @@ describe("Formly", () => {
         it("should fail if the date is less than minDate", function () {
             compileAndSetupStuff({model: {datepicker: "2016-05-05"}});
 
-            let fieldNode = node.querySelector(".formly-field-datepicker");
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
             triggerKey(angular.element(fieldInput), 27, "keyup");
@@ -71,13 +72,13 @@ describe("Formly", () => {
             expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$error.dateIsGreaterThanMin).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.minDate).toBeTruthy();
         });
 
         it("should fail if the date is greater than maxDate", function () {
             compileAndSetupStuff({model: {datepicker: "2016-10-10"}});
 
-            let fieldNode = node.querySelector(".formly-field-datepicker");
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
             triggerKey(angular.element(fieldInput), 27, "keyup");
@@ -86,13 +87,13 @@ describe("Formly", () => {
             expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$error.dateIsLessThanMax).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.maxDate).toBeTruthy();
         });
 
         it("should fail if the date is empty", function () {
             compileAndSetupStuff({model: {datepicker: ""}});
 
-            let fieldNode = node.querySelector(".formly-field-datepicker");
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
             triggerKey(angular.element(fieldInput), 27, "keyup");
@@ -175,15 +176,15 @@ function createModule() {
                 function getFields() {
                     return [
                         {
-                            type: "tinymce",
+                            type: "frmlyTinymce",
                             key: "tinymce"
                         },
                         {
-                            type: "tinymceInline",
-                            key: "tinymceInline"
+                            type: "frmlyInlineTinymce",
+                            key: "inlineTinymce"
                         },
                         {
-                            type: "datepicker",
+                            type: "frmlyDatepicker",
                             key: "datepicker",
                             templateOptions: {
                                 datepickerOptions: {

@@ -36,7 +36,7 @@ namespace FileStoreTests
         [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
         [Description("POST a file in chunks with a future expiry time. Delete the file. Verify that the file was successfully added and then deleted.")]
-        public void PostFileInChunksWithFutureExpireTimeThenDeleteFile_VerifyFileWasAddedAndDeleted(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        public void PostFile_UsingChunksWithFutureExpireTimeThenDeleteFile_FileWasAddedAndDeleted(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);

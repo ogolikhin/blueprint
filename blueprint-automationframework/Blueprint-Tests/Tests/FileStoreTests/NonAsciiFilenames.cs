@@ -63,7 +63,7 @@ namespace FileStoreTests
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
         [TestRail(134136)]
         [Description("POST a file with a non-ASCII filename to FileStore (using Multipart-mime), then GET the file and compare against what we sent.")]
-        public void PostFileWithMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
+        public void PostFile_MultiPartMime_FileExists(string charSet, string fakeFileName)
         {
             PostFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
         }
@@ -83,7 +83,7 @@ namespace FileStoreTests
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
         [TestRail(134137)]
         [Description("POST a file with a non-ASCII filename to FileStore (not using Multipart-mime), then GET the file and compare against what we sent.")]
-        public void PostFileWithoutMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
+        public void PostFile_NoMultiPartMime_FileExists(string charSet, string fakeFileName)
         {
             PostFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: false);
         }
@@ -135,7 +135,7 @@ namespace FileStoreTests
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
         [TestRail(134138)]
         [Description("POST and then PUT a file with a non-ASCII filename to FileStore (using Multipart-mime), then GET the file and compare against what we sent.")]
-        public void PutFileWithMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
+        public void PutFile_MultiPartMime_FileExists(string charSet, string fakeFileName)
         {
             PutFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
         }
@@ -155,7 +155,7 @@ namespace FileStoreTests
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
         [TestRail(134139)]
         [Description("POST and then PUT a file with a non-ASCII filename to FileStore (not using Multipart-mime), then GET the file and compare against what we sent.")]
-        public void PutFileWithoutMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
+        public void PutFile_NoMultiPartMime_FileExists(string charSet, string fakeFileName)
         {
             PutFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: false);
         }

@@ -10,7 +10,7 @@ namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    public class CookiePositiveTests : TestBase
+    public class CookieWithValidSessionTokenTests : TestBase
     {
         private IUser _user;
 
@@ -29,7 +29,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("POST a file with a valid cookie session token. Verify that a bad request exception is returned.")]
-        public void PostWithValidCookieSessionToken_VerifyBadRequest(
+        public void PostFile_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType)
@@ -46,7 +46,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
         [Description("PUT a file with a valid cookie session token. Verify that a bad request exception is returned.")]
-        public void PutWithValidCookieSessionToken_VerifyBadRequest(
+        public void PutFile_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType,
@@ -76,7 +76,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("GET a file with a valid cookie session token. Verify that the file is returned successfully.")]
-        public void GetWithValidCookieSessionToken_VerifyAuthorized(
+        public void GetFile_ValidCookieSessionToken_Authorized(
             uint fileSize,
             string fakeFileName,
             string fileType)
@@ -96,7 +96,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("GET HEAD for a file with a valid cookie session token. Verify that a bad request exception is returned.")]
-        public void GetHeadWithValidCookieSessionToken_VerifyBadRequest(
+        public void GetFileHead_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType)
@@ -116,7 +116,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [Description("DELETE a file with a valid cookie session token. Verify that a bad request exception is returned.")]
-        public void DeleteFileWithValidCookieToken_VerifyBadRequest(
+        public void DeleteFile_ValidCookieToken_BadRequestException(
             uint fileSize,
             string fakeFileName,
             string fileType)

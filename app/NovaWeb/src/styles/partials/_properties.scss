@@ -200,12 +200,12 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       padding-right: $property-padding-default;
     }
 
-    .form-datepicker {
+    .has-messages {
       display: inline-table;
-      vertical-align: top;
       position: relative;
+      vertical-align: top;
 
-      input {
+      input.has-icon {
         border-bottom-right-radius: 0;
         border-right: 0;
         border-top-right-radius: 0;
@@ -316,8 +316,8 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   .formly-field-tinymce,
   .formly-field-tinymceInline {
     display: block;
-    width: 100%;
     max-width: 100%;
+    width: 100%;
 
     label {
       display: block;
@@ -347,6 +347,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       border: 0;
       margin: 0;
       padding: 0;
+      width: 100%;
     }
   }
 }

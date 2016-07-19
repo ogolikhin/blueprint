@@ -213,7 +213,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
                             if (!isGreaterThanMin) {
                                 setTimeout(function() {
-                                    document.getElementById(messageId).innerHTML = messageText;
+                                    let messageDiv = document.getElementById(messageId);
+                                    if (messageDiv) {
+                                        messageDiv.innerHTML = messageText;
+                                    }
                                 }, 100);
                                 return false;
                             }
@@ -237,7 +240,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
                             if (!isLessThanMax) {
                                 setTimeout(function() {
-                                    document.getElementById(messageId).innerHTML = messageText;
+                                    let messageDiv = document.getElementById(messageId);
+                                    if (messageDiv) {
+                                        messageDiv.innerHTML = messageText;
+                                    }
                                 }, 100);
                                 return false;
                             }

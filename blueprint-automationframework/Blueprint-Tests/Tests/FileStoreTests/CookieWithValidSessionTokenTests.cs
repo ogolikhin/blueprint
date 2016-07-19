@@ -10,7 +10,7 @@ namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    public class ValidSessionTokenTests : TestBase
+    public class CookieWithValidSessionTokenTests : TestBase
     {
         private IUser _user;
 

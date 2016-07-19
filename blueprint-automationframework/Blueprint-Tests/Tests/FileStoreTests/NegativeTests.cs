@@ -360,7 +360,7 @@ Content-Type: text/plain";
         [TestCase]
         [TestRail(98738)]
         [Description("PUT a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
-        public void PutFile_WithoutPostingFirst_BadRequestException()
+        public void PutFile_WithoutPostingFirst_NotFoundException()
         {
             const uint fileSize = 1;
             const string fakeFileName = "1KB_File.txt";

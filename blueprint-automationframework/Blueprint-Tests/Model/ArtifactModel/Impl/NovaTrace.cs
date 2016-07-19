@@ -5,12 +5,6 @@ using Newtonsoft.Json.Converters;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class Relationships
-    {
-        public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
-        public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
-    }
-
     public class NovaTrace : ITrace
     {
         #region Inherited from ITrace
@@ -49,6 +43,12 @@ namespace Model.ArtifactModel.Impl
         public int PrimitiveItemTypePredefined { get; set; }
 
         #endregion Additional Properties
+    }
+
+    public class Relationships
+    {
+        public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
+        public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
     }
 
     public enum TraceDirection

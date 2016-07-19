@@ -757,7 +757,7 @@ namespace Model.ArtifactModel.Impl
             if (expectedStatusCodes.Contains(HttpStatusCode.Created))
             {
                 Assert.AreEqual(1, openApitraces.Count);
-                Assert.AreEqual(201, openApitraces[0].ResultCode);
+                Assert.AreEqual((int)HttpStatusCode.Created, openApitraces[0].ResultCode);
 
                 string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
                     sourceArtifact.Id, targetArtifact.Id);

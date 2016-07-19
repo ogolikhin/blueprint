@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NUnit.Framework;
+using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -33,47 +34,50 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Contructor.
         /// </summary>
-        /// <param name="project">The project where the artifact exists.</param>
-        /// <param name="artifact">The artifact being traced.</param>
+        /// <param name="project">The project where the artifact exists.  Cannot be null.</param>
+        /// <param name="artifact">The artifact being traced.  Cannot be null.</param>
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
+        /// <exception cref="ArgumentNullException">If project or artifact are null.</exception>
         public OpenApiTrace(IProject project, IArtifactBase artifact, TraceDirection direction, TraceTypes traceType, bool isSuspect)
-            : this(project?.Id ?? -1, artifact, direction, traceType, isSuspect)
+            : this(project?.Id, artifact, direction, traceType, isSuspect)
         {
-            // Intentionally left blank.
+            // Intentionally left blank because the work is done in the chained constructor.
         }
 
         /// <summary>
         /// Constructor taking a raw Project ID.
         /// </summary>
-        /// <param name="projectId">The Project ID where the artifact exists.</param>
-        /// <param name="artifact">The artifact being traced.</param>
+        /// <param name="projectId">The Project ID where the artifact exists.  Cannot be null.</param>
+        /// <param name="artifact">The artifact being traced.  Cannot be null.</param>
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
-        public OpenApiTrace(int projectId, IArtifactBase artifact, TraceDirection direction, TraceTypes traceType, bool isSuspect)
-            : this(projectId, artifact?.Id ?? -1, direction, traceType, isSuspect)
+        /// <exception cref="ArgumentNullException">If projectId or artifact are null.</exception>
+        public OpenApiTrace(int? projectId, IArtifactBase artifact, TraceDirection direction, TraceTypes traceType, bool isSuspect)
+            : this(projectId, artifact?.Id, direction, traceType, isSuspect)
         {
-            // Intentionally left blank.
+            // Intentionally left blank because the work is done in the chained constructor.
         }
 
         /// <summary>
         /// This constructor is needed by Newtonsoft to deserialize the JSON.
         /// </summary>
-        /// <param name="projectId">The Project ID where the artifact exists.</param>
-        /// <param name="artifactId">The ID of the Artifact being traced.</param>
+        /// <param name="projectId">The Project ID where the artifact exists.  Cannot be null.</param>
+        /// <param name="artifactId">The ID of the Artifact being traced.  Cannot be null.</param>
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
+        /// <exception cref="ArgumentNullException">If projectId or artifactId are null.</exception>
         [JsonConstructor]
-        public OpenApiTrace(int projectId, int artifactId, TraceDirection direction, TraceTypes traceType, bool isSuspect)
+        public OpenApiTrace(int? projectId, int? artifactId, TraceDirection direction, TraceTypes traceType, bool isSuspect)
         {
-            Assert.That(projectId >= 0, "The Project ID was {0}, but it cannot be negative!", projectId);
-            Assert.That(projectId >= 0, "The Artifact ID was {0}, but it cannot be negative!", artifactId);
+            ThrowIf.ArgumentNull(projectId, nameof(projectId));
+            ThrowIf.ArgumentNull(artifactId, nameof(artifactId));
 
-            ProjectId = projectId;
-            ArtifactId = artifactId;
+            ProjectId = projectId.Value;
+            ArtifactId = artifactId.Value;
             Direction = direction;
             TraceType = traceType;
             IsSuspect = isSuspect;

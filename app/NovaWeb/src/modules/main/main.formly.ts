@@ -97,18 +97,17 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             templateOptions: {
                 onKeyup: function($viewValue, $modelValue, scope) {
                     //This is just a stub!
-                    let initValue = $modelValue.initialValue || $modelValue.defaultValue;
+                    let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
                     let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
                     if (artifactNameDiv) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (dirtyIcon) {
-                            artifactNameDiv.removeChild(dirtyIcon);
-                        }
                         if (initValue !== inputValue) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
+                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                            if (!dirtyIcon) {
+                                let div = document.createElement("DIV");
+                                div.innerHTML = `<i class="dirty-indicator"></i>`;
+                                artifactNameDiv.appendChild(div.firstChild);
+                            }
                         }
                     }
                 }
@@ -223,14 +222,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     }
                     let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
                     if (artifactNameDiv) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (dirtyIcon) {
-                            artifactNameDiv.removeChild(dirtyIcon);
-                        }
                         if (initValue !== inputValue) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
+                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                            if (!dirtyIcon) {
+                                let div = document.createElement("DIV");
+                                div.innerHTML = `<i class="dirty-indicator"></i>`;
+                                artifactNameDiv.appendChild(div.firstChild);
+                            }
                         }
                     }
                 }
@@ -281,7 +279,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (typeof (currentModelVal) === "string") {
+            if (angular.isString(currentModelVal)) {
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 

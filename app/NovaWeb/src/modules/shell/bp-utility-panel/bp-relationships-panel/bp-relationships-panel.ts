@@ -18,6 +18,11 @@ export class BPRelationshipsPanel implements ng.IComponentOptions {
     };
 }
 
+export interface IArtifactSelectedArtifactMap {
+    [artifactId: number]: Relationships.IRelationship[];
+}
+
+
 export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
@@ -33,7 +38,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public documentReferences: IRelationship[];
     public option: string = "1";
     public isLoading: boolean = false;
-    public selectedTraces: Relationships.IRelationship[] = [];
+    public selectedTraces: IArtifactSelectedArtifactMap;
 
     constructor(
         private localization: ILocalizationService,
@@ -67,6 +72,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             this.getRelationships()
                 .then((list: any) => {
                     this.artifactList = list;
+                    this.selectedTraces = {};
+                    this.selectedTraces[this.artifactId] = [];
                     this.populateOtherTraceLists();
                 });
         }

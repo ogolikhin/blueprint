@@ -12,6 +12,11 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     };
 }
 
+export interface IResult {
+    found: boolean;
+    index: number;
+}
+
 export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
@@ -54,15 +59,15 @@ export class BPArtifactRelationshipItemController {
             if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
                     let res = this.inArray(this.selectedTraces);
-                    if (!res['found']) {
+                    if (!res.found) {
                         this.selectedTraces.push(this.artifact);
                     }
                 }
             } else {
                 if (this.selectedTraces) {                
                     let res = this.inArray(this.selectedTraces);
-                    if (res['found']) {
-                        this.selectedTraces.splice(res['index'], 1);
+                    if (res.found) {
+                        this.selectedTraces.splice(res.index, 1);
                     }                     
                 }
             }
@@ -81,7 +86,7 @@ export class BPArtifactRelationshipItemController {
             }
         }
 
-        return { 'found': found, 'index': index };
+        return <IResult>{ 'found': found, 'index': index };
     }
 
     public limitChars(str) {

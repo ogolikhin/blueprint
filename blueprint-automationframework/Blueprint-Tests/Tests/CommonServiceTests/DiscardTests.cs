@@ -138,8 +138,8 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107379)]
-        [Description("Create process artifact, save, publish, delete, publish, discard - must return already deleted message.")]
-        public void Discard_DeletedArtifact_AlreadyDeletedMessage()
+        [Description("Create process artifact, save, publish, delete, publish, discard - must return artifact not found message.")]
+        public void Discard_DeletedArtifact_ArtifactNotFoundMessage()
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
@@ -147,7 +147,7 @@ namespace CommonServiceTests
             artifact.Publish(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
-            string expectedMessage = I18NHelper.FormatInvariant("DItem with Id: {0} was deleted by some other user. Please refresh.", 
+            string expectedMessage = I18NHelper.FormatInvariant("The requested artifact ID {0} is not found.", 
                 artifact.Id);
             
             // Execute:
@@ -157,10 +157,10 @@ namespace CommonServiceTests
             }, "Discard must throw no errors.");
 
             // Verify:
-            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be '{0}', but '{1}' was returned",
                 expectedMessage, discardResultList[0].Message);
             Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
+                (int)NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
 
             // Make sure the artifact really is still deleted.
             Assert.Throws<Http404NotFoundException>(() =>

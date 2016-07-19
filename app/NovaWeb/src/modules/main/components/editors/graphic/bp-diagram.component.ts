@@ -1,7 +1,6 @@
 import "angular";
 import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
-import {IDiagram} from "./impl/models";
 import {IDiagramService} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {IProjectManager, Models} from "../../../../main";
@@ -83,7 +82,6 @@ export class BPDiagramController {
                         this.$element.css("overflow", "");
                     }
                     this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                    this.diagramView.sanitize = this.$sanitize;
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }

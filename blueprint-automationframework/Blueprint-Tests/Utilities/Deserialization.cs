@@ -109,7 +109,8 @@ namespace Utilities
 
             public string Serialize(object obj)
             {
-                return JsonConvert.SerializeObject(obj, Formatting.None);
+                return JsonConvert.SerializeObject(obj, Formatting.None,
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore});
             }
 
             public string RootElement { get; set; }

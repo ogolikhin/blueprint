@@ -4,6 +4,13 @@ bp-messages-container {
   flex-shrink: 0;
 }
 
+.bp-sidebar-wrapper:not(.left-panel-visible) messages-container {
+  padding-left: 25px;
+}
+.bp-sidebar-wrapper:not(.right-panel-visible) messages-container {
+  padding-right: 25px;
+}
+
 message,
 bp-message {
   display: block;

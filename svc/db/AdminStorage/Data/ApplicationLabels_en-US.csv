@@ -93,6 +93,7 @@ App_UP_Relationships_Subheading_Association, "Association"
 App_UP_Relationships_Subheading_Actor_Inherits, "Actor Inherits"
 App_UP_Relationships_Subheading_Document_Reference, "Document Reference"
 App_UP_Relationships_Unauthorized, "Unauthorized" 
+App_UP_Relationships_Selected, "Selected: "
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

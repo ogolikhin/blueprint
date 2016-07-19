@@ -34,10 +34,11 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
+        [Description("POST a file with an invalid cookie session token. Verify that a bad request exception is returned.")]
         public void PostWithInvalidCookieSessionToken_VerifyBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
@@ -46,7 +47,7 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that bad request exception is thrown
+            // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 Helper.FileStore.AddFile(file, _userForCookieTests, sendAuthorizationAsCookie: true);
@@ -56,11 +57,12 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "")]
+        [Description("PUT a file with an invalid cookie session token. Verify that a bad request exception is returned.")]
         public void PutWithInvalidCookieSessionToken_VerifyBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
-            uint chunkSize, 
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
+            uint chunkSize,
             string accessControlToken)
         {
             Assert.That((chunkSize > 0) && (fileSize > chunkSize), "Invalid TestCase detected!  chunkSize must be > 0 and < fileSize.");
@@ -81,8 +83,8 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that bad request exception is thrown for subsequent PUT request with invalid token
-            Assert.Throws<Http400BadRequestException>(() => 
+            // Execute & Verify: Assert that bad request exception is thrown for subsequent PUT request with invalid token
+            Assert.Throws<Http400BadRequestException>(() =>
             {
                 Helper.FileStore.PutFile(postedFile, chunk, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because PUT does not support authorization cookies!");
@@ -91,10 +93,11 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
+        [Description("GET a file with an invalid cookie session token. Verify that an unauthorized exception is returned.")]
         public void GetWithInvalidCookieSessionToken_VerifyUnauthorized(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
@@ -106,22 +109,23 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
+            // Execute & Verify: Assert that unauthorized exception is thrown
             // Note: Empty authorization cookie returns 401 Unauthorized
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "Did not throw HTTP Status Code 401 (Unauthorized) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
+        [Description("GET HEAD for a file with an invalid cookie session token. Verify that a bad request exception is returned.")]
         public void GetHeadWithInvalidCookieSessionToken_VerifyBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
@@ -133,20 +137,21 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that bad request exception is thrown
+            // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because HEAD does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
+        [Description("DELETE a file with an invalid cookie session token. Verify that a bad request exception is returned.")]
         public void DeleteFileWithInvalidCookieToken_VerifyBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
@@ -158,10 +163,10 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that bad request exception is thrown
+            // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because DELETE does not support authorization cookies!");
         }
     }

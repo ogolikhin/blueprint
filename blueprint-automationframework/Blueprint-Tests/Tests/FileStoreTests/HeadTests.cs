@@ -33,15 +33,16 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        [Description("GET HEAD for a file. Verify that the file metadata is identical to the metadata of the file that was added.")]
         public void GetHeadOnly_VerifyFileMetaDataIdenticalToAddedFile(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: Create and add file to FileStore.
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
-            // Get file meta-data.
+            // Execute: Get file meta-data.
             var returnedFile = Helper.FileStore.GetFileMetadata(storedFile.Id, _user);
 
-            // Verify meta-data is the same as the file we added.
+            // Verify: Assert that the meta-data is the same as the file that we added.
             FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);
         }
     }

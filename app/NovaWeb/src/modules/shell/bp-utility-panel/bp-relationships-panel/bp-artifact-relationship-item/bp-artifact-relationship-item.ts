@@ -86,11 +86,13 @@ export class BPArtifactRelationshipItemController {
     public inArray(array) {
         let found = false,
             index = -1;
-        for (let i = 0; i < array.length; i++) {
-            if (array[i].itemId === this.artifact.itemId) {
-                found = true;
-                index = i;
-                break;
+        if (array) {
+            for (let i = 0; i < array.length; i++) {
+                if (array[i].itemId === this.artifact.itemId) {
+                    found = true;
+                    index = i;
+                    break;
+                }
             }
         }
 

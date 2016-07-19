@@ -341,11 +341,13 @@ namespace Model.ArtifactModel.Impl
 
             var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
-            // When each artifact is successfully discarded, set IsSaved flag to false
+            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
             foreach (var discardedResult in discardedResultList)
             {
                 var discardedArtifact = artifactObjectList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
                 discardedArtifact.IsSaved = false;
+                discardedArtifact.IsMarkedForDeletion = false;
+
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
 

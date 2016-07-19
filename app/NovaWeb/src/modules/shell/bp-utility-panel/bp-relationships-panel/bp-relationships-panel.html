@@ -29,7 +29,7 @@
         <div ng-repeat="artifact in $ctrl.artifactList.manualTraces"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}" selected-traces="$ctrl.selectedTraces"></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.artifactList.manualTraces.length && $ctrl.categoryFilter ===1"

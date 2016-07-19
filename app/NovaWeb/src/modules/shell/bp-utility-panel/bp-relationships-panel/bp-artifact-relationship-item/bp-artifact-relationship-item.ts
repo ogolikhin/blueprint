@@ -7,7 +7,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public controller: Function = BPArtifactRelationshipItemController;
     public bindings: any = {
         artifact: "=",
-        selectedTraces: "="
+        selectedTraces: "=",
+        selectable: "@"
     };
 }
 
@@ -15,23 +16,24 @@ export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
         "localization",
-        "artifactRelationships",      
+        "artifactRelationships",
         "projectManager"
     ];
 
     public expanded: boolean = false;
-    public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
+    public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
     public artifact: Relationships.IRelationship;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
     public _isSelected: boolean = false;
+    public selectable: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,     
-        private projectManager: IProjectManager) {       
-       
+        private artifactRelationships: IArtifactRelationships,
+        private projectManager: IProjectManager) {
+
     }
 
     public get isSelected() {
@@ -49,16 +51,18 @@ export class BPArtifactRelationshipItemController {
     }
 
     public select(art) {
-        if (!this._isSelected) {
-            if (this.selectedTraces) {
-                this.selectedTraces.push(art);
+        if (this.selectable.toString() === "true") {
+            if (!this._isSelected) {
+                if (this.selectedTraces) {
+                    this.selectedTraces.push(art);
+                }
+            } else {
+                if (this.selectedTraces) {
+                    this.selectedTraces.pop();
+                }
             }
-        } else {
-            if (this.selectedTraces) {
-                this.selectedTraces.pop();
-            }
+            this._isSelected = !this._isSelected;
         }
-        this._isSelected = !this._isSelected;
     }
 
     public limitChars(str) {

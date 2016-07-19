@@ -206,11 +206,24 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
             var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             return relationships;

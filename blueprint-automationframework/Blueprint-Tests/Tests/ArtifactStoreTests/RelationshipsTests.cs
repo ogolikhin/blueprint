@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
         [TestCase(true)]
         [TestCase(false)]
         [TestRail(153698)]
-        [Description("Create manual trace between 2 artifacts, get relationships.  Verify returned trace has expected value.")]
+        [Description("Create manual trace between 2 artifacts & set the trace as suspect, get relationships.  Verify returned trace has expected value.")]
         public void GetRelationships_ManualTraceHasSuspect_ReturnsCorrectTraces(bool suspected)
         {
             // Setup:
@@ -86,6 +86,9 @@ namespace ArtifactStoreTests
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user, isSuspect: suspected);
+
+            Assert.AreEqual(traces[0].IsSuspect, suspected,
+                "IsSuspected should be {0} after adding a trace without specifying a value for isSuspect!", suspected);
 
             Relationships relationships = null;
 
@@ -119,6 +122,7 @@ namespace ArtifactStoreTests
             Relationships relationships = null;
 
             // Execute:
+            // NOTE: This should probably return a 404, but they decided to keep the behavior the same as Silverlight.
             Assert.DoesNotThrow(() =>
             {
                 relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
@@ -157,10 +161,12 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
         }
 
-        [TestCase]
+        [TestCase(false, 0)]
+        [TestCase(true, 1)]
+        [TestCase(null, 1)]
         [TestRail(153703)]
-        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships.  Verify no traces are returned.")]
-        public void GetRelationships_SavedNeverPublishedArtifact_ReturnsCorrectTraces()
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with all possible values for the 'addDrafts' query parameter).  Verify no traces are returned.")]
+        public void GetRelationships_SavedNeverPublishedArtifact_ReturnsCorrectTraces(bool? addDrafts, int expectedManualTracesCount)
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
@@ -176,13 +182,19 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: addDrafts);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid Unpublished Draft artifact.");
 
             // Verify:
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            Assert.AreEqual(expectedManualTracesCount, relationships.ManualTraces.Count,
+                "Relationships should have {0} manual trace.", expectedManualTracesCount);
+            Assert.AreEqual(0, relationships.OtherTraces.Count,
+                "Relationships shouldn't have other traces.");
+
+            if (expectedManualTracesCount > 0)
+            {
+                AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            }
         }
     }
 }

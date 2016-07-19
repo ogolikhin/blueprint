@@ -44,7 +44,8 @@ export class BPArtifactRelationshipItemController {
         return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
-    public expand() {
+    public expand($event) {
+        this.remove($event);
         if (!this.expanded) {
             this.getRelationshipDetails(this.artifact.artifactId)
                 .then((relationshipExtendedInfo: any) => {
@@ -54,7 +55,7 @@ export class BPArtifactRelationshipItemController {
         this.expanded = !this.expanded;
     }
 
-    public select() {
+    public select() {       
         if (this.selectable.toString() === "true") {
             if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
@@ -73,6 +74,13 @@ export class BPArtifactRelationshipItemController {
             }
             this.artifact.isSelected = !this.artifact.isSelected;
         }
+    }
+
+    public remove($event) {
+        if ($event.stopPropagation) $event.stopPropagation();
+        if ($event.preventDefault) $event.preventDefault();
+        $event.cancelBubble = true;
+        $event.returnValue = false;
     }
 
     public inArray(array) {

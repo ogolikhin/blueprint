@@ -1,6 +1,6 @@
 <div class="icons" ng-if="($ctrl.artifactList.manualTraces.length || $ctrl.artifactList.otherTraces.length) && $ctrl.selectedTraces[$ctrl.artifactId].length>0 && $ctrl.categoryFilter === 1">
     <div>
-        {{$ctrl.selectedTraces[$ctrl.artifactId].length}} items selected
+        {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}&nbsp;{{$ctrl.selectedTraces[$ctrl.artifactId].length}}
     </div>
     <div>
         <i class="fonticon-exchange"></i>

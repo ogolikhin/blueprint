@@ -139,6 +139,7 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     private textArea = (shape: IShape): MxCell => {
         let style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+        style[mxConstants.STYLE_OVERFLOW] = "hidden";
         return this.createDefaultVertex(shape, style);
     };
 

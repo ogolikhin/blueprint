@@ -921,6 +921,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationshi
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Subheading_Actor_Inherits', 'en-US', N'Actor Inherits')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Subheading_Document_Reference', 'en-US', N'Document Reference')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Unauthorized', 'en-US', N'Unauthorized')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Selected', 'en-US', N'Selected:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_CannotGetUser', 'en-US', N'Cannot get current user')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_IncorrectRequestId', 'en-US', N'Wrong request id. Please click ''Retry'' in Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_LoginFailed', 'en-US', N'Login Failed')

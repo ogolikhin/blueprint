@@ -65,6 +65,10 @@
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Association') }}</div>
 </div>
 
+<div ng-if="$ctrl.isLoading" class="app-loading">
+    <span class="glyphicon glyphicon-refresh spin"></span>
+</div>
+
 <div ng-if="!($ctrl.artifactList.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
      class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</div>
 

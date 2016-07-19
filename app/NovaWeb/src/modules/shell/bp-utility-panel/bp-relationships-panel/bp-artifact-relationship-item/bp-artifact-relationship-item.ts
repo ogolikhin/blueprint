@@ -12,6 +12,11 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     };
 }
 
+export interface IResult {
+    found: boolean;
+    index: number;
+}
+
 export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
@@ -49,24 +54,44 @@ export class BPArtifactRelationshipItemController {
         this.expanded = !this.expanded;
     }
 
-    public select(art) {
+    public select() {
         if (this.selectable.toString() === "true") {
             if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
-                    this.selectedTraces.push(art);
+                    let res = this.inArray(this.selectedTraces);
+                    if (!res.found) {
+                        this.selectedTraces.push(this.artifact);
+                    }
                 }
             } else {
-                if (this.selectedTraces) {
-                    this.selectedTraces.pop();
+                if (this.selectedTraces) {                
+                    let res = this.inArray(this.selectedTraces);
+                    if (res.found) {
+                        this.selectedTraces.splice(res.index, 1);
+                    }                     
                 }
             }
             this.artifact.isSelected = !this.artifact.isSelected;
         }
     }
 
+    public inArray(array) {
+        let found = false,
+            index = -1;
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].itemId === this.artifact.itemId) {
+                found = true;
+                index = i;
+                break;
+            }
+        }
+
+        return <IResult>{ 'found': found, 'index': index };
+    }
+
     public limitChars(str) {
         if (str) {
-            var text = Helper.decodeHtmlText(str);
+            let text = Helper.decodeHtmlText(str);
             if (text) {
                 if (text.length > 100) {
                     return text.substring(0, 100) + "...";
@@ -95,7 +120,7 @@ export class BPArtifactRelationshipItemController {
     }
 
     public navigateToArtifact(artifact: Relationships.IRelationship) {
-        var art = this.projectManager.getArtifact(artifact.artifactId);
+        let art = this.projectManager.getArtifact(artifact.artifactId);
         if (art && artifact.hasAccess) {
             this.projectManager.setCurrentArtifact(art);
         }

@@ -6,9 +6,7 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import * as moment from "moment";
 import {LocalizationServiceMock} from "../core/localization.mock";
-import {Helper} from "../core/utils/helper";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 
 let moduleName = createModule();
@@ -48,6 +46,8 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelector(".formly-field-datepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+            triggerKey(angular.element(fieldInput), 27, "keyup");
 
             (<any>fieldScope).datepicker.open();
 
@@ -64,11 +64,14 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelector(".formly-field-datepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+            triggerKey(angular.element(fieldInput), 27, "keyup");
 
             expect(fieldNode).toBeDefined();
             expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.dateIsGreaterThanMin).toBeTruthy();
         });
 
         it("should fail if the date is greater than maxDate", function () {
@@ -76,11 +79,29 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelector(".formly-field-datepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+            triggerKey(angular.element(fieldInput), 27, "keyup");
 
             expect(fieldNode).toBeDefined();
             expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.dateIsLessThanMax).toBeTruthy();
+        });
+
+        it("should fail if the date is empty", function () {
+            compileAndSetupStuff({model: {datepicker: ""}});
+
+            let fieldNode = node.querySelector(".formly-field-datepicker");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+            triggerKey(angular.element(fieldInput), 27, "keyup");
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$viewValue.toLowerCase()).toContain("invalid");
         });
     });
 
@@ -92,6 +113,12 @@ describe("Formly", () => {
         node = element[0];
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
+    }
+
+    function triggerKey(targetElement, keyCode, eventType) {
+        let e = angular.element.Event(eventType);
+        e.which = keyCode;
+        targetElement.trigger(e);
     }
 });
 

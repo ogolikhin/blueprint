@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
@@ -192,6 +193,27 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return attachment;
+        }
+
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, List{HttpStatusCode})"/>
+        public Relationships GetRelationships(IUser user,
+            IArtifactBase artifact,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return relationships;
         }
 
         #endregion Members inherited from IArtifactStore

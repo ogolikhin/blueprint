@@ -6,6 +6,7 @@ using TestCommon;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -196,5 +197,30 @@ namespace ArtifactStoreTests
                 AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
             }
         }
+
+        [TestCase]
+        [TestRail(153691)]
+        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  Verify that returned trace has expected value.")]
+        public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
+        {
+            // Setup:
+            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.BlueprintAnalytics);
+
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+
+            Assert.AreEqual(traces[0].IsSuspect, false,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact);
+            }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
+        }
+
     }
 }

@@ -356,7 +356,7 @@ export class ProjectManager implements IProjectManager {
             name: "Created on",
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            //disabled: true
+            disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: "Last edited by",

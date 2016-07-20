@@ -57,11 +57,11 @@ export class LoginCtrl {
     public isChangePasswordScreenEnabled: boolean;
     public hasChangePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
-    public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
-    public changePasswordNewPasswordError: boolean; //if the new password doesn't satisfy the security criteria
-    public changePasswordConfirmPasswordError: boolean; //if new password and confirm password don't match
 
-    public enableSAMLScreen: boolean;
+    public isCurrentPasswordFieldErrorStyleShowing: boolean; 
+    public isNewPasswordFieldErrorStyleShowing: boolean;
+    public isConfirmPasswordFieldErrorStyleShowing: boolean;
+
     public SAMLScreenMessage: string;
 
     public isLoginInProgress: boolean;
@@ -81,8 +81,6 @@ export class LoginCtrl {
         this.isChangePasswordScreenEnabled = false;
 
         this.changePasswordScreenMessage = localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
-
-        this.enableSAMLScreen = true;
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
 
@@ -128,7 +126,7 @@ export class LoginCtrl {
             () => {
                 this.isLabelErrorStyleShowing = false;
                 this.isTextFieldErrorStyleShowing = false;
-                var result: ILoginInfo = new ILoginInfo();
+                let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
                 this.$uibModalInstance.close(result);
@@ -144,7 +142,7 @@ export class LoginCtrl {
     }
 
     public get samlPrompt(): string {
-        var prompt: string = this.configValueHelper.getStringValue("FederatedAuthenticationPrompt");
+        let prompt: string = this.configValueHelper.getStringValue("FederatedAuthenticationPrompt");
         if (!prompt || prompt === "") {
             prompt = this.localization.get("Login_SamlLink");
         }
@@ -162,31 +160,31 @@ export class LoginCtrl {
 
     public changePassword(): void {
         this.hasChangePasswordScreenError = false;
-        this.changePasswordCurrentPasswordError = false;
-        this.changePasswordNewPasswordError = false;
-        this.changePasswordConfirmPasswordError = false;
+        this.isCurrentPasswordFieldErrorStyleShowing = false;
+        this.isNewPasswordFieldErrorStyleShowing = false;
+        this.isConfirmPasswordFieldErrorStyleShowing = false;
 
         if (this.novaCurrentPassword.length === 0) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_CurrentPasswordCannotBeEmpty");
             this.hasChangePasswordScreenError = true;
-            this.changePasswordCurrentPasswordError = true;
+            this.isCurrentPasswordFieldErrorStyleShowing = true;
             return;
         } else if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.hasChangePasswordScreenError = true;
-            this.changePasswordNewPasswordError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
             return;
         } else if (this.novaNewPassword.length > 128) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMaxLength");
             this.hasChangePasswordScreenError = true;
-            this.changePasswordNewPasswordError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
             return;
         }
         if (this.novaNewPassword !== this.novaConfirmNewPassword) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordConfirmMismatch");
             this.hasChangePasswordScreenError = true;
-            this.changePasswordNewPasswordError = true;
-            this.changePasswordConfirmPasswordError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = true;
             return;
         }
 
@@ -225,31 +223,31 @@ export class LoginCtrl {
             } else {
                 this.changePasswordScreenMessage = "authorization exception: " + error.message;
             }
-            this.changePasswordCurrentPasswordError = true;
-            this.changePasswordNewPasswordError = false;
-            this.changePasswordConfirmPasswordError = false;
+            this.isCurrentPasswordFieldErrorStyleShowing = true;
+            this.isNewPasswordFieldErrorStyleShowing = false;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
         } else if (error.statusCode === 400) {
-            this.changePasswordCurrentPasswordError = false;
-            this.changePasswordNewPasswordError = false;
-            this.changePasswordConfirmPasswordError = false;
+            this.isCurrentPasswordFieldErrorStyleShowing = false;
+            this.isNewPasswordFieldErrorStyleShowing = false;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
             if (error.errorCode === 4000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeEmpty");
-                this.changePasswordNewPasswordError = true;
+                this.isNewPasswordFieldErrorStyleShowing = true;
             } else if (error.errorCode === 4001) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordSameAsOld");
-                this.changePasswordCurrentPasswordError = true;
-                this.changePasswordNewPasswordError = true;
+                this.isCurrentPasswordFieldErrorStyleShowing = true;
+                this.isNewPasswordFieldErrorStyleShowing = true;
             } else if (error.errorCode === 4002) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCriteria");
-                this.changePasswordNewPasswordError = true;
+                this.isNewPasswordFieldErrorStyleShowing = true;
             } else {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
         } else {
             this.changePasswordScreenMessage = error.message;
-            this.changePasswordCurrentPasswordError = false;
-            this.changePasswordNewPasswordError = false;
-            this.changePasswordConfirmPasswordError = false;
+            this.isCurrentPasswordFieldErrorStyleShowing = false;
+            this.isNewPasswordFieldErrorStyleShowing = false;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
         }
     }
 
@@ -297,7 +295,7 @@ export class LoginCtrl {
         } else if (error.statusCode === 409) {
             this.isLabelErrorStyleShowing = false;
             this.isTextFieldErrorStyleShowing = false;
-            var result: ILoginInfo = new ILoginInfo();
+            let result: ILoginInfo = new ILoginInfo();
             if (this.novaUserName) {
                 result.userName = this.novaUserName;
                 result.password = this.novaPassword;
@@ -339,7 +337,7 @@ export class LoginCtrl {
                 this.isLabelErrorStyleShowing = false;
                 this.isTextFieldErrorStyleShowing = false;
                 this.isLoginInProgress = false;
-                var result: ILoginInfo = new ILoginInfo();
+                let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
                 this.$uibModalInstance.close(result);

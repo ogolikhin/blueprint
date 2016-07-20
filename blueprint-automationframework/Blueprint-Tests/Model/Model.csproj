@@ -71,6 +71,7 @@
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
+    <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="ArtifactModel\Impl\Attachment.cs" />
     <Compile Include="ArtifactModel\Impl\Property.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
-    <Compile Include="ArtifactModel\Impl\Trace.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaTrace.cs" />
     <Compile Include="ArtifactModel\IProperty.cs" />
     <Compile Include="Impl\PrimitiveFolder.cs" />
     <Compile Include="IPrimitiveFolder.cs" />

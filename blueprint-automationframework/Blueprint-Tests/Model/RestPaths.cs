@@ -25,6 +25,7 @@ namespace Model
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENTS                 = "api/v1/projects/{0}/artifacts/{1}/attachments";
+                    public const string TRACES                      = "api/v1/projects/{0}/artifacts/{1}/traces";
 
                     public static class SubArtifacts_id_
                     {

@@ -32,28 +32,16 @@ namespace FileStoreTests
             Helper?.Dispose();
         }
 
-        /// <summary>
-        /// Creates a new user, adds it to Blueprint and sets its token to the invalid token provided.
-        /// </summary>
-        /// <param name="invalidToken">An invalid token to set for this user.</param>
-        /// <returns>The new user with an invalid token.</returns>
-        private IUser CreateUserWithInvalidToken(string invalidToken)
-        {
-            IUser user = Helper.CreateUserAndAddToDatabase();
-            user.SetToken(_user.Token.AccessControlToken);  // This is needed to initialize the Token object
-            user.Token.AccessControlToken = invalidToken;
-            return user;
-        }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
-        public void PostWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+        [Description("POST a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
+        public void PostFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken,
             Type exceptionType)
         {
@@ -64,7 +52,7 @@ namespace FileStoreTests
 
             IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
-            // Assert that exception is thrown
+            // Execute & Verify: Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
                 Helper.FileStore.AddFile(file, userWithInvalidToken);
@@ -76,11 +64,12 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, null, typeof(Http400BadRequestException))]
-        public void PutWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
-            uint chunkSize, 
+        [Description("PUT a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
+        public void PutFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
+            uint chunkSize,
             string accessControlToken,
             Type exceptionType)
         {
@@ -103,7 +92,7 @@ namespace FileStoreTests
 
             IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
-            // Assert that exception is thrown for subsequent PUT request with invalid token
+            // Execute & Verify: Assert that exception is thrown for subsequent PUT request with invalid token
             Assert.Throws(exceptionType, () =>
             {
                 Helper.FileStore.PutFile(postedFile, chunk, userWithInvalidToken);
@@ -115,10 +104,11 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
-        public void GetWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+        [Description("GET a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
+        public void GetFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken,
             Type exceptionType)
         {
@@ -132,12 +122,12 @@ namespace FileStoreTests
 
             IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
-            // Assert that exception is thrown
+            // Execute & Verify: Assert that exception is thrown
             // Note: Empty authorization cookie returns 401 Unauthorized
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, userWithInvalidToken); 
+                Helper.FileStore.GetFile(storedFile.Id, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -146,10 +136,11 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
-        public void GetHeadWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+        [Description("GET HEAD for a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
+        public void GetFileHead_InvalidSessionToken_UnauthorizedOrBadRequestException(
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken,
             Type exceptionType)
         {
@@ -163,10 +154,10 @@ namespace FileStoreTests
 
             IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
-            // Assert that exception is thrown
+            // Execute & Verify: Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.GetFileMetadata(storedFile.Id, userWithInvalidToken); 
+                Helper.FileStore.GetFileMetadata(storedFile.Id, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -175,10 +166,11 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
-        public void DeleteFileWithInvalidToken_VerifyUnauthorizedOrBadRequest(
-            uint fileSize, 
-            string fakeFileName, 
-            string fileType, 
+        [Description("DELETE a file with an invalid session token. Verify that an unauthorized or bad exception is returned.")]
+        public void DeleteFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
+            uint fileSize,
+            string fakeFileName,
+            string fileType,
             string accessControlToken,
             Type exceptionType)
         {
@@ -192,17 +184,17 @@ namespace FileStoreTests
 
             IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
-            // Assert that exception is thrown
+            // Execute & Verify: Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.DeleteFile(storedFile.Id, userWithInvalidToken); 
+                Helper.FileStore.DeleteFile(storedFile.Id, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
         [TestCase]
         [TestRail(98734)]
-        [Description("Post a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PostFile().")]
-        public void PostFileWithBadMultiPartMime_Verify500Error()
+        [Description("POST a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PostFile().")]
+        public void PostFile_BadMultiPartMime_InternalServerException()
         {
             // Setup: Create a fake file with a random byte array.
             const uint fileSize = 1024;
@@ -225,8 +217,8 @@ namespace FileStoreTests
 
         [TestCase]
         [TestRail(98735)]
-        [Description("Put a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFileHttpContext().")]
-        public void PutFileWithBadMultiPartMime_Verify500Error()
+        [Description("PUT a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFileHttpContext().")]
+        public void PutFile_BadMultiPartMime_InternalServerException()
         {
             const uint fileSize = 1024;
             const string fakeFileName = "1KB_File.txt";
@@ -262,8 +254,8 @@ namespace FileStoreTests
 
         [TestCase]
         [TestRail(101572)]
-        [Description("Post 2 multipart-mime files in one request.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostTwoMultiPartMimeFilesInOneRequest_Verify400Error()
+        [Description("POST 2 multipart mime files in one request.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostFile_TwoMultiPartMimeFilesInOneRequest_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = @"-------------------------------28947758029299
@@ -277,9 +269,10 @@ Content-Type: text/plain
 
 
 -------------------------------28947758029299--";
-
+            // Setup: Create a new REST API object
             var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
+            // Execute & Verify: Assert that a bad request exception occurs when attempting to POST multiple files simultaneously
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
@@ -292,8 +285,8 @@ Content-Type: text/plain
 
         [TestCase]
         [TestRail(101585)]
-        [Description("Post a corrupt multipart-mime request (i.e. with a missing double quote).  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostCorruptMultiPartMimeWith_Verify400Error()
+        [Description("POST a corrupt multipart mime request (i.e. with a missing double quote).  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostFile_CorruptMultiPartMime_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             // The Content-Disposition line below is missing the "" after the filename, causing it to be invalid.
@@ -303,8 +296,10 @@ Content-Type: text/plain
 
 ";
 
+            // Setup: Create a new REST API object
             var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
+            // Execute & Verify: Assert that a bad request exception occurs when attempting to POST a corrupt multipart mime file
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
@@ -317,14 +312,16 @@ Content-Type: text/plain
 
         [TestCase]
         [TestRail(101586)]
-        [Description("Post a multipart-mime request that starts with the end part.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
-        public void PostMultiPartMimeBodyStartingWithEndPart_Verify400Error()
+        [Description("POST a multipart mime request that starts with the end part.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostFile_MultiPartMimeBodyStartingWithEndPart_BadRequestException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = "-------------------------------28947758029299\r\n"; // The end '\r\n' is important here.
 
+            // Setup: Create a new REST API object
             var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
+            // Execute & Verify: Assert that a bad request exception occurs when attempting to POST a multipart mime file that starts with the end part
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
@@ -332,21 +329,24 @@ Content-Type: text/plain
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);
-            }, "FileStore should return a 400 Bad Request error when we pass a multipart-mime request that starts with the end part.");
+            }, "FileStore should return a 400 Bad Request error when we pass a multipart mime request that starts with the end part.");
         }
 
         [TestCase]
         [TestRail(101606)]
-        [Description("Post a multipart-mime request with no end part and that doesn't end with a CRLF.  This test is specifically to get code coverage of an if block in MultipartPartParser.MultipartPartParser().")]
-        public void PostMultiPartMimeWithNoEndPartAndNoCRLFAfterMimeHeader_Verify500Error()
+        [Description("POST a multipart mime request with no end part and that doesn't end with a CRLF.  This test is specifically to get code coverage of an if block in MultipartPartParser.MultipartPartParser().")]
+        public void PostFile_MultiPartMimeNoEndPartAndNoCRLFAfterMimeHeader_InternalServerException()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = @"-------------------------------28947758029299
 Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
 Content-Type: text/plain";
 
+            // Setup: Create a new REST API object
             var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
+            // Execute & Verify: Assert that an internal server error exception occurs when attempting to POST a multipart mime file
+            // with no end part and doesn't end with a CRLF
             Assert.Throws<Http500InternalServerErrorException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
@@ -354,13 +354,13 @@ Content-Type: text/plain";
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);
-            }, "FileStore should return a 500 Internal Server error when we pass a multipart-mime request that starts with the end part.");
+            }, "FileStore should return a 500 Internal Server error when we pass a multipart mime request with no end part and that doesn't end with a CRLF.");
         }
 
         [TestCase]
         [TestRail(98738)]
-        [Description("Put a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
-        public void PutFileWithoutPostingFirst_Verify404Error()
+        [Description("PUT a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
+        public void PutFile_WithoutPostingFirst_NotFoundException()
         {
             const uint fileSize = 1;
             const string fakeFileName = "1KB_File.txt";
@@ -372,7 +372,7 @@ Content-Type: text/plain";
             // Assign a new default GUID instead of calling POST to get the GUID.
             file.Id = (new Guid()).ToString();
 
-            // Execute & Verify: Put a file chunk to FileStore with invalid multipart-mime (i.e. the body doesn't contain multipart data).
+            // Execute & Verify: Put a file chunk to FileStore with invalid multipart mime (i.e. the body doesn't contain multipart data).
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.FileStore.PutFile(file, file.Content.ToArray(), _user);
@@ -380,7 +380,8 @@ Content-Type: text/plain";
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "")]
-        public void PostWithNoContentTypeHeader_VerifyBadRequest(
+        [Description("POST a file with no content type header. Verify that a bad request exception is returned.")]
+        public void PostFile_NoContentTypeHeader_BadRequestException(
                 uint fileSize,
                 string fakeFileName,
                 string fileType)
@@ -388,7 +389,7 @@ Content-Type: text/plain";
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Assert that bad request exception is thrown
+            // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 Helper.FileStore.AddFile(file, _user);
@@ -396,7 +397,8 @@ Content-Type: text/plain";
         }
 
         [TestCase((uint)1024, "", "text/plain")]
-        public void PostWithNoFileName_VerifyBadRequest(
+        [Description("POST a file with no filename in the header. Verify that a bad request exception is returned.")]
+        public void PostFile_NoFileName_BadRequestException(
                 uint fileSize,
                 string fakeFileName,
                 string fileType)
@@ -404,11 +406,24 @@ Content-Type: text/plain";
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Assert that bad request exception is thrown
+            // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 Helper.FileStore.AddFile(file, _user);
             }, "Did not throw HTTP Status Code 400 (Bad Request) as expected");
+        }
+
+        /// <summary>
+        /// Creates a new user, adds it to Blueprint and sets its token to the invalid token provided.
+        /// </summary>
+        /// <param name="invalidToken">An invalid token to set for this user.</param>
+        /// <returns>The new user with an invalid token.</returns>
+        private IUser CreateUserWithInvalidToken(string invalidToken)
+        {
+            IUser user = Helper.CreateUserAndAddToDatabase();
+            user.SetToken(_user.Token.AccessControlToken);  // This is needed to initialize the Token object
+            user.Token.AccessControlToken = invalidToken;
+            return user;
         }
     }
 }

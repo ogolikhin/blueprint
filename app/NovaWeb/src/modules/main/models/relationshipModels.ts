@@ -13,6 +13,7 @@
     suspect: boolean;
     hasAccess: boolean;
     primitiveItemTypePredefined: number;
+    isSelected: boolean;
 }
 
 export enum TraceDirection {

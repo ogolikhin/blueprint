@@ -68,5 +68,22 @@ namespace Model.ArtifactModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
         int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Add trace between this artifact and a target artifact, with specified trace properties.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="targetArtifact">The artifact to which the call adds a trace to this artifact (the source).</param>
+        /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
+        /// <param name="traceType">(optional) The type of the trace - 'Manual'.</param>
+        /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
+        List<OpenApiTrace> AddTrace(IUser user,
+            IArtifactBase targetArtifact,
+            TraceDirection traceDirection,
+            TraceTypes traceType = TraceTypes.Manual,
+            bool isSuspect = false,
+            List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

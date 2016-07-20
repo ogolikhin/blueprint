@@ -13,7 +13,6 @@ export interface IDiagramView {
     setSelectedItem(id: number);
     getSelectedItems(): Array<IDiagramElement>;
     clearSelection();
-    sanitize(html: string): string;
     zoomToRect(x: number, y: number, width: number, height: number);
     disableUserSelection(value: boolean);
     destroy();
@@ -40,7 +39,7 @@ export class DiagramView implements IDiagramView {
 
     private static regesteredStencils: [string];
 
-    constructor(divContainer: HTMLElement, private stencilService: IStencilService) {
+    constructor(divContainer: HTMLElement, private stencilService: IStencilService, private sanitize?: (html: string) => string) {
         // Creates the graph inside the given container
         this.graph = MxFactory.graph(divContainer);
         this.initGraph();
@@ -107,8 +106,6 @@ export class DiagramView implements IDiagramView {
         this.disabledUserSelection = value;
         this.graph.setEnabled(value);
     }
-
-    public sanitize: (html: string) => string = null;
 
     public zoomToRect(x: number, y: number, width: number, height: number) {
         let rect = MxFactory.rectangle(0, 0, width, height);

@@ -66,6 +66,7 @@
     <Compile Include="DiscussionsTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />
     <Compile Include="ProjectTests.cs" />
+    <Compile Include="RelationshipsTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

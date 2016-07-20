@@ -16,6 +16,7 @@ App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help, "Help"
 Tooltip_App_Header_Logout, "Log out"
+Tooltip_Artifact_Header_LegacyArtifact, "Legacy artifact"
 
 App_Project, "Project"
 App_Project_Open,"Open Project"
@@ -88,6 +89,11 @@ App_UP_Relationships_Expand, "Show details"
 App_UP_Relationships_No_Relationships, "No relationships available"
 App_UP_Relationships_No_Traces, "No traces available"
 App_UP_Relationships_No_Association, "No other relationships available"
+App_UP_Relationships_Subheading_Association, "Association"
+App_UP_Relationships_Subheading_Actor_Inherits, "Actor Inherits"
+App_UP_Relationships_Subheading_Document_Reference, "Document Reference"
+App_UP_Relationships_Unauthorized, "Unauthorized" 
+App_UP_Relationships_Selected, "Selected: "
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
@@ -134,7 +140,7 @@ Login_Session_NewPasswordMinLength,"Your new password must be at least 8 charact
 Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
 Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
-Login_Session_Timeout,"​Your session has expired or was overridden. Please log in to continue.​"
+Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 
 Input_Required,"Required"
 

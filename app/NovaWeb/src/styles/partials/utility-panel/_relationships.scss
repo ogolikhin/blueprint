@@ -1,11 +1,5 @@
 bp-relationships-panel {
-    .filter-bar {
-        padding-top: 0px;
-        padding-left:0px;
-        padding-right:0px;
-    }
-
-    .icons {
+     .icons {         
         color: $gray-dark;
         display: inline-block;
         width: 100%;
@@ -21,7 +15,6 @@ bp-relationships-panel {
         }
     }
 
-
     [class^="fonticon2-"],
     [class*=" fonticon2-"],
     [class^="fonticon-"],
@@ -29,12 +22,10 @@ bp-relationships-panel {
         &::before {
             font-size: 1.4rem;
         }
-    }
-
-    
+    }    
 
     .tabs {
-        padding-bottom: $padding-root;
+        padding: $padding-root;
         width: 100%;
     }
 
@@ -79,6 +70,14 @@ bp-relationships-panel {
                         margin: 2px;
                     }
                 }
+            }
+
+            .unauthorize-icon {
+                width: 2em;
+                height: 2em;                
+                float: left;
+                line-height: 1.9em;
+                text-align: center;                
             }
 
             .inner-details {
@@ -131,10 +130,21 @@ bp-relationships-panel {
             }
         }
 
+        .unauthorized-details {
+                min-height: 0px;
+        }
+
         .icons {
             border-top: 1px solid $gray-lighter;
             color: $gray;
             background-color: $white;
         }
+    }
+}
+.util-panel-heading {
+    font-weight: 700;
+    &.util-heading-other {
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
     }
 }

@@ -7,38 +7,45 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public controller: Function = BPArtifactRelationshipItemController;
     public bindings: any = {
         artifact: "=",
-        selectedTraces: "="
+        selectedTraces: "=",
+        selectable: "@"
     };
+}
+
+export interface IResult {
+    found: boolean;
+    index: number;
 }
 
 export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "$log",
         "localization",
-        "artifactRelationships",      
+        "artifactRelationships",
         "projectManager"
     ];
 
     public expanded: boolean = false;
-    public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;    
+    public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
     public artifact: Relationships.IRelationship;
     public selectedTraces: Relationships.IRelationship[];
-    public fromOtherProject: boolean = false;
-    public _isSelected: boolean = false;
+    public fromOtherProject: boolean = false;  
+    public selectable: boolean = false;
 
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,     
-        private projectManager: IProjectManager) {       
-       
+        private artifactRelationships: IArtifactRelationships,
+        private projectManager: IProjectManager) {
+
     }
 
     public get isSelected() {
-        return this._isSelected;
+        return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
-    public expand() {
+    public expand($event) {
+        this.remove($event);
         if (!this.expanded) {
             this.getRelationshipDetails(this.artifact.artifactId)
                 .then((relationshipExtendedInfo: any) => {
@@ -48,22 +55,53 @@ export class BPArtifactRelationshipItemController {
         this.expanded = !this.expanded;
     }
 
-    public select(art) {
-        if (!this._isSelected) {
-            if (this.selectedTraces) {
-                this.selectedTraces.push(art);
+    public select() {       
+        if (this.selectable.toString() === "true") {
+            if (!this.artifact.isSelected) {
+                if (this.selectedTraces) {
+                    let res = this.inArray(this.selectedTraces);
+                    if (!res.found) {
+                        this.selectedTraces.push(this.artifact);
+                    }
+                }
+            } else {
+                if (this.selectedTraces) {                
+                    let res = this.inArray(this.selectedTraces);
+                    if (res.found) {
+                        this.selectedTraces.splice(res.index, 1);
+                    }                     
+                }
             }
-        } else {
-            if (this.selectedTraces) {
-                this.selectedTraces.pop();
+            this.artifact.isSelected = !this.artifact.isSelected;
+        }
+    }
+
+    public remove($event) {
+        if ($event.stopPropagation) $event.stopPropagation();
+        if ($event.preventDefault) $event.preventDefault();
+        $event.cancelBubble = true;
+        $event.returnValue = false;
+    }
+
+    public inArray(array) {
+        let found = false,
+            index = -1;
+        if (array) {
+            for (let i = 0; i < array.length; i++) {
+                if (array[i].itemId === this.artifact.itemId) {
+                    found = true;
+                    index = i;
+                    break;
+                }
             }
         }
-        this._isSelected = !this._isSelected;
+
+        return <IResult>{ 'found': found, 'index': index };
     }
 
     public limitChars(str) {
         if (str) {
-            var text = Helper.decodeHtmlText(str);
+            let text = Helper.decodeHtmlText(str);
             if (text) {
                 if (text.length > 100) {
                     return text.substring(0, 100) + "...";
@@ -92,7 +130,7 @@ export class BPArtifactRelationshipItemController {
     }
 
     public navigateToArtifact(artifact: Relationships.IRelationship) {
-        var art = this.projectManager.getArtifact(artifact.artifactId);
+        let art = this.projectManager.getArtifact(artifact.artifactId);
         if (art && artifact.hasAccess) {
             this.projectManager.setCurrentArtifact(art);
         }

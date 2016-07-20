@@ -12,6 +12,7 @@ import "angular-perfect-scrollbar-2";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
+import "../editors/bp-storyteller";
 import "tinymce";
 import * as moment from "moment";
 import * as Enums from "./models/enums";
@@ -74,6 +75,7 @@ angular.module("app.main", [
     "ngMessages",
     "ngSanitize",
     "app.shell",
+    "app.storyteller",
     "ui.router",
     "ui.bootstrap",
     "ui.tinymce",

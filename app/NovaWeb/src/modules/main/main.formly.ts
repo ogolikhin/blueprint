@@ -4,6 +4,7 @@ import "angular-formly-templates-bootstrap";
 import * as moment from "moment";
 import {ILocalizationService} from "../core";
 import {Helper} from "../core/utils/helper";
+import {tinymceMentionsData} from "../util/tinymce-mentions.mock";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];
@@ -77,7 +78,50 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "tinymce",
+        name: "frmlyNumber",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <input type="number"
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    class="form-control" />
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bootstrapLabel", "bootstrapHasError"],
+        defaultOptions: {
+            templateOptions: {
+                onKeyup: function($viewValue, $modelValue, scope) {
+                    //This is just a stub!
+                    let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
+                    let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
+                    let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                    if (artifactNameDiv) {
+                        if (initValue !== inputValue) {
+                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                            if (!dirtyIcon) {
+                                let div = document.createElement("DIV");
+                                div.innerHTML = `<i class="dirty-indicator"></i>`;
+                                artifactNameDiv.appendChild(div.firstChild);
+                            }
+                        }
+                    }
+                }
+            },
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        }
+    });
+
+    formlyConfig.setType({
+        name: "frmlyTinymce",
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
         wrapper: ["bootstrapLabel"],
         defaultOptions: {
@@ -91,7 +135,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "tinymceInline",
+        name: "frmlyInlineTinymce",
         /* tslint:disable */
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
@@ -101,16 +145,16 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     //fixed_toolbar_container: ".form-tinymce-toolbar",
-                    plugins: "advlist autolink link image paste lists charmap print noneditable" //mentions",
-                    //mentions: {
-                    //    source: tinymceMentionsData,
-                    //    delay: 100,
-                    //    items: 5,
-                    //    queryBy: "fullname",
-                    //    insert: function (item) {
-                    //        return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                    //    }
-                    //},
+                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    mentions: {
+                        source: tinymceMentionsData,
+                        delay: 100,
+                        items: 5,
+                        queryBy: "fullname",
+                        insert: function (item) {
+                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                        }
+                    }
                 }
             }
         }
@@ -125,17 +169,16 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
      </div>
      </div>`
      });*/
-    //formlyValidationMessages.addStringMessage("dateIsBetweenMinMax", "This field is required");
 
     formlyConfig.setType({
         name: "datepicker",
         /* tslint:disable */
-        template: `<div class="form-datepicker input-group">
+        template: `<div class="input-group has-messages">
                 <input type="text"
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    class="form-control "
+                    class="form-control has-icon"
                     ng-click="datepicker.open($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="datepicker.opened"
@@ -144,8 +187,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
-            <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
         /* tslint:enable */
@@ -165,7 +208,31 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: moment.localeData().longDateFormat("L")
+                placeholder: moment.localeData().longDateFormat("L"),
+                onKeyup: function($viewValue, $modelValue, scope) {
+                    //This is just a stub!
+                    let initValue = $modelValue.initialValue || $modelValue.defaultValue;
+                    let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
+                    if (momentInit.isValid()) {
+                        initValue = momentInit.startOf("day").format("L");
+                    }
+                    let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
+                    let momentInput = moment(inputValue, moment.localeData().longDateFormat("L"));
+                    if (momentInput.isValid()) {
+                        inputValue = momentInput.startOf("day").format("L");
+                    }
+                    let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                    if (artifactNameDiv) {
+                        if (initValue !== inputValue) {
+                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                            if (!dirtyIcon) {
+                                let div = document.createElement("DIV");
+                                div.innerHTML = `<i class="dirty-indicator"></i>`;
+                                artifactNameDiv.appendChild(div.firstChild);
+                            }
+                        }
+                    }
+                }
             },
             validation: {
                 messages: {
@@ -174,7 +241,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             },
             validators: {
-                dateIsGreaterThanMin: {
+                minDate: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
                         let minDate = scope.to["datepickerOptions"].minDate;
@@ -183,22 +250,14 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             minDate = moment(minDate).startOf("day");
 
-                            let isGreaterThanMin = value.isSameOrAfter(minDate, "day");
-                            let messageText = localization.get("Property_Must_Be_Greater") + " " + minDate.format("L");
-                            let messageId = scope.id + "-dateIsGreaterThanMin";
+                            (<any> scope.to).minDate = minDate.format("L");
 
-                            if (!isGreaterThanMin) {
-                                setTimeout(function() {
-                                    document.getElementById(messageId).innerHTML = messageText;
-                                }, 100);
-                                return false;
-                            }
+                            return value.isSameOrAfter(minDate, "day");
                         }
                         return true;
-                    },
-                    message: `""`
+                    }
                 },
-                dateIsLessThanMax: {
+                maxDate: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
                         let maxDate = scope.to["datepickerOptions"].maxDate;
@@ -207,20 +266,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             maxDate = moment(maxDate).startOf("day");
 
-                            let isLessThanMax = value.isSameOrBefore(maxDate, "day");
-                            let messageText = localization.get("Property_Must_Be_Less") + " " + maxDate.format("L");
-                            let messageId = scope.id + "-dateIsLessThanMax";
+                            (<any> scope.to).maxDate = maxDate.format("L");
 
-                            if (!isLessThanMax) {
-                                setTimeout(function() {
-                                    document.getElementById(messageId).innerHTML = messageText;
-                                }, 100);
-                                return false;
-                            }
+                            return value.isSameOrBefore(maxDate, "day");
                         }
                         return true;
-                    },
-                    message: `""`
+                    }
                 }
             }
         },
@@ -229,7 +280,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (typeof (currentModelVal) === "string") {
+            if (angular.isString(currentModelVal)) {
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
@@ -240,4 +291,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
         }]
     });
+
+    formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");
+    formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Must_Be_Less"), "", "Date too big");
+    formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Must_Be_Greater"), "", "Date too small");
 }

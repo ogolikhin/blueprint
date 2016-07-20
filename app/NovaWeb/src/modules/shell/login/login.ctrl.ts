@@ -20,42 +20,42 @@ export enum LoginState {
 
 export class LoginCtrl {
 
-    public labelError: boolean;
-    public fieldError: boolean;
+    public isLabelErrorStyleShowing: boolean;
+    public isTextFieldErrorStyleShowing: boolean;
 
-    public errorMsg: string;
-    public novaUsername: string;
+    public errorMessage: string;
+    public novaUserName: string;
     public novaPassword: string;
 
     public novaCurrentPassword: string;
     public novaNewPassword: string;
     public novaConfirmNewPassword: string;
 
-    public formState: LoginState;
-    public transitionFromState: LoginState;
+    public currentFormState: LoginState;
+    public lastFormState: LoginState;
     public get isInLoginForm(): boolean {
-        return this.formState === LoginState.LoginForm || this.transitionFromState === LoginState.LoginForm;
+        return this.currentFormState === LoginState.LoginForm || this.lastFormState === LoginState.LoginForm;
     }
     public get isInForgetPasswordScreen(): boolean {
-        return this.formState === LoginState.ForgetPasswordForm || this.transitionFromState === LoginState.ForgetPasswordForm;
+        return this.currentFormState === LoginState.ForgetPasswordForm || this.lastFormState === LoginState.ForgetPasswordForm;
     }
     public get isInChangePasswordScreen(): boolean {
-        return this.formState === LoginState.ChangePasswordForm || this.transitionFromState === LoginState.ChangePasswordForm;
+        return this.currentFormState === LoginState.ChangePasswordForm || this.lastFormState === LoginState.ChangePasswordForm;
     }
     public get isInSAMLScreen(): boolean {
-        return this.formState === LoginState.SamlLoginForm || this.transitionFromState === LoginState.SamlLoginForm;
+        return this.currentFormState === LoginState.SamlLoginForm || this.lastFormState === LoginState.SamlLoginForm;
     }
     public get isUsernameDisabled(): boolean {
         return !!this.session.forceUsername();
     }
     
-    public enableForgetPasswordScreen: boolean;
-    public forgetPasswordScreenError: boolean;
+    public isForgetPasswordScreenEnabled: boolean;
+    public hasForgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
     public forgetPasswordScreenUsername: string;
 
-    public enableChangePasswordScreen: boolean;
-    public changePasswordScreenError: boolean;
+    public isChangePasswordScreenEnabled: boolean;
+    public hasChangePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
     public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
     public changePasswordNewPasswordError: boolean; //if the new password doesn't satisfy the security criteria
@@ -70,15 +70,15 @@ export class LoginCtrl {
     /* tslint:disable */
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         /* tslint:enable */
-        this.formState = LoginState.LoginForm;
-        this.errorMsg = session.getLoginMessage();
-        this.novaUsername = session.forceUsername();
+        this.currentFormState = LoginState.LoginForm;
+        this.errorMessage = session.getLoginMessage();
+        this.novaUserName = session.forceUsername();
 
-        this.enableForgetPasswordScreen = false;
+        this.isForgetPasswordScreenEnabled = false;
 
         this.forgetPasswordScreenMessage = localization.get("Login_Session_EnterUsername");
 
-        this.enableChangePasswordScreen = false;
+        this.isChangePasswordScreenEnabled = false;
 
         this.changePasswordScreenMessage = localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
 
@@ -100,34 +100,34 @@ export class LoginCtrl {
     }
 
     private transitionToState(state: LoginState) {
-        this.transitionFromState = this.formState;
-        this.formState = state;
+        this.lastFormState = this.currentFormState;
+        this.currentFormState = state;
         this.$timeout(() => {
-            this.transitionFromState = state;
+            this.lastFormState = state;
         }, 200); // both panels need to be visible during the transition
     }
 
     public goToForgetPasswordScreen(): void {
-        this.forgetPasswordScreenError = false;
-        this.forgetPasswordScreenUsername = this.novaUsername;
+        this.hasForgetPasswordScreenError = false;
+        this.forgetPasswordScreenUsername = this.novaUserName;
         this.transitionToState(LoginState.ForgetPasswordForm);
     }
 
     public goToChangePasswordScreen(): void {
-        this.changePasswordScreenError = false;
+        this.hasChangePasswordScreenError = false;
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
     public goToChangePasswordScreenBecauseExpired(): void {
-        this.changePasswordScreenError = true;
+        this.hasChangePasswordScreenError = true;
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
     public doSamlLogin(): void {
         this.session.loginWithSaml(false).then(
             () => {
-                this.labelError = false;
-                this.fieldError = false;
+                this.isLabelErrorStyleShowing = false;
+                this.isTextFieldErrorStyleShowing = false;
                 var result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
@@ -161,45 +161,45 @@ export class LoginCtrl {
     }
 
     public changePassword(): void {
-        this.changePasswordScreenError = false;
+        this.hasChangePasswordScreenError = false;
         this.changePasswordCurrentPasswordError = false;
         this.changePasswordNewPasswordError = false;
         this.changePasswordConfirmPasswordError = false;
 
         if (this.novaCurrentPassword.length === 0) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_CurrentPasswordCannotBeEmpty");
-            this.changePasswordScreenError = true;
+            this.hasChangePasswordScreenError = true;
             this.changePasswordCurrentPasswordError = true;
             return;
         } else if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
-            this.changePasswordScreenError = true;
+            this.hasChangePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
             return;
         } else if (this.novaNewPassword.length > 128) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMaxLength");
-            this.changePasswordScreenError = true;
+            this.hasChangePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
             return;
         }
         if (this.novaNewPassword !== this.novaConfirmNewPassword) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordConfirmMismatch");
-            this.changePasswordScreenError = true;
+            this.hasChangePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
             this.changePasswordConfirmPasswordError = true;
             return;
         }
 
-        this.session.resetPassword(this.novaUsername, this.novaCurrentPassword, this.novaNewPassword).then(
+        this.session.resetPassword(this.novaUserName, this.novaCurrentPassword, this.novaNewPassword).then(
             () => {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordChangedSuccessfully");
-                this.errorMsg = this.localization.get("Login_Session_PasswordChangedSuccessfully");
-                this.labelError = false;
-                this.fieldError = false;
+                this.errorMessage = this.localization.get("Login_Session_PasswordChangedSuccessfully");
+                this.isLabelErrorStyleShowing = false;
+                this.isTextFieldErrorStyleShowing = false;
 
                 this.transitionToState(LoginState.LoginForm);
 
-                this.enableChangePasswordScreen = false;
+                this.isChangePasswordScreenEnabled = false;
             },
             (error) => {
                 this.handlePasswordResetErrors(error);
@@ -212,7 +212,7 @@ export class LoginCtrl {
     }
 
     private handlePasswordResetErrors(error) {
-        this.changePasswordScreenError = true;
+        this.hasChangePasswordScreenError = true;
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_EnterCurrentPassword");
@@ -256,50 +256,50 @@ export class LoginCtrl {
     private handleLoginErrors(error) {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
-                if (this.formState === LoginState.SamlLoginForm) {
-                    this.errorMsg = this.localization.get("Login_Session_ADUserNotInDB");
-                    this.fieldError = false;
+                if (this.currentFormState === LoginState.SamlLoginForm) {
+                    this.errorMessage = this.localization.get("Login_Session_ADUserNotInDB");
+                    this.isTextFieldErrorStyleShowing = false;
                 } else {
-                    this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
-                    this.fieldError = true;
+                    this.errorMessage = this.localization.get("Login_Session_CredentialsInvalid");
+                    this.isTextFieldErrorStyleShowing = true;
                 }
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 1001) {
-                this.errorMsg = this.localization.get("Login_Auth_FederatedFallbackDisabled");
-                this.fieldError = false;
+                this.errorMessage = this.localization.get("Login_Auth_FederatedFallbackDisabled");
+                this.isTextFieldErrorStyleShowing = false;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2001) {
-                this.errorMsg = this.localization.get("Login_Session_AccountDisabled");
-                this.fieldError = false;
+                this.errorMessage = this.localization.get("Login_Session_AccountDisabled");
+                this.isTextFieldErrorStyleShowing = false;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2002) {
-                this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
-                this.fieldError = false;
-                if (this.enableChangePasswordScreen) {
+                this.errorMessage = this.localization.get("Login_Session_PasswordHasExpired");
+                this.isTextFieldErrorStyleShowing = false;
+                if (this.isChangePasswordScreenEnabled) {
                     this.transitionToState(LoginState.ChangePasswordForm);
                 }
-                this.enableChangePasswordScreen = true;
-                this.changePasswordScreenError = true;
+                this.isChangePasswordScreenEnabled = true;
+                this.hasChangePasswordScreenError = true;
             } else if (error.errorCode === 2003) {
-                this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
-                this.fieldError = true;
+                this.errorMessage = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
+                this.isTextFieldErrorStyleShowing = true;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
-                this.fieldError = true;
+                this.errorMessage = this.localization.get("Login_Auth_FederatedAuthFailed");
+                this.isTextFieldErrorStyleShowing = true;
                 this.transitionToState(LoginState.LoginForm);
             } else {
-                this.errorMsg = error.message;
-                this.fieldError = true;
+                this.errorMessage = error.message;
+                this.isTextFieldErrorStyleShowing = true;
                 this.transitionToState(LoginState.LoginForm);
             }
-            this.labelError = true;
+            this.isLabelErrorStyleShowing = true;
         } else if (error.statusCode === 409) {
-            this.labelError = false;
-            this.fieldError = false;
+            this.isLabelErrorStyleShowing = false;
+            this.isTextFieldErrorStyleShowing = false;
             var result: ILoginInfo = new ILoginInfo();
-            if (this.novaUsername) {
-                result.userName = this.novaUsername;
+            if (this.novaUserName) {
+                result.userName = this.novaUserName;
                 result.password = this.novaPassword;
             } else {
                 result.samlLogin = true;
@@ -308,36 +308,36 @@ export class LoginCtrl {
 
             this.$uibModalInstance.close(result);
         } else if (error.statusCode === 400) {
-            this.fieldError = true;
+            this.isTextFieldErrorStyleShowing = true;
             if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
+                this.errorMessage = this.localization.get("Login_Auth_FederatedAuthFailed");
                 this.transitionToState(LoginState.LoginForm);
             } else {
-                this.errorMsg = error.message;
-                this.labelError = true;
+                this.errorMessage = error.message;
+                this.isLabelErrorStyleShowing = true;
             }
         } else if (error.statusCode === 404) {
-            this.errorMsg = error.message;
-            this.labelError = true;
-            this.fieldError = false;
+            this.errorMessage = error.message;
+            this.isLabelErrorStyleShowing = true;
+            this.isTextFieldErrorStyleShowing = false;
         } else if (error.statusCode === 403) {
-            this.errorMsg = error.message;
-            this.labelError = true;
-            this.fieldError = false;
+            this.errorMessage = error.message;
+            this.isLabelErrorStyleShowing = true;
+            this.isTextFieldErrorStyleShowing = false;
         } else {
-            this.errorMsg = error.message;
-            this.labelError = true;
-            this.fieldError = true;
+            this.errorMessage = error.message;
+            this.isLabelErrorStyleShowing = true;
+            this.isTextFieldErrorStyleShowing = true;
         }
     }
 
     public login(): void {
         this.isLoginInProgress = true;
 
-        this.session.login(this.novaUsername, this.novaPassword, false).then(
+        this.session.login(this.novaUserName, this.novaPassword, false).then(
             () => {
-                this.labelError = false;
-                this.fieldError = false;
+                this.isLabelErrorStyleShowing = false;
+                this.isTextFieldErrorStyleShowing = false;
                 this.isLoginInProgress = false;
                 var result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;

@@ -25,8 +25,10 @@ module.exports = {
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
             'tinymce',
+            'moment',
             'mxClient',
-            'moment'
+            'mxClientCss/common.css',
+            'mxClientCss/explorer.css'
         ]
 
     },
@@ -39,7 +41,8 @@ module.exports = {
         extensions: ['', '.ts', '.js', '.json'],
         alias: {          
             tinymce: 'tinymce/tinymce',
-            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
+            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js'),
+            mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
 
     },

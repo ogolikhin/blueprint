@@ -16,7 +16,7 @@ describe("Artifact Repository", () => {
 
         it("get artifact", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
-            $httpBackend.expectGET("/svc/artifactstore/artifacts/100")
+            $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
                 .respond(200, ArtifactServiceMock.createArtifact(100));
 
             // Act
@@ -36,7 +36,7 @@ describe("Artifact Repository", () => {
 
         it("get one folder unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
-            $httpBackend.expectGET("/svc/artifactstore/artifacts/100")
+            $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
                 .respond(401);
                 
             // Act

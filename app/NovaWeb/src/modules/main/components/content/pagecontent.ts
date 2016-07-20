@@ -46,7 +46,7 @@ class PageContentCtrl {
     }
 
     private selectContext(artifact: Models.IArtifact) {
-        let _context: any = {}
+        let _context: any = {};
         try {
             if (!artifact) {
                 return;

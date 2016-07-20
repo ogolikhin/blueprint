@@ -145,7 +145,9 @@ export class BpArtifactController {
                     this.fields.customFields.push(it);
                 } 
             });
-            this.form && this.form.$setPristine();
+            if (this.form) {
+                this.form.$setPristine();
+            } 
 
         } catch (ex) {
             this.messageService.addError(ex["message"]);

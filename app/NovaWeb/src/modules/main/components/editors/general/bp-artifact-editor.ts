@@ -109,8 +109,8 @@ export class PropertyEditor  {
                         
                     } else if (it.primitiveType === Models.PrimitiveType.User) {
                         if (value.userGroups) {
-                            value = value.map((it: any) => {
-                                return it.id;
+                            value = value.map((val: any) => {
+                                return val.id;
                             })[0];
                         }
                         value = value.toString();

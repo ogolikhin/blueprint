@@ -146,97 +146,85 @@ describe("Component BPDiscussionReplyItem", () => {
         expect(result.index).toBe(-1);
     });
 
-    it("select, select artifact", () => {
-        //Arange
-        vm.selectable = true;
-        vm.artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 3
-        };
-        vm.artifact.isSelected = false;
-        vm.selectedTraces = [];
+    describe("select artifact", () => {
 
-        //Assert
-        var result = vm.select();
-        expect(vm.selectedTraces.length).toBe(1);
-        expect(vm.artifact.isSelected).toBe(true);
-        
-    });
+        beforeEach(() => {
+            vm.selectable = true;
+            vm.artifact = <Relationships.IRelationship>{
+                "artifactId": 1,
+                "itemId": 3
+            };
+            vm.selectedTraces = [];
 
-    it("select, select artifact that already in the array", () => {
-        //Arange
-        vm.selectable = true;
-        vm.artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 3
-        };
-        vm.artifact.isSelected = false;
-        vm.selectedTraces = [];
-        vm.selectedTraces.push(vm.artifact);
+        });
 
-        //Assert
-        var result = vm.select();
-        expect(vm.selectedTraces.length).toBe(1);
-        expect(vm.artifact.isSelected).toBe(true);
+        it("select, select artifact", () => {
+            //Arange
+            vm.artifact.isSelected = false;        
 
-    });
+            //Assert
+            var result = vm.select();
+            expect(vm.selectedTraces.length).toBe(1);
+            expect(vm.artifact.isSelected).toBe(true);
 
-    it("select, selectable false", () => {
-        //Arange
-        vm.selectable = false;
-        vm.artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 3
-        };
-        vm.artifact.isSelected = false;
-        vm.selectedTraces = [];
-        vm.selectedTraces.push(vm.artifact);
+        });
 
-        //Assert
-        var result = vm.select();
-        expect(vm.selectedTraces.length).toBe(1);
-        expect(vm.artifact.isSelected).toBe(false);
+        it("select, select artifact that already in the array", () => {
+            //Arange
+            vm.artifact.isSelected = false;          
+            vm.selectedTraces.push(vm.artifact);
 
-    });
+            //Assert
+            var result = vm.select();
+            expect(vm.selectedTraces.length).toBe(1);
+            expect(vm.artifact.isSelected).toBe(true);
+
+        });
+
+        it("select, selectable false", () => {
+            //Arange
+            vm.selectable = false;          
+            vm.artifact.isSelected = false;           
+            vm.selectedTraces.push(vm.artifact);
+
+            //Assert
+            var result = vm.select();
+            expect(vm.selectedTraces.length).toBe(1);
+            expect(vm.artifact.isSelected).toBe(false);
+
+        });
 
 
-    it("select, unselect artifact", () => {
-        //Arange
-        vm.selectable = true;
-        vm.artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 3
-        };
-        vm.artifact.isSelected = true;
-        vm.selectedTraces = [];
-        vm.selectedTraces.push(vm.artifact);
+        it("select, unselect artifact", () => {
+            //Arange
+            vm.artifact.isSelected = true;            
+            vm.selectedTraces.push(vm.artifact);
 
-        //Assert
-        var result = vm.select();
-        expect(vm.selectedTraces.length).toBe(0);
-        expect(vm.artifact.isSelected).toBe(false);
+            //Assert
+            var result = vm.select();
+            expect(vm.selectedTraces.length).toBe(0);
+            expect(vm.artifact.isSelected).toBe(false);
 
-    });
+        });
 
-    it("select, unselect artifact that is not in the array", () => {
-        //Arange
-        vm.selectable = true;
-        vm.artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 3
-        };
-        let artifact = <Relationships.IRelationship>{
-            "artifactId": 1,
-            "itemId": 4
-        };
-        vm.artifact.isSelected = true;
-        vm.selectedTraces = [];
-        vm.selectedTraces.push(artifact);
+        it("select, unselect artifact that is not in the array", () => {
+            //Arange          
+            let artifact = <Relationships.IRelationship>{
+                "artifactId": 1,
+                "itemId": 4
+            };
+            vm.artifact.isSelected = true;        
+            vm.selectedTraces.push(artifact);
 
-        //Assert
-        var result = vm.select();
-        expect(vm.selectedTraces.length).toBe(1);
-        expect(vm.artifact.isSelected).toBe(false);
+            //Assert
+            var result = vm.select();
+            expect(vm.selectedTraces.length).toBe(1);
+            expect(vm.artifact.isSelected).toBe(false);
+
+        });
+
 
     });
+
+   
 });

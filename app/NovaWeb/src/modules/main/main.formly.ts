@@ -121,11 +121,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 decimalPlaces: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
-                        let decimalPlaces = (<any> scope.options).data.decimalPlaces;
+                        let decimalPlaces = (<any> scope.to).decimalPlaces;
 
                         if (value && decimalPlaces && angular.isNumber(decimalPlaces)) {
                             let intValue = parseInt(value, 10);
-                            (<any> scope.to).decimalPlaces = decimalPlaces;
+                            //(<any> scope.to).decimalPlaces = decimalPlaces;
 
                             return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
                         }
@@ -288,6 +288,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         }]
     });
 
+    /* tslint:disable */
 /* Not using this as some properties need more complex templates
     formlyConfig.setWrapper({
         name: "hasError",
@@ -300,6 +301,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             </div>`
     });
 */
+    /* tslint:enable */
 
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");

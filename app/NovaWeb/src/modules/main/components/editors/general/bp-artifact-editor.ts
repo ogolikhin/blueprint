@@ -6,11 +6,11 @@ enum LookupEnum {
     ById = 1,
     ByType = 2,
 }
+
 export interface IArtifactEditor {
     getFields(): AngularFormly.IFieldConfigurationObject[];
     getModel(): any;
 }
-
 
 export class FieldContext implements Models.IPropertyType {
     public id: number;
@@ -36,7 +36,7 @@ export class FieldContext implements Models.IPropertyType {
     public propertyTypePredefined: Models.PropertyTypePredefined;
     public disabled: boolean;
     //extension
-    public group: string;
+    public isSystem: boolean;
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
     public lookup: LookupEnum;
@@ -46,35 +46,30 @@ export class FieldContext implements Models.IPropertyType {
 
         let txtType: string = String(Models.PropertyTypePredefined[this.propertyTypePredefined]);
         if (modelPropertyName) {
-            this.fieldPropertyName = `property_${modelPropertyName}`;
-            this.modelPropertyName = modelPropertyName;
             this.lookup = LookupEnum.ByName;
-        } else if (angular.isDefined(type.id)) {
+            this.fieldPropertyName = modelPropertyName;
+            this.modelPropertyName = modelPropertyName;
+        } else if (angular.isDefined(type.propertyTypePredefined)) {
+            this.lookup = LookupEnum.ByType;
+            this.fieldPropertyName = txtType.toLowerCase();
+            this.modelPropertyName = <number>this.propertyTypePredefined;
+        } else {
+            this.lookup = LookupEnum.ById;
             this.fieldPropertyName = `property_${this.id.toString()}`;
             this.modelPropertyName = this.id;
-            this.lookup = LookupEnum.ById;
-        } else if (angular.isDefined(type.propertyTypePredefined)) {
-            this.fieldPropertyName = `property_${txtType.toLowerCase()}`;
-            this.modelPropertyName = <number>this.propertyTypePredefined;
-            this.lookup = LookupEnum.ByType;
         }
-
-        if (["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(txtType.toLowerCase()) >= 0) {
-            this.group = "system";
-        } else if (type.isRichText) {
-            this.group = "tabbed";
-        } else {
-            this.group = "custom";
-        }
+        this.isSystem = ["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(txtType.toLowerCase()) >= 0;
         //}
     }
+
+    
 }
 
 export class PropertyEditor  {
     private _artifact: Models.IArtifact;
     private _project: Models.IProject;
 
-    private _fields: AngularFormly.IFieldConfigurationObject[] = [];
+    private _fields: AngularFormly.IFieldConfigurationObject[];
     private _model: any = {};
 
     constructor(artifact: Models.IArtifact, filedContexts: FieldContext[]) {
@@ -83,30 +78,47 @@ export class PropertyEditor  {
             return;
         }
         this._artifact = artifact;
-
-//        let types = this.getArtifctPropertyTypes();
-
+        this._fields = [];
 
         filedContexts.forEach((it: FieldContext) => {
             if (it.fieldPropertyName && it.modelPropertyName) {
                 let field = this.createPropertyField(it);
                 let value: any;
 
+                //Get property valie 
                 if (it.lookup === LookupEnum.ByName) {
                     value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
                 } else { 
-                    var propertyValue = this._artifact.propertyValues.filter((value) => {
+                    var propertyValue = (this._artifact.propertyValues || []).filter((value) => {
                         return it.lookup === LookupEnum.ById ?
                             value.propertyTypeId === <number>it.modelPropertyName :
                             value.propertyTypePredefined === <number>it.modelPropertyName;
                     })[0];
                     value = propertyValue ? propertyValue.value : undefined;
-                    }
-                if (angular.isDefined(value)) {
-                    this._model[it.fieldPropertyName] = it.primitiveType === Models.PrimitiveType.Choice ? value.toString() : value;
-                    }
-                this._fields.push(field);
                 }
+                
+                //create model property
+                if (angular.isDefined(value)) {
+                    if (it.primitiveType === Models.PrimitiveType.Date) {
+                        value = new Date(value);
+                    } else if (it.primitiveType === Models.PrimitiveType.Choice) {
+                        if (value.validValueIds) {
+                            value = value.validValueIds[0];  // Temporary user only one value for single select
+                        } 
+                        value = value.toString();
+                        
+                    } else if (it.primitiveType === Models.PrimitiveType.User) {
+                        if (value.userGroups) {
+                            value = value.map((it: any) => {
+                                return it.id;
+                            })[0];
+                        }
+                        value = value.toString();
+                    } 
+                    this._model[it.fieldPropertyName] = value;
+                }
+                this._fields.push(field);
+            }
         });
     }
 
@@ -119,102 +131,13 @@ export class PropertyEditor  {
 
     public getFields(): AngularFormly.IFieldConfigurationObject[] {
 
-        return this._fields;
+        return this._fields || [];
     }
 
     public getModel(): any {
         return this._model || {};
     }
 
-    //private getArtifctPropertyTypes(): Models.IPropertyType[] {
-    //    let properties: FieldContext[] = [];
-
-    //    let _artifactType: Models.IItemType;
-    //    //add custom properties
-    //    if (this._artifact.predefinedType === Models.ItemTypePredefined.Project) {
-    //        _artifactType = <Models.IItemType>{
-    //            id: Models.ItemTypePredefined.Project,
-    //            name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-    //            baseType: Models.ItemTypePredefined.Project,
-    //            customPropertyTypeIds: []
-    //        };
-    //    } else {
-    //        _artifactType = this._project.meta.artifactTypes.filter((it: Models.IItemType) => {
-    //            return it.id === this._artifact.itemTypeId;
-    //        })[0];
-    //    }
-        
-        
-    //    //add system properties  
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Name",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.Name,
-    //        primitiveType: Models.PrimitiveType.Text,
-    //        isRequired: true
-    //    }, "name"));
-
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Type",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
-    //        primitiveType: Models.PrimitiveType.Choice,
-    //        validValues: function (meta: Models.IProjectMeta) {
-    //            if (_artifactType.baseType === Models.ItemTypePredefined.Project) {
-    //                return [_artifactType];
-    //            }
-    //            return meta.artifactTypes.filter((it: Models.IItemType) => {
-    //                return (_artifactType && (_artifactType.baseType === it.baseType));
-    //            });
-    //        } (this._project.meta).map(function (it) {
-    //            return <Models.IOption>{
-    //                id: it.id,
-    //                value: it.name
-    //            };
-    //        }),
-    //        isRequired: true
-    //    }, "itemTypeId"));
-
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Created by",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-    //        primitiveType: Models.PrimitiveType.Text,
-    //        disabled: true
-    //    }));
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Created on",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
-    //        primitiveType: Models.PrimitiveType.Date,
-    //        // the following are test values, using DateJS
-    //        maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
-    //        minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
-    //        isRequired: true
-    //        //disabled: true
-    //    }));
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Last edited by",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
-    //        primitiveType: Models.PrimitiveType.Text,
-    //        disabled: true
-    //    }));
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Last edited on",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
-    //        primitiveType: Models.PrimitiveType.Date,
-    //        disabled: true
-    //    }));
-    //    properties.push(new FieldContext(<Models.IPropertyType>{
-    //        name: "Description",
-    //        propertyTypePredefined: Models.PropertyTypePredefined.Description,
-    //        primitiveType: Models.PrimitiveType.Text,
-    //        isRichText: true
-    //    }));
-    //    //custom properties
-    //    this._project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-    //        if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-    //            properties.push(new FieldContext(it));
-    //        }
-    //    });
-    //    return properties;
-    //}
 
     private createPropertyField(context: FieldContext): AngularFormly.IFieldConfigurationObject {
         
@@ -224,7 +147,7 @@ export class PropertyEditor  {
             templateOptions: {
                 label: context.name,
                 required: context.isRequired,
-                disabled: context.disabled
+                disabled: context.disabled,
             },
             expressionProperties: {}
         };
@@ -251,9 +174,7 @@ export class PropertyEditor  {
             case Models.PrimitiveType.Number:
                 field.type = "input";
                 field.templateOptions.type = "number";
-                if (angular.isNumber(context.defaultValidValueId)) {
                 field.defaultValue = context.decimalDefaultValue;
-                }
                 field.templateOptions.min = context.minNumber;
                 field.templateOptions.max = context.maxNumber;
                 break;

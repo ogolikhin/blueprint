@@ -17,7 +17,7 @@ export class ArtifactService implements IArtifactService {
         var defer = this.$q.defer<any>();
 
         const request: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${artifactId}`,
+            url: `/svc/bpartifactstore/artifacts/${artifactId}`,
             //url: `/svc/components/nova/artifacts/${artifactId}`,
             method: "GET",
             //params: {
@@ -28,11 +28,11 @@ export class ArtifactService implements IArtifactService {
         this.$http(request)
             .success((result: Models.IArtifact) => {
                 //fake response
-                let artifact = ArtifactServiceMock.createArtifact(artifactId, 5);
-                ArtifactServiceMock.createSystemProperty(artifact);
+                //let artifact = ArtifactServiceMock.createArtifact(artifactId, 5);
+                //ArtifactServiceMock.createSystemProperty(artifact);
 
 
-                defer.resolve(artifact);
+                defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,

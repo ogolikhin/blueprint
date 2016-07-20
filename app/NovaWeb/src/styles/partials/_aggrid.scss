@@ -219,6 +219,28 @@ $has-children-padding-before-arrow: 3px;
     }
   }
 
+  .ag-cell.usecase {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      color:red;
+        //content: '\e80a';
+    }
+  }
+  .ag-cell.textualrequirement {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      color:orange;
+      //  content: '\e80a';
+    }
+  }
+  .ag-cell.process {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      color:green;
+      //  content: '\e80a';
+    }
+  }
+
   .ag-row-group-contracted .ag-cell,
   .ag-row-group-expanded .ag-cell {
     // disables the icons for groups (to show the group-specific ones)

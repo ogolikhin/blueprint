@@ -4,7 +4,6 @@ import "angular-formly-templates-bootstrap";
 import * as moment from "moment";
 import {ILocalizationService} from "../core";
 import {Helper} from "../core/utils/helper";
-import {tinymceMentionsData} from "../util/tinymce-mentions.mock";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];
@@ -127,7 +126,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
                     plugins: "advlist autolink link image paste lists charmap print noneditable"
                 }
             }
@@ -145,15 +143,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     inline: true,
                     //fixed_toolbar_container: ".form-tinymce-toolbar",
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    }
+                    mentions: {}
                 }
             }
         }
@@ -170,7 +160,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
      });*/
 
     formlyConfig.setType({
-        name: "datepicker",
+        name: "frmlyDatepicker",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <input type="text"
@@ -178,13 +168,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     class="form-control has-icon"
-                    ng-click="datepicker.open($event)"
+                    ng-click="frmlyDatepicker.open($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
-                    is-open="datepicker.opened"
+                    is-open="frmlyDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
                     datepicker-options="to.datepickerOptions" />
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button type="button" class="btn btn-default" ng-click="frmlyDatepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -275,7 +265,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
         },
         controller: ["$scope", function ($scope) {
-            $scope.datepicker = {};
+            $scope.frmlyDatepicker = {};
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
@@ -283,10 +273,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
-            $scope.datepicker.opened = false;
+            $scope.frmlyDatepicker.opened = false;
 
-            $scope.datepicker.open = function ($event) {
-                $scope.datepicker.opened = !$scope.datepicker.opened;
+            $scope.frmlyDatepicker.open = function ($event) {
+                $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
             };
         }]
     });

@@ -94,8 +94,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bootstrapLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //This is just a stub!
+                onChange: function($viewValue, $modelValue, scope) {
+                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
                     let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
@@ -113,7 +113,24 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
+                    number: `"` + localization.get("Property_Wrong_Format") + `"`
+                }
+            },
+            validators: {
+                decimalPlaces: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = $modelValue || $viewValue;
+                        let decimalPlaces = (<any> scope.options).data.decimalPlaces;
+
+                        if (value && decimalPlaces && angular.isNumber(decimalPlaces)) {
+                            let intValue = parseInt(value, 10);
+                            (<any> scope.to).decimalPlaces = decimalPlaces;
+
+                            return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
+                        }
+                        return true;
+                    }
                 }
             }
         }
@@ -126,7 +143,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
-                    plugins: "advlist autolink link image paste lists charmap print noneditable"
+                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
         }
@@ -141,23 +159,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             templateOptions: {        
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
-                    //fixed_toolbar_container: ".form-tinymce-toolbar",
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {}
+                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
         }
     });
-    /*formlyConfig.setWrapper({
-     name: 'hasError',
-     template: `<div class="form-group" ng-class="{\'has-error\': showError}">
-     <label class="control-label" for="{{id}}">{{to.label}}</label>
-     <formly-transclude></formly-transclude>
-     <div ng-messages="fc.$error" ng-if="showError" class="text-danger">
-     <div ng-message="{{ ::name }}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-     </div>
-     </div>`
-     });*/
 
     formlyConfig.setType({
         name: "frmlyDatepicker",
@@ -198,8 +205,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
                 placeholder: moment.localeData().longDateFormat("L"),
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //This is just a stub!
+                onChange: function($viewValue, $modelValue, scope) {
+                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue;
                     let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
                     if (momentInit.isValid()) {
@@ -281,8 +288,22 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         }]
     });
 
+/* Not using this as some properties need more complex templates
+    formlyConfig.setWrapper({
+        name: "hasError",
+        template: `<div class="form-group" ng-class="{'has-error': showError}">
+                <label class="control-label" for="{{id}}">{{to.label}}</label>
+                <formly-transclude></formly-transclude>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`
+    });
+*/
+
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Must_Be_Less"), "", "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Must_Be_Greater"), "", "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal");
 }

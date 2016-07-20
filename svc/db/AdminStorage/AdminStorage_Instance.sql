@@ -1072,6 +1072,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Cannot_Be
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Wrong_Format', 'en-US', N'Input is not in a correct format')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Must_Be_Greater', 'en-US', N'Value must be greater than or equal to Min Value =')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Must_Be_Less', 'en-US', N'Value must be less than or equal to Max Value =')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Decimal_Places', 'en-US', N'Limited count of decimal places =')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NoProjectsAvailable', 'en-US', N'Either no projects are available or you do not have the required permissions to access them.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message1', 'en-US', N'An error ocurred while loading the page.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message2', 'en-US', N'Please try again.')

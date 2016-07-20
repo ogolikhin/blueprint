@@ -111,10 +111,24 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
-            let fieldInput = fieldNode.querySelector("input");
-            triggerKey(angular.element(fieldInput), 27, "keyup");
 
-            (<any>fieldScope).frmlyDatepicker.open();
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).frmlyDatepicker.opened).toBeFalsy();
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        });
+
+
+        it("should open the datepicker popup", function () {
+            compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldButton = fieldNode.querySelector("button");
+
+            fieldButton.click();
+            //(<any>fieldScope).frmlyDatepicker.open();
 
             expect(fieldNode).toBeDefined();
             expect(fieldScope).toBeDefined();
@@ -122,6 +136,21 @@ describe("Formly", () => {
             expect((<any>fieldScope).to.clearText).toEqual("Datepicker_Clear");
             expect((<any>fieldScope).to.closeText).toEqual("Datepicker_Done");
             expect((<any>fieldScope).to.currentText).toEqual("Datepicker_Today");
+        });
+
+        it("should select the text on click", function (done) {
+            compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.click();
+            //(<any>fieldScope).frmlyDatepicker.select();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).frmlyDatepicker.opened).toBeFalsy();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         });

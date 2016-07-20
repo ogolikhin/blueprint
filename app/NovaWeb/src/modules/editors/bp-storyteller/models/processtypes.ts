@@ -283,26 +283,3 @@ export interface IProperty {
     propertyTypeId: number;
     propertyType: PropertyType;
 }
-
-export interface IFileResult {
-    guid: string;
-    uriToFile: string;
-}
-
-export interface IOperationMessageResult {
-    level: MessageLevel;
-    propertyTypeId: number;
-    itemId: number;
-    code: number;
-    message: string;
-}
-
-export interface IProcessUpdateResult {
-    messages: IOperationMessageResult[];
-    result: IProcess;
-}
-
-export interface ILockResultInfo {
-    result: LockResult;
-    info: IVersionInfo;
-}

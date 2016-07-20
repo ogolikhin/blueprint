@@ -224,6 +224,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
           border: solid 1px $gray-lightest;
           color: $gray-dark !important;
           line-height: #{$property-min-height - 2px};
+          margin-left: 0;
           min-width: $property-input-icon-width;
           padding: 0;
           text-align: center;
@@ -325,7 +326,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
   }
 
-  .formly-field-datepicker {
+  .formly-field-frmlyDatepicker {
     button {
       border-radius: 0;
     }
@@ -342,12 +343,18 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     min-width: $property-input-width;
     padding: 0;
 
-    .formly-field,
-    .form-tinymce {
+    .formly-field {
       border: 0;
       margin: 0;
       padding: 0;
       width: 100%;
+    }
+
+    .form-tinymce {
+      border: 0;
+      margin: 0 -2px;
+      padding: 2px;
+      width: calc(100% + 4px);
     }
   }
 }

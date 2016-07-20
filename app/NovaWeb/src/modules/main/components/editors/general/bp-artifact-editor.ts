@@ -1,5 +1,5 @@
-﻿
-import { Models} from "../../..";
+﻿import { Models} from "../../..";
+import {tinymceMentionsData} from "../../../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 enum LookupEnum {
     ByName = 0,
@@ -234,13 +234,24 @@ export class PropertyEditor  {
                 field.type = context.isRichText ? "frmlyInlineTinymce" : (context.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = context.stringDefaultValue;
                 if (context.isRichText) {
-                    field.templateOptions["tinymceOption"] = {
-                        //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
-                    };
+                    field.templateOptions["tinymceOption"] = {};
+                    //field.templateOptions["tinymceOption"].fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                    //TODO: added just for testing
+                    if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                        field.templateOptions["tinymceOption"].mentions = {
+                            source: tinymceMentionsData,
+                            delay: 100,
+                            items: 5,
+                            queryBy: "fullname",
+                            insert: function (item) {
+                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                            }
+                        }
+                    }
                 }
                 break;
             case Models.PrimitiveType.Date:
-                field.type = "datepicker";
+                field.type = "frmlyDatepicker";
                 field.templateOptions["datepickerOptions"] = {
                     maxDate: context.maxDate,
                     minDate: context.minDate
@@ -249,9 +260,7 @@ export class PropertyEditor  {
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "frmlyNumber";
-                if (angular.isNumber(context.defaultValidValueId)) {
-                    field.defaultValue = context.decimalDefaultValue;
-                }
+                field.defaultValue = context.decimalDefaultValue;
                 field.templateOptions.min = context.minNumber;
                 field.templateOptions.max = context.maxNumber;
                 break;

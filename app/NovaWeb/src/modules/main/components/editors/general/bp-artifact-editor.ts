@@ -240,7 +240,7 @@ export class PropertyEditor  {
                 }
                 break;
             case Models.PrimitiveType.Date:
-                field.type = "frmlyDatepicker";
+                field.type = "datepicker";
                 field.templateOptions["datepickerOptions"] = {
                     maxDate: context.maxDate,
                     minDate: context.minDate

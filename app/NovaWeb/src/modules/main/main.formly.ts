@@ -170,7 +170,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
      });*/
 
     formlyConfig.setType({
-        name: "frmlyDatepicker",
+        name: "datepicker",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <input type="text"
@@ -275,7 +275,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
         },
         controller: ["$scope", function ($scope) {
-            $scope.frmlyDatepicker = {};
+            $scope.datepicker = {};
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
@@ -283,10 +283,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
-            $scope.frmlyDatepicker.opened = false;
+            $scope.datepicker.opened = false;
 
-            $scope.frmlyDatepicker.open = function ($event) {
-                $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
+            $scope.datepicker.open = function ($event) {
+                $scope.datepicker.opened = !$scope.datepicker.opened;
             };
         }]
     });

@@ -323,7 +323,7 @@ export class ProjectManager implements IProjectManager {
         });
 
         properties.push(<Models.IPropertyType>{
-            name: "Type",
+            name: this.localization.get("Label_Type"),
             propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
@@ -351,7 +351,11 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            disabled: true
+            // the following are test values, using DateJS
+            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
+            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
+            isRequired: true
+            //disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditBy"),
@@ -370,42 +374,6 @@ export class ProjectManager implements IProjectManager {
             propertyTypePredefined: Models.PropertyTypePredefined.Description,
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
-        });
-
-        // Test fields
-        properties.push(<Models.IPropertyType>{
-            name: "Datepicker (req)",
-            id: 100000,
-            propertyTypePredefined: 100000,
-            primitiveType: Models.PrimitiveType.Date,
-            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
-            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Datepicker (opt)",
-            id: 100001,
-            propertyTypePredefined: 100001,
-            primitiveType: Models.PrimitiveType.Date,
-            maxDate: new Date(moment(new Date()).add(5, "days").format("YYYY-MM-DD")),
-            minDate: new Date(moment(new Date()).add(-5, "days").format("YYYY-MM-DD"))
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Number (req)",
-            id: 100002,
-            propertyTypePredefined: 100002,
-            primitiveType: Models.PrimitiveType.Number,
-            maxNumber: 10,
-            minNumber: 0,
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Number (opt)",
-            id: 100003,
-            propertyTypePredefined: 100003,
-            maxNumber: 1000,
-            minNumber: 100,
-            primitiveType: Models.PrimitiveType.Number,
         });
         
         //add custom property types

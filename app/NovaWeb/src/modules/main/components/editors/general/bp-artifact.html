@@ -1,12 +1,13 @@
-﻿<div class="artifact-overview">
+﻿<div class="artifact-overview" ng-if="$ctrl.fields">
     <div class="heading">Overview</div>
     <div class="content">
-        <form novalidate>
+        <form novalidate name="$ctrl.form" >
+            <pre ng-if="false">{{$ctrl.model | json}}</pre>
             <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" ng-if="$ctrl.isSystemPropertyAvailable">
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isSystemPropertiesCollapsed">
-                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields">
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields" >
                         </formly-form>
                     </div>
                 </perfect-scrollbar>
@@ -15,17 +16,15 @@
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
-                        <formly-form model="$ctrl.model" fields="$ctrl.fields.customFields">
+                        <formly-form model="$ctrl.model" fields="$ctrl.fields.customFields" >
                         </formly-form>
                     </div>
                 </perfect-scrollbar>
             </div>
 
-
-            <uib-tabset active="$ctrl.activeTab" ng-if="$ctrl.isTabPropertyAvailable">
-                <uib-tab ng-repeat="field in $ctrl.fields.tabFields"
-                         heading="{{field.data.name}}"
-                         >
+            <uib-tabset ng-if="$ctrl.isTabPropertyAvailable">
+                <uib-tab ng-repeat="field in $ctrl.fields.richTextFields"
+                         heading="{{field.data.name}}">
                     <formly-form model="$ctrl.model" fields="[field]" >
                     </formly-form>
                 </uib-tab>

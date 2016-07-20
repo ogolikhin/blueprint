@@ -31,6 +31,8 @@ export interface IProjectManager {
 
     getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
+    getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;
+
     getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[];
 
     getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[];
@@ -165,6 +167,7 @@ export class ProjectManager implements IProjectManager {
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
+
             this._repository.getArtifacts(artifact.projectId, artifact.id)
                 .then((result: Models.IArtifact[]) => {
                     angular.extend(artifact, {
@@ -298,37 +301,29 @@ export class ProjectManager implements IProjectManager {
             throw new Error(this.localization.get("Project_NotFound"));
         }
         if (!_project.meta) {
-            throw new Error(this.localization.get("Project_MetaDataNotLoaded"));
+            throw new Error(this.localization.get("Project_MetaDataNotFound"));
         }
 
         let properties: Models.IPropertyType[] = [];
-        let _artifactType: Models.IItemType;
-        
-        //create list of suystem properties
-        if (_artifact.predefinedType === Models.ItemTypePredefined.Project) {
-            _artifactType = <Models.IItemType>{
-                id: Models.ItemTypePredefined.Project,
-                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                baseType: Models.ItemTypePredefined.Project,
-                customPropertyTypeIds: []
-            };
-        } else {
-            _artifactType = _project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === _artifact.itemTypeId;
-            })[0];
+        let _artifactType: Models.IItemType = this.getArtifactType(_artifact, _project);
+
+        if (!_artifactType) {
+            throw new Error(this.localization.get("ArtifactType_NotFound"));
         }
+        
+        //create list of system properties
         
         
         //add system properties  
         properties.push(<Models.IPropertyType>{
-            name: "Name",
+            name: this.localization.get("Label_Name"),
             propertyTypePredefined: Models.PropertyTypePredefined.Name,
             primitiveType: Models.PrimitiveType.Text,
             isRequired: true
         });
 
         properties.push(<Models.IPropertyType>{
-            name: "Type",
+            name: this.localization.get("Label_Type"),
             propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
@@ -347,70 +342,38 @@ export class ProjectManager implements IProjectManager {
             isRequired: true
         });
         properties.push(<Models.IPropertyType>{
-            name: "Created by",
+            name: this.localization.get("Label_CreatedBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-            primitiveType: Models.PrimitiveType.Text, 
+            primitiveType: Models.PrimitiveType.User, 
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
-            name: "Created on",
+            name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            disabled: true
+            // the following are test values, using DateJS
+            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
+            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
+            isRequired: true
+            //disabled: true
         });
         properties.push(<Models.IPropertyType>{
-            name: "Last edited by",
+            name: this.localization.get("Label_LastEditBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
-            primitiveType: Models.PrimitiveType.Text,
+            primitiveType: Models.PrimitiveType.User,
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
-            name: "Last edited on",
+            name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             primitiveType: Models.PrimitiveType.Date,
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
-            name: "Description",
+            name: this.localization.get("Label_Description"),
             propertyTypePredefined: Models.PropertyTypePredefined.Description,
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
-        });
-
-        // Test fields
-        properties.push(<Models.IPropertyType>{
-            name: "Datepicker (req)",
-            id: 100000,
-            propertyTypePredefined: 100000,
-            primitiveType: Models.PrimitiveType.Date,
-            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
-            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Datepicker (opt)",
-            id: 100001,
-            propertyTypePredefined: 100001,
-            primitiveType: Models.PrimitiveType.Date,
-            maxDate: new Date(moment(new Date()).add(5, "days").format("YYYY-MM-DD")),
-            minDate: new Date(moment(new Date()).add(-5, "days").format("YYYY-MM-DD"))
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Number (req)",
-            id: 100002,
-            propertyTypePredefined: 100002,
-            primitiveType: Models.PrimitiveType.Number,
-            maxNumber: 10,
-            minNumber: 0,
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: "Number (opt)",
-            id: 100003,
-            propertyTypePredefined: 100003,
-            maxNumber: 1000,
-            minNumber: 100,
-            primitiveType: Models.PrimitiveType.Number,
         });
         
         //add custom property types
@@ -421,6 +384,37 @@ export class ProjectManager implements IProjectManager {
         });
         return properties;
 
+    }
+
+    public getArtifactType(artifact: Models.IArtifact, project?: Models.IProject): Models.IItemType {
+        if (!artifact) {
+            throw new Error(this.localization.get("Artifact_NotFound"));
+        }
+        if (!project) {
+            project = this.getProject(artifact.projectId);
+        }
+        if (!project) {
+            throw new Error(this.localization.get("Project_NotFound"));
+        }
+        if (!project.meta) {
+            throw new Error(this.localization.get("Project_MetaDataNotFound"));
+        }
+        let _artifactType: Models.IItemType;
+        //create list of suystem properties
+        if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
+            _artifactType = <Models.IItemType>{
+                id: Models.ItemTypePredefined.Project,
+                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                baseType: Models.ItemTypePredefined.Project,
+                customPropertyTypeIds: []
+            };
+        } else {
+            _artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                return it.id === artifact.itemTypeId;
+            })[0];
+        }
+
+        return _artifactType;
     }
 
     public getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[] {

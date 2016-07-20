@@ -46,16 +46,22 @@ class PageContentCtrl {
     }
 
     private selectContext(artifact: Models.IArtifact) {
-        if (!artifact) {
-            return;
-        }
-        this.contentType = this.getContentType(artifact);
+        let _context: any = {};
+        try {
+            if (!artifact) {
+                return;
+            }
+            this.contentType = this.getContentType(artifact);
 
-        this.context = {
-            artifact: angular.copy(artifact),
-            project: this.projectManager.currentProject.getValue(),
-            propertyTypes: this.projectManager.getArtifactPropertyTypes(artifact)
-        };
+            _context.artifact = angular.copy(artifact);
+            _context.project = this.projectManager.currentProject.getValue();
+            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
+            _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
+
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+        }
+        this.context = _context;
     }
 
     private getContentType(artifact: Models.IArtifact): string {

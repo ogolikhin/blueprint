@@ -44,11 +44,28 @@ export class ProjectExplorerController {
     public columns = [{
         headerName: "",
         field: "name",
-        cellClassRules: {
-            "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder; },
-            "is-project": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.Project; }
+        cellClass: function (params) {
+            let css: string[] = [];
+
+            if (params.data.hasChildren) {
+                css.push("has-children");
+            }
+            if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
+                css.push("is-folder");
+            } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
+                css.push("is-project");
+            } else {
+                css.push(Models.ItemTypePredefined[params.data.predefinedType].toLowerCase());
+            }
+
+            return css;
         },
+        
+        //cellClassRules: {
+        //    "has-children": function (params) { return params.data.hasChildren; },
+        //    "is-folder": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder; },
+        //    "is-project": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.Project; }
+        //},
         cellRenderer: "group",
         suppressMenu: true,
         suppressSorting: true,
@@ -103,5 +120,6 @@ export class ProjectExplorerController {
         };
         return artifact;
     };
+
 
 }

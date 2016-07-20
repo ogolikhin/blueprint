@@ -91,7 +91,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 </div>
             </div>`,
         /* tslint:enable */
-        wrapper: ["bootstrapLabel", "bootstrapHasError"],
+        wrapper: ["frmlyLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
                 onChange: function($viewValue, $modelValue, scope) {
@@ -139,7 +139,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyConfig.setType({
         name: "frmlyTinymce",
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["bootstrapLabel"],
+        wrapper: ["frmlyLabel"],
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
@@ -175,7 +175,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     class="form-control has-icon"
-                    ng-click="frmlyDatepicker.open($event)"
+                    ng-click="frmlyDatepicker.select($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="frmlyDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
@@ -188,7 +188,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 </div>
             </div>`,
         /* tslint:enable */
-        wrapper: ["bootstrapLabel", "bootstrapHasError"],
+        wrapper: ["frmlyLabel", "bootstrapHasError"],
         defaultOptions: {
             ngModelAttrs: ngModelAttrs,
             templateOptions: {
@@ -285,13 +285,30 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             $scope.frmlyDatepicker.open = function ($event) {
                 $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
             };
+
+            $scope.frmlyDatepicker.select = function ($event) {
+                let inputField = <HTMLInputElement> document.getElementById($scope.id);
+                if (inputField) {
+                    inputField.focus();
+                    inputField.setSelectionRange(0, inputField.value.length);
+                }
+            };
         }]
     });
 
-    /* tslint:disable */
-/* Not using this as some properties need more complex templates
     formlyConfig.setWrapper({
-        name: "hasError",
+        name: "frmlyLabel",
+        template: `<div>
+              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label">
+                {{to.label}}
+              </label>
+              <formly-transclude></formly-transclude>
+            </div>`
+    });
+    /* tslint:disable */
+    /* not using this template yet
+    formlyConfig.setWrapper({
+        name: "frmlyHasError",
         template: `<div class="form-group" ng-class="{'has-error': showError}">
                 <label class="control-label" for="{{id}}">{{to.label}}</label>
                 <formly-transclude></formly-transclude>
@@ -299,8 +316,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`
-    });
-*/
+    });*/
     /* tslint:enable */
 
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");

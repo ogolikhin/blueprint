@@ -167,9 +167,9 @@ export class PropertyEditor  {
                             items: 5,
                             queryBy: "fullname",
                             insert: function (item) {
-                                return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
+                                return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
                             }
-                        }
+                        };
                     }
                 }
                 break;
@@ -184,8 +184,15 @@ export class PropertyEditor  {
             case Models.PrimitiveType.Number:
                 field.type = "frmlyNumber";
                 field.defaultValue = context.decimalDefaultValue;
-                field.templateOptions.min = context.minNumber;
-                field.templateOptions.max = context.maxNumber;
+                if (angular.isNumber(context.minNumber)) {
+                    field.templateOptions.min = context.minNumber;
+                }
+                if (angular.isNumber(context.maxNumber)) {
+                    field.templateOptions.max = context.maxNumber;
+                }
+                if (angular.isNumber(context.decimalPlaces)) {
+                    field.templateOptions["decimalPlaces"] = context.decimalPlaces;
+                }
                 break;
             case Models.PrimitiveType.Choice:
                 field.type = "select";

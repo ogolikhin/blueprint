@@ -6,7 +6,6 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import * as moment from "moment";
 import {LocalizationServiceMock} from "../core/localization.mock";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 
@@ -41,6 +40,71 @@ describe("Formly", () => {
         expect(vm).toBeDefined();
     });
 
+    describe("Number", () => {
+        it("should be initialized properly", function () {
+            compileAndSetupStuff({model: {number: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        });
+
+        it("should fail if the number is less than min", function () {
+            compileAndSetupStuff({model: {number: 1}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.min).toBeTruthy();
+        });
+
+        it("should fail if the number is greater than max", function () {
+            compileAndSetupStuff({model: {number: 1000}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.max).toBeTruthy();
+        });
+
+        it("should fail if the decimals are more than allowed", function () {
+            compileAndSetupStuff({model: {number: 10.1234}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.decimalPlaces).toBeTruthy();
+        });
+
+        it("should succeed if the decimals are within the allowed count", function () {
+            compileAndSetupStuff({model: {number: 10.1}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        });
+    });
+
     describe("UI Datepicker", () => {
         it("should be initialized properly", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
@@ -58,6 +122,8 @@ describe("Formly", () => {
             expect((<any>fieldScope).to.clearText).toEqual("Datepicker_Clear");
             expect((<any>fieldScope).to.closeText).toEqual("Datepicker_Done");
             expect((<any>fieldScope).to.currentText).toEqual("Datepicker_Today");
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         });
 
         it("should fail if the date is less than minDate", function () {
@@ -182,6 +248,15 @@ function createModule() {
                         {
                             type: "frmlyInlineTinymce",
                             key: "inlineTinymce"
+                        },
+                        {
+                            type: "frmlyNumber",
+                            key: "number",
+                            templateOptions: {
+                                min: 5,
+                                max: 100,
+                                decimalPlaces: 2
+                            }
                         },
                         {
                             type: "frmlyDatepicker",

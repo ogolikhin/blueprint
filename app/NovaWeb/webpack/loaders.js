@@ -28,6 +28,10 @@ module.exports = [
         exclude: /node_modules/,
         loader: 'file'
     }, {
+        test: /\.gif$/,
+        exclude: /node_modules/,
+        loader: 'file'
+    }, {
         test: /\.png$/,
         exclude: /node_modules/,
         loader: 'url'

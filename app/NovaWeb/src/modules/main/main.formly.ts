@@ -4,7 +4,6 @@ import "angular-formly-templates-bootstrap";
 import * as moment from "moment";
 import {ILocalizationService} from "../core";
 import {Helper} from "../core/utils/helper";
-import {tinymceMentionsData} from "../util/tinymce-mentions.mock";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];
@@ -95,8 +94,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bootstrapLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //This is just a stub!
+                onChange: function($viewValue, $modelValue, scope) {
+                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
                     let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
@@ -114,7 +113,24 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
+                    number: `"` + localization.get("Property_Wrong_Format") + `"`
+                }
+            },
+            validators: {
+                decimalPlaces: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = $modelValue || $viewValue;
+                        let decimalPlaces = (<any> scope.options).data.decimalPlaces;
+
+                        if (value && decimalPlaces && angular.isNumber(decimalPlaces)) {
+                            let intValue = parseInt(value, 10);
+                            (<any> scope.to).decimalPlaces = decimalPlaces;
+
+                            return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
+                        }
+                        return true;
+                    }
                 }
             }
         }
@@ -127,8 +143,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    plugins: "advlist autolink link image paste lists charmap print noneditable"
+                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
         }
@@ -144,34 +160,15 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             templateOptions: {        
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
-                    //fixed_toolbar_container: ".form-tinymce-toolbar",
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    }
+                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
         }
     });
-    /*formlyConfig.setWrapper({
-     name: 'hasError',
-     template: `<div class="form-group" ng-class="{\'has-error\': showError}">
-     <label class="control-label" for="{{id}}">{{to.label}}</label>
-     <formly-transclude></formly-transclude>
-     <div ng-messages="fc.$error" ng-if="showError" class="text-danger">
-     <div ng-message="{{ ::name }}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-     </div>
-     </div>`
-     });*/
 
     formlyConfig.setType({
-        name: "datepicker",
+        name: "frmlyDatepicker",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <input type="text"
@@ -179,13 +176,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     class="form-control has-icon"
-                    ng-click="datepicker.open($event)"
+                    ng-click="frmlyDatepicker.open($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
-                    is-open="datepicker.opened"
+                    is-open="frmlyDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
                     datepicker-options="to.datepickerOptions" />
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button type="button" class="btn btn-default" ng-click="frmlyDatepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -209,8 +206,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
                 placeholder: moment.localeData().longDateFormat("L"),
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //This is just a stub!
+                onChange: function($viewValue, $modelValue, scope) {
+                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue;
                     let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
                     if (momentInit.isValid()) {
@@ -276,7 +273,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
         },
         controller: ["$scope", function ($scope) {
-            $scope.datepicker = {};
+            $scope.frmlyDatepicker = {};
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
@@ -284,16 +281,30 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
-            $scope.datepicker.opened = false;
+            $scope.frmlyDatepicker.opened = false;
 
-            $scope.datepicker.open = function ($event) {
-                $scope.datepicker.opened = !$scope.datepicker.opened;
+            $scope.frmlyDatepicker.open = function ($event) {
+                $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
             };
         }]
     });
+
+/* Not using this as some properties need more complex templates
+    formlyConfig.setWrapper({
+        name: "hasError",
+        template: `<div class="form-group" ng-class="{'has-error': showError}">
+                <label class="control-label" for="{{id}}">{{to.label}}</label>
+                <formly-transclude></formly-transclude>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`
+    });
+*/
 
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Must_Be_Less"), "", "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Must_Be_Greater"), "", "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal");
 }

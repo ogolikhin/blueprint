@@ -135,13 +135,10 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     }
 
     private getTooltip(html: string, width: number, height: number) {
-        var injector = angular.injector(["ng", "ngSanitize"]);
-        var $sanitize = <any>injector.get("$sanitize");
-        if ($sanitize != null) {
-            var sanitizedHtml = $sanitize(html);
-            var bbox = this.getLabelSize(sanitizedHtml, width);
+        if (html) {
+            var bbox = this.getLabelSize(html, width);
             if (bbox.height > height) {
-                return sanitizedHtml;
+                return html;
             }
         }
         return null;

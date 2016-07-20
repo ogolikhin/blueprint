@@ -73,11 +73,12 @@ export class BPDiagramController {
         if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(artifact.id, artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
-           
+
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
+                    this.isBrokenOrOld = false;
                     if (this.diagramView) {
                         this.diagramView.destroy();
                         this.$element.css("width", "");

@@ -40,16 +40,13 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }
-            var itemId = artifactId;
-            if (subArtifactId.HasValue)
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+            var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+            if (itemInfo == null || (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId))
             {
-                var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(subArtifactId.Value, session.UserId, addDrafts));
-                if (itemInfo == null || itemInfo.ArtifactId != artifactId)
-                {
-                    throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
-                }
-                itemId = subArtifactId.Value;
+                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
             }
+
             var result = await RelationshipsRepository.GetRelationships(itemId, session.UserId, addDrafts);
             var itemIds = new List<int> { itemId };
             itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
@@ -87,6 +84,12 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }
+            var artifactInfo = (await ArtifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
+            if (artifactInfo == null)
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
+            }
+
             var itemIds = new List<int> { artifactId };
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
             if (!HasReadPermissions(artifactId, permissions))

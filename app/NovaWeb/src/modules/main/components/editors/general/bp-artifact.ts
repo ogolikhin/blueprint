@@ -7,6 +7,7 @@ import {PropertyEditor, FieldContext} from "./bp-artifact-editor";
 interface IEditorContext {
     artifact?: Models.IArtifact;
     project?: Models.IProject;
+    type?: Models.IItemType;
     propertyTypes?: Models.IPropertyType[];
 }
 
@@ -34,7 +35,7 @@ export class BpArtifactController {
     ];
 
     private editor: PropertyEditor;
-
+    private _readOnly: boolean = false;
     constructor(
         private messageService: IMessageService,
         private artifactService: IArtifactService) {
@@ -49,10 +50,8 @@ export class BpArtifactController {
     }
 
     public $onChanges(changesObj) {
-        if (changesObj.context) {
-            this._context = changesObj.context.currentValue;
-
-//            this.activeTab = -1;
+        try {
+            this._context = changesObj.context ? changesObj.context.currentValue : null;
             this.fields = null;
             this.model = null;
             if (this._context && this._context.artifact && this._context.propertyTypes) {
@@ -67,6 +66,8 @@ export class BpArtifactController {
                     });
                 }
             }
+        } catch (ex) {
+            this.messageService.addError(ex.message);
         }
     }
     public form: angular.IFormController;
@@ -94,12 +95,15 @@ export class BpArtifactController {
     public onPropertyChange($viewValue, $modelValue, scope) {
     };
 
+    public isReadOnly($viewValue, $modelValue, scope): boolean {
+        return this._readOnly;
+    };
 
     private load(artifact: Models.IArtifact, propertyTypes: Models.IPropertyType[]) {
         try {
 
             if (!artifact) {
-                throw new Error("#Project_NotFound");
+                throw new Error("##Project_NotFound");
             }
             let fieldContexts = propertyTypes.map((it: Models.IPropertyType) => {
                 switch (it.propertyTypePredefined) {
@@ -115,6 +119,7 @@ export class BpArtifactController {
 
             this.editor = new PropertyEditor(artifact, fieldContexts);
             this.model = this.editor.getModel();
+            this._readOnly = artifact.id === artifact.projectId;
 
             this.fields = <IArtifactDetailFields>{
                 systemFields: [],
@@ -126,7 +131,10 @@ export class BpArtifactController {
             this._fields.forEach((it: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(it.templateOptions, {
-                    onChange: this.onPropertyChange
+                    onChange: this.onPropertyChange.bind(this)
+                });
+                angular.extend(it.expressionProperties, {
+                    "templateOptions.disabled": this.isReadOnly.bind(this)
                 });
 
                 if (true === it.data["isSystem"]) {

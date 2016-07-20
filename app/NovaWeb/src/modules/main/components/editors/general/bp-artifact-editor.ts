@@ -172,7 +172,6 @@ export class PropertyEditor  {
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "frmlyNumber";
-                if (angular.isNumber(context.defaultValidValueId)) {
                 field.defaultValue = context.decimalDefaultValue;
                 field.templateOptions.min = context.minNumber;
                 field.templateOptions.max = context.maxNumber;

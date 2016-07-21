@@ -2,7 +2,6 @@
     <div class="heading">Overview</div>
     <div class="content">
         <form novalidate name="$ctrl.form">
-            <pre ng-if="false">{{$ctrl.model | json}}</pre>
             <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" >
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
                 <perfect-scrollbar>

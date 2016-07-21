@@ -155,7 +155,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:disable */
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
-//        wrapper: ["bootstrapLabel"],
         defaultOptions: {
             templateOptions: {        
                 tinymceOption: { // this will goes to ui-tinymce directive

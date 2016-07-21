@@ -34,10 +34,7 @@ export class StorytellerDiagram {
         }).catch((err: any) => {
             // if access to proccess info is forbidden
             if (err && err.statusCode === 403) {
-                //var toolbar = document.getElementById("storytellerToolbarSection");
-                //toolbar.hidden = true;
-                //var editorView = document.getElementById("storytellerEditorView");
-                //editorView.hidden = true;
+                //handle errors if need to
             }
         });
     }

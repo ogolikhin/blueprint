@@ -44,7 +44,7 @@ namespace StorytellerTests
                      "were made.")]
         public void GetHistoricalVersionOfPublishedProcessWithChange_VerifyReturnedHistoricalVersionDoesNotContainChange()
         {
-            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
 
             int savedArtifactVersion = artifact.Version;
 

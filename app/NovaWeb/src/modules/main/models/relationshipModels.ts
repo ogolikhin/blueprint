@@ -5,6 +5,7 @@
     itemId: number;
     itemTypePrefix: string;
     itemName: string;
+    itemLabel: string;
     projectId: number;
     projectName: string;
     rraceDirection: TraceDirection;
@@ -12,6 +13,7 @@
     suspect: boolean;
     hasAccess: boolean;
     primitiveItemTypePredefined: number;
+    isSelected: boolean;
 }
 
 export enum TraceDirection {
@@ -46,9 +48,4 @@ export interface IItemIdItemNameParentId {
     itemId: number;
     parentId: number;
     itemName: string;
-}
-
-export enum ITraceType {
-    Manual = 0,
-    Other = 1
 }

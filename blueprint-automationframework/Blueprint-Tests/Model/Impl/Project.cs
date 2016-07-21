@@ -13,14 +13,9 @@ namespace Model.Impl
     [DataContract(Name = "Project", Namespace = "Model")]
     public class Project : IProject
     {
-        #region Properties
-
-        /// <summary>
-        /// PATHs of the project related APIs
-        /// </summary>
-        private const string SVC_PROJECTS_PATH = "/api/v1/projects";
-        private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
+        #region Properties
 
         /// <summary>
         /// Id of the project
@@ -77,7 +72,9 @@ namespace Model.Impl
         public List<IProject> GetProjects(string address, IUser user = null)
         {
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
+            const string path = RestPaths.OpenApi.PROJECTS;
+
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);
@@ -93,7 +90,7 @@ namespace Model.Impl
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
             RestApiFacade restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
-            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
             return project;
@@ -137,11 +134,17 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
-            var path = shouldRetrievePropertyTypes ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
-                : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
+            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, Id);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (shouldRetrievePropertyTypes)
+            {
+                queryParameters.Add("PropertyTypes", "true");
+            }
 
             // Retrieve the artifact type list for the project 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())

@@ -30,6 +30,7 @@ import {MessageComponent} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {config as errorStateRouteConfig} from "./error/error.state";
+import {ErrorComponent} from "./error/error.component";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -38,7 +39,6 @@ export { IMessageService } from "./messages/message.svc";
 export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef }
         from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 export { IMessage, Message, MessageType} from "./messages/message";
-
 
 angular.module("app.shell",
     [
@@ -71,7 +71,8 @@ angular.module("app.shell",
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
     .component("bpCommentEdit", new BPCommentEdit())   
     .component("message", new MessageComponent())
-    .component("messagesContainer", new MessageContainerComponent())   
+    .component("messagesContainer", new MessageContainerComponent())  
+    .component("error", new ErrorComponent())    
     .config(Logger)
     .config(errorStateRouteConfig)
     .config(initializeInterceptors);

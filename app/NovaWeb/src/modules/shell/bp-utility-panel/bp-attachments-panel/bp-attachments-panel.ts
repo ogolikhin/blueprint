@@ -1,6 +1,8 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface IAddOptions {
     value: string;
@@ -10,17 +12,17 @@ interface IAddOptions {
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
     public controller: Function = BPAttachmentsPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
-export class BPAttachmentsPanelController {
+export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log", 
         "localization",
         "projectManager",
         "artifactAttachments"
     ];
-
-    private _subscribers: Rx.IDisposable[];
 
     public artifactAttachmentsList: IArtifactAttachmentsResultSet;
     public addOptions: IAddOptions[];
@@ -28,10 +30,12 @@ export class BPAttachmentsPanelController {
     public isLoading: boolean = false;
     
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
-        private artifactAttachments: IArtifactAttachments) {
+        protected projectManager: IProjectManager,
+        private artifactAttachments: IArtifactAttachments,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         this.addOptions = [
             { value: "attachment", label: this.localization.get("App_UP_Attachments_Add_Attachment") },
@@ -39,22 +43,15 @@ export class BPAttachmentsPanelController {
         ];
     }
 
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
-            .distinctUntilChanged()
-            .asObservable()
-            .subscribe(this.setArtifactId);
-
-        this._subscribers = [ selectedArtifactSubscriber ];
+    public $onInit() {
+        super.$onInit();
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
     }
 
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    protected setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactAttachmentsList = null;
 
         if (artifact !== null) {

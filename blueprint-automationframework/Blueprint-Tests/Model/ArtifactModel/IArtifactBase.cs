@@ -112,6 +112,8 @@ namespace Model.ArtifactModel
         /// </summary>
         bool ShouldDeleteChildren { get; set; }
 
+        IUser LockOwner { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<OpenApiProperty> Properties { get; set; }
 
@@ -140,7 +142,8 @@ namespace Model.ArtifactModel
             bool? deleteChildren = null);
 
         /// <summary>
-        /// Get ArtifactReference list which is used to represent breadcrumb navigation
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation.
+        /// (Runs:  svc/shared/navigation/{id1}/{id2}...)
         /// </summary>
         /// <param name="user">The user credentials for breadcrumb navigation</param>
         /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>

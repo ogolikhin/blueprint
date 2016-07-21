@@ -4,6 +4,7 @@
 @import 'modules/animations';
 @import 'modules/typography';
 @import 'modules/fonticons';
+@import 'modules/fonticons2';
 @import 'modules/icons';
 
 html,
@@ -62,3 +63,4 @@ body {
 @import 'partials/tinymce';
 @import 'partials/mobile-only';
 @import 'partials/error-messages';
+@import 'partials/diagram';

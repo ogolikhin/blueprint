@@ -1,4 +1,4 @@
-﻿<div class="artifact-icon fonticon-bp-ui-mockup-form-setting"></div>
+﻿<div class="artifact-icon fonticon-bp-ui-mockup-form-setting" ng-class="$ctrl.artifactType.toLowerCase()"></div>
 <div class="artifact-heading">
     <div class="name">
         {{ $ctrl.artifactName }}
@@ -6,8 +6,9 @@
         <i class="lock-indicator" bp-tooltip="Locked" ng-if="$ctrl.isLocked"></i>
         <!--TODO  please do not remove, I'll remove after testing-->
         <i class="dirty-indicator" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
+        <div ng-if="$ctrl.isDiagram" bp-tooltip="Legacy artifact" class="legacy-icon fonticon2-legacy"></div>
     </div>
-    <div class="type-id">{{ $ctrl.artifactType }}</div>
+    <div class="type-id">{{ $ctrl.artifactTypeDescription }}</div>
 </div>
 <div class="page-top-toolbar">
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>

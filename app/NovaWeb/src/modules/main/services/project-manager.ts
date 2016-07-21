@@ -1,9 +1,8 @@
 ﻿import "angular";
+import * as moment from "moment";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
-//import {IArtifactService} from "./artifact-service";
-import {tinymceMentionsData} from "../../util/tinymce-mentions.mock.ts";
 
 export {Models}
 
@@ -23,13 +22,23 @@ export interface IProjectManager {
 
     loadProject(project: Models.IProject): void;
     loadArtifact(project: Models.IArtifact): void;
-    loadArtifactDetails(artifact: Models.IArtifact): void;
+
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     closeProject(all?: boolean): void;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-    getArtifactPropertyFileds(project: Models.IArtifact): Models.IArtifactDetailFields;
+
+    getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
+
+    getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;
+
+    getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[];
+
+    getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[];
+
+    getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
+
 }
 
 
@@ -68,7 +77,7 @@ export class ProjectManager implements IProjectManager {
         this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
         
-        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
+//        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
@@ -146,6 +155,7 @@ export class ProjectManager implements IProjectManager {
 
     public loadArtifact = (artifact: Models.IArtifact) => {
         try {
+            let self = this;
             if (artifact === null) {
                 return;
             }
@@ -153,55 +163,31 @@ export class ProjectManager implements IProjectManager {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
 
-            let self = this;
-            let _artifact = this.getArtifact(artifact.id);
-            if (!_artifact) {
+            artifact = this.getArtifact(artifact.id);
+            if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
+
             this._repository.getArtifacts(artifact.projectId, artifact.id)
                 .then((result: Models.IArtifact[]) => {
-                    angular.extend(_artifact, {
+                    angular.extend(artifact, {
                         artifacts: result,
                         hasChildren: true,
                         loaded: true,
                         open: true
                     });
                     self.projectCollection.onNext(self.projectCollection.getValue());
-                    self.setCurrentArtifact(_artifact);
+                    self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 });
+
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
-
-    public loadArtifactDetails = (artifact: Models.IArtifact) => {
-        try {
-            if (artifact === null) {
-                return;
-            }
-            if (!artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
-            }
-            //let self = this;
-            let _artifact = this.getArtifact(artifact.id);
-            if (!_artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
-            }
-            this._repository.getArtifactDetails(artifact.projectId, artifact.id)
-                .then((result: Models.IArtifactDetails) => {
-//                    angular.extend(_artifact, result);
-//                    self.setCurrentArtifact(_artifact);
-                }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                });
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
-        }
-    }
-
+    
     private loadProjectMeta = (project: Models.IProject) => {
         try {
             if (!project) {
@@ -283,303 +269,175 @@ export class ProjectManager implements IProjectManager {
         return foundArtifact;
     };
 
+    public getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact {
+        let foundArtifact: Models.ISubArtifact;
+        //TODO: Needs to be implemented
+
+
+        return foundArtifact;
+    };
+
     public get isProjectSelected(): boolean {
         //NOTE: current Project must have a refference if project collection has any items
         return !!this.currentProject.getValue();
     }
 
-
     public get isArtifactSelected(): boolean {
         return !!this.currentArtifact.getValue();
     }
 
-
-    public getArtifactSystemPropertyFileds(itemType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        
-
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        
-
-        fields.push({
-            key: "name",
-            type: "input",
-            templateOptions: {
-                label: "Name",
-                required: true
-            }
-        });
-        
-        if (itemType) {
-            fields.push({
-                key: "type",
-                type: "select",
-                defaultValue: itemType.id.toString(),
-                templateOptions: {
-                    label: "Type",
-                    required: true,
-                    options: metaData.artifactTypes.filter((it: Models.IItemType) => {
-                        return (itemType && itemType.baseType === it.baseType);
-                    }).map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
-                    })
-                },
-                expressionProperties: {
-                    "templateOptions.disabled": "to.options.length < 2",
-                }
-            });
+    public getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[] {
+        let _artifact: Models.IArtifact;
+        if (typeof artifact === "number") {
+            _artifact = this.getArtifact(artifact as number);
+        } else if (artifact) {
+            _artifact = artifact as Models.IArtifact;
         }
-        fields.push({
-            key: "createdBy",
-            type: "input",
-            templateOptions: {
-                label: "Created by",
-                disabled: true
-            }
-        });
-        fields.push({
-            key: "createdOn",
-            type: "input",
-            templateOptions: {
-                type: "date",
-                label: "Created on",
-                disabled: true,
-            }
-        });
-        fields.push({
-            key: "lastEditBy",
-            type: "input",
-            templateOptions: {
-                label: "Last edited by",
-                disabled: true
-            }
-        });
-        fields.push({
-            key: "lastEditOn",
-            type: "input",
-            templateOptions: {
-                type: "date",
-                label: "Last edited on",
-                disabled: true
-            }
-        });
-
-        return fields;
-
-    }
-
-
-    public getArtifactPropertyFileds(artifact: Models.IArtifact): Models.IArtifactDetailFields {
-        try {
-
-            let fields: Models.IArtifactDetailFields = <Models.IArtifactDetailFields>{
-                systemFields: [],
-                customFields: [],
-                noteFields: []
-            };
-            if (!artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
-            }
-            let project = this.getProject(artifact.projectId);
-            if (!project || !project.meta) {
-                throw new Error(this.localization.get("Project_NotFound"));
-            }
-
-            let artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === artifact.typeId;
-            })[0];
-
-
-            fields.systemFields = this.createSystemPropertyFileds(artifactType, project.meta);
-            fields.customFields = this.createCustomPropertyFileds(artifact, artifactType, project.meta);
-            fields.noteFields = this.createNotePropertyFileds(artifactType, project.meta);
-
-            return fields;
-
-
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+        if (!_artifact) {
+            throw new Error(this.localization.get("Artifact_NotFound"));
+        }
+        let _project = this.getProject(_artifact.projectId);
+        if (!_project) {
+            throw new Error(this.localization.get("Project_NotFound"));
+        }
+        if (!_project.meta) {
+            throw new Error(this.localization.get("Project_MetaDataNotFound"));
         }
 
-    }
+        let properties: Models.IPropertyType[] = [];
+        let _artifactType: Models.IItemType = this.getArtifactType(_artifact, _project);
 
-    private createField(modelName: string, type: Models.IPropertyType): AngularFormly.IFieldConfigurationObject {
-        if (!modelName) {
-            throw new Error(this.localization.get("Artifact_Details_FieldNameError"));
-        }
-        if (!type) {
+        if (!_artifactType) {
             throw new Error(this.localization.get("ArtifactType_NotFound"));
         }
-        let field: AngularFormly.IFieldConfigurationObject = {
-            key: modelName,
-            templateOptions: {
-                label: type.name,
-                required: type.isRequired,
-                disabled: type.disabled
-            },
-            data: type,
-            expressionProperties: {},
-        };
-
-
-        switch (type.primitiveType) {
-            case Models.IPrimitiveType.Text:
-                field.type = type.isRichText ? "tinymceInline" : (type.isMultipleAllowed ? "textarea" : "input");
-                field.defaultValue = type.stringDefaultValue;
-                //field.templateOptions.minlength;
-                //field.templateOptions.maxlength;
-                break;
-            case Models.IPrimitiveType.Date:
-                field.type = "input";
-                field.templateOptions.type = "date";
-                field.defaultValue = type.dateDefaultValue || new Date();
-                //field.templateOptions.min = type.minDate;
-                //field.templateOptions.max = type.maxDate;
-                break;
-            case Models.IPrimitiveType.Number:
-                field.type = "input";
-                field.templateOptions.type = "number";
-                field.defaultValue = type.decimalDefaultValue || 0;
-                field.templateOptions.min = type.minNumber;
-                field.templateOptions.max = type.maxNumber;
-                break;
-            case Models.IPrimitiveType.Choice:
-                field.type = "select";
-                field.defaultValue = (type.defaultValidValueIndex || 0).toString();
-                if (type.validValues) {
-                    field.templateOptions.options = type.validValues.map(function (it, index) {
-                        return <AngularFormly.ISelectOption>{ value: index.toString(), name: it };
-                    });
-                }
-                break;
-            default:
-                return undefined;
-        }
-        return field;
-    }
-
-    private createSystemPropertyFileds(artifactType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        let field: AngularFormly.IFieldConfigurationObject;
-
-        fields.push(this.createField("name", <Models.IPropertyType>{
-            id: -1,
-            name: "Name",
-            primitiveType: Models.IPrimitiveType.Text,
+        
+        //create list of system properties
+        
+        
+        //add system properties  
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Name"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Name,
+            primitiveType: Models.PrimitiveType.Text,
             isRequired: true
-        }));
-        fields.push(field = this.createField("type", <Models.IPropertyType>{
-            id: -1,
-            name: "Type",
-            primitiveType: Models.IPrimitiveType.Choice,
-            isRequired: true
-        }));
-
-        field.templateOptions.options = metaData.artifactTypes.filter((it: Models.IItemType) => {
-            return (artifactType && artifactType.baseType === it.baseType);
-        }).map(function (it) {
-            return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.name };
         });
-        field.expressionProperties = {
-            "templateOptions.disabled": "to.options.length < 2",
-        };
 
-        fields.push(this.createField("createBy", <Models.IPropertyType>{
-            id: -1,
-            name: "Created by",
-            primitiveType: Models.IPrimitiveType.Text,
-            disabled: true
-        }));
-        fields.push(this.createField("createdOn", <Models.IPropertyType>{
-            id: -1,
-            name: "Created on",
-            primitiveType: Models.IPrimitiveType.Date,
-            disabled: true
-        }));
-        fields.push(this.createField("lastEditBy", <Models.IPropertyType>{
-            id: -1,
-            name: "Last edited by",
-            primitiveType: Models.IPrimitiveType.Text,
-            disabled: true
-        }));
-        fields.push(this.createField("lastEditOn", <Models.IPropertyType>{
-            id: -1,
-            name: "Last edited on",
-            primitiveType: Models.IPrimitiveType.Date,
-            disabled: true
-        }));
-
-        return fields;
-
-    }
-
-    private createCustomPropertyFileds(model: any, artifactType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        let field: AngularFormly.IFieldConfigurationObject;
-
-        if (artifactType) {
-            metaData.propertyTypes.map((it: Models.IPropertyType) => {
-                if (artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                    field = this.createField(`property_${it.id}`, it);
-                    if (field) {
-                        fields.push(field);
-                    }
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Type"),
+            propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
+            primitiveType: Models.PrimitiveType.Choice,
+            validValues: function (meta: Models.IProjectMeta) {
+                if (_artifactType.baseType === Models.ItemTypePredefined.Project) {
+                    return [_artifactType];
                 }
-            });
-        }
-        return fields;
-    }
-
-    private createNotePropertyFileds(artifactType: Models.IItemType, metaData: Models.IProjectMeta): AngularFormly.IFieldConfigurationObject[] {
-        let fields: AngularFormly.IFieldConfigurationObject[] = [];
-        fields.push({
-            key: "tinymceControl",
-            type: "tinymce",
-            data: { // using data property
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    }
-                }
-            },
-            templateOptions: {
-                label: "TinyMCE control"
+                return meta.artifactTypes.filter((it: Models.IItemType) => {
+                    return (_artifactType && (_artifactType.baseType === it.baseType));
+                });
+            } (_project.meta).map(function (it) {
+                return <Models.IOption>{
+                    id: it.id,
+                    value: it.name
+                };
+            }),
+            isRequired: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_CreatedBy"),
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
+            primitiveType: Models.PrimitiveType.User, 
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_CreatedOn"),
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_LastEditBy"),
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
+            primitiveType: Models.PrimitiveType.User,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_LastEditOn"),
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Description"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            primitiveType: Models.PrimitiveType.Text,
+            isRichText: true
+        });
+        
+        //add custom property types
+        _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(it);
             }
         });
-        fields.push({
-            key: "tinymceInlineControl",
-            type: "tinymceInline",
-            data: { // using data property
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    // standard tinymce option
-                    inline: true,
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {
-                        source: tinymceMentionsData,
-                        delay: 100,
-                        items: 5,
-                        queryBy: "fullname",
-                        insert: function (item) {
-                            return `<a class="mceNonEditable" href="mailto:` + item.emailaddress + `" title="ID# ` + item.id + `">` + item.fullname + `</a>`;
-                        }
-                    },
-                    fixed_toolbar_container: ".form-tinymce-toolbar"
-                }
-            },
-            templateOptions: {
-                label: "TinyMCE Inline control"
-            }
-        });
+        return properties;
 
-        return fields;
     }
 
+    public getArtifactType(artifact: Models.IArtifact, project?: Models.IProject): Models.IItemType {
+        if (!artifact) {
+            throw new Error(this.localization.get("Artifact_NotFound"));
+        }
+        if (!project) {
+            project = this.getProject(artifact.projectId);
+        }
+        if (!project) {
+            throw new Error(this.localization.get("Project_NotFound"));
+        }
+        if (!project.meta) {
+            throw new Error(this.localization.get("Project_MetaDataNotFound"));
+        }
+        let _artifactType: Models.IItemType;
+        //create list of suystem properties
+        if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
+            _artifactType = <Models.IItemType>{
+                id: Models.ItemTypePredefined.Project,
+                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                baseType: Models.ItemTypePredefined.Project,
+                customPropertyTypeIds: []
+            };
+        } else {
+            _artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
+                return it.id === artifact.itemTypeId;
+            })[0];
+        }
 
+        return _artifactType;
+    }
+
+    public getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+        //TODO: Needs to be implemented
+        return properties;
+    }
+
+    public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {
+        let _project: Models.IProject;
+        if (typeof project === "number") {
+            _project = this.getProject(project as number);
+        } else if (project) {
+            _project = project as Models.IProject;
+        }
+        if (!_project) {
+            throw new Error(this.localization.get("Project_NotFound"));
+        }
+        if (!_project.meta) {
+            throw new Error(this.localization.get("Project_MetaDataNotLoaded"));
+        }
+
+        let propertyType: Models.IPropertyType = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
+            return it.id === propertyTypeId;
+        })[0];
+
+        return propertyType;
+
+    }
 }

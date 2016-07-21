@@ -1,12 +1,16 @@
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var path = require("path");
 module.exports = [
-    {test: /\.ts(x?)$/, loader: 'ts-loader'},
     {
+        test: /\.ts(x?)$/,
+        exclude: [
+           path.resolve(__dirname, '../src/modules/storyteller')
+        ],
+        loader: 'ts-loader'
+    },     {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')
-    },
-    {
+    },     {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!sass?sourceMap')
     }, {
@@ -21,6 +25,10 @@ module.exports = [
         loader: 'file-loader'
     }, {
         test: /\.jpg$/,
+        exclude: /node_modules/,
+        loader: 'file'
+    }, {
+        test: /\.gif$/,
         exclude: /node_modules/,
         loader: 'file'
     }, {

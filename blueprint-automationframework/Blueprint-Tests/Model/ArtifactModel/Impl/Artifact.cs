@@ -123,6 +123,7 @@ namespace Model.ArtifactModel.Impl
                 if (discardArtifactResult.Result == NovaDiscardArtifactResult.ResultCode.Success)
                 {
                     IsSaved = false;
+                    IsMarkedForDeletion = false;
                 }
             }
 
@@ -191,9 +192,12 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_ARTIFACT_INFO, Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, Id);
+
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
-                resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifactInfo;
         }
@@ -217,9 +221,10 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            var artifactInfo = GetArtifactInfo(user: user);
+            var artifactInfo = GetArtifactInfo(user);
             string path;
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
             switch (artifactInfo.BaseTypePredefined)
             {
                 case ItemTypePredefined.BusinessProcess:
@@ -228,13 +233,17 @@ namespace Model.ArtifactModel.Impl
                 case ItemTypePredefined.Storyboard:
                 case ItemTypePredefined.UseCaseDiagram:
                 case ItemTypePredefined.UIMockup:
-                    path = I18NHelper.FormatInvariant("{0}/{1}", URL_DIAGRAM, Id);
+                    path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.DIAGRAM_id_, Id);
                     break;
                 default:
                     throw new ArgumentException("Method works for graphical artifacts only.");
             }
-            var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(resourcePath: path,
-                method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
             return diagramContent;
         }
 
@@ -257,14 +266,18 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            var artifactInfo = GetArtifactInfo(user: user);
-            string path;
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var artifactInfo = GetArtifactInfo(user);
+
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
-                path = I18NHelper.FormatInvariant("{0}/{1}", URL_USECASE, Id);
-                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(resourcePath: path,
-                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, Id);
+                RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
+                    path,
+                    RestRequestMethod.GET,
+                    expectedStatusCodes: expectedStatusCodes);
+
                 return returnedArtifactContent;
             }
             else
@@ -292,14 +305,18 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            var artifactInfo = GetArtifactInfo(user: user);
-            string path;
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var artifactInfo = GetArtifactInfo(user);
+
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
-                path = I18NHelper.FormatInvariant("{0}/{1}", URL_GLOSSARY, Id);
-                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(resourcePath: path,
-                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, Id);
+                RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
+                    path,
+                    RestRequestMethod.GET,
+                    expectedStatusCodes: expectedStatusCodes);
+
                 return returnedArtifactContent;
             }
             else
@@ -327,11 +344,16 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = URL_ARTIFACTPROPERTIES;
+            string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
             var artifactIds = new List<int> { Id };
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
-            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(resourcePath: path,
-                method: RestRequestMethod.POST, jsonObject: artifactIds, expectedStatusCodes: expectedStatusCodes);
+
+            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                expectedStatusCodes: expectedStatusCodes);
+
             return returnedArtifactProperties[0];
         }
 
@@ -441,14 +463,14 @@ namespace Model.ArtifactModel.Impl
 
             var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
             var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
-                URL_NOVADISCARD,
+                RestPaths.Svc.Shared.Artifacts.DISCARD,
                 RestRequestMethod.POST,
                 artifactsIds,
                 expectedStatusCodes: expectedStatusCodes);
 
             var discardedResultList = artifactResults.DiscardResults;
 
-            // When each artifact is successfully discarded, set IsSaved flag to false
+            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
             foreach (var discardedResult in discardedResultList)
             {
                 var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId) &&
@@ -458,7 +480,8 @@ namespace Model.ArtifactModel.Impl
 
                 if (discardedArtifact != null)
                 {
-                discardedArtifact.IsSaved = false;
+                    discardedArtifact.IsSaved = false;
+                    discardedArtifact.IsMarkedForDeletion = false;
                 }
             }
 
@@ -540,7 +563,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Lock Artifact(s) 
+        /// Lock Artifact(s).
+        /// (Runs:  /svc/shared/artifacts/lock  with artifact IDs in the request body)
         /// </summary>
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="address">The base url of the API</param>
@@ -573,11 +597,24 @@ namespace Model.ArtifactModel.Impl
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
-                URL_LOCK,
+                RestPaths.Svc.Shared.Artifacts.LOCK,
                 RestRequestMethod.POST,
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
+
+            // Update artifacts with lock info.
+            foreach (var artifact in artifactsToLock)
+            {
+                var lockResultInfo = response.Find(x => x.Info.ArtifactId == artifact.Id);
+
+                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
+
+                if (lockResultInfo.Result == LockResult.Success)
+                {
+                    artifact.LockOwner = user;
+                }
+            }
 
             return response;
         }
@@ -608,7 +645,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            const string path = "/svc/shared/artifacts/publish";
+            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
             RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
 
             var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,

@@ -1,4 +1,7 @@
-﻿export enum ArtifactTypeEnum {
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
+
+export enum ArtifactTypeEnum {
     Project = -1,
 
     Unknown = 0,
@@ -26,19 +29,11 @@
     Collection = 17
 }
 
+
 export enum ArtifactStateEnum {
     Published = 0,
     Draft = 1,
     Deleted = 2
-}
-
-export enum IPrimitiveType {
-    Text = 0,
-    Number = 1,
-    Date = 2,
-    User = 3,
-    Choice = 4,
-    Image = 5
 }
 
 export interface IProjectNode {
@@ -51,18 +46,48 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
-export interface IArtifact {
+export interface ITrace {
+    traceType?: TraceType;
+    traceId: number;
+    Direction: TraceDirection;
+    isDeleted?: boolean;
+    isSuspect?: boolean;
+}
+
+export interface IItem {
     id: number;
-    name: string;
-    projectId: number;
-    typeId: number;
-    parentId: number;
-    predefinedType: ArtifactTypeEnum;
-    prefix?: string;
+    name?: string;
+    parentId?: number;
+    itemTypeId?: number;
+    itemTypeVersionId?: number;
     version?: number;
+    propertyValues?: IPropertyValue[];
+    traces?: ITrace[];
+}
+
+export interface ISubArtifact extends IItem {
+    isDeleted?: boolean;
+}
+
+export interface IArtifact extends IItem {
+    projectId?: number;
+    prefix?: string;
+    orderIndex?: number;
+    version?: number;
+    permissions?: number;
+    lockedByUserId?: number;
     hasChildren?: boolean;
+    subArtifacts?: ISubArtifact[];
+
+    //for client use
     artifacts?: IArtifact[];
-    //flags:
+    predefinedType?: ItemTypePredefined;
+    loaded?: boolean;
+
+}
+export interface IOption {
+    id: number;
+    value: string;
 }
 export interface IItemType {
     id: number;
@@ -77,10 +102,10 @@ export interface IItemType {
     customPropertyTypeIds: number[];
 }
 export interface IPropertyType {
-    id: number;
+    id?: number;
     versionId?: number;
-    name: string;
-    primitiveType: IPrimitiveType;
+    name?: string;
+    primitiveType?: PrimitiveType;
     instancePropertyTypeId?: number;
     isRichText?: boolean;
     decimalDefaultValue?: number;
@@ -95,18 +120,20 @@ export interface IPropertyType {
     isMultipleAllowed?: boolean;
     isRequired?: boolean;
     isValidated?: boolean;
-    validValues?: string[];
-    defaultValidValueIndex?: number;
+    validValues?: IOption[];
+    defaultValidValueId?: number;
     
     // Extra properties. Maintaned by client
+    propertyTypePredefined?: PropertyTypePredefined;
     disabled?: boolean;
 }
-
-export interface IArtifactDetails extends IArtifact {
-    systemProperties: IPropertyType[];
-    customProperties: IPropertyType[];
-    //flags:
+export interface IPropertyValue {
+    propertyTypeId: number;
+    propertyTypeVersionId?: number;
+    propertyTypePredefined?: PropertyTypePredefined;
+    value: any;
 }
+
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];
@@ -115,38 +142,15 @@ export interface IProjectMeta {
 }
 
 export interface IProject extends IArtifact {
-    description: string;
+    description?: string;
     meta?: IProjectMeta;
 }
 
-export class Artifact implements IArtifactDetails {
-    private _systemProperties: IPropertyType[];
-    private _customProperties: IPropertyType[];
-    constructor(...data: any[]) { //
-        angular.extend(this, ...data);
-    };
-    public id: number;
-
-    public name: string;
-
-    public projectId: number;
-    public parentId: number;
-    public predefinedType: ArtifactTypeEnum;
-    public typeId: number;
-
-    public get systemProperties() {
-        return this._systemProperties || (this._systemProperties = []);
-    }
-    public get customProperties() {
-        return this._customProperties || (this._customProperties = []);
-    }
-
-    public artifacts: IArtifact[];
-}
 
 export class Project implements IProject {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
+        this.itemTypeId = <number>ItemTypePredefined.Project;
     };
 
     public id: number;
@@ -155,7 +159,11 @@ export class Project implements IProject {
 
     public description: string;
 
-    public typeId: number;
+    public itemTypeId: number;
+
+    public itemTypeVersionId: number;
+
+    public meta: IProjectMeta;
 
     public artifacts: IArtifact[];
 
@@ -167,24 +175,57 @@ export class Project implements IProject {
         return -1;
     }
 
-    public get predefinedType(): ArtifactTypeEnum {
-        return ArtifactTypeEnum.Project;
+    public get predefinedType(): ItemTypePredefined {
+        return ItemTypePredefined.Project;
     }
 
     public get hasChildren() {
         return this.artifacts && this.artifacts.length > 0;
     }
 
+    public getArtifactTypes(id?: number): IItemType[] {
 
+        let itemTypes: IItemType[] = [];
+
+        if (this.meta && this.meta.artifactTypes) {
+            itemTypes = this.meta.artifactTypes.filter((it) => {
+                return !angular.isNumber(id) || it.id === id;
+            });
+        }
+
+        return itemTypes;
+    }
+
+
+    public getPropertyTypes(id?: number): IPropertyType[] {
+
+        let propertyTypes: IPropertyType[] = [];
+
+        if (this.meta && this.meta.propertyTypes) {
+            propertyTypes = this.meta.propertyTypes.filter((it) => {
+                return !angular.isNumber(id) || it.id === id;
+            });
+        }
+        return propertyTypes;
+    }
+}
+
+export class Artifact implements IArtifact {
+    public propertyValues: IPropertyValue[];
+    public artifacts: IArtifact[];
+    public subArtifacts: ISubArtifact[];
+
+    constructor(...data: any[]) { //
+        angular.extend(this, ...data);
+    };
+    public id: number;
+    public name: string;
+    public projectId: number;
+    public parentId: number;
+    public predefinedType: ItemTypePredefined;
+    public itemTypeId: number;
+    public itemTypeVersionId: number;
 
 }
 
-export interface IArtifactDetailFields {
-    systemFields: AngularFormly.IFieldConfigurationObject[];
-    customFields: AngularFormly.IFieldConfigurationObject[];
-    noteFields: AngularFormly.IFieldConfigurationObject[];
-}
-
-
-
-
+  

@@ -245,6 +245,7 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this._datasource = nodes;
         }
+
         //HACk: have to clear cell selection
         this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
 

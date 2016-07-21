@@ -4,6 +4,13 @@ bp-messages-container {
   flex-shrink: 0;
 }
 
+.bp-sidebar-wrapper:not(.left-panel-visible) messages-container {
+  padding-left: 25px;
+}
+.bp-sidebar-wrapper:not(.right-panel-visible) messages-container {
+  padding-right: 25px;
+}
+
 message,
 bp-message {
   display: block;
@@ -75,6 +82,10 @@ bp-message {
   }
 }
 
+.error-page-wrapper {
+  position: relative;
+}
+
 .error-page {
   background-color: $blue-lightest;
   bottom: 0;
@@ -83,48 +94,51 @@ bp-message {
   left: 0;
   position: fixed;
   width: 100%;
+}
 
-  .message {
-    background-color: $gray-lightest;
-    border: 1px solid $gray-lighter;
-    border-radius: $border-radius-amount;
-    color: $gray;
-    left: 50%;
-    position: absolute;
-    top: 50%;
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+.error-msg {
+  background-color: $gray-lightest;
+  border: 1px solid $gray-lighter;
+  border-radius: $border-radius-amount;
+  color: $gray;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 
-    div {
-      display: table-cell;
-      padding: 32px 40px;
-      text-align: center;
-      vertical-align: middle;
+  div {
+    display: table-cell;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
 
-      &:first-child {
-        border-right: 1px solid $gray-lighter;
-        color: $brand-error;
-        font-size: 2.5rem;
-        line-height: 3rem;
+    &:first-child {
+      border-right: 1px solid $gray-lighter;
+      color: $brand-error;
+      font-size: 2.5rem;
+      line-height: 3rem;
 
-        [class^="fonticon-"],
-        [class*=" fonticon-"] {
-          display: block;
+      [class^="fonticon-"],
+      [class*=" fonticon-"] {
+        display: block;
 
-          &::before {
-            font-size: 4.8rem;
-          }
+        &::before {
+          font-size: 4.8rem;
         }
       }
-
-      &:last-child {
-        font-size: $font-size-big;
-        font-weight: $font-weight-semibold;
-        line-height: 1.6rem;
-      }
     }
+
+    &:last-child {
+      font-size: $font-size-big;
+      line-height: 1.6rem;
+    }
+  }
+
+  .keep-together {
+    white-space: nowrap;
   }
 }

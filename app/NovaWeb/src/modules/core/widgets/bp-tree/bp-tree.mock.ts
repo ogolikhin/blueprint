@@ -34,7 +34,6 @@ export class BPTreeControllerMock implements IBPTreeController {
                 node.children.push(this.add(i));
             }
             node.hasChildren = true;
-            node.loaded = true;
         }
     }
 }

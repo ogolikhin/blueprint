@@ -16,19 +16,6 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
-        public const string URL_LOCK = "svc/shared/artifacts/lock";
-        public const string URL_RAPTOR_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
-        public const string URL_RAPTOR_REPLY = "/svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
-        public const string URL_OPENAPI_ARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/attachments";
-        public const string URL_OPENAPI_SUBARTIFACT_ATTACHMENT = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
-        public const string URL_SEARCH = "/svc/shared/artifacts/search";
-        public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
-        public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";
-        public const string URL_DIAGRAM = "svc/components/RapidReview/diagram";
-        public const string URL_USECASE = "svc/components/RapidReview/usecase";
-        public const string URL_GLOSSARY = "svc/components/RapidReview/glossary";
-        public const string URL_ARTIFACTPROPERTIES = "svc/components/RapidReview/artifacts/properties";
-        private const string URL_NAVIGATION = "svc/shared/navigation";
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
@@ -56,6 +43,7 @@ namespace Model.ArtifactModel.Impl
         public bool IsMarkedForDeletion { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
         public bool ShouldDeleteChildren { get; set; } = false;
+        public IUser LockOwner { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
@@ -170,7 +158,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", OpenApiArtifact.SVC_PATH, artifactToDelete.ProjectId, artifactToDelete.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId, artifactToDelete.Id);
 
             var queryparameters = new Dictionary<string, string>();
 
@@ -226,7 +214,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Get ArtifactReference list which is used to represent breadcrumb navigation
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation.
+        /// (Runs:  svc/shared/navigation/{id1}/{id2}...)
         /// </summary>
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user credentials for breadcrumb navigation</param>
@@ -252,7 +241,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactIds));
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -334,8 +323,9 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+
             var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
-                OpenApiArtifact.URL_PUBLISH,
+                RestPaths.OpenApi.VersionControl.PUBLISH,
                 RestRequestMethod.POST,
                 artifactsToPublish,
                 additionalHeaders: additionalHeaders,
@@ -452,6 +442,62 @@ namespace Model.ArtifactModel.Impl
                     var value = sourcePropertyInfo.GetValue(sourceArtifactBase);
                     destinationPropertyInfo.SetValue(destinationArtifactBase, value);
                 }
+            }
+        }
+
+        /// <summary>
+        /// A helper function to dispose a list of artifacts.  Call this inside Dispose() methods of objects containing artifacts.
+        /// </summary>
+        /// <param name="artifactList">The list of artifacts to dispose.</param>
+        /// <param name="observer">The observer to notify when artifacts are disposed.</param>
+        public static void DisposeArtifacts(List<IArtifactBase> artifactList, IArtifactObserver observer)
+        {
+            if (artifactList == null)
+            {
+                return;
+            }
+
+            var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
+
+            // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
+            foreach (var artifact in artifactList.ToArray())
+            {
+                if (artifact.IsPublished)
+                {
+                    if (artifact.IsMarkedForDeletion)
+                    {
+                        artifact.Publish(artifact.LockOwner);
+                    }
+                    else
+                    {
+                        artifact.Delete(artifact.LockOwner);
+                        artifact.Publish(artifact.LockOwner);
+                    }
+                }
+                else if (artifact.IsSaved)
+                {
+                    if ((artifact.LockOwner != null) && savedArtifactsDictionary.ContainsKey(artifact.LockOwner))
+                    {
+                        savedArtifactsDictionary[artifact.LockOwner].Add(artifact);
+                    }
+                    else if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
+                    {
+                        savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
+                    }
+                    else
+                    {
+                        savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
+                    }
+                }
+
+                artifact.UnregisterObserver(observer);
+            }
+
+            // For each user that created artifacts, discard the list of artifacts they created.
+            foreach (IUser user in savedArtifactsDictionary.Keys)
+            {
+                Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+                Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
             }
         }
     }

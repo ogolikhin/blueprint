@@ -127,10 +127,21 @@ namespace ArtifactStore.Repositories
                                       ? PropertyHelper.ToDecimal(pv.MaxNumber) : null,
                 DecimalPlaces = pv.PrimitiveType == PropertyPrimitiveType.Number ? pv.DecimalPlaces : null,
                 ValidValues = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? propertyFromXml?.ValidValues.OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex)).Select(v => v.Value).ToList()
+                                      ? propertyFromXml?.ValidValues.OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex))
+                                      .Select(v =>
+                                      {
+                                          int? vvId = null;
+                                          if (!string.IsNullOrWhiteSpace(v.LookupListItemId))
+                                          {
+                                              int intValue;
+                                              if (int.TryParse(v.LookupListItemId, out intValue))
+                                                  vvId = intValue;
+                                          }
+                                          return new ValidValue {Id = vvId, Value = v.Value};
+                                      }).ToList()
                                       : null,
-                DefaultValidValueIndex = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? FindDefaultValidValueIndex(propertyFromXml.ValidValues)
+                DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice
+                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues)//TODO
                                       : null
             };
         }
@@ -174,7 +185,7 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        private static int? FindDefaultValidValueIndex(List<XmlCustomPropertyValidValue> validValues)
+        private static int? FindDefaultValidValueId(List<XmlCustomPropertyValidValue> validValues)
         {
             if (validValues == null)
                 return null;
@@ -182,8 +193,18 @@ namespace ArtifactStore.Repositories
             var orderedValidValues = validValues.OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex)).ToList();
             for (var i = 0; i < orderedValidValues.Count; i++)
             {
-                if (orderedValidValues.ElementAt(i)?.Selected == "1")
-                    return i;
+                var validValue = orderedValidValues.ElementAt(i);
+                if (validValue?.Selected == "1")
+                {
+                    int? vvId = null;
+                    if (!string.IsNullOrWhiteSpace(validValue.LookupListItemId))
+                    {
+                        int intValue;
+                        if (int.TryParse(validValue.LookupListItemId, out intValue))
+                            vvId = intValue;
+                    }
+                    return vvId;
+                }
             }
 
             return null;

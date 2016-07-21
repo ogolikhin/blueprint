@@ -13,4 +13,11 @@ namespace ArtifactStore.Repositories
         internal string Prefix;
         internal int ItemTypeId;
     }
+
+    internal class ItemLabel
+    {
+        internal int ItemId { get; set; }
+        internal string Label { get; set; }
+    }
+
 }

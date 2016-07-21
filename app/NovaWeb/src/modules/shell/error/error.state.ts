@@ -1,6 +1,5 @@
 import "angular";
 
-
 config.$inject = ["$stateProvider", "$urlRouterProvider"];
 export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider): void {
    // $urlRouterProvider.otherwise("/main"); //??

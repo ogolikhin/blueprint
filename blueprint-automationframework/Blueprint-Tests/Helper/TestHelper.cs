@@ -123,7 +123,7 @@ namespace Helper
         /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
-        /// <param name="project">The project where the artifact is to be created in.</param>
+        /// <param name="project">The project where the artifact is to be created.</param>
         /// <param name="user">The user who will create the artifact.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
@@ -139,6 +139,27 @@ namespace Helper
             }
 
             return artifact;
+        }
+
+        /// <summary>
+        /// Creates a list of new published artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactType">The type of artifacts to create.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <returns>The list of artifacts.</returns>
+        public List<IArtifactBase> CreateAndPublishMultipleArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IArtifact artifact = CreateAndPublishArtifact(project, user, artifactType);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
         }
 
         #endregion Artifact Management
@@ -327,43 +348,10 @@ namespace Helper
                 AdminStore?.Dispose();
                 AccessControl?.Dispose();
 
-                var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
-
-                // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
-                foreach (var artifact in Artifacts.ToArray())
+                if (Artifacts != null)
                 {
-                    if (artifact.IsPublished)
-                    {
-                        if (artifact.IsMarkedForDeletion)
-                        {
-                            artifact.Publish();
-                        }
-                        else
-                        {
-                            artifact.Delete();
-                            artifact.Publish();
-                        }
-                    }
-                    else if (artifact.IsSaved)
-                    {
-                        if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
-                        {
-                            savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
-                        }
-                        else
-                        {
-                            savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
-                        }
-                    }
-
-                    artifact.UnregisterObserver(this);
-                }
-
-                // For each user that created artifacts, discard the list of artifacts they created.
-                foreach (IUser user in savedArtifactsDictionary.Keys)
-                {
-                    Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                    Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
+                    Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
+                    ArtifactBase.DisposeArtifacts(Artifacts, this);
                 }
 
                 foreach (var project in Projects)

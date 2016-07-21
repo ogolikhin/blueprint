@@ -3,6 +3,8 @@ $property-width: 392px;
 $property-horiz-spacing: 10px;
 $property-label-width: 100px;
 $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
+$property-input-icon-width: 40px;
+$property-input-with-icon-width: $property-input-width - $property-input-icon-width;
 $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing; // should be 4 * ...
 $property-padding-default: 6px;
 $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAABCAIAAAATs2rlAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4QzNENTgzNDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjg4QzNENTg0NDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODhDM0Q1ODE0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODhDM0Q1ODI0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz72Ya4LAAAAKUlEQVR42mJ88eIFLy8vAwPD////gSQjIyMDGAC5yGxcUsgKqAgAAgwAL9YR3iDzIXQAAAAASUVORK5CYII=');
@@ -118,6 +120,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     order: 1;
   }
 
+  > div:last-child {
+    display: none;
+  }
+
   .formly-field {
     align-items: flex-start;
     border-left: solid $property-horiz-spacing transparent;
@@ -168,6 +174,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         background: transparent;
         border-color: transparent;
         cursor: default;
+
+        & + .input-group-btn {
+          display: none;
+        }
       }
 
       &:not([disabled]):hover {
@@ -188,6 +198,45 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     input {
       padding-right: $property-padding-default;
+    }
+
+    .has-messages {
+      display: inline-table;
+      position: relative;
+      vertical-align: top;
+
+      input.has-icon {
+        border-bottom-right-radius: 0;
+        border-right: 0;
+        border-top-right-radius: 0;
+        max-width: $property-input-with-icon-width;
+        width: $property-input-with-icon-width;
+
+        &:not([disabled]):hover {
+          background-position: #{$property-input-with-icon-width - 20px} 6px;
+        }
+      }
+
+      .input-group-btn {
+        width: $property-input-icon-width;
+
+        > .btn {
+          border: solid 1px $gray-lightest;
+          color: $gray-dark !important;
+          line-height: #{$property-min-height - 2px};
+          margin-left: 0;
+          min-width: $property-input-icon-width;
+          padding: 0;
+          text-align: center;
+          width: $property-input-icon-width;
+
+          &:active,
+          &:hover {
+            background: $gray-lightest;
+            box-shadow: none;
+          }
+        }
+      }
     }
 
     input[type="date"] {
@@ -225,6 +274,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       font-size: $font-size-normal;
       font-weight: 400;
       min-height: #{3 * $property-min-height};
+      min-width: $property-input-width;
     }
 
     .form-tinymce-toolbar {
@@ -237,6 +287,17 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
     }
 
+    .error-messages {
+      bottom: calc((#{$font-size-smaller} + 2px) * -1);
+      position: absolute;
+      right: 0;
+
+      .message {
+        font-size: $font-size-smaller;
+        white-space: nowrap;
+      }
+    }
+
     .has-error {
       input {
         border-color: $gray-lightest;
@@ -246,12 +307,17 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       select {
         border-color: $brand-error;
       }
+
+      .error-messages {
+        color: $brand-error;
+      }
     }
   }
 
   .formly-field-tinymce,
   .formly-field-tinymceInline {
     display: block;
+    max-width: 100%;
     width: 100%;
 
     label {
@@ -259,8 +325,116 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       width: 100%;
     }
   }
+
+  .formly-field-frmlyDatepicker {
+    button {
+      border-radius: 0;
+    }
+
+    .has-error button {
+      border-bottom-color: $brand-error !important;
+    }
+  }
 }
 
+.tab-pane {
+  .formly {
+    margin: 0;
+    min-width: $property-input-width;
+    padding: 0;
+
+    .formly-field {
+      border: 0;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    .form-tinymce {
+      border: 0;
+      margin: 0 -2px;
+      padding: 2px;
+      width: calc(100% + 4px);
+    }
+  }
+}
+
+.uib-datepicker-popup {
+  border-color: $brand-secondary;
+  padding: 0 0 7px;
+
+  li > .uib-datepicker {
+    margin-top: -1px;
+  }
+
+  table.uib-daypicker {
+    margin: 0 -1px;
+    outline: none;
+    width: #{$property-input-width - 1px};
+
+    thead tr:first-child th {
+      button {
+        border-color: $brand-secondary;
+      }
+
+      &:first-child button,
+      &:last-child button {
+        color: $brand-secondary;
+      }
+    }
+
+    thead tr:last-child th,
+    tbody td {
+      border: solid 1px transparent;
+      line-height: 28px;
+
+      &:first-child {
+        padding-left: 4px;
+      }
+
+      &:last-child {
+        padding-right: 4px;
+      }
+    }
+  }
+
+  .uib-button-bar {
+    padding: 10px 6px 0;
+  }
+
+  .btn {
+    color: $gray-dark;
+    min-width: 36px;
+    outline: none;
+    padding: 5px 10px;
+
+    &.btn-info,
+    &.btn-danger,
+    &.btn-success {
+      background: $white;
+      border-color: $gray-lighter;
+      border-radius: 4px !important;
+      float: none;
+    }
+
+    &:active,
+    &:hover {
+      background: $blue-lightest;
+      border-color: $brand-secondary;
+      box-shadow: none;
+    }
+
+    &.active {
+      background: $brand-secondary !important;
+      box-shadow: none;
+      color: $white;
+    }
+
+    span {
+      color: inherit;
+    }
+  }
+}
 /* DO NOT DELETE. Commented out while testing Formly
 .property-group {
   align-items: flex-start;

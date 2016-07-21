@@ -25,7 +25,10 @@ module.exports = {
             'rx/dist/rx.lite.js',
             'angular-perfect-scrollbar-2',
             'tinymce',
-            'mxClient'
+            'moment',
+            'mxClient',
+            'mxClientCss/common.css',
+            'mxClientCss/explorer.css'
         ]
 
     },
@@ -38,7 +41,8 @@ module.exports = {
         extensions: ['', '.ts', '.js', '.json'],
         alias: {          
             tinymce: 'tinymce/tinymce',
-            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
+            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js'),
+            mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
 
     },
@@ -80,6 +84,7 @@ module.exports = {
          new CopyWebpackPlugin([
             // {output}/file.txt             
              { from: '**/*.view.html' },
+             { from: './web.config' },
              { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
              { from: './unsupported-browser', to: './static' },
              { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },

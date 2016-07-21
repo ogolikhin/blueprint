@@ -1,6 +1,9 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Relationships, Models} from "../../../main";
-import {IArtifactRelationships, IArtifactRelationshipsResultSet} from "./artifact-relationships.svc";
+import { IProjectManager, Models, Relationships } from "../../../main";
+import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
+import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
+import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
+import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface IOptions {
     value: string;
@@ -10,52 +13,68 @@ interface IOptions {
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
     public controller: Function = BPRelationshipsPanelController;
+    public require: any = {
+        bpAccordionPanel: "^bpAccordionPanel"
+    };
 }
 
-export class BPRelationshipsPanelController {
+export interface IArtifactSelectedArtifactMap {
+    [artifactId: number]: Relationships.IRelationship[];
+}
+
+
+export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
-        "$log",
         "localization",
         "projectManager",
         "artifactRelationships"
     ];
 
     private artifactId: number;
-    private _subscribers: Rx.IDisposable[];
     public options: IOptions[];
     public artifactList: IArtifactRelationshipsResultSet;
+    public associations: IRelationship[];
+    public actorInherits: IRelationship[];
+    public documentReferences: IRelationship[];
     public option: string = "1";
-    public traceTypes = Relationships.ITraceType;
     public isLoading: boolean = false;
+    public selectedTraces: IArtifactSelectedArtifactMap;
 
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
-        private artifactRelationships: IArtifactRelationships) {
+        protected projectManager: IProjectManager,
+        private artifactRelationships: IArtifactRelationships,
+        public bpAccordionPanel: IBpAccordionPanelController) {
+
+        super(projectManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           
         ];
     }
 
-    public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
-        this._subscribers = [selectedArtifactSubscriber];
+    public $onInit() {
+        super.$onInit();
     }
 
     public $onDestroy() {
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });   
+        super.$onDestroy();   
         this.artifactList = null;
+        this.selectedTraces = null;
+        this.associations = null;
+        this.documentReferences = null;
+        this.actorInherits = null;
     }
 
-    private setArtifactId = (artifact: Models.IArtifactDetails) => {     
+    protected setArtifactId = (artifact: Models.IArtifact) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
             this.getRelationships()
                 .then((list: any) => {
                     this.artifactList = list;
-                                     
+                    this.selectedTraces = {};
+                    this.selectedTraces[this.artifactId] = [];
+                    this.populateOtherTraceLists();
                 });
         }
     }
@@ -70,4 +89,25 @@ export class BPRelationshipsPanelController {
                 this.isLoading = false;
             });
     }
+
+    private populateOtherTraceLists() {
+        let associations = new Array<IRelationship>();
+        let actorInherits = new Array<IRelationship>();
+        let documentReferences = new Array<IRelationship>();
+
+        for (let otherTrace of this.artifactList.otherTraces)
+        {
+            if (otherTrace.traceType === LinkType.Association) {
+                associations.push(otherTrace);
+            } else if (otherTrace.traceType === LinkType.ActorInheritsFrom) {
+                actorInherits.push(otherTrace);
+            } else if (otherTrace.traceType === LinkType.DocumentReference) {
+                documentReferences.push(otherTrace);
+            }
+        }
+        this.associations = associations;
+        this.actorInherits = actorInherits;
+        this.documentReferences = documentReferences;
+    }
+
 }

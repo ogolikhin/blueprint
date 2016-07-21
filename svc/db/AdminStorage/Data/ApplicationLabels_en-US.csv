@@ -16,6 +16,7 @@ App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help, "Help"
 Tooltip_App_Header_Logout, "Log out"
+Tooltip_Artifact_Header_LegacyArtifact, "Legacy artifact"
 
 App_Project, "Project"
 App_Project_Open,"Open Project"
@@ -71,7 +72,7 @@ App_UP_Discussions_New_Comment_Place_Holder, "Add a new comment..."
 App_UP_Discussions_New_Reply_Post_Button_Text, "Add reply"
 App_UP_Discussions_New_Reply_Cancel_Button_Text, "Cancel"
 App_UP_Discussions_New_Reply_Comment_Place_Holder, "Add a reply..."
-App_UP_Discussions_Show_Replies, "Show replies."
+App_UP_Discussions_Show_Replies, "Show replies"
 App_UP_Discussions_Hide_Replis, "Hide replies"
 App_UP_Discussions_View_Comments_Tooltip, "View comments"
 App_UP_Discussions_Delete_Comment_Tooltip, "Delete comment"
@@ -82,10 +83,17 @@ App_UP_Discussions_Edit_Reply_Tooltip, "Edit reply"
 
 App_UP_Relationships_All, "All"
 App_UP_Relationships_Traces, "Traces"
-App_UP_Relationships_Association, "Association"
+App_UP_Relationships_Association, "Other"
 App_UP_Relationships_Collapse, "Hide details"
 App_UP_Relationships_Expand, "Show details"
 App_UP_Relationships_No_Relationships, "No relationships available"
+App_UP_Relationships_No_Traces, "No traces available"
+App_UP_Relationships_No_Association, "No other relationships available"
+App_UP_Relationships_Subheading_Association, "Association"
+App_UP_Relationships_Subheading_Actor_Inherits, "Actor Inherits"
+App_UP_Relationships_Subheading_Document_Reference, "Document Reference"
+App_UP_Relationships_Unauthorized, "Unauthorized" 
+App_UP_Relationships_Selected, "Selected: "
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
@@ -132,17 +140,39 @@ Login_Session_NewPasswordMinLength,"Your new password must be at least 8 charact
 Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
 Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
-Login_Session_Timeout,"Your session has expired. Please log in again."
+Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 
 Input_Required,"Required"
 
 Folder_NotFound,"Couldn't find specified project or folder"
 Project_NotFound,"Couldn't find the project"
+Project_MetaDataNotFound, "Couldn't find the project meta data"
 Artifact_NotFound,"Couldn't find the artifact"
 ArtifactType_NotFound, "Couldn't find the artifact type"
 
+Label_Name, "Name",
+Label_Type, "Type"
+Label_CreatedBy,"Created by"
+Label_CreatedOn, "Created on"
+Label_LastEditBy, "Last edited by"
+Label_LastEditOn, "Last edited on"
+Label_Description, "Description"
+
+
+Diagram_OldFormat_Message,"This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it."
+
 #
 Artifact_Details_FieldNameError, "The field name isn't specified"
+
+#
+Datepicker_Today, "Today"
+Datepicker_Clear, "Clear"
+Datepicker_Done, "Close"
+Property_Cannot_Be_Empty, "Value cannot be empty"
+Property_Wrong_Format, "Input is not in a correct format"
+Property_Must_Be_Greater, "Value must be greater than or equal to Min Value = "
+Property_Must_Be_Less, "Value must be less than or equal to Max Value = "
+Property_Decimal_Places, "Limited count of decimal places ="
 
 #Messages
 Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."

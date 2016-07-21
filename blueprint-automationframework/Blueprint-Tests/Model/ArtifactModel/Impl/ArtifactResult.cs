@@ -63,7 +63,8 @@ namespace Model.ArtifactModel.Impl
         public enum ResultCode
         {
             Success = 0,
-            Failure = 1
+            ArtifactHasNothingToDiscard = 1,
+            Failure = 2
         }
 
         public int ArtifactId { get; set; }

@@ -19,6 +19,7 @@ describe("Component BPUtilityPanel", () => {
     let vm: BPUtilityPanelController;
 
     beforeEach(angular.mock.module("app.shell"));
+    beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);

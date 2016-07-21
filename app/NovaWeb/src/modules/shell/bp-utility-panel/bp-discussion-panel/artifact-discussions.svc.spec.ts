@@ -1,8 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
-import { IArtifactDiscussions, IDiscussion, ArtifactDiscussions, IDiscussionResultSet, IReply} from "./artifact-discussions.svc";
-import { Models } from "../../../main";
+import {IArtifactDiscussions, ArtifactDiscussions, IDiscussionResultSet, IReply} from "./artifact-discussions.svc";
 
 describe("Artifact Discussion Service", () => {
 
@@ -115,7 +114,7 @@ describe("Artifact Discussion Service", () => {
         // Act
         let error: any;
         let data: IReply[];
-        artifactDiscussions.getReplies(5,2).then((response) => {
+        artifactDiscussions.getReplies(5, 2).then((response) => {
             data = response;
         }, (err) => {
             error = err;

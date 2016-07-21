@@ -1,30 +1,57 @@
 bp-relationships-panel {
+     .icons {         
+        color: $gray-dark;
+        display: inline-block;
+        width: 100%;
+        padding: 5px;
+        background-color: $gray;
+
+        div:first-child {
+            float: left;
+        }
+
+        div:last-child {
+            float: right;
+        }
+    }
+
+    [class^="fonticon2-"],
+    [class*=" fonticon2-"],
+    [class^="fonticon-"],
+    [class*=" fonticon-"] {
+        &::before {
+            font-size: 1.4rem;
+        }
+    }    
+
     .tabs {
-        padding-bottom: $padding-root;
+        padding: $padding-root;
         width: 100%;
     }
 
     bp-artifact-relationship-item {
         .utility-panel-artifact-item {
             padding: 0;
+        }
 
-            [class^="fonticon-"],
-            [class*=" fonticon-"] {
-                &::before {
-                    font-size: 1.5rem;
-                }
-            }
+        .selected {
+            background-color: $gray-lighter;
         }
 
         .details {
             display: inline-block;
-            padding: $padding-smaller $padding-root;
+            padding: $padding-smaller 0 $padding-smaller $padding-root;
             width: 100%;
+            margin-bottom: -2px;
 
-            .status {
-                & > span {
-                    margin: 2px;
-                }
+
+            .trace-icon-regular {
+                color: $blue-light;
+            }
+
+            .trace-icon-suspect {
+                background-color: $brand-error;
+                color: white;
             }
 
             .trace-icon {
@@ -33,23 +60,44 @@ bp-relationships-panel {
                 border: 2px solid $gray-lighter;
                 border-radius: 50%;
                 float: left;
-                line-height: 2em;
+                line-height: 1.9em;
+                text-align: center;
 
-                .trace-icon-regular {
-                    color: $blue-light;
-                }
+                .status {
+                    display: inline-block;
 
-                .trace-icon-suspect {
-                    background-color: $brand-error;
-                    color: white;
+                    & > span {
+                        margin: 2px;
+                    }
                 }
+            }
+
+            .unauthorize-icon {
+                width: 2em;
+                height: 2em;                
+                float: left;
+                line-height: 1.9em;
+                text-align: center;                
             }
 
             .inner-details {
                 width: 85%;
                 float: left;
-                padding-left: $padding-root;
-                padding-right: $padding-root;
+                padding-left: 3px;
+
+                .desc {
+                    font-size: $font-size-smaller;
+                    padding-left: 2px;
+                }
+
+                .left-arrow {
+                    border-left: 1px solid $gray-lighter;
+                    border-bottom: 1px solid $gray-lighter;
+                    width: 10px;
+                    height: 10px;
+                    display: inline-block;
+                    margin-left: 8px;
+                }
 
                 .bolded-text {
                     font-weight: 700;
@@ -63,12 +111,16 @@ bp-relationships-panel {
                     display: none;
                 }
 
+                & h6 {
+                    width: 90%;
+                }
+
                 & a {
                     text-decoration: none;
                     cursor: pointer;
                 }
 
-                & a.no-access{
+                & a.no-access {
                     cursor: default;
                 }
 
@@ -78,16 +130,21 @@ bp-relationships-panel {
             }
         }
 
-        .icons {
-            color: $gray;
-            display: inline-block;
-            width: 100%;
-            padding: 5px;
-            border-top: 1px solid $gray-lighter;
-
-            div {
-                float: right;
-            }
+        .unauthorized-details {
+                min-height: 0px;
         }
+
+        .icons {
+            border-top: 1px solid $gray-lighter;
+            color: $gray;
+            background-color: $white;
+        }
+    }
+}
+.util-panel-heading {
+    font-weight: 700;
+    &.util-heading-other {
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
     }
 }

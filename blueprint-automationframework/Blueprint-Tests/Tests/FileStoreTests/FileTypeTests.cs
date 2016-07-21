@@ -33,6 +33,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.html", "text/html")]
         [TestCase((uint)4096, "4KB_File.jpg", "image/jpeg")]
         [TestCase((uint)8192, "8KB_File.pdf", "application/pdf")]
+        [TestRail(153892)]
         [Description("POST a file of a specific type using multipart mime. Verify that the file is returned and identical to file which was POSTed.")]
         public void PostFile_MultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {
@@ -54,6 +55,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.html", "text/html")]
         [TestCase((uint)4096, "4KB_File.jpg", "image/jpeg")]
         [TestCase((uint)8192, "8KB_File.pdf", "application/pdf")]
+        [TestRail(153893)]
         [Description("POST a file of a specific type without using multipart mime. Verify that the file is returned and identical to file which was POSTed.")]
         public void PostFile_NoMultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {

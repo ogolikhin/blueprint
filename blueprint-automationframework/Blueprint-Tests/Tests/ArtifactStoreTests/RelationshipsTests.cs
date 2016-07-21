@@ -53,6 +53,7 @@ namespace ArtifactStoreTests
 
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
+        [TestCase(TraceDirection.TwoWay)]
         [TestRail(153694)]
         [Description("Create manual trace between 2 artifacts, get relationships.  Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceDirection_ReturnsCorrectTraces(TraceDirection direction)
@@ -478,6 +479,5 @@ namespace ArtifactStoreTests
         // TODO: Test with "Other" traces.
         // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.
         // TODO: Test with deleted subArtifact that has a trace to it.
-        // TODO: Test with a 'Both' Trace direction.
     }
 }

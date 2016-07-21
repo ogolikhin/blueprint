@@ -26,6 +26,7 @@ namespace Model.ArtifactModel.Impl
 
         #region Additional Properties
 
+        public int? SubArtifactId { get; set; }
         public string Message { get; set; }
         public int? ResultCode { get; set; }
 
@@ -39,9 +40,15 @@ namespace Model.ArtifactModel.Impl
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact being traced.</param>
         /// <exception cref="ArgumentNullException">If project or artifact are null.</exception>
-        public OpenApiTrace(IProject project, IArtifactBase artifact, TraceDirection direction, TraceTypes traceType, bool isSuspect)
-            : this(project?.Id, artifact, direction, traceType, isSuspect)
+        public OpenApiTrace(IProject project,
+            IArtifactBase artifact,
+            TraceDirection direction,
+            TraceTypes traceType,
+            bool isSuspect,
+            int? subArtifactId)
+            : this(project?.Id, artifact, direction, traceType, isSuspect, subArtifactId)
         {
             // Intentionally left blank because the work is done in the chained constructor.
         }
@@ -54,9 +61,15 @@ namespace Model.ArtifactModel.Impl
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact being traced.</param>
         /// <exception cref="ArgumentNullException">If projectId or artifact are null.</exception>
-        public OpenApiTrace(int? projectId, IArtifactBase artifact, TraceDirection direction, TraceTypes traceType, bool isSuspect)
-            : this(projectId, artifact?.Id, direction, traceType, isSuspect)
+        public OpenApiTrace(int? projectId,
+            IArtifactBase artifact,
+            TraceDirection direction,
+            TraceTypes traceType,
+            bool isSuspect,
+            int? subArtifactId)
+            : this(projectId, artifact?.Id, direction, traceType, isSuspect, subArtifactId)
         {
             // Intentionally left blank because the work is done in the chained constructor.
         }
@@ -69,15 +82,22 @@ namespace Model.ArtifactModel.Impl
         /// <param name="direction">The direction of the trace (To, From, Both).</param>
         /// <param name="traceType">The type of trace (ex. Manual).</param>
         /// <param name="isSuspect">Whether the trace is marked suspect.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact being traced.</param>
         /// <exception cref="ArgumentNullException">If projectId or artifactId are null.</exception>
         [JsonConstructor]
-        public OpenApiTrace(int? projectId, int? artifactId, TraceDirection direction, TraceTypes traceType, bool isSuspect)
+        public OpenApiTrace(int? projectId,
+            int? artifactId,
+            TraceDirection direction,
+            TraceTypes traceType,
+            bool isSuspect,
+            int? subArtifactId)
         {
             ThrowIf.ArgumentNull(projectId, nameof(projectId));
             ThrowIf.ArgumentNull(artifactId, nameof(artifactId));
 
             ProjectId = projectId.Value;
             ArtifactId = artifactId.Value;
+            SubArtifactId = subArtifactId;
             Direction = direction;
             TraceType = traceType;
             IsSuspect = isSuspect;

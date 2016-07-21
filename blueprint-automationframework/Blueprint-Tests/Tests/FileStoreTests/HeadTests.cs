@@ -33,6 +33,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        [TestRail(153894)]
         [Description("GET HEAD for a file. Verify that the file metadata is identical to the metadata of the file that was added.")]
         public void GetFileHead_ReturnedFileMetaDataIdenticalToAddedFile(uint fileSize, string fakeFileName, string fileType)
         {

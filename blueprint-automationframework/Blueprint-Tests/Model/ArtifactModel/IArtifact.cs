@@ -85,6 +85,7 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Gets artifact info.
+        /// (Runs: svc/components/storyteller/artifactInfo/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>

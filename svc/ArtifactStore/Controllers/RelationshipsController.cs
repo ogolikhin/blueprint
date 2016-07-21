@@ -38,7 +38,7 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
             }
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
@@ -82,7 +82,7 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 )
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
             }
             var artifactInfo = (await ArtifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
             if (artifactInfo == null)

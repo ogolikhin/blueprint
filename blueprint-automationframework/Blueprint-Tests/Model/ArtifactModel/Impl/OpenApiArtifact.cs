@@ -137,15 +137,16 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, List{HttpStatusCode})" />
+        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, int?, List{HttpStatusCode})" />
         public List<OpenApiTrace> AddTrace(IUser user,
             IArtifactBase targetArtifact,
             TraceDirection traceDirection,
             TraceTypes traceType = TraceTypes.Manual,
             bool isSuspect = false,
+            int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddTrace(Address, this, targetArtifact, traceDirection, user, traceType, isSuspect, expectedStatusCodes);
+            return AddTrace(Address, this, targetArtifact, traceDirection, user, traceType, isSuspect, subArtifactId, expectedStatusCodes);
         }
 
         #endregion Methods
@@ -712,7 +713,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Add trace between two artifacts with specified properties.
+        /// Add trace between two artifacts (or artifact and sub-artifact) with specified properties.
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="sourceArtifact">The first artifact to which the call adds a trace.</param>
@@ -721,6 +722,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
         /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address,
@@ -730,6 +732,7 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             TraceTypes traceType = TraceTypes.Manual,
             bool isSuspect = false,
+            int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -746,7 +749,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             OpenApiTrace traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
-                traceDirection, traceType, isSuspect);
+                traceDirection, traceType, isSuspect, subArtifactId);
 
             var restApi = new RestApiFacade(address, tokenValue);
 
@@ -762,7 +765,7 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual((int)HttpStatusCode.Created, openApitraces[0].ResultCode);
 
                 string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
-                    sourceArtifact.Id, targetArtifact.Id);
+                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
 
                 Assert.AreEqual(traceCreatedMessage, openApitraces[0].Message);
             }

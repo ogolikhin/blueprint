@@ -35,6 +35,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        [TestRail(153889)]
         [Description("DELETE a file and set a future expiry date for the file. Verify that the file still exists.")]
         public void DeleteFile_ExpiryDateInFuture_FileStillExists(uint fileSize, string fakeFileName, string fileType)
         {
@@ -51,6 +52,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153890)]
         [Description("DELETE a file immediately without an expiry date. Verify that the file is deleted.")]
         public void DeleteFile_Immediately_FileIsDeleted(uint fileSize, string fakeFileName, string fileType)
         {
@@ -68,6 +70,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153891)]
         [Description("DELETE a file with an expiry date in the past. Verify that the file is deleted.")]
         public void DeleteFile_ExpiryDateInPast_FileIsDeleted(uint fileSize, string fakeFileName, string fileType)
         {

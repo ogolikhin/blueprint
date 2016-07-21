@@ -108,8 +108,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(153702)]
-        [Description("Create manual trace between 2 artifacts, delete the source artifact, get relationships.  Verify no traces are returned.")]
-        public void GetRelationships_DeleteSourceArtifact_ReturnsNoTraces()
+        [Description("Create manual trace between 2 artifacts, delete the source artifact, get relationships.  Verify 404 Not Found is returned.")]
+        public void GetRelationships_DeleteSourceArtifact_404NotFound()
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -121,18 +121,11 @@ namespace ArtifactStoreTests
             sourceArtifact.Delete(_user);
             sourceArtifact.Publish(_user);
 
-            Relationships relationships = null;
-
-            // Execute:
-            // NOTE: This should probably return a 404, but they decided to keep the behavior the same as Silverlight.
-            Assert.DoesNotThrow(() =>
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
-            }, "GetArtifactRelationships shouldn't throw any error when given a deleted artifact.");
-
-            // Verify:
-            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships shouldn't have manual traces when the source artifact is deleted.");
-            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships should return a 404 Not Found when given a deleted artifact.");
         }
 
         [TestCase]
@@ -163,7 +156,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
         }
 
-        [TestCase(false, 0)]
+        [TestCase(false, 0), Explicit(IgnoreReasons.ProductBug)]   // Trello bug: https://trello.com/c/K2Nnx5im/1321-get-relationships-returns-400-for-sub-artifactid-of-0-but-404-for-artifactid-of-0-they-should-be-consistent
         [TestCase(true, 1)]
         [TestCase(null, 1)]
         [TestRail(153703)]
@@ -305,7 +298,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(0)]
-        [TestCase(int.MaxValue), Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/n2uz2utG/1313-get-relationships-for-a-non-existent-artifact-id-should-return-404-but-it-returns-an-empty-list
+        [TestCase(int.MaxValue)]
         [TestRail(153840)]
         [Description("Try to Get Relationships for an artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
         public void GetRelationships_InvalidArtifactId_404NotFound(int fakeArtifactId)
@@ -315,7 +308,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor, fakeArtifactId);
 
             // Verify the artifact doesn't exist.
-            Assert.Throws<Http404NotFoundException>(() => sourceArtifact.GetArtifactInfo(),
+            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, sourceArtifact.Id, _user),
                 "An artifact with ID: {0} was found, but it shouldn't exist!", sourceArtifact.Id);
 
             // Execute & Verify:
@@ -325,10 +318,8 @@ namespace ArtifactStoreTests
             }, "GetArtifactRelationships should return 404 Not Found if the artifact ID doesn't exist.");
         }
 
-        // TODO: Find out why this gets a 400 instead of 404.
-        [TestCase(0)]
+        [TestCase(0), Explicit(IgnoreReasons.ProductBug)]   // Trello bug: https://trello.com/c/K2Nnx5im/1321-get-relationships-returns-400-for-sub-artifactid-of-0-but-404-for-artifactid-of-0-they-should-be-consistent
         [TestCase(int.MaxValue)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Returns 400 Bad Request.
         [TestRail(153841)]
         [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
         public void GetRelationships_InvalidSubArtifactId_404NotFound(int fakeSubArtifactId)
@@ -341,7 +332,7 @@ namespace ArtifactStoreTests
                 "A sub-artifact with ID: {0} was found, but it shouldn't exist!", fakeSubArtifactId);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>   // XXX: This is returning 400 Bad Request.
+            Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
             }, "GetArtifactRelationships should return 404 Not Found if the sub-artifact ID doesn't exist.");
@@ -349,7 +340,6 @@ namespace ArtifactStoreTests
 
         [TestCase(true)]
         [TestCase(false)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/n2uz2utG/1313-get-relationships-for-a-non-existent-artifact-id-should-return-404-but-it-returns-an-empty-list
         [TestRail(153842)]
         [Description("Try to Get Relationships for an unpublished artifact ID that was created by a different user.  Verify 404 Not Found is returned.")]
         public void GetRelationships_UnpublishedArtifactByOtherUser_404NotFound(bool addDrafts)

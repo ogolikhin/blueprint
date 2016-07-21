@@ -156,7 +156,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 projectId: 1,
                 versionId: 1,
                 prefix: "it_",
-                baseType: 1,
+                predefinedType: 1,
                 iconImageId: 1,
                 usedInThisProject: true,
                 customPropertyTypeIds: [1,2,3]

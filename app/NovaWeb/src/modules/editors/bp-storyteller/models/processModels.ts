@@ -142,13 +142,6 @@ export const enum PropertyType {
     User = 5
 }
 
-export const enum LockResult {
-    Success = 0,
-    AlreadyLocked = 1,
-    DoesNotExist = 2,
-    AccessDenied = 3,
-    Failure = 4
-}
 
 export interface IVersionInfo {
     artifactId: number;
@@ -252,13 +245,6 @@ export interface IArtifactReferenceLink {
     destinationId: number;
     orderindex: number;
     associatedReferenceArtifactId: number;
-}
-
-export interface IArtifactSearchResultItem {
-    id: number;
-    name: string;
-    typePrefix: string;
-    projectName: string;
 }
 
 export interface IUserStory extends IArtifact {

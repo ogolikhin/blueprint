@@ -7,7 +7,7 @@
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isSystemPropertiesCollapsed">
-                        <formly-form model="$ctrl.model" fields="$ctrl.fields.systemFields" >
+                        <formly-form model="$ctrl.model" fields="$ctrl.systemFields" >
                         </formly-form>
                     </div>
                 </perfect-scrollbar>
@@ -16,14 +16,14 @@
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
                 <perfect-scrollbar>
                     <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
-                        <formly-form model="$ctrl.model" fields="$ctrl.fields.customFields" >
+                        <formly-form model="$ctrl.model" fields="$ctrl.customFields" >
                         </formly-form>
                     </div>
                 </perfect-scrollbar>
             </div>
 
             <uib-tabset ng-if="$ctrl.isTabPropertyAvailable">
-                <uib-tab ng-repeat="field in $ctrl.fields.richTextFields"
+                <uib-tab ng-repeat="field in $ctrl.richTextFields"
                          heading="{{field.data.name}}">
                     <formly-form model="$ctrl.model" fields="[field]" >
                     </formly-form>

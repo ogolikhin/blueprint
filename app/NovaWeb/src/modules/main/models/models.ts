@@ -96,7 +96,7 @@ export interface IItemType {
     versionId?: number;
     instanceItemTypeId?: number;
     prefix: string;
-    baseType: number;
+    predefinedType: number;
     iconImageId: number;
     usedInThisProject: boolean;
     customPropertyTypeIds: number[];

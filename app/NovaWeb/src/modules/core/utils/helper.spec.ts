@@ -26,7 +26,7 @@ describe("camelCase", () => {
     });
 });
 
-describe("getDecimalSeparator", () => {
+xdescribe("getDecimalSeparator", () => {
     it("shows the decimal separator based on locale (US)", () => {
         // Arrange/Act
         let separator = Helper.getDecimalSeparator("en-US");
@@ -44,7 +44,7 @@ describe("getDecimalSeparator", () => {
     });
 });
 
-describe("parseLocaleNumber", () => {
+xdescribe("parseLocaleNumber", () => {
     it("convert to proper number based on locale (US)", () => {
         // Arrange/Act
         let number = Helper.parseLocaleNumber("123,456.789", "en-US");

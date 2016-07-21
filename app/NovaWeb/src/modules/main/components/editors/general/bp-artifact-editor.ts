@@ -51,7 +51,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
 
 
     public contextLoading(context: IEditorContext) {
-        this.artifactService.getArtifact(context.artifact.id).then((it) => {
+        this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             //TODO: change
             angular.extend(context.artifact, { propertyValues: it.propertyValues });
             this.contextLoaded(context);

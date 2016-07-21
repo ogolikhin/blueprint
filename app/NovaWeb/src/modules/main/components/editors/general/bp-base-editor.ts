@@ -173,7 +173,7 @@ export class PropertyEditor implements IPropertyEditor {
                 if (it.lookup === LookupEnum.ByName) {
                     value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
                 } else {
-                    var propertyValue = (this._artifact.propertyValues || []).filter((value) => {
+                    let propertyValue = (this._artifact.propertyValues || []).filter((value) => {
                         return it.lookup === LookupEnum.ById ?
                             value.propertyTypeId === <number>it.modelPropertyName :
                             value.propertyTypePredefined === <number>it.modelPropertyName;

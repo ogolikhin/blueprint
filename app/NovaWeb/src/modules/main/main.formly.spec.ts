@@ -59,8 +59,6 @@ describe("Formly", () => {
             let fieldNode = node.querySelector(".formly-field-frmlyNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$error.min).toBeTruthy();
@@ -72,8 +70,6 @@ describe("Formly", () => {
             let fieldNode = node.querySelector(".formly-field-frmlyNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$error.max).toBeTruthy();
@@ -85,8 +81,6 @@ describe("Formly", () => {
             let fieldNode = node.querySelector(".formly-field-frmlyNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$error.decimalPlaces).toBeTruthy();
@@ -98,10 +92,24 @@ describe("Formly", () => {
             let fieldNode = node.querySelector(".formly-field-frmlyNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        });
+
+        it("should allow changing the value", function () {
+            compileAndSetupStuff({model: {number: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.value = "20";
+            angular.element(fieldInput).triggerHandler("change");
+
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+            expect(scope.model.number).not.toBe(10);
+            expect(scope.model.number).toBe(20);
         });
     });
 
@@ -126,19 +134,20 @@ describe("Formly", () => {
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldButton = fieldNode.querySelector("button");
+            let fieldInput = fieldNode.querySelector("input");
 
             fieldButton.click();
             //(<any>fieldScope).frmlyDatepicker.open();
+            let selection = fieldInput.value.substring(fieldInput.selectionStart, fieldInput.selectionEnd);
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).frmlyDatepicker.opened).toBeTruthy();
             expect((<any>fieldScope).to.clearText).toEqual("Datepicker_Clear");
             expect((<any>fieldScope).to.closeText).toEqual("Datepicker_Done");
             expect((<any>fieldScope).to.currentText).toEqual("Datepicker_Today");
+            expect(selection).toEqual("");
         });
 
-        it("should select the text on click", function (done) {
+        it("should select the text on click", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
@@ -147,39 +156,47 @@ describe("Formly", () => {
 
             fieldInput.click();
             //(<any>fieldScope).frmlyDatepicker.select();
+            let selection = fieldInput.value.substring(fieldInput.selectionStart, fieldInput.selectionEnd);
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).frmlyDatepicker.opened).toBeFalsy();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+            expect(selection).toContain("2016");
         });
 
-        it("should fail if the date is less than minDate", function () {
-            compileAndSetupStuff({model: {datepicker: "2016-05-05"}});
+        it("should allow changing the value", function () {
+            compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
-            triggerKey(angular.element(fieldInput), 27, "keyup");
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
+            fieldInput.value = "2017-06-06";
+            angular.element(fieldInput).triggerHandler("change");
+
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+            expect(scope.model.datepicker).not.toBe("2016-08-08");
+            expect(scope.model.datepicker).toBe("2017-06-06");
+        });
+
+        it("should fail if the date is less than minDate", function () {
+            compileAndSetupStuff({model: {datepicker: "2014-05-05"}});
+
+            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$error.minDate).toBeTruthy();
         });
 
         it("should fail if the date is greater than maxDate", function () {
-            compileAndSetupStuff({model: {datepicker: "2016-10-10"}});
+            compileAndSetupStuff({model: {datepicker: "2018-10-10"}});
 
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
-            let fieldInput = fieldNode.querySelector("input");
-            triggerKey(angular.element(fieldInput), 27, "keyup");
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$error.maxDate).toBeTruthy();
@@ -190,11 +207,7 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
-            let fieldInput = fieldNode.querySelector("input");
-            triggerKey(angular.element(fieldInput), 27, "keyup");
 
-            expect(fieldNode).toBeDefined();
-            expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$viewValue.toLowerCase()).toContain("invalid");
@@ -210,12 +223,13 @@ describe("Formly", () => {
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
     }
-
+/*
     function triggerKey(targetElement, keyCode, eventType) {
         let e = angular.element.Event(eventType);
         e.which = keyCode;
         targetElement.trigger(e);
     }
+*/
 });
 
 function createModule() {
@@ -292,8 +306,8 @@ function createModule() {
                             key: "datepicker",
                             templateOptions: {
                                 datepickerOptions: {
-                                    maxDate: "2016-09-09",
-                                    minDate: "2016-07-07"
+                                    maxDate: "2017-09-09",
+                                    minDate: "2015-07-07"
                                 }
                             }
                         }

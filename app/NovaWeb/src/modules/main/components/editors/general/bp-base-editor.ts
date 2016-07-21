@@ -1,6 +1,7 @@
 ﻿import {Models} from "../../../";
 import {IMessageService} from "../../../../shell/";
 import {IArtifactService} from "../../../services/";
+import {tinymceMentionsData} from "../../../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export interface IEditorContext {
     artifact?: Models.IArtifact;
@@ -242,6 +243,18 @@ export class PropertyEditor implements IPropertyEditor {
                     field.templateOptions["tinymceOption"] = {
                         //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
                     };
+                    //TODO: added just for testing
+                    if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                        field.templateOptions["tinymceOption"].mentions = {
+                            source: tinymceMentionsData,
+                            delay: 100,
+                            items: 5,
+                            queryBy: "fullname",
+                            insert: function (item) {
+                                return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
+                            }
+                        };
+                    }
                 }
                 break;
             case Models.PrimitiveType.Date:
@@ -255,9 +268,15 @@ export class PropertyEditor implements IPropertyEditor {
             case Models.PrimitiveType.Number:
                 field.type = "frmlyNumber";
                 field.defaultValue = context.decimalDefaultValue;
-                field.templateOptions.min = context.minNumber;
-                field.templateOptions.max = context.maxNumber;
-                break;
+                if (angular.isNumber(context.minNumber)) {
+                    field.templateOptions.min = context.minNumber;
+                }
+                if (angular.isNumber(context.maxNumber)) {
+                    field.templateOptions.max = context.maxNumber;
+                }
+                if (angular.isNumber(context.decimalPlaces)) {
+                    field.templateOptions["decimalPlaces"] = context.decimalPlaces;
+                }                break;
             case Models.PrimitiveType.Choice:
                 field.type = "select";
                 if (angular.isNumber(context.defaultValidValueId)) {

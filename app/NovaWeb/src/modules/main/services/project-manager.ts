@@ -351,11 +351,7 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            // the following are test values, using DateJS
-            maxDate: new Date(moment(new Date()).add(15, "days").format("YYYY-MM-DD")),
-            minDate: new Date(moment(new Date()).add(-15, "days").format("YYYY-MM-DD")),
-            isRequired: true
-            //disabled: true
+            disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditBy"),

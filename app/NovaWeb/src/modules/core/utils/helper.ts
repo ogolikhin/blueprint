@@ -115,6 +115,30 @@ export class Helper {
         return null;
     };
 
+    static parseLocaleNumber(numberAsAny: any, locale?: string): number {
+        let number: string;
+        let decimalSeparator = this.getDecimalSeparator(locale);
+        let regExp = new RegExp("[^0-9" + decimalSeparator + "]", "g");
+
+        number = (numberAsAny || "").toString();
+        number = number.replace(regExp, "");
+        if (decimalSeparator !== ".") {
+            number = number.replace(decimalSeparator, ".");
+        }
+
+        return parseFloat(number);
+    };
+
+    static getDecimalSeparator(locale?: string): string {
+        let separator = ".";
+        let locale_ = locale || this.getFirstBrowserLanguage();
+        if (Number.toLocaleString) {
+            separator = (1.1).toLocaleString(locale_).replace(/\d/g, "");
+        }
+
+        return separator;
+    };
+
     public static toFlat(root: any): any[] {
         var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
         while (stack.length !== 0) {

@@ -220,34 +220,11 @@ var appBootstrap = (function() {
 
     function appBootstrap() {
         this.executionEnvironment = new executionEnvironmentDetector();
-
-        // W3C standards:
-        if (documentHiddenProperty in document) {
-            document.addEventListener("visibilitychange", this.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "mozHidden") in document) { // Firefox 10+
-            document.addEventListener("mozvisibilitychange", this.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "webkitHidden") in document) { // Chrome 13+
-            document.addEventListener("webkitvisibilitychange", this.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "msHidden") in document) { // IE 10+
-            document.addEventListener("msvisibilitychange", this.pageVisibilityHandler);
-        } else if ("onfocusin" in document) { // IE 9-
-            document.onfocusin = document.onfocusout = this.pageVisibilityHandler;
-        } else { // everything else
-            window.onpageshow
-                = window.onpagehide
-                = window.onfocus
-                = window.onblur
-                = this.pageVisibilityHandler;
-        }
-
-        // set the initial state but only if browser supports the Page Visibility API
-        if (document[documentHiddenProperty] !== undefined) {
-            this.pageVisibilityHandler({type: document[documentHiddenProperty] ? "blur" : "focus"});
-        }
+        this.isSupportedVersion();
     }
 
-    appBootstrap.prototype.isSupportedVersion = (function () {
-        if (new executionEnvironmentDetector().isSupportedVersion()) {
+    appBootstrap.prototype.isSupportedVersion = function () {
+        if (this.executionEnvironment.isSupportedVersion()) {
             return true;
         }
 
@@ -268,7 +245,7 @@ var appBootstrap = (function() {
         xhr.open('GET', '/novaweb/static/unsupported-browser.html');
         xhr.send();
         return false;
-    })();
+    };
 
     // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
     // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
@@ -285,7 +262,69 @@ var appBootstrap = (function() {
         }
     };
 
-    appBootstrap.prototype.pageVisibilityHandler = function (evt) {
+    appBootstrap.prototype.setupBodyClasses = function() {
+        var self = this;
+
+        if (self.executionEnvironment.isTouchDevice()) {
+            document.body.className += " is-touch";
+            self.orientationHandler();
+
+            window.addEventListener("orientationchange", function() {
+                self.orientationHandler();
+            });
+        }
+        if (self.executionEnvironment.isAndroid()) {
+            document.body.className += " is-android";
+        }
+        if (self.executionEnvironment.isiOS()) {
+            document.body.className += " is-ios";
+        }
+        if (self.executionEnvironment.isWindows()) {
+            document.body.className += " is-windows";
+        }
+        if (self.executionEnvironment.isMacOSX()) {
+            document.body.className += " is-macosx";
+        }
+        if (self.executionEnvironment.isChrome()) {
+            document.body.className += " is-chrome";
+        }
+        if (self.executionEnvironment.isIE()) {
+            document.body.className += " is-msie";
+        }
+        if (self.executionEnvironment.isSafari()) {
+            document.body.className += " is-safari";
+        }
+    };
+
+    appBootstrap.prototype.setupPageVisibility = function() {
+        var self = this;
+
+        // W3C standards:
+        if (documentHiddenProperty in document) {
+            document.addEventListener("visibilitychange", self.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "mozHidden") in document) { // Firefox 10+
+            document.addEventListener("mozvisibilitychange", self.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "webkitHidden") in document) { // Chrome 13+
+            document.addEventListener("webkitvisibilitychange", self.pageVisibilityHandler);
+        } else if ((documentHiddenProperty = "msHidden") in document) { // IE 10+
+            document.addEventListener("msvisibilitychange", self.pageVisibilityHandler);
+        } else if ("onfocusin" in document) { // IE 9-
+            document.onfocusin = document.onfocusout = self.pageVisibilityHandler;
+        } else { // everything else
+            window.onpageshow
+                = window.onpagehide
+                = window.onfocus
+                = window.onblur
+                = self.pageVisibilityHandler;
+        }
+
+        // set the initial state but only if browser supports the Page Visibility API
+        if (document[documentHiddenProperty] !== undefined) {
+            self.pageVisibilityHandler({type: document[documentHiddenProperty] ? "blur" : "focus"});
+        }
+    };
+
+    appBootstrap.prototype.pageVisibilityHandler = function(evt) {
         var visible = false, hidden = true;
         var eventMap = {
             focus: visible,
@@ -306,43 +345,12 @@ var appBootstrap = (function() {
         document.body.classList.add(this.isPageHidden ? "is-hidden" : "is-visible");
     };
 
-    appBootstrap.prototype.initApp = function() {
+    appBootstrap.prototype.checkWebFont = function() {
         var self = this;
-        var app = angular.module("app", ["app.main"]);
-
-        if (this.executionEnvironment.isTouchDevice()) {
-            document.body.className += " is-touch";
-            self.orientationHandler();
-
-            window.addEventListener("orientationchange", function() {
-                self.orientationHandler();
-            });
-        }
-        if (this.executionEnvironment.isAndroid()) {
-            document.body.className += " is-android";
-        }
-        if (this.executionEnvironment.isiOS()) {
-            document.body.className += " is-ios";
-        }
-        if (this.executionEnvironment.isWindows()) {
-            document.body.className += " is-windows";
-        }
-        if (this.executionEnvironment.isMacOSX()) {
-            document.body.className += " is-macosx";
-        }
-        if (this.executionEnvironment.isChrome()) {
-            document.body.className += " is-chrome";
-        }
-        if (this.executionEnvironment.isIE()) {
-            document.body.className += " is-msie";
-        }
-        if (this.executionEnvironment.isSafari()) {
-            document.body.className += " is-safari";
-        }
 
         if (// test for web font support only if the page is actually visible
-            (!this.isPageHidden && !this.executionEnvironment.isWebfontAvailable("Blueprint Webfont Test"))
-            || !this.executionEnvironment.isFontFaceSupported()
+        (!self.isPageHidden && !self.executionEnvironment.isWebfontAvailable("Blueprint Webfont Test"))
+        || !self.executionEnvironment.isFontFaceSupported()
         ) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function () {
@@ -350,24 +358,36 @@ var appBootstrap = (function() {
                     var divUnsupportedNoFont = document.createElement("div");
                     divUnsupportedNoFont.id = "unsupported-nofont-container";
                     divUnsupportedNoFont.innerHTML = xhr.responseText;
-                    document.body.insertBefore(divUnsupportedNoFont, document.body.firstChild);
 
                     var appWrapper = document.getElementById("js-enabled");
                     if (appWrapper) {
-                        appWrapper.parentNode.removeChild(appWrapper);
+                        appWrapper.parentNode.replaceChild(divUnsupportedNoFont, appWrapper);
+                    } else {
+                        document.body.innerHTML = "";
+                        document.body.appendChild(divUnsupportedNoFont);
                     }
                 }
             };
             xhr.open('GET', '/novaweb/static/unsupported-nofont.html');
             xhr.send();
-            return;
-        } else {
-            var webfontTester = document.getElementById("webfont-tester");
-            if (webfontTester) {
-                webfontTester.parentNode.removeChild(webfontTester);
-            }
         }
 
+        var webfontTester = document.getElementById("webfont-tester");
+        if (webfontTester) {
+            webfontTester.parentNode.removeChild(webfontTester);
+        }
+    };
+
+    appBootstrap.prototype.initApp = function() {
+        var self = this;
+
+        self.setupPageVisibility();
+        self.setupBodyClasses();
+        setTimeout(function() {
+            self.checkWebFont();
+        }, 1000);
+
+        var app = angular.module("app", ["app.main"]);
         angular.bootstrap(document, ["app"], {
             strictDi: true
         });

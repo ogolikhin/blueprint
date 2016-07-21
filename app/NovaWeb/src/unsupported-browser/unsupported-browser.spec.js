@@ -1246,18 +1246,36 @@ describe('appBootstrap', function() {
 
     beforeEach(function () {
         delete app;
+        document.open();
+        document.close();
     });
 
-    it('Launch app and force page visibility', function() {
+    it('Launch app and force page to be visible', function() {
         // Arrange
         var app = appBootstrap;
 
         // Act
-        app.pageVisibilityHandler({type: "fakeEvent"});
+        app.pageVisibilityHandler({type: "focus"});
+        app.checkWebFont();
 
         // Assert
         expect(app.isPageHidden).toBeFalsy();
         expect(window.document.body.className).toContain("is-visible");
+        expect(window.document.body.innerHTML).not.toContain("webfont-tester");
+    });
+
+    it('Launch app and force page to be hidden', function() {
+        // Arrange
+        var app = appBootstrap;
+
+        // Act
+        app.pageVisibilityHandler({type: "blur"});
+        app.checkWebFont();
+
+        // Assert
+        expect(app.isPageHidden).toBeTruthy();
+        expect(window.document.body.className).toContain("is-hidden");
+        expect(window.document.body.innerHTML).not.toContain("webfont-tester");
     });
 
     it('Launch app with unsupported browser (desktop)', function() {
@@ -1269,43 +1287,29 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
+        app.setupPageVisibility();
+        app.setupBodyClasses();
 
         // Assert
-        expect(app.isSupportedVersion).toBeFalsy();
+        expect(app.isSupportedVersion()).toBeFalsy();
     });
 
     it('Launch app with unsupported browser (mobile)', function() {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
-        var uaUnsupported = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) CriOS/50.0.2272.58 Mobile/12F70 Safari/601.1 (000797)";
+        var uaUnsupported = "Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
 
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
         app.orientationHandler();
+        app.setupPageVisibility();
+        app.setupBodyClasses();
 
         // Assert
-        expect(app.isSupportedVersion).toBeFalsy();
-        if ((window.orientation && Math.abs(window.orientation) === 90)) {
-            expect(window.document.body.className).toContain("is-landscape");
-        } else {
-            expect(window.document.body.className).toContain("is-portrait");
-        }
-    });
-
-    /*it('Launch app with supported browser (iPad iOS Safari)', function() {
-        // Arrange
-        var app = appBootstrap;
-        var detector = new executionEnvironmentDetector();
-        var uaiOS = "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
-
-        // Act
-        detector.userBrowser = detector.getBrowserInfoUserAgent(uaiOS, bowser._detect(uaiOS));
-        app.executionEnvironment = detector;
-        app.initApp();
-
-        // Assert
+        expect(app.isSupportedVersion()).toBeFalsy();
+        expect(window.document.body.className).not.toContain("is-windows");
         expect(window.document.body.className).toContain("is-ios");
         expect(window.document.body.className).toContain("is-safari");
         expect(window.document.body.className).toContain("is-touch");
@@ -1314,7 +1318,7 @@ describe('appBootstrap', function() {
         } else {
             expect(window.document.body.className).toContain("is-portrait");
         }
-    });*/
+    });
 
     it('Launch app with supported browser (Win IE11)', function() {
         // Arrange
@@ -1325,11 +1329,14 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaWinIE, bowser._detect(uaWinIE));
         app.executionEnvironment = detector;
-        app.initApp();
+        app.setupPageVisibility();
+        app.setupBodyClasses();
 
         // Assert
+        expect(app.isSupportedVersion()).toBeTruthy();
         expect(window.document.body.className).toContain("is-windows");
         expect(window.document.body.className).toContain("is-msie");
+        expect(window.document.body.className).not.toContain("is-touch");
     });
 
 });

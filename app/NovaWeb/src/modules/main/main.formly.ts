@@ -9,7 +9,7 @@ import {Helper} from "../core/utils/helper";
 formlyDecorate.$inject = ["$provide"];
 export function formlyDecorate($provide): void {
     moment.locale(Helper.getFirstBrowserLanguage());
-    let weekedays = moment.weekdays();
+    let weekedays = moment.weekdaysMin();
     weekedays.forEach(function(item, index, arr) {
         arr[index] = item.substr(0, 1).toUpperCase();
     });
@@ -81,7 +81,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "input",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <input type="number"
+                <input type="text"
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
@@ -125,9 +125,30 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
                         if (value && decimalPlaces && angular.isNumber(decimalPlaces)) {
                             let intValue = parseInt(value, 10);
-                            //(<any> scope.to).decimalPlaces = decimalPlaces;
 
                             return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
+                        }
+                        return true;
+                    }
+                },
+                max: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                        let max = scope.to.max;
+
+                        if (angular.isNumber(value) && !angular.isUndefined(max)) {
+                            return value <= max;
+                        }
+                        return true;
+                    }
+                },
+                min: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                        let min = scope.to.min;
+
+                        if (angular.isNumber(value) && !angular.isUndefined(min)) {
+                            return value >= min;
                         }
                         return true;
                     }
@@ -176,6 +197,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     ng-model="model[options.key]"
                     class="form-control has-icon"
                     ng-click="frmlyDatepicker.select($event)"
+                    ng-blur="frmlyDatepicker.blur($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="frmlyDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
@@ -228,6 +250,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             }
                         }
                     }
+                },
+                onKeyup: function($viewValue, $modelValue, scope) {
+                    let format = moment.localeData().longDateFormat("L").toUpperCase();
+                    //console.log(format)
                 }
             },
             validation: {
@@ -281,17 +307,28 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
 
             $scope.frmlyDatepicker.opened = false;
-
             $scope.frmlyDatepicker.open = function ($event) {
                 $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
             };
 
+            $scope.frmlyDatepicker.selected = false;
             $scope.frmlyDatepicker.select = function ($event) {
                 let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                if (inputField) {
-                    inputField.focus();
+                if (!inputField) {
+                    return;
+                }
+                inputField.focus();
+                if (!$scope.frmlyDatepicker.selected) {
                     inputField.setSelectionRange(0, inputField.value.length);
                 }
+                $scope.frmlyDatepicker.selected = !$scope.frmlyDatepicker.selected;
+            };
+            $scope.frmlyDatepicker.blur = function ($event) {
+                let inputField = <HTMLInputElement> document.getElementById($scope.id);
+                if (!inputField) {
+                    return;
+                }
+                $scope.frmlyDatepicker.selected = false;
             };
         }]
     });

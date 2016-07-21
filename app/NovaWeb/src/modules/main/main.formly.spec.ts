@@ -109,7 +109,7 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
             expect(scope.model.number).not.toBe(10);
-            expect(scope.model.number).toBe(20);
+            expect(scope.model.number).toBe("20");
         });
     });
 

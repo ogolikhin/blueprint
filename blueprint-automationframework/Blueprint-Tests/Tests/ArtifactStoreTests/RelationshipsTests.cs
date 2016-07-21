@@ -162,6 +162,46 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
         }
 
+        [TestCase]
+        [TestRail(154426)]
+        [Description("Create manual trace between an artifact and a sub-artifact, delete the sub-artifact.  Get relationships.  Verify no traces are returned.")]
+        public void GetRelationships_DeleteSubArtifact_ReturnsNoTraces()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IProcess process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+
+            var userTasks = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
+
+            Assert.AreEqual(1, Helper.Storyteller.Artifacts.Count, "There should only be 1 Process artifact in Storyteller!");
+            IArtifact targetArtifact = Helper.Storyteller.Artifacts[0];
+
+            int subArtifactId = userTasks[0].Id;
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user, subArtifactId: subArtifactId);
+
+            // Publish the Trace we added.
+            sourceArtifact.Publish();
+
+            // Delete the first User Task and publish.
+            process.DeleteUserAndSystemTask(userTasks[0]);
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+
+            Relationships relationships = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
+
+            // Verify:
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be no 'other' traces.");
+        }
+
         [TestCase(true)]
         [TestCase(null)]
         [TestRail(153703)]
@@ -478,6 +518,5 @@ namespace ArtifactStoreTests
 
         // TODO: Test with "Other" traces.
         // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.
-        // TODO: Test with deleted subArtifact that has a trace to it.
     }
 }

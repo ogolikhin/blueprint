@@ -156,12 +156,11 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
         }
 
-        [TestCase(false, 0), Explicit(IgnoreReasons.ProductBug)]   // Trello bug: https://trello.com/c/K2Nnx5im/1321-get-relationships-returns-400-for-sub-artifactid-of-0-but-404-for-artifactid-of-0-they-should-be-consistent
-        [TestCase(true, 1)]
-        [TestCase(null, 1)]
+        [TestCase(true)]
+        [TestCase(null)]
         [TestRail(153703)]
-        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with all possible values for the 'addDrafts' query parameter).  Verify no traces are returned.")]
-        public void GetRelationships_SavedNeverPublishedArtifact_ReturnsCorrectTraces(bool? addDrafts, int expectedManualTracesCount)
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with and without the 'addDrafts=true' query parameter).  Verify no traces are returned.")]
+        public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsTrue_ReturnsCorrectTraces(bool? addDrafts)
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
@@ -178,18 +177,35 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: addDrafts);
-            }, "GetArtifactRelationships shouldn't throw any error when given a valid Unpublished Draft artifact.");
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid Unpublished Draft artifact and {0} addDrafts=true.",
+                addDrafts.HasValue ? "with" : "without");
 
             // Verify:
-            Assert.AreEqual(expectedManualTracesCount, relationships.ManualTraces.Count,
-                "Relationships should have {0} manual trace.", expectedManualTracesCount);
-            Assert.AreEqual(0, relationships.OtherTraces.Count,
-                "Relationships shouldn't have other traces.");
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
-            if (expectedManualTracesCount > 0)
+            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+        }
+
+        [TestCase]
+        [TestRail(153904)]
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  Verify it returns 404 Not Found.")]
+        public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            sourceArtifact.Save(_user);
+            targetArtifact.Save(_user);
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.From, _user);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
             {
-                AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
-            }
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: false);
+            }, "GetArtifactRelationships should return 404 Not Found when given a valid Unpublished Draft artifact and addDrafts=false.");
         }
 
         [TestCase]

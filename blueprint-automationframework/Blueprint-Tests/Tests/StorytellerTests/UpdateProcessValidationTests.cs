@@ -194,7 +194,7 @@ namespace StorytellerTests
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock
-            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
+            var artifactsToLock = new List<IArtifactBase> { Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id) };
 
             // Second user locks the artifact
             Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
@@ -217,10 +217,6 @@ namespace StorytellerTests
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
             AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
-
-            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
-            // the artifact can be deleted by the second user
-            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
         }
 
         [Explicit(IgnoreReasons.ProductBug)]
@@ -236,7 +232,7 @@ namespace StorytellerTests
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock
-            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
+            var artifactsToLock = new List<IArtifactBase> { Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id) };
 
             // Second user locks the artifact
             Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
@@ -259,10 +255,6 @@ namespace StorytellerTests
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
             AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
-
-            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
-            // the artifact can be deleted by the second user
-            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
         }
         
         [TestCase]

@@ -40,7 +40,7 @@ bp-glossary {
                     padding: 8px 25px;
                 }
 
-                &:hover:not(.selected-term) {
+                &:hover:not(.selected-term):not(.empty-state) {
                     background: lighten($tree-hover-background, 2%);
                 }
             }

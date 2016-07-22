@@ -1,15 +1,72 @@
 ﻿import {Helper} from "./helper";
 
-describe("camelCase", () => {
-    it("changes 'Bp-Tooltip' into 'bpTooltip'", () => {
+describe("dashCase", () => {
+    it("changes 'bpTooltip' into 'bp-tooltip'", () => {
         // Arrange
-        let string = "Bp-Tooltip";
+        let string = "bpTooltip";
+
+        // Act
+        string = Helper.dashCase(string);
+
+        // Assert
+        expect(string).toEqual("bp-tooltip");
+    });
+
+    it("changes 'UIMockup' into 'ui-mockup'", () => {
+        // Arrange
+        let string = "UIMockup";
+
+        // Act
+        string = Helper.dashCase(string);
+
+        // Assert
+        expect(string).toEqual("ui-mockup");
+    });
+
+    it("changes 'ArtifactReviewPackage' into 'artifact-review-package'", () => {
+        // Arrange
+        let string = "ArtifactReviewPackage";
+
+        // Act
+        string = Helper.dashCase(string);
+
+        // Assert
+        expect(string).toEqual("artifact-review-package");
+    });
+});
+
+describe("camelCase", () => {
+    it("changes 'bp-tooltip' into 'bpTooltip'", () => {
+        // Arrange
+        let string = "bp-tooltip";
 
         // Act
         string = Helper.camelCase(string);
 
         // Assert
         expect(string).toEqual("bpTooltip");
+    });
+
+    it("changes 'ui-mockup' into 'uiMockup'", () => {
+        // Arrange
+        let string = "ui-mockup";
+
+        // Act
+        string = Helper.camelCase(string);
+
+        // Assert
+        expect(string).toEqual("uiMockup");
+    });
+
+    it("changes 'artifact-review-package' into 'artifactReviewPackage'", () => {
+        // Arrange
+        let string = "artifact-review-package";
+
+        // Act
+        string = Helper.camelCase(string);
+
+        // Assert
+        expect(string).toEqual("artifactReviewPackage");
     });
 });
 

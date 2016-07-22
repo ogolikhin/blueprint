@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService } from "../../core";
-import { IProjectManager, Models} from "../../main";
+import { Helper } from "../../core/utils/helper";
+import { IProjectManager, Models } from "../../main";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -14,9 +15,14 @@ export class BPUtilityPanelController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: string;
+    private _currentArtifactClass: string;
 
     public get currentArtifact() { 
         return this._currentArtifact;
+    }
+
+    public get currentArtifactClass() {
+        return this._currentArtifactClass;
     }
 
     constructor(
@@ -42,5 +48,8 @@ export class BPUtilityPanelController {
 
     private displayArtifact = (artifact: Models.IArtifact) => {
         this._currentArtifact = artifact ? `${(artifact.prefix || "")}${artifact.id}: ${artifact.name}` : null;
+        this._currentArtifactClass = artifact ?
+        "icon-" + Helper.dashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document") :
+            "icon-document";
     }
 }

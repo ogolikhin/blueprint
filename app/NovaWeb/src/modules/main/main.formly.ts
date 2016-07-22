@@ -9,8 +9,9 @@ import {Helper} from "../core/utils/helper";
 formlyDecorate.$inject = ["$provide"];
 export function formlyDecorate($provide): void {
     moment.locale(Helper.getFirstBrowserLanguage());
-    let weekedays = moment.weekdaysMin();
-    weekedays.forEach(function(item, index, arr) {
+
+    let weekdaysMin = moment.weekdaysMin();
+    weekdaysMin.forEach(function(item, index, arr) {
         arr[index] = item.substr(0, 1).toUpperCase();
     });
 
@@ -18,7 +19,10 @@ export function formlyDecorate($provide): void {
     function delegated($delegate) {
         let value = $delegate.DATETIME_FORMATS;
 
-        value.SHORTDAY = weekedays;
+        value.DAY = moment.weekdays();
+        value.SHORTDAY = weekdaysMin;
+        value.MONTH = moment.months();
+        value.SHORTMONTH = moment.monthsShort();
 
         return $delegate;
     }
@@ -242,7 +246,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: dateFormat,
+                placeholder: dateFormat.toUpperCase(),
                 onKeyup: function($viewValue, $modelValue, scope) {
                     //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     //let format = dateFormat.toUpperCase();

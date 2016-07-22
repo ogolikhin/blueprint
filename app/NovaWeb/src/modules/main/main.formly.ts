@@ -271,8 +271,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty", "Value cannot be empty") + `"`,
-                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + dateFormat + `)"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
+                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + dateFormat.toUpperCase() + `)"`
                 }
             },
             validators: {
@@ -385,10 +385,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     /* tslint:disable */
     formlyValidationMessages.addTemplateOptionValueMessage("wrongFormat", "", localization.get("Property_Wrong_Format"), "", localization.get("Property_Wrong_Format"));
-    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal count");
-    formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
-    formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");
-    formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Must_Be_Less"), "", "Date too big");
-    formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Must_Be_Greater"), "", "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
+    formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Less"), "Number too big");
+    formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");
+    formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small");
     /* tslint:enable */
 }

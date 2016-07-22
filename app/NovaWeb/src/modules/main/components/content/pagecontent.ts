@@ -68,10 +68,10 @@ class PageContentCtrl {
         if (this.diagramService.isDiagram(artifact.predefinedType)) {
             return "diagram";
         } else if (Models.ItemTypePredefined.Project == artifact.predefinedType) {
-            return "project";
+            return "general";
         } else if (Models.ItemTypePredefined.CollectionFolder == artifact.predefinedType) {
-            return "collection";
+            return "general";
         }
-        return "general";
+        return "details";
     }
 }

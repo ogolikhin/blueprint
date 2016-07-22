@@ -27,8 +27,8 @@ import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
+import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
 import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
-import {BpProjectEditor} from "./components/editors/general/bp-project-editor";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
@@ -97,8 +97,8 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
+    .component("bpGeneralEditor", new BpGeneralEditor())
     .component("bpArtifactEditor", new BpArtifactEditor())
-    .component("bpProjectEditor", new BpProjectEditor())
     .component("bpDiagram", new BPDiagram())
     .value("mxUtils", mxUtils)
     .config(routesConfig)

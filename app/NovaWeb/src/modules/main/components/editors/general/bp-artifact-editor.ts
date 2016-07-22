@@ -1,9 +1,7 @@
 ﻿import {Models} from "../../../";
 import {IMessageService} from "../../../../shell/";
 import {IArtifactService} from "../../../services/";
-import {BpBaseEditor, PropertyEditor, FieldContext, IEditorContext} from "./bp-base-editor";
-
-
+import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-editor.html");
@@ -12,75 +10,65 @@ export class BpArtifactEditor implements ng.IComponentOptions {
     public bindings: any = {
         context: "<",
     };
-
 }
-
-
-
 
 
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = ["messageService", "artifactService"];
 
-    constructor(messageService: IMessageService, artifactService: IArtifactService) {
-        super(messageService, artifactService);
+    constructor(messageService: IMessageService, private artifactService: IArtifactService) {
+        super(messageService);
     }
-
-
-
-    public activeTab: number;
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public customFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
-
-    public get isCustomPropertyAvailable(): boolean {
+    public get isSystemPropertyAvailable(): boolean {
         return this.systemFields && this.systemFields.length > 0;
     }
-    public get isSystemPropertyAvailable(): boolean {
+    public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
     public get isTabPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
+    public $onDestroy() {
+        this.systemFields = [];
+        this.customFields = [];
+        this.richTextFields = [];
+        super.$onDestroy();
+    }
 
-    public onPropertyChange($viewValue, $modelValue, scope) {
-    };
+    public onLoading(obj: any): boolean {
+        this.systemFields = [];
+        this.customFields = [];
+        this.richTextFields = [];
+        return super.onLoading(obj);
+    }
 
-
-    public contextLoading(context: IEditorContext) {
+    public onLoad(context: IEditorContext) {
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             //TODO: change
-            angular.extend(context.artifact, { propertyValues: it.propertyValues });
-            this.contextLoaded(context);
+            angular.extend(context.artifact, it);
+            this.onUpdate(context);
         });
     }
 
-    public contextLoaded(context: IEditorContext) {
-        try {
-            super.contextLoaded(context);
-
-            this.systemFields = [];
-            this.customFields = [];
-            this.richTextFields = [];
+    public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
+        let propertyContext = field.data as PropertyContext;
+        if (!propertyContext) {
+            return;
+        }
+        if (true === propertyContext.isRichText) {
+            this.richTextFields.push(field);
+        } else if (LookupEnum.System === propertyContext.lookup) {
+            this.systemFields.push(field);
+        } else if (LookupEnum.Custom === propertyContext.lookup) {
+            this.customFields.push(field);
+        } else if (LookupEnum.Special === propertyContext.lookup) {
             
-            this.fields.forEach((it: AngularFormly.IFieldConfigurationObject) => {
-                if (true === it.data["isSystem"]) {
-                    this.systemFields.push(it);
-                } else if (true === it.data["isRichText"]) {
-                    this.richTextFields.push(it);
-                } else {
-                    this.customFields.push(it);
-                } 
-            });
-            if (this.form) {
-                this.form.$setPristine();
-            } 
-
-        } catch (ex) {
-            this.messageService.addError(ex["message"]);
         }
 
     }

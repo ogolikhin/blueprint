@@ -1,0 +1,55 @@
+﻿import {Models} from "../../../";
+import {IMessageService} from "../../../../shell/";
+import {IArtifactService} from "../../../services/";
+import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
+
+export class BpGeneralEditor implements ng.IComponentOptions {
+    public template: string = require("./bp-general-editor.html");
+    public controller: Function = BpGeneralEditorController;
+    public controllerAs = "$ctrl";
+    public bindings: any = {
+        context: "<",
+    };
+}
+
+export class BpGeneralEditorController extends BpBaseEditor {
+    public static $inject: [string] = ["messageService", "artifactService"];
+
+    constructor(messageService: IMessageService, private artifactService: IArtifactService) {
+        super(messageService);
+    }
+
+    public activeTab: number;
+    public systemFields: AngularFormly.IFieldConfigurationObject[];
+    public noteFields: AngularFormly.IFieldConfigurationObject[]; 
+
+    public $onDestroy() {
+        this.systemFields = [];
+        this.noteFields = [];
+        super.$onDestroy();
+    }
+
+    public onLoading(obj: any): boolean {
+        this.systemFields = [];
+        this.noteFields = [];
+        return super.onLoading(obj);
+    }
+
+    public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
+        super.onFieldUpdate(field);
+        let propertyContext = field.data as PropertyContext;
+        if (!propertyContext) {
+            return;
+        }
+        if ([Models.PropertyTypePredefined.Name, Models.PropertyTypePredefined.Description].indexOf(propertyContext.propertyTypePredefined) >= 0) {
+
+            if (true === propertyContext.isRichText) {
+                this.noteFields.push(field);
+            } else if (LookupEnum.System === propertyContext.lookup) {
+                this.systemFields.push(field);
+            } else {
+                field.hide = true;
+            }
+        }
+    }
+}

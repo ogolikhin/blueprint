@@ -12,7 +12,7 @@
                 </perfect-scrollbar>
             </div>
             <uib-tabset >
-                <uib-tab ng-repeat="field in $ctrl.richTextFields"
+                <uib-tab ng-repeat="field in $ctrl.noteFields"
                          heading="{{field.data.name}}">
                     <formly-form model="$ctrl.model" fields="[field]">
                     </formly-form>

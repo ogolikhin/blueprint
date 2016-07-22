@@ -56,7 +56,7 @@ export class ProjectExplorerController {
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
                 css.push("is-project");
             } else {
-                css.push("is-" + Helper.dashCase(Models.ItemTypePredefined[params.data.predefinedType]));
+                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
             }
 
             return css;

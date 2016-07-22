@@ -49,7 +49,7 @@ export class BPUtilityPanelController {
     private displayArtifact = (artifact: Models.IArtifact) => {
         this._currentArtifact = artifact ? `${(artifact.prefix || "")}${artifact.id}: ${artifact.name}` : null;
         this._currentArtifactClass = artifact ?
-        "icon-" + Helper.dashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document") :
+        "icon-" + Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document") :
             "icon-document";
     }
 }

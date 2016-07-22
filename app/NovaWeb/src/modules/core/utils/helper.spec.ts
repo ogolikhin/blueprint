@@ -1,5 +1,57 @@
 ﻿import {Helper} from "./helper";
 
+describe("camelCase", () => {
+    it("changes 'Bp-Tooltip' into 'bpTooltip'", () => {
+        // Arrange
+        let string = "Bp-Tooltip";
+
+        // Act
+        string = Helper.camelCase(string);
+
+        // Assert
+        expect(string).toEqual("bpTooltip");
+    });
+});
+
+describe("stripHTMLTags", () => {
+    let html = `<div><h3 class="heading">Labels</h3>
+<a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
+<a href="/folder2/declined" class="label" title="Declined">Declined</a>
+<a href="#" onclick="javascript:alert('Popup!')" class="popup" title="Popup">Popup</a></div>`;
+
+    describe("stripHTMLTags", () => {
+        it("retrieves the text content of an HTML structure", () => {
+            // Arrange
+            let text;
+
+            // Act
+            text = Helper.stripHTMLTags(html);
+
+            // Assert
+            expect(text).toEqual(`Labels
+Accepted
+Declined
+Popup`);
+        });
+    });
+
+    describe("escapeHTMLText", () => {
+        it("escapes the text content of an HTML structure", () => {
+            // Arrange
+            let text;
+
+            // Act
+            text = Helper.escapeHTMLText(html);
+
+            // Assert
+            expect(text).toEqual(`&lt;div&gt;&lt;h3 class="heading"&gt;Labels&lt;/h3&gt;
+&lt;a href="/folder1/accepted" class="label" title="Accepted"&gt;Accepted&lt;/a&gt;
+&lt;a href="/folder2/declined" class="label" title="Declined"&gt;Declined&lt;/a&gt;
+&lt;a href="#" onclick="javascript:alert('Popup!')" class="popup" title="Popup"&gt;Popup&lt;/a&gt;&lt;/div&gt;`);
+        });
+    });
+});
+
 describe("getFirstBrowserLanguage", () => {
     it("returns a value", function () {
         // Arrange
@@ -13,16 +65,29 @@ describe("getFirstBrowserLanguage", () => {
     });
 });
 
-describe("camelCase", () => {
-    it("changes 'Bp-Tooltip' into 'bpTooltip'", () => {
-        // Arrange
-        let string = "Bp-Tooltip";
-
-        // Act
-        string = Helper.camelCase(string);
+describe("uiDatePickerFormatAdaptor", () => {
+    it("should correctly parse en-US format", () => {
+        // Arrange/Act
+        let format = Helper.uiDatePickerFormatAdaptor("MM/DD/YYYY");
 
         // Assert
-        expect(string).toEqual("bpTooltip");
+        expect(format).toEqual("MM/dd/yyyy");
+    });
+
+    it("should correctly parse zh-TW format", () => {
+        // Arrange/Act
+        let format = Helper.uiDatePickerFormatAdaptor("YYYY年MMMD日");
+
+        // Assert
+        expect(format).toEqual("yyyy MMM d");
+    });
+
+    it("should correctly parse ar format", () => {
+        // Arrange/Act
+        let format = Helper.uiDatePickerFormatAdaptor("D/\u200FM/\u200FYYYY");
+
+        // Assert
+        expect(format).toEqual("d/M/yyyy");
     });
 });
 

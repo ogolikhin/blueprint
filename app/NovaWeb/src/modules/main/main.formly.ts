@@ -64,9 +64,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let ngModelAttrs = {};
 
-    function uiDatePickerFormatAdaptor(format: string): string  {
-        return format.replace(/D/g, "d").replace(/Y/g, "y");
-    }
+    let dateFormat = Helper.uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L"));
 
     angular.forEach(attributes, function(attr) {
         ngModelAttrs[Helper.camelCase(attr)] = {attribute: attr};
@@ -94,7 +92,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["frmlyLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
-                onChange: function($viewValue, $modelValue, scope) {
+                onKeyup: function($viewValue, $modelValue, scope) {
                     //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
@@ -215,6 +213,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     class="form-control has-icon"
                     ng-click="frmlyDatepicker.select($event)"
                     ng-blur="frmlyDatepicker.blur($event)"
+                    ng-keyup="frmlyDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="frmlyDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
@@ -232,7 +231,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             ngModelAttrs: ngModelAttrs,
             templateOptions: {
                 datepickerOptions: {
-                    format: uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L")),
+                    format: dateFormat,
                     formatDay: "d",
                     formatDayHeader: "EEE",
                     initDate: new Date(),
@@ -243,16 +242,17 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: moment.localeData().longDateFormat("L"),
-                onChange: function($viewValue, $modelValue, scope) {
+                placeholder: dateFormat,
+                onKeyup: function($viewValue, $modelValue, scope) {
                     //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                    //let format = dateFormat.toUpperCase();
                     let initValue = $modelValue.initialValue || $modelValue.defaultValue;
-                    let momentInit = moment(initValue, moment.localeData().longDateFormat("L"));
+                    let momentInit = moment(initValue, dateFormat);
                     if (momentInit.isValid()) {
                         initValue = momentInit.startOf("day").format("L");
                     }
                     let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
-                    let momentInput = moment(inputValue, moment.localeData().longDateFormat("L"));
+                    let momentInput = moment(inputValue, dateFormat);
                     if (momentInput.isValid()) {
                         inputValue = momentInput.startOf("day").format("L");
                     }
@@ -267,16 +267,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             }
                         }
                     }
-                },
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    let format = moment.localeData().longDateFormat("L").toUpperCase();
-                    //console.log(format)
                 }
             },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty", "Value cannot be empty") + `"`,
-                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + moment.localeData().longDateFormat("L") + `)"`
+                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + dateFormat + `)"`
                 }
             },
             validators: {
@@ -335,11 +331,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     return;
                 }
                 inputField.focus();
-                if (!$scope.frmlyDatepicker.selected) {
+                if (!$scope.frmlyDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
                     inputField.setSelectionRange(0, inputField.value.length);
                 }
                 $scope.frmlyDatepicker.selected = !$scope.frmlyDatepicker.selected;
             };
+
             $scope.frmlyDatepicker.blur = function ($event) {
                 let inputField = <HTMLInputElement> document.getElementById($scope.id);
                 if (!inputField) {
@@ -347,6 +344,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
                 $scope.frmlyDatepicker.selected = false;
             };
+
+            $scope.frmlyDatepicker.keyup = function ($event) {
+                let inputField = <HTMLInputElement> document.getElementById($scope.id);
+                let key = $event.keyCode || $event.which;
+                if (inputField && key === 13) {
+                    let calendarIcon = <HTMLInputElement> inputField.parentElement.querySelector("span button");
+                    if (calendarIcon) {
+                        calendarIcon.focus();
+                    } else {
+                        inputField.blur();
+                    }
+                }
+            }
         }]
     });
 

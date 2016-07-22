@@ -31,12 +31,6 @@ export class Helper {
         return stringEscaper.innerHTML;
     };
 
-    static decodeHtmlText = (encodedText: string) : string => {
-        var dummy = document.createElement("div");
-        dummy.innerHTML = encodedText;   
-        return dummy.innerText || dummy.textContent;
-   };
-
     /* tslint:disable */
     static findAncestorByCssClass = (element: Element, className: string): any => {
         while ((element = element.parentElement) && !element.classList.contains(className)) {
@@ -137,6 +131,18 @@ export class Helper {
         }
 
         return separator;
+    };
+
+    static uiDatePickerFormatAdaptor(format: string): string  {
+        let adapted = format;
+        adapted = adapted.replace(/[^DMY/.-]/gi, "");
+        adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
+
+        if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {
+            adapted = adapted.match(/(d{1,4}|M{1,4}|y{1,4})/g).join(" ");
+        }
+
+        return adapted;
     };
 
     public static toFlat(root: any): any[] {

@@ -113,8 +113,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
-                    number: `"` + localization.get("Property_Wrong_Format") + `"`
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
                 }
             },
             validators: {
@@ -131,24 +130,42 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         return true;
                     }
                 },
+                wrongFormat: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let value = $modelValue || $viewValue;
+                        if (value) {
+                            let separator = Helper.getDecimalSeparator();
+                            let regExp = new RegExp("^-?[0-9]\\d*(\\" + separator + "\\d+)?$", "g");
+
+                            return regExp.test(value);
+                        }
+                        return true;
+                    }
+                },
                 max: {
                     expression: function($viewValue, $modelValue, scope) {
-                        let value = Helper.parseLocaleNumber($modelValue || $viewValue);
-                        let max = scope.to.max;
+                        let value = $modelValue || $viewValue;
+                        if (value) {
+                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                            let max = scope.to.max;
 
-                        if (angular.isNumber(value) && !angular.isUndefined(max)) {
-                            return value <= max;
+                            if (angular.isNumber(value) && !angular.isUndefined(max)) {
+                                return value <= max;
+                            }
                         }
                         return true;
                     }
                 },
                 min: {
                     expression: function($viewValue, $modelValue, scope) {
-                        let value = Helper.parseLocaleNumber($modelValue || $viewValue);
-                        let min = scope.to.min;
+                        let value = $modelValue || $viewValue;
+                        if (value) {
+                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                            let min = scope.to.min;
 
-                        if (angular.isNumber(value) && !angular.isUndefined(min)) {
-                            return value >= min;
+                            if (angular.isNumber(value) && !angular.isUndefined(min)) {
+                                return value >= min;
+                            }
                         }
                         return true;
                     }
@@ -356,9 +373,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });*/
     /* tslint:enable */
 
+    /* tslint:disable */
+    formlyValidationMessages.addTemplateOptionValueMessage("wrongFormat", "", localization.get("Property_Wrong_Format"), "", localization.get("Property_Wrong_Format"));
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal count");
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Must_Be_Less"), "", "Too small");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Must_Be_Greater"), "", "Too big");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Must_Be_Less"), "", "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Must_Be_Greater"), "", "Date too small");
-    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal");
+    /* tslint:enable */
 }

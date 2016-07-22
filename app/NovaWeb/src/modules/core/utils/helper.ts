@@ -118,10 +118,10 @@ export class Helper {
     static parseLocaleNumber(numberAsAny: any, locale?: string): number {
         let number: string;
         let decimalSeparator = this.getDecimalSeparator(locale);
-        let regExp = new RegExp("[^0-9" + decimalSeparator + "]", "g");
+        let thousandSeparator = decimalSeparator === "." ? "," : ".";
 
         number = (numberAsAny || "").toString();
-        number = number.replace(regExp, "");
+        number = number.replace(thousandSeparator, "");
         if (decimalSeparator !== ".") {
             number = number.replace(decimalSeparator, ".");
         }

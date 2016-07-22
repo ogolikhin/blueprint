@@ -1,8 +1,8 @@
 <table>
     <thead>
         <tr>
-            <th>Terms{{::$root.config.labels["RR_Terms"]}}</th>
-            <th>Definition{{::$root.config.labels["RR_Definition"]}}</th>
+            <th>{{::$ctrl.localization.get('Artifact_Glossary_Term') }}</th>
+            <th>{{::$ctrl.localization.get('Artifact_Glossary_Definition') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -13,7 +13,7 @@
             <td ng-bind-html="term.definition"></td>
         </tr>
         <tr ng-if="$ctrl.glossary.terms.length === 0">
-            <td class="empty-state" colspan="2">No terms defined yet</td>
+            <td class="empty-state" colspan="2">{{::$ctrl.localization.get('Artifact_Glossary_Empty') }}</td>
         </tr>
     </tbody>
 </table>

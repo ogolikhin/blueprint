@@ -1,5 +1,6 @@
 // import { Models } from "../../../";
 import { IGlossaryDetals, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
+import { ILocalizationService } from "../../../../core";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -12,6 +13,7 @@ export class BpGlossary implements ng.IComponentOptions {
 export class BpGlossaryController {
     public static $inject: [string] = [
         "$log",
+        "localization",
         "glossaryService",
         "$sce"
     ];
@@ -22,6 +24,7 @@ export class BpGlossaryController {
 
     constructor(
         private $log: ng.ILogService,
+        private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
         private $sce: ng.ISCEService) {
     }

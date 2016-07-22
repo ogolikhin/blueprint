@@ -128,7 +128,7 @@ namespace Model.ArtifactModel.Impl
         public int ServerArtifactVersionId { get; set; }
         public DateTime? UtcLockedDateTime { get; set; }
         public string LockOwnerLogin { get; set; }
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
     }
 
     public class DiscardResultInfo

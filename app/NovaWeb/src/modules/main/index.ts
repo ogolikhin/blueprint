@@ -34,6 +34,8 @@ import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
 import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
+import "./components/editors/bp-glossary";
+
 
 
 config.$inject = ["$rootScope", "$state"];
@@ -82,7 +84,9 @@ angular.module("app.main", [
     "ngDraggable",
     "angular-perfect-scrollbar-2",
     "formly",
-    "formlyBootstrap"])
+    "formlyBootstrap",
+    "bp.editors.glossary"
+    ])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

@@ -6,7 +6,7 @@
         <i class="lock-indicator" bp-tooltip="Locked" ng-if="$ctrl.isLocked"></i>
         <!--TODO  please do not remove, I'll remove after testing-->
         <i class="dirty-indicator" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
-        <div ng-if="$ctrl.isDiagram" bp-tooltip="Legacy artifact" class="legacy-icon fonticon2-legacy"></div>
+        <div ng-if="$ctrl.isLegacy" bp-tooltip="Legacy artifact" class="legacy-icon fonticon2-legacy"></div>
     </div>
     <div class="type-id">{{ $ctrl.artifactTypeDescription }}</div>
 </div>

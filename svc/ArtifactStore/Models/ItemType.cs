@@ -19,7 +19,7 @@ namespace ArtifactStore.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Prefix { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ItemTypePredefined? BaseType { get; set; }
+        public ItemTypePredefined? PredefinedType { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? IconImageId { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

@@ -77,6 +77,9 @@ namespace Model.ArtifactModel
         /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
         /// <param name="traceType">(optional) The type of the trace - 'Manual'.</param>
         /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
+        /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
+        ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         List<OpenApiTrace> AddTrace(IUser user,
@@ -84,6 +87,8 @@ namespace Model.ArtifactModel
             TraceDirection traceDirection,
             TraceTypes traceType = TraceTypes.Manual,
             bool isSuspect = false,
+            int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

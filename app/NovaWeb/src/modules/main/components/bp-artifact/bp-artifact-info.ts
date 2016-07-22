@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models} from "../..";
+﻿import {IProjectManager, Models, Enums} from "../..";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -67,4 +67,14 @@ export class BpArtifactInfoController  {
         return false;
     }
 
+    public get isLegacy(): boolean {
+        return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.Glossary);
+    }
 }

@@ -89,12 +89,20 @@ namespace Model.Factories
         /// <param name="project">The target project</param>
         /// <param name="user">user for authentication</param>
         /// <param name="artifactType">artifactType</param>
+        /// <param name="artifactId">(optional) You can specify a custom artifact ID here (for testing non-existent artifacts for example).</param>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, int? artifactId = null)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            return CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
+            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
+
+            if (artifactId != null)
+            {
+                artifact.Id = artifactId.Value;
+            }
+
+            return artifact;
         }
     }
 }

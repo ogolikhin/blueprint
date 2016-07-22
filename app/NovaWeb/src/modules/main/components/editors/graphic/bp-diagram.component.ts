@@ -1,7 +1,7 @@
 import "angular";
 import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
-import {IDiagramService} from "./diagram.svc";
+import {IDiagramService, CancelationTokenConstant} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {IProjectManager, Models} from "../../../../main";
 import {ILocalizationService } from "../../../../core";
@@ -30,7 +30,8 @@ export class BPDiagramController {
     private subscribers: Rx.IDisposable[];
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    public isBrokenOrOld: boolean=false;
+    public isBrokenOrOld: boolean = false;
+    public errorMsg: string;
 
     constructor(
         private $element: ng.IAugmentedJQuery,
@@ -67,7 +68,7 @@ export class BPDiagramController {
             this.diagramView.destroy();
         }
         if (this.cancelationToken) {
-            this.cancelationToken.resolve();
+           this.cancelationToken.resolve();
         }
         this.isLoading = true;
         if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
@@ -76,6 +77,7 @@ export class BPDiagramController {
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
+                    this.errorMsg = this.localization.get('Diagram_OldFormat_Message');                 
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
                     this.isBrokenOrOld = false;
@@ -89,9 +91,12 @@ export class BPDiagramController {
                     this.diagramView.drawDiagram(diagram);
                 }
 
-            }).catch((error: any) => {
-                this.isBrokenOrOld = true;
-                this.$log.error(error.message);
+            }).catch((error: any) => {              
+                if (error !== CancelationTokenConstant.cancelationToken) {
+                    this.isBrokenOrOld = true;
+                    this.errorMsg = error.message;
+                    this.$log.error(error.message);
+                }               
             }).finally(() => {
                 this.cancelationToken = null;
                 this.isLoading = false;

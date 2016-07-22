@@ -110,7 +110,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(0, actual.ArtifactTypes.Count);
             Assert.AreEqual(0, actual.PropertyTypes.Count);
             Assert.AreEqual(1, actual.SubArtifactTypes.Count);
-            Assert.AreEqual(expected, actual.SubArtifactTypes[0].BaseType);
+            Assert.AreEqual(expected, actual.SubArtifactTypes[0].PredefinedType);
         }
 
 
@@ -162,7 +162,7 @@ namespace ArtifactStore.Repositories
                     VersionId = itVersions[0].VersionId,
                     IconImageId = itVersions[0].IconImageId,
                     ProjectId = _projectId,
-                    BaseType = itVersions[0].BasePredefined,
+                    PredefinedType = itVersions[0].BasePredefined,
                     CustomPropertyTypeIds = { itptMap[0].PropertyTypeId, itptMap[1].PropertyTypeId }
                 }
             };
@@ -218,7 +218,7 @@ namespace ArtifactStore.Repositories
                     Name = itVersions[0].Name,
                     VersionId = itVersions[0].VersionId,
                     ProjectId = _projectId,
-                    BaseType = itVersions[0].Predefined,
+                    PredefinedType = itVersions[0].Predefined,
                     CustomPropertyTypeIds = { itptMap[2].PropertyTypeId }
                 }
             };

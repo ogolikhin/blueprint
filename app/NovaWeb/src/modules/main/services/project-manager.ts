@@ -327,11 +327,11 @@ export class ProjectManager implements IProjectManager {
             propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
-                if (_artifactType.baseType === Models.ItemTypePredefined.Project) {
+                if (_artifactType.predefinedType === Models.ItemTypePredefined.Project) {
                     return [_artifactType];
                 }
                 return meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return (_artifactType && (_artifactType.baseType === it.baseType));
+                    return (_artifactType && (_artifactType.predefinedType === it.predefinedType));
                 });
             } (_project.meta).map(function (it) {
                 return <Models.IOption>{
@@ -401,7 +401,7 @@ export class ProjectManager implements IProjectManager {
             _artifactType = <Models.IItemType>{
                 id: Models.ItemTypePredefined.Project,
                 name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                baseType: Models.ItemTypePredefined.Project,
+                predefinedType: Models.ItemTypePredefined.Project,
                 customPropertyTypeIds: []
             };
         } else {

@@ -101,7 +101,7 @@ export class BPArtifactRelationshipItemController {
 
     public limitChars(str) {
         if (str) {
-            let text = Helper.decodeHtmlText(str);
+            let text = Helper.stripHTMLTags(str);
             if (text) {
                 if (text.length > 100) {
                     return text.substring(0, 100) + "...";

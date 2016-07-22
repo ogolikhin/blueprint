@@ -55,7 +55,7 @@ namespace Model.ArtifactModel.Impl
     {
         To,
         From,
-        Both
+        TwoWay
     }
 
     [Flags]

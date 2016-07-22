@@ -386,7 +386,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Create and save process artifact to be used as include; enable recursive delete flag
-            var includedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
 
             // Add include to default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -447,7 +447,7 @@ namespace StorytellerTests
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
             // Create a Process artifact
-            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
 
             // Get default process
             var returnedProcess = Helper.Storyteller.GetProcess(_user, addedProcessArtifact.Id);

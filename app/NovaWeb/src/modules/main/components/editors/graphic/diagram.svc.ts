@@ -9,6 +9,10 @@ export interface IDiagramService {
     isDiagram(itemType: ItemTypePredefined): boolean;
 }
 
+export var CancelationTokenConstant = {
+    cancelationToken: "Cancelled"
+};
+
 export class DiagramService implements IDiagramService {
 
     private promises: { [id: string]: ng.IPromise<any> } = {};
@@ -23,7 +27,7 @@ export class DiagramService implements IDiagramService {
         if (!promise) {
             const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
             cancelationToken.then(() => {
-                deferred.reject("Cancelled");
+                deferred.reject(CancelationTokenConstant.cancelationToken);
             });
             const path = this.getPath(id, itemType);
             let diagaram: IDiagram = null;
@@ -52,7 +56,7 @@ export class DiagramService implements IDiagramService {
                 }).error((data: any, status: number) => {
                     delete this.promises[id];
                     if (status <= 0) {
-                        deferred.reject("Cancelled");
+                        deferred.reject(CancelationTokenConstant.cancelationToken);
                     } else {
                         data.statusCode = status;
                         deferred.reject(data);

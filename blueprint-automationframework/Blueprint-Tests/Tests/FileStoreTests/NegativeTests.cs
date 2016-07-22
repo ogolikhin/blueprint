@@ -37,6 +37,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
+        [TestRail(153895)]
         [Description("POST a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
         public void PostFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
@@ -64,6 +65,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, null, typeof(Http400BadRequestException))]
+        [TestRail(153896)]
         [Description("PUT a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
         public void PutFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
@@ -104,6 +106,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
+        [TestRail(153897)]
         [Description("GET a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
         public void GetFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
@@ -136,6 +139,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
+        [TestRail(153898)]
         [Description("GET HEAD for a file with an invalid session token. Verify that an unauthorized or bad request exception is returned.")]
         public void GetFileHead_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
@@ -166,6 +170,7 @@ namespace FileStoreTests
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
+        [TestRail(153899)]
         [Description("DELETE a file with an invalid session token. Verify that an unauthorized or bad exception is returned.")]
         public void DeleteFile_InvalidSessionToken_UnauthorizedOrBadRequestException(
             uint fileSize,
@@ -380,6 +385,7 @@ Content-Type: text/plain";
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "")]
+        [TestRail(153900)]
         [Description("POST a file with no content type header. Verify that a bad request exception is returned.")]
         public void PostFile_NoContentTypeHeader_BadRequestException(
                 uint fileSize,
@@ -397,6 +403,7 @@ Content-Type: text/plain";
         }
 
         [TestCase((uint)1024, "", "text/plain")]
+        [TestRail(153901)]
         [Description("POST a file with no filename in the header. Verify that a bad request exception is returned.")]
         public void PostFile_NoFileName_BadRequestException(
                 uint fileSize,

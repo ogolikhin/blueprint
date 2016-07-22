@@ -155,7 +155,7 @@ namespace ArtifactStore.Repositories
                 ProjectId = projectId,
                 VersionId = itv.VersionId,
                 InstanceItemTypeId = itv.InstanceItemTypeId,
-                BaseType = itv.BasePredefined ?? itv.Predefined,
+                PredefinedType = itv.BasePredefined ?? itv.Predefined,
                 Prefix = itv.Prefix,
                 IconImageId = itv.IconImageId,
                 UsedInThisProject = itv.UsedInThisProject

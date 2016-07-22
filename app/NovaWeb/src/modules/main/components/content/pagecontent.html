@@ -12,7 +12,9 @@
         </div>
         <div class="page-body" ng-switch="$content.contentType">
             <bp-diagram ng-switch-when="diagram"></bp-diagram>
-            <bp-artifact ng-switch-default context="$content.context" ></bp-artifact>
+            <bp-glossary ng-switch-when="glossary" context="$content.context.artifact.id"></bp-glossary>
+            <bp-project-editor ng-switch-when="project" context="$content.context"></bp-project-editor>
+            <bp-artifact-editor ng-switch-default context="$content.context" ></bp-artifact-editor>
         </div>
     </div>
 </div>

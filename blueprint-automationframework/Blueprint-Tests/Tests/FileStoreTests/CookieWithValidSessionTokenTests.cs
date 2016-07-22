@@ -28,6 +28,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153884)]
         [Description("POST a file with a valid cookie session token. Verify that a bad request exception is returned.")]
         public void PostFile_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
@@ -45,6 +46,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
+        [TestRail(153885)]
         [Description("PUT a file with a valid cookie session token. Verify that a bad request exception is returned.")]
         public void PutFile_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
@@ -75,6 +77,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153886)]
         [Description("GET a file with a valid cookie session token. Verify that the file is returned successfully.")]
         public void GetFile_ValidCookieSessionToken_Authorized(
             uint fileSize,
@@ -95,6 +98,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153887)]
         [Description("GET HEAD for a file with a valid cookie session token. Verify that a bad request exception is returned.")]
         public void GetFileHead_ValidCookieSessionToken_BadRequestException(
             uint fileSize,
@@ -115,6 +119,7 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestRail(153888)]
         [Description("DELETE a file with a valid cookie session token. Verify that a bad request exception is returned.")]
         public void DeleteFile_ValidCookieToken_BadRequestException(
             uint fileSize,

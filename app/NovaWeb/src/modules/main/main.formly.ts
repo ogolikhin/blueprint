@@ -75,7 +75,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "frmlyNumber",
+        name: "bpFieldNumber",
         extends: "input",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
@@ -89,7 +89,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 </div>
             </div>`,
         /* tslint:enable */
-        wrapper: ["frmlyLabel", "bootstrapHasError"],
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
                 onKeyup: function($viewValue, $modelValue, scope) {
@@ -173,9 +173,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "frmlyTinymce",
+        name: "bpFieldTinymce",
         template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["frmlyLabel"],
+        wrapper: ["bpFieldLabel"],
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
@@ -187,7 +187,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "frmlyInlineTinymce",
+        name: "bpFieldInlineTinymce",
         /* tslint:disable */
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
@@ -203,7 +203,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
-        name: "frmlyDatepicker",
+        name: "bpFieldDatepicker",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <input type="text"
@@ -211,22 +211,22 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     class="form-control has-icon"
-                    ng-click="frmlyDatepicker.select($event)"
-                    ng-blur="frmlyDatepicker.blur($event)"
-                    ng-keyup="frmlyDatepicker.keyup($event)"
+                    ng-click="bpFieldDatepicker.select($event)"
+                    ng-blur="bpFieldDatepicker.blur($event)"
+                    ng-keyup="bpFieldDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
-                    is-open="frmlyDatepicker.opened"
+                    is-open="bpFieldDatepicker.opened"
                     datepicker-append-to-body="to.datepickerAppendToBody" 
                     datepicker-options="to.datepickerOptions" />
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="frmlyDatepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button type="button" class="btn btn-default" ng-click="bpFieldDatepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
         /* tslint:enable */
-        wrapper: ["frmlyLabel", "bootstrapHasError"],
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             ngModelAttrs: ngModelAttrs,
             templateOptions: {
@@ -311,7 +311,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
         },
         controller: ["$scope", function ($scope) {
-            $scope.frmlyDatepicker = {};
+            $scope.bpFieldDatepicker = {};
 
             // make sure the initial value is of type DATE!
             let currentModelVal = $scope.model[$scope.options.key];
@@ -319,33 +319,33 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = new Date(currentModelVal);
             }
 
-            $scope.frmlyDatepicker.opened = false;
-            $scope.frmlyDatepicker.open = function ($event) {
-                $scope.frmlyDatepicker.opened = !$scope.frmlyDatepicker.opened;
+            $scope.bpFieldDatepicker.opened = false;
+            $scope.bpFieldDatepicker.open = function ($event) {
+                $scope.bpFieldDatepicker.opened = !$scope.bpFieldDatepicker.opened;
             };
 
-            $scope.frmlyDatepicker.selected = false;
-            $scope.frmlyDatepicker.select = function ($event) {
+            $scope.bpFieldDatepicker.selected = false;
+            $scope.bpFieldDatepicker.select = function ($event) {
                 let inputField = <HTMLInputElement> document.getElementById($scope.id);
                 if (!inputField) {
                     return;
                 }
                 inputField.focus();
-                if (!$scope.frmlyDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
+                if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
                     inputField.setSelectionRange(0, inputField.value.length);
                 }
-                $scope.frmlyDatepicker.selected = !$scope.frmlyDatepicker.selected;
+                $scope.bpFieldDatepicker.selected = !$scope.bpFieldDatepicker.selected;
             };
 
-            $scope.frmlyDatepicker.blur = function ($event) {
+            $scope.bpFieldDatepicker.blur = function ($event) {
                 let inputField = <HTMLInputElement> document.getElementById($scope.id);
                 if (!inputField) {
                     return;
                 }
-                $scope.frmlyDatepicker.selected = false;
+                $scope.bpFieldDatepicker.selected = false;
             };
 
-            $scope.frmlyDatepicker.keyup = function ($event) {
+            $scope.bpFieldDatepicker.keyup = function ($event) {
                 let inputField = <HTMLInputElement> document.getElementById($scope.id);
                 let key = $event.keyCode || $event.which;
                 if (inputField && key === 13) {
@@ -356,12 +356,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         inputField.blur();
                     }
                 }
-            }
+            };
         }]
     });
 
     formlyConfig.setWrapper({
-        name: "frmlyLabel",
+        name: "bpFieldLabel",
         template: `<div>
               <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label">
                 {{to.label}}
@@ -372,7 +372,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     /* tslint:disable */
     /* not using this template yet
     formlyConfig.setWrapper({
-        name: "frmlyHasError",
+        name: "bpFieldHasError",
         template: `<div class="form-group" ng-class="{'has-error': showError}">
                 <label class="control-label" for="{{id}}">{{to.label}}</label>
                 <formly-transclude></formly-transclude>

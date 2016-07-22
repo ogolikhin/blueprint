@@ -54,7 +54,7 @@ describe("Formly", () => {
         });
 
         it("should fail if the number is less than min", function () {
-            compileAndSetupStuff({model: {number: 1}});
+            compileAndSetupStuff({model: {number: -100}});
 
             let fieldNode = node.querySelector(".formly-field-frmlyNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();

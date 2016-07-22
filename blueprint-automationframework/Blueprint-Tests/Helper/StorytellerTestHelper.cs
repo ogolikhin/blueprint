@@ -213,7 +213,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create default process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, user);
 
             // Get default process
             var process = storyteller.GetProcess(user, addedProcessArtifact.Id);

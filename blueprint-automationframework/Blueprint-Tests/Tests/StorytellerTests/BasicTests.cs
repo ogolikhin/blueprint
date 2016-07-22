@@ -48,7 +48,7 @@ namespace StorytellerTests
             int defaultLinksCount, 
             int defaultPropertyValuesCount)
         {
-            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
 
             var returnedProcess = Helper.Storyteller.GetProcess(_user, artifact.Id);
 
@@ -67,7 +67,7 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IArtifact artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IArtifact artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>

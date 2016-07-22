@@ -94,7 +94,7 @@ namespace StorytellerTests
         public void LockArtifactByDeletingWithSecondUser_VerifyTheReturnedProcessStatusWithFirstUser()
         {
             // Create and save the process artifact with the second user 
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
+            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _secondaryUser);
             var process = Helper.Storyteller.GetProcess(_secondaryUser, processArtifact.Id);
 
             var expectedProcessStatus = ProcessStatusState.NeverPublishedAndUpdated;

@@ -18,11 +18,11 @@ namespace Model.StorytellerModel
         /// Create and Save a Process artifact
         /// </summary>
         /// <param name="project">The project where the process artifact is to be added</param>
-        /// <param name="artifactType">The base artifact type of the process artifact</param>
         /// <param name="user">The user credentials for the request to create the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
+        /// 
         /// <returns>The saved artifact object</returns>
-        IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifact CreateAndSaveProcessArtifact(IProject project, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Create and Save Multiple Process Artifacts

@@ -69,7 +69,7 @@ export enum ItemTypePredefined {
 }
 
 export enum PropertyTypePredefined {
-    ItemType = -1, // for client use only to identify an edit field
+    ItemTypeId = -1, // for client use only 
 
     None = 0,
     SystemGroup = 4096,

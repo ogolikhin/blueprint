@@ -1,4 +1,5 @@
 ﻿import {Models} from "../../../";
+import {Helper} from "../../../../core";
 import {IMessageService} from "../../../../shell/";
 import {IArtifactService} from "../../../services/";
 import {tinymceMentionsData} from "../../../../util/tinymce-mentions.mock"; //TODO: added just for testing
@@ -10,11 +11,13 @@ export interface IEditorContext {
     propertyTypes?: Models.IPropertyType[];
 }
 
+export interface IGroupFields {
+    [key: string]: AngularFormly.IFieldConfigurationObject[];
+}
+
+
 export class BpBaseEditor {
-    public static $inject: [string] = [
-        "messageService",
-        "artifactService"
-    ];
+    public static $inject: [string] = ["messageService"];
 
     public form: angular.IFormController;
     public model = {};
@@ -25,78 +28,94 @@ export class BpBaseEditor {
 
     public readOnly: boolean = false;
 
-    constructor(
-        public messageService: IMessageService,
-        public artifactService: IArtifactService) {
+    constructor (public messageService: IMessageService) {
+        this.editor = new PropertyEditor(); 
     }
 
-    public $onChanges(changesObj) {
+    public $onChanges(obj: any) {
         try {
-            this.context = changesObj.context ? changesObj.context.currentValue : null;
-            this.fields = null;
-            this.model = null;
-            if (this.context && this.context.artifact && this.context.propertyTypes) {
-                this.contextLoading(this.context);
+            this.fields = [];
+            this.model = {};
+            if (this.onLoading(obj)) {
+                this.onLoad(this.context);
             }
         } catch (ex) {
             this.messageService.addError(ex.message);
         }
     }
 
-    public contextLoading(context: IEditorContext)
-    {
-        this.contextLoaded(context);
+    public $onDestroy() {
+        if (this.editor) {
+            this.editor.destroy();
+        }
+        delete this.editor;
+        delete this.context;
+        delete this.fields;
+        delete this.model;
     }
 
-    public onPropertyChange($viewValue, $modelValue, scope) {
-    };
 
     public isReadOnly($viewValue, $modelValue, scope): boolean {
         return this.readOnly;
     };
 
-    public contextLoaded(context: IEditorContext) {
+    public onPropertyChange($viewValue, $modelValue, scope) {
+    };
+
+    public onLoading(obj: any): boolean  {
+        this.context = obj.context ? obj.context.currentValue : null;
+        return !!(this.context && this.context.artifact && this.context.propertyTypes);
+    }
+
+    public onLoad(context: IEditorContext)
+    {
+        this.onUpdate(context);
+    }
+
+    public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
+        if (!angular.isArray(this.fields)) {
+            this.fields = [];
+        }
+        this.fields.push(field);
+    }
+
+    public onUpdate(context: IEditorContext) {
         let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
-            switch (it.propertyTypePredefined) {
-                case Models.PropertyTypePredefined.Name:
-                    return new FieldContext(it, "name");
-                case Models.PropertyTypePredefined.ItemType:
-                    return new FieldContext(it, "itemTypeId");
-                default:
-                    return new FieldContext(it);
-            }
+            return new PropertyContext(it);
         });
 
-
-        this.editor = new PropertyEditor(context.artifact, fieldContexts);
+        this.editor.load(context.artifact, fieldContexts);
         this.model = this.editor.getModel();
-        this.fields = this.editor.getFields().map((it: AngularFormly.IFieldConfigurationObject) => {
+        this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
             //add property change handler to each field
             angular.extend(it.templateOptions, {
                 onChange: this.onPropertyChange.bind(this)
             });
-            angular.extend(it.expressionProperties, {
-                "templateOptions.disabled": this.isReadOnly.bind(this)
-            });
-            return it;
+            //angular.extend(it.expressionProperties, {
+            //    "templateOptions.disabled": this.isReadOnly.bind(this)
+            //});
+
+            this.onFieldUpdate(it);
+
         });
     }
 }
 
 
-enum LookupEnum {
-    ByName = 0,
-    ById = 1,
-    ByType = 2,
+export enum LookupEnum {
+    System = 0,
+    Custom = 1,
+    Special = 2,
 }
 
 export interface IPropertyEditor {
+    load(artifact: Models.IArtifact, properties: PropertyContext[]);
     getFields(): AngularFormly.IFieldConfigurationObject[];
     getModel(): any;
     destroy(): void;
 }
 
-export class FieldContext implements Models.IPropertyType {
+export class PropertyContext implements Models.IPropertyType {
     public id: number;
     public versionId: number;
     public name: string;
@@ -120,97 +139,107 @@ export class FieldContext implements Models.IPropertyType {
     public propertyTypePredefined: Models.PropertyTypePredefined;
     public disabled: boolean;
     //extension
-    public isSystem: boolean;
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
     public lookup: LookupEnum;
+    public group: string; 
 
-    constructor(type: Models.IPropertyType, modelPropertyName?: string) {
+    constructor(type: Models.IPropertyType, specialType?: string) {
         angular.extend(this, type);
-
-        let txtType: string = String(Models.PropertyTypePredefined[this.propertyTypePredefined]);
-        if (modelPropertyName) {
-            this.lookup = LookupEnum.ByName;
-            this.fieldPropertyName = modelPropertyName;
-            this.modelPropertyName = modelPropertyName;
-        } else if (angular.isDefined(type.propertyTypePredefined)) {
-            this.lookup = LookupEnum.ByType;
-            this.fieldPropertyName = txtType.toLowerCase();
-            this.modelPropertyName = <number>this.propertyTypePredefined;
-        } else {
-            this.lookup = LookupEnum.ById;
+        let propertyTypeName: string = Helper.toCamelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
+        if (this.isSystem(this.propertyTypePredefined)) {
+            this.lookup = LookupEnum.System;
+            this.fieldPropertyName = propertyTypeName;
+            this.modelPropertyName = propertyTypeName;
+        } else if (!specialType && angular.isDefined(this.propertyTypePredefined)) {
+            this.lookup = LookupEnum.Custom;
             this.fieldPropertyName = `property_${this.id.toString()}`;
             this.modelPropertyName = this.id;
+        } else {
+            this.lookup = LookupEnum.Special;
+            this.fieldPropertyName = `special_${this.id.toString()}`;
+            this.modelPropertyName = this.id;
         }
-        this.isSystem = ["name", "itemtype", "createdby", "createdon", "lasteditedby", "lasteditedon"].indexOf(txtType.toLowerCase()) >= 0;
-        //}
     }
 
-
+    private isSystem(type: Models.PropertyTypePredefined): boolean {
+        return [Models.PropertyTypePredefined.Name,
+            Models.PropertyTypePredefined.ItemTypeId,
+            Models.PropertyTypePredefined.CreatedBy,
+            Models.PropertyTypePredefined.CreatedOn,
+            Models.PropertyTypePredefined.LastEditedBy,
+            Models.PropertyTypePredefined.LastEditedOn,
+            Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+    }
 }
 
 export class PropertyEditor implements IPropertyEditor {
     private _artifact: Models.IArtifact;
-    private _project: Models.IProject;
 
     private _fields: AngularFormly.IFieldConfigurationObject[];
     private _model: any = {};
 
-    constructor(artifact: Models.IArtifact, filedContexts: FieldContext[]) {
+    constructor() {}
 
-        if (!artifact || !filedContexts) {
-            return;
-        }
-        this._artifact = artifact;
+    public load(artifact: Models.IArtifact, properties: PropertyContext[]) {
+
         this._fields = [];
 
-        filedContexts.forEach((it: FieldContext) => {
-            if (it.fieldPropertyName && it.modelPropertyName) {
-                let field = this.createPropertyField(it);
-                let value: any;
+        if (artifact && angular.isArray(properties)) {
+            this._artifact = artifact;
+            properties.forEach((it: PropertyContext) => {
+                if (it.fieldPropertyName && it.modelPropertyName) {
+                    let field = this.createPropertyField(it);
+                    let value: any;
 
-                //Get property valie 
-                if (it.lookup === LookupEnum.ByName) {
-                    value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
-                } else {
-                    let propertyValue = (this._artifact.propertyValues || []).filter((value) => {
-                        return it.lookup === LookupEnum.ById ?
-                            value.propertyTypeId === <number>it.modelPropertyName :
-                            value.propertyTypePredefined === <number>it.modelPropertyName;
-                    })[0];
-                    value = propertyValue ? propertyValue.value : undefined;
-                }
-                
-                //create model property
-                if (angular.isDefined(value)) {
-                    if (it.primitiveType === Models.PrimitiveType.Date) {
-                        value = new Date(value);
-                    } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                        if (value.validValueIds) {
-                            value = value.validValueIds[0];  // Temporary user only one value for single select
-                        }
-                        value = value.toString();
-
-                    } else if (it.primitiveType === Models.PrimitiveType.User) {
-                        if (value.userGroups) {
-                            value = value.map((val: any) => {
-                                return val.id;
-                            })[0];
-                        }
-                        value = value.toString();
+                    //Get property value 
+                    if (it.lookup === LookupEnum.System) {
+                        value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
+                    } else if (it.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
+                        let propertyValue = this._artifact.customPropertyValues.filter((value) => {
+                            return value.propertyTypeId === <number>it.modelPropertyName;
+                        })[0];
+                        value = propertyValue ? propertyValue.value : undefined;
+                    } else if (it.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
+                        let propertyValue = this._artifact.customPropertyValues.filter((value) => {
+                            return value.propertyTypeId === <number>it.modelPropertyName;
+                        })[0];
+                        value = propertyValue ? propertyValue.value : undefined;
                     }
-                    this._model[it.fieldPropertyName] = value;
+                
+                    //create internal model property value
+                    if (angular.isDefined(value)) {
+                        if (it.primitiveType === Models.PrimitiveType.Date) {
+                            value = new Date(value);
+                        } else if (it.primitiveType === Models.PrimitiveType.Choice) {
+                            if (value.validValueIds) {
+                                value = value.validValueIds[0];  // Temporary user only one value for single select
+                            }
+                            value = value.toString();
+
+                        } else if (it.primitiveType === Models.PrimitiveType.User) {
+                            //TODO: must be changed when  a field editor for this type of property is created
+                            if (value.userGroups) {
+                                value = value.map((val: Models.IUserGroup) => {
+                                    return val.displayName;
+                                })[0];
+                            } else {
+                                value = (value as Models.IUserGroup).displayName;
+                            }
+                            value = value.toString();
+                        }
+                        this._model[it.fieldPropertyName] = value;
+                    }
+                    this._fields.push(field);
                 }
-                this._fields.push(field);
-            }
-        });
+            });
+        } 
     }
 
     public destroy() {
         delete this._fields;
         delete this._model;
         delete this._artifact;
-        delete this._project;
     }
 
     public getFields(): AngularFormly.IFieldConfigurationObject[] {
@@ -222,7 +251,7 @@ export class PropertyEditor implements IPropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: FieldContext): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: PropertyContext): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,
@@ -276,7 +305,8 @@ export class PropertyEditor implements IPropertyEditor {
                 }
                 if (angular.isNumber(context.decimalPlaces)) {
                     field.templateOptions["decimalPlaces"] = context.decimalPlaces;
-                }                break;
+                }
+                break;
             case Models.PrimitiveType.Choice:
                 field.type = "select";
                 if (angular.isNumber(context.defaultValidValueId)) {
@@ -290,16 +320,16 @@ export class PropertyEditor implements IPropertyEditor {
                 }
                 break;
             case Models.PrimitiveType.User:
-                field.type = "select"; // needs to be changed to user selection
-                if (angular.isNumber(context.defaultValidValueId)) {
-                    field.defaultValue = context.defaultValidValueId.toString();
-                }
-                field.templateOptions.options = [];
-                if (context.validValues && context.validValues.length) {
-                    field.templateOptions.options = context.validValues.map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                    });
-                }
+                field.type = "input"; // needs to be changed to user selection
+                //if (angular.isNumber(context.defaultValidValueId)) {
+                //    field.defaultValue = context.defaultValidValueId.toString();
+                //}
+                //field.templateOptions.options = [];
+                //if (context.validValues && context.validValues.length) {
+                //    field.templateOptions.options = context.validValues.map(function (it) {
+                //        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                //    });
+                //}
                 break;
             default:
                 //case Models.PrimitiveType.Image:

@@ -71,10 +71,10 @@ class PageContentCtrl {
         } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
             return "glossary";
         } else if (Models.ItemTypePredefined.Project == artifact.predefinedType) {
-            return "project";
+            return "general";
         } else if (Models.ItemTypePredefined.CollectionFolder == artifact.predefinedType) {
-            return "collection";
+            return "general";
         }
-        return "general";
+        return "details";
     }
 }

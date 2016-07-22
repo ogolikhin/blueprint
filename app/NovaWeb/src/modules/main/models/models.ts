@@ -1,34 +1,6 @@
 ﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
 export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
 
-export enum ArtifactTypeEnum {
-    Project = -1,
-
-    Unknown = 0,
-    // Artifacts
-    Folder = 1,
-    Actor = 2,
-    Document = 3,
-    DomainDiagram = 4,
-    GenericDiagram = 5,
-    Glossary = 6,
-    Process = 7,
-    Storyboard = 8,
-    Requirement = 9,
-    UiMockup = 10,
-    UseCase = 11,
-    UseCaseDiagram = 12,
-
-    //BaseLines and Reviews
-    BaselineReviewFolder = 13,
-    Baleline = 14,
-    Review = 15,
-
-    //Collections
-    CollectionFolder = 16,
-    Collection = 17
-}
-
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -57,12 +29,20 @@ export interface ITrace {
 export interface IItem {
     id: number;
     name?: string;
+    description?: string;
     parentId?: number;
     itemTypeId?: number;
     itemTypeVersionId?: number;
     version?: number;
-    propertyValues?: IPropertyValue[];
+    customPropertyValues?: IPropertyValue[];
+    specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
+}
+
+export interface IUserGroup {
+    id?: number;
+    displayName?: string;
+    isGroup?: boolean;
 }
 
 export interface ISubArtifact extends IItem {
@@ -74,6 +54,10 @@ export interface IArtifact extends IItem {
     prefix?: string;
     orderIndex?: number;
     version?: number;
+    createdOn?: Date; 
+    lastEditedOn?: Date;
+    createdBy?: IUserGroup;
+    lastEditedBy?: IUserGroup;
     permissions?: number;
     lockedByUserId?: number;
     hasChildren?: boolean;
@@ -146,8 +130,7 @@ export interface IProject extends IArtifact {
     meta?: IProjectMeta;
 }
 
-
-export class Project implements IProject {
+export class Project implements IProject { 
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
         this.itemTypeId = <number>ItemTypePredefined.Project;

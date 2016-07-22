@@ -14,6 +14,7 @@
             <bp-diagram ng-switch-when="diagram"></bp-diagram>
             <bp-glossary ng-switch-when="glossary" context="$content.context.artifact.id"></bp-glossary>
             <bp-project-editor ng-switch-when="project" context="$content.context"></bp-project-editor>
+            <bp-general-editor ng-switch-when="general" context="$content.context"></bp-general-editor>
             <bp-artifact-editor ng-switch-default context="$content.context" ></bp-artifact-editor>
         </div>
     </div>

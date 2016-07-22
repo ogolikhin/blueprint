@@ -380,7 +380,7 @@ namespace ArtifactStoreTests
             }, "GetArtifactRelationships should return 404 Not Found if the artifact ID doesn't exist.");
         }
 
-        [TestCase(0), Explicit(IgnoreReasons.ProductBug)]   // Trello bug: https://trello.com/c/K2Nnx5im/1321-get-relationships-returns-400-for-sub-artifactid-of-0-but-404-for-artifactid-of-0-they-should-be-consistent
+        [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(153841)]
         [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]

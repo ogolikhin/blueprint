@@ -137,16 +137,17 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, int?, List{HttpStatusCode})" />
+        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, int?, bool?, List{HttpStatusCode})" />
         public List<OpenApiTrace> AddTrace(IUser user,
             IArtifactBase targetArtifact,
             TraceDirection traceDirection,
             TraceTypes traceType = TraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddTrace(Address, this, targetArtifact, traceDirection, user, traceType, isSuspect, subArtifactId, expectedStatusCodes);
+            return AddTrace(Address, this, targetArtifact, traceDirection, user, traceType, isSuspect, subArtifactId, reconcileWithTwoWay, expectedStatusCodes);
         }
 
         #endregion Methods
@@ -723,6 +724,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
         /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
+        /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
+        ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address,
@@ -733,6 +736,7 @@ namespace Model.ArtifactModel.Impl
             TraceTypes traceType = TraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -748,6 +752,13 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
+            Dictionary<string, string> queryParameters = null;
+
+            if (reconcileWithTwoWay != null)
+            {
+                queryParameters = new Dictionary<string, string> { {"reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
+            }
+
             OpenApiTrace traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
                 traceDirection, traceType, isSuspect, subArtifactId);
 
@@ -757,6 +768,7 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.POST,
                 new List<OpenApiTrace> { traceToCreate },
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             if (expectedStatusCodes.Contains(HttpStatusCode.Created))

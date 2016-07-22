@@ -9,7 +9,14 @@ export class Helper {
         });
     }
 
-    static camelCase(token: string): string {
+    static toDashCase(token: string): string {
+        token = token.replace(/(\B[A-Z][a-z]+)/g, function(match) {
+            return "-" + match.toLowerCase();
+        });
+        return token.toLowerCase();
+    };
+
+    static toCamelCase(token: string): string {
         token = token.replace(/[\-_\s]+(.)?/g, function(match, chr) {
             return chr ? chr.toUpperCase() : "";
         });
@@ -30,12 +37,6 @@ export class Helper {
         stringEscaper.textContent = stringToEscape;
         return stringEscaper.innerHTML;
     };
-
-    static decodeHtmlText = (encodedText: string) : string => {
-        var dummy = document.createElement("div");
-        dummy.innerHTML = encodedText;   
-        return dummy.innerText || dummy.textContent;
-   };
 
     /* tslint:disable */
     static findAncestorByCssClass = (element: Element, className: string): any => {
@@ -113,6 +114,42 @@ export class Helper {
         }
 
         return null;
+    };
+
+    static parseLocaleNumber(numberAsAny: any, locale?: string): number {
+        let number: string;
+        let decimalSeparator = this.getDecimalSeparator(locale);
+        let thousandSeparator = decimalSeparator === "." ? "," : ".";
+
+        number = (numberAsAny || "").toString();
+        number = number.replace(thousandSeparator, "");
+        if (decimalSeparator !== ".") {
+            number = number.replace(decimalSeparator, ".");
+        }
+
+        return parseFloat(number);
+    };
+
+    static getDecimalSeparator(locale?: string): string {
+        let separator = ".";
+        let locale_ = locale || this.getFirstBrowserLanguage();
+        if (Number.toLocaleString) {
+            separator = (1.1).toLocaleString(locale_).replace(/\d/g, "");
+        }
+
+        return separator;
+    };
+
+    static uiDatePickerFormatAdaptor(format: string): string  {
+        let adapted = format;
+        adapted = adapted.replace(/[^DMY/.-]/gi, "");
+        adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
+
+        if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {
+            adapted = adapted.match(/(d{1,4}|M{1,4}|y{1,4})/g).join(" ");
+        }
+
+        return adapted;
     };
 
     public static toFlat(root: any): any[] {

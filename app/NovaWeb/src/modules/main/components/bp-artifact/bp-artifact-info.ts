@@ -1,4 +1,5 @@
 ﻿import {IProjectManager, Models, Enums} from "../..";
+import {Helper} from "../../../core/utils/helper";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -38,8 +39,7 @@ export class BpArtifactInfoController  {
 
     private updateInfo = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
-    }
-
+    };
     
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;
@@ -50,6 +50,13 @@ export class BpArtifactInfoController  {
             (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : 
             null;
     }
+
+    public get artifactClass(): string {
+        return this._artifact ?
+            "icon-" + Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document") :
+            "icon-document";
+    }
+
     public get artifactTypeDescription(): string {
         return this._artifact ?
             `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
@@ -67,14 +74,14 @@ export class BpArtifactInfoController  {
         return false;
     }
 
-    public get isDiagram(): boolean {
+    public get isLegacy(): boolean {
         return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram);
-
+            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.Glossary);
     }
 }

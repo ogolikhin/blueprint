@@ -93,6 +93,7 @@ export class StyleBuilder {
         style[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = mxConstants.ALIGN_BOTTOM;
         style[mxConstants.STYLE_EXIT_PERIMETER] = 0;
         style[mxConstants.STYLE_ENTRY_PERIMETER] = 0;
+        style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
 
         if (connection.strokeDashPattern != null) {
             style[mxConstants.STYLE_DASHED] = 1;

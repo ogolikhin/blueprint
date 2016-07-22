@@ -66,12 +66,12 @@ namespace Model.StorytellerModel.Impl
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
-        public IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifact CreateAndSaveProcessArtifact(IProject project, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveProcessArtifact));
 
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateArtifact(Address, user, project, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(Address, user, project, BaseArtifactType.Process);
 
             //Set to add in root of the project
             artifact.ParentId = artifact.ProjectId;
@@ -94,7 +94,7 @@ namespace Model.StorytellerModel.Impl
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                var artifact = CreateAndSaveProcessArtifact(project, user);
                 artifacts.Add(artifact);
             }
             return artifacts;
@@ -120,7 +120,7 @@ namespace Model.StorytellerModel.Impl
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                var artifact = CreateAndSaveProcessArtifact(project, user);
                 MarkArtifactAsSaved(artifact.Id);
                 artifact.Publish(user);
                 MarkArtifactAsPublished(artifact.Id);

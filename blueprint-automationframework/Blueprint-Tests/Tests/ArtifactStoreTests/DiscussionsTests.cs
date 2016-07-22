@@ -9,6 +9,7 @@ using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -17,19 +18,34 @@ namespace ArtifactStoreTests
     public class DiscussionsTests : TestBase
     {
         private IUser _user = null;
+        private IUser _adminUser = null;
         private IProject _project = null;
+        private IGroup _authorsGroup = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _authorsGroup = GroupFactory.CreateGroup(RandomGenerator.RandomAlphaNumeric(6),
+                RandomGenerator.RandomAlphaNumeric(6), "auth@auth.net");
+            _authorsGroup.AddGroupToDatabase();
+
+            _user = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _authorsGroup.AddUser(_user);
+
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+
+            _authorsGroup.AssignProjectAuthorRole(_project);
+
+            Helper.AdminStore.AddSession(_user);
+            Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);
         }
 
         [TearDown]
         public void TearDown()
         {
+            _authorsGroup.DeleteGroup();
             Helper?.Dispose();
         }
 
@@ -39,7 +55,7 @@ namespace ArtifactStoreTests
         public void GetDiscussions_PublishedArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
             var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
@@ -63,16 +79,16 @@ namespace ArtifactStoreTests
         public void GetDiscussions_DraftArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
+            IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            artifact.Save(_adminUser);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "GetArtifactDiscussions shouldn't throw any error, but it doesn't.");
 
             // Verify:
@@ -88,14 +104,14 @@ namespace ArtifactStoreTests
         public void GetDiscussions_MarkedForDeleteArtifact_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.PostRaptorDiscussions("draft", _user);
-            artifact.Delete(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            artifact.PostRaptorDiscussions("draft", _adminUser);
+            artifact.Delete(_adminUser);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
+                Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "GetArtifactDiscussions should throw 404 error for artifacts marked for deletion, but it doesn't.");
         }
 
@@ -105,7 +121,7 @@ namespace ArtifactStoreTests
         public void GetDiscussions_PublishedSubArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             Discussions discussions = null;
@@ -113,7 +129,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -129,8 +145,8 @@ namespace ArtifactStoreTests
         public void GetDiscussions_UnpublishedSubArtifact_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
+            IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);
+            artifact.Save(_adminUser);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             Discussions discussions = null;
@@ -138,7 +154,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -154,8 +170,8 @@ namespace ArtifactStoreTests
         public void GetDiscussions_UnpublishedSubArtifactOtherUser_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            artifact.Save(_user);
+            IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);
+            artifact.Save(_adminUser);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
@@ -173,10 +189,10 @@ namespace ArtifactStoreTests
         public void GetReplies_PublishedSubArtifactWithDiscussionAndReply_ReturnsCorrectDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
+            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 postedRaptorComment, "This is a reply to a comment.", _user);
 
@@ -185,7 +201,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                replies = Helper.ArtifactStore.GetDiscussionsReplies(discussions.Comments[0], _user);
+                replies = Helper.ArtifactStore.GetDiscussionsReplies(discussions.Comments[0], _adminUser);
             }, "GetDiscussionsReplies shouldn't throw any error.");
 
             // Verify:
@@ -201,15 +217,15 @@ namespace ArtifactStoreTests
         public void GetDiscussions_MarkedForDeleteSubArtifact_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            artifact.Delete(_user);
+            artifact.Delete(_adminUser);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _user);
+                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
         }
 
@@ -220,10 +236,10 @@ namespace ArtifactStoreTests
         /// <returns>The IRaptorComment returned after posting the comment.</returns>
         private IRaptorComment AddCommentToSubArtifactOfStorytellerProcess(IArtifact artifact)
         {
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var postedRaptorComment = Artifact.PostRaptorDiscussions(Helper.BlueprintServer.Address,
-                userTask.Id, "text for UT", _user);
+                userTask.Id, "text for UT", _adminUser);
 
             return postedRaptorComment;
         }

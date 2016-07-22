@@ -204,7 +204,7 @@ export class BPTreeController implements IBPTreeController  {
         let item: ITreeNode;
         if (nodes) {
             nodes.map(function (node: ITreeNode) {
-                if (!item && node.id === id) {  ///needs to be changed camelCase 
+                if (!item && node.id === id) {  ///needs to be changed toCamelCase
                     item = node;
                 } else if (!item && node.children) {
                     item = this.getNode(id, node.children);

@@ -205,10 +205,73 @@ $has-children-padding-before-arrow: 3px;
     }
   }
 
-  .ag-cell.is-folder {
+  .ag-cell.is-business-process {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      content: '\e80d';
+      content: '\e800';
+    }
+  }
+
+  .ag-cell.is-domain-diagram {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e801';
+    }
+  }
+
+  .ag-cell.is-actor {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e802';
+    }
+  }
+
+  .ag-cell.is-use-case {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e803';
+    }
+  }
+
+  .ag-cell.is-process {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e804';
+    }
+  }
+
+  .ag-cell.is-user-story {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e805';
+    }
+  }
+
+  .ag-cell.is-use-case-diagram {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e806';
+    }
+  }
+
+  .ag-cell.is-ui-mockup {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e807';
+    }
+  }
+
+  .ag-cell.is-textual-requirement {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e808';
+    }
+  }
+
+  .ag-cell.is-storyboard {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e809';
     }
   }
 
@@ -219,25 +282,31 @@ $has-children-padding-before-arrow: 3px;
     }
   }
 
-  .ag-cell.usecase {
+  .ag-cell.is-glossary {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      color:red;
-        //content: '\e80a';
+      content: '\e80b';
     }
   }
-  .ag-cell.textualrequirement {
+
+  .ag-cell.is-generic-diagram {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      color:orange;
-      //  content: '\e80a';
+      content: '\e80c';
     }
   }
-  .ag-cell.process {
+
+  .ag-cell.is-folder {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      color:green;
-      //  content: '\e80a';
+      content: '\e80d';
+    }
+  }
+
+  .ag-cell.is-document {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e80e';
     }
   }
 

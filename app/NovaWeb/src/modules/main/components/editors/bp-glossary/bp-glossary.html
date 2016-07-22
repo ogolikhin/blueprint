@@ -1,0 +1,19 @@
+<table>
+    <thead>
+        <tr>
+            <th>Terms{{::$root.config.labels["RR_Terms"]}}</th>
+            <th>Definition{{::$root.config.labels["RR_Definition"]}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="term in $ctrl.glossary.terms"
+            ng-class="{'selected-term': term.selected}"
+            ng-click="$ctrl.selectTerm(term)">
+            <td>{{term.name}}</td>
+            <td ng-bind-html="term.definition"></td>
+        </tr>
+        <tr ng-if="$ctrl.glossary.terms.length === 0">
+            <td class="empty-state" colspan="2">No terms defined yet</td>
+        </tr>
+    </tbody>
+</table>

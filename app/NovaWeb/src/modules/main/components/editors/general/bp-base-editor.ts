@@ -237,7 +237,7 @@ export class PropertyEditor implements IPropertyEditor {
         //        this.data = this.propertyType;
         switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
-                field.type = context.isRichText ? "frmlyInlineTinymce" : (context.isMultipleAllowed ? "textarea" : "input");
+                field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "textarea" : "input");
                 field.defaultValue = context.stringDefaultValue;
                 if (context.isRichText) {
                     field.templateOptions["tinymceOption"] = {
@@ -258,7 +258,7 @@ export class PropertyEditor implements IPropertyEditor {
                 }
                 break;
             case Models.PrimitiveType.Date:
-                field.type = "frmlyDatepicker";
+                field.type = "bpFieldDatepicker";
                 field.templateOptions["datepickerOptions"] = {
                     maxDate: context.maxDate,
                     minDate: context.minDate
@@ -266,7 +266,7 @@ export class PropertyEditor implements IPropertyEditor {
                 field.defaultValue = context.dateDefaultValue || new Date();
                 break;
             case Models.PrimitiveType.Number:
-                field.type = "frmlyNumber";
+                field.type = "bpFieldNumber";
                 field.defaultValue = context.decimalDefaultValue;
                 if (angular.isNumber(context.minNumber)) {
                     field.templateOptions.min = context.minNumber;

@@ -295,12 +295,13 @@ namespace CommonServiceTests
             Assert.That(lockResult.Result == LockResult.Success, "User2 failed to get lock for the first artifact!");
 
             List<LockResultInfo> lockResultInfoList = null;
+            List<LockResult> expectedLockResults = new List<LockResult> { LockResult.Success, LockResult.AlreadyLocked };
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 // Obtain locks for artifact(s) with the user1
-                lockResultInfoList = Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user);
+                lockResultInfoList = Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user, expectedLockResults);
             }, "LockArtifacts() should return 200 OK when passed multiple valid artifact IDs.");
             
             // Verify:

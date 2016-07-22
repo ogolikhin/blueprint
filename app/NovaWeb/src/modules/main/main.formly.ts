@@ -71,11 +71,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     let dateFormat = Helper.uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L"));
 
     angular.forEach(attributes, function(attr) {
-        ngModelAttrs[Helper.camelCase(attr)] = {attribute: attr};
+        ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
 
     angular.forEach(bindings, function(binding) {
-        ngModelAttrs[Helper.camelCase(binding)] = {bound: binding};
+        ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
     formlyConfig.setType({

@@ -53,7 +53,7 @@ export class BpArtifactInfoController  {
 
     public get artifactClass(): string {
         return this._artifact ?
-            "icon-" + Helper.dashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document") :
+            "icon-" + Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document") :
             "icon-document";
     }
 

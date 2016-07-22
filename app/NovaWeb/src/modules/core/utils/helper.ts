@@ -9,14 +9,14 @@ export class Helper {
         });
     }
 
-    static dashCase(token: string): string {
+    static toDashCase(token: string): string {
         token = token.replace(/(\B[A-Z][a-z]+)/g, function(match) {
             return "-" + match.toLowerCase();
         });
         return token.toLowerCase();
     };
 
-    static camelCase(token: string): string {
+    static toCamelCase(token: string): string {
         token = token.replace(/[\-_\s]+(.)?/g, function(match, chr) {
             return chr ? chr.toUpperCase() : "";
         });

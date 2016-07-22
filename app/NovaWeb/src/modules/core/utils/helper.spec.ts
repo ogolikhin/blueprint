@@ -1,12 +1,12 @@
 ﻿import {Helper} from "./helper";
 
-describe("dashCase", () => {
+describe("toDashCase", () => {
     it("changes 'bpTooltip' into 'bp-tooltip'", () => {
         // Arrange
         let string = "bpTooltip";
 
         // Act
-        string = Helper.dashCase(string);
+        string = Helper.toDashCase(string);
 
         // Assert
         expect(string).toEqual("bp-tooltip");
@@ -17,7 +17,7 @@ describe("dashCase", () => {
         let string = "UIMockup";
 
         // Act
-        string = Helper.dashCase(string);
+        string = Helper.toDashCase(string);
 
         // Assert
         expect(string).toEqual("ui-mockup");
@@ -28,20 +28,20 @@ describe("dashCase", () => {
         let string = "ArtifactReviewPackage";
 
         // Act
-        string = Helper.dashCase(string);
+        string = Helper.toDashCase(string);
 
         // Assert
         expect(string).toEqual("artifact-review-package");
     });
 });
 
-describe("camelCase", () => {
+describe("toCamelCase", () => {
     it("changes 'bp-tooltip' into 'bpTooltip'", () => {
         // Arrange
         let string = "bp-tooltip";
 
         // Act
-        string = Helper.camelCase(string);
+        string = Helper.toCamelCase(string);
 
         // Assert
         expect(string).toEqual("bpTooltip");
@@ -52,7 +52,7 @@ describe("camelCase", () => {
         let string = "ui-mockup";
 
         // Act
-        string = Helper.camelCase(string);
+        string = Helper.toCamelCase(string);
 
         // Assert
         expect(string).toEqual("uiMockup");
@@ -63,14 +63,65 @@ describe("camelCase", () => {
         let string = "artifact-review-package";
 
         // Act
-        string = Helper.camelCase(string);
+        string = Helper.toCamelCase(string);
 
         // Assert
         expect(string).toEqual("artifactReviewPackage");
     });
 });
 
-describe("stripHTMLTags", () => {
+describe("findAncestorByCssClass", () => {
+    let html = `<div class="root">
+        <div class="grandparent">
+            <div class="parent">
+                <span id="child"></span>
+            </div>
+            <div class="uncle">
+                <span id="cousin"></span>
+            </div>    
+        </div>
+    </div>`;
+
+    it("finds the immediate parent", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "parent");
+
+        // Assert
+        expect(elem).toBeDefined();
+        expect(elem.className).toEqual("parent");
+    });
+
+    it("finds the grand-parent", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "grandparent");
+
+        // Assert
+        expect(elem).toBeDefined();
+        expect(elem.className).toEqual("grandparent");
+    });
+
+    it("doesn't return any element if no ancestor has the specified class", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "uncle");
+
+        // Assert
+        expect(elem).toBeNull();
+    });
+});
+
+describe("to and from HTML", () => {
     let html = `<div><h3 class="heading">Labels</h3>
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
 <a href="/folder2/declined" class="label" title="Declined">Declined</a>

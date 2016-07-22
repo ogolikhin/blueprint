@@ -15,7 +15,7 @@ namespace Model.Impl
         public const string GROUPUSER_TABLE = "[dbo].[GroupUser]";
         public const string ROLEASSIGNMENTS_TABLE = "[dbo].[RoleAssignments]";
 
-        #region Properties
+        #region Implements IGroup
         public int GroupId { get; set; }
 
         public string Name { get; set; }
@@ -33,6 +33,7 @@ namespace Model.Impl
         public IGroup Parent { get; set; }
 
         public bool IsLicenseGroup { get; set; }
+        # endregion Implements IGroup
 
         // These are fields not included by IGroup:
 
@@ -41,7 +42,6 @@ namespace Model.Impl
         public DateTime StartTimestamp { get; set; }
 
         public DateTime? EndTimestamp { get; set; }
-        #endregion Properties
 
         #region Methods
         public Group (string name, string description, string email,
@@ -58,6 +58,7 @@ namespace Model.Impl
             Parent = null;//this field allow to include one group into another
         }
 
+        /// <seealso cref="Group.AddGroupToDatabase()"/>
         public void AddGroupToDatabase()
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -70,7 +71,7 @@ namespace Model.Impl
                 object[] valueArray =
                 {
                     CurrentVersion, Name, Description, Email, (int)Source, (int)LicenseType, DateTime.Now, EndTimestamp,
-                    Scope, Parent
+                    Scope?.Id, Parent?.GroupId
                 };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
@@ -88,7 +89,6 @@ namespace Model.Impl
                         {
                             int userIdOrdinal = sqlDataReader.GetOrdinal("GroupId");
                             GroupId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
-                            //UserId = (int)(sqlDataReader.GetSqlInt32(0));
                         }
                     }
                     else
@@ -99,128 +99,46 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="Group.DeleteGroup()"/>
         public void DeleteGroup()
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
+            //TODO If successful, update user.GroupMembership with this group that it was added to.
+            string query = I18NHelper.FormatInvariant("UPDATE {0} SET Deleted='{1}' WHERE GroupId='{2}'", ROLEASSIGNMENTS_TABLE, 1, GroupId);
+            RunSQLQuery(query);
 
-                int rowsAffected = 0;
-                string query = null;
-
-                query = I18NHelper.FormatInvariant("UPDATE {0} SET Deleted='{1}' WHERE GroupId='{2}'", ROLEASSIGNMENTS_TABLE, 1, GroupId);
-                Logger.WriteDebug("Running: {0}", query);
-
-                try
-                {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-
-                query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE GroupUser_User_GroupId='{1}'",
+            query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE GroupUser_User_GroupId='{1}'",
                     GROUPUSER_TABLE, GroupId);
-                try
-                {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
+            RunSQLQuery(query);
 
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-
-                DateTime? oldEndTimestamp = EndTimestamp;
-
-                EndTimestamp = DateTime.Now;
-                query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE GroupId='{2}'", GROUPS_TABLE, EndTimestamp, GroupId);
-                //query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", GROUPUSER_TABLE, fields, values);
-                Logger.WriteDebug("Running: {0}", query);
-
-                try
-                {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
-                }
-                catch
-                {
-                    EndTimestamp = oldEndTimestamp;
-                    throw;
-                }
+            DateTime? oldEndTimestamp = EndTimestamp;
+            EndTimestamp = DateTime.Now;
+            query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE GroupId='{2}'", GROUPS_TABLE, EndTimestamp, GroupId);
+            try
+            {
+                RunSQLQuery(query);
+            }
+            catch
+            {
+                EndTimestamp = oldEndTimestamp;
+                throw;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <seealso cref="Group.AddUser(IUser)"/>
         public void AddUser(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
 
-                int rowsAffected = 0;
-                string query = null;
+            var fields = "[GroupUser_User_GroupId],[Users_UserId]";
+            object[] valueArray = {GroupId, user.UserId};
+            string values = string.Join(",", objArraytoStringList(valueArray));
 
-                var fields = "[GroupUser_User_GroupId],[Users_UserId]";
-
-                object[] valueArray = {GroupId, user.UserId};
-
-                string values = string.Join(",", objArraytoStringList(valueArray));
-
-                query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", GROUPUSER_TABLE, fields, values);
-
-                Logger.WriteDebug("Running: {0}", query);
-
-                try
-                {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-            }
+            string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", GROUPUSER_TABLE, fields, values);
+            RunSQLQuery(query);
         }
 
 
+        /// <seealso cref="Group.AssignProjectAuthorRole(IProject)"/>
         public void AssignProjectAuthorRole(IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
@@ -231,6 +149,7 @@ namespace Model.Impl
                 var fields = "[ProjectId],[RoleId],[ItemId],[UserId],[GroupId],[Deleted]";
                 //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
                 //also we can use [Permissions] = 4623??
+                // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
                 object[] valueArray =
                 {
                     project.Id, 1, project.Id, null, GroupId, 0
@@ -283,6 +202,36 @@ namespace Model.Impl
         {
             string dateString = date.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
             return dateString;
+        }
+
+        private static void RunSQLQuery(string query)
+        {
+            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                int rowsAffected = 0;
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                try
+                {
+                    using (SqlCommand cmd = database.CreateSqlCommand(query))
+                    {
+                        rowsAffected = cmd.ExecuteNonQuery();
+                    }
+
+                    if (rowsAffected <= 0)
+                    {
+                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
+                        Logger.WriteError(msg);
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
         #endregion Methods
     }

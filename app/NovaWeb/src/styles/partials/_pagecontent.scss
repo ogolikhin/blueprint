@@ -11,6 +11,7 @@ pagecontent {
   .page-content-wrapper {
     height: calc(100% - #{$breadcrumbs-height});
     overflow: auto;
+    margin-bottom:13px;
   }
 
   .page-content {

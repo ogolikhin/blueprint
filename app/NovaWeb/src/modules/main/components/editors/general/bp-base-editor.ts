@@ -103,9 +103,10 @@ export class BpBaseEditor {
 
 
 export enum LookupEnum {
-    System = 0,
-    Custom = 1,
-    Special = 2,
+    None = 0,
+    System = 1,
+    Custom = 2,
+    Special = 3,
 }
 
 export interface IPropertyEditor {
@@ -146,20 +147,22 @@ export class PropertyContext implements Models.IPropertyType {
 
     constructor(type: Models.IPropertyType, specialType?: string) {
         angular.extend(this, type);
+        this.lookup = LookupEnum.Special;
         let propertyTypeName: string = Helper.toCamelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
         if (this.isSystem(this.propertyTypePredefined)) {
             this.lookup = LookupEnum.System;
             this.fieldPropertyName = propertyTypeName;
             this.modelPropertyName = propertyTypeName;
-        } else if (!specialType && angular.isDefined(this.propertyTypePredefined)) {
+        } else if (angular.isUndefined(this.propertyTypePredefined) && angular.isNumber(this.id)) {
             this.lookup = LookupEnum.Custom;
             this.fieldPropertyName = `property_${this.id.toString()}`;
             this.modelPropertyName = this.id;
-        } else {
-            this.lookup = LookupEnum.Special;
-            this.fieldPropertyName = `special_${this.id.toString()}`;
-            this.modelPropertyName = this.id;
         }
+        //} else {
+        //    this.lookup = LookupEnum.Special;
+        //    this.fieldPropertyName = `special_${this.id.toString()}`;
+        //    this.modelPropertyName = this.id;
+        //}
     }
 
     private isSystem(type: Models.PropertyTypePredefined): boolean {

@@ -62,8 +62,8 @@ describe("UsecaseToDiagram ", () => {
 
         var usecaseToDiagram = new UsecaseToDiagram();
 
-        var buildGraph = spyOn(UsecaseFlowGraphBuilder.prototype, "buildGraph").and.callThrough();;
-        var buildDiagram = spyOn(FlowGraphDiagramBuilder.prototype, "buildDiagram").and.callThrough();;
+        var buildGraph = spyOn(UsecaseFlowGraphBuilder.prototype, "buildGraph").and.callThrough();
+        var buildDiagram = spyOn(FlowGraphDiagramBuilder.prototype, "buildDiagram").and.callThrough();
 
         //Act
 
@@ -482,7 +482,7 @@ describe("UsecaseFlowGraphBuilder ", () => {
         expect(graph.getNodes()[1].tag.id).toEqual(-step.id);
         expect(graph.getNodes()[2].tag).toEqual(step);
         expect(graph.getNodes()[3].tag).toEqual(flowCondition);
-        expect(graph.getNodes()[4].tag.id).toEqual(-alternateFlow.id);//Fake exit node
+        expect(graph.getNodes()[4].tag.id).toEqual(-alternateFlow.id); //Fake exit node
         expect(graph.getNodes()[5].tag).toEqual(usecase.postCondition);
     });
 
@@ -506,7 +506,7 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
         expect(graph.getNodes().length).toEqual(5);
         expect(graph.getNodes()[0].tag).toEqual(usecase.preCondition);
-        expect(graph.getNodes()[1].tag.id).toEqual(-step.id);//Branching node
+        expect(graph.getNodes()[1].tag.id).toEqual(-step.id); //Branching node
         expect(graph.getNodes()[2].tag).toEqual(step);
         expect(graph.getNodes()[3].tag).toEqual(flowCondition);
         expect(graph.getNodes()[4].tag).toEqual(usecase.postCondition);

@@ -198,20 +198,20 @@ export class ProjectManager implements IProjectManager {
             this._repository.getProjectMeta(project.id)
                 .then((result: Models.IProjectMeta) => {
                     if (angular.isArray(result.artifactTypes)) {
+                        //add specific types 
                         result.artifactTypes.unshift(
                             <Models.IItemType>{
                                 id: -1,
                                 name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
                                 predefinedType: Models.ItemTypePredefined.Project,
                                 customPropertyTypeIds: []
+                            },
+                            <Models.IItemType>{
+                                id: -2,
+                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.CollectionFolder],
+                                predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                                customPropertyTypeIds: []
                             }
-                            //,
-                            //<Models.IItemType>{
-                            //    id: -2,
-                            //    name: Models.ItemTypePredefined[Models.ItemTypePredefined.CollectionFolder],
-                            //    predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                            //    customPropertyTypeIds: []
-                            //}
                         );
                     }
 

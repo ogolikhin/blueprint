@@ -35,9 +35,9 @@ export class BpArtifactEditorController extends BpBaseEditor {
     }
 
     public $onDestroy() {
-        this.systemFields = [];
-        this.customFields = [];
-        this.richTextFields = [];
+        delete this.systemFields;
+        delete this.customFields;
+        delete this.richTextFields;
         super.$onDestroy();
     }
 
@@ -61,6 +61,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         if (!propertyContext) {
             return;
         }
+        //re=group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);
         } else if (LookupEnum.System === propertyContext.lookup) {

@@ -24,8 +24,8 @@ export class BpGeneralEditorController extends BpBaseEditor {
     public noteFields: AngularFormly.IFieldConfigurationObject[]; 
 
     public $onDestroy() {
-        this.systemFields = [];
-        this.noteFields = [];
+        delete this.systemFields;
+        delete this.noteFields;
         super.$onDestroy();
     }
 

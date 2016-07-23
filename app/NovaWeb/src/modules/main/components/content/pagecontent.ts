@@ -70,10 +70,10 @@ class PageContentCtrl {
             return "diagram";
         } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
             return "glossary";
-        } else if (Models.ItemTypePredefined.Project == artifact.predefinedType) {
+        } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
             return "general";
-        } else if (Models.ItemTypePredefined.CollectionFolder == artifact.predefinedType) {
-            return "general";
+        } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
+            return "details";
         }
         return "details";
     }

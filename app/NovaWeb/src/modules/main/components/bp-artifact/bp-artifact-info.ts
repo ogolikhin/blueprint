@@ -6,16 +6,16 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public controller: Function = BpArtifactInfoController;
     public controllerAs = "$ctrl";
     public bindings: any = {
-        currentArtifact: "<",
+        context: "<",
     };
     public transclude: boolean = true;
 }
 
 
 export class BpArtifactInfoController  {
-    private _subscribers: Rx.IDisposable[];
+    //private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$scope", "projectManager"];
-    private _artifact: Models.IArtifact;
+    public _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
@@ -25,19 +25,30 @@ export class BpArtifactInfoController  {
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
         //use context reference as the last parameter on subscribe...
-        this._subscribers = [
-            //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.updateInfo, this),
-        ];
+        //this._subscribers = [
+        //    //subscribe for current artifact change (need to distinct artifact)
+        //    this.projectManager.currentArtifact.subscribeOnNext(this.updateInfo, this),
+        //];
     }
     
+    public $onChanges(changedObject: any) {
+        try {
+            let context = changedObject.context ? changedObject.context.currentValue : null;
+            this.onLoad(context);
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
+    }
+
      
     public $onDestroy() {
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        //this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private updateInfo = (artifact: Models.IArtifact) => {
+
+
+    private onLoad = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
     };
     

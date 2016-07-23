@@ -28,14 +28,15 @@ import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
-import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
-import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
+//import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
+//import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
 import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
 import "./components/editors/bp-glossary";
+import "./components/editors/general";
 
 
 
@@ -87,7 +88,8 @@ angular.module("app.main", [
     "angular-perfect-scrollbar-2",
     "formly",
     "formlyBootstrap",
-    "bp.editors.glossary"
+    "bp.editors.glossary",
+    "bp.editors.details",
     ])
     .run(config)
     .service("projectRepository", ProjectRepository)
@@ -103,8 +105,8 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    .component("bpGeneralEditor", new BpGeneralEditor())
-    .component("bpArtifactEditor", new BpArtifactEditor())
+    //.component("bpGeneralEditor", new BpGeneralEditor())
+    //.component("bpArtifactEditor", new BpArtifactEditor())
     .component("bpDiagram", new BPDiagram())
     .value("mxUtils", mxUtils)
     .config(routesConfig)

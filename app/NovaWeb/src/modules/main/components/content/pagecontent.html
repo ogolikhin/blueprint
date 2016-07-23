@@ -8,7 +8,7 @@
 <div class="page-content-wrapper" perfect-scrollbar ng-if="$content.viewState">
     <div class="page-content">
         <div class="page-heading">
-            <bp-artifact-info></bp-artifact-info>
+            <bp-artifact-info context="$content.context.artifact"></bp-artifact-info>
         </div>
         <div class="page-body" ng-switch="$content.contentType">
             <bp-diagram ng-switch-when="diagram"></bp-diagram>

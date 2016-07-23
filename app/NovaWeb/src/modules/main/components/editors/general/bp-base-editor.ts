@@ -11,11 +11,6 @@ export interface IEditorContext {
     propertyTypes?: Models.IPropertyType[];
 }
 
-export interface IGroupFields {
-    [key: string]: AngularFormly.IFieldConfigurationObject[];
-}
-
-
 export class BpBaseEditor {
     public static $inject: [string] = ["messageService"];
 
@@ -63,6 +58,7 @@ export class BpBaseEditor {
     };
 
     public onLoading(obj: any): boolean  {
+        this.fields = [];
         this.context = obj.context ? obj.context.currentValue : null;
         return !!(this.context && this.context.artifact && this.context.propertyTypes);
     }
@@ -73,31 +69,32 @@ export class BpBaseEditor {
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        if (!angular.isArray(this.fields)) {
-            this.fields = [];
-        }
         this.fields.push(field);
     }
 
     public onUpdate(context: IEditorContext) {
-        let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
-            return new PropertyContext(it);
-        });
-
-        this.editor.load(context.artifact, fieldContexts);
-        this.model = this.editor.getModel();
-        this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
-            //add property change handler to each field
-            angular.extend(it.templateOptions, {
-                onChange: this.onPropertyChange.bind(this)
+        try {
+            let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
+                return new PropertyContext(it);
             });
-            //angular.extend(it.expressionProperties, {
-            //    "templateOptions.disabled": this.isReadOnly.bind(this)
-            //});
 
-            this.onFieldUpdate(it);
+            this.editor.load(context.artifact, fieldContexts);
+            this.model = this.editor.getModel();
+            this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
+                //add property change handler to each field
+                angular.extend(it.templateOptions, {
+                    onChange: this.onPropertyChange.bind(this)
+                });
+                //angular.extend(it.expressionProperties, {
+                //    "templateOptions.disabled": this.isReadOnly.bind(this)
+                //});
 
-        });
+                this.onFieldUpdate(it);
+
+            });
+        } catch(ex) {
+            this.messageService.addError(ex.message);
+        }
     }
 }
 
@@ -143,11 +140,9 @@ export class PropertyContext implements Models.IPropertyType {
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
     public lookup: LookupEnum;
-    public group: string; 
 
     constructor(type: Models.IPropertyType, specialType?: string) {
         angular.extend(this, type);
-        this.lookup = LookupEnum.Special;
         let propertyTypeName: string = Helper.toCamelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
         if (this.isSystem(this.propertyTypePredefined)) {
             this.lookup = LookupEnum.System;
@@ -226,10 +221,14 @@ export class PropertyEditor implements IPropertyEditor {
                                 value = value.map((val: Models.IUserGroup) => {
                                     return val.displayName;
                                 })[0];
-                            } else {
                                 value = (value as Models.IUserGroup).displayName;
+                            } else if (value.displayName) {
+                                value = value.displayName;
+                            } else if (value.label) {
+                                value = value.label;
+                            } else {
+                                value = value.toString();
                             }
-                            value = value.toString();
                         }
                         this._model[it.fieldPropertyName] = value;
                     }
@@ -240,13 +239,12 @@ export class PropertyEditor implements IPropertyEditor {
     }
 
     public destroy() {
+        delete this._artifact;
         delete this._fields;
         delete this._model;
-        delete this._artifact;
     }
 
     public getFields(): AngularFormly.IFieldConfigurationObject[] {
-
         return this._fields || [];
     }
 
@@ -266,7 +264,7 @@ export class PropertyEditor implements IPropertyEditor {
             },
             expressionProperties: {}
         };
-        //        this.data = this.propertyType;
+        
         switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
                 field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "textarea" : "input");
@@ -348,12 +346,6 @@ export class PropertyEditor implements IPropertyEditor {
         }
 
         return field;
-
-
-
-
     }
-
-
 
 }

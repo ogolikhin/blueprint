@@ -32,11 +32,9 @@ import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 //import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
-import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
-import {DiagramService} from "./components/editors/graphic/diagram.svc";
-import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
 import "../editors/bp-glossary";
 import "../editors/bp-artifact";
+import "../editors/bp-diagram";
 
 
 
@@ -90,12 +88,11 @@ angular.module("app.main", [
     "formlyBootstrap",
     "bp.editors.glossary",
     "bp.editors.details",
+    "bp.editors.diagram"
     ])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
-    .service("stencilService", StencilService)
-    .service("diagramService", DiagramService)
     .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
@@ -107,8 +104,6 @@ angular.module("app.main", [
     .component("bpArtifactInfo", new BpArtifactInfo())
     //.component("bpGeneralEditor", new BpGeneralEditor())
     //.component("bpArtifactEditor", new BpArtifactEditor())
-    .component("bpDiagram", new BPDiagram())
-    .value("mxUtils", mxUtils)
     .config(routesConfig)
     .config(formlyDecorate)
     .run(formlyConfigExtendedFields);

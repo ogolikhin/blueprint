@@ -3,9 +3,8 @@ import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
 import {IDiagramService, CancelationTokenConstant} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
-import {IProjectManager, Models} from "../../../../main";
-import {ILocalizationService } from "../../../../core";
-import {IMessageService} from "../../../../shell";
+import {IProjectManager, Models} from "../../main";
+import {ILocalizationService } from "../../core";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -77,7 +76,7 @@ export class BPDiagramController {
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
-                    this.errorMsg = this.localization.get('Diagram_OldFormat_Message');                 
+                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");                 
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
                     this.isBrokenOrOld = false;

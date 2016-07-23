@@ -1,4 +1,4 @@
-import {ItemTypePredefined} from "../../../models/enums";
+import {ItemTypePredefined} from "../../main/models/enums";
 import {FontNormalizer} from "./impl/utils/font-normalizer";
 import {IDiagram} from "./impl/models";
 import {IUseCase} from "./impl/usecase/models";

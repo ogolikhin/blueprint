@@ -1,6 +1,6 @@
-﻿import {Models} from "../../../";
-import {IMessageService} from "../../../../shell/";
-import {IArtifactService} from "../../../services/";
+﻿import {Models} from "../../main";
+import {IMessageService} from "../../shell/";
+import {IArtifactService} from "../../main/services/";
 import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {

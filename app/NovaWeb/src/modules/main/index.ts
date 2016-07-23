@@ -35,8 +35,8 @@ import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
 import {DiagramService} from "./components/editors/graphic/diagram.svc";
 import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
-import "./components/editors/bp-glossary";
-import "./components/editors/general";
+import "../editors/bp-glossary";
+import "../editors/bp-artifact";
 
 
 

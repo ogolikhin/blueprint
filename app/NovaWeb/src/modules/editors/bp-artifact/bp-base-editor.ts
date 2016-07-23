@@ -1,8 +1,8 @@
-﻿import {Models} from "../../../";
-import {Helper} from "../../../../core";
-import {IMessageService} from "../../../../shell/";
-import {IArtifactService} from "../../../services/";
-import {tinymceMentionsData} from "../../../../util/tinymce-mentions.mock"; //TODO: added just for testing
+﻿import {Models} from "../../main";
+import {Helper} from "../../core";
+import {IMessageService} from "../../shell/";
+import {IArtifactService} from "../../main/services/";
+import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export interface IEditorContext {
     artifact?: Models.IArtifact;

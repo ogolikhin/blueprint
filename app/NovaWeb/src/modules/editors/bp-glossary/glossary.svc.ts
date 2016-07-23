@@ -1,5 +1,5 @@
-import { ILocalizationService } from "../../../../core";
-import { ItemTypePredefined } from "../../../models/enums";
+import { ILocalizationService } from "../../core";
+import { Models } from "../../main";
 
 export interface IGlossaryService {
     getGlossary(id: number): ng.IPromise<IGlossaryDetals>;
@@ -10,7 +10,7 @@ export interface IGlossaryTerm {
     name: string;
     definition: string;
     typePrefix: string;
-    predefined: ItemTypePredefined;
+    predefined: Models.ItemTypePredefined;
     selected?: boolean;
 }
 

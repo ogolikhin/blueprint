@@ -1,6 +1,6 @@
 // import { Models } from "../../../";
 import { IGlossaryDetals, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
-import { ILocalizationService } from "../../../../core";
+import { ILocalizationService } from "../../core";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");

@@ -27,10 +27,11 @@ namespace Helper
         /// </summary>
         /// <param name="function">The function to run in a separate thread.</param>
         /// <param name="iterations">(optional) The number of times to execute the function.</param>
-        public void AddTestFunctionToThread(Action function, int iterations = 1)
+        /// <param name="maxSleepMilliseconds">(optional) The maximum number of random milliseconds to sleep before executing this thread.</param>
+        public void AddTestFunctionToThread(Action function, int iterations = 1, int maxSleepMilliseconds = 1000)
         {
             Assert.That(iterations > 0, "You must specify a positive number of iterations!");
-            Threads.Add(CreateTestThread(function, iterations));
+            Threads.Add(CreateTestThread(function, iterations, maxSleepMilliseconds));
         }
 
         /// <summary>
@@ -63,17 +64,22 @@ namespace Helper
         /// Creates a new thread to run the specified function.
         /// </summary>
         /// <param name="function">The function to run in the thread.</param>
-        /// <param name="iterations">The number of iterations for each thread.</param>
+        /// <param name="iterations">(optional) The number of iterations for each thread.</param>
+        /// <param name="maxSleepMilliseconds">(optional) The maximum number of random milliseconds to sleep before executing this thread.</param>
         /// <returns>The new thread.</returns>
-        private Thread CreateTestThread(Action function, int iterations)
+        private Thread CreateTestThread(Action function, int iterations = 1, int maxSleepMilliseconds = 1000)
         {
             Thread thread = new Thread(() =>
             {
                 try
                 {
-                    // Sleep for a random number of milliseconds so threads aren't all doing the same thing at the same time.
-                    int sleepTime = RandomGenerator.RandomNumber(1000);
-                    Thread.Sleep(sleepTime);
+                    if (maxSleepMilliseconds > 0)
+                    {
+                        // Sleep for a random number of milliseconds so threads aren't all doing the same thing at the same time.
+                        int sleepTime = RandomGenerator.RandomNumber(maxSleepMilliseconds);
+                        Logger.WriteTrace("Thread [{0}] sleeping for {1}ms...", Thread.CurrentThread.ManagedThreadId, sleepTime);
+                        Thread.Sleep(sleepTime);
+                    }
 
                     for (int i = 0; i < iterations; ++i)
                     {
@@ -96,7 +102,7 @@ namespace Helper
 
                             // If one thread fails, kill all other threads immediately (fail fast).
                             Logger.WriteInfo("One thread failed.  Killing all other threads...");
-                            Threads.ForEach(t => KillThreadIfNotCurrentThread(t));
+                            Threads.ForEach(KillThreadIfNotCurrentThread);
                             Threads.Clear();
                             Logger.WriteDebug("Finished killing all threads.");
                         }

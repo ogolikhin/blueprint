@@ -179,7 +179,18 @@ export class ProjectManager implements IProjectManager {
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    //ignore authentication errors here
+                    if (error.statusCode === 1401) {
+                        angular.extend(artifact, {
+                            artifacts: null,
+                            hasChildren: true,
+                            loaded: false,
+                            open: false
+                        });
+                        self.projectCollection.onNext(self.projectCollection.getValue());
+                    } else {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    }
                 });
 
         } catch (ex) {

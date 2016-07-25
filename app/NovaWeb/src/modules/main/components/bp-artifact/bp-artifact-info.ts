@@ -47,7 +47,7 @@ export class BpArtifactInfoController  {
     }
 
     public get artifactClass(): string {
-        return "icon-" + (this._artifact ? Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document") : "document");
+        return this._artifact ? "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) : null;
     }
 
     public get artifactTypeDescription(): string {

@@ -1,5 +1,5 @@
-﻿import {IMessageService, IArtifactService, Models, Helper} from "./";
-import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
+﻿import {IMessageService, IArtifactService, Models } from "./";
+import {BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -30,6 +30,11 @@ export class BpGeneralEditorController extends BpBaseEditor {
     public get isLoaded(): boolean {
         return !!(this.systemFields && this.systemFields.length || this.noteFields && this.noteFields.length);
     }
+
+    public get isNoteFieldsAvailable(): boolean {
+        return this.noteFields && this.noteFields.length > 0;
+    }
+
 
     public onLoading(obj: any): boolean {
         this.systemFields = [];

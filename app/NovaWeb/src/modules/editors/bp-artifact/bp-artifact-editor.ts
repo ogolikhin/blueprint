@@ -28,7 +28,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
-    public get isTabPropertyAvailable(): boolean {
+    public get isRichTextPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 

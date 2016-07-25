@@ -288,10 +288,10 @@ export class PropertyEditor implements IPropertyEditor {
             case Models.PrimitiveType.Date:
                 field.type = "bpFieldDatepicker";
                 field.templateOptions["datepickerOptions"] = {
-                    maxDate: context.maxDate,
-                    minDate: context.minDate
+                    maxDate: new Date(context.maxDate as any),
+                    minDate: new Date(context.minDate as any)
                 };
-                field.defaultValue = context.dateDefaultValue || new Date();
+                field.defaultValue = new Date(context.dateDefaultValue  as any) || new Date();
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "bpFieldNumber";

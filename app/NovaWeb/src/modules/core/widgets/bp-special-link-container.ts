@@ -48,7 +48,7 @@ export class BpSpecialLinkContainer implements ng.IDirective {
         return directive;
     }
 
-    public restrict = "ACE";
+    public restrict = "E";
 
     public link: ng.IDirectiveLinkFn = ($scope: ng.IScope, $element: ng.IAugmentedJQuery) => {
 

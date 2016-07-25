@@ -70,6 +70,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let dateFormat = Helper.uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L"));
 
+    let datePickerDayTitle = moment.localeData().longDateFormat("LL").toUpperCase();
+    datePickerDayTitle = datePickerDayTitle.indexOf("Y") < datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
+
     angular.forEach(attributes, function(attr) {
         ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
@@ -87,6 +90,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-keyup="bpFieldNumber.keyup($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -173,7 +177,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     }
                 }
             }
-        }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldNumber = {};
+
+            $scope.bpFieldNumber.keyup = function ($event) {
+                let inputField = <HTMLInputElement> document.getElementById($scope.id);
+                let key = $event.keyCode || $event.which;
+                if (inputField && key === 13) {
+                    inputField.blur();
+                }
+            };
+        }]
     });
 
     formlyConfig.setType({
@@ -238,6 +253,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     format: dateFormat,
                     formatDay: "d",
                     formatDayHeader: "EEE",
+                    formatDayTitle: datePickerDayTitle,
                     initDate: new Date(),
                     showWeeks: false,
                     startingDay: (<any> moment.localeData()).firstDayOfWeek()

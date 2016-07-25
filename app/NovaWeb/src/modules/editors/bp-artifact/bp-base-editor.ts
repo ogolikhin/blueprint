@@ -1,7 +1,5 @@
-﻿import {Models} from "../../main";
-import {Helper} from "../../core";
-import {IMessageService} from "../../shell/";
-import {IArtifactService} from "../../main/services/";
+﻿import {IMessageService, Models, Helper} from "./";
+
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export interface IEditorContext {

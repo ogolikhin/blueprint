@@ -174,6 +174,7 @@ namespace Model.Impl
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifact.Id);

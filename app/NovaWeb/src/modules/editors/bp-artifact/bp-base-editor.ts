@@ -63,8 +63,7 @@ export class BpBaseEditor {
         return !!(this.context && this.context.artifact && this.context.propertyTypes);
     }
 
-    public onLoad(context: IEditorContext)
-    {
+    public onLoad(context: IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -92,7 +91,7 @@ export class BpBaseEditor {
                 this.onFieldUpdate(it);
 
             });
-        } catch(ex) {
+        } catch (ex) {
             this.messageService.addError(ex.message);
         }
     }
@@ -289,6 +288,7 @@ export class PropertyEditor implements IPropertyEditor {
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "bpFieldDatepicker";
+                field.type = "bpFieldReadOnly";
                 field.templateOptions["datepickerOptions"] = {
                     maxDate: context.maxDate,
                     minDate: context.minDate

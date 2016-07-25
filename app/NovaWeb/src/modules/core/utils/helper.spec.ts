@@ -220,8 +220,70 @@ describe("getDecimalSeparator", () => {
     }
 });
 
+describe("toLocaleNumber", () => {
+    it("converts to proper number based on locale (US)", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(123456.789, "en-US");
+
+        // Assert
+        expect(number).toEqual("123456.789");
+    });
+
+    it("converts to proper negative number based on locale (US)", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(-123456.789, "en-US");
+
+        // Assert
+        expect(number).toEqual("-123456.789");
+    });
+
+    // see https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
+    if (!/PhantomJS/.test(window.navigator.userAgent)) {
+        it("converts to proper number based on locale (IT)", () => {
+            // Arrange/Act
+            let number = Helper.toLocaleNumber(123456.789, "it-IT");
+
+            // Assert
+            expect(number).toEqual("123456,789");
+        });
+
+        it("converts to proper negative number based on locale (IT)", () => {
+            // Arrange/Act
+            let number = Helper.toLocaleNumber(-123456.789, "it-IT");
+
+            // Assert
+            expect(number).toEqual("-123456,789");
+        });
+    }
+/*
+    it("doesn't convert bad formatted NaN", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber();
+
+        // Assert
+        expect(number).toBeNaN();
+    });
+
+    it("doesn't convert null", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(null);
+
+        // Assert
+        expect(number).toBeNaN();
+    });
+
+    it("doesn't convert undefined", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(undefined);
+
+        // Assert
+        expect(number).toBeNaN();
+    });
+    */
+});
+
 describe("parseLocaleNumber", () => {
-    it("convert to proper number based on locale (US)", () => {
+    it("converts to proper number based on locale (US)", () => {
         // Arrange/Act
         let number = Helper.parseLocaleNumber("123,456.789", "en-US");
 
@@ -229,7 +291,7 @@ describe("parseLocaleNumber", () => {
         expect(number).toEqual(123456.789);
     });
 
-    it("convert to proper negative number based on locale (US)", () => {
+    it("converts to proper negative number based on locale (US)", () => {
         // Arrange/Act
         let number = Helper.parseLocaleNumber("-123,456.789", "en-US");
 
@@ -239,7 +301,7 @@ describe("parseLocaleNumber", () => {
 
     // see https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
     if (!/PhantomJS/.test(window.navigator.userAgent)) {
-        it("convert to proper number based on locale (IT)", () => {
+        it("converts to proper number based on locale (IT)", () => {
             // Arrange/Act
             let number = Helper.parseLocaleNumber("123.456,789", "it-IT");
 
@@ -247,7 +309,7 @@ describe("parseLocaleNumber", () => {
             expect(number).toEqual(123456.789);
         });
 
-        it("convert to proper negative number based on locale (IT)", () => {
+        it("converts to proper negative number based on locale (IT)", () => {
             // Arrange/Act
             let number = Helper.parseLocaleNumber("-123.456,789", "it-IT");
 

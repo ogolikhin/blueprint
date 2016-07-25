@@ -116,6 +116,20 @@ export class Helper {
         return null;
     };
 
+    static toLocaleNumber(number: number, locale?: string): string {
+        let numberAsString: string = number.toString();
+
+        if (number - Math.round(number) !== 0) {
+            let decimalSeparator = this.getDecimalSeparator(locale);
+
+            if (decimalSeparator !== ".") {
+                numberAsString = numberAsString.replace(".", decimalSeparator);
+            }
+        }
+
+        return numberAsString;
+    };
+
     static parseLocaleNumber(numberAsAny: any, locale?: string): number {
         let number: string;
         let decimalSeparator = this.getDecimalSeparator(locale);

@@ -12,7 +12,6 @@ import "angular-perfect-scrollbar-2";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
-import "../editors/bp-storyteller";
 import "tinymce";
 import * as moment from "moment";
 import * as Enums from "./models/enums";
@@ -35,6 +34,7 @@ import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import "../editors/bp-glossary";
 import "../editors/bp-artifact";
 import "../editors/bp-diagram";
+import "../editors/bp-storyteller";
 
 
 
@@ -77,7 +77,6 @@ angular.module("app.main", [
     "ngMessages",
     "ngSanitize",
     "app.shell",
-    "app.storyteller",
     "ui.router",
     "ui.bootstrap",
     "ui.tinymce",
@@ -88,7 +87,8 @@ angular.module("app.main", [
     "formlyBootstrap",
     "bp.editors.glossary",
     "bp.editors.details",
-    "bp.editors.diagram"
+    "bp.editors.diagram",
+    "bp.editors.storyteller"
     ])
     .run(config)
     .service("projectRepository", ProjectRepository)

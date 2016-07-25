@@ -2,7 +2,7 @@
 import {ProcessService} from "./services/process/process.svc";
 import * as ProcessModels from "./models/processModels";
 
-angular.module("app.storyteller", [])
+angular.module("bp.editors.storyteller", [])
     .component("bpStorytellerEditor", new BpStorytellerEditor)
     .service("processService", ProcessService);
 

@@ -1,6 +1,7 @@
 ﻿import {Models} from "../../main";
 import {IMessageService} from "../../shell/";
 import {IArtifactService} from "../../main/services/";
+import {ILocalizationService} from "../../core";
 import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
@@ -14,9 +15,9 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 
 export class BpArtifactEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "artifactService"];
+    public static $inject: [string] = ["messageService", "artifactService", "localization"];
 
-    constructor(messageService: IMessageService, private artifactService: IArtifactService) {
+    constructor(messageService: IMessageService, private artifactService: IArtifactService, private localization: ILocalizationService) {
         super(messageService);
     }
 
@@ -53,6 +54,11 @@ export class BpArtifactEditorController extends BpBaseEditor {
             //TODO: change
             angular.extend(context.artifact, it);
             this.onUpdate(context);
+        }).catch((error: any) => {
+            //ignore authentication errors here
+            if (error.statusCode !== 1401) {
+                this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+            }
         });
     }
 

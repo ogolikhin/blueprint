@@ -211,4 +211,8 @@ export class Artifact implements IArtifact {
 
 }
 
+export interface IHashMap<T> {
+    [key: string]: T
+}
+
   

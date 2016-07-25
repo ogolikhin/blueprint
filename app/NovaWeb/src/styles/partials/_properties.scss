@@ -312,6 +312,13 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         color: $brand-error;
       }
     }
+
+    .read-only {
+      background: transparent !important;
+      border-color: transparent !important;
+      cursor: default !important;
+      padding-right: $property-padding-default !important;
+    }
   }
 
   .formly-field-tinymce,

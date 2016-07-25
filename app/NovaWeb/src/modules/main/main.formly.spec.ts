@@ -6,6 +6,7 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
+import {PrimitiveType} from "./models/enums";
 import {LocalizationServiceMock} from "../core/localization.mock";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 
@@ -38,6 +39,36 @@ describe("Formly", () => {
         expect(node).toBeDefined();
         expect(isolateScope).toBeDefined();
         expect(vm).toBeDefined();
+    });
+
+    describe("ReadOnly", () => {
+        it("should be initialized properly", function () {
+            compileAndSetupStuff({model: {readonlyNumber: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldReadOnly");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+        });
+
+        it("should display read only number", function () {
+            compileAndSetupStuff({model: {readonlyNumber: 10}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[0];
+
+            expect(fieldInput.value).toBe("10");
+            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+        });
+
+        it("should display read only date", function () {
+            compileAndSetupStuff({model: {readonlyDate: new Date("2016-08-08")}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[1];
+
+            expect(fieldInput.value).toContain("2016");
+            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+        });
     });
 
     describe("Number", () => {
@@ -110,6 +141,19 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
             expect(scope.model.number).not.toBe(10);
             expect(scope.model.number).toBe("20");
+        });
+
+        it("should blur on Enter key", function () {
+            compileAndSetupStuff({model: {number: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.focus();
+            expect(fieldInput === document.activeElement).toBeTruthy();
+
+            triggerKey(fieldInput, 13, "keyup");
+            expect(fieldInput === document.activeElement).toBeFalsy();
         });
     });
 
@@ -212,6 +256,19 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
             expect((<any>fieldScope).fc.$viewValue.toLowerCase()).toContain("invalid");
         });
+
+        it("should blur on Enter key", function () {
+            compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.focus();
+            expect(fieldInput === document.activeElement).toBeTruthy();
+
+            triggerKey(fieldInput, 13, "keyup");
+            expect(fieldInput === document.activeElement).toBeFalsy();
+        });
     });
 
     function compileAndSetupStuff(extraScopeProps?) {
@@ -223,13 +280,12 @@ describe("Formly", () => {
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
     }
-/*
+
     function triggerKey(targetElement, keyCode, eventType) {
         let e = angular.element.Event(eventType);
         e.which = keyCode;
-        targetElement.trigger(e);
+        angular.element(targetElement).trigger(e);
     }
-*/
 });
 
 function createModule() {
@@ -273,7 +329,7 @@ function createModule() {
                 vm.submit = submit;
 
                 // vm assignment
-                vm.options = {};
+                //vm.options = {};
                 vm.fields = getFields();
 
                 function submit() {
@@ -284,6 +340,20 @@ function createModule() {
 
                 function getFields() {
                     return [
+                        {
+                            type: "bpFieldReadOnly",
+                            key: "readonlyNumber",
+                            data: {
+                                primitiveType: PrimitiveType.Number
+                            }
+                        },
+                        {
+                            type: "bpFieldReadOnly",
+                            key: "readonlyDate",
+                            data: {
+                                primitiveType: PrimitiveType.Date
+                            }
+                        },
                         {
                             type: "bpFieldTinymce",
                             key: "tinymce"
@@ -299,6 +369,9 @@ function createModule() {
                                 min: 5,
                                 max: 100,
                                 decimalPlaces: 2
+                            },
+                            data: {
+                                isValidated: true
                             }
                         },
                         {
@@ -309,6 +382,9 @@ function createModule() {
                                     maxDate: "2017-09-09",
                                     minDate: "2015-07-07"
                                 }
+                            },
+                            data: {
+                                isValidated: true
                             }
                         }
                     ];

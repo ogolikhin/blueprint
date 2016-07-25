@@ -1083,7 +1083,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Clear',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Done', 'en-US', N'Close')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Cannot_Be_Empty', 'en-US', N'This value is required.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Wrong_Format', 'en-US', N'Please check the format of the value.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Decimal_Places', 'en-US', N'A specific number of decimal places is required:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Decimal_Places', 'en-US', N'There is a maximum number of decimal places:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Value_Must_Be', 'en-US', N'The value must be')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Date_Must_Be', 'en-US', N'The date must be')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Suffix_Or_Later', 'en-US', N'or later.')

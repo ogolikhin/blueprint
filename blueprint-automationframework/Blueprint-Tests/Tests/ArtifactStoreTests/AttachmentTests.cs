@@ -160,7 +160,8 @@ namespace ArtifactStoreTests
             artifact.AddSubArtifactAttachment(userTask.Id, _attachmentFile, _user);
             artifact.Publish();
 
-            var fakeArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process, artifactId: userTask.Id);
+            var fakeArtifact = ArtifactFactory.CreateArtifact(_project,
+                _user, BaseArtifactType.Process, artifactId: userTask.Id);  // Don't use Helper because this isn't a real artifact, it's just wrapping the sub-artifact ID.
 
             // Execute & verify:
             Assert.Throws<Http404NotFoundException>(() =>

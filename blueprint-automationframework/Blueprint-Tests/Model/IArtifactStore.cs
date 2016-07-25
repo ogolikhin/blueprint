@@ -108,14 +108,14 @@ namespace Model
 
         /// <summary>
         /// Gets attachments for the specified artifact/subartifact
-        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/attachment?addDrafts={addDrafts})
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
         /// </summary>
-        /// <param name="itemId">Id of artifact/subartifact to get attachment</param>
+        /// <param name="artifactId">Id of artifact/subartifact to get attachment.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="addDrafts">(optional) Should include attachments in draft state. Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
+        Attachment GetItemsAttachment(int artifactId, IUser user, bool? addDrafts = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

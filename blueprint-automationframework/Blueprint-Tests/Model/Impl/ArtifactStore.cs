@@ -171,12 +171,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetItemsAttachment(int, IUser, bool?, List{HttpStatusCode})"/>
-        public Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
+        public Attachment GetItemsAttachment(int artifactId, IUser user, bool? addDrafts = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, itemId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifactId);
             Dictionary<string, string> queryParameters = null;
 
             if (addDrafts != null)

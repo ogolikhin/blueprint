@@ -61,8 +61,7 @@ export class BpBaseEditor {
         return !!(this.context && this.context.artifact && this.context.propertyTypes);
     }
 
-    public onLoad(context: IEditorContext)
-    {
+    public onLoad(context: IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -90,7 +89,7 @@ export class BpBaseEditor {
                 this.onFieldUpdate(it);
 
             });
-        } catch(ex) {
+        } catch (ex) {
             this.messageService.addError(ex.message);
         }
     }

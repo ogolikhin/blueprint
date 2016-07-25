@@ -1,10 +1,8 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 using NUnit.Framework;
 using Model;
 using System.Collections.Generic;
-using System.Threading;
 using CustomAttributes;
 using Common;
 using Helper;
@@ -40,64 +38,6 @@ namespace OpenAPITests
         }
 
         #region Private Functions
-
-        /// <summary>
-        /// Creates a new thread that logs in with the specified user, with the specified number of retries.
-        /// </summary>
-        /// <param name="user">The user to login with.</param>
-        /// <param name="maxRetries">The maximum number of retries for connection timeouts.</param>
-        /// <param name="exceptions">If this thread fails, the exception will be added to this list.</param>
-        /// <param name="threads">A list of threads that will be killed if any thread failed.</param>
-        /// <returns>The new thread.</returns>
-        private Thread CreateThreadToLoginWithValidCredentials(IUser user, uint maxRetries, List<Exception> exceptions, List<Thread> threads)
-        {
-            Thread thread = new Thread(() =>
-            {
-                try
-                {
-                    LoginWithValidCredentials(user, maxRetries);
-                }
-                catch (ThreadAbortException)
-                {
-                    Logger.WriteTrace("Thread [{0}] was aborted.", Thread.CurrentThread.ManagedThreadId);
-                }
-                catch (Exception e)
-                {
-                    lock (this)
-                    {
-                        exceptions.Add(e);
-
-                        if (threads.Count > 0)
-                        {
-                            Logger.WriteError("*** Thread caught exception:  {0}", e.Message);
-
-                            // If one thread fails, kill all other threads immediately (fail fast).
-                            Logger.WriteInfo("One thread failed.  Killing all other threads...");
-                            threads.ForEach(t => KillThreadIfNotCurrentThread(t));
-                            threads.Clear();
-                            Logger.WriteDebug("Finished killing all threads.");
-                        }
-                    }
-
-                    throw;
-                }
-            });
-
-            return thread;
-        }
-
-        /// <summary>
-        /// Kills the specified thread, unless the specified thread is this thread.
-        /// </summary>
-        /// <param name="thread">The thread to kill.</param>
-        private static void KillThreadIfNotCurrentThread(Thread thread)
-        {
-            if (Thread.CurrentThread != thread)
-            {
-                Logger.WriteTrace("Killing thread [{0}]...", Thread.CurrentThread.ManagedThreadId);
-                thread.Abort();
-            }
-        }
 
         /// <summary>
         /// Tries to login using invalid credentials (i.e. bad password).
@@ -186,29 +126,28 @@ namespace OpenAPITests
         [TestCase(100, (uint)2)]
         [TestCase(1000, (uint)5, Explicit = true, Reason = IgnoreReasons.OverloadsTheSystem)]
         [Category(Categories.ConcurrentTest)]
-        public void LoginValidUsersConcurrently_OK(int numUsers, uint maxRetries)
+        public void LoginValidUsersConcurrently_OK(int numThreads, uint maxRetries)
         {
+            // Setup:
             List<IUser> users = new List<IUser>();
-            List<Thread> threads = new List<Thread>();
-            List<Exception> exceptions = new List<Exception>();
+            ConcurrentTestHelper threadHelper = new ConcurrentTestHelper(Helper);
 
             try
             {
                 // Create the users & threads.
-                for (int i = 0; i < numUsers; ++i)
+                for (int i = 0; i < numThreads; ++i)
                 {
                     IUser user = UserFactory.CreateUserAndAddToDatabase();  // Don't use Helper here because the users are deleted in the finally block.
                     users.Add(user);
-                    threads.Add(CreateThreadToLoginWithValidCredentials(user, maxRetries, exceptions, threads));
+
+                    threadHelper.AddTestFunctionToThread(() =>
+                    {
+                        LoginWithValidCredentials(user, maxRetries);
+                    });
                 }
 
-                // Now run the threads.
-                threads.ForEach(t => t.Start());
-
-                // Wait for threads to finish.
-                threads.ForEach(t => t.Join());
-
-                Assert.IsEmpty(exceptions, "At least {0} threads failed to login!", exceptions.Count);
+                // Execute & Verify:
+                threadHelper.RunThreadsAndWaitToCompletion();
             }
             finally
             {

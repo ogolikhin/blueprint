@@ -33,26 +33,31 @@ export class DiagramService implements IDiagramService {
             let diagaram: IDiagram = null;
             this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
                 .success(result => {
-                    if (itemType === ItemTypePredefined.UseCase) {
-                        diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
-                    } else {
-                        diagaram = (<IDiagram>result);
-                        if (diagaram.shapes) {
-                            for (let i = 0; i < diagaram.shapes.length; i++) {
-                                const shape = diagaram.shapes[i];
-                                shape.label = shape.label && FontNormalizer.normalize(shape.label);
-                                const fontFamily = shape.labelStyle && shape.labelStyle.fontFamily;
-                                if (fontFamily) {
-                                    const newFontFamily = FontNormalizer.subsitution[fontFamily];
-                                    if (newFontFamily) {
-                                        shape.labelStyle.fontFamily = newFontFamily;
+                    try {
+                        if (itemType === ItemTypePredefined.UseCase) {
+                            diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
+                        } else {
+                            diagaram = (<IDiagram>result);
+                            if (diagaram.shapes) {
+                                for (let i = 0; i < diagaram.shapes.length; i++) {
+                                    const shape = diagaram.shapes[i];
+                                    shape.label = shape.label && FontNormalizer.normalize(shape.label);
+                                    const fontFamily = shape.labelStyle && shape.labelStyle.fontFamily;
+                                    if (fontFamily) {
+                                        const newFontFamily = FontNormalizer.subsitution[fontFamily];
+                                        if (newFontFamily) {
+                                            shape.labelStyle.fontFamily = newFontFamily;
+                                        }
                                     }
                                 }
                             }
                         }
+                        delete this.promises[id];
+                        deferred.resolve(diagaram);
+                    } catch (error) {
+                        delete this.promises[id];
+                        deferred.reject(error);
                     }
-                    delete this.promises[id];
-                    deferred.resolve(diagaram);
                 }).error((data: any, status: number) => {
                     delete this.promises[id];
                     if (status <= 0) {

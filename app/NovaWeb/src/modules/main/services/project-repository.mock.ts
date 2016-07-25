@@ -1,6 +1,5 @@
 ﻿import * as Models from "../models/models";
 import {IProjectRepository} from "./project-repository";
-import {ArtifactServiceMock} from "./artifact.svc.mock";
 
 export class ProjectRepositoryMock implements IProjectRepository {
 
@@ -92,7 +91,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
             predefinedType: Math.floor(Math.random() * 100),
         } as Models.IArtifact;
         if (children) {
-            this.createDependentArtifacts(artifact, children)
+            this.createDependentArtifacts(artifact, children);
         }
         return artifact;
     }
@@ -161,7 +160,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 usedInThisProject: true,
                 customPropertyTypeIds: [1,2,3]
             });
-        }
+        };
         return result;
     }
 }

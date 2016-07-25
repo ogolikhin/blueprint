@@ -1,7 +1,5 @@
-﻿import {Models} from "../../main";
-import {Helper} from "../../core";
-import {IMessageService} from "../../shell/";
-import {IArtifactService} from "../../main/services/";
+﻿import {IMessageService, Models, Helper} from "./";
+
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export interface IEditorContext {
@@ -120,14 +118,14 @@ export class PropertyContext implements Models.IPropertyType {
     public instancePropertyTypeId: number;
     public isRichText: boolean;
     public decimalDefaultValue: number;
-    public dateDefaultValue: Date;
     public userGroupDefaultValue: any[];
     public stringDefaultValue: string;
     public decimalPlaces: number;
     public maxNumber: number;
     public minNumber: number;
-    public maxDate: Date;
-    public minDate: Date;
+    public dateDefaultValue: string;
+    public maxDate: string;
+    public minDate: string;
     public isMultipleAllowed: boolean;
     public isRequired: boolean;
     public isValidated: boolean;
@@ -289,10 +287,12 @@ export class PropertyEditor implements IPropertyEditor {
             case Models.PrimitiveType.Date:
                 field.type = "bpFieldDatepicker";
                 field.templateOptions["datepickerOptions"] = {
-                    maxDate: context.maxDate,
-                    minDate: context.minDate
+                    maxDate: context.maxDate ? new Date(context.maxDate) : null,
+                    minDate: context.minDate ? new Date(context.minDate) : null
                 };
-                field.defaultValue = context.dateDefaultValue || new Date();
+                 
+
+                field.defaultValue = context.dateDefaultValue ? new Date(context.dateDefaultValue) : null
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "bpFieldNumber";

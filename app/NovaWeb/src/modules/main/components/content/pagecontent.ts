@@ -73,7 +73,7 @@ class PageContentCtrl {
         } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
             return "general";
         } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
-            return "details";
+            return "general";
         }
         return "details";
     }

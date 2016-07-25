@@ -1,5 +1,4 @@
 ﻿import "angular";
-import * as moment from "moment";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
@@ -424,7 +423,7 @@ export class ProjectManager implements IProjectManager {
             throw new Error(this.localization.get("Project_MetaDataNotFound"));
         }
         let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-            return it.id === artifact.itemTypeId || (it.id < 0 && it.predefinedType === artifact.predefinedType);
+            return it.id === artifact.itemTypeId;
         })[0];
         
         return _artifactType;

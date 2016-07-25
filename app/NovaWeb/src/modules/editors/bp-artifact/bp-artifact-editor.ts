@@ -1,6 +1,4 @@
-﻿import {Models} from "../../main";
-import {IMessageService} from "../../shell/";
-import {IArtifactService} from "../../main/services/";
+﻿import {IMessageService, IArtifactService, Models, Helper} from "./";
 import {ILocalizationService} from "../../core";
 import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
@@ -31,7 +29,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
-    public get isTabPropertyAvailable(): boolean {
+    public get isRichTextPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 

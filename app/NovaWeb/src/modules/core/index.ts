@@ -15,8 +15,8 @@ import { BPInfiniteScroll } from "./widgets/bp-infinite-scroll/bp-infinite-scrol
 import { BPCompileHtml } from "./widgets/bp-compile-html/bp-compile-html";
 import { BPAvatar } from "./widgets/bp-avatar/bp-avatar";
 import { BPSelect } from "./widgets/bp-select/bp-select";
-import {BPItemTypeIconComponent} from "./widgets/bp-item-icon/bp-item-icon";
-
+import { BPItemTypeIconComponent } from "./widgets/bp-item-icon/bp-item-icon";
+import { BpSpecialLinkContainer } from "./widgets/bp-special-link-container";
 
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .constant("appConstants", new AppConstants())
@@ -28,6 +28,7 @@ let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .directive("bpTooltip", BPTooltip.factory())
     .directive("bpInfiniteScroll", BPInfiniteScroll.factory())
     .directive("bpCompileHtml", BPCompileHtml.factory())
+    .directive("body", BpSpecialLinkContainer.factory())
     .component("bpItemTypeIcon", new BPItemTypeIconComponent())
     .component("bpTree", new BPTreeComponent())
     .component("bpAvatar", new BPAvatar())

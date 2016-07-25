@@ -2,7 +2,7 @@ import { ILocalizationService } from "../../core";
 import { Models } from "../../main";
 
 export interface IGlossaryService {
-    getGlossary(id: number): ng.IPromise<IGlossaryDetals>;
+    getGlossary(id: number): ng.IPromise<IGlossaryDetails>;
 }
 
 export interface IGlossaryTerm {
@@ -14,7 +14,7 @@ export interface IGlossaryTerm {
     selected?: boolean;
 }
 
-export interface IGlossaryDetals {
+export interface IGlossaryDetails {
     id: number;
     terms: IGlossaryTerm[];
 }
@@ -26,7 +26,7 @@ export class GlossaryService implements IGlossaryService {
         "$log",
         "localization"];
 
-    private _glossary: Rx.BehaviorSubject<IGlossaryDetals>;
+    private _glossary: Rx.BehaviorSubject<IGlossaryDetails>;
 
     constructor(
         private $q: ng.IQService,
@@ -34,18 +34,18 @@ export class GlossaryService implements IGlossaryService {
         private $log: ng.ILogService,
         private localization: ILocalizationService) {
 
-        this._glossary = new Rx.BehaviorSubject<IGlossaryDetals>(null);
+        this._glossary = new Rx.BehaviorSubject<IGlossaryDetails>(null);
     }
 
-    public get glossary(): Rx.Observable<IGlossaryDetals> {
+    public get glossary(): Rx.Observable<IGlossaryDetails> {
         return this._glossary.asObservable();
     }
 
-    public getGlossary(id: number): ng.IPromise<IGlossaryDetals> {
-        const defer = this.$q.defer<IGlossaryDetals>();
+    public getGlossary(id: number): ng.IPromise<IGlossaryDetails> {
+        const defer = this.$q.defer<IGlossaryDetails>();
 
         this.$http.get("/svc/components/RapidReview/glossary/" + id + "?includeDraft=true")
-            .success((result: IGlossaryDetals) => {
+            .success((result: IGlossaryDetails) => {
                 this._glossary.onNext(result);
                 defer.resolve(result);
 

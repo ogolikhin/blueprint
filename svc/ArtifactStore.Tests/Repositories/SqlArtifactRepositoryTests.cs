@@ -419,7 +419,7 @@ namespace ArtifactStore.Repositories
                 name: "Collections",
                 orderIndex: -1,
                 itemTypePredefined: ItemTypePredefined.CollectionFolder,
-                itemTypeId: 33,
+                itemTypeId: ServiceConstants.StubCollectionsItemTypeId,
                 prefix: "CF",
                 lockedByUserId: null,
                 lockedByUserTime: null,

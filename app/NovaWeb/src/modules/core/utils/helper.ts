@@ -142,7 +142,8 @@ export class Helper {
 
     static uiDatePickerFormatAdaptor(format: string): string  {
         let adapted = format;
-        adapted = adapted.replace(/[^DMY/.-]/gi, "");
+        //adapted = adapted.replace(/[^DMY/.-]/gi, "");
+        adapted = adapted.replace(/[\u200F]/g, ""); //special case for RTL languages
         adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
 
         if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {

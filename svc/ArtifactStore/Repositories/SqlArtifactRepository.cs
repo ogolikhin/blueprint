@@ -183,7 +183,7 @@ namespace ArtifactStore.Repositories
                 Name = v.Name,
                 ProjectId = v.VersionProjectId,
                 ParentId = v.ParentId,
-                ItemTypeId = v.ItemTypeId,
+                ItemTypeId = GetItemTypeId(v),
                 Prefix = v.Prefix,
                 PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
                 Version = v.VersionsCount,
@@ -208,6 +208,23 @@ namespace ArtifactStore.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+        }
+ 
+        // Returns stub ItemTypeId for Collections and Baselines and Reviews folders under the project.
+        private static int? GetItemTypeId(ArtifactVersion av)
+        {
+            if (av.ParentId != av.VersionProjectId)
+                return av.ItemTypeId;
+            
+            switch(av.ItemTypePredefined)
+            {
+                case ItemTypePredefined.CollectionFolder:
+                    return ServiceConstants.StubCollectionsItemTypeId;
+                case ItemTypePredefined.BaselineFolder:
+                    return ServiceConstants.StubBaselinesAndReviewsItemTypeId;
+                default:
+                    return av.ItemTypeId;
+            }
         }
 
         private List<ArtifactVersion> ProcessChildren(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion parentUserArtifactVersion)

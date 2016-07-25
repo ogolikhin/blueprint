@@ -187,7 +187,7 @@ describe("uiDatePickerFormatAdaptor", () => {
         let format = Helper.uiDatePickerFormatAdaptor("YYYY年MMMD日");
 
         // Assert
-        expect(format).toEqual("yyyy MMM d");
+        expect(format).toEqual("yyyy年MMMd日");
     });
 
     it("should correctly parse ar format", () => {

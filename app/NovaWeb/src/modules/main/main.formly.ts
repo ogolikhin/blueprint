@@ -70,12 +70,35 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let dateFormat = Helper.uiDatePickerFormatAdaptor(moment.localeData().longDateFormat("L"));
 
+    let datePickerDayTitle = moment.localeData().longDateFormat("LL").toUpperCase();
+    datePickerDayTitle = datePickerDayTitle.indexOf("Y") < datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
+
     angular.forEach(attributes, function(attr) {
         ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
 
     angular.forEach(bindings, function(binding) {
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldReadOnly",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <input type="text"
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    readonly="readonly"
+                    class="form-control read-only" />
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel"],
+        defaultOptions: {
+            templateOptions: {
+            }
+        }
     });
 
     formlyConfig.setType({
@@ -87,6 +110,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-keyup="bpFieldNumber.keyup($event)"
+                    ng-change="bpFieldNumber.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -96,22 +121,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             templateOptions: {
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                    let initValue = $modelValue.initialValue || $modelValue.defaultValue || "";
-                    let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
-                    let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                    if (artifactNameDiv) {
-                        if (initValue !== inputValue) {
-                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                            if (!dirtyIcon) {
-                                let div = document.createElement("DIV");
-                                div.innerHTML = `<i class="dirty-indicator"></i>`;
-                                artifactNameDiv.appendChild(div.firstChild);
-                            }
-                        }
-                    }
-                }
             },
             validation: {
                 messages: {
@@ -173,7 +182,34 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     }
                 }
             }
-        }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldNumber = {};
+
+            $scope.bpFieldNumber.change = function ($event) {
+                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                if (artifactNameDiv) {
+                    if ($scope.fc.$dirty) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (!dirtyIcon) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
+            };
+
+            $scope.bpFieldNumber.keyup = function ($event) {
+                let inputField = <HTMLInputElement> document.getElementById($scope.id);
+                let key = $event.keyCode || $event.which;
+                if (inputField && key === 13) {
+                    inputField.blur();
+                }
+
+            };
+        }]
     });
 
     formlyConfig.setType({
@@ -217,6 +253,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"
+                    ng-change="bpFieldDatepicker.change($event)"
                     ng-keyup="bpFieldDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="bpFieldDatepicker.opened"
@@ -238,6 +275,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     format: dateFormat,
                     formatDay: "d",
                     formatDayHeader: "EEE",
+                    formatDayTitle: datePickerDayTitle,
                     initDate: new Date(),
                     showWeeks: false,
                     startingDay: (<any> moment.localeData()).firstDayOfWeek()
@@ -246,32 +284,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: dateFormat.toUpperCase(),
-                onKeyup: function($viewValue, $modelValue, scope) {
-                    //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                    //let format = dateFormat.toUpperCase();
-                    let initValue = $modelValue.initialValue || $modelValue.defaultValue;
-                    let momentInit = moment(initValue, dateFormat);
-                    if (momentInit.isValid()) {
-                        initValue = momentInit.startOf("day").format("L");
-                    }
-                    let inputValue = $viewValue || (<any> document.getElementById(scope.id)).value;
-                    let momentInput = moment(inputValue, dateFormat);
-                    if (momentInput.isValid()) {
-                        inputValue = momentInput.startOf("day").format("L");
-                    }
-                    let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                    if (artifactNameDiv) {
-                        if (initValue !== inputValue) {
-                            let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                            if (!dirtyIcon) {
-                                let div = document.createElement("DIV");
-                                div.innerHTML = `<i class="dirty-indicator"></i>`;
-                                artifactNameDiv.appendChild(div.firstChild);
-                            }
-                        }
-                    }
-                }
+                placeholder: dateFormat.toUpperCase()
             },
             validation: {
                 messages: {
@@ -347,6 +360,21 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     return;
                 }
                 $scope.bpFieldDatepicker.selected = false;
+            };
+
+            $scope.bpFieldDatepicker.change = function ($event) {
+                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                if (artifactNameDiv) {
+                    if ($scope.fc.$dirty) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (!dirtyIcon) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
             };
 
             $scope.bpFieldDatepicker.keyup = function ($event) {

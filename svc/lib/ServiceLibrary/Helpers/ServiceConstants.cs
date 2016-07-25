@@ -16,5 +16,10 @@ namespace ServiceLibrary.Helpers
         public const int VersionDraft = 1;
 
         public const int VersionDraftDeleted = -1;
+
+        // Sync with Blueprint in BluePrintSys.RC.Business.Internal.Components.Shared.Helpers.BusinessApplicationConstants
+        public const int StubProjectItemTypeId = -1;
+        public const int StubCollectionsItemTypeId = -2;
+        public const int StubBaselinesAndReviewsItemTypeId = -3;
     }
 }

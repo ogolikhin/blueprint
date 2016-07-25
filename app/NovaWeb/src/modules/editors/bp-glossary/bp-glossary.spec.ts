@@ -10,8 +10,11 @@ import { GlossaryServiceMock } from "./glossary.svc.mock";
 describe("Component BP Glossary", () => {
 
     let componentTest: ComponentTest<BpGlossaryController>;
-    let template = `<bp-glossary context="263"></bp-glossary>`;
+    let template = `<bp-glossary context="glossaryId"></bp-glossary>`;
     let vm: BpGlossaryController;
+    let bindings = {
+        glossaryId: 263
+    };
 
     beforeEach(angular.mock.module("bp.editors.glossary"));
 
@@ -22,7 +25,7 @@ describe("Component BP Glossary", () => {
 
     beforeEach(inject(() => {
         componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
-        vm = componentTest.createComponent({});
+        vm = componentTest.createComponent(bindings);
     }));
     
     afterEach( () => {

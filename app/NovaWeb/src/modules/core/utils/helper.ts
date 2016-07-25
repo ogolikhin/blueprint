@@ -117,6 +117,10 @@ export class Helper {
     };
 
     static toLocaleNumber(number: number, locale?: string): string {
+        if (number === null || typeof number === "undefined" || isNaN(number)) {
+            return null;
+        }
+        
         let numberAsString: string = number.toString();
 
         if (number - Math.round(number) !== 0) {

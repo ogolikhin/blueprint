@@ -255,13 +255,13 @@ describe("toLocaleNumber", () => {
             expect(number).toEqual("-123456,789");
         });
     }
-/*
+
     it("doesn't convert bad formatted NaN", () => {
         // Arrange/Act
-        let number = Helper.toLocaleNumber();
+        let number = Helper.toLocaleNumber(NaN);
 
         // Assert
-        expect(number).toBeNaN();
+        expect(number).toBeNull();
     });
 
     it("doesn't convert null", () => {
@@ -269,7 +269,7 @@ describe("toLocaleNumber", () => {
         let number = Helper.toLocaleNumber(null);
 
         // Assert
-        expect(number).toBeNaN();
+        expect(number).toBeNull();
     });
 
     it("doesn't convert undefined", () => {
@@ -277,9 +277,8 @@ describe("toLocaleNumber", () => {
         let number = Helper.toLocaleNumber(undefined);
 
         // Assert
-        expect(number).toBeNaN();
+        expect(number).toBeNull();
     });
-    */
 });
 
 describe("parseLocaleNumber", () => {

@@ -288,7 +288,6 @@ export class PropertyEditor implements IPropertyEditor {
                 break;
             case Models.PrimitiveType.Date:
                 field.type = "bpFieldDatepicker";
-                field.type = "bpFieldReadOnly";
                 field.templateOptions["datepickerOptions"] = {
                     maxDate: context.maxDate,
                     minDate: context.minDate

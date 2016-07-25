@@ -1,6 +1,5 @@
-﻿import {IMessageService, IArtifactService, Models, Helper} from "./";
-import {ILocalizationService} from "../../core";
-import {BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
+﻿import { ILocalizationService, IMessageService, IArtifactService, Models, Helper} from "./";
+import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-editor.html");
@@ -49,7 +48,6 @@ export class BpArtifactEditorController extends BpBaseEditor {
 
     public onLoad(context: IEditorContext) {
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            //TODO: change
             angular.extend(context.artifact, it);
             this.onUpdate(context);
         }).catch((error: any) => {

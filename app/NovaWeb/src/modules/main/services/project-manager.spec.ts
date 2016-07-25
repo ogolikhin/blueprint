@@ -61,7 +61,7 @@ describe("Project Manager Test", () => {
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             $rootScope.$digest();
 
-            let project: Models.IProject = projectManager.currentProject.getValue();
+//            let project: Models.IProject = projectManager.currentProject.getValue();
 
             projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
             $rootScope.$digest();
@@ -144,7 +144,7 @@ describe("Project Manager Test", () => {
             //let error;
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
-            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(88,2));
+            projectManager.loadArtifact(ProjectRepositoryMock.createArtifact(88, 2));
             $rootScope.$digest();
 
             //Act

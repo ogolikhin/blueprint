@@ -47,11 +47,15 @@ export class BpArtifactInfoController  {
     }
 
     public get artifactClass(): string {
-        return this._artifact ? "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) : null;
+        return this._artifact ?
+            "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) :
+            null;
     }
 
     public get artifactTypeDescription(): string {
-        return this._artifact ? `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` : null;
+        return this._artifact ?
+            `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
+            null;
     }
 
     public get isReadonly(): boolean {

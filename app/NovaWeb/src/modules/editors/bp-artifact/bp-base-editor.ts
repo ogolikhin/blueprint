@@ -119,14 +119,14 @@ export class PropertyContext implements Models.IPropertyType {
     public instancePropertyTypeId: number;
     public isRichText: boolean;
     public decimalDefaultValue: number;
-    public dateDefaultValue: Date;
     public userGroupDefaultValue: any[];
     public stringDefaultValue: string;
     public decimalPlaces: number;
     public maxNumber: number;
     public minNumber: number;
-    public maxDate: Date;
-    public minDate: Date;
+    public dateDefaultValue: string;
+    public maxDate: string;
+    public minDate: string;
     public isMultipleAllowed: boolean;
     public isRequired: boolean;
     public isValidated: boolean;
@@ -288,10 +288,12 @@ export class PropertyEditor implements IPropertyEditor {
             case Models.PrimitiveType.Date:
                 field.type = "bpFieldDatepicker";
                 field.templateOptions["datepickerOptions"] = {
-                    maxDate: new Date(context.maxDate as any),
-                    minDate: new Date(context.minDate as any)
+                    maxDate: context.maxDate ? new Date(context.maxDate) : null,
+                    minDate: context.minDate ? new Date(context.minDate) : null
                 };
-                field.defaultValue = new Date(context.dateDefaultValue  as any) || new Date();
+                 
+
+                field.defaultValue = context.dateDefaultValue ? new Date(context.dateDefaultValue) : null
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "bpFieldNumber";

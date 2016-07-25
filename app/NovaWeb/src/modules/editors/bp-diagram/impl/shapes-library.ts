@@ -102,12 +102,17 @@ export class ImageShape extends mxImageShape {
         if (this.image != null) {
             // FlipH/V are implicit via mxShape.updateTransform
             c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
-            let fill = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BACKGROUND, null);
-            let stroke = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BORDER, null);
+            const fill = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BACKGROUND, null);
+            const stroke = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_BORDER, null);
+            const dashed = mxUtils.getValue(this.style, mxConstants.STYLE_DASHED, null);
+            const dashPattern = mxUtils.getValue(this.style, mxConstants.STYLE_DASH_PATTERN, null);
 
             if (fill != null || stroke != null) {
                 c.setFillColor(fill);
                 c.setStrokeColor(stroke);
+                if (dashed) {
+                    c.setDashPattern(dashPattern);
+                }
                 c.rect(x, y, w, h);
                 c.fillAndStroke();
             }
@@ -119,6 +124,7 @@ export class ImageShape extends mxImageShape {
 
     public static drawFallbackImage(c: MxAbstractCanvas2D, rect: MxRectangle) {
         c.begin();
+        c.setDashed(false);
         c.setFillColor("#FFFFFF");
         c.setStrokeColor("#BEBEBE");
         c.setStrokeWidth(Math.max(1, rect.width * 0.006));

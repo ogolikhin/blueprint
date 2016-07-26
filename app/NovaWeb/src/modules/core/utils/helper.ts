@@ -1,4 +1,5 @@
-﻿
+﻿import * as moment from "moment";
+
 export class Helper {
     static get UID(): string {        
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -169,6 +170,18 @@ export class Helper {
         }
 
         return adapted;
+    };
+
+    static toStartOfTZDay(date: Date): Date  {
+        let momentDate = moment(date);
+
+        if (!momentDate.isValid()) {
+            return null;
+        }
+
+        let momentString = momentDate.utc().startOf("day").format("YYYY-MM-DD");
+
+        return moment(momentString).toDate();
     };
 
     public static toFlat(root: any): any[] {

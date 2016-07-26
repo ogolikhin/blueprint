@@ -199,6 +199,17 @@ describe("uiDatePickerFormatAdaptor", () => {
     });
 });
 
+describe("toStartOfTZDay", () => {
+    it("should remove the time part from a date", () => {
+        let date = new Date("2016-08-01T00:30:00.0000000");
+
+        let parsed = Helper.toStartOfTZDay(date);
+
+        expect(parsed).not.toBe(date);
+        expect(parsed.getDate()).toBe(1);
+    });
+});
+
 describe("getDecimalSeparator", () => {
     it("shows the decimal separator based on locale (US)", () => {
         // Arrange/Act

@@ -169,19 +169,19 @@ export class BPTreeController implements IBPTreeController  {
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
             onModelUpdated: this.perfectScrollbars,
-            headerCellRenderer: this.headerCellRenderer
-            //headerCellRenderer: (params) => {
-            //    console.log(this);
-            //    console.log(this.headerCellRenderer);
-            //    if (this.headerCellRenderer) {
-            //        console.log(params);
-            //        this.headerCellRenderer(params);
-            //       // this.setHeader(params.value);
-            //    } else {
-            //        return params.value;
-            //    }
+          
+            headerCellRenderer: (params) => {
+                console.log(this);
+                console.log(this.headerCellRenderer);
+                if (this.headerCellRenderer) {
+                    console.log(params);
+                    this.headerCellRenderer(params);
+                   // this.setHeader(params.value);
+                } else {
+                    return params.value;
+                }
 
-            //}
+            }
 
         };
     };

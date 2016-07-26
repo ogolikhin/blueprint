@@ -10,7 +10,7 @@ namespace ArtifactStore.Models
     [JsonObject]
     public class PropertyType
     {
-        [JsonProperty]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int Id { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? VersionId { get; set; }
@@ -25,7 +25,7 @@ namespace ArtifactStore.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public decimal? DecimalDefaultValue { get; set; }
 
-        [JsonProperty(PropertyName = "DateDefaultValue")]
+        [JsonProperty(PropertyName = "DateDefaultValue", NullValueHandling = NullValueHandling.Ignore)]
         internal string _dateDefaultValue;
         [JsonIgnore]
         public DateTime? DateDefaultValue { get; set; }
@@ -43,12 +43,12 @@ namespace ArtifactStore.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public decimal? MinNumber { get; set; }
 
-        [JsonProperty(PropertyName = "MaxDate")]
+        [JsonProperty(PropertyName = "MaxDate", NullValueHandling = NullValueHandling.Ignore)]
         internal string _maxDate;
         [JsonIgnore]
         public DateTime? MaxDate { get; set; }
 
-        [JsonProperty(PropertyName = "MinDate")]
+        [JsonProperty(PropertyName = "MinDate", NullValueHandling = NullValueHandling.Ignore)]
         internal string _minDate;
         [JsonIgnore]
         public DateTime? MinDate { get; set; }

@@ -1,6 +1,7 @@
 ﻿// References to StorytellerDiagramDirective
 import {ProcessModels, IProcessService} from "./";
-import {IProjectManager, Models} from "../../main/";
+import {IProjectManager} from "../../main/services";
+import * as Models from "../../main/models/models";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {

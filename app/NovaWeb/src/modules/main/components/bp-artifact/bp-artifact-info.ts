@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models, Enums} from "../..";
+﻿import {Models, Enums} from "../..";
 import {Helper} from "../../../core/utils/helper";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -11,24 +11,17 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-
 export class BpArtifactInfoController  {
-    //private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$scope", "projectManager"];
+    static $inject: string[] = [];
     public _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
-    constructor(private $scope, private projectManager: IProjectManager) {
-        
-    }
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit() {
-        //use context reference as the last parameter on subscribe...
-        //this._subscribers = [
-        //    //subscribe for current artifact change (need to distinct artifact)
-        //    this.projectManager.currentArtifact.subscribeOnNext(this.updateInfo, this),
-        //];
+    constructor() {}
+
+    public $onInit() {}
+    public $onDestroy() {
+        delete this._artifact;
     }
     
     public $onChanges(changedObject: any) {
@@ -40,13 +33,6 @@ export class BpArtifactInfoController  {
         }
     }
 
-     
-    public $onDestroy() {
-        //dispose all subscribers
-        //this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-    }
-
-
 
     private onLoad = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
@@ -57,15 +43,13 @@ export class BpArtifactInfoController  {
     }
 
     public get artifactType(): string {
-        return this._artifact ?
-            (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : 
-            null;
+        return this._artifact ? (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : null;
     }
 
     public get artifactClass(): string {
         return this._artifact ?
-            "icon-" + Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document") :
-            "icon-document";
+            "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) :
+            null;
     }
 
     public get artifactTypeDescription(): string {

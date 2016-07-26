@@ -374,6 +374,12 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     margin-top: -1px;
   }
 
+  table.uib-monthpicker {
+    tbody td .btn {
+      width: 100%;
+    }
+  }
+
   table.uib-daypicker {
     margin: 0 -1px;
     outline: none;

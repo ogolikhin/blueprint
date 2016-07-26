@@ -1,5 +1,4 @@
 ﻿import "angular";
-import * as moment from "moment";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
@@ -179,7 +178,18 @@ export class ProjectManager implements IProjectManager {
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    //ignore authentication errors here
+                    if (error.statusCode === 1401) {
+                        angular.extend(artifact, {
+                            artifacts: null,
+                            hasChildren: true,
+                            loaded: false,
+                            open: false
+                        });
+                        self.projectCollection.onNext(self.projectCollection.getValue());
+                    } else {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    }
                 });
 
         } catch (ex) {
@@ -413,7 +423,7 @@ export class ProjectManager implements IProjectManager {
             throw new Error(this.localization.get("Project_MetaDataNotFound"));
         }
         let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-            return it.id === artifact.itemTypeId || (it.id < 0 && it.predefinedType === artifact.predefinedType);
+            return it.id === artifact.itemTypeId;
         })[0];
         
         return _artifactType;

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 namespace Model.ArtifactModel.Impl
 {
-    public class Attachment
+    public class Attachments
     {
         public int ArtifactId { get; set; }
 

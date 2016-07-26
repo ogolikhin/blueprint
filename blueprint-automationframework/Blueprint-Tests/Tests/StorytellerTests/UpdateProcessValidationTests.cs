@@ -194,7 +194,7 @@ namespace StorytellerTests
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock
-            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
+            var artifactsToLock = new List<IArtifactBase> { Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id) };
 
             // Second user locks the artifact
             Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
@@ -217,52 +217,6 @@ namespace StorytellerTests
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
             AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
-
-            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
-            // the artifact can be deleted by the second user
-            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
-        }
-
-        [Explicit(IgnoreReasons.ProductBug)]
-        [TestCase]
-        [TestRail(107370)]
-        [Description("Publish a process without having a lock on the artifact (Another user has the lock). Verify that" +
-                     "the publish process does not succeed.")]
-        public void PublishProcessWithoutArtifactLock_VerifyPublishDoesNotSucceed()
-        {
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
-
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
-
-            // Create an artifact representing the process artifact that was created and add it to the 
-            // list of artifacts to lock
-            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
-
-            // Second user locks the artifact
-            Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
-
-            var ex = Assert.Throws<Http409ConflictException>(() =>
-                // First user attempts to publish the process
-                Helper.Storyteller.PublishProcess(_user, process),
-                "The first user attempted to publish the process locked by another user and either an unexpected exception was thrown or" +
-                "the first user's attempted publish was successful."
-                );
-
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
-
-            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
-                    ProcessValidationResponse.ArtifactAlreadyLocked,
-                    process.Id,
-                    process.Name,
-                    _user2.Username);
-
-            // Assert that the deserialized response indicates that the artifact is locked
-            // by the second user
-            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
-
-            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
-            // the artifact can be deleted by the second user
-            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
         }
         
         [TestCase]

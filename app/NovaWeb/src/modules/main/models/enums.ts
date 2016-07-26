@@ -14,11 +14,13 @@ export enum PrimitiveType {
 
 
 export enum ItemTypePredefined {
+    Project = -1,       // for client use only 
+    Collections = -2,   // for client use only 
+
     None = 0,
     BaselineArtifactGroup = 256,
     CollectionArtifactGroup = 512,
     PrimitiveArtifactGroup = 4096,
-    Project = 4097,
     Baseline = 4098,
     Glossary = 4099,
     TextualRequirement = 4101,
@@ -69,7 +71,7 @@ export enum ItemTypePredefined {
 }
 
 export enum PropertyTypePredefined {
-    ItemType = -1, // for client use only to identify an edit field
+    ItemTypeId = -1, // for client use only 
 
     None = 0,
     SystemGroup = 4096,
@@ -158,6 +160,12 @@ export enum TraceDirection {
     Bidirectional
 }
 
+export enum LicenseTypeEnum {
+    None = 0,
+    Viewer = 1,
+    Collaborator = 2,
+    Author = 3
+}
 
 
 

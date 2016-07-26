@@ -18,7 +18,7 @@ export class ArtifactServiceMock implements IArtifactService {
             version: 1,
             permissions: 0,
             lockedByUserId: null,
-            propertyValues: this.createPropertyValues(id, properties)
+            customPropertyValues: this.createPropertyValues(id, properties)
         });
     }
     public static createSystemProperty(artifact: Models.IArtifact) {
@@ -48,7 +48,7 @@ export class ArtifactServiceMock implements IArtifactService {
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             value: new Date()
         });
-        artifact.propertyValues = (artifact.propertyValues || []).concat(result);
+        artifact.customPropertyValues = (artifact.customPropertyValues || []).concat(result);
     
     }
 
@@ -75,7 +75,7 @@ export class ArtifactServiceMock implements IArtifactService {
                 parentId: id,
                 itemTypeId: id + 10000,
                 itemTypeVersionId: id + 1000,
-                propertyValues : this.createPropertyValues(id, count),
+                customPropertyValues : this.createPropertyValues(id, count),
                 traces: []
             });
         }

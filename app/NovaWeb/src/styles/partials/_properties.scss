@@ -312,6 +312,13 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         color: $brand-error;
       }
     }
+
+    .read-only {
+      background: transparent !important;
+      border-color: transparent !important;
+      cursor: default !important;
+      padding-right: $property-padding-default !important;
+    }
   }
 
   .formly-field-tinymce,
@@ -326,7 +333,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
   }
 
-  .formly-field-frmlyDatepicker {
+  .formly-field-bpFieldDatepicker {
     button {
       border-radius: 0;
     }
@@ -365,6 +372,12 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
   li > .uib-datepicker {
     margin-top: -1px;
+  }
+
+  table.uib-monthpicker {
+    tbody td .btn {
+      width: 100%;
+    }
   }
 
   table.uib-daypicker {

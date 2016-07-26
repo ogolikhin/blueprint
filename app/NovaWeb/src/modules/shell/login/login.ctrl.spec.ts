@@ -21,14 +21,14 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(false, "label error is true");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(false);
         }));
 
         it("return incorrect username or password error",
@@ -45,15 +45,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
         }));
 
         it("return empty username or password error",
@@ -70,15 +70,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_CredentialsCannotBeEmpty", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsCannotBeEmpty", "error message is incorrect");
         }));
 
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -94,15 +94,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Session_AccountDisabled", "error message is incorrect");
         }));
 
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -118,15 +118,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_PasswordHasExpired", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Session_PasswordHasExpired", "error message is incorrect");
         }));
 
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -142,15 +142,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Auth_FederatedFallbackDisabled", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Auth_FederatedFallbackDisabled", "error message is incorrect");
         }));
 
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -167,15 +167,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("unexpected error");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("unexpected error");
         }));
 
         it("return license limit reached", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -191,15 +191,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act            
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Auth_LicenseLimitReached");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Auth_LicenseLimitReached");
         }));
 
         it("return license server not found", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -215,15 +215,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Auth_LicenseNotFound_Verbose");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Auth_LicenseNotFound_Verbose");
         }));
 
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -238,14 +238,14 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(false, "label error is true");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(false);
         }));
 
         it("return unexpected status code error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -261,15 +261,15 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaPassword = "changeme";
             loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("unexpected status code");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("unexpected status code");
         }));
     });
 
@@ -282,9 +282,9 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.forgetPasswordScreenError).toBe(false, "forgetPasswordScreenError");
-            expect(loginCtrl.forgetPasswordScreenUsername).toBe(loginCtrl.novaUsername, "forgetPasswordScreenUsername");
-            expect(loginCtrl.isInForgetPasswordScreen).toBe(true, "isInForgetPasswordScreen");
+            expect(loginCtrl.hasForgetPasswordScreenError).toBe(false);
+            expect(loginCtrl.forgetPasswordScreenUsername).toBe(loginCtrl.novaUserName, "forgetPasswordScreenUsername");
+            expect(loginCtrl.isInForgetPasswordScreen).toBe(true);
         }));
     });
 
@@ -297,8 +297,8 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "changePasswordScreenError");
-            expect(loginCtrl.isInChangePasswordScreen).toBe(true, "isInChangePasswordScreen");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+            expect(loginCtrl.isInChangePasswordScreen).toBe(true);
         }));
     });
 
@@ -311,8 +311,8 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(false, "changePasswordScreenError");
-            expect(loginCtrl.isInChangePasswordScreen).toBe(true, "isInChangePasswordScreen");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(false);
+            expect(loginCtrl.isInChangePasswordScreen).toBe(true);
         }));
     });
 
@@ -325,9 +325,9 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(false, "label error is true");
-            expect(loginCtrl.isInSAMLScreen).toBe(true, "isInSAMLScreen");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isInSAMLScreen).toBe(true);
         }));
 
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -347,9 +347,9 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("Login_Session_AccountDisabled", "error message is incorrect");
         }));
 
         it("return account in AD but not in BP", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -369,10 +369,10 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.formState).toBe(LoginState.LoginForm, "form is not back at login");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_ADUserNotInDB", "error message is incorrect");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.currentFormState).toBe(LoginState.LoginForm, "form is not back at login");
+            expect(loginCtrl.errorMessage).toBe("Login_Session_ADUserNotInDB", "error message is incorrect");
         }));
 
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -391,8 +391,8 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(false, "label error is true");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(false);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(false);
         }));
 
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -413,9 +413,9 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("unexpected error");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("unexpected error");
         }));
 
         it("return unexpected status code error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -435,9 +435,9 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("unexpected status code");
+            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+            expect(loginCtrl.errorMessage).toBe("unexpected status code");
         }));
     });
 
@@ -457,7 +457,7 @@ describe("LoginCtrl", () => {
     describe("changePassword", () => {
         it("complete successfully", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -467,12 +467,12 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(false, "change password error is true");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(false);
         }));
 
         it("respond with password confirm missmatch error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
 
@@ -481,13 +481,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordConfirmMismatch");
         }));
 
         it("respond with password min length error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123E";
             loginCtrl.novaConfirmNewPassword = "123E";
@@ -497,13 +497,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordMinLength");
         }));
 
         it("respond with password max length error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             /* tslint:disable:max-line-length */
             loginCtrl.novaNewPassword = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
@@ -515,14 +515,14 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordMaxLength");
         }));
 
         it("respond with incorrect current password error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+                loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -541,13 +541,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_EnterCurrentPassword");
         }));
 
         it("respond with login disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -566,13 +566,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_AccountDisabled");
         }));
 
         it("respond with empty password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -591,13 +591,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_CurrentPasswordCannotBeEmpty");
         }));
 
         it("respond with new password empty error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -616,14 +616,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeEmpty");
         }));
 
-        it("respond with new password same as old error",
-            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password same as old error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -642,14 +641,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordSameAsOld");
         }));
 
-        it("respond with new password invalid error",
-            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password invalid error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -668,13 +666,13 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
         }));
 
         it("respond with unknown error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
-            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
@@ -692,7 +690,7 @@ describe("LoginCtrl", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
         }));
     });
 });

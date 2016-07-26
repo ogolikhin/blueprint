@@ -24,7 +24,7 @@ describe("Embedded ag-grid events", () => {
     var controller: BPTreeController;
     var $scope, elem;
     var gridApi = new GridApi();
-    gridApi.setFocusedCell = () => { }
+    gridApi.setFocusedCell = () => { };
 
     beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();

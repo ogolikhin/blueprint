@@ -1,6 +1,7 @@
 ﻿import {IProjectManager, Models} from "../..";
 import {IMessageService} from "../../../shell";
-import {IDiagramService} from "../editors/graphic/diagram.svc";
+import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
+import {ItemTypePredefined} from "../../models/enums";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -67,11 +68,13 @@ class PageContentCtrl {
     private getContentType(artifact: Models.IArtifact): string {
         if (this.diagramService.isDiagram(artifact.predefinedType)) {
             return "diagram";
-        } else if (Models.ItemTypePredefined.Project == artifact.predefinedType) {
-            return "project";
-        } else if (Models.ItemTypePredefined.CollectionFolder == artifact.predefinedType) {
-            return "collection";
+        } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
+            return "glossary";
+        } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
+            return "general";
+        } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
+            return "general";
         }
-        return "general";
+        return "details";
     }
 }

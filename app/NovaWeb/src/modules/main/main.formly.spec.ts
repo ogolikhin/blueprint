@@ -6,6 +6,7 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
+import {PrimitiveType} from "./models/enums";
 import {LocalizationServiceMock} from "../core/localization.mock";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 
@@ -40,11 +41,41 @@ describe("Formly", () => {
         expect(vm).toBeDefined();
     });
 
+    describe("ReadOnly", () => {
+        it("should be initialized properly", function () {
+            compileAndSetupStuff({model: {readonlyNumber: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldReadOnly");
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect(fieldNode).toBeDefined();
+            expect(fieldScope).toBeDefined();
+        });
+
+        it("should display read only number", function () {
+            compileAndSetupStuff({model: {readonlyNumber: 10}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[0];
+
+            expect(fieldInput.value).toBe("10");
+            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+        });
+
+        it("should display read only date", function () {
+            compileAndSetupStuff({model: {readonlyDate: new Date("2016-08-08")}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[1];
+
+            expect(fieldInput.value).toContain("2016");
+            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+        });
+    });
+
     describe("Number", () => {
         it("should be initialized properly", function () {
             compileAndSetupStuff({model: {number: 10}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect(fieldNode).toBeDefined();
@@ -56,7 +87,7 @@ describe("Formly", () => {
         it("should fail if the number is less than min", function () {
             compileAndSetupStuff({model: {number: -100}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -67,7 +98,7 @@ describe("Formly", () => {
         it("should fail if the number is greater than max", function () {
             compileAndSetupStuff({model: {number: 1000}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -78,7 +109,7 @@ describe("Formly", () => {
         it("should fail if the decimals are more than allowed", function () {
             compileAndSetupStuff({model: {number: 10.1234}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -89,7 +120,7 @@ describe("Formly", () => {
         it("should succeed if the decimals are within the allowed count", function () {
             compileAndSetupStuff({model: {number: 10.1}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
@@ -99,7 +130,7 @@ describe("Formly", () => {
         it("should allow changing the value", function () {
             compileAndSetupStuff({model: {number: 10}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyNumber");
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
 
@@ -111,18 +142,31 @@ describe("Formly", () => {
             expect(scope.model.number).not.toBe(10);
             expect(scope.model.number).toBe("20");
         });
+
+        it("should blur on Enter key", function () {
+            compileAndSetupStuff({model: {number: 10}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldNumber");
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.focus();
+            expect(fieldInput === document.activeElement).toBeTruthy();
+
+            triggerKey(fieldInput, 13, "keyup");
+            expect(fieldInput === document.activeElement).toBeFalsy();
+        });
     });
 
     describe("UI Datepicker", () => {
         it("should be initialized properly", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect(fieldNode).toBeDefined();
             expect(fieldScope).toBeDefined();
-            expect((<any>fieldScope).frmlyDatepicker.opened).toBeFalsy();
+            expect((<any>fieldScope).bpFieldDatepicker.opened).toBeFalsy();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         });
@@ -131,16 +175,16 @@ describe("Formly", () => {
         it("should open the datepicker popup", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldButton = fieldNode.querySelector("button");
             let fieldInput = fieldNode.querySelector("input");
 
             fieldButton.click();
-            //(<any>fieldScope).frmlyDatepicker.open();
+            //(<any>fieldScope).bpFieldDatepicker.open();
             let selection = fieldInput.value.substring(fieldInput.selectionStart, fieldInput.selectionEnd);
 
-            expect((<any>fieldScope).frmlyDatepicker.opened).toBeTruthy();
+            expect((<any>fieldScope).bpFieldDatepicker.opened).toBeTruthy();
             expect((<any>fieldScope).to.clearText).toEqual("Datepicker_Clear");
             expect((<any>fieldScope).to.closeText).toEqual("Datepicker_Done");
             expect((<any>fieldScope).to.currentText).toEqual("Datepicker_Today");
@@ -150,15 +194,15 @@ describe("Formly", () => {
         it("should select the text on click", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
 
             fieldInput.click();
-            //(<any>fieldScope).frmlyDatepicker.select();
+            //(<any>fieldScope).bpFieldDatepicker.select();
             let selection = fieldInput.value.substring(fieldInput.selectionStart, fieldInput.selectionEnd);
 
-            expect((<any>fieldScope).frmlyDatepicker.opened).toBeFalsy();
+            expect((<any>fieldScope).bpFieldDatepicker.opened).toBeFalsy();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
             expect(selection).toContain("2016");
@@ -167,7 +211,7 @@ describe("Formly", () => {
         it("should allow changing the value", function () {
             compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
             let fieldInput = fieldNode.querySelector("input");
 
@@ -183,7 +227,7 @@ describe("Formly", () => {
         it("should fail if the date is less than minDate", function () {
             compileAndSetupStuff({model: {datepicker: "2014-05-05"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -194,7 +238,7 @@ describe("Formly", () => {
         it("should fail if the date is greater than maxDate", function () {
             compileAndSetupStuff({model: {datepicker: "2018-10-10"}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -205,12 +249,24 @@ describe("Formly", () => {
         it("should fail if the date is empty", function () {
             compileAndSetupStuff({model: {datepicker: ""}});
 
-            let fieldNode = node.querySelector(".formly-field-frmlyDatepicker");
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
             let fieldScope = angular.element(fieldNode).isolateScope();
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$viewValue.toLowerCase()).toContain("invalid");
+        });
+
+        it("should blur on Enter key", function () {
+            compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
+
+            let fieldNode = node.querySelector(".formly-field-bpFieldDatepicker");
+            let fieldInput = fieldNode.querySelector("input");
+
+            fieldInput.focus();
+            expect(fieldInput === document.activeElement).toBeTruthy();
+
+            triggerKey(fieldInput, 13, "keyup");
+            expect(fieldInput === document.activeElement).toBeFalsy();
         });
     });
 
@@ -223,13 +279,12 @@ describe("Formly", () => {
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
     }
-/*
+
     function triggerKey(targetElement, keyCode, eventType) {
         let e = angular.element.Event(eventType);
         e.which = keyCode;
-        targetElement.trigger(e);
+        angular.element(targetElement).trigger(e);
     }
-*/
 });
 
 function createModule() {
@@ -273,7 +328,7 @@ function createModule() {
                 vm.submit = submit;
 
                 // vm assignment
-                vm.options = {};
+                //vm.options = {};
                 vm.fields = getFields();
 
                 function submit() {
@@ -285,30 +340,51 @@ function createModule() {
                 function getFields() {
                     return [
                         {
-                            type: "frmlyTinymce",
+                            type: "bpFieldReadOnly",
+                            key: "readonlyNumber",
+                            data: {
+                                primitiveType: PrimitiveType.Number
+                            }
+                        },
+                        {
+                            type: "bpFieldReadOnly",
+                            key: "readonlyDate",
+                            data: {
+                                primitiveType: PrimitiveType.Date
+                            }
+                        },
+                        {
+                            type: "bpFieldTinymce",
                             key: "tinymce"
                         },
                         {
-                            type: "frmlyInlineTinymce",
+                            type: "bpFieldInlineTinymce",
                             key: "inlineTinymce"
                         },
                         {
-                            type: "frmlyNumber",
+                            type: "bpFieldNumber",
                             key: "number",
                             templateOptions: {
                                 min: 5,
                                 max: 100,
                                 decimalPlaces: 2
+                            },
+                            data: {
+                                isValidated: true
                             }
                         },
                         {
-                            type: "frmlyDatepicker",
+                            type: "bpFieldDatepicker",
                             key: "datepicker",
                             templateOptions: {
+                                required: true,
                                 datepickerOptions: {
                                     maxDate: "2017-09-09",
                                     minDate: "2015-07-07"
                                 }
+                            },
+                            data: {
+                                isValidated: true
                             }
                         }
                     ];

@@ -27,13 +27,15 @@ import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
-import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
-import {BpProjectEditor} from "./components/editors/general/bp-project-editor";
+//import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
+//import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
-import {StencilService} from "./components/editors/graphic/impl/stencil.svc";
-import {DiagramService} from "./components/editors/graphic/diagram.svc";
-import {BPDiagram} from "./components/editors/graphic/bp-diagram.component";
+import "../editors/bp-glossary";
+import "../editors/bp-artifact";
+import "../editors/bp-diagram";
+import "../editors/bp-storyteller";
+
 
 
 config.$inject = ["$rootScope", "$state"];
@@ -82,12 +84,15 @@ angular.module("app.main", [
     "ngDraggable",
     "angular-perfect-scrollbar-2",
     "formly",
-    "formlyBootstrap"])
+    "formlyBootstrap",
+    "bp.editors.glossary",
+    "bp.editors.details",
+    "bp.editors.diagram",
+    "bp.editors.storyteller"
+    ])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
-    .service("stencilService", StencilService)
-    .service("diagramService", DiagramService)
     .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
@@ -97,10 +102,8 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    .component("bpArtifactEditor", new BpArtifactEditor())
-    .component("bpProjectEditor", new BpProjectEditor())
-    .component("bpDiagram", new BPDiagram())
-    .value("mxUtils", mxUtils)
+    //.component("bpGeneralEditor", new BpGeneralEditor())
+    //.component("bpArtifactEditor", new BpArtifactEditor())
     .config(routesConfig)
     .config(formlyDecorate)
     .run(formlyConfigExtendedFields);

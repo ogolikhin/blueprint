@@ -1,5 +1,6 @@
 ﻿import {IProjectManager, Models} from "../..";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+import {Helper} from "../../../core/utils/helper";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -55,7 +56,7 @@ export class ProjectExplorerController {
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
                 css.push("is-project");
             } else {
-                css.push(Models.ItemTypePredefined[params.data.predefinedType].toLowerCase());
+                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
             }
 
             return css;

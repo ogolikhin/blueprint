@@ -1,19 +1,127 @@
 ﻿import {Helper} from "./helper";
 
-describe("camelCase", () => {
-    it("changes 'Bp-Tooltip' into 'bpTooltip'", () => {
+describe("toDashCase", () => {
+    it("changes 'bpTooltip' into 'bp-tooltip'", () => {
         // Arrange
-        let string = "Bp-Tooltip";
+        let string = "bpTooltip";
 
         // Act
-        string = Helper.camelCase(string);
+        string = Helper.toDashCase(string);
+
+        // Assert
+        expect(string).toEqual("bp-tooltip");
+    });
+
+    it("changes 'UIMockup' into 'ui-mockup'", () => {
+        // Arrange
+        let string = "UIMockup";
+
+        // Act
+        string = Helper.toDashCase(string);
+
+        // Assert
+        expect(string).toEqual("ui-mockup");
+    });
+
+    it("changes 'ArtifactReviewPackage' into 'artifact-review-package'", () => {
+        // Arrange
+        let string = "ArtifactReviewPackage";
+
+        // Act
+        string = Helper.toDashCase(string);
+
+        // Assert
+        expect(string).toEqual("artifact-review-package");
+    });
+});
+
+describe("toCamelCase", () => {
+    it("changes 'bp-tooltip' into 'bpTooltip'", () => {
+        // Arrange
+        let string = "bp-tooltip";
+
+        // Act
+        string = Helper.toCamelCase(string);
 
         // Assert
         expect(string).toEqual("bpTooltip");
     });
+
+    it("changes 'ui-mockup' into 'uiMockup'", () => {
+        // Arrange
+        let string = "ui-mockup";
+
+        // Act
+        string = Helper.toCamelCase(string);
+
+        // Assert
+        expect(string).toEqual("uiMockup");
+    });
+
+    it("changes 'artifact-review-package' into 'artifactReviewPackage'", () => {
+        // Arrange
+        let string = "artifact-review-package";
+
+        // Act
+        string = Helper.toCamelCase(string);
+
+        // Assert
+        expect(string).toEqual("artifactReviewPackage");
+    });
 });
 
-describe("stripHTMLTags", () => {
+describe("findAncestorByCssClass", () => {
+    let html = `<div class="root">
+        <div class="grandparent">
+            <div class="parent">
+                <span id="child"></span>
+            </div>
+            <div class="uncle">
+                <span id="cousin"></span>
+            </div>    
+        </div>
+    </div>`;
+
+    it("finds the immediate parent", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "parent");
+
+        // Assert
+        expect(elem).toBeDefined();
+        expect(elem.className).toEqual("parent");
+    });
+
+    it("finds the grand-parent", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "grandparent");
+
+        // Assert
+        expect(elem).toBeDefined();
+        expect(elem.className).toEqual("grandparent");
+    });
+
+    it("doesn't return any element if no ancestor has the specified class", () => {
+        // Arrange
+        document.body.innerHTML = html;
+        let child = document.querySelector("#child");
+
+        // Act
+        let elem = Helper.findAncestorByCssClass(child, "uncle");
+
+        // Assert
+        expect(elem).toBeNull();
+    });
+});
+
+describe("to and from HTML", () => {
     let html = `<div><h3 class="heading">Labels</h3>
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
 <a href="/folder2/declined" class="label" title="Declined">Declined</a>
@@ -79,7 +187,7 @@ describe("uiDatePickerFormatAdaptor", () => {
         let format = Helper.uiDatePickerFormatAdaptor("YYYY年MMMD日");
 
         // Assert
-        expect(format).toEqual("yyyy MMM d");
+        expect(format).toEqual("yyyy年MMMd日");
     });
 
     it("should correctly parse ar format", () => {
@@ -88,6 +196,17 @@ describe("uiDatePickerFormatAdaptor", () => {
 
         // Assert
         expect(format).toEqual("d/M/yyyy");
+    });
+});
+
+describe("toStartOfTZDay", () => {
+    it("should remove the time part from a date", () => {
+        let date = new Date("2016-08-01T00:30:00.0000000");
+
+        let parsed = Helper.toStartOfTZDay(date);
+
+        expect(parsed).not.toBe(date);
+        expect(parsed.getDate()).toBe(1);
     });
 });
 
@@ -112,8 +231,69 @@ describe("getDecimalSeparator", () => {
     }
 });
 
+describe("toLocaleNumber", () => {
+    it("converts to proper number based on locale (US)", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(123456.789, "en-US");
+
+        // Assert
+        expect(number).toEqual("123456.789");
+    });
+
+    it("converts to proper negative number based on locale (US)", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(-123456.789, "en-US");
+
+        // Assert
+        expect(number).toEqual("-123456.789");
+    });
+
+    // see https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
+    if (!/PhantomJS/.test(window.navigator.userAgent)) {
+        it("converts to proper number based on locale (IT)", () => {
+            // Arrange/Act
+            let number = Helper.toLocaleNumber(123456.789, "it-IT");
+
+            // Assert
+            expect(number).toEqual("123456,789");
+        });
+
+        it("converts to proper negative number based on locale (IT)", () => {
+            // Arrange/Act
+            let number = Helper.toLocaleNumber(-123456.789, "it-IT");
+
+            // Assert
+            expect(number).toEqual("-123456,789");
+        });
+    }
+
+    it("doesn't convert bad formatted NaN", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(NaN);
+
+        // Assert
+        expect(number).toBeNull();
+    });
+
+    it("doesn't convert null", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(null);
+
+        // Assert
+        expect(number).toBeNull();
+    });
+
+    it("doesn't convert undefined", () => {
+        // Arrange/Act
+        let number = Helper.toLocaleNumber(undefined);
+
+        // Assert
+        expect(number).toBeNull();
+    });
+});
+
 describe("parseLocaleNumber", () => {
-    it("convert to proper number based on locale (US)", () => {
+    it("converts to proper number based on locale (US)", () => {
         // Arrange/Act
         let number = Helper.parseLocaleNumber("123,456.789", "en-US");
 
@@ -121,7 +301,7 @@ describe("parseLocaleNumber", () => {
         expect(number).toEqual(123456.789);
     });
 
-    it("convert to proper negative number based on locale (US)", () => {
+    it("converts to proper negative number based on locale (US)", () => {
         // Arrange/Act
         let number = Helper.parseLocaleNumber("-123,456.789", "en-US");
 
@@ -131,7 +311,7 @@ describe("parseLocaleNumber", () => {
 
     // see https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
     if (!/PhantomJS/.test(window.navigator.userAgent)) {
-        it("convert to proper number based on locale (IT)", () => {
+        it("converts to proper number based on locale (IT)", () => {
             // Arrange/Act
             let number = Helper.parseLocaleNumber("123.456,789", "it-IT");
 
@@ -139,7 +319,7 @@ describe("parseLocaleNumber", () => {
             expect(number).toEqual(123456.789);
         });
 
-        it("convert to proper negative number based on locale (IT)", () => {
+        it("converts to proper negative number based on locale (IT)", () => {
             // Arrange/Act
             let number = Helper.parseLocaleNumber("-123.456,789", "it-IT");
 

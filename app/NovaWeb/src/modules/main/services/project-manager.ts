@@ -1,5 +1,4 @@
 ﻿import "angular";
-import * as moment from "moment";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
@@ -179,7 +178,18 @@ export class ProjectManager implements IProjectManager {
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     self.setCurrentArtifact(artifact);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    //ignore authentication errors here
+                    if (error.statusCode === 1401) {
+                        angular.extend(artifact, {
+                            artifacts: null,
+                            hasChildren: true,
+                            loaded: false,
+                            open: false
+                        });
+                        self.projectCollection.onNext(self.projectCollection.getValue());
+                    } else {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    }
                 });
 
         } catch (ex) {
@@ -197,7 +207,27 @@ export class ProjectManager implements IProjectManager {
             let self = this;
             this._repository.getProjectMeta(project.id)
                 .then((result: Models.IProjectMeta) => {
+                    if (angular.isArray(result.artifactTypes)) {
+                        //add specific types 
+                        result.artifactTypes.unshift(
+                            <Models.IItemType>{
+                                id: -1,
+                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                                predefinedType: Models.ItemTypePredefined.Project,
+                                customPropertyTypeIds: []
+                            },
+                            <Models.IItemType>{
+                                id: -2,
+                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.CollectionFolder],
+                                predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                                customPropertyTypeIds: []
+                            }
+                        );
+                    }
+
                     project.meta = result;
+
+
                     self.setCurrentProject(project);
                     self.setCurrentArtifact(project);
                 }).catch((error: any) => {
@@ -324,12 +354,9 @@ export class ProjectManager implements IProjectManager {
 
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Type"),
-            propertyTypePredefined: Models.PropertyTypePredefined.ItemType,
+            propertyTypePredefined: Models.PropertyTypePredefined.ItemTypeId,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
-                if (_artifactType.predefinedType === Models.ItemTypePredefined.Project) {
-                    return [_artifactType];
-                }
                 return meta.artifactTypes.filter((it: Models.IItemType) => {
                     return (_artifactType && (_artifactType.predefinedType === it.predefinedType));
                 });
@@ -395,21 +422,10 @@ export class ProjectManager implements IProjectManager {
         if (!project.meta) {
             throw new Error(this.localization.get("Project_MetaDataNotFound"));
         }
-        let _artifactType: Models.IItemType;
-        //create list of suystem properties
-        if (artifact.predefinedType === Models.ItemTypePredefined.Project) {
-            _artifactType = <Models.IItemType>{
-                id: Models.ItemTypePredefined.Project,
-                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
-                predefinedType: Models.ItemTypePredefined.Project,
-                customPropertyTypeIds: []
-            };
-        } else {
-            _artifactType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-                return it.id === artifact.itemTypeId;
-            })[0];
-        }
-
+        let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
+            return it.id === artifact.itemTypeId;
+        })[0];
+        
         return _artifactType;
     }
 

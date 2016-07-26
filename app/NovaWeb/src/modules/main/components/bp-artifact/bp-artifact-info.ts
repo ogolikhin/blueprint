@@ -1,4 +1,6 @@
-﻿import {IProjectManager, Models, Enums} from "../..";
+﻿import {Models, Enums} from "../..";
+import {Helper} from "../../../core/utils/helper";
+import {IProjectManager, Models, Enums} from "../..";
 import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -7,11 +9,10 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public controller: Function = BpArtifactInfoController;
     public controllerAs = "$ctrl";
     public bindings: any = {
-        currentArtifact: "<",
+        context: "<",
     };
     public transclude: boolean = true;
 }
-
 
 export class BpArtifactInfoController  {
     private _subscribers: Rx.IDisposable[];
@@ -23,35 +24,35 @@ export class BpArtifactInfoController  {
     constructor(private $scope, private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
         
     }
-    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit() {
-        //use context reference as the last parameter on subscribe...
-        this._subscribers = [
-            //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.updateInfo, this),
-        ];
-    }
     
-     
-    public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+    public $onChanges(changedObject: any) {
+        try {
+            let context = changedObject.context ? changedObject.context.currentValue : null;
+            this.onLoad(context);
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
     }
 
-    private updateInfo = (artifact: Models.IArtifact) => {
+
+    private onLoad = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
-    }
-
+    };
     
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;
     }
 
     public get artifactType(): string {
+        return this._artifact ? (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : null;
+    }
+
+    public get artifactClass(): string {
         return this._artifact ?
-            (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : 
+            "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) :
             null;
     }
+
     public get artifactTypeDescription(): string {
         return this._artifact ?
             `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
@@ -69,15 +70,15 @@ export class BpArtifactInfoController  {
         return false;
     }
 
-    public get isDiagram(): boolean {
+    public get isLegacy(): boolean {
         return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram);
-
+            this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            this._artifact.predefinedType === Enums.ItemTypePredefined.Glossary);
     }
 
     public openPicker() {

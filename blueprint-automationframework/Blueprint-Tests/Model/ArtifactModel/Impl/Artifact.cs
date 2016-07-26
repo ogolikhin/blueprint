@@ -145,8 +145,9 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        public LockResultInfo Lock(
-            IUser user,
+        /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode}, bool)"/>
+        public LockResultInfo Lock(IUser user = null,
+            LockResult expectedLockResult = LockResult.Success,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -162,6 +163,7 @@ namespace Model.ArtifactModel.Impl
                 artifactToLock,
                 Address,
                 user,
+                new List<LockResult> { expectedLockResult },
                 expectedStatusCodes,
                 sendAuthorizationAsCookie);
 
@@ -569,13 +571,16 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user locking the artifact</param>
+        /// <param name="expectedLockResults">(optional) A list of expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>List of LockResultInfo for the locked artifacts</returns>
         public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
             string address,
-            IUser user, 
-            List<HttpStatusCode> expectedStatusCodes = null, 
+            IUser user,
+            List<LockResult> expectedLockResults = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -603,6 +608,11 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
+            if (expectedLockResults == null)
+            {
+                expectedLockResults = new List<LockResult> { LockResult.Success };
+            }
+
             // Update artifacts with lock info.
             foreach (var artifact in artifactsToLock)
             {
@@ -613,6 +623,13 @@ namespace Model.ArtifactModel.Impl
                 if (lockResultInfo.Result == LockResult.Success)
                 {
                     artifact.LockOwner = user;
+                }
+
+                if (restApi.StatusCode == HttpStatusCode.OK)
+                {
+                    Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
+                        "We expected the lock Result to be one of: [{0}], but it was: {1}!",
+                        string.Join(", ", expectedLockResults), lockResultInfo.Result);
                 }
             }
 

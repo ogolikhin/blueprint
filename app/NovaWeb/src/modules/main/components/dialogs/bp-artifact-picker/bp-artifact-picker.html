@@ -1,0 +1,34 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title">{{::$ctrl.params.header}}</h3>
+</div>
+<div class="modal-body">
+    <div ng-if="$ctrl.hasError">
+        {{$ctrl.errorMessage}}
+    </div>
+    <div ng-if="!$ctrl.hasError" class="project-wrapper">
+        <div class="artifact-picker-container">
+            <bp-tree bp-ref="$ctrl.tree"
+                     grid-class="project-tree"
+                     header-height="20"
+                     row-height="20"
+                     grid-columns="$ctrl.columns"
+                     property-map="$ctrl.propertyMap"
+                     on-load="$ctrl.doLoad(prms)"
+                     on-select="$ctrl.doSelect(item)"
+                     header-cell-renderer="$ctrl.setHeader()"
+                     on-sync="$ctrl.doSync(item)">
+            </bp-tree>
+        </div>
+      
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.params.cancelButton"></span>
+        </button>
+        <button class="btn btn-primary" ng-click="$ctrl.ok()">
+            <span ng-bind="$ctrl.params.okButton"></span>
+        </button>
+    </div>
+</div>

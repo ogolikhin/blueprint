@@ -17,7 +17,7 @@ import * as moment from "moment";
 import * as Enums from "./models/enums";
 import {Helper} from "../core/utils/helper";
 import * as Models from "./models/models";
-import {IArtifactService, ArtifactService, ProjectRepository, IProjectManager, ProjectManager} from "./services/";
+import {IArtifactService, ArtifactService, ProjectRepository, IProjectRepository, IProjectManager, ProjectManager} from "./services/";
 import * as Relationships from "./models/relationshipModels";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
@@ -41,7 +41,7 @@ export {
     Enums,
     Models,
     Relationships,
-//    IProjectRepository, ProjectRepository,
+    IProjectRepository, ProjectRepository,
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
 };

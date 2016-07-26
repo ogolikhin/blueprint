@@ -48,7 +48,8 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
-        onRowPostCreate: "&?"
+        onRowPostCreate: "&?",
+        headerCellRenderer: "&?"
     };
 }
 export interface ITreeNode {
@@ -74,6 +75,7 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
+   
 }
 
 
@@ -97,6 +99,7 @@ export class BPTreeController implements IBPTreeController  {
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
+    public headerCellRenderer: Function;
 
     public bpRef: BPTreeController;
 
@@ -105,6 +108,7 @@ export class BPTreeController implements IBPTreeController  {
     private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
+  
 
 
     constructor(private $element?, private $timeout?: ng.ITimeoutService) {
@@ -137,6 +141,8 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
+
+      
     }
 
     public $onInit = () => {
@@ -162,9 +168,25 @@ export class BPTreeController implements IBPTreeController  {
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars
+            onModelUpdated: this.perfectScrollbars,
+            headerCellRenderer: this.headerCellRenderer
+            //headerCellRenderer: (params) => {
+            //    console.log(this);
+            //    console.log(this.headerCellRenderer);
+            //    if (this.headerCellRenderer) {
+            //        console.log(params);
+            //        this.headerCellRenderer(params);
+            //       // this.setHeader(params.value);
+            //    } else {
+            //        return params.value;
+            //    }
+
+            //}
+
         };
     };
+
+   
 
     public $onDestroy = () => {
         this.selectedRow = null;
@@ -313,7 +335,10 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
+    public that = this;
+
     private rowGroupOpened = (params: any) => {
+        console.log("rowGroupOpened");
         let self = this;
 
         let node = params.node;

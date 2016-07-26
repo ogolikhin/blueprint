@@ -1,4 +1,6 @@
 ﻿import {IProjectManager, Models, Enums} from "../..";
+import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
+import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -13,12 +15,12 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController  {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$scope", "projectManager"];
+    static $inject: [string] = ["$scope", "projectManager", "dialogService", "localization"];
     private _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
-    constructor(private $scope, private projectManager: IProjectManager) {
+    constructor(private $scope, private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
         
     }
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -76,5 +78,19 @@ export class BpArtifactInfoController  {
             this._artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram);
 
+    }
+
+    public openPicker() {
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
+            controller: ArtifactPickerController,
+            css: "nova-open-project",
+            header: "Some header"
+        }).then((artifact:any) => {
+            if (artifact) {
+                this.projectManager.setCurrentArtifact(artifact);
+            }
+        });
     }
 }

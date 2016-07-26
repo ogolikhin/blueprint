@@ -170,23 +170,29 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetItemsAttachment(int, IUser, bool?, List{HttpStatusCode})"/>
-        public Attachment GetItemsAttachment(int itemId, IUser user, bool? addDrafts = true,
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, List{HttpStatusCode})"/>
+        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, itemId);
-            Dictionary<string, string> queryParameters = null;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifact.Id);
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
             if (addDrafts != null)
             {
-                queryParameters = new Dictionary<string, string> { { "addDrafts", addDrafts.ToString() } };
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
-            var attachment = restApi.SendRequestAndDeserializeObject<Attachment>(
+            var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,

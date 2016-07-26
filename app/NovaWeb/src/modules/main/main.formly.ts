@@ -371,17 +371,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the values are of type Date!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isString(currentModelVal)) {
-                $scope.model[$scope.options.key] = moment(currentModelVal).toDate();
+            if (angular.isDate(currentModelVal)) {
+                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
             }
-            if ($scope.defaultDate) {
-                $scope.defaultDate = moment($scope.defaultDate).toDate();
+            if ($scope.defaultValue) {
+                $scope.defaultValue = Helper.toStartOfTZDay($scope.defaultValue);
             }
-            if ($scope.to["datepickerOptions"] && $scope.to["datepickerOptions"].maxDate) {
-                $scope.to["datepickerOptions"].maxDate = moment($scope.to["datepickerOptions"].maxDate).toDate();
-            }
-            if ($scope.to["datepickerOptions"] && $scope.to["datepickerOptions"].minDate) {
-                $scope.to["datepickerOptions"].minDate = moment($scope.to["datepickerOptions"].minDate).toDate();
+            if ($scope.to["datepickerOptions"]) {
+                if ($scope.to["datepickerOptions"].maxDate) {
+                    $scope.to["datepickerOptions"].maxDate = Helper.toStartOfTZDay($scope.to["datepickerOptions"].maxDate);
+                }
+                if ($scope.to["datepickerOptions"].minDate) {
+                    $scope.to["datepickerOptions"].minDate = Helper.toStartOfTZDay($scope.to["datepickerOptions"].minDate);
+                }
             }
 
             $scope.bpFieldDatepicker.opened = false;

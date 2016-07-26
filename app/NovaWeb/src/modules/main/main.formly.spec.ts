@@ -254,7 +254,6 @@ describe("Formly", () => {
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$viewValue.toLowerCase()).toContain("invalid");
         });
 
         it("should blur on Enter key", function () {
@@ -378,6 +377,7 @@ function createModule() {
                             type: "bpFieldDatepicker",
                             key: "datepicker",
                             templateOptions: {
+                                required: true,
                                 datepickerOptions: {
                                     maxDate: "2017-09-09",
                                     minDate: "2015-07-07"

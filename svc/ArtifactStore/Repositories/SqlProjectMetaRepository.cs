@@ -119,11 +119,11 @@ namespace ArtifactStore.Repositories
                 DecimalDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Number
                                       ? PropertyHelper.ToDecimal(pv.DecimalDefaultValue) : null,
                 UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User ? ParseUserGroups(pv.UserDefaultValue) : null,
-                MinDate = pv.PrimitiveType == PropertyPrimitiveType.Date ? pv.MinDate : null,
-                MaxDate = pv.PrimitiveType == PropertyPrimitiveType.Date ? pv.MaxDate : null,
-                MinNumber = pv.PrimitiveType == PropertyPrimitiveType.Number
+                MinDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MinDate : null,
+                MaxDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MaxDate : null,
+                MinNumber = pv.PrimitiveType == PropertyPrimitiveType.Number && pv.Validate.GetValueOrDefault()
                                       ? PropertyHelper.ToDecimal(pv.MinNumber) : null,
-                MaxNumber = pv.PrimitiveType == PropertyPrimitiveType.Number
+                MaxNumber = pv.PrimitiveType == PropertyPrimitiveType.Number && pv.Validate.GetValueOrDefault()
                                       ? PropertyHelper.ToDecimal(pv.MaxNumber) : null,
                 DecimalPlaces = pv.PrimitiveType == PropertyPrimitiveType.Number ? pv.DecimalPlaces : null,
                 ValidValues = pv.PrimitiveType == PropertyPrimitiveType.Choice

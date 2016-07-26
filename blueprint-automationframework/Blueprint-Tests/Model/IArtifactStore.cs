@@ -129,5 +129,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
         Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets artifact by specifying its id
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId})
+        /// </summary>
+        /// <param name="id">Id of artifact/subartifact</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact Object</returns>
+        DetailedArtifact GetArtifactDetailsByArtifactId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

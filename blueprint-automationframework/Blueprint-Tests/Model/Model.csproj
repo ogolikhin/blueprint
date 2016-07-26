@@ -72,7 +72,6 @@
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
-    <Compile Include="IDetailedArtifact.cs" />
     <Compile Include="Impl\DetailedArtifact.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />

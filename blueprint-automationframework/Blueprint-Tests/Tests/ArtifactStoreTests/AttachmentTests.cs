@@ -18,10 +18,10 @@ namespace ArtifactStoreTests
     public class AttachmentTests : TestBase
     {
         private IUser _user = null;
-        IProject _project = null;
-        uint _fileSize = (uint)(RandomGenerator.RandomNumber(4096));
-        string _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
-        IFile _attachmentFile = null;
+        private IProject _project = null;
+        private uint _fileSize = (uint)(RandomGenerator.RandomNumber(4096));
+        private string _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
+        private IFile _attachmentFile = null;
 
         [SetUp]
         public void SetUp()

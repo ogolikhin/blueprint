@@ -132,13 +132,13 @@ namespace Model
         Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets artifact by specifying its id
+        /// Gets artifact details by specifying its ID.
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId})
         /// </summary>
-        /// <param name="id">Id of artifact/subartifact</param>
+        /// <param name="artifactId">Id of artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Artifact Object</returns>
-        DetailedArtifact GetArtifactDetailsByArtifactId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Artifact details.</returns>
+        DetailedArtifact GetArtifactDetails(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

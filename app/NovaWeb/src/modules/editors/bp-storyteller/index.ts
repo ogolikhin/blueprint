@@ -3,7 +3,7 @@ import {ProcessService} from "./services/process/process.svc";
 import * as ProcessModels from "./models/processModels";
 import * as ProcessEnums from "./models/enums";
 
-angular.module("app.storyteller", [])
+angular.module("bp.editors.storyteller", [])
     .component("bpStorytellerEditor", new BpStorytellerEditor)
     .service("processService", ProcessService);
 

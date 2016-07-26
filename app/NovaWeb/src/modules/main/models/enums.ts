@@ -14,11 +14,13 @@ export enum PrimitiveType {
 
 
 export enum ItemTypePredefined {
+    Project = -1,       // for client use only 
+    Collections = -2,   // for client use only 
+
     None = 0,
     BaselineArtifactGroup = 256,
     CollectionArtifactGroup = 512,
     PrimitiveArtifactGroup = 4096,
-    Project = 4097,
     Baseline = 4098,
     Glossary = 4099,
     TextualRequirement = 4101,

@@ -1,5 +1,5 @@
 // import { Models } from "../../../";
-import { IGlossaryDetals, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
+import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
 
 export class BpGlossary implements ng.IComponentOptions {
@@ -20,7 +20,7 @@ export class BpGlossaryController {
 
     private _context: number; // Models.IArtifact;
 
-    public glossary: IGlossaryDetals;
+    public glossary: IGlossaryDetails;
 
     constructor(
         private $log: ng.ILogService,
@@ -34,7 +34,7 @@ export class BpGlossaryController {
             this._context = changesObj.context.currentValue;
 
             if (this._context) {
-                this.glossaryService.getGlossary(this._context).then((result: IGlossaryDetals) => {
+                this.glossaryService.getGlossary(this._context).then((result: IGlossaryDetails) => {
                     result.terms = result.terms.map((term: IGlossaryTerm) => {
                         term.definition = this.$sce.trustAsHtml(term.definition); 
                         return term;

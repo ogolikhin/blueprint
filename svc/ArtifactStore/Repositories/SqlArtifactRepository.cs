@@ -26,51 +26,6 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
         }
-        /// <summary>
-        /// NOTE: this is temporary solution  to fake request from the client
-        /// TODO: MUST be rework.
-        /// </summary>
-        /// <param name="artifactId"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public async Task<ArtifactDetailsResultSet> GeArtifactAsync(int artifactId, int userId)
-        {
-            if (artifactId < 1)
-                throw new ArgumentOutOfRangeException(nameof(artifactId));
-            if (userId < 1)
-                throw new ArgumentOutOfRangeException(nameof(userId));
-
-
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@artifactIds", artifactIdsTable);
-            prm.Add("@revisionId", int.MaxValue);
-
-
-            var artifacts = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactInfos", prm,
-                    commandType: CommandType.StoredProcedure)).ToList();
-
-            return new ArtifactDetailsResultSet();
-
-            //return userArtifactVersionChildren.Select(v => new Artifact
-            //{
-            //    Id = v.ItemId,
-            //    Name = v.Name,
-            //    ProjectId = v.VersionProjectId,
-            //    ParentId = v.ParentId,
-            //    TypeId = v.ItemTypeId,
-            //    Prefix = v.Prefix,
-            //    PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
-            //    Version = v.VersionsCount,
-            //    OrderIndex = v.OrderIndex,
-            //    HasChildren = v.HasChildren,
-            //    Permissions = v.EffectivePermissions,
-            //    LockedByUserId = v.LockedByUserId,
-            //    LockedDateTime = v.LockedByUserTime
-            //}).First(a => a.Id == artifactId);
-        }
-
 
         public async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
         {
@@ -183,7 +138,7 @@ namespace ArtifactStore.Repositories
                 Name = v.Name,
                 ProjectId = v.VersionProjectId,
                 ParentId = v.ParentId,
-                ItemTypeId = v.ItemTypeId,
+                ItemTypeId = GetItemTypeId(v),
                 Prefix = v.Prefix,
                 PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
                 Version = v.VersionsCount,
@@ -208,6 +163,23 @@ namespace ArtifactStore.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+        }
+ 
+        // Returns stub ItemTypeId for Collections and Baselines and Reviews folders under the project.
+        private static int? GetItemTypeId(ArtifactVersion av)
+        {
+            if (av.ParentId != av.VersionProjectId)
+                return av.ItemTypeId;
+            
+            switch(av.ItemTypePredefined)
+            {
+                case ItemTypePredefined.CollectionFolder:
+                    return ServiceConstants.StubCollectionsItemTypeId;
+                case ItemTypePredefined.BaselineFolder:
+                    return ServiceConstants.StubBaselinesAndReviewsItemTypeId;
+                default:
+                    return av.ItemTypeId;
+            }
         }
 
         private List<ArtifactVersion> ProcessChildren(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion parentUserArtifactVersion)

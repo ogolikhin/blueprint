@@ -92,16 +92,20 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     private image = (shape: IShape): MxCell => {
-        let style = new Style();
+        const style = this.styleBuilder.createDefaultShapeStyle(shape);
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
-        let imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
+        const imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
         if (imageUrl != null) {
             style[mxConstants.STYLE_IMAGE] = imageUrl;
         }
-        let aspect = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_KEEP_ASPECT_RATIO);
+        const aspect = ShapeExtensions.getPropertyByName(shape, ShapeProps.IS_KEEP_ASPECT_RATIO);
         if (aspect != null && !aspect) {
             style[mxConstants.STYLE_IMAGE_ASPECT] = 0;
         }
+        if (shape.strokeWidth != null) {
+            style[mxConstants.STYLE_STROKEWIDTH] = shape.strokeWidth;
+        }
+        style[mxConstants.STYLE_IMAGE_BORDER] = style[mxConstants.STYLE_STROKECOLOR];
         return this.createDefaultVertex(shape, style);
     };
 

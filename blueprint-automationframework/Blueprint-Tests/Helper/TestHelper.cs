@@ -106,17 +106,33 @@ namespace Helper
         }
 
         /// <summary>
-        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file.
         /// </summary>
-        /// <param name="project">The target project</param>
-        /// <param name="user">user for authentication</param>
-        /// <param name="artifactType">artifactType</param>
-        /// <returns>new artifact object</returns>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <returns>The new artifact object.</returns>
         public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType)
         {
             IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
+            return artifact;
+        }
+
+        /// <summary>
+        /// Create and save an artifact object using the Blueprint application server address from the TestConfiguration file.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <returns>The new artifact object.</returns>
+        public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
+            artifact.Save();
             return artifact;
         }
 

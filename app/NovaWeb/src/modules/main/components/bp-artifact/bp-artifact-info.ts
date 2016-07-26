@@ -1,6 +1,5 @@
-﻿import {Models, Enums} from "../..";
+﻿import {Models, Enums, IProjectManager} from "../..";
 import {Helper} from "../../../core/utils/helper";
-import {IProjectManager, Models, Enums} from "../..";
 import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -14,17 +13,21 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpArtifactInfoController  {
-    private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$scope", "projectManager", "dialogService", "localization"];
-    private _artifact: Models.IArtifact;
+export class BpArtifactInfoController {
+    static $inject: [string] = ["projectManager", "dialogService", "localization"];   
+    public _artifact: Models.IArtifact;
 
     public currentArtifact: string;
 
-    constructor(private $scope, private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
-        
+    constructor(private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
+
     }
-    
+
+    public $onInit() { }
+    public $onDestroy() {
+        delete this._artifact;
+    }
+
     public $onChanges(changedObject: any) {
         try {
             let context = changedObject.context ? changedObject.context.currentValue : null;
@@ -38,7 +41,7 @@ export class BpArtifactInfoController  {
     private onLoad = (artifact: Models.IArtifact) => {
         this._artifact = artifact;
     };
-    
+
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;
     }
@@ -80,6 +83,7 @@ export class BpArtifactInfoController  {
             this._artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
             this._artifact.predefinedType === Enums.ItemTypePredefined.Glossary);
     }
+
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{

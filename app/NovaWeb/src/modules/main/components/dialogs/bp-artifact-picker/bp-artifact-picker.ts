@@ -47,8 +47,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         ////    '<div style="text-align: left;">' +
         ////    '  <div id="agResizeBar" style="width: 4px; height: 100%; float: right; cursor: col-resize;"></div>' +
         ////    '  <div style="padding: 4px; overflow: hidden; text-overflow: ellipsis;">' +
-        ////    '    <span id="agMenu"><i class="fa fa-bars"></i></span>' +
-        ////    // everything inside agHeaderCellLabel gets actioned when the user clicks
+        ////    '    <span id="agMenu"><i class="fa fa-bars"></i></span>' +        
         ////    '    <span id="agHeaderCellLabel">' +
         ////    '      <span id="agText"></span>' +
         ////    '      <span id="agSortAsc"><i class="fa fa-long-arrow-down"></i></span>' +
@@ -56,19 +55,16 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         ////    '      <span id="agNoSort"></span>' +
         ////    '      <span id="agFilter"><i class="fa fa-filter"></i></span>' +
         ////    '    </span>' +
-        ////    '    <span id="myCalendarIcon"><i class="fa fa-calendar">>></i></span>' + value
+        ////    '    <span id="myCalendarIcon"><i class="fa fa-calendar">>></i></span>' + params.value
         ////'  </div>' +
         ////    '</div>';
-        ////var eCalendar = eCell.querySelector('#myCalendarIcon');
-        ////eCalendar.addEventListener('click', function () {
-        ////    alert('Calendar was Clicked');
-        ////});
+    
         ////return eCell;
 
 
-//return params.value;
+         //return params.value;
        
-        return "dsdfsdf";
+        return "custom header";
       
     }
 

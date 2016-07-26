@@ -49,7 +49,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?",
-        headerCellRenderer: "&?"
+        headerCellRendererF: "&?"
     };
 }
 export interface ITreeNode {
@@ -99,7 +99,7 @@ export class BPTreeController implements IBPTreeController  {
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
-    public headerCellRenderer: Function;
+    public headerCellRendererF: Function;
 
     public bpRef: BPTreeController;
 
@@ -107,7 +107,8 @@ export class BPTreeController implements IBPTreeController  {
     private editableColumns: string[] = [];
     private _datasource: any[] = [];
     private selectedRow: any;
-    private clickTimeout: any;
+    private clickTimeout: any
+   
   
 
 
@@ -168,25 +169,18 @@ export class BPTreeController implements IBPTreeController  {
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,
-          
+            onModelUpdated: this.perfectScrollbars,          
             headerCellRenderer: (params) => {
-                console.log(this);
-                console.log(this.headerCellRenderer);
-                if (this.headerCellRenderer) {
-                    console.log(params);
-                    this.headerCellRenderer(params);
-                   // this.setHeader(params.value);
+                if (this && this.headerCellRendererF) {
+                    return this.headerCellRendererF(params);
                 } else {
                     return params.value;
                 }
-
-            }
+            } 
 
         };
-    };
-
-   
+    };  
+    
 
     public $onDestroy = () => {
         this.selectedRow = null;

@@ -290,9 +290,8 @@ export class PropertyEditor implements IPropertyEditor {
                     maxDate: context.maxDate,
                     minDate: context.minDate
                 };
-                 
 
-                field.defaultValue = context.dateDefaultValue
+                field.defaultValue = context.dateDefaultValue;
                 break;
             case Models.PrimitiveType.Number:
                 field.type = "bpFieldNumber";

@@ -69,6 +69,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let ngModelAttrs = {};
 
+    const customProperty = 2;
+
     let dateFormat = moment.localeData().longDateFormat("L");
     let datePickerFormat = Helper.uiDatePickerFormatAdaptor(dateFormat);
 
@@ -102,8 +104,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             if (currentModelVal) {
                 switch ($scope.options.data.primitiveType) {
                     case PrimitiveType.Date:
-                        if (moment(new Date(currentModelVal.toString())).isValid()) {
-                            $scope.model[$scope.options.key] = moment(new Date(currentModelVal.toString())).format(dateFormat);
+                        if (moment(currentModelVal).isValid()) {
+                            if ($scope.options.data.lookup === customProperty) {
+                                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(dateFormat);
+                            } else {
+                                $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
+                            }
                         }
                         break;
                     case PrimitiveType.Number:
@@ -371,18 +377,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the values are of type Date!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isDate(currentModelVal)) {
-                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
+            if (angular.isString(currentModelVal)) {
+                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
             }
-            if ($scope.defaultValue) {
-                $scope.defaultValue = Helper.toStartOfTZDay($scope.defaultValue);
+            if (angular.isString($scope.defaultValue)) {
+                $scope.defaultValue = moment($scope.defaultValue).startOf("day").toDate();
             }
             if ($scope.to["datepickerOptions"]) {
-                if ($scope.to["datepickerOptions"].maxDate) {
-                    $scope.to["datepickerOptions"].maxDate = Helper.toStartOfTZDay($scope.to["datepickerOptions"].maxDate);
+                if (angular.isString($scope.to["datepickerOptions"].maxDate)) {
+                    $scope.to["datepickerOptions"].maxDate = moment($scope.to["datepickerOptions"].maxDate).startOf("day").toDate();
                 }
-                if ($scope.to["datepickerOptions"].minDate) {
-                    $scope.to["datepickerOptions"].minDate = Helper.toStartOfTZDay($scope.to["datepickerOptions"].minDate);
+                if (angular.isString($scope.to["datepickerOptions"].minDate)) {
+                    $scope.to["datepickerOptions"].minDate = moment($scope.to["datepickerOptions"].minDate).startOf("day").toDate();
                 }
             }
 

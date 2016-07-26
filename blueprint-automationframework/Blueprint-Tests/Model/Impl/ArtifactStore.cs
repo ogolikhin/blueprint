@@ -94,6 +94,18 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactDetailsByArtifactId(int, int, IUser, List{HttpStatusCode})"/>
+        public DetailedArtifact GetArtifactDetailsByArtifactId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, id);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<DetailedArtifact>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
         public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
             bool? sortByDateAsc = null, int? limit = null, int? offset = null, 

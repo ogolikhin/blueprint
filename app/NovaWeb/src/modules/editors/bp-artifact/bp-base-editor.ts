@@ -13,7 +13,7 @@ export class BpBaseEditor {
     public static $inject: [string] = ["messageService"];
 
     public form: angular.IFormController;
-    public model = {};295
+    public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: IPropertyEditor;

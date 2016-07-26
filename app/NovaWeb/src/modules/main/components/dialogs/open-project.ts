@@ -2,7 +2,7 @@
 import { Helper } from "../../../core/utils/helper";
 import { ILocalizationService } from "../../../core";
 import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
-import { IDialogSettings, BaseDialogController, IDialogService } from "../../../core/services/dialog";
+import { IDialogSettings, BaseDialogController, IDialogService} from "../../../core";
 import { IProjectManager, Models } from "../../";
 
 export interface IOpenProjectController {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common;
 using Helper;
 using Model;
@@ -29,7 +30,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-            _attachmentFile = CreateRandomFile(_fileSize, _fileName);
+            _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
         }
 
         [TearDown]
@@ -37,14 +38,6 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
             _attachmentFile = null;
-        }
-
-        private static IFile CreateRandomFile(uint fileLength, string fileName, string fileType = "text/plain")
-        {
-            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileLength);
-            byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
-            IFile file = FileFactory.CreateFile(fileName, fileType, DateTime.Now, fileContents);
-            return file;
         }
 
         [TestCase]
@@ -93,15 +86,56 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146334)]
-        [Description("Create a Process artifact, publish it, add attachment to User task & publish, get attachments for User task.  Verify attachment is returned.")]
-        public void GetAttachment_SubArtifactWithAttachment_AttachmentIsReturned()
+        [Description("Create a Process artifact, add attachment, publish it, add a different attachment to User task & publish, get attachments for User task.  Verify attachment is returned.")]
+        public void GetAttachment_ArtifactAndSubArtifactWithAttachment_OnlyArtifactAttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _user);
+
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            
-            var attachedFile = artifact.AddSubArtifactAttachment(userTask.Id, _attachmentFile, _user);
+
+            IFile file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+            var addedSubArtifactAttachment = artifact.AddSubArtifactAttachment(userTask.Id, file2, _user);
+            artifact.Publish();
+
+            Assert.NotNull(addedSubArtifactAttachment, "Failed to add attachment to the sub-artifact!");
+            Assert.AreEqual(file2.FileName, addedSubArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
+
+            Attachments attachment = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            }, "'{0}' shouldn't return any error.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+            Assert.IsTrue(addedArtifactAttachment.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
+        }
+
+        [TestCase]
+        [TestRail(154648)]
+        [Description("Create a Process artifact, add attachment, publish it, add attachment to User task & publish, get attachments for User task.  Verify only the User Task's attachment is returned.")]
+        public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _user);
+
+            Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
+            Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
+
+            artifact.Publish();
+
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            IFile file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+            var addedSubArtifactAttachment = artifact.AddSubArtifactAttachment(userTask.Id, file2, _user);
             artifact.Publish();
 
             Attachments attachment = null;
@@ -115,13 +149,13 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
-            Assert.IsTrue(attachedFile.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
+            Assert.IsTrue(addedSubArtifactAttachment.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
         }
 
         [TestCase]
         [TestRail(146335)]
         [Description("Create & publish a Process artifact, add attachment to User task & publish, delete attachment, get attachments for User task, check expectations.")]
-        public void GetAttachment_SubArtifactWithDeletedAttachment_NoAttachmentsReturned()
+        public void GetAttachmentWithSubArtifactId_SubArtifactWithDeletedAttachment_NoAttachmentsReturned()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
@@ -170,5 +204,168 @@ namespace ArtifactStoreTests
             }, "'{0}' should return 404 Not Found if passed a sub-artifact ID instead of an artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
+
+        [TestCase(null)]
+        [TestCase(true)]
+        [TestRail(154591)]
+        [Description("Create & save an artifact (don't publish), add attachment, get attachments (with or without addDrafts=true). Verify attachment is returned.")]
+        public void GetAttachment_UnpublishedArtifactWithAttachment_AttachmentIsReturned(bool? addDrafts)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var openApiAttachment = artifact.AddArtifactAttachment(_attachmentFile, _user);
+
+            Attachments attachment = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user, addDrafts);
+            }, "'{0}{1}' shouldn't return any error.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT,
+                addDrafts == null ? string.Empty : "?addDrafts=" + addDrafts);
+
+            // Verify:
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+        }
+
+        [TestCase]
+        [TestRail(154592)]
+        [Description("Create & save an artifact (don't publish), add attachment, get attachments (with addDrafts=false).  Verify 404 Not Found is returned.")]
+        public void GetAttachmentWithAddDraftsFalse_UnpublishedArtifactWithAttachment_404NotFound()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.AddArtifactAttachment(_attachmentFile, _user);
+
+            // Execute & verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, _user, addDrafts: false);
+            }, "'{0}?addDrafts=false' should return 404 Not Found.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
+        [TestCase]
+        [TestRail(154646)]
+        [Description("Create & publish an artifact, add attachment, get attachments (with addDrafts=false).  Verify no attachments are returned.")]
+        public void GetAttachmentWithAddDraftsFalse_PublishedArtifactWithAttachmentInDraft_NoAttachmentsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.AddArtifactAttachment(_attachmentFile, _user);
+
+            Attachments attachment = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user, addDrafts: false);
+            }, "'{0}?addDrafts=false' shouldn't return any error.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+        }
+
+        [TestCase(2)]
+        [TestCase(20)]
+        [TestRail(154593)]
+        [Description("Create & save an artifact, add multiple attachments, publish artifact, get attachments.  Verify all attachments that were added are returned.")]
+        public void GetAttachment_PublishedArtifactWithMultipleAttachments_AllAttachmentsAreReturned(int numberOfAttachments)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            List<OpenApiAttachment> openApiAttachments = new List<OpenApiAttachment>();
+
+            for (int i = 0; i < numberOfAttachments; ++i)
+            {
+                IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+                var openApiAttachment = artifact.AddArtifactAttachment(file, _user);
+                openApiAttachments.Add(openApiAttachment);
+            }
+
+            artifact.Publish();
+
+            Attachments attachment = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            }, "'{0}' shouldn't return any error when passed a published artifact ID.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(openApiAttachments.Count, attachment.AttachedFiles.Count,
+                "List of attached files should have {0} files.", openApiAttachments.Count);
+
+            foreach (var openApiAttachment in openApiAttachments)
+            {
+                AttachedFile attachedFile = attachment.AttachedFiles.Find(f => f.AttachmentId == openApiAttachment.Id);
+                Assert.NotNull(attachedFile, "Couldn't find file with ID '{0}' in the list of attached files!", openApiAttachment.Id);
+                Assert.IsTrue(openApiAttachment.Equals(attachedFile),
+                    "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+            }
+        }
+
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [TestRail(154594)]
+        [Description("Try to get attachments for a non-existent artifact ID.  Verify 404 Not Found is returned.")]
+        public void GetAttachment_NonExistentArtifactId_404NotFound(int artifactId)
+        {
+            // Setup:
+            IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
+                _project, _user, BaseArtifactType.Actor, artifactId);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+
+            // Execute & verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(fakeArtifact, _user);
+            }, "'{0}' should return 404 Not Found.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
+        [TestCase(0, Explicit = true, Reason = IgnoreReasons.ProductBug)]   // BUG #1722: Returns 400 instead of 404.
+        [TestCase(int.MaxValue)]
+        [TestRail(154595)]
+        [Description("Create & save a Process artifact.  Try to get attachments for a non-existent sub-artifact ID.  Verify 404 Not Found is returned.")]
+        public void GetAttachmentWithSubArtifactId_NonExistentSubArtifactId_404NotFound(int subArtifactId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Execute & verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, _user, subArtifactId: subArtifactId);
+            }, "'{0}?subArtifactId={1}' should return 404 Not Found.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifactId);
+        }
+
+        [TestCase]
+        [TestRail(154600)]
+        [Description("Create & publish an artifact, get attachments.  Verify no attachments are returned.")]
+        public void GetAttachment_PublishedArtifactWithNoAttachments_NoAttachmentsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            Attachments attachment = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            }, "'{0}' shouldn't return any error.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+        }
+
+        // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596
+        // TODO: Implement GetAttachment_PublishedArtifactWithAttachmentUserHasNoPermissionToArtifact_403Forbidden  TestRail ID: 154597
     }
 }

@@ -1,21 +1,21 @@
-﻿import "./";
-import "angular";
+﻿import "angular";
 import "angular-mocks";
-import "angular-sanitize";
-import { MessageServiceMock } from "../../shell/messages/message.mock" 
+import "./";
+import { MessageServiceMock } from "../../shell/messages/message.mock";
 import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController} from "./bp-general-editor";
 
 
 
 describe("Component BpGeneralEditorInfo", () => {
+    beforeEach(angular.mock.module("bp.editors.details"));
 
     let componentTest: ComponentTest<BpGeneralEditorController>;
-    let template = `<bp-general-editor context="artifact "></bp-general-editor>`;
+    let template = `<bp-general-editor context="artifact"></bp-general-editor>`;
     let bindings: any;
     let ctrl: BpGeneralEditorController;
 
-    beforeEach(angular.mock.module("bp.editors.details"));
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
     }));

@@ -6,7 +6,7 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPSelectController } from "./bp-select";
 
 describe("Component BPSelect", () => {
-    beforeEach(angular.mock.module("app.core"));
+    beforeEach(angular.mock.module("app.shared"));
 
     let directiveTest: ComponentTest<BPSelectController>;
     let bindings = {
@@ -28,7 +28,7 @@ describe("Component BPSelect", () => {
         directiveTest = new ComponentTest<BPSelectController>(template, "bpSelect");
     });
 
-    xit("should be visible by default", () => {
+    it("should be visible by default", () => {
         // Arrange
         // Act
         directiveTest.createComponent(bindings);
@@ -38,7 +38,7 @@ describe("Component BPSelect", () => {
         expect(directiveTest.element.find("ul")).toBeDefined();
     });
 
-    xit("should update model when option is selected", () => {
+    it("should update model when option is selected", () => {
         // Arrange
         let selectedOption = { value: true, label: "sort by earliest" };
         let ctrl: BPSelectController = directiveTest.createComponent(bindings);

@@ -38,7 +38,7 @@ describe("Component BpGeneralEditorInfo", () => {
 
         ctrl = componentTest.createComponent(bindings);
         //Assert
-        expect(componentTest.element.find(".artifact-overview").length).toBe(1);
+        expect(componentTest.element.find(".artifact-overview").length).toBe(0);
         expect(componentTest.element.find(".readonly-indicator").length).toBe(0);
         expect(componentTest.element.find(".lock-indicator").length).toBe(0);
         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);

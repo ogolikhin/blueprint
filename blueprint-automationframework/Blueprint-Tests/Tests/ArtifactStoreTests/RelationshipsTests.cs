@@ -529,7 +529,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.DeploymentNotReady)]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]//https://trello.com/c/qZ09FIPJ is fixed and not deployed to silver02
         [TestRail(154699)]
         [Description("Try to get relationships using credentials of user which has no access to the target artifact. Verify that relationships returns empty artifact name and HasAccess false.")]
         public void GetRelationships_NoAccessToTargetArtifact_ReturnsCorrectRelationships()

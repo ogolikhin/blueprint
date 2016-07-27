@@ -28,7 +28,7 @@ describe("Component BPSelect", () => {
         directiveTest = new ComponentTest<BPSelectController>(template, "bpSelect");
     });
 
-    it("should be visible by default", () => {
+    xit("should be visible by default", () => {
         // Arrange
         // Act
         directiveTest.createComponent(bindings);
@@ -38,7 +38,7 @@ describe("Component BPSelect", () => {
         expect(directiveTest.element.find("ul")).toBeDefined();
     });
 
-    it("should update model when option is selected", () => {
+    xit("should update model when option is selected", () => {
         // Arrange
         let selectedOption = { value: true, label: "sort by earliest" };
         let ctrl: BPSelectController = directiveTest.createComponent(bindings);

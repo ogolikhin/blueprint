@@ -47,6 +47,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
     }
 
     public onLoad(context: IEditorContext) {
+        this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             angular.extend(context.artifact, it);
             this.onUpdate(context);
@@ -54,7 +55,9 @@ export class BpArtifactEditorController extends BpBaseEditor {
             //ignore authentication errors here
             if (error.statusCode !== 1401) {
                 this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-            }
+                }
+        }).finally(() => {
+            this.isLoading = false;
         });
     }
 

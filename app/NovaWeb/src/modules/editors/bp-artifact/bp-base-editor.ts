@@ -19,6 +19,8 @@ export class BpBaseEditor {
     public editor: IPropertyEditor;
     public context: IEditorContext;
 
+    public isLoading: boolean = true;
+
     public readOnly: boolean = false;
 
     constructor (public messageService: IMessageService) {
@@ -71,6 +73,10 @@ export class BpBaseEditor {
 
     public onUpdate(context: IEditorContext) {
         try {
+            this.isLoading = false;
+            if (!context) {
+                return;;
+            }
             let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });

@@ -172,4 +172,36 @@ export class ProcessLinkModel implements IProcessLinkModel {
         public destinationNode: any = null) {
     }
 }
-
+export class ProcessShapeModel implements IProcessShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {},
+        public branchDestinationId: number = undefined,
+        public flags: ITaskFlags = <ITaskFlags>{},
+        public decisionSourceIds: number[] = []) {
+    }
+}
+export class ProcessModel implements IProcess {
+    public status: IItemStatus;
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public typePrefix: string = "",
+        public projectId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.Process,
+        public shapes: IProcessShape[] = [],
+        public links: IProcessLinkModel[] = [],
+        public propertyValues: IHashMapOfPropertyValues = {},
+        public decisionBranchDestinationLinks: IProcessLink[] = [],
+        public itemTypeId: number = 0,
+        status?: IItemStatus,
+        public requestedVersionInfo: IVersionInfo = null) {
+        this.status = status || <IItemStatus>{};
+    }
+}

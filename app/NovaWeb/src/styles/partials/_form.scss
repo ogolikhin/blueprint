@@ -199,6 +199,16 @@ textarea[rows="2"].nova-form-control {
   }
 }
 
+// IE 8+ Specific styles to remove clear and reveal (eye) icons from input fields
+input::-ms-clear {
+  display: none;
+}
+
+input[type=password]::-ms-reveal,
+input[type=password]::-ms-clear {
+  display: none;
+}
+
 //https://developer.mozilla.org/en-US/docs/Web/CSS/:-webkit-autofill
 .nova-floating-label .nova-form-control:-webkit-autofill ~ .nova-label {
   color: $gray-dark;

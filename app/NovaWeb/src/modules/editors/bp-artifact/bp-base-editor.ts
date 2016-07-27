@@ -270,7 +270,7 @@ export class PropertyEditor implements IPropertyEditor {
         
         switch (context.primitiveType) {
             case Models.PrimitiveType.Text:
-                field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "textarea" : "input");
+                field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                 field.defaultValue = context.stringDefaultValue;
                 if (context.isRichText) {
                     field.templateOptions["tinymceOption"] = {

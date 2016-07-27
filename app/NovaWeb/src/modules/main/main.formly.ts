@@ -85,17 +85,25 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
+    let blurOnEnterKey = function(event) {
+        let inputField = event.target;
+        let key = event.keyCode || event.which;
+        if (inputField && key === 13) {
+            let inputFieldButton = <HTMLInputElement> inputField.parentElement.querySelector("span button");
+            if (inputFieldButton) {
+                inputFieldButton.focus();
+            } else {
+                inputField.blur();
+            }
+        }
+    };
+
     formlyConfig.setType({
         name: "bpFieldReadOnly",
         extends: "input",
         /* tslint:disable */
-        template: `<div class="input-group has-messages" bp-tooltip="{{tooltip}}">
-                <input type="text"
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    readonly="readonly"
-                    class="form-control read-only" />
+        template: `<div class="input-group has-messages">
+                <div class="read-only-input" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -124,6 +132,102 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     default:
                 }
             }
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldText",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <input type="text"
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-keyup="bpFieldText.keyup($event)"
+                    ng-change="bpFieldText.change($event)"
+                    class="form-control" />
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            templateOptions: {
+            },
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldText = {};
+
+            $scope.bpFieldText.change = function ($event) {
+                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                if (artifactNameDiv) {
+                    if ($scope.fc.$dirty) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (!dirtyIcon) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
+            };
+
+            $scope.bpFieldText.keyup = blurOnEnterKey;
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldTextMulti",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <textarea
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-keyup="bpFieldText.keyup($event)"
+                    ng-change="bpFieldText.change($event)"
+                    class="form-control"></textarea>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            templateOptions: {
+            },
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldTextMulti = {};
+
+            $scope.bpFieldTextMulti.change = function ($event) {
+                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                if (artifactNameDiv) {
+                    if ($scope.fc.$dirty) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (!dirtyIcon) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
+            };
         }]
     });
 
@@ -161,7 +265,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         }
 
                         let value = $modelValue || $viewValue;
-                        let decimalPlaces = (<any> scope.to).decimalPlaces;
+                        let decimalPlaces = scope.to["decimalPlaces"];
 
                         if (value && angular.isNumber(decimalPlaces)) {
                             let intValue = parseInt(value, 10);
@@ -244,14 +348,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             };
 
-            $scope.bpFieldNumber.keyup = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                let key = $event.keyCode || $event.which;
-                if (inputField && key === 13) {
-                    inputField.blur();
-                }
-
-            };
+            $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
     });
 
@@ -349,7 +446,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             minDate = moment(minDate).startOf("day");
 
-                            (<any> scope.to).minDate = minDate.format("L");
+                            scope.to["minDate"] = minDate.format("L");
 
                             return value.isSameOrAfter(minDate, "day");
                         }
@@ -369,7 +466,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             maxDate = moment(maxDate).startOf("day");
 
-                            (<any> scope.to).maxDate = maxDate.format("L");
+                            scope.to["maxDate"] = maxDate.format("L");
 
                             return value.isSameOrBefore(maxDate, "day");
                         }
@@ -385,8 +482,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             let currentModelVal = $scope.model[$scope.options.key];
             if (angular.isString(currentModelVal)) {
                 $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
+            } else if (angular.isDate(currentModelVal)) {
+                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
             }
-            if (angular.isString($scope.defaultValue)) {
+
+            if ($scope.defaultValue) {
                 $scope.defaultValue = moment($scope.defaultValue).startOf("day").toDate();
             }
             if ($scope.to["datepickerOptions"]) {
@@ -405,10 +505,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             $scope.bpFieldDatepicker.selected = false;
             $scope.bpFieldDatepicker.select = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                if (!inputField) {
-                    return;
-                }
+                let inputField = $event.target;
                 inputField.focus();
                 if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
                     inputField.setSelectionRange(0, inputField.value.length);
@@ -417,10 +514,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
 
             $scope.bpFieldDatepicker.blur = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                if (!inputField) {
-                    return;
-                }
                 $scope.bpFieldDatepicker.selected = false;
             };
 
@@ -439,18 +532,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             };
 
-            $scope.bpFieldDatepicker.keyup = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                let key = $event.keyCode || $event.which;
-                if (inputField && key === 13) {
-                    let calendarIcon = <HTMLInputElement> inputField.parentElement.querySelector("span button");
-                    if (calendarIcon) {
-                        calendarIcon.focus();
-                    } else {
-                        inputField.blur();
-                    }
-                }
-            };
+            $scope.bpFieldDatepicker.keyup = blurOnEnterKey;
         }]
     });
 

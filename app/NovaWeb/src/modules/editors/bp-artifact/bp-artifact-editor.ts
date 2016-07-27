@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService, IArtifactService, Models, Helper} from "./";
+﻿import { ILocalizationService, IMessageService, IArtifactService, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
@@ -47,6 +47,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
     }
 
     public onLoad(context: IEditorContext) {
+        this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             angular.extend(context.artifact, it);
             this.onUpdate(context);
@@ -54,7 +55,9 @@ export class BpArtifactEditorController extends BpBaseEditor {
             //ignore authentication errors here
             if (error.statusCode !== 1401) {
                 this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-            }
+                }
+        }).finally(() => {
+            this.isLoading = false;
         });
     }
 
@@ -63,7 +66,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         if (!propertyContext) {
             return;
         }
-        //re=group fields
+        //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);
         } else if (LookupEnum.System === propertyContext.lookup) {

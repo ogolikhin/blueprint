@@ -1,5 +1,5 @@
-﻿import {IMessageService, IArtifactService, Models } from "./";
-import {BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
+﻿import { IMessageService, Models } from "./";
+import { BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -11,9 +11,9 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "artifactService"];
+    public static $inject: [string] = ["messageService"];
 
-    constructor(messageService: IMessageService, private artifactService: IArtifactService) {
+    constructor(messageService: IMessageService) {
         super(messageService);
     }
 
@@ -53,8 +53,8 @@ export class BpGeneralEditorController extends BpBaseEditor {
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
             } else if (LookupEnum.System === propertyContext.lookup) {
+                field.type = "bpFieldReadOnly";
                 this.systemFields.push(field);
-                field.templateOptions.disabled = true;
             } else {
                 field.hide = true;
             }

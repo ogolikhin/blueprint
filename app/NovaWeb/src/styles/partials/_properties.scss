@@ -152,11 +152,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       width: $property-label-width;
     }
 
+    .read-only-input,
     input,
     textarea,
     select {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
       box-shadow: none !important;
       box-sizing: border-box;
       color: $gray-dark;
@@ -166,6 +165,13 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       max-width: $property-input-width;
       padding-left: $property-padding-default;
       width: $property-input-width;
+    }
+
+    input,
+    textarea,
+    select {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
     }
 
     input,
@@ -198,6 +204,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     input {
       padding-right: $property-padding-default;
+    }
+
+    .read-only-input {
+      border: solid 1px transparent;
+      height: $property-min-height;
+      line-height: $property-min-height;
+      overflow: hidden;
+      padding: 0 $property-padding-default;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .has-messages {
@@ -247,13 +263,18 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     textarea {
-      min-height: #{1.5 * $property-min-height};
-      overflow: auto;
+      min-height: #{2.25 * $property-min-height};
+      overflow: hidden;
       padding-right: 20px;
+
+      &:focus {
+        overflow: auto;
+      }
     }
 
     select {
       background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
+      -ms-overflow-style: scrollbar;
       padding: 2px;
 
       &[disabled] {
@@ -287,6 +308,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
     }
 
+    .form-read-only {
+
+    }
+
     .error-messages {
       bottom: calc((#{$font-size-smaller} + 2px) * -1);
       position: absolute;
@@ -299,6 +324,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     .has-error {
+      textarea,
       input {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
@@ -368,67 +394,112 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
 .uib-datepicker-popup {
   border-color: $brand-secondary;
+  border-radius: 0;
   padding: 0 0 7px;
 
   li > .uib-datepicker {
     margin-top: -1px;
   }
 
-  table.uib-monthpicker {
-    tbody td .btn {
-      width: 100%;
-    }
-  }
-
-  table.uib-daypicker {
+  table.uib-daypicker,
+  table.uib-monthpicker,
+  table.uib-yearpicker {
     margin: 0 -1px;
     outline: none;
-    width: #{$property-input-width - 1px};
+    width: $property-input-width;
 
     thead tr:first-child th {
       button {
         border-color: $brand-secondary;
       }
 
-      &:first-child button,
+      &:first-child button {
+        border-right: 0;
+        color: $brand-secondary;
+      }
+
       &:last-child button {
+        border-left: 0;
         color: $brand-secondary;
       }
     }
+  }
 
+  table.uib-yearpicker {
+    tbody tr:first-child td {
+      padding-top: 8px;
+    }
+
+    tbody td {
+      border: solid 1px transparent;
+      width: 52px;
+
+      &:first-child {
+        padding-left: 5px;
+        width: 57px;
+      }
+
+      &:last-child {
+        padding-right: 6px;
+        width: 58px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  table.uib-monthpicker {
+    tbody tr:first-child td {
+      padding-top: 8px;
+    }
+
+    tbody td {
+      border: solid 1px transparent;
+      width: 87px;
+
+      &:first-child {
+        padding-left: 5px;
+        width: 92px;
+      }
+
+      &:last-child {
+        padding-right: 6px;
+        width: 93px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  table.uib-daypicker {
     thead tr:last-child th,
     tbody td {
       border: solid 1px transparent;
       line-height: 28px;
+      width: 37px;
 
       &:first-child {
-        padding-left: 4px;
+        padding-left: 6px;
+        width: 43px;
       }
 
       &:last-child {
-        padding-right: 4px;
+        padding-right: 7px;
+        width: 44px;
       }
     }
   }
 
-  .uib-button-bar {
-    padding: 10px 6px 0;
-  }
-
   .btn {
+    border-radius: 0 !important;
     color: $gray-dark;
     min-width: 36px;
     outline: none;
     padding: 5px 10px;
-
-    &.btn-info,
-    &.btn-danger,
-    &.btn-success {
-      background: $white;
-      border-color: $gray-lighter;
-      border-radius: 4px !important;
-      float: none;
-    }
 
     &:active,
     &:hover {
@@ -447,166 +518,17 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       color: inherit;
     }
   }
-}
-/* DO NOT DELETE. Commented out while testing Formly
-.property-group {
-  align-items: flex-start;
-  border-left: solid $property-horiz-spacing transparent;
-  border-right: solid $property-horiz-spacing transparent;
-  display: flex;
-  //flex: $property-width;
-  flex-basis: auto;
-  flex-grow: 0;
-  flex-shrink: 1;
-  flex-wrap: wrap;
-  font-size: 0; // to eliminate empty space. Must redefine font-size in children!
-  //margin: 1px 0 0;
-  margin: 0 0 12px;
-  //max-width: $property-width;
-  min-height: $property-min-height;
-  order: 0;
-  width: $property-width;
 
-  label {
-    color: $gray-dark;
-    display: inline-block;
-    font-size: $font-size-normal;
-    font-weight: 400;
-    margin: 6px 0 0;
-    width: $property-label-width;
-  }
+  .uib-button-bar {
+    padding: 10px 6px 0;
 
-  .field-input-text,
-  .field-textarea,
-  input[type=text],
-  textarea {
-    border: solid 1px #eef0f0;
-    box-sizing: border-box;
-    color: $gray-dark;
-    font-size: $font-size-normal;
-    font-weight: 400;
-    max-width: $property-input-width;
-    padding-left: $property-padding-default;
-    width: $property-input-width;
-
-    &.readonly {
-      border-color: transparent;
-    }
-
-    &.editable:hover {
-      background: #fbf8e7 url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-      padding-right: 20px;
-    }
-
-    &.editable:focus,
-    &.mce-edit-focus:focus {
-      background: #fbf8e7;
-      padding-right: $property-padding-default;
-    }
-
-    &.typeahead {
-      background: url('images/typeahead-arrow.png') no-repeat right;
-      padding-right: 23px;
-    }
-
-    &::-ms-clear {
-      display: none;
-    }
-  }
-
-  .field-input-text,
-  input[type=text] {
-    min-height: $property-min-height;
-    padding-right: $property-padding-default;
-  }
-
-  .field-input-text {
-    line-height: #{$property-min-height - 4px};
-    overflow: hidden;
-    position: relative;
-    white-space: nowrap;
-
-    &::before {
-      background: #fbf8e7 url('images/editable-icon.png') no-repeat 2px 6px;
-      content: '';
-      display: none;
-      height: $property-min-height;
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 20px;
-      z-index: 1;
-    }
-
-    &:not(.mce-edit-focus):hover::before {
-      display: block;
-    }
-
-    > * {
-      margin: 0;
-    }
-  }
-
-  .field-textarea,
-  textarea {
-    min-height: #{1.5 * $property-min-height};
-    overflow: auto;
-    padding-right: 20px;
-  }
-
-  .field-textarea,
-  .field-input-text {
-    padding-bottom: 1px; // mimic browser's style for input fields
-    padding-top: 1px; // mimic browser's style for input fields
-  }
-
-  &.error {
-    label + span {
-      display: inline-block;
-      position: relative;
-
-      .field-input-text,
-      .field-textarea,
-      input[type=text],
-      textarea {
-        border-bottom: solid 1px $brand-error;
-      }
-
-      input[type=text].typeahead {
-        border: solid 1px $brand-error;
-      }
-    }
-
-    label + span::after {
-      //background: rgba($white, .5);
-      bottom: -$font-size-normal;
-      color: $brand-error;
-      content: attr(data-validation);
-      font-size: $font-size-smallest;
-      padding: 1px;
-      position: absolute;
-      right: 2px;
-      text-align: right;
-    }
-  }
-
-  .dropdown-menu {
-    border: solid 1px $gray-lighter;
-    border-radius: 0;
-    color: $gray-dark;
-    font-size: $font-size-normal;
-    padding: 0;
-    width: $property-input-width;
-
-    > li > a {
-      padding: 4px $property-padding-default;
-    }
-
-    > .active > a,
-    > .active > a:hover,
-    > .active > a:focus {
-      background: $brand-secondary;
+    .btn-info,
+    .btn-danger,
+    .btn-success {
+      background: $white;
+      border-color: $gray-lighter;
+      border-radius: 4px !important;
+      float: none;
     }
   }
 }
-*/

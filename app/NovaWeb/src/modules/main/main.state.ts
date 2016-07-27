@@ -1,4 +1,4 @@
-    import "angular";
+import "angular";
 import {AuthenticationRequired} from "../shell/authentication";
 
 config.$inject = ["$stateProvider", "$urlRouterProvider"];

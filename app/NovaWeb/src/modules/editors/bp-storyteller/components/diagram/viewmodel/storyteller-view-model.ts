@@ -1,7 +1,7 @@
-﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
-import {IMessageService, MessageService, Message, MessageType} from "../../../../../shell/";
+﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../shell/";
 import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
-import {Models, Enums} from "../../../../../main";
+import * as Models from "../../../../../main/models/models";
+import * as Enums from "../../../../../main/models/enums";
 import {ProcessModels, ProcessEnums} from "../../../";
 
 export interface IStorytellerViewModel extends IProcessClientModel{
@@ -19,7 +19,7 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
-    isWithinShapeLimit(additionalShapes:number, isLoading?: boolean): boolean;
+    isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
     updateProcessClientModel(process);
@@ -53,7 +53,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
         if (scope) {
             this._scope = scope;
-            this.subscribeToToolbarEvents();
+           // this.subscribeToToolbarEvents();
             this.getConfigurationSettings();
         }
 
@@ -74,7 +74,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public set isReadonly(value) {
         this._isReadonly = value;
         //if (this.header) {
-            //this._header.isReadonly = value;
+        //this._header.isReadonly = value;
         //}
     }
 
@@ -294,7 +294,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         return this.processClientModel.projectId;
     }
 
-    public get baseItemTypePredefined(): ItemTypePredefined {
+    public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processClientModel.baseItemTypePredefined;
     }
 
@@ -444,30 +444,30 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
 
-    private subscribeToToolbarEvents() {
-        // subscribe to toolbar commands using the event bus 
-        if (this._scope.subscribe) {
-            if (this._unsubscribeToolbarEvents.length > 0) {
-                // remove previous event listeners 
-                this.removeToolbarEventListeners();
-            }
-            this._unsubscribeToolbarEvents.push(
-                this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
-                    this.resetLock();
-                })
-            );
-        }
-    }
+    //private subscribeToToolbarEvents() {
+    //    // subscribe to toolbar commands using the event bus 
+    //    if (this._scope.subscribe) {
+    //        if (this._unsubscribeToolbarEvents.length > 0) {
+    //            // remove previous event listeners 
+    //            this.removeToolbarEventListeners();
+    //        }
+    //        this._unsubscribeToolbarEvents.push(
+    //            this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
+    //                this.resetLock();
+    //            })
+    //        );
+    //    }
+    //}
 
-    private removeToolbarEventListeners() {
-        if (this._unsubscribeToolbarEvents.length > 0) {
-            for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
-                this._unsubscribeToolbarEvents[i]();
-                this._unsubscribeToolbarEvents[i] = null;
-            }
-        }
-        this._unsubscribeToolbarEvents = [];
-    }
+    //private removeToolbarEventListeners() {
+    //    if (this._unsubscribeToolbarEvents.length > 0) {
+    //        for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
+    //            this._unsubscribeToolbarEvents[i]();
+    //            this._unsubscribeToolbarEvents[i] = null;
+    //        }
+    //    }
+    //    this._unsubscribeToolbarEvents = [];
+    //}
 
     private getConfigurationSettings() {
         // get configuration settings from scope and assign to viewmodel 
@@ -506,7 +506,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     }
 
     public destroy() {
-        this.removeToolbarEventListeners();
+        //this.removeToolbarEventListeners();
         //this._header = null;
         this._scope = null;
         if (this.processClientModel != null) {

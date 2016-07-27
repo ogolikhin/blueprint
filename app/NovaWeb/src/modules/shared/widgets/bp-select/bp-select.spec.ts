@@ -6,7 +6,7 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPSelectController } from "./bp-select";
 
 describe("Component BPSelect", () => {
-    beforeEach(angular.mock.module("app.core"));
+    beforeEach(angular.mock.module("app.shared"));
 
     let directiveTest: ComponentTest<BPSelectController>;
     let bindings = {

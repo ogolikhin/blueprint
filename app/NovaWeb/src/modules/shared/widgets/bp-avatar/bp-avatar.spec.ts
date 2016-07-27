@@ -1,12 +1,12 @@
-import "../../"; // app.core
 import "angular";
 import "angular-mocks";
-// import "angular-sanitize";
+//import "angular-sanitize";
+import "../../"; // app.shared
 import { ComponentTest } from "../../../util/component.test";
 import { BPAvatarController } from "./bp-avatar";
 
 describe("Component BPAvatar", () => {
-    beforeEach(angular.mock.module("app.core"));
+    beforeEach(angular.mock.module("app.shared"));
 
     let directiveTest: ComponentTest<BPAvatarController>;
     let bindings: any;

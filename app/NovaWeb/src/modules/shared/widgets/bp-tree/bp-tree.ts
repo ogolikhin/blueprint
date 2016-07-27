@@ -1,7 +1,7 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
-import {Helper} from "../../../core/utils/helper";
-import {RowNode} from "ag-grid/main";
+import { Helper } from "../../utils/helper";
+import { RowNode } from "ag-grid/main";
 
 /*
 tslint:disable
@@ -74,6 +74,7 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
+   
 }
 
 
@@ -97,6 +98,7 @@ export class BPTreeController implements IBPTreeController  {
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
+   
 
     public bpRef: BPTreeController;
 
@@ -105,7 +107,7 @@ export class BPTreeController implements IBPTreeController  {
     private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
-
+   
 
     constructor(private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
@@ -137,6 +139,8 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
+
+      
     }
 
     public $onInit = () => {
@@ -163,8 +167,10 @@ export class BPTreeController implements IBPTreeController  {
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
             onModelUpdated: this.perfectScrollbars
+
         };
-    };
+    };  
+    
 
     public $onDestroy = () => {
         this.selectedRow = null;
@@ -173,6 +179,7 @@ export class BPTreeController implements IBPTreeController  {
 
     };
 
+    /* tslint:disable */
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
         if (!propertyMap) {
@@ -194,6 +201,7 @@ export class BPTreeController implements IBPTreeController  {
         }
         return item;
     }
+    /* tslint:enable */
 
     public get isEmpty(): boolean {
         return !Boolean(this._datasource && this._datasource.length);
@@ -268,7 +276,7 @@ export class BPTreeController implements IBPTreeController  {
             }
         }
     };
-
+    /* tslint:disable */
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
@@ -276,7 +284,7 @@ export class BPTreeController implements IBPTreeController  {
 
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
-
+    /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {
             return {
@@ -313,7 +321,10 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
+    public that = this;
+
     private rowGroupOpened = (params: any) => {
+        console.log("rowGroupOpened");
         let self = this;
 
         let node = params.node;

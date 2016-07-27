@@ -359,13 +359,13 @@ var appBootstrap = (function() {
                     divUnsupportedNoFont.id = "unsupported-nofont-container";
                     divUnsupportedNoFont.innerHTML = xhr.responseText;
 
-                    var appWrapper = document.getElementById("js-enabled");
-                    if (appWrapper) {
-                        appWrapper.parentNode.replaceChild(divUnsupportedNoFont, appWrapper);
-                    } else {
-                        document.body.innerHTML = "";
-                        document.body.appendChild(divUnsupportedNoFont);
+                    for (var n in document.body.children) {
+                        var node = document.body.children[n];
+                        if (node.nodeType === 1 && node.tagName.toUpperCase() !== "SCRIPT") { //ELEMENT_NODE
+                            document.body.removeChild(node);
+                        }
                     }
+                    document.body.appendChild(divUnsupportedNoFont);
                 }
             };
             xhr.open('GET', '/novaweb/static/unsupported-nofont.html');

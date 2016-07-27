@@ -56,22 +56,29 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            foreach (var relationship in result.ManualTraces)
-            {
-                if (!HasReadPermissions(relationship.ArtifactId, permissions))
-                {
-                    relationship.HasAccess = false;
-                }
-            }
-            foreach (var relationship in result.OtherTraces)
-            {
-                if (!HasReadPermissions(relationship.ArtifactId, permissions))
-                {
-                    relationship.HasAccess = false;
-                }
-            }
+            ApplyRelationshipPermissions(permissions, result.ManualTraces);
+            ApplyRelationshipPermissions(permissions, result.OtherTraces);            
 
             return result;
+        }
+
+        private static void ApplyRelationshipPermissions(Dictionary<int, RolePermissions> permissions, List<Relationship> relationships)
+        {
+            foreach (var relationship in relationships)
+            {
+                if (!HasReadPermissions(relationship.ArtifactId, permissions))
+                {
+                    MakeRelationshipUnauthorized(relationship);
+                }
+            }
+        }
+
+        private static void MakeRelationshipUnauthorized(Relationship relationship)
+        {            
+            relationship.HasAccess = false;
+            relationship.ArtifactName = null;
+            relationship.ItemLabel = null;
+            relationship.ItemName = null;
         }
 
         [HttpGet, NoCache]

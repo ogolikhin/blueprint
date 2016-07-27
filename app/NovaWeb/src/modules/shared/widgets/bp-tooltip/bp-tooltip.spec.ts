@@ -9,7 +9,7 @@ describe("Directive BP-Tooltip", () => {
                                         style="text-overflow: ellipsis; width: 5px;">Tooltip trigger</div></div>`;
     let tooltipTriggerZ = `<div style="z-index: 10"><div bp-tooltip="Tooltip's content">Tooltip trigger</div></div>`;
 
-    beforeEach(angular.mock.module("app.core"));
+    beforeEach(angular.mock.module("app.shared"));
 
     afterEach(function () {
         angular.element("body").empty();

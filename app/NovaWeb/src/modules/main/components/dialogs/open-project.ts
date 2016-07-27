@@ -1,8 +1,6 @@
 ﻿import "angular";
-import { Helper } from "../../../core/utils/helper";
 import { ILocalizationService } from "../../../core";
-import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
-import { IDialogSettings, BaseDialogController, IDialogService } from "../../../core/services/dialog";
+import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../shared";
 import { IProjectManager, Models } from "../../";
 
 export interface IOpenProjectController {

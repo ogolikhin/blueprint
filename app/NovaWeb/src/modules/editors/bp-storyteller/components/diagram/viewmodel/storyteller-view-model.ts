@@ -19,7 +19,7 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
-    isWithinShapeLimit(additionalShapes:number, isLoading?: boolean): boolean;
+    isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
     updateProcessClientModel(process);
@@ -53,8 +53,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
         if (scope) {
             this._scope = scope;
+           // this.subscribeToToolbarEvents();
             this.getConfigurationSettings();
         }
+
+        //if (header) {
+        //    this._header = header;
+        //    this.initHeader();
+        //}
 
         if (messageService) {
             this._messageService = messageService;
@@ -67,8 +73,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     public set isReadonly(value) {
         this._isReadonly = value;
+        //if (this.header) {
+        //this._header.isReadonly = value;
+        //}
     }
-    
+
+    //public get header(): IStorytellerHeader {
+    //    return this._header;
+    //}
 
     public get showLock(): boolean {
         return this._showLock;
@@ -76,6 +88,9 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     public set showLock(value: boolean) {
         this._showLock = value;
+        //if (this.header) {
+        //    this._header.showLock = value;
+        //}
     }
 
     public get showLockOpen(): boolean {
@@ -84,6 +99,9 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     public set showLockOpen(value: boolean) {
         this._showLockOpen = value;
+        //if (this.header) {
+        //    this._header.showLockOpen = value;
+        //}
     }
 
     public get isLocked(): boolean {
@@ -95,6 +113,11 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         this.status.isLocked = value;
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
+
+        //if (this.header) {
+        //    this.header.showLock = this.showLock;
+        //    this.header.showLockOpen = this.showLockOpen;
+        //}
     }
 
     public get isLockedByMe(): boolean {
@@ -107,6 +130,11 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
+
+        //if (this.header) {
+        //    this.header.showLock = this.showLock;
+        //    this.header.showLockOpen = this.showLockOpen;
+        //}
     }
 
     public get isChanged(): boolean {
@@ -115,6 +143,9 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     public set isChanged(value: boolean) {
         this._isChanged = value;
+        //if (this.header) {
+        //    this.header.isChanged = value;
+        //}
     }
 
     public get shapeLimit(): number {
@@ -165,6 +196,10 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
         this.isChanged = false;
         this.isReadonly = process.status.isReadOnly;
+        //if (this.header) {
+        //    this.header.name = process.name;
+        //    this.header.description = this.getPropertyValue(process, "description");
+        //}
     }
 
     private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
@@ -302,7 +337,6 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public updateTree() {
         this.processClientModel.updateTree();
     }
-
     public updateTreeAndFlows() {
         this.processClientModel.updateTreeAndFlows();
     }
@@ -409,7 +443,32 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public isShapeJustCreated(id: number): boolean {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
-    
+
+    //private subscribeToToolbarEvents() {
+    //    // subscribe to toolbar commands using the event bus 
+    //    if (this._scope.subscribe) {
+    //        if (this._unsubscribeToolbarEvents.length > 0) {
+    //            // remove previous event listeners 
+    //            this.removeToolbarEventListeners();
+    //        }
+    //        this._unsubscribeToolbarEvents.push(
+    //            this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
+    //                this.resetLock();
+    //            })
+    //        );
+    //    }
+    //}
+
+    //private removeToolbarEventListeners() {
+    //    if (this._unsubscribeToolbarEvents.length > 0) {
+    //        for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
+    //            this._unsubscribeToolbarEvents[i]();
+    //            this._unsubscribeToolbarEvents[i] = null;
+    //        }
+    //    }
+    //    this._unsubscribeToolbarEvents = [];
+    //}
+
     private getConfigurationSettings() {
         // get configuration settings from scope and assign to viewmodel 
         // properties
@@ -447,6 +506,8 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     }
 
     public destroy() {
+        //this.removeToolbarEventListeners();
+        //this._header = null;
         this._scope = null;
         if (this.processClientModel != null) {
             this.processClientModel.destroy();

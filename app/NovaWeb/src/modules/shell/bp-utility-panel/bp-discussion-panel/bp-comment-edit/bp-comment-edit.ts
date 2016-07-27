@@ -53,8 +53,7 @@ export class BPCommentEditController {
                 title: "Format",
                 type: "menubutton",
                 text: "",
-                //icon: "bullist",
-                icon: "nonbreaking",
+                icon: "format",
                 menu: [
                     { icon: "strikethrough", text: " Strikethrough", onclick: function () { tinymce.execCommand("strikethrough"); } },
                     { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },

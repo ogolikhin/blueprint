@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
-import * as $D from "./dialog";
-import {LocalizationServiceMock} from "../localization.mock";
+import { IDialogSettings, IDialogService, DialogService, BaseDialogController, DialogTypeEnum} from "./bp-dialog";
+import {LocalizationServiceMock} from "../../localization.mock";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {
     public static $inject = ["$q"];
@@ -46,16 +46,16 @@ class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance 
 describe("DialogService", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("dialogService", $D.DialogService);
+        $provide.service("dialogService", DialogService);
         $provide.service("$uibModal", ModalMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
 
     describe("open method", () => {
-        it("simple open dialog ", inject((dialogService: $D.IDialogService) => {
+        it("simple open dialog ", inject((dialogService: IDialogService) => {
             // Arrange
             var spy = spyOn(dialogService, "openInternal").and.callThrough();
-            var settings: $D.IDialogSettings = {};
+            var settings: IDialogSettings = {};
 
             // Act
             dialogService.open(settings);
@@ -63,12 +63,12 @@ describe("DialogService", () => {
             // Assert
             expect(spy).toHaveBeenCalled();
         }));
-        it("open dialog fake", inject((dialogService: $D.IDialogService, $q: ng.IQService) => {
+        it("open dialog fake", inject((dialogService: IDialogService, $q: ng.IQService) => {
             // Arrange
             var spy = spyOn(dialogService, "openInternal").and.callFake(function () {
                 return new ModalServiceInstanceMock($q);
             });
-            var settings: $D.IDialogSettings = {};
+            var settings: IDialogSettings = {};
 
             // Act
             dialogService.open(settings);
@@ -78,25 +78,25 @@ describe("DialogService", () => {
         }));
 
 
-        it("open dialog with default settings", inject((dialogService: $D.IDialogService) => {
+        it("open dialog with default settings", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
-            var settings: $D.IDialogSettings = {};
+            var settings: IDialogSettings = {};
 
             // Act
             dialogService.open(settings);
 
             // Assert
-            expect(dialogService.params.type).toEqual($D.DialogTypeEnum.Base, "invalid type [" + dialogService.params.type + "]");
+            expect(dialogService.params.type).toEqual(DialogTypeEnum.Base, "invalid type [" + dialogService.params.type + "]");
             expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
             expect(dialogService.params.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.params.cancelButton + "]");
         }));
 
-        it("open dialog with settings", inject((dialogService: $D.IDialogService) => {
+        it("open dialog with settings", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
-            var settings: $D.IDialogSettings = {
-                type: $D.DialogTypeEnum.Alert,
+            var settings: IDialogSettings = {
+                type: DialogTypeEnum.Alert,
                 cancelButton : "CANCEL",
                 okButton: "OKAY",
                 template: "template"
@@ -106,12 +106,12 @@ describe("DialogService", () => {
             dialogService.open(settings);
 
             // Assert
-            expect(dialogService.params.type).toEqual($D.DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
+            expect(dialogService.params.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
             expect(dialogService.params.okButton).toEqual("OKAY", "invalid ok button [" + dialogService.params.okButton + "]");
             expect(dialogService.params.cancelButton).toEqual("CANCEL", "invalid cancel button [" + dialogService.params.cancelButton + "]");
             expect(dialogService.params.template).toEqual("template", "invalid template [" + dialogService.params.template + "]");
         }));
-        it("alert dialog", inject((dialogService: $D.IDialogService) => {
+        it("alert dialog", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
 
@@ -119,12 +119,12 @@ describe("DialogService", () => {
             dialogService.alert("MESSAGE");
 
             // Assert
-            expect(dialogService.params.type).toEqual($D.DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
+            expect(dialogService.params.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
             expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
             expect(dialogService.params.cancelButton).toEqual(null, "invalid cancel button [" + dialogService.params.cancelButton + "]");
             expect(dialogService.params.message).toEqual("MESSAGE", "invalid message [" + dialogService.params.message + "]");
         }));
-        it("alert dialog with header", inject((dialogService: $D.IDialogService) => {
+        it("alert dialog with header", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
 
@@ -135,7 +135,7 @@ describe("DialogService", () => {
             expect(dialogService.params.message).toEqual("MESSAGE", "invalid message [" + dialogService.params.message + "]");
             expect(dialogService.params.header).toEqual("HEADER", "invalid header [" + dialogService.params.header + "]");
         }));
-        it("confirm dialog", inject((dialogService: $D.IDialogService) => {
+        it("confirm dialog", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
 
@@ -143,13 +143,13 @@ describe("DialogService", () => {
             dialogService.confirm("CONFIRM");
 
             // Assert
-            expect(dialogService.params.type).toEqual($D.DialogTypeEnum.Confirm, "invalid type [" + dialogService.params.type + "]");
+            expect(dialogService.params.type).toEqual(DialogTypeEnum.Confirm, "invalid type [" + dialogService.params.type + "]");
             expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
             expect(dialogService.params.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.params.cancelButton + "]");
             expect(dialogService.params.message).toEqual("CONFIRM", "invalid message [" + dialogService.params.message + "]");
         }));
 
-        it("confirm dialog", inject((dialogService: $D.IDialogService) => {
+        it("confirm dialog", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
 

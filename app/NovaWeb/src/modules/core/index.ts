@@ -6,7 +6,7 @@ import { AppConstants, IAppConstants } from "./constants/app-constants";
 import { LocalizationService, ILocalizationService } from "./localization";
 
 import { ConfigValueHelper, IConfigValueHelper } from "./config.value.helper";
-import { IDialogSettings, IDialogService, DialogService } from "./services/dialog";
+import { IDialogSettings, IDialogService, DialogService, BaseDialogController } from "./widgets/bp-dialog/bp-dialog";
 import { BPTreeComponent } from "./widgets/bp-tree/bp-tree";
 import { BPTreeInlineEditing } from "./widgets/bp-tree-inline-editing/bp-tree-inline-editing";
 import { BPTreeDragndrop } from "./widgets/bp-tree-dragndrop/bp-tree-dragndrop";
@@ -38,10 +38,11 @@ export default module.name;
 export {
     Helper,
     IAppConstants,
-    ILocalizationService,
+    ILocalizationService, 
     IConfigValueHelper,
     ConfigValueHelper,
     IDialogSettings,
     IDialogService,
-    DialogService
+    DialogService,
+    BaseDialogController
 };

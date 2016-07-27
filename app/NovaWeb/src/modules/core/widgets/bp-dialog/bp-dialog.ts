@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { ILocalizationService } from "../";
+import { ILocalizationService } from "../../localization";
 
 export enum DialogTypeEnum {
     Base,
@@ -38,7 +38,7 @@ export class DialogService implements IDialogService {
         type: DialogTypeEnum.Base,
         cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
         okButton: this.localization.get("App_Button_Ok", "Ok"),
-        template: require("./dialog.html"),
+        template: require("./bp-dialog.html"),
         controller: BaseDialogController
     };
 

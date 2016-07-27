@@ -4,7 +4,7 @@ import {ShapeExtensions, MxFactory, DiagramHelper} from "./utils/helpers";
 import {IconShape, CalloutShape, HighlightEllipse, CheckboxShape, TableCursorShape} from "./shapes-library";
 import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
 import {IShape, IProp} from "./models";
-import {Helper} from "../../../core/utils/helper";
+import {Helper} from "../../../shared";
 
 export class UiMockupShapeFactory extends AbstractShapeFactory {
     public static highlightStrokeWidth = 2;

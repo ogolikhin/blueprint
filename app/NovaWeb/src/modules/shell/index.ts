@@ -2,7 +2,7 @@ import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
-import core from "../core";
+import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
@@ -42,7 +42,7 @@ export { IMessage, Message, MessageType} from "./messages/message";
 
 angular.module("app.shell",
     [
-        core,
+        "app.core",
         "ui.router",
         "ui.bootstrap",
         "ngSanitize"

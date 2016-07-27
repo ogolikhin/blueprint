@@ -1,6 +1,7 @@
 ﻿import "angular";
-import {ILocalizationService, IDialogService } from "../../core/";
-import {IAuth, IUser} from "./auth.svc";
+import { ILocalizationService } from "../../core/";
+import { IDialogService } from "../../shared/";
+import { IAuth, IUser} from "./auth.svc";
 
 import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 export interface ISession {

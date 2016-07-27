@@ -1,4 +1,5 @@
-﻿import { ILocalizationService, Helper } from "../../../../core";
+﻿import { ILocalizationService } from "../../../../core";
+import { Helper } from "../../../../shared";
 import { Relationships, IProjectManager } from "../../../../main";
 import {IArtifactRelationships} from "../artifact-relationships.svc";
 

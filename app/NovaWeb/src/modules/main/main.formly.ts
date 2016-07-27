@@ -4,7 +4,7 @@ import "angular-formly-templates-bootstrap";
 import * as moment from "moment";
 import {PrimitiveType} from "./models/enums";
 import {ILocalizationService} from "../core";
-import {Helper} from "../core/utils/helper";
+import {Helper} from "../shared";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];

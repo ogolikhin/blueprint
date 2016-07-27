@@ -12,10 +12,11 @@ import "angular-perfect-scrollbar-2";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "../shell";
+import "../shared";
 import "tinymce";
 import * as moment from "moment";
 import * as Enums from "./models/enums";
-import {Helper} from "../core/utils/helper";
+import {Helper} from "../shared/utils/helper";
 import * as Models from "./models/models";
 import {IArtifactService, ArtifactService, ProjectRepository, IProjectRepository, IProjectManager, ProjectManager} from "./services/";
 import * as Relationships from "./models/relationshipModels";
@@ -27,16 +28,12 @@ import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
 import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
-//import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
-//import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
 import "../editors/bp-glossary";
 import "../editors/bp-artifact";
 import "../editors/bp-diagram";
 import "../editors/bp-storyteller";
-
-
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -77,6 +74,7 @@ angular.module("app.main", [
     "ngMessages",
     "ngSanitize",
     "app.shell",
+    "app.shared",
     "ui.router",
     "ui.bootstrap",
     "ui.tinymce",
@@ -102,8 +100,6 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    //.component("bpGeneralEditor", new BpGeneralEditor())
-    //.component("bpArtifactEditor", new BpArtifactEditor())
     .config(routesConfig)
     .config(formlyDecorate)
     .run(formlyConfigExtendedFields);

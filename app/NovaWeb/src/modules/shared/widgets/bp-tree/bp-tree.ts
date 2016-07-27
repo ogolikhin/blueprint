@@ -1,7 +1,7 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
-import {Helper} from "../../../core/utils/helper";
-import {RowNode} from "ag-grid/main";
+import { Helper } from "../../utils/helper";
+import { RowNode } from "ag-grid/main";
 
 /*
 tslint:disable
@@ -107,10 +107,8 @@ export class BPTreeController implements IBPTreeController  {
     private editableColumns: string[] = [];
     private _datasource: any[] = [];
     private selectedRow: any;
-    private clickTimeout: any
+    private clickTimeout: any;
    
-  
-
 
     constructor(private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
@@ -189,6 +187,7 @@ export class BPTreeController implements IBPTreeController  {
 
     };
 
+    /* tslint:disable */
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
         if (!propertyMap) {
@@ -210,6 +209,7 @@ export class BPTreeController implements IBPTreeController  {
         }
         return item;
     }
+    /* tslint:enable */
 
     public get isEmpty(): boolean {
         return !Boolean(this._datasource && this._datasource.length);

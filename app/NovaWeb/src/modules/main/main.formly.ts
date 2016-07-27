@@ -102,13 +102,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         name: "bpFieldReadOnly",
         extends: "input",
         /* tslint:disable */
-        template: `<div class="input-group has-messages" bp-tooltip="{{tooltip}}">
-                <input type="text"
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    readonly="readonly"
-                    class="form-control read-only" />
+        template: `<div class="input-group has-messages">
+                <div class="read-only-input" bp-tooltip="{{tooltip}}">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -165,8 +160,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
                 }
-            },
-            validators: {
             }
         },
         controller: ["$scope", function ($scope) {
@@ -186,7 +179,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     }
                 }
             };
-
 
             $scope.bpFieldText.keyup = blurOnEnterKey;
         }]

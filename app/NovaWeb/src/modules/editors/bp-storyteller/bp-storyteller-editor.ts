@@ -2,6 +2,7 @@
 import {ProcessModels, IProcessService} from "./";
 import {IProjectManager} from "../../main/services";
 import * as Models from "../../main/models/models";
+import {IMessageService} from "../../shell/messages/message.svc";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
@@ -24,7 +25,8 @@ export class BpStorytellerEditorController {
         "$q",
         "$log",
         "processService",
-        "projectManager"
+        "projectManager",
+        "messageService"
     ];
 
     constructor(
@@ -35,7 +37,8 @@ export class BpStorytellerEditorController {
         public $q: ng.IQService,
         public $log: ng.ILogService,
         public processService: IProcessService,
-        public projectManager: IProjectManager
+        public projectManager: IProjectManager,
+        public messageService: IMessageService
     ) {
 
     }
@@ -49,7 +52,8 @@ export class BpStorytellerEditorController {
             this.$timeout,
             this.$q,
             this.$log,
-            this.processService
+            this.processService,
+            this.messageService
         );
 
         this._subscribers = [

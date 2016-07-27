@@ -47,14 +47,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _justCreatedShapeIds: number[] = [];
 
-    constructor(process, scope?: any, messageService?: IMessageService) {
+    constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
         this.updateProcessClientModel(process);
-
+        this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
            // this.subscribeToToolbarEvents();
-            this.getConfigurationSettings();
+            this.getConfigurationSettings(); 
         }
 
         //if (header) {
@@ -475,8 +475,8 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         if (this._scope) {
             this.isSpa = this._scope["isSpa"];
 
-            if (this._scope["vm"]["$rootScope"]) {
-                let shapeLimitVal = this._scope["vm"]["$rootScope"].config.settings.StorytellerShapeLimit;
+            if (this._rootScope) {
+                let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
                 }
@@ -484,7 +484,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
                     this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
                 }
 
-                let isSMBVal = this._scope["vm"]["$rootScope"].config.settings.StorytellerIsSMB;
+                let isSMBVal = this._rootScope.config.settings.StorytellerIsSMB;
                 if (isSMBVal.toLowerCase() === "true") {
                     this.isSMB = true;
                 } else {
@@ -497,10 +497,8 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public getMessageText(message_id: string) {
         // get message text from rootscope settings  
         let text = null;
-        if (this._scope) {
-            if (this._scope["vm"]["$rootScope"]) {
-                text = this._scope["vm"]["$rootScope"].config.labels[message_id];
-            }
+        if (this._rootScope) {
+            text = this._rootScope.config.labels[message_id];
         }
         return text;
     }

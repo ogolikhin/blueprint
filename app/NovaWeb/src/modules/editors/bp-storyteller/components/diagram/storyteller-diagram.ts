@@ -1,8 +1,12 @@
 ﻿// References to StorytellerDiagram
 import {ProcessModels, IProcessService} from "../../"
+import {IMessageService} from "../../../../shell/messages/message.svc"
+import {StorytellerViewModel, IStorytellerViewModel} from "./viewmodel/storyteller-view-model";
 
 export class StorytellerDiagram {
     public processModel: ProcessModels.IProcess;
+    public storytellerViewModel: IStorytellerViewModel = null;
+
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -10,10 +14,12 @@ export class StorytellerDiagram {
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService) {
+        private processService: IProcessService,
+        private messageService: IMessageService) {
 
         this.processModel = null;
     }
+
     public debugInformation:string;
     public createDiagram(processId: string) {
         // retrieve the specified process from the server and 
@@ -43,12 +49,19 @@ export class StorytellerDiagram {
 
         this.debugInformation = "PROCESS LOADED";
         this.dumpDebugInformation(this.processModel);
-        //let storytellerViewModel = this.createProcessViewModel(process);
+        let storytellerViewModel = this.createProcessViewModel(process);
         //if (storytellerViewModel.isReadonly) this.disableStorytellerToolbar();
         //this.createGraph(storytellerViewModel, useAutolayout, selectedNodeId);
     }
 
-
+    private createProcessViewModel(process: ProcessModels.IProcess): IStorytellerViewModel {
+        if (this.storytellerViewModel == null) {
+            this.storytellerViewModel = new StorytellerViewModel(process, this.$rootScope, this.$scope, this.messageService);
+        } else {
+            this.storytellerViewModel.updateProcessClientModel(process);
+        }
+        return this.storytellerViewModel;
+    }
     private dumpDebugInformation(model: ProcessModels.IProcess): void {
         if (window.console && console.log) {
             //let output:string[] = [];

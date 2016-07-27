@@ -284,7 +284,7 @@ export class BPTreeController implements IBPTreeController  {
             }
         }
     };
-
+    /* tslint:disable */
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
@@ -292,7 +292,7 @@ export class BPTreeController implements IBPTreeController  {
 
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
-
+    /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {
             return {

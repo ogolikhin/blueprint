@@ -9,13 +9,13 @@ describe("Directive BP-Tooltip", () => {
                                         style="text-overflow: ellipsis; width: 5px;">Tooltip trigger</div></div>`;
     let tooltipTriggerZ = `<div style="z-index: 10"><div bp-tooltip="Tooltip's content">Tooltip trigger</div></div>`;
 
-    beforeEach(angular.mock.module("app.core"));
+    beforeEach(angular.mock.module("app.shared"));
 
     afterEach(function () {
         angular.element("body").empty();
     });
 
-    xit("shows the tooltip on mouseover on the trigger",
+    it("shows the tooltip on mouseover on the trigger",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -38,7 +38,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("does not show the tooltip on mouseover on the trigger if text is not truncated",
+    it("does not show the tooltip on mouseover on the trigger if text is not truncated",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -59,7 +59,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("shows the tooltip on mouseover on the trigger if text is truncated",
+    it("shows the tooltip on mouseover on the trigger if text is truncated",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -82,7 +82,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("removes the tooltip on mouseout from the trigger",
+    it("removes the tooltip on mouseout from the trigger",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -106,7 +106,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("hides the tooltip on mousedown on the trigger",
+    it("hides the tooltip on mousedown on the trigger",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -132,7 +132,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("changes the tooltip text dynamically", function(done) {
+    it("changes the tooltip text dynamically", function(done) {
             inject(
                 ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                     // Arrange
@@ -162,7 +162,7 @@ describe("Directive BP-Tooltip", () => {
         }
     );
 
-    xit("moves the tooltip according to mouse position (top left)",
+    it("moves the tooltip according to mouse position (top left)",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -200,7 +200,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("moves the tooltip according to mouse position (bottom right)",
+    it("moves the tooltip according to mouse position (bottom right)",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
@@ -238,7 +238,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    xit("creates the tooltip structure as a child of the BODY",
+    it("creates the tooltip structure as a child of the BODY",
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange

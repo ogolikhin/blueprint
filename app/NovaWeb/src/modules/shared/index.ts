@@ -1,4 +1,7 @@
 ﻿import "angular";
+import "angular-ui-router";
+import "angular-ui-bootstrap";
+
 import { Helper } from "./utils/helper";
 
 import { IDialogSettings, IDialogService, DialogService, BaseDialogController } from "./widgets/bp-dialog/bp-dialog";
@@ -14,7 +17,7 @@ import { BPItemTypeIconComponent } from "./widgets/bp-item-icon/bp-item-icon";
 import { BpSpecialLinkContainer } from "./widgets/bp-special-link-container";
 
 
-angular.module("app.shared", ["ui.bootstrap"])
+angular.module("app.shared", ["ui.router", "ui.bootstrap"])
     .service("dialogService", DialogService)
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())
     .directive("bpTreeDragndrop", BPTreeDragndrop.factory())

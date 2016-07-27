@@ -274,6 +274,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     select {
       background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
+      -ms-overflow-style: scrollbar;
       padding: 2px;
 
       &[disabled] {

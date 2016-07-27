@@ -103,7 +103,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "input",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div class="read-only-input" bp-tooltip="{{tooltip}}">{{model[options.key]}}</div>
+                <div class="read-only-input" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -181,6 +181,53 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
 
             $scope.bpFieldText.keyup = blurOnEnterKey;
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldTextMulti",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <textarea
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-keyup="bpFieldText.keyup($event)"
+                    ng-change="bpFieldText.change($event)"
+                    class="form-control"></textarea>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            templateOptions: {
+            },
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldTextMulti = {};
+
+            $scope.bpFieldTextMulti.change = function ($event) {
+                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+                if (artifactNameDiv) {
+                    if ($scope.fc.$dirty) {
+                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                        if (!dirtyIcon) {
+                            let div = document.createElement("DIV");
+                            div.innerHTML = `<i class="dirty-indicator"></i>`;
+                            artifactNameDiv.appendChild(div.firstChild);
+                        }
+                    }
+                }
+            };
         }]
     });
 

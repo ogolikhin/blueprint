@@ -48,8 +48,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
-        onRowPostCreate: "&?",
-        headerCellRendererF: "&?"
+        onRowPostCreate: "&?"
     };
 }
 export interface ITreeNode {
@@ -99,7 +98,7 @@ export class BPTreeController implements IBPTreeController  {
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
-    public headerCellRendererF: Function;
+   
 
     public bpRef: BPTreeController;
 
@@ -167,14 +166,7 @@ export class BPTreeController implements IBPTreeController  {
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,          
-            headerCellRenderer: (params) => {
-                if (this && this.headerCellRendererF) {
-                    return this.headerCellRendererF(params);
-                } else {
-                    return params.value;
-                }
-            } 
+            onModelUpdated: this.perfectScrollbars
 
         };
     };  

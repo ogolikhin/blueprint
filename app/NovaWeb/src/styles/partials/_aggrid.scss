@@ -475,3 +475,20 @@ $has-children-padding-before-arrow: 3px;
     }
   }
 }
+.grid-header{    
+      font-size: $font-size-normal;   
+      text-align: left;      
+      color: $brand-secondary;     
+      font-weight: 600;
+      text-indent: 6px;      
+      position:relative;
+      margin-bottom:-24px;      
+      z-index:100;
+      .navigate-back{
+          cursor:pointer;
+      }
+}
+
+.upper-text{
+    margin-bottom:15px;
+}

@@ -1,6 +1,6 @@
-﻿import {Models, Enums, IProjectManager} from "../..";
-import {Helper} from "../../../core/utils/helper";
-import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
+﻿import { Models, Enums, IProjectManager} from "../..";
+import { ILocalizationService, } from "../../../core";
+import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -92,7 +92,7 @@ export class BpArtifactInfoController {
             controller: ArtifactPickerController,
             css: "nova-open-project",
             header: "Some header"
-        }).then((artifact:any) => {
+        }).then((artifact: any) => {
             if (artifact) {
                 this.projectManager.setCurrentArtifact(artifact);
             }

@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../core";
-import { Helper } from "../../core/utils/helper";
+import { Helper } from "../../shared";
 import { IProjectManager, Models } from "../../main";
 
 export class BPUtilityPanel implements ng.IComponentOptions {

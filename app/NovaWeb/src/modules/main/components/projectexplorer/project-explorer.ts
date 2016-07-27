@@ -1,6 +1,5 @@
-﻿import {IProjectManager, Models} from "../..";
-import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
-import {Helper} from "../../../core/utils/helper";
+﻿import { IProjectManager, Models} from "../..";
+import { Helper, IBPTreeController, ITreeNode} from "../../../shared";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");

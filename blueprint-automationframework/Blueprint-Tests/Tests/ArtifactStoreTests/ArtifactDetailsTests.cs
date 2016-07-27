@@ -2,9 +2,12 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -35,11 +38,19 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifactId_ReturnsArtifactDetails()
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+
+            DetailedArtifact artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactDetails(artifact.Id, _user);
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(artifact.Id, _user);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            artifactDetails.AssertAreEqual(retrievedArtifact);
+
+            Assert.IsEmpty(artifactDetails.CustomProperties,
+                "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");
         }
     }
 }

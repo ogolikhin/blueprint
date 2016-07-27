@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Common;
 using Model;
@@ -335,6 +336,42 @@ namespace Helper
                     "First artifact Version: '{0}' doesn't match second artifact Version: '{1}'",
                     firstArtifact.Version, secondArtifact.Version);
             }
+        }
+
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDate">The first date to compare.</param>
+        /// <param name="secondDate">The second date to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(DateTime firstDate, DateTime secondDate, string message)
+        {
+            Assert.AreEqual(firstDate.ToUniversalTime(), secondDate.ToUniversalTime(), message);
+        }
+
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDate">The first date to compare.</param>
+        /// <param name="secondDateStr">The second date (as a string) to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(DateTime firstDate, string secondDateStr, string message)
+        {
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            AssertUtcDatesAreEqual(firstDate, secondDate, message);
+        }
+
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDateStr">The first date (as a string) to compare.</param>
+        /// <param name="secondDateStr">The second date (as a string) to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(string firstDateStr, string secondDateStr, string message)
+        {
+            DateTime firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            AssertUtcDatesAreEqual(firstDate, secondDate, message);
         }
 
         #endregion Custom Asserts

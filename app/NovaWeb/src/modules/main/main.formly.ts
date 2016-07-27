@@ -89,7 +89,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         name: "bpFieldReadOnly",
         extends: "input",
         /* tslint:disable */
-        template: `<div class="input-group has-messages">
+        template: `<div class="input-group has-messages" bp-tooltip="{{tooltip}}">
                 <input type="text"
                     id="{{::id}}"
                     name="{{::id}}"
@@ -101,8 +101,14 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
+
+            $scope.tooltip = "";
+
             if (currentModelVal) {
                 switch ($scope.options.data.primitiveType) {
+                    case PrimitiveType.Text:
+                        $scope.tooltip = currentModelVal;
+                        break;
                     case PrimitiveType.Date:
                         if (moment(currentModelVal).isValid()) {
                             if ($scope.options.data.lookup === customProperty) {

@@ -30,8 +30,8 @@ bp-discussion-panel {
 
     .author {
         @include text-ellipsis-flex-width(180px);
-        display:inline-block;
-        vertical-align:middle;
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .comment {
@@ -49,19 +49,19 @@ bp-discussion-panel {
         }
     }
 
-    bp-avatar{
-        display:inline-block;
-        vertical-align:middle;
+    bp-avatar {
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .info {
         line-height: $font-size-bigger;
     }
 
-    .discussion-status{
-        font-size:$font-size-normal;
+    .discussion-status {
+        font-size: $font-size-normal;
         color: $gray-darker;
-        font-style:normal;
+        font-style: normal;
 
         &.inactive {
             color: $gray-light;
@@ -115,5 +115,20 @@ bp-discussion-panel {
         .author {
             @include text-ellipsis-flex-width(160px);
         }
+    }
+
+    .mce-btn button {
+        padding: 2px 3px;
+        font-size: 12px;
+    }
+
+    .mce-ico {
+        font-size: 13px;
+        width:15px;
+    }
+
+    i.mce-ico.mce-i-font-size::before {
+        content: "\e241";
+        font-family: 'Glyphicons Halflings' !important;
     }
 }

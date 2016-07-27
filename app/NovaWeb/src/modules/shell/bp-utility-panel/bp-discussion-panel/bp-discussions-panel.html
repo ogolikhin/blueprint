@@ -19,7 +19,9 @@
         <bp-artifact-discussion-item class="utility-panel-artifact-item"
                                      discussion-info="discussion"
                                      get-replies="$ctrl.expandCollapseDiscussion(discussion)"
-                                     new-reply-click="$ctrl.newReplyClick()">
+                                     new-reply-click="$ctrl.newReplyClick()"
+                                     can-create="$ctrl.canCreate"
+                                     cancel-comment="$ctrl.cancelCommentClick()">
         </bp-artifact-discussion-item>
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
             <bp-discussion-reply-item class="utility-panel-artifact-item"

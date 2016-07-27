@@ -368,67 +368,112 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
 .uib-datepicker-popup {
   border-color: $brand-secondary;
+  border-radius: 0;
   padding: 0 0 7px;
 
   li > .uib-datepicker {
     margin-top: -1px;
   }
 
-  table.uib-monthpicker {
-    tbody td .btn {
-      width: 100%;
-    }
-  }
-
-  table.uib-daypicker {
+  table.uib-daypicker,
+  table.uib-monthpicker,
+  table.uib-yearpicker {
     margin: 0 -1px;
     outline: none;
-    width: #{$property-input-width - 1px};
+    width: $property-input-width;
 
     thead tr:first-child th {
       button {
         border-color: $brand-secondary;
       }
 
-      &:first-child button,
+      &:first-child button {
+        border-right: 0;
+        color: $brand-secondary;
+      }
+
       &:last-child button {
+        border-left: 0;
         color: $brand-secondary;
       }
     }
+  }
 
+  table.uib-yearpicker {
+    tbody tr:first-child td {
+      padding-top: 8px;
+    }
+
+    tbody td {
+      border: solid 1px transparent;
+      width: 52px;
+
+      &:first-child {
+        padding-left: 5px;
+        width: 57px;
+      }
+
+      &:last-child {
+        padding-right: 6px;
+        width: 58px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  table.uib-monthpicker {
+    tbody tr:first-child td {
+      padding-top: 8px;
+    }
+
+    tbody td {
+      border: solid 1px transparent;
+      width: 87px;
+
+      &:first-child {
+        padding-left: 5px;
+        width: 92px;
+      }
+
+      &:last-child {
+        padding-right: 6px;
+        width: 93px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  table.uib-daypicker {
     thead tr:last-child th,
     tbody td {
       border: solid 1px transparent;
       line-height: 28px;
+      width: 37px;
 
       &:first-child {
-        padding-left: 4px;
+        padding-left: 6px;
+        width: 43px;
       }
 
       &:last-child {
-        padding-right: 4px;
+        padding-right: 7px;
+        width: 44px;
       }
     }
   }
 
-  .uib-button-bar {
-    padding: 10px 6px 0;
-  }
-
   .btn {
+    border-radius: 0 !important;
     color: $gray-dark;
     min-width: 36px;
     outline: none;
     padding: 5px 10px;
-
-    &.btn-info,
-    &.btn-danger,
-    &.btn-success {
-      background: $white;
-      border-color: $gray-lighter;
-      border-radius: 4px !important;
-      float: none;
-    }
 
     &:active,
     &:hover {
@@ -445,6 +490,19 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     span {
       color: inherit;
+    }
+  }
+
+  .uib-button-bar {
+    padding: 10px 6px 0;
+
+    .btn-info,
+    .btn-danger,
+    .btn-success {
+      background: $white;
+      border-color: $gray-lighter;
+      border-radius: 4px !important;
+      float: none;
     }
   }
 }

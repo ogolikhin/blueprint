@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Model.ArtifactModel;
 
 namespace Model
 {
@@ -13,6 +14,14 @@ namespace Model
     {
         Database,
         Windows
+    }
+
+    public enum ProjectRole
+    {
+        None = 0,
+        Author = 1,
+        ProjectAdministrator = 3,
+        Viewer = 4
     }
 
 
@@ -57,10 +66,18 @@ namespace Model
         void DeleteGroup();
 
         /// <summary>
-        /// Assigns Author role in the specified project to the Group.
+        /// Assigns specified role in the specified project to the Group.
         /// </summary>
         /// <param name="project">Project in which role assignment will be created.</param>
-        void AssignProjectAuthorRole(IProject project);
+        /// <param name="role">Role to assign.</param>
+        void AssignProjectRole(IProject project, ProjectRole role);
+
+        /// <summary>
+        /// Assigns specified role for the specified artifact to the Group.
+        /// </summary>
+        /// <param name="artifact">Artifact for which role assignment will be created.</param>
+        /// <param name="role">Role to assign.</param>
+        void AssignRoleToArtifact(IArtifact artifact, ProjectRole role);
         #endregion Methods
     }
 }

@@ -8,6 +8,7 @@ using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Utilities;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -16,12 +17,22 @@ namespace ArtifactStoreTests
     public class RelationshipsTests : TestBase
     {
         private IUser _user = null;
+        private IUser _userWithLimitedAccess = null;
         private IProject _project = null;
+        private IGroup _authorsGroup = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
+
+            _authorsGroup = GroupFactory.CreateGroup(RandomGenerator.RandomAlphaNumeric(6),
+                RandomGenerator.RandomAlphaNumeric(6), "auth@auth.net");
+            _authorsGroup.AddGroupToDatabase();
+
+            _userWithLimitedAccess = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _authorsGroup.AddUser(_userWithLimitedAccess);
+
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
         }
@@ -29,6 +40,7 @@ namespace ArtifactStoreTests
         [TearDown]
         public void TearDown()
         {
+            _authorsGroup.DeleteGroup();
             Helper?.Dispose();
         }
 
@@ -514,6 +526,42 @@ namespace ArtifactStoreTests
             AssertTracesAreEqual(traces[1], relationships.ManualTraces[1], checkDirection: false);
             Assert.AreEqual(TraceDirection.From, relationships.ManualTraces[1].Direction,
                 "The 2nd manual trace should be 'From' the third artifact!");
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
+        [TestRail(154699)]
+        [Description("Try to get relationships using credentials of user which has no access to the target artifact. Verify that relationships returns empty artifact name and HasAccess false.")]
+        public void GetRelationships_NoAccessToTargetArtifact_ReturnsCorrectRelationships()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            _authorsGroup.AssignRoleToArtifact(sourceArtifact, ProjectRole.Viewer);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.From, _user);
+            targetArtifact.Publish(_user);
+
+            Assert.AreEqual(traces[0].IsSuspect, false,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+            Helper.AdminStore.AddSession(_userWithLimitedAccess);
+            Helper.BlueprintServer.LoginUsingBasicAuthorization(_userWithLimitedAccess);
+
+            Relationships relationshipsForUserWithFullAccessToTargetArtifact = null;
+            Relationships relationshipsForUserWithNoAccessToTargetArtifact = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                relationshipsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_userWithLimitedAccess, sourceArtifact);
+                relationshipsForUserWithFullAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.IsTrue(relationshipsForUserWithFullAccessToTargetArtifact.ManualTraces[0].HasAccess, "User with admin rights should have access to the target artifact.");
+            Assert.IsFalse(relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0].HasAccess, "User with no access rights should have no access to the target artifact.");
+            Assert.IsEmpty(relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0].ArtifactName, "User with no access rights should receive empty target artifact name.");
         }
 
         // TODO: Test with "Other" traces.

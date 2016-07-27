@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using Common;
 using Model.Factories;
+using Model.ArtifactModel;
 using System.Collections.Generic;
 using Utilities;
 
@@ -139,7 +140,7 @@ namespace Model.Impl
 
 
         /// <seealso cref="Group.AssignProjectAuthorRole(IProject)"/>
-        public void AssignProjectAuthorRole(IProject project)
+        public void AssignProjectRole(IProject project, ProjectRole role)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -148,11 +149,47 @@ namespace Model.Impl
 
                 var fields = "[ProjectId],[RoleId],[ItemId],[UserId],[GroupId],[Deleted]";
                 //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
-                //also we can use [Permissions] = 4623??
+                //or we can determine RoleId by Permissions and ProjectId
+                //also we can use [Permissions] = 4623 - for Author
                 // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
                 object[] valueArray =
                 {
-                    project.Id, 1, project.Id, null, GroupId, 0
+                    project.Id, (int)role, project.Id, null, GroupId, 0
+                };
+
+                string values = string.Join(",", objArraytoStringList(valueArray));
+
+                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", ROLEASSIGNMENTS_TABLE, fields, values);
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.RecordsAffected <= 0)
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
+                }
+            }
+        }
+
+        /// <seealso cref="Group.AssignRoleToArtifact(IArtifact, ProjectRole)"/>
+        public void AssignRoleToArtifact(IArtifact artifact, ProjectRole role)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                var fields = "[ProjectId],[RoleId],[ItemId],[UserId],[GroupId],[Deleted]";
+                //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
+                //or we can determine RoleId by Permissions and ProjectId
+                //also we can use [Permissions] = 4623 - for Author
+                // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
+                object[] valueArray =
+                {
+                    artifact.ProjectId, (int)role, artifact.Id, null, GroupId, 0
                 };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));

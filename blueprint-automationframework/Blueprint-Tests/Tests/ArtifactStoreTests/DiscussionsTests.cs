@@ -36,7 +36,7 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
-            _authorsGroup.AssignProjectAuthorRole(_project);
+            _authorsGroup.AssignProjectRole(_project, ProjectRole.Author);
 
             Helper.AdminStore.AddSession(_user);
             Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);

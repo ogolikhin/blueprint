@@ -66,7 +66,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         if (!propertyContext) {
             return;
         }
-        //re=group fields
+        //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);
         } else if (LookupEnum.System === propertyContext.lookup) {

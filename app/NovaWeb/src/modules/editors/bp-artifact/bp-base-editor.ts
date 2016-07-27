@@ -268,87 +268,95 @@ export class PropertyEditor implements IPropertyEditor {
             expressionProperties: {}
         };
         
-        switch (context.primitiveType) {
-            case Models.PrimitiveType.Text:
-                field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
-                field.defaultValue = context.stringDefaultValue;
-                if (context.isRichText) {
-                    field.templateOptions["tinymceOption"] = {
-                        //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
-                    };
-                    //TODO: added just for testing
-                    if (true) { //here we need something to decide if the tinyMCE editor should have mentions
-                        field.templateOptions["tinymceOption"].mentions = {
-                            source: tinymceMentionsData,
-                            delay: 100,
-                            items: 5,
-                            queryBy: "fullname",
-                            insert: function (item) {
-                                return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
-                            }
+        if ([Models.PropertyTypePredefined.CreatedBy,
+            Models.PropertyTypePredefined.CreatedOn,
+            Models.PropertyTypePredefined.LastEditedBy,
+            Models.PropertyTypePredefined.LastEditedOn].indexOf(context.propertyTypePredefined) >= 0) {
+            field.type = "bpFieldReadOnly"
+
+        } else {
+            switch (context.primitiveType) {
+                case Models.PrimitiveType.Text:
+                    field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
+                    field.defaultValue = context.stringDefaultValue;
+                    if (context.isRichText) {
+                        field.templateOptions["tinymceOption"] = {
+                            //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
                         };
+                        //TODO: added just for testing
+                        if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                            field.templateOptions["tinymceOption"].mentions = {
+                                source: tinymceMentionsData,
+                                delay: 100,
+                                items: 5,
+                                queryBy: "fullname",
+                                insert: function (item) {
+                                    return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
+                                }
+                            };
+                        }
                     }
-                }
-                break;
-            case Models.PrimitiveType.Date:
-                field.type = "bpFieldDatepicker";
-                field.templateOptions["datepickerOptions"] = {
-                    maxDate: context.maxDate,
-                    minDate: context.minDate
-                };
+                    break;
+                case Models.PrimitiveType.Date:
+                    field.type = "bpFieldDatepicker";
+                    field.templateOptions["datepickerOptions"] = {
+                        maxDate: context.maxDate,
+                        minDate: context.minDate
+                    };
 
-                field.defaultValue = context.dateDefaultValue;
-                break;
-            case Models.PrimitiveType.Number:
-                field.type = "bpFieldNumber";
-                field.defaultValue = context.decimalDefaultValue;
-                if (angular.isNumber(context.minNumber)) {
-                    field.templateOptions.min = context.minNumber;
-                }
-                if (angular.isNumber(context.maxNumber)) {
-                    field.templateOptions.max = context.maxNumber;
-                }
-                if (angular.isNumber(context.decimalPlaces)) {
-                    field.templateOptions["decimalPlaces"] = context.decimalPlaces;
-                }
-                break;
-            case Models.PrimitiveType.Choice:
-                field.type = "select";
-                if (angular.isNumber(context.defaultValidValueId)) {
-                    field.defaultValue = context.defaultValidValueId.toString();
-                }
-                field.templateOptions.options = [];
-                if (context.validValues && context.validValues.length) {
-                    field.templateOptions.options = context.validValues.map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                    });
-                }
-                break;
-            case Models.PrimitiveType.User:
-                field.type = "input"; // needs to be changed to user selection
-                //if (angular.isNumber(context.defaultValidValueId)) {
-                //    field.defaultValue = context.defaultValidValueId.toString();
-                //}
-                //field.templateOptions.options = [];
-                //if (context.validValues && context.validValues.length) {
-                //    field.templateOptions.options = context.validValues.map(function (it) {
-                //        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                //    });
-                //}
-                break;
-            default:
-                //case Models.PrimitiveType.Image:
-                field.type = "input"; // needs to be changed to image editor
-                field.defaultValue = (context.defaultValidValueId || 0).toString();
-                field.templateOptions.options = [];
-                if (context.validValues) {
-                    field.templateOptions.options = context.validValues.map(function (it) {
-                        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                    });
-                }
-                break;
+                    field.defaultValue = context.dateDefaultValue;
+                    break;
+                case Models.PrimitiveType.Number:
+                    field.type = "bpFieldNumber";
+                    field.defaultValue = context.decimalDefaultValue;
+                    if (angular.isNumber(context.minNumber)) {
+                        field.templateOptions.min = context.minNumber;
+                    }
+                    if (angular.isNumber(context.maxNumber)) {
+                        field.templateOptions.max = context.maxNumber;
+                    }
+                    if (angular.isNumber(context.decimalPlaces)) {
+                        field.templateOptions["decimalPlaces"] = context.decimalPlaces;
+                    }
+                    break;
+                case Models.PrimitiveType.Choice:
+                    field.type = "select";
+                    if (angular.isNumber(context.defaultValidValueId)) {
+                        field.defaultValue = context.defaultValidValueId.toString();
+                    }
+                    field.templateOptions.options = [];
+                    if (context.validValues && context.validValues.length) {
+                        field.templateOptions.options = context.validValues.map(function (it) {
+                            return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                        });
+                    }
+                    break;
+                case Models.PrimitiveType.User:
+                    field.type = "input"; // needs to be changed to user selection
+                    //if (angular.isNumber(context.defaultValidValueId)) {
+                    //    field.defaultValue = context.defaultValidValueId.toString();
+                    //}
+                    //field.templateOptions.options = [];
+                    //if (context.validValues && context.validValues.length) {
+                    //    field.templateOptions.options = context.validValues.map(function (it) {
+                    //        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                    //    });
+                    //}
+                    break;
+                default:
+                    //case Models.PrimitiveType.Image:
+                    field.type = "input"; // needs to be changed to image editor
+                    field.defaultValue = (context.defaultValidValueId || 0).toString();
+                    field.templateOptions.options = [];
+                    if (context.validValues) {
+                        field.templateOptions.options = context.validValues.map(function (it) {
+                            return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                        });
+                    }
+                    break;
+            }
+
         }
-
         return field;
     }
 

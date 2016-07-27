@@ -54,7 +54,6 @@ export class BpGeneralEditorController extends BpBaseEditor {
                 this.noteFields.push(field);
             } else if (LookupEnum.System === propertyContext.lookup) {
                 this.systemFields.push(field);
-                field.type = "bpFieldReadOnly";
             } else {
                 field.hide = true;
             }

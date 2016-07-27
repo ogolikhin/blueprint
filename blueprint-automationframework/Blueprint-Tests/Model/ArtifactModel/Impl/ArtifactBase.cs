@@ -23,8 +23,19 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
-        public BaseArtifactType BaseArtifactType { get; set; }
+        public bool ShouldDeleteChildren { get; set; } = false;
+        public IUser LockOwner { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
+        public string Address { get; set; }
+        public IUser CreatedBy { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsSaved { get; set; }
+        public bool IsMarkedForDeletion { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
+
+        #region Serialized JSON Properties
+
+        public BaseArtifactType BaseArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -36,14 +47,6 @@ namespace Model.ArtifactModel.Impl
         public bool AreTracesReadOnly { get; set; }
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }
-        public string Address { get; set; }
-        public IUser CreatedBy { get; set; }
-        public bool IsPublished { get; set; }
-        public bool IsSaved { get; set; }
-        public bool IsMarkedForDeletion { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
-        public bool ShouldDeleteChildren { get; set; } = false;
-        public IUser LockOwner { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
@@ -67,6 +70,7 @@ namespace Model.ArtifactModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
         public List<OpenApiAttachment> Attachments { get; set; }
 
+        #endregion Serialized JSON Properties
         #endregion Properties
 
         #region Constructors
@@ -103,6 +107,46 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        #region Implements IDeepCopyable
+
+        /// <seealso cref="IDeepCopyable{T}.DeepCopy()"/>
+        public IArtifactBase DeepCopy()
+        {
+            IArtifactBase artifactBase = new ArtifactBase
+            {
+                ShouldDeleteChildren = this.ShouldDeleteChildren,
+                LockOwner = this.LockOwner,
+                BaseItemTypePredefined = this.BaseItemTypePredefined,
+                Address = this.Address,
+                CreatedBy = this.CreatedBy,
+                IsPublished = this.IsPublished,
+                IsSaved = this.IsSaved,
+                IsMarkedForDeletion = this.IsMarkedForDeletion,
+                IsDeleted = this.IsDeleted,
+
+                Id = this.Id,
+                Name = this.Name,
+                ProjectId = this.ProjectId,
+                Version = this.Version,
+                ParentId = this.ParentId,
+                BlueprintUrl = this.BlueprintUrl,
+                ArtifactTypeId = this.ArtifactTypeId,
+                ArtifactTypeName = this.ArtifactTypeName,
+                AreTracesReadOnly = this.AreTracesReadOnly,
+                AreAttachmentsReadOnly = this.AreAttachmentsReadOnly,
+                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly,
+
+                Properties = new List<OpenApiProperty>(this.Properties),
+                Comments = new List<OpenApiComment>(this.Comments),
+                Traces = new List<OpenApiTrace>(this.Traces),
+                Attachments = new List<OpenApiAttachment>(this.Attachments)
+            };
+
+            return artifactBase;
+        }
+
+        #endregion Implements IDeepCopyable
 
         #region Delete methods
 

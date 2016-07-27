@@ -133,12 +133,13 @@ namespace Model
 
         /// <summary>
         /// Gets artifact details by specifying its ID.
-        /// (Runs: GET svc/artifactstore/artifacts/{artifactId})
+        /// (Runs: GET svc/bpartifactstore/artifacts/{artifactId})
         /// </summary>
-        /// <param name="artifactId">Id of artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
-        DetailedArtifact GetArtifactDetails(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

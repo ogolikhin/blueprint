@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
@@ -9,7 +10,7 @@ using Utilities;
 
 namespace Model.Impl
 {
-    public class DetailedArtifact
+    public class ArtifactDetails
     {
         #region Properties
 
@@ -17,6 +18,9 @@ namespace Model.Impl
         public string Name { get; set; }
         public string Description { get; set; }
         public int ParentId { get; set; }
+        public int Permissions { get; set; }    // Bit flags of this enum:  blueprint-current/Source/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
+
+        /// <summary>This is the order of the artifact in the parent/child tree.</summary>
         public double OrderIndex { get; set; }
         public int ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
@@ -29,10 +33,37 @@ namespace Model.Impl
         public Identification LastEditedBy { get; set; }
         public Identification LockedByUser { get; set; }
         public List<CustomProperty> CustomProperties { get; } = new List<CustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();   // XXX: Right now ArtifactStore always returns an empty list for this.
 
         #endregion Properties
 
-        public void AssertAreEqual(IArtifactBase artifact)
+        /// <summary>
+        /// Wraps text within the body tags of HTML tags if it's not already inside HTML tags.
+        /// </summary>
+        /// <param name="textToWrap">The text you want to wrap.</param>
+        /// <param name="shouldWrap">(optional) If you pass false, this function doesn't modify the string.</param>
+        /// <returns>The HTML wrapped string.</returns>
+        private static string HtmlWrapper(string textToWrap, bool shouldWrap = true)
+        {
+            if (shouldWrap && (textToWrap != null))
+            {
+                if (!textToWrap.StartsWithOrdinal("<html>"))
+                {
+                    textToWrap = I18NHelper.FormatInvariant("<html><head></head><body>{0}</body></html>", textToWrap);
+                }
+            }
+
+            return textToWrap;
+        }
+
+        /// <summary>
+        /// Asserts that this ArtifactDetails object is equal to the specified artifact.
+        /// </summary>
+        /// <param name="artifact">The artifact to compare against.</param>
+        /// <param name="shouldWrapWithHtmlTags">(optional) Specifies whether certain properties should be wrapped with HTML tags before comparing them.</param>
+        /// <param name="shouldCompareVersions">(optional) Specifies whether the version property should be compared.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertAreEqual(IArtifactBase artifact, bool shouldWrapWithHtmlTags = true, bool shouldCompareVersions = true)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -43,7 +74,7 @@ namespace Model.Impl
                 "Artifact Details Name doesn't match artifact Name");
 
             var property = artifact.Properties.Find(p => p.Name == "Description");
-            Assert.AreEqual(Description, property?.TextOrChoiceValue,
+            Assert.AreEqual(HtmlWrapper(Description, shouldWrapWithHtmlTags), HtmlWrapper(property?.TextOrChoiceValue, shouldWrapWithHtmlTags),
                 "Artifact Details Description doesn't match artifact Description.");
 
             Assert.AreEqual(ParentId, artifact.ParentId,
@@ -55,8 +86,11 @@ namespace Model.Impl
             Assert.AreEqual(ProjectId, artifact.ProjectId,
                 "Artifact Details ProjectId doesn't match artifact ProjectId.");
 
-            Assert.AreEqual(Version, artifact.Version,
-                "Artifact Details Version doesn't match artifact Version");
+            if (shouldCompareVersions)
+            {
+                Assert.AreEqual(Version, artifact.Version,
+                    "Artifact Details Version doesn't match artifact Version");
+            }
 
             property = artifact.Properties.Find(p => p.Name == "Created On");
             Assert.AreEqual(CreatedOn.Value.ToUniversalTime(), DateTime.Parse(property?.DateValue, CultureInfo.InvariantCulture).ToUniversalTime(),

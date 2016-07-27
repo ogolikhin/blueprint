@@ -21,8 +21,6 @@ export class BpBaseEditor {
 
     public isLoading: boolean = true;
 
-    public readOnly: boolean = false;
-
     constructor (public messageService: IMessageService) {
         this.editor = new PropertyEditor(); 
     }
@@ -49,11 +47,6 @@ export class BpBaseEditor {
         delete this.model;
     }
 
-
-    public isReadOnly($viewValue, $modelValue, scope): boolean {
-        return this.readOnly;
-    };
-
     public onPropertyChange($viewValue, $modelValue, scope) {
     };
 
@@ -75,7 +68,7 @@ export class BpBaseEditor {
         try {
             this.isLoading = false;
             if (!context) {
-                return;;
+                return;
             }
             let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
@@ -88,10 +81,6 @@ export class BpBaseEditor {
                 angular.extend(it.templateOptions, {
                     onChange: this.onPropertyChange.bind(this)
                 });
-                //angular.extend(it.expressionProperties, {
-                //    "templateOptions.disabled": this.isReadOnly.bind(this)
-                //});
-
                 this.onFieldUpdate(it);
 
             });

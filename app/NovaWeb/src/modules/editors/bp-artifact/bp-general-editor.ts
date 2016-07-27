@@ -53,6 +53,7 @@ export class BpGeneralEditorController extends BpBaseEditor {
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
             } else if (LookupEnum.System === propertyContext.lookup) {
+                field.type = "bpFieldReadOnly";
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

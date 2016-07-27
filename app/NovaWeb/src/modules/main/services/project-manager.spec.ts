@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ConfigValueHelper } from "../../core";
 import {MessageService} from "../../shell/";
 import {ProjectRepositoryMock} from "./project-repository.mock";

@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 import "Rx";
-import { LocalizationServiceMock } from "../../core/localization.mock";
+import { LocalizationServiceMock } from "../../core//localization/localization.mock";
 import { IGlossaryService, GlossaryService, IGlossaryDetails } from "./glossary.svc";
 
 describe("Glossary Service", () => {

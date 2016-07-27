@@ -261,7 +261,7 @@ export class PropertyEditor implements IPropertyEditor {
             Models.PropertyTypePredefined.CreatedOn,
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn].indexOf(context.propertyTypePredefined) >= 0) {
-            field.type = "bpFieldReadOnly"
+            field.type = "bpFieldReadOnly";
 
         } else {
             switch (context.primitiveType) {

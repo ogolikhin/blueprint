@@ -3,7 +3,7 @@ import "angular";
 import "angular-mocks";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactDocumentItemController} from "./bp-artifact-document-item";
-import { LocalizationServiceMock } from "../../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ArtifactAttachments } from "../artifact-attachments.svc";
 import { IMessageService } from "../../../../shell";
 

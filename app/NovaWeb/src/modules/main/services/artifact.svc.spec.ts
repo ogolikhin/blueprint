@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {Models, IArtifactService, ArtifactService} from "../../main/";
 
-import {LocalizationServiceMock} from "../../core/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactServiceMock} from "./artifact.svc.mock";
 
 describe("Artifact Repository", () => {

@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../../core/localization";
+import { ILocalizationService } from "../../../core";
 
 export enum DialogTypeEnum {
     Base,

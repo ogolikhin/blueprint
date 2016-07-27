@@ -6,7 +6,7 @@ import {ProjectManager, IProjectManager, Models } from "../../";
 import {ProjectExplorerController} from "./project-explorer";
 
 import {BPTreeControllerMock, ITreeNode} from "../../../shared/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 

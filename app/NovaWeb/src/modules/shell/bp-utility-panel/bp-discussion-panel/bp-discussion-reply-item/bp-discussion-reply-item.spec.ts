@@ -5,7 +5,7 @@ import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPDiscussionReplyItemController} from "./bp-discussion-reply-item";
 import { ArtifactDiscussionsMock } from "./../artifact-discussions.mock";
-import { LocalizationServiceMock } from "../../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
 describe("Component BPDiscussionReplyItem", () => {
 

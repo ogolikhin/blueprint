@@ -103,3 +103,8 @@
     }
   }
 }
+
+#unsupported-nofont-container {
+  position: fixed;
+  z-index: 65536;
+}

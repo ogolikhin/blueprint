@@ -55,19 +55,17 @@ describe("Formly", () => {
         it("should display read only number", function () {
             compileAndSetupStuff({model: {readonlyNumber: 10}});
 
-            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[0];
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[0];
 
-            expect(fieldInput.value).toBe("10");
-            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+            expect(fieldInput.innerHTML).toBe("10");
         });
 
         it("should display read only date", function () {
             compileAndSetupStuff({model: {readonlyDate: new Date("2016-08-08")}});
 
-            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly input")[1];
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[1];
 
-            expect(fieldInput.value).toContain("2016");
-            expect(angular.element(fieldInput).attr("readonly")).toBeDefined();
+            expect(fieldInput.innerHTML).toContain("2016");
         });
     });
 

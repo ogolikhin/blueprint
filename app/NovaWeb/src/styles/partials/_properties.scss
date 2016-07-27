@@ -152,11 +152,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       width: $property-label-width;
     }
 
+    .read-only-input,
     input,
     textarea,
     select {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
       box-shadow: none !important;
       box-sizing: border-box;
       color: $gray-dark;
@@ -166,6 +165,13 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       max-width: $property-input-width;
       padding-left: $property-padding-default;
       width: $property-input-width;
+    }
+
+    input,
+    textarea,
+    select {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
     }
 
     input,
@@ -189,7 +195,6 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         display: none;
       }
     }
-
     input,
     select {
       height: 28px;
@@ -198,6 +203,15 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     input {
       padding-right: $property-padding-default;
+    }
+
+    .read-only-input {
+      height: $property-min-height;
+      line-height: $property-min-height;
+      overflow: hidden;
+      padding: 0 $property-padding-default;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .has-messages {
@@ -285,6 +299,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         position: absolute;
         top: auto !important;
       }
+    }
+
+    .form-read-only {
+
     }
 
     .error-messages {

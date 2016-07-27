@@ -110,6 +110,16 @@ $modal-open-project-height: 450px;
       width: calc(100% - #{$project-picker-data-width + 15px});
     }
 
+    .artifact-picker-container{
+        box-sizing: border-box;
+      display: block;
+      float: left;
+      height: calc(100% - 50px);
+      margin: 0 15px 0 0;
+      min-height: $artifact-picker-tree-height;
+      width: $artifact-picker-data-width;
+    }
+
     .project-tree {
       background: $white;
       border: solid 1px $gray-lightest;

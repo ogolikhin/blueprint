@@ -26,9 +26,7 @@ namespace ArtifactStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-            _authorsGroup = GroupFactory.CreateGroup(RandomGenerator.RandomAlphaNumeric(6),
-                RandomGenerator.RandomAlphaNumeric(6), "auth@auth.net");
-            _authorsGroup.AddGroupToDatabase();
+            _authorsGroup = Helper.CreateGroupAndAddToDatabase();
 
             _user = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
             _authorsGroup.AddUser(_user);
@@ -36,7 +34,7 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
-            _authorsGroup.AssignProjectRole(_project, ProjectRole.Author);
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Author);
 
             Helper.AdminStore.AddSession(_user);
             Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);
@@ -45,7 +43,6 @@ namespace ArtifactStoreTests
         [TearDown]
         public void TearDown()
         {
-            _authorsGroup.DeleteGroup();
             Helper?.Dispose();
         }
 

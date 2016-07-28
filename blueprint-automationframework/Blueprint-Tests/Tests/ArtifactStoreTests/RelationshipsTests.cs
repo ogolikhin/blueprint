@@ -8,7 +8,6 @@ using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Utilities;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -26,9 +25,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
 
-            _authorsGroup = GroupFactory.CreateGroup(RandomGenerator.RandomAlphaNumeric(6),
-                RandomGenerator.RandomAlphaNumeric(6), "auth@auth.net");
-            _authorsGroup.AddGroupToDatabase();
+            _authorsGroup = Helper.CreateGroupAndAddToDatabase();
 
             _userWithLimitedAccess = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
             _authorsGroup.AddUser(_userWithLimitedAccess);
@@ -40,7 +37,6 @@ namespace ArtifactStoreTests
         [TearDown]
         public void TearDown()
         {
-            _authorsGroup.DeleteGroup();
             Helper?.Dispose();
         }
 
@@ -77,7 +73,7 @@ namespace ArtifactStoreTests
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, direction, _user);
 
-            Assert.AreEqual(traces[0].IsSuspect, false,
+            Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             Relationships relationships = null;
@@ -280,7 +276,7 @@ namespace ArtifactStoreTests
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user);
 
-            Assert.AreEqual(traces[0].IsSuspect, false,
+            Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             // Execute & Verify:
@@ -536,17 +532,16 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            _authorsGroup.AssignRoleToArtifact(sourceArtifact, ProjectRole.Viewer);
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, sourceArtifact, ProjectRole.Viewer);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.From, _user);
             targetArtifact.Publish(_user);
 
-            Assert.AreEqual(traces[0].IsSuspect, false,
+            Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
             Helper.AdminStore.AddSession(_userWithLimitedAccess);
-            Helper.BlueprintServer.LoginUsingBasicAuthorization(_userWithLimitedAccess);
-
+            
             Relationships relationshipsForUserWithFullAccessToTargetArtifact = null;
             Relationships relationshipsForUserWithNoAccessToTargetArtifact = null;
 
@@ -558,9 +553,16 @@ namespace ArtifactStoreTests
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
-            Assert.IsTrue(relationshipsForUserWithFullAccessToTargetArtifact.ManualTraces[0].HasAccess, "User with admin rights should have access to the target artifact.");
-            Assert.IsFalse(relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0].HasAccess, "User with no access rights should have no access to the target artifact.");
-            Assert.IsNull(relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0].ArtifactName, "User with no access rights should receive empty target artifact name.");
+            AssertTracesAreEqual(traces[0], relationshipsForUserWithFullAccessToTargetArtifact.ManualTraces[0]);
+
+            Assert.AreEqual(1, relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces.Count, "There should be 1 manual trace!");
+            var trace = relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0];
+            Assert.AreEqual(targetArtifact.Id, trace.ArtifactId, "Returned trace must have proper artifactId.");
+            Assert.IsFalse(trace.HasAccess, "User with no access rights should have no access to the target artifact.");
+            Assert.IsNull(trace.ArtifactName, "User with no access rights should receive empty target artifact name.");
+            Assert.AreEqual(false, trace.IsSuspect, "Returned trace mustn't be suspected.");
+            Assert.AreEqual(traces[0].TraceType, trace.TraceType, "Returned trace must have proper TraceType.");
+            Assert.AreEqual(traces[0].Direction, trace.Direction, "Returned trace must have proper Direction.");
         }
 
         // TODO: Test with "Other" traces.

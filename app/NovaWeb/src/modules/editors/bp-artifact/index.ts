@@ -1,6 +1,5 @@
 ﻿import "angular";
-import { IMessageService } from "../../shell/";
-import { ILocalizationService, IStateManager } from "../../core";
+import { ILocalizationService, IMessageService, IStateManager } from "../../core";
 import { Helper } from "../../shared";
 import { Models, IArtifactService } from "../../main";
 import { BpGeneralEditor } from "./bp-general-editor";

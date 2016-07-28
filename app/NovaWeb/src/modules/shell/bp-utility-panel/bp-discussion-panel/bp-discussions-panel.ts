@@ -1,6 +1,6 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
-import {IMessageService} from "../../../shell";
+
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";

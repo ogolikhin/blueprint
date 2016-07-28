@@ -42,13 +42,16 @@ describe("Component BpArtifactInfo", () => {
         expect(vm.artifactTypeDescription).toBeNull();
 
     });
-    it("the context is set. see context value", () => {
+
+    it("the context is set (no type). see context value", () => {
         vm = componentTest.createComponent({
             context: {
-                id: 1,
-                name: "Simple",
-                predefinedType: 4101,
-                prefix: "TR_"
+                artifact: {
+                    id: 1,
+                    name: "Simple",
+                    predefinedType: 4101,
+                    prefix: "TR_"
+                }
             }
         });
         
@@ -56,6 +59,30 @@ describe("Component BpArtifactInfo", () => {
         expect(vm.artifactType).toBe("TextualRequirement");
         expect(vm.artifactClass).toBe("icon-textual-requirement");
         expect(vm.artifactTypeDescription).toBe("TextualRequirement - TR_1");
+
+    });
+
+    it("the context is set. see context value", () => {
+        vm = componentTest.createComponent({
+            context: {
+                artifact: {
+                    id: 1,
+                    name: "Simple",
+                    predefinedType: 4101,
+                    prefix: "TR_"
+                },
+                type : {
+                    id: 4444,
+                    name: "Textual Requirement",
+                    predefinedType: 4101,
+                }
+            } 
+        });
+        
+        //Assert
+        expect(vm.artifactType).toBe("Textual Requirement");
+        expect(vm.artifactClass).toBe("icon-textual-requirement");
+        expect(vm.artifactTypeDescription).toBe("Textual Requirement - TR_1");
         
     });
 

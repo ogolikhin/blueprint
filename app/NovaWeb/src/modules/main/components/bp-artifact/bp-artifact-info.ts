@@ -55,7 +55,12 @@ export class BpArtifactInfoController {
     }
 
     public get artifactType(): string {
-        return this._artifactType ? (this._artifactType.name || Models.ItemTypePredefined[this._artifactType.predefinedType] || "") : null;
+        if (this._artifactType) {
+            return this._artifactType.name || Models.ItemTypePredefined[this._artifactType.predefinedType] || "";
+        } else if (this._artifact) {
+            return Models.ItemTypePredefined[this._artifact.predefinedType] || "";
+        }
+        return null;
     }
 
     public get artifactClass(): string {

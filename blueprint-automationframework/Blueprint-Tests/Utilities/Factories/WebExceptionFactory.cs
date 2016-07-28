@@ -48,6 +48,9 @@ namespace Utilities.Factories
                 case 500:
                     ex = new Http500InternalServerErrorException(message);
                     break;
+                case 501:
+                    ex = new Http501NotImplementedException(message);
+                    break;
                 case 503:
                     ex = new Http503ServiceUnavailableException(message);
                     break;

@@ -63,7 +63,7 @@ namespace Model.Impl
         /// <param name="shouldWrapWithHtmlTags">(optional) Specifies whether certain properties should be wrapped with HTML tags before comparing them.</param>
         /// <param name="shouldCompareVersions">(optional) Specifies whether the version property should be compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertAreEqual(IArtifactBase artifact, bool shouldWrapWithHtmlTags = true, bool shouldCompareVersions = true)
+        public void AssertEquals(IArtifactBase artifact, bool shouldWrapWithHtmlTags = true, bool shouldCompareVersions = true)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 

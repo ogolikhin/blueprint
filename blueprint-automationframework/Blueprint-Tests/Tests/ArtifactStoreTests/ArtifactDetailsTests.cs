@@ -60,7 +60,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            artifactDetails.AssertAreEqual(retrievedArtifact);
+            artifactDetails.AssertEquals(retrievedArtifact);
 
             Assert.IsEmpty(artifactDetails.CustomProperties,
                 "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");
@@ -98,7 +98,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            artifactDetails.AssertAreEqual(retrievedArtifactVersion1);
+            artifactDetails.AssertEquals(retrievedArtifactVersion1);
 
             Assert.IsEmpty(artifactDetails.CustomProperties,
                 "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");

@@ -343,8 +343,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                },
-                isTinymce: true
+                }
             }
         }
     });
@@ -360,8 +359,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                },
-                isTinymce: true
+                }
             }
         }
     });

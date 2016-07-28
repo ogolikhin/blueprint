@@ -50,10 +50,10 @@ export class BpGeneralEditorController extends BpBaseEditor {
         }
         if ([Models.PropertyTypePredefined.Name, Models.PropertyTypePredefined.Description].indexOf(propertyContext.propertyTypePredefined) >= 0) {
 
+            field.type = "bpFieldReadOnly";
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
             } else if (LookupEnum.System === propertyContext.lookup) {
-                field.type = "bpFieldReadOnly";
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

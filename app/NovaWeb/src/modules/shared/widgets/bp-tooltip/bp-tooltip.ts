@@ -12,32 +12,6 @@ export class BPTooltip implements ng.IDirective {
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
 
-        function zIndexedParent(el) {
-            let node = el.parentElement;
-            while (node) {
-                let appliedStyle = window.getComputedStyle(node, null);
-                let zIndex = node.style.zIndex;
-                if (
-                    (
-                        appliedStyle &&
-                        appliedStyle.zIndex &&
-                        appliedStyle.zIndex !== "" &&
-                        appliedStyle.zIndex !== "0" && // may be removed
-                        appliedStyle.zIndex !== "auto" && !isNaN(parseInt(appliedStyle.zIndex, 10))
-                    ) || (
-                        zIndex !== "" &&
-                        zIndex !== "0" && // may be removed
-                        !isNaN(parseInt(zIndex, 10))
-                    )
-                ) {
-                    return true;
-                }
-
-                node = node.parentElement;
-            }
-            return false;
-        }
-
         function updateTooltip(e) {
             if (e.clientX > document.body.clientWidth / 2) {
                 tooltip.style.left = "";
@@ -76,20 +50,13 @@ export class BPTooltip implements ng.IDirective {
             // shouldDisplayTooltipForTruncated() only checks if tooltip should be displayed initially. 
             // Doesn't account for edge case where text changes when mouse is already over the element
             if (tooltipText !== "" && shouldDisplayTooltipForTruncated(angular.element(this))) {
-                let attachToBody = zIndexedParent(this);
-
                 let tooltipContent = document.createElement("DIV");
                 tooltipContent.className = "bp-tooltip-content";
                 tooltipContent.innerHTML = tooltipText;
 
                 angular.element(tooltip).empty();
                 tooltip.appendChild(tooltipContent);
-
-                if (attachToBody) {
-                    document.body.appendChild(tooltip);
-                } else {
-                    this.appendChild(tooltip);
-                }
+                document.body.appendChild(tooltip);
 
                 angular.element(this).addClass("bp-tooltip-trigger");
                 angular.element(tooltip).addClass("show");

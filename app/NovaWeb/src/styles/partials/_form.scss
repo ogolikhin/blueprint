@@ -199,6 +199,24 @@ textarea[rows="2"].nova-form-control {
   }
 }
 
+// There may be some issue with the SCSS compiler as the following 3 rules don't work if combined together
+input::-moz-placeholder {
+  color: $gray-lighter !important;
+}
+
+input:-ms-input-placeholder {
+  color: $gray-lighter !important;
+}
+
+input::-webkit-input-placeholder {
+  color: $gray-lighter !important;
+}
+
+// clear placeholder on focus in Chrome
+input:focus::-webkit-input-placeholder {
+  color: transparent !important;
+}
+
 // IE 8+ Specific styles to remove clear and reveal (eye) icons from input fields
 input::-ms-clear {
   display: none;

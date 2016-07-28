@@ -3,7 +3,7 @@ import {IConfigValueHelper } from "../../core";
 export {IMessage, Message, MessageType}
 export interface IMessageService {
     addMessage(msg: Message): void;
-    addError(text: string): void;    
+    addError(text: string | Error): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -93,8 +93,12 @@ export class MessageService implements IMessageService {
         });
     }
 
-    public addError(text: string): void {
-        this.addMessage(new Message(MessageType.Error, text));
+    public addError(text: string | Error): void {
+        if (text instanceof Error) {
+            this.addMessage(new Message(MessageType.Error, (text as Error).message));
+        } else {
+            this.addMessage(new Message(MessageType.Error, text as string));
+        }
     }
 
     public addMessage(msg: Message): void {

@@ -13,9 +13,16 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
+interface IArtifactInfoContext {
+    artifact?: Models.IArtifact;
+    type?: Models.IItemType;
+}
+
+
 export class BpArtifactInfoController {
     static $inject: [string] = ["projectManager", "dialogService", "localization"];   
-    public _artifact: Models.IArtifact;
+    private _artifact: Models.IArtifact;
+    private _artifactType: Models.IItemType;
 
     public currentArtifact: string;
 
@@ -38,8 +45,9 @@ export class BpArtifactInfoController {
     }
 
 
-    private onLoad = (artifact: Models.IArtifact) => {
-        this._artifact = artifact;
+    private onLoad = (context: IArtifactInfoContext) => {
+        this._artifact = context ? context.artifact : null;
+        this._artifactType = context ? context.type : null;
     };
 
     public get artifactName(): string {
@@ -47,7 +55,12 @@ export class BpArtifactInfoController {
     }
 
     public get artifactType(): string {
-        return this._artifact ? (Models.ItemTypePredefined[this._artifact.predefinedType] || "") : null;
+        if (this._artifactType) {
+            return this._artifactType.name || Models.ItemTypePredefined[this._artifactType.predefinedType] || "";
+        } else if (this._artifact) {
+            return Models.ItemTypePredefined[this._artifact.predefinedType] || "";
+        }
+        return null;
     }
 
     public get artifactClass(): string {
@@ -58,7 +71,7 @@ export class BpArtifactInfoController {
 
     public get artifactTypeDescription(): string {
         return this._artifact ?
-            `${Models.ItemTypePredefined[this._artifact.predefinedType] || ""} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
+            `${this.artifactType} - ${(this._artifact.prefix || "")}${this._artifact.id}` :
             null;
     }
 

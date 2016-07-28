@@ -6,13 +6,17 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public controller: Function = BPArtifactDiscussionItemController;
     public bindings: any = {
         discussionInfo: "=",
-        getReplies: "&"
+        getReplies: "&",
+        canCreate: "=",
+        cancelComment: "&"
     };
 }
 
 export class BPArtifactDiscussionItemController {
+    public cancelComment: Function;
     public getReplies: Function;
     public discussionInfo: IDiscussion;
+    public canCreate: boolean;
 
     public static $inject: [string] = [
         "$element",
@@ -42,7 +46,10 @@ export class BPArtifactDiscussionItemController {
     }
 
     public newReplyClick(): void {
-        //this.discussionInfo.showAddReply = true;
+        if (this.discussionInfo.isClosed === false && this.canCreate) {
+            this.cancelComment();
+            this.discussionInfo.showAddReply = true;
+        }
     }
 
     public getTrustedCommentHtml() {

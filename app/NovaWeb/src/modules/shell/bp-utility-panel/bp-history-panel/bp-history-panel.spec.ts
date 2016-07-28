@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../util/component.test";
 import { BPHistoryPanelController} from "./bp-history-panel";
-import { LocalizationServiceMock } from "../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactHistoryMock } from "./artifact-history.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";

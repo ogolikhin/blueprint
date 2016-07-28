@@ -97,8 +97,9 @@ export class ProjectRepositoryMock implements IProjectRepository {
     }
 
     public static createDependentArtifacts(artifact: Models.IArtifact, count: number): Models.IArtifact {
-        if (!count)
+        if (!count) {
             return;
+        }
         artifact.artifacts = artifact.artifacts || [];
         for (var i = 0; i < count; i++) {
             let child = this.createArtifact(artifact.id + 100, artifact.projectId);
@@ -158,7 +159,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 predefinedType: 1,
                 iconImageId: 1,
                 usedInThisProject: true,
-                customPropertyTypeIds: [1,2,3]
+                customPropertyTypeIds: [1, 2, 3]
             });
         };
         return result;

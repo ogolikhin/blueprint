@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization.mock";
-import {IConfigValueHelper} from "../../core/config.value.helper";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {IConfigValueHelper} from "../../core";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
 

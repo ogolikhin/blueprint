@@ -1,4 +1,4 @@
-﻿import {IMessageService, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, Models, Helper} from "./";
 
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -10,7 +10,7 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService"];
+    public static $inject: [string] = ["messageService", "stateManager"];
 
     public form: angular.IFormController;
     public model = {};
@@ -21,7 +21,7 @@ export class BpBaseEditor {
 
     public isLoading: boolean = true;
 
-    constructor (public messageService: IMessageService) {
+    constructor(public messageService: IMessageService, public stateManager: IStateManager) {
         this.editor = new PropertyEditor(); 
     }
 
@@ -46,8 +46,9 @@ export class BpBaseEditor {
         delete this.fields;
         delete this.model;
     }
-
+     
     public onPropertyChange($viewValue, $modelValue, scope) {
+        
     };
 
     public onLoading(obj: any): boolean  {

@@ -1,4 +1,4 @@
-﻿import { IMessageService, Models } from "./";
+﻿import { IMessageService, IStateManager, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
@@ -11,7 +11,7 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService"];
+    public static $inject: [string] = ["messageService", "stateManager"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -19,8 +19,8 @@ export class BpGeneralEditorController extends BpBaseEditor {
         scrollYMarginOffset: 4
     };
 
-    constructor(messageService: IMessageService) {
-        super(messageService);
+    constructor(messageService: IMessageService, stateManager: IStateManager) {
+        super(messageService, stateManager);
     }
 
     public activeTab: number;
@@ -56,10 +56,10 @@ export class BpGeneralEditorController extends BpBaseEditor {
         }
         if ([Models.PropertyTypePredefined.Name, Models.PropertyTypePredefined.Description].indexOf(propertyContext.propertyTypePredefined) >= 0) {
 
+            field.type = "bpFieldReadOnly";
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
             } else if (LookupEnum.System === propertyContext.lookup) {
-                field.type = "bpFieldReadOnly";
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

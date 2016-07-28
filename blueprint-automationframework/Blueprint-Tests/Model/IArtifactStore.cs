@@ -130,5 +130,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
         Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets artifact details by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/artifacts/{artifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

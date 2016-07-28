@@ -20,7 +20,7 @@
             <div class="project-name">{{$ctrl.selectedItem.name}}</div>
             <div ng-if="($ctrl.isProjectSelected)">
                 <div>{{::$root.config.labels["App_Project_Description"]}}</div>
-                <div class="project-description" ng-bind-html="$ctrl.selectedItem.description"></div>
+                <div class="project-description" ng-bind-html="$ctrl.selectedDescription"></div>
             </div>
         </div>
     </div>

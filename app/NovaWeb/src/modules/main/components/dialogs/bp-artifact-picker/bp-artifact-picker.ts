@@ -16,13 +16,13 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public hasCloseButton: boolean = true;
     private _selectedItem: Models.IProject;
 
-    private tree: IBPTreeController;
+    public tree: IBPTreeController;
     public projectId: number;
     public projectView: boolean = false;
     public projectName: string;
 
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params", "$sce", "$compile"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
@@ -30,9 +30,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private manager: IProjectManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
-        params: IDialogSettings,
-        private $sce: ng.ISCEService,
-        private $compile: ng.ICompileService
+        params: IDialogSettings
     ) {
         super($uibModalInstance, params);
         this.projectId = this.manager.currentProject.getValue().id;
@@ -71,7 +69,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     };
 
     public columns = [{
-        headerName: null,
+        headerName: "",
         field: "name",
         cellClass: function (params) {
             let css: string[] = [];

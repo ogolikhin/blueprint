@@ -1,14 +1,14 @@
 ﻿<div class="modal-header">
     <h3 class="modal-title">{{::$ctrl.params.header}}</h3>
 </div>
-<div class="modal-body">
+<div class="modal-body artifact-picker">
     <div ng-click="$ctrl.getProjects()">
-        <input type="text" class="form-control upper-text" />
+        <input type="text" class="form-control upper-text" /><i class="fonticon2-search"></i>
     </div>
     <div class="project-wrapper">
         <div class="artifact-picker-container">
             <div class="grid-header">
-                <i class="navigate-back" ng-if="!$ctrl.projectView" ng-click="$ctrl.getProjects()"><<</i><i ng-if="!$ctrl.projectView" class="icon-project"></i>
+                <i class="navigate-back fonticon2-arrow-double-left" ng-if="!$ctrl.projectView" ng-click="$ctrl.getProjects()"></i><i ng-if="!$ctrl.projectView" class="icon-project"></i>
                 &nbsp;&nbsp;&nbsp;{{$ctrl.projectName}}
             </div>
             <bp-tree bp-ref="$ctrl.tree"

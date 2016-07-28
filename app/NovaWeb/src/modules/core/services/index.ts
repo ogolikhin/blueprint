@@ -1,6 +1,6 @@
 ﻿import "angular";
 import { ILocalizationService } from "../../core/localization";
-import { IMessageService } from "../../shell";
+import { IMessageService } from "../messages";
 import { Models} from "../../main/models";
 
 export interface IStateManager {

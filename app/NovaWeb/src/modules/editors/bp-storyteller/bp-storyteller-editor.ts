@@ -2,7 +2,7 @@
 import {ProcessModels, IProcessService} from "./";
 import {IProjectManager} from "../../main/services";
 import * as Models from "../../main/models/models";
-import {IMessageService} from "../../shell/messages/message.svc";
+import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {

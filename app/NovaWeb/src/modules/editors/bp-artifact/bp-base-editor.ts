@@ -90,7 +90,6 @@ export class BpBaseEditor {
     }
 }
 
-
 export enum LookupEnum {
     None = 0,
     System = 1,
@@ -202,11 +201,15 @@ export class PropertyEditor implements IPropertyEditor {
                         if (it.primitiveType === Models.PrimitiveType.Date) {
                             value = new Date(value);
                         } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                            if (value.validValueIds) {
-                                value = value.validValueIds[0];  // Temporary user only one value for single select
+                            if (angular.isArray(value.validValueIds)) {
+                                let values = [];
+                                value.validValueIds.forEach((v: number) => {
+                                    values.push(v.toString());
+                                });
+                                value = values;
+                            } else {
+                                value = value.toString();
                             }
-                            value = value.toString();
-
                         } else if (it.primitiveType === Models.PrimitiveType.User) {
                             //TODO: must be changed when  a field editor for this type of property is created
                             if (value.userGroups) {
@@ -309,7 +312,7 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = "select";
+                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (angular.isNumber(context.defaultValidValueId)) {
                         field.defaultValue = context.defaultValidValueId.toString();
                     }

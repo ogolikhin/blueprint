@@ -228,7 +228,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
 
       &.multiple {
-        height: #{2.25 * $property-min-height};
+        max-height: #{2.5 * $property-min-height};
       }
 
       &.richtext {
@@ -298,6 +298,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
       -ms-overflow-style: scrollbar;
       padding: 2px;
+
+      &[multiple] {
+        height: #{2.5 * $property-min-height};
+      }
 
       &[disabled] {
         cursor: default;

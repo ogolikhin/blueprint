@@ -170,8 +170,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -191,7 +189,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     formlyConfig.setType({
         name: "bpFieldTextMulti",
-        extends: "input",
+        extends: "textarea",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <textarea
@@ -207,8 +205,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -219,6 +215,73 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             $scope.bpFieldTextMulti = {};
 
             $scope.bpFieldTextMulti.change = function ($event) {
+                setDirtyFlag($scope);
+            };
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldSelect",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-change="bpFieldSelect.change($event)"
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelect = {};
+
+            $scope.bpFieldSelect.change = function ($event) {
+                setDirtyFlag($scope);
+            };
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldSelectMulti",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-change="bpFieldSelectMulti.change($event)"
+                    multiple
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelectMulti = {};
+
+            $scope.bpFieldSelectMulti.change = function ($event) {
                 setDirtyFlag($scope);
             };
         }]
@@ -243,8 +306,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`

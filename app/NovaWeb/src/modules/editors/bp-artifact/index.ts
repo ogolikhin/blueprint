@@ -1,6 +1,6 @@
 ﻿import "angular";
 import { IMessageService } from "../../shell/";
-import { ILocalizationService } from "../../core";
+import { ILocalizationService, IStateManager } from "../../core";
 import { Helper } from "../../shared";
 import { Models, IArtifactService } from "../../main";
 import { BpGeneralEditor } from "./bp-general-editor";
@@ -12,4 +12,4 @@ angular.module("bp.editors.details", [])
     .component("bpArtifactEditor", new BpArtifactEditor());
 
 
-export {IArtifactService, IMessageService, Models, Helper, ILocalizationService}
+export {IArtifactService, IMessageService, IStateManager, Models, Helper, ILocalizationService}

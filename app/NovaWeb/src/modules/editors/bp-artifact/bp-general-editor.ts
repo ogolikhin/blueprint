@@ -1,4 +1,4 @@
-﻿import { IMessageService, Models } from "./";
+﻿import { IMessageService, IStateManager, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
@@ -11,10 +11,10 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService"];
+    public static $inject: [string] = ["messageService", "stateManager"];
 
-    constructor(messageService: IMessageService) {
-        super(messageService);
+    constructor(messageService: IMessageService, stateManager: IStateManager) {
+        super(messageService, stateManager);
     }
 
     public activeTab: number;

@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService, IArtifactService, Models } from "./";
+﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
@@ -12,10 +12,10 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 
 export class BpArtifactEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "artifactService", "localization"];
+    public static $inject: [string] = ["messageService", "stateManager", "artifactService", "localization"];
 
-    constructor(messageService: IMessageService, private artifactService: IArtifactService, private localization: ILocalizationService) {
-        super(messageService);
+    constructor(messageService: IMessageService, stateManager: IStateManager, private artifactService: IArtifactService, private localization: ILocalizationService) {
+        super(messageService, stateManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

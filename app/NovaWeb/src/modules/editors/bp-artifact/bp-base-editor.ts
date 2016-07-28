@@ -202,10 +202,15 @@ export class PropertyEditor implements IPropertyEditor {
                         if (it.primitiveType === Models.PrimitiveType.Date) {
                             value = new Date(value);
                         } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                            if (value.validValueIds) {
-                                value = value.validValueIds[0];  // Temporary user only one value for single select
+                            if (angular.isArray(value.validValueIds)) {
+                                let values = [];
+                                value.validValueIds.forEach((v: number) => {
+                                    values.push(v.toString());
+                                });
+                                value = values;
+                            } else {
+                                value = value.toString();
                             }
-                            value = value.toString();
 
                         } else if (it.primitiveType === Models.PrimitiveType.User) {
                             //TODO: must be changed when  a field editor for this type of property is created
@@ -261,12 +266,12 @@ export class PropertyEditor implements IPropertyEditor {
             Models.PropertyTypePredefined.CreatedOn,
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn].indexOf(context.propertyTypePredefined) >= 0) {
-            field.type = "bpFieldReadOnly"
-
+            field.type = "bpFieldReadOnly";
         } else {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
+                    //field.type = "bpFieldReadOnly";
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText) {
                         field.templateOptions["tinymceOption"] = {
@@ -309,9 +314,10 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = "select";
+                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (angular.isNumber(context.defaultValidValueId)) {
                         field.defaultValue = context.defaultValidValueId.toString();
+
                     }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {

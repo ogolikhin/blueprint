@@ -30,10 +30,7 @@ import {MainViewComponent} from "./main.view";
 import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 import {config as routesConfig} from "./main.state";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
-import "../editors/bp-glossary";
-import "../editors/bp-artifact";
-import "../editors/bp-diagram";
-import "../editors/bp-storyteller";
+import "../editors/";
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -83,10 +80,7 @@ angular.module("app.main", [
     "angular-perfect-scrollbar-2",
     "formly",
     "formlyBootstrap",
-    "bp.editors.glossary",
-    "bp.editors.details",
-    "bp.editors.diagram",
-    "bp.editors.storyteller"
+    "bp.editors"
     ])
     .run(config)
     .service("projectRepository", ProjectRepository)

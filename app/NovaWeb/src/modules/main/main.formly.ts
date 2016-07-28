@@ -117,8 +117,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         name: "bpFieldReadOnly",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar ng-bind-html="model[options.key]"></div>
-                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar>{{model[options.key]}}</div>
+                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
                 <div ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
@@ -127,6 +127,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             let currentModelVal = $scope.model[$scope.options.key];
 
             $scope.tooltip = "";
+            $scope.scrollOptions = {
+                minScrollbarLength: 20
+            };
 
             if (currentModelVal) {
                 switch ($scope.options.data.primitiveType) {

@@ -10,7 +10,7 @@
         <form novalidate name="$ctrl.form" >
             <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" ng-if="$ctrl.isSystemPropertyAvailable">
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
-                <perfect-scrollbar>
+                <perfect-scrollbar opts="$ctrl.scrollOptions">
                     <div class="content" uib-collapse="isSystemPropertiesCollapsed">
                         <formly-form model="$ctrl.model" fields="$ctrl.systemFields" >
                         </formly-form>
@@ -19,7 +19,7 @@
             </div>
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}" ng-if="$ctrl.isCustomPropertyAvailable">
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
-                <perfect-scrollbar>
+                <perfect-scrollbar opts="$ctrl.scrollOptions">
                     <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
                         <formly-form model="$ctrl.model" fields="$ctrl.customFields" >
                         </formly-form>

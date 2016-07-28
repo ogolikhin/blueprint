@@ -229,6 +229,8 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
       &.multiple {
         max-height: #{2.5 * $property-min-height};
+        min-height: $property-min-height;
+        padding-top: 5px;
       }
 
       &.richtext {
@@ -291,16 +293,20 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
       &:focus {
         overflow: auto;
+        -ms-overflow-style: auto;
       }
     }
 
     select {
-      background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
-      -ms-overflow-style: scrollbar;
       padding: 2px;
 
       &[multiple] {
         height: #{2.5 * $property-min-height};
+      }
+
+      &:not([multiple]) {
+        background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
+        -ms-overflow-style: scrollbar;
       }
 
       &[disabled] {

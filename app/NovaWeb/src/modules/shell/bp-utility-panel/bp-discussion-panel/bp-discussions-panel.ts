@@ -94,13 +94,18 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     public newCommentClick(): void {
         if (this.canCreate) {
-            this.artifactDiscussionList.filter((discussion) => discussion.showAddReply === true).forEach((discussion) => discussion.showAddReply = false);
+            this.hideAddReplies();
             this.showAddComment = true;
         }
     }
 
     public cancelCommentClick(): void {
         this.showAddComment = false;
+        this.hideAddReplies();
+    }
+
+    private hideAddReplies() {
+        this.artifactDiscussionList.filter((discussion) => discussion.showAddReply === true).forEach((discussion) => discussion.showAddReply = false);
     }
 
     public cancelReplyClick(discussion: IDiscussion): void {

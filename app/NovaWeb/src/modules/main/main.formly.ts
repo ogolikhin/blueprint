@@ -85,6 +85,21 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
+    let setDirtyFlag = function($scope) {
+        //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
+        let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
+        if (artifactNameDiv) {
+            if ($scope.fc.$dirty) {
+                let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
+                if (!dirtyIcon) {
+                    let div = document.createElement("DIV");
+                    div.innerHTML = `<i class="dirty-indicator"></i>`;
+                    artifactNameDiv.appendChild(div.firstChild);
+                }
+            }
+        }
+    };
+
     let blurOnEnterKey = function(event) {
         let inputField = event.target;
         let key = event.keyCode || event.which;
@@ -100,10 +115,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     formlyConfig.setType({
         name: "bpFieldReadOnly",
-        extends: "input",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div class="read-only-input" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar ng-bind-html="model[options.key]"></div>
+                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar>{{model[options.key]}}</div>
+                <div ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -166,18 +182,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             $scope.bpFieldText = {};
 
             $scope.bpFieldText.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
+                setDirtyFlag($scope);
             };
 
             $scope.bpFieldText.keyup = blurOnEnterKey;
@@ -193,8 +198,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-keyup="bpFieldText.keyup($event)"
-                    ng-change="bpFieldText.change($event)"
+                    ng-change="bpFieldTextMulti.change($event)"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -215,18 +219,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             $scope.bpFieldTextMulti = {};
 
             $scope.bpFieldTextMulti.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
+                setDirtyFlag($scope);
             };
         }]
     });
@@ -334,18 +327,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             }
 
             $scope.bpFieldNumber.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
+                setDirtyFlag($scope);
             };
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
@@ -361,7 +343,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
+                },
+                isTinymce: true
             }
         }
     });
@@ -377,7 +360,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
+                },
+                isTinymce: true
             }
         }
     });
@@ -518,18 +502,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
 
             $scope.bpFieldDatepicker.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
+                setDirtyFlag($scope);
             };
 
             $scope.bpFieldDatepicker.keyup = blurOnEnterKey;
@@ -539,7 +512,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
-              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label">
+              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label && !to.tinymceOption">
                 {{to.label}}
               </label>
               <formly-transclude></formly-transclude>

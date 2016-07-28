@@ -152,7 +152,6 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       width: $property-label-width;
     }
 
-    .read-only-input,
     input,
     textarea,
     select {
@@ -207,13 +206,36 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     .read-only-input {
-      border: solid 1px transparent;
-      height: $property-min-height;
-      line-height: $property-min-height;
-      overflow: hidden;
-      padding: 0 $property-padding-default;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      box-sizing: border-box;
+      color: $gray-dark;
+      font-size: $font-size-normal;
+      font-weight: 400;
+
+      &.simple,
+      &.multiple {
+        border: solid 1px transparent;
+        max-width: $property-input-width;
+        overflow: hidden;
+        padding: 0 $property-padding-default;
+        width: $property-input-width;
+      }
+
+      &.simple {
+        height: $property-min-height;
+        line-height: $property-min-height;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      &.multiple {
+        height: #{2.25 * $property-min-height};
+      }
+
+      &.richtext {
+        height: #{3 * $property-min-height};
+        min-width: $property-input-width;
+        padding: 0;
+      }
     }
 
     .has-messages {

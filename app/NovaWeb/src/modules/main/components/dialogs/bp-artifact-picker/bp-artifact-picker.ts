@@ -5,6 +5,7 @@ import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
 import { IProjectManager, Models, IProjectRepository } from "../../../";
 
+
 export interface IArtifactPickerController {
     propertyMap: any;
     isItemSelected: boolean;
@@ -16,13 +17,13 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public hasCloseButton: boolean = true;
     private _selectedItem: Models.IProject;
 
-    private tree: IBPTreeController;
+    public tree: IBPTreeController;
     public projectId: number;
     public projectView: boolean = false;
     public projectName: string;
 
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params", "$sce", "$compile"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
@@ -30,9 +31,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private manager: IProjectManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
-        params: IDialogSettings,
-        private $sce: ng.ISCEService,
-        private $compile: ng.ICompileService
+        params: IDialogSettings
     ) {
         super($uibModalInstance, params);
         this.projectId = this.manager.currentProject.getValue().id;
@@ -71,7 +70,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     };
 
     public columns = [{
-        headerName: null,
+        headerName: "",
         field: "name",
         cellClass: function (params) {
             let css: string[] = [];
@@ -79,16 +78,21 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
+
+            if(params.data.predefinedType){
             if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
                 css.push("is-project");
-            } else {
-                if (params.data.predefinedType) {
-                    css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
-                } else {
-                    css.push("is-project");
-                }
+            } else {               
+                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));              
+            }
+            }else{
+               if(params.data.type === 0){
+                    css.push("is-folder");
+               }else if(params.data.type === 1){
+                  css.push("is-project");
+               }
             }
 
             return css;
@@ -119,7 +123,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {
+                .then((nodes: Models.IArtifact[]) => {                    
                     self.tree.reload(nodes, artifactId);
                 }, (error) => {
 
@@ -129,8 +133,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         } else {
             this.projectName = this.localization.get("App_Header_Name");
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-            this.manager.loadFolders(id)
-                .then((nodes: Models.IProjectNode[]) => {
+            this.projectRepository.getFolders(id)
+                .then((nodes: Models.IProjectNode[]) => { 
                     self.tree.reload(nodes, id);
                 }, (error) => {
                     if (error.statusCode === 1401) {

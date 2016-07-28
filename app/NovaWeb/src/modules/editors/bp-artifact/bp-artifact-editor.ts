@@ -10,9 +10,14 @@ export class BpArtifactEditor implements ng.IComponentOptions {
     };
 }
 
-
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = ["messageService", "stateManager", "artifactService", "localization"];
+
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        scrollXMarginOffset: 4,
+        scrollYMarginOffset: 4
+    };
 
     constructor(messageService: IMessageService, stateManager: IStateManager, private artifactService: IArtifactService, private localization: ILocalizationService) {
         super(messageService, stateManager);

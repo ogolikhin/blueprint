@@ -1,5 +1,3 @@
-import "angular";
-
 export interface ILocalizationService {
     get: (name: string, defaultValue?: string) => string;
 

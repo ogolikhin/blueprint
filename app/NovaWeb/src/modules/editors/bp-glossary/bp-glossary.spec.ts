@@ -3,7 +3,7 @@ import "angular";
 import "angular-mocks";
 import "Rx";
 import { ComponentTest } from "../../util/component.test";
-import { LocalizationServiceMock } from "../../core/localization.mock";
+import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { BpGlossaryController } from "./bp-glossary";
 import { GlossaryServiceMock } from "./glossary.svc.mock";
 

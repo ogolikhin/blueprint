@@ -3,7 +3,7 @@ import "angular";
 import "angular-mocks";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactAttachmentItemController} from "./bp-artifact-attachment-item";
-import { LocalizationServiceMock } from "../../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ProjectRepositoryMock } from "../../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../../main/services/project-manager";
 

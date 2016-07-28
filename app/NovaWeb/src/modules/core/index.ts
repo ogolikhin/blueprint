@@ -1,9 +1,9 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
-import { AppConstants, IAppConstants } from "./constants/app-constants";
-import { LocalizationService, ILocalizationService } from "./localization";
-import { ConfigValueHelper, IConfigValueHelper } from "./config.value.helper";
+import { AppConstants, IAppConstants } from "./constants/";
+import { LocalizationService, ILocalizationService } from "./localization/";
+import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
 
 angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .constant("appConstants", new AppConstants())

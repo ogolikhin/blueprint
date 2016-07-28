@@ -5,7 +5,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../util/component.test";
 import { BPUtilityPanelController} from "./bp-utility-panel";
-import { LocalizationServiceMock } from "../../core/localization.mock";
+import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { ArtifactHistoryMock } from "./bp-history-panel/artifact-history.mock";
 import { ArtifactRelationshipsMock } from "./bp-relationships-panel/artifact-relationships.mock";
 import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachments.mock";

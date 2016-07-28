@@ -106,9 +106,7 @@ export class BpArtifactInfoController {
             css: "nova-open-project",
             header: "Some header"
         }).then((artifact: any) => {
-            if (artifact) {
-                this.projectManager.setCurrentArtifact(artifact);
-            }
+            
         });
     }
 }

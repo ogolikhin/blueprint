@@ -18,6 +18,11 @@ namespace Utilities.Factories
         /// <returns>A HttpRequestBaseException or a child of HttpRequestBaseException appropriate for the specified status code.</returns>
         public static HttpRequestBaseException Create(int statusCode, string innerExceptionMsg, RestResponse restResponse = null)
         {
+            if (statusCode < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(statusCode), "You can't have negative status codes!");
+            }
+            
             HttpRequestBaseException ex = null;
             string message = I18NHelper.FormatInvariant("Received status code: {0}.  Content = '{1}'",
                 statusCode, restResponse?.Content ?? "null");

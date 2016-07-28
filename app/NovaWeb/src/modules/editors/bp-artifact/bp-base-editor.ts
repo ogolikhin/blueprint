@@ -46,7 +46,7 @@ export class BpBaseEditor {
         delete this.fields;
         delete this.model;
     }
-
+     
     public onPropertyChange($viewValue, $modelValue, scope) {
     };
 
@@ -67,7 +67,7 @@ export class BpBaseEditor {
     public onUpdate(context: IEditorContext) {
         try {
             this.isLoading = false;
-            if (!context) {
+            if (!context || !this.editor) {
                 return;
             }
             let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
@@ -85,7 +85,7 @@ export class BpBaseEditor {
 
             });
         } catch (ex) {
-            this.messageService.addError(ex.message);
+            this.messageService.addError(ex);
         }
     }
 }

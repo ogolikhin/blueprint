@@ -212,13 +212,13 @@ export class ProjectManager implements IProjectManager {
                         result.artifactTypes.unshift(
                             <Models.IItemType>{
                                 id: -1,
-                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                                name: this.localization.get("Label_Project"),
                                 predefinedType: Models.ItemTypePredefined.Project,
                                 customPropertyTypeIds: []
                             },
                             <Models.IItemType>{
                                 id: -2,
-                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.CollectionFolder],
+                                name: this.localization.get("Label_Collections"),
                                 predefinedType: Models.ItemTypePredefined.CollectionFolder,
                                 customPropertyTypeIds: []
                             }

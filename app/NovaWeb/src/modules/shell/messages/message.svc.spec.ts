@@ -32,6 +32,22 @@ describe("messageService", () => {
             expect(result[0].messageType).toEqual(MessageType.Error);
         }));
 
+    it("addError as an Error, returns the message",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            var error = new Error("test1");
+            messageService.addError(error);
+
+            // Act
+            var result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0].messageText).toEqual(error.message);
+            expect(result[0].messageType).toEqual(MessageType.Error);
+        }));
+
+
     it("addMessage, returns the message",
         inject((messageService: IMessageService) => {
             // Arrange

@@ -30,15 +30,15 @@ export class BpStorytellerEditorController {
     ];
 
     constructor(
-        public $rootScope: ng.IRootScopeService,
-        public $scope: ng.IScope,
-        public $state: ng.ui.IState,
-        public $timeout: ng.ITimeoutService,
-        public $q: ng.IQService,
-        public $log: ng.ILogService,
-        public processService: IProcessService,
-        public projectManager: IProjectManager,
-        public messageService: IMessageService
+        private $rootScope: ng.IRootScopeService,
+        private $scope: ng.IScope,
+        private $state: ng.ui.IState,
+        private $timeout: ng.ITimeoutService,
+        private $q: ng.IQService,
+        private $log: ng.ILogService,
+        private processService: IProcessService,
+        private projectManager: IProjectManager,
+        private messageService: IMessageService
     ) {
 
     }

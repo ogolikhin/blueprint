@@ -13,6 +13,12 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 export class BpGeneralEditorController extends BpBaseEditor {
     public static $inject: [string] = ["messageService", "stateManager"];
 
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        scrollXMarginOffset: 4,
+        scrollYMarginOffset: 4
+    };
+
     constructor(messageService: IMessageService, stateManager: IStateManager) {
         super(messageService, stateManager);
     }

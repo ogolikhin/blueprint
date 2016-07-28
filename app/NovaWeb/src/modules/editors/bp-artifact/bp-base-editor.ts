@@ -67,7 +67,7 @@ export class BpBaseEditor {
     public onUpdate(context: IEditorContext) {
         try {
             this.isLoading = false;
-            if (!context) {
+            if (!context || !this.editor) {
                 return;
             }
             let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
@@ -85,11 +85,10 @@ export class BpBaseEditor {
 
             });
         } catch (ex) {
-            this.messageService.addError(ex.message);
+            this.messageService.addError(ex);
         }
     }
 }
-
 
 export enum LookupEnum {
     None = 0,
@@ -211,7 +210,6 @@ export class PropertyEditor implements IPropertyEditor {
                             } else {
                                 value = value.toString();
                             }
-
                         } else if (it.primitiveType === Models.PrimitiveType.User) {
                             //TODO: must be changed when  a field editor for this type of property is created
                             if (value.userGroups) {
@@ -267,11 +265,11 @@ export class PropertyEditor implements IPropertyEditor {
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn].indexOf(context.propertyTypePredefined) >= 0) {
             field.type = "bpFieldReadOnly";
+
         } else {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
-                    //field.type = "bpFieldReadOnly";
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText) {
                         field.templateOptions["tinymceOption"] = {
@@ -317,7 +315,6 @@ export class PropertyEditor implements IPropertyEditor {
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (angular.isNumber(context.defaultValidValueId)) {
                         field.defaultValue = context.defaultValidValueId.toString();
-
                     }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {

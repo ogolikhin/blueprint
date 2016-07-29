@@ -1,5 +1,5 @@
 ﻿import { Models, Enums, IProjectManager} from "../..";
-import { ILocalizationService, } from "../../../core";
+import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -20,18 +20,25 @@ interface IArtifactInfoContext {
 
 
 export class BpArtifactInfoController {
-    static $inject: [string] = ["projectManager", "dialogService", "localization"];   
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "stateManager"];   
+    private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
+    private _isArtifactChanged: boolean;
 
     public currentArtifact: string;
 
-    constructor(private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
+    constructor(private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService, private stateManager: IStateManager) {
 
     }
 
-    public $onInit() { }
+    public $onInit() {
+        this._subscribers = [
+            this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
+        ];
+    }
     public $onDestroy() {
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         delete this._artifact;
     }
 
@@ -44,6 +51,9 @@ export class BpArtifactInfoController {
         }
     }
 
+    private onArtifactChanged(state: boolean) {
+        this._isArtifactChanged = state;
+    }
 
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
@@ -80,7 +90,7 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
-        return false;
+        return this._isArtifactChanged;
     }
     public get isLocked(): boolean {
         return false;

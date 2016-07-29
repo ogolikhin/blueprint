@@ -1,10 +1,9 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../core/localization";
-import { IMessageService } from "../messages";
 import { Models} from "../../main/models";
 
 export interface IStateManager {
-
+    isArtifactChanged: boolean;
+    isArtifactChangedObservable: Rx.Observable<boolean>;
 }
 
 export class StateManager implements IStateManager {
@@ -12,11 +11,27 @@ export class StateManager implements IStateManager {
     private _currentProject: Rx.BehaviorSubject<Models.IProject>;
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "messageService"];
-    constructor(
-        private localization: ILocalizationService,
-        private messageService: IMessageService) {
+    private _isArtifactChanged: Rx.BehaviorSubject<boolean>;
+
+
+//    static $inject: [string] = [];
+    constructor() {
+        this._isArtifactChanged = new Rx.BehaviorSubject<boolean>(false);
     }
+
+    public get isArtifactChanged(): boolean {
+        return this._isArtifactChanged.getValue();
+    }
+
+    public set isArtifactChanged(value: boolean) {
+        this._isArtifactChanged.onNext(value);
+    }
+
+    public get isArtifactChangedObservable(): Rx.Observable<boolean> {
+        return this._isArtifactChanged.asObservable();
+    }
+
+
 
     public dispose() {
         //clear all subjects
@@ -34,5 +49,7 @@ export class StateManager implements IStateManager {
         this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
     }
+
+
 
 }

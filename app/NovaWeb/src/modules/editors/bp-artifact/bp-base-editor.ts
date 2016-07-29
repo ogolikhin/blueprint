@@ -47,8 +47,10 @@ export class BpBaseEditor {
         delete this.model;
     }
      
-    public onPropertyChange($viewValue, $modelValue, scope) {
-        
+    public onValueChange($viewValue: any, $modelValue: AngularFormly.IFieldConfigurationObject) {
+        this.stateManager.isArtifactChanged = $viewValue !== $modelValue.initialValue;
+        //here we need to update original model
+        //this.context.artifact
     };
 
     public onLoading(obj: any): boolean  {
@@ -80,7 +82,7 @@ export class BpBaseEditor {
             this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(it.templateOptions, {
-                    onChange: this.onPropertyChange.bind(this)
+                    onChange: this.onValueChange.bind(this)
                 });
                 this.onFieldUpdate(it);
 

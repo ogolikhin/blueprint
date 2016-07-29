@@ -19,23 +19,45 @@ interface IArtifactInfoContext {
 }
 
 export class BpArtifactInfoController {
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "$timeout"];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
 
+    private artifactInfoWidthObserver;
     public currentArtifact: string;
 
     constructor(
         private projectManager: IProjectManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private $element: ng.IAugmentedJQuery) {
-
+        private $element: ng.IAugmentedJQuery,
+        private $timeout: ng.ITimeoutService) {
     }
 
-    public $onInit() { }
+    public $onInit() {
+        let self = this;
+        this.artifactInfoWidthObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === "class") {
+                    self.handleArtifactInfoWidth();
+                }
+            });
+        });
+        let wrapper = document.querySelector(".bp-sidebar-wrapper");
+        try {
+            this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
+    }
+
     public $onDestroy() {
         delete this._artifact;
+        try {
+            this.artifactInfoWidthObserver.disconnect();
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
     }
 
     public $onChanges(changedObject: any) {
@@ -50,7 +72,22 @@ export class BpArtifactInfoController {
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
+        this.handleArtifactInfoWidth();
     };
+
+    private handleArtifactInfoWidth() {
+        if (this.$element.length) {
+            let container = this.$element[0];
+            let toolbar = container.querySelector(".page-top-toolbar");
+            let heading = container.querySelector(".artifact-heading");
+            if (heading && toolbar) {
+                this.$timeout(() => {
+                    angular.element(heading).css("max-width", container.clientWidth < 2 * toolbar.clientWidth ?
+                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
+                }, 500);
+            }
+        }
+    }
 
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;
@@ -80,7 +117,7 @@ export class BpArtifactInfoController {
                 style = {
                     "max-width": "calc(100% - " + toolbar.clientWidth + "px)",
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
-                }
+                };
             }
         }
 

@@ -18,9 +18,9 @@ interface IArtifactInfoContext {
     type?: Models.IItemType;
 }
 
-
 export class BpArtifactInfoController {
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "stateManager"];   
+    
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager"];   
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
@@ -28,7 +28,12 @@ export class BpArtifactInfoController {
 
     public currentArtifact: string;
 
-    constructor(private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService, private stateManager: IStateManager) {
+    constructor(
+        private projectManager: IProjectManager,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private $element: ng.IAugmentedJQuery,
+        private stateManager: IStateManager) {
 
     }
 
@@ -71,6 +76,28 @@ export class BpArtifactInfoController {
             return Models.ItemTypePredefined[this._artifact.predefinedType] || "";
         }
         return null;
+    }
+
+    public get artifactHeadingWidth() {
+        let style = {};
+
+        if (this.$element.length) {
+            let container = this.$element[0];
+            let toolbar = container.querySelector(".page-top-toolbar");
+            let heading = container.querySelector(".artifact-heading");
+            let iconWidth = heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
+            let nameWidth = heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
+            let indicatorsWidth = heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
+            let headingWidth = iconWidth + nameWidth + indicatorsWidth + 20 + 2; // heading's margins + wiggle room
+            if (heading && toolbar) {
+                style = {
+                    "max-width": "calc(100% - " + toolbar.clientWidth + "px)",
+                    "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
+                }
+            }
+        }
+
+        return style;
     }
 
     public get artifactClass(): string {

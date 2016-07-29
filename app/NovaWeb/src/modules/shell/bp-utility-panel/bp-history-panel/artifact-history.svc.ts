@@ -55,14 +55,15 @@ export class ArtifactHistory implements IArtifactHistory {
             }
         };
 
-        this.$http(requestObj)
-            .success((result: IArtifactHistoryResultSet) => {
-                defer.resolve(result.artifactHistoryVersions);
+        this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<IArtifactHistoryResultSet>) => {
+                defer.resolve(result.data.artifactHistoryVersions);
 
-            }).error((err: any, statusCode: number) => {
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

@@ -32,12 +32,12 @@ export class DiagramService implements IDiagramService {
             const path = this.getPath(id, itemType);
             let diagaram: IDiagram = null;
             this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
-                .success(result => {
+                .then(result => {
                     try {
                         if (itemType === ItemTypePredefined.UseCase) {
-                            diagaram = new UsecaseToDiagram().convert(<IUseCase>result);
+                            diagaram = new UsecaseToDiagram().convert(<IUseCase>result.data);
                         } else {
-                            diagaram = (<IDiagram>result);
+                            diagaram = (<IDiagram>result.data);
                             if (diagaram.shapes) {
                                 for (let i = 0; i < diagaram.shapes.length; i++) {
                                     const shape = diagaram.shapes[i];
@@ -58,13 +58,13 @@ export class DiagramService implements IDiagramService {
                         delete this.promises[id];
                         deferred.reject(error);
                     }
-                }).error((data: any, status: number) => {
+                }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                     delete this.promises[id];
-                    if (status <= 0) {
+                    if (result.status <= 0) {
                         deferred.reject(CancelationTokenConstant.cancelationToken);
                     } else {
-                        data.statusCode = status;
-                        deferred.reject(data);
+                        result.data.statusCode = result.status;
+                        deferred.reject(result.data);
                     }
                 });
 

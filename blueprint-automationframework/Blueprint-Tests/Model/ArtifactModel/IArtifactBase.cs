@@ -108,7 +108,6 @@ namespace Model.ArtifactModel
         /// </summary>
         bool ShouldDeleteChildren { get; set; }
         IUser LockOwner { get; set; }
-        ItemTypePredefined BaseItemTypePredefined { get; set; }     // XXX: Not returned by OpenAPI?
         string Address { get; set; }
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
@@ -123,17 +122,17 @@ namespace Model.ArtifactModel
 
         #region Serialized JSON Properties
 
-        // OpenAPI-Add also has:  "Status":{"IsLocked":false,"IsReadOnly":false}
-
         BaseArtifactType BaseArtifactType { get; set; }     // OpenAPI-Add-Get
         int Id { get; set; }                                // OpenAPI-Add-Get
         string Name { get; set; }                           // OpenAPI-Add-Get
         int ProjectId { get; set; }                         // OpenAPI-Add-Get
         int Version { get; set; }                           // OpenAPI-Add-Get
         int ParentId { get; set; }                          // OpenAPI-Add-Get
+        /// <summary>This is a URL link to this artifact.</summary>
         Uri BlueprintUrl { get; set; }                      // OpenAPI-Get  (ex. BlueprintUrl=http://silver02.blueprintsys.net/Web/#/Storyteller/5816)
         int ArtifactTypeId { get; set; }                    // OpenAPI-Add-Get
         string ArtifactTypeName { get; set; }               // OpenAPI-Add-Get
+        ArtifactStatus Status { get; set; }                 // OpenAPI-Add
 
         List<OpenApiProperty> Properties { get; }           // OpenAPI-Add-Get
 

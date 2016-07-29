@@ -217,6 +217,9 @@ namespace Model.ArtifactModel.Impl
                     Assert.That(artifactResult.Message == "Success",
                         "The returned Message was '{0}' but 'Success' was expected",
                         artifactResult.Message);
+
+                    Assert.IsFalse(artifactResult.Artifact.Status.IsLocked, "Status.IsLocked should always be false for new artifacts!");
+                    Assert.IsFalse(artifactResult.Artifact.Status.IsReadOnly, "Status.IsReadOnly should always be false for new artifacts!");
                 }
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)

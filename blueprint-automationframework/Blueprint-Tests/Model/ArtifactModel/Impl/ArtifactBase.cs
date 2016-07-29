@@ -13,6 +13,16 @@ using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
+    /// <summary>
+    /// This is returned by OpenAPI when adding an artifact.
+    /// Currently I can't see a way for these to ever be set to true.
+    /// </summary>
+    public class ArtifactStatus
+    {
+        public bool IsLocked { get; set; }
+        public bool IsReadOnly { get; set; }
+    }
+
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
@@ -25,7 +35,6 @@ namespace Model.ArtifactModel.Impl
 
         public bool ShouldDeleteChildren { get; set; } = false;
         public IUser LockOwner { get; set; }
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public string Address { get; set; }
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
@@ -47,6 +56,7 @@ namespace Model.ArtifactModel.Impl
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
         public string ArtifactTypeName { get; set; }
+        public ArtifactStatus Status { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
@@ -105,7 +115,6 @@ namespace Model.ArtifactModel.Impl
             {
                 ShouldDeleteChildren = this.ShouldDeleteChildren,
                 LockOwner = this.LockOwner,
-                BaseItemTypePredefined = this.BaseItemTypePredefined,
                 Address = this.Address,
                 CreatedBy = this.CreatedBy,
                 IsPublished = this.IsPublished,

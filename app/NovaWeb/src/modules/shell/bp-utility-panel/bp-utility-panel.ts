@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { IProjectManager, Models } from "../../main";
+import { ISelectionManager, Models } from "../../main";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -10,7 +10,7 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "projectManager"
+        "selectionManager"
     ];
 
     private _subscribers: Rx.IDisposable[];
@@ -27,12 +27,12 @@ export class BPUtilityPanelController {
 
     constructor(
         private localization: ILocalizationService,
-        private projectManager: IProjectManager) {
+        private selectionManager: ISelectionManager) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
+        let selectedArtifactSubscriber: Rx.IDisposable = this.selectionManager.selectedArtifactObservable
             .distinctUntilChanged()
             .subscribe(this.displayArtifact);
 

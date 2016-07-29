@@ -3,8 +3,7 @@ import "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
-import { BPArtifactDiscussionItemController} from "./bp-artifact-discussion-item";
-import { ArtifactDiscussionsMock } from "./../artifact-discussions.mock";
+import { BPArtifactDiscussionItemController } from "./bp-artifact-discussion-item";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
 describe("Component BPArtifactDiscussionItem", () => {

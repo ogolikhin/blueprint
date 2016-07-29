@@ -61,15 +61,16 @@ export class ArtifactAttachments implements IArtifactAttachments {
             }
         };
 
-        this.$http(requestObj)
-            .success((result: IArtifactAttachmentsResultSet) => {
+        this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<IArtifactAttachmentsResultSet>) => {
                 // console.log("retrieved attachments: " + JSON.stringify(result));
-                defer.resolve(result);
+                defer.resolve(result.data);
 
-            }).error((err: any, statusCode: number) => {
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

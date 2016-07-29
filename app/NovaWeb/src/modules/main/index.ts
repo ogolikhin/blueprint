@@ -16,20 +16,21 @@ import "../shared";
 import "tinymce";
 import * as moment from "moment";
 import * as Enums from "./models/enums";
-import {Helper} from "../shared/utils/helper";
+import { Helper } from "../shared/utils/helper";
 import * as Models from "./models/models";
-import {IArtifactService, ArtifactService, ProjectRepository, IProjectRepository, IProjectManager, ProjectManager} from "./services/";
+import { IArtifactService, ArtifactService, ProjectRepository, IProjectRepository, IProjectManager, ProjectManager } from "./services/";
+import { ISelectionManager, SelectionManager } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
-import {PageContent} from "./components/content/pagecontent";
-import {BPToolbar} from "./components/bp-toolbar/bp-toolbar";
-import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
-import {BpAccordion} from "./components/bp-accordion/bp-accordion";
-import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
-import {ProjectExplorer} from "./components/projectexplorer/project-explorer";
-import {MainViewComponent} from "./main.view";
-import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
-import {config as routesConfig} from "./main.state";
-import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
+import { PageContent } from "./components/content/pagecontent";
+import { BPToolbar } from "./components/bp-toolbar/bp-toolbar";
+import { BpSidebarLayout } from "./components/bp-sidebar-layout/bp-sidebar-layout";
+import { BpAccordion } from "./components/bp-accordion/bp-accordion";
+import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
+import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
+import { MainViewComponent } from "./main.view";
+import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
+import { config as routesConfig } from "./main.state";
+import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
 
 config.$inject = ["$rootScope", "$state"];
@@ -40,6 +41,7 @@ export {
     IProjectRepository, ProjectRepository,
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
+    ISelectionManager, SelectionManager,
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
@@ -85,6 +87,7 @@ angular.module("app.main", [
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
+    .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())

@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
+import { ISelectionManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -20,7 +20,7 @@ export class BPAttachmentsPanel implements ng.IComponentOptions {
 export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "projectManager",
+        "selectionManager",
         "artifactAttachments"
     ];
 
@@ -31,11 +31,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     
     constructor(
         private localization: ILocalizationService,
-        protected projectManager: IProjectManager,
+        protected selectionManager: ISelectionManager,
         private artifactAttachments: IArtifactAttachments,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(projectManager, bpAccordionPanel);
+        super(selectionManager, bpAccordionPanel);
 
         this.addOptions = [
             { value: "attachment", label: this.localization.get("App_UP_Attachments_Add_Attachment") },

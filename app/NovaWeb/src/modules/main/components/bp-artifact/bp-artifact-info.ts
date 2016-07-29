@@ -1,5 +1,5 @@
 ﻿import { Models, Enums, IProjectManager} from "../..";
-import { ILocalizationService, } from "../../../core";
+import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -18,20 +18,32 @@ interface IArtifactInfoContext {
     type?: Models.IItemType;
 }
 
-
 export class BpArtifactInfoController {
-    static $inject: [string] = ["projectManager", "dialogService", "localization"];   
+    
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager"];   
+    private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
+    private _isArtifactChanged: boolean;
 
     public currentArtifact: string;
 
-    constructor(private projectManager: IProjectManager, private dialogService: IDialogService, private localization: ILocalizationService) {
+    constructor(
+        private projectManager: IProjectManager,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private $element: ng.IAugmentedJQuery,
+        private stateManager: IStateManager) {
 
     }
 
-    public $onInit() { }
+    public $onInit() {
+        this._subscribers = [
+            this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
+        ];
+    }
     public $onDestroy() {
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         delete this._artifact;
     }
 
@@ -44,6 +56,9 @@ export class BpArtifactInfoController {
         }
     }
 
+    private onArtifactChanged(state: boolean) {
+        this._isArtifactChanged = state;
+    }
 
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
@@ -63,6 +78,28 @@ export class BpArtifactInfoController {
         return null;
     }
 
+    public get artifactHeadingWidth() {
+        let style = {};
+
+        if (this.$element.length) {
+            let container = this.$element[0];
+            let toolbar = container.querySelector(".page-top-toolbar");
+            let heading = container.querySelector(".artifact-heading");
+            let iconWidth = heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
+            let nameWidth = heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
+            let indicatorsWidth = heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
+            let headingWidth = iconWidth + nameWidth + indicatorsWidth + 20 + 2; // heading's margins + wiggle room
+            if (heading && toolbar) {
+                style = {
+                    "max-width": "calc(100% - " + toolbar.clientWidth + "px)",
+                    "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
+                }
+            }
+        }
+
+        return style;
+    }
+
     public get artifactClass(): string {
         return this._artifact ?
             "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[this._artifact.predefinedType] || "document")) :
@@ -80,7 +117,7 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
-        return false;
+        return this._isArtifactChanged;
     }
     public get isLocked(): boolean {
         return false;

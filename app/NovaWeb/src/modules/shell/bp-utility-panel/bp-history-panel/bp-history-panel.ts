@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
+import { ISelectionManager, Models} from "../../../main";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
+import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
 interface ISortOptions {
@@ -21,7 +21,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactHistory",
-        "projectManager"
+        "selectionManager"
     ];
 
     private loadLimit: number = 10;
@@ -36,10 +36,10 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     constructor(
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        protected projectManager: IProjectManager,
+        protected selectionManager: ISelectionManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(projectManager, bpAccordionPanel);
+        super(selectionManager, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },

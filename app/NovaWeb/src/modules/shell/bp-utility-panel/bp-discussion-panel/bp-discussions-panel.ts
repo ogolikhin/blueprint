@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
+import { ISelectionManager, Models} from "../../../main";
 
-import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
+import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -17,7 +17,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactDiscussions",
-        "projectManager",
+        "selectionManager",
         "messageService",
         "$q"
     ];
@@ -36,12 +36,12 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     constructor(
         private localization: ILocalizationService,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
-        protected projectManager: IProjectManager,
+        protected selectionManager: ISelectionManager,
         private messageService: IMessageService,
         private $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(projectManager, bpAccordionPanel);
+        super(selectionManager, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },

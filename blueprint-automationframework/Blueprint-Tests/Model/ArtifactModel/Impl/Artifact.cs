@@ -21,9 +21,6 @@ namespace Model.ArtifactModel.Impl
         {
             //Required for deserializing OpenApiArtifact
             Properties = new List<OpenApiProperty>();
-            Comments = new List<OpenApiComment>();
-            Traces = new List<OpenApiTrace>();
-            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>
@@ -394,12 +391,12 @@ namespace Model.ArtifactModel.Impl
         #region Static Methods
 
         /// <summary>
-        /// Save a single artifact to Blueprint
+        /// Save a single artifact to Blueprint.
         /// </summary>
-        /// <param name="artifactToSave">The artifact to save</param>
-        /// <param name="user">The user saving the artifact</param>
+        /// <param name="artifactToSave">The artifact to save.</param>
+        /// <param name="user">The user saving the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         public static void SaveArtifact(IArtifactBase artifactToSave,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,

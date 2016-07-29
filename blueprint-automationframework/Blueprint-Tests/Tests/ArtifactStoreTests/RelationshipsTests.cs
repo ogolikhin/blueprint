@@ -565,6 +565,33 @@ namespace ArtifactStoreTests
             Assert.AreEqual(traces[0].Direction, trace.Direction, "Returned trace must have proper Direction.");
         }
 
+        [TestCase]
+        [TestRail(0)]
+        [Description("...Create manual trace between 2 artifacts, get relationships.  Verify that returned trace has expected value.")]
+        public void GetRelationshipsDetails_ManualTrace_ReturnsCorrectTraceDetails()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+
+            Assert.AreEqual(false, traces[0].IsSuspect,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
+            TraceDetails tracedetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                tracedetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, sourceArtifact);
+            }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(sourceArtifact.Id, tracedetails.ArtifactId, "Id must be correct.");
+        }
+
         // TODO: Test with "Other" traces.
         // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.
     }

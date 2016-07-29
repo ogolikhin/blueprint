@@ -37,8 +37,7 @@ export class AuthSvc implements IAuth {
         private $http: ng.IHttpService,
         private $window: ng.IWindowService,
         private localization: ILocalizationService,
-        private configValueHelper: IConfigValueHelper)
-    {
+        private configValueHelper: IConfigValueHelper) {
         // Nothing
     }    
 
@@ -56,8 +55,8 @@ export class AuthSvc implements IAuth {
                 };
                 if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
-                        .then((result: ng.IHttpPromiseCallbackArg<string>) => {
-                            this.onTokenSuccess(result.data, defer, false, "");
+                        .then((winLoginResult: ng.IHttpPromiseCallbackArg<string>) => {
+                            this.onTokenSuccess(winLoginResult.data, defer, false, "");
                         }, () => {
                             defer.reject(error);
                         });

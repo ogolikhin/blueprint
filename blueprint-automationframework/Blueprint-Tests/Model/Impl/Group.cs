@@ -2,8 +2,10 @@
 using System.Data.SqlClient;
 using Common;
 using Model.Factories;
+using Model.ArtifactModel;
 using System.Collections.Generic;
 using Utilities;
+using NUnit.Framework;
 
 namespace Model.Impl
 {
@@ -58,7 +60,7 @@ namespace Model.Impl
             Parent = null;//this field allow to include one group into another
         }
 
-        /// <seealso cref="Group.AddGroupToDatabase()"/>
+        /// <seealso cref="IGroup.AddGroupToDatabase()"/>
         public void AddGroupToDatabase()
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -99,7 +101,7 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="Group.DeleteGroup()"/>
+        /// <seealso cref="IGroup.DeleteGroup()"/>
         public void DeleteGroup()
         {
             //TODO If successful, update user.GroupMembership with this group that it was added to.
@@ -124,7 +126,7 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="Group.AddUser(IUser)"/>
+        /// <seealso cref="IGroup.AddUser(IUser)"/>
         public void AddUser(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -138,23 +140,27 @@ namespace Model.Impl
         }
 
 
-        /// <seealso cref="Group.AssignProjectAuthorRole(IProject)"/>
-        public void AssignProjectAuthorRole(IProject project)
+        /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, IArtifact, ProjectRole)"/>
+        public void AssignRoleToProjectOrArtifact(IProject project, IArtifactBase artifact = null,
+            ProjectRole role = ProjectRole.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+            if (artifact != null)
+            {
+                Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
+            }
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
                 var fields = "[ProjectId],[RoleId],[ItemId],[UserId],[GroupId],[Deleted]";
                 //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
-                //also we can use [Permissions] = 4623??
+                //or we can determine RoleId by Permissions and ProjectId
+                //also we can use [Permissions] = 4623 - for Author
                 // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
-                object[] valueArray =
-                {
-                    project.Id, 1, project.Id, null, GroupId, 0
-                };
-
+                object[] valueArray = {
+                        project.Id, (int)role, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
+                            };
                 string values = string.Join(",", objArraytoStringList(valueArray));
 
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", ROLEASSIGNMENTS_TABLE, fields, values);

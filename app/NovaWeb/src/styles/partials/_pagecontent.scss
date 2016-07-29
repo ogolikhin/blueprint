@@ -28,8 +28,14 @@ pagecontent {
     }
   }
 
+  bp-artifact-info {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   .page-top-toolbar {
-    float: right;
+    flex-grow: 0;
+    flex-shrink: 0;
     margin-bottom: 15px;
 
     .btn-bluelight + .btn-bluelight {
@@ -43,17 +49,16 @@ pagecontent {
 
   .artifact-heading,
   .artifact-icon  {
-    display: inline-block;
+    display: block;
     margin: 0 10px 15px 0;
     min-height: 30px;
     vertical-align: top;
   }
 
-  .legacy-icon {
-    display: inline-block;
-    color: $gray;
+  .artifact-icon  {
+    flex-grow: 0;
+    flex-shrink: 0;
   }
-
 
   .artifact-icon::before {
     color: $gray;
@@ -64,20 +69,28 @@ pagecontent {
   }
 
   .artifact-heading {
+    flex-grow: 10;
+    max-width: calc(100% - 470px); //this value must change
+    min-width: 300px;
+    overflow: hidden;
+
     > .name {
       color: $gray-dark;
       display: block;
       font-size: $font-size-biggest;
-      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      //white-space: nowrap;
 
       span:first-child {
         margin-left: 5px;
       }
-        [class*="fonticon2-"]::before, [class*=" fonticon2-"]::before{
-            font-size: 1.4rem;
-            vertical-align: middle;
-            margin-bottom: 0.3rem;
-        }
+
+      [class*="fonticon2-"]::before, [class*=" fonticon2-"]::before{
+        font-size: 1.4rem;
+        margin-bottom: .3rem;
+        vertical-align: middle;
+      }
     }
 
     > .type-id {
@@ -88,7 +101,8 @@ pagecontent {
 
     .readonly-indicator,
     .lock-indicator,
-    .dirty-indicator {
+    .dirty-indicator,
+    .legacy-icon {
       color: $gray;
       display: inline-block;
       font-family: 'bp-font';
@@ -162,7 +176,10 @@ pagecontent {
       font-size: $font-size-small;
       font-weight: 600;
       line-height: 92%;
-      margin-top: -4px;
+      margin-top: -2px;
+      max-height: 29px;
+      min-height: 12px;
+      overflow: hidden;
       padding: 0 10px 0 26px;
       position: relative;
       vertical-align: middle;

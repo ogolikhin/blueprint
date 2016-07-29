@@ -1,6 +1,6 @@
 ﻿<div class="artifact-icon" ng-class="$ctrl.artifactClass"></div>
 <div class="artifact-heading">
-    <div class="name">
+    <div class="name" bp-tooltip="{{ $ctrl.artifactName }}" bp-tooltip-truncated="true">
         {{ $ctrl.artifactName }}
         <i class="readonly-indicator" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
         <i class="lock-indicator" bp-tooltip="Locked" ng-if="$ctrl.isLocked"></i>

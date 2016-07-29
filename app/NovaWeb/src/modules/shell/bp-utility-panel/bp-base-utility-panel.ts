@@ -1,17 +1,17 @@
-import { IProjectManager, Models} from "../../main";
+import { ISelectionManager, Models} from "../../main";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
 
 export class BPBaseUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
 
     constructor(
-        protected projectManager: IProjectManager, 
+        protected selectionManager: ISelectionManager, 
         public bpAccordionPanel: IBpAccordionPanelController) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        const selectedArtifact: Rx.Observable<Models.IArtifact> = this.projectManager.currentArtifact.asObservable();
+        const selectedArtifact: Rx.Observable<Models.IArtifact> = this.selectionManager.selectedArtifactObservable;
         const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
             Rx.Observable

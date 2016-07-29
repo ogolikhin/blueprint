@@ -26,6 +26,8 @@ export interface IProjectManager {
 
     closeProject(all?: boolean): void;
 
+    getProject(id: number);
+
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
 
     getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;

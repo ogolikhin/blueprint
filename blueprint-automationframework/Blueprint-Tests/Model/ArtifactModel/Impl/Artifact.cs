@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
 using Common;
 using Model.Impl;
-using Utilities.Factories;
 
 namespace Model.ArtifactModel.Impl
 {

@@ -41,6 +41,7 @@ namespace Model.ArtifactModel.Impl
         public bool IsSaved { get; set; }
         public bool IsMarkedForDeletion { get; set; }
         public bool IsDeleted { get; set; }
+
         public bool AreTracesReadOnly { get; set; }
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }

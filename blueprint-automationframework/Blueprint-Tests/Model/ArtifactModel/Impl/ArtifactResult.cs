@@ -27,7 +27,7 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
-        public IArtifact Artifact { get; set; }
+        public IArtifactBase Artifact { get; set; }
         public int ArtifactId { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }

@@ -176,7 +176,7 @@ namespace ArtifactStoreTests
             IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
             //Set property value
             parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 
@@ -200,7 +200,7 @@ namespace ArtifactStoreTests
             IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
             //Set property value
             parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 
@@ -221,7 +221,7 @@ namespace ArtifactStoreTests
             IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
             //Set property value
             parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 
@@ -302,7 +302,7 @@ namespace ArtifactStoreTests
             List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
             //Set property value
             parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 
@@ -326,7 +326,7 @@ namespace ArtifactStoreTests
             List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
             //Set property value
             parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 
@@ -347,7 +347,7 @@ namespace ArtifactStoreTests
             List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
+            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
             //Set property value
             parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
 

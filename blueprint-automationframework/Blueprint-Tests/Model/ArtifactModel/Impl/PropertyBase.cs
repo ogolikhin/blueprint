@@ -5,24 +5,34 @@ using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class PropertyBase : IPropertyBase
+    public class PropertyBase
     {
         #region Properties
 
-        public int PropertyTypeId { get; set; }
-        public string Name { get; set; }
-        public string BasePropertyType { get; set; }
-        public string TextOrChoiceValue { get; set; }
-        public bool IsRichText { get; set; }
-        public bool IsReadOnly { get; set; }
+        public int PropertyTypeId { get; set; }                 // OpenAPI-Add-Get
+        public string Name { get; set; }                        // OpenAPI-Add-Get
+        public string BasePropertyType { get; set; }            // OpenAPI-Add-Get
+        public string TextOrChoiceValue { get; set; }           // OpenAPI-Add-Get
+        public bool IsRichText { get; set; }                    // OpenAPI-Add-Get
+        public bool IsReadOnly { get; set; }                    // OpenAPI-Get
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<UsersAndGroups> UsersAndGroups { get; set; }
+        public List<UsersAndGroups> UsersAndGroups { get; set; }// OpenAPI-Add-Get
         public List<object> Choices { get; }
-        public string DateValue { get; set; }
+        public string DateValue { get; set; }                   // OpenAPI-Get
         public string Address { get; set; }
 
         #endregion Properties
 
+        /// <summary>
+        /// Get the Property Type of a Property
+        /// </summary>
+        /// <param name="project">The project that contains the property type</param>
+        /// <param name="user">The user making the request</param>
+        /// <param name="baseArtifactType">The base artifact type of the property being requested</param>
+        /// <param name="propertyName">The name of the property for which the property type is being requested</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The property type of the property</returns>
         public OpenApiPropertyType GetPropertyType(
             IProject project,
             IUser user,

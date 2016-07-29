@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class OpenApiProperty : PropertyBase, IOpenApiProperty
+    public class OpenApiProperty : PropertyBase
     {
         /// <summary>
         /// Constructor.
@@ -14,6 +14,16 @@ namespace Model.ArtifactModel.Impl
             Address = address;
         }
 
+        /// TODO: Is there any way to improve the performance for get artifactTypes call
+        /// <summary>
+        /// Set a property value for the property of the specific artifact</summary>
+        /// <param name="project">the target project</param>
+        /// <param name="user">blueprint user</param>
+        /// <param name="baseArtifactType">base artifact Type</param>
+        /// <param name="propertyName">the name of the property want to edit</param>
+        /// <param name="propertyValue">(Optional) property value for the property. If null, the default value will be used if available</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         public OpenApiProperty SetPropertyAttribute(
             IProject project,
             IUser user,

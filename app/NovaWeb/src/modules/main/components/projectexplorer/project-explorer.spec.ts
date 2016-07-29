@@ -1,14 +1,14 @@
 ﻿import "angular";
 import "angular-mocks";
-import {ConfigValueHelper } from "../../../core";
-import {MessageService} from "../../../shell/";
-import {ProjectManager, IProjectManager, Models } from "../../";
-import {ProjectExplorerController} from "./project-explorer";
+import { ConfigValueHelper } from "../../../core";
+import { MessageService } from "../../../shell/";
+import { ProjectManager, IProjectManager, Models } from "../../";
+import { ProjectExplorerController } from "./project-explorer";
 
-import {BPTreeControllerMock, ITreeNode} from "../../../shared/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ProjectRepositoryMock} from "../../services/project-repository.mock";
-
+import { BPTreeControllerMock, ITreeNode } from "../../../shared/widgets/bp-tree/bp-tree.mock";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
+import { ProjectRepositoryMock } from "../../services/project-repository.mock";
+import { SelectionManager } from "../../../main/services/selection-manager";
 
 describe("Project Explorer Test", () => {
     let isReloadCalled: number = 0;
@@ -20,6 +20,7 @@ describe("Project Explorer Test", () => {
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
         $provide.service("explorer", ProjectExplorerController);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
@@ -72,7 +73,7 @@ describe("Project Explorer Test", () => {
 
 
         // Act
-        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1" } as Models.IProject]);
+        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Models.IProject]);
 
         // Assert
         expect(isReloadCalled).toEqual(1);
@@ -100,7 +101,7 @@ describe("Project Explorer Test", () => {
         };
 
         // Act
-        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1" } as Models.IProject]);
+        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Models.IProject]);
 
         projectManager.closeProject();
 

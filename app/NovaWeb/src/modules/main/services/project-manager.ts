@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService } from "../../core";
-import {IMessageService, Message, MessageType} from "../../shell";
+import {IMessageService, Message, MessageType} from "../../core";
 import {IProjectRepository, Models} from "./project-repository";
 
 export {Models}

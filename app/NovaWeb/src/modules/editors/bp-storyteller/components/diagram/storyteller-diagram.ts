@@ -1,6 +1,6 @@
 ﻿// References to StorytellerDiagram
 import {ProcessModels, IProcessService} from "../../"
-import {IMessageService} from "../../../../shell/messages/message.svc"
+import {IMessageService} from "../../../../core"
 import {StorytellerViewModel, IStorytellerViewModel} from "./viewmodel/storyteller-view-model";
 
 export class StorytellerDiagram {

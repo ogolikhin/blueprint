@@ -10,6 +10,7 @@ using Model.Factories;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
+using Utilities.Factories;
 
 namespace Helper
 {
@@ -30,6 +31,7 @@ namespace Helper
         public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
         public List<IProject> Projects { get; } = new List<IProject>();
         public List<IUser> Users { get; } = new List<IUser>();
+        public List<IGroup> Groups { get; } = new List<IGroup>();
 
         #region IArtifactObserver methods
 
@@ -277,6 +279,21 @@ namespace Helper
 
         #endregion User management
 
+        #region Group management
+        /// <summary>
+        /// Creates a new group object with random values and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="licenseType">(optional) The license level to assign to the group. By default it is Author.</param>
+        /// <returns>A new unique group object that was added to the database.</returns>
+        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+            var group = GroupFactory.CreateGroup(licenseType);
+            group.AddGroupToDatabase();
+            Groups.Add(group);
+            return group;
+        }
+        #endregion Group management
+
         #region Custom Asserts
 
         /// <summary>
@@ -405,6 +422,15 @@ namespace Helper
                 {
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
                     ArtifactBase.DisposeArtifacts(Artifacts, this);
+                }
+
+                if (Groups != null)
+                {
+                    Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+                    foreach (var group in Groups)
+                    {
+                        group.DeleteGroup();
+                    }
                 }
 
                 foreach (var project in Projects)

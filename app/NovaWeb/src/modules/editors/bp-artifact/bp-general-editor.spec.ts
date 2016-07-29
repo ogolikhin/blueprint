@@ -2,7 +2,7 @@
 import "angular-mocks";
 import "./";
 import { IStateManager } from "./";
-import { MessageServiceMock } from "../../shell/messages/message.mock";
+import { MessageServiceMock } from "../../core/messages/message.mock";
 import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController} from "./bp-general-editor";
 

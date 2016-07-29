@@ -85,21 +85,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
-    let setDirtyFlag = function($scope) {
-        //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-        let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-        if (artifactNameDiv) {
-            if ($scope.fc.$dirty) {
-                let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                if (!dirtyIcon) {
-                    let div = document.createElement("DIV");
-                    div.innerHTML = `<i class="dirty-indicator"></i>`;
-                    artifactNameDiv.appendChild(div.firstChild);
-                }
-            }
-        }
-    };
-
     let blurOnEnterKey = function(event) {
         let inputField = event.target;
         let key = event.keyCode || event.which;
@@ -164,7 +149,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldText.keyup($event)"
-                    ng-change="bpFieldText.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -182,10 +166,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {};
 
-            $scope.bpFieldText.change = function ($event) {
-                setDirtyFlag($scope);
-            };
-
             $scope.bpFieldText.keyup = blurOnEnterKey;
         }]
     });
@@ -199,7 +179,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-change="bpFieldTextMulti.change($event)"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -216,10 +195,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
-
-            $scope.bpFieldTextMulti.change = function ($event) {
-                setDirtyFlag($scope);
-            };
         }]
     });
 
@@ -232,7 +207,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-change="bpFieldSelect.change($event)"
                     class="form-control"></select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -249,10 +223,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
-
-            $scope.bpFieldSelect.change = function ($event) {
-                setDirtyFlag($scope);
-            };
         }]
     });
 
@@ -265,7 +235,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-change="bpFieldSelectMulti.change($event)"
                     multiple
                     class="form-control"></select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
@@ -283,10 +252,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
-
-            $scope.bpFieldSelectMulti.change = function ($event) {
-                setDirtyFlag($scope);
-            };
         }]
     });
 
@@ -300,7 +265,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldNumber.keyup($event)"
-                    ng-change="bpFieldNumber.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -390,10 +354,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
             }
 
-            $scope.bpFieldNumber.change = function ($event) {
-                setDirtyFlag($scope);
-            };
-
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
     });
@@ -439,7 +399,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"
-                    ng-change="bpFieldDatepicker.change($event)"
                     ng-keyup="bpFieldDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="bpFieldDatepicker.opened"
@@ -561,10 +520,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             $scope.bpFieldDatepicker.blur = function ($event) {
                 $scope.bpFieldDatepicker.selected = false;
-            };
-
-            $scope.bpFieldDatepicker.change = function ($event) {
-                setDirtyFlag($scope);
             };
 
             $scope.bpFieldDatepicker.keyup = blurOnEnterKey;

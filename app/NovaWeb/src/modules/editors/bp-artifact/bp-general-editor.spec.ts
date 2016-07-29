@@ -5,9 +5,8 @@ import { IStateManager } from "./";
 import { MessageServiceMock } from "../../core/messages/message.mock";
 import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController} from "./bp-general-editor";
+import { StateManager} from "../../core/services/state-manager";
 
-export class StateManagerMock implements IStateManager {
-}
 
 
 describe("Component BpGeneralEditorInfo", () => {
@@ -21,8 +20,9 @@ describe("Component BpGeneralEditorInfo", () => {
 
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("stateManager", StateManagerMock);
+        $provide.service("stateManager", StateManager);
         
     }));
 

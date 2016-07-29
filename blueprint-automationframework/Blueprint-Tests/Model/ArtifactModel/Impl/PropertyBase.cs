@@ -9,16 +9,16 @@ namespace Model.ArtifactModel.Impl
     {
         #region Properties
 
-        public int PropertyTypeId { get; set; }
-        public string Name { get; set; }
-        public string BasePropertyType { get; set; }
-        public string TextOrChoiceValue { get; set; }
-        public bool IsRichText { get; set; }
-        public bool IsReadOnly { get; set; }
+        public int PropertyTypeId { get; set; }                 // OpenAPI-Add-Get
+        public string Name { get; set; }                        // OpenAPI-Add-Get
+        public string BasePropertyType { get; set; }            // OpenAPI-Add-Get
+        public string TextOrChoiceValue { get; set; }           // OpenAPI-Add-Get
+        public bool IsRichText { get; set; }                    // OpenAPI-Add-Get
+        public bool IsReadOnly { get; set; }                    // OpenAPI-Get
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<UsersAndGroups> UsersAndGroups { get; set; }
+        public List<UsersAndGroups> UsersAndGroups { get; set; }// OpenAPI-Add-Get
         public List<object> Choices { get; }
-        public string DateValue { get; set; }
+        public string DateValue { get; set; }                   // OpenAPI-Get
         public string Address { get; set; }
 
         #endregion Properties

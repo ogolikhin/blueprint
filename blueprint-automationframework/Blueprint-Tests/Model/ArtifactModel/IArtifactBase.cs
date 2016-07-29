@@ -116,32 +116,26 @@ namespace Model.ArtifactModel
         bool IsMarkedForDeletion { get; set; }
         bool IsDeleted { get; set; }
 
-        #region Serialized JSON Properties
-
-        BaseArtifactType BaseArtifactType { get; set; }
-        int Id { get; set; }
-        string Name { get; set; }
-        int ProjectId { get; set; }
-        int Version { get; set; }
-        int ParentId { get; set; }
-        Uri BlueprintUrl { get; set; }
-        int ArtifactTypeId { get; set; }
-        string ArtifactTypeName { get; set; }
+        // XXX: These 3 properties don't appear to be set anywhere.
         bool AreTracesReadOnly { get; set; }
         bool AreAttachmentsReadOnly { get; set; }
         bool AreDocumentReferencesReadOnly { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiProperty> Properties { get; set; }
+        #region Serialized JSON Properties
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiComment> Comments { get; set; }
+        // OpenAPI-Add also has:  "Status":{"IsLocked":false,"IsReadOnly":false}
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiTrace> Traces { get; set; }
+        BaseArtifactType BaseArtifactType { get; set; }     // OpenAPI-Add-Get
+        int Id { get; set; }                                // OpenAPI-Add-Get
+        string Name { get; set; }                           // OpenAPI-Add-Get
+        int ProjectId { get; set; }                         // OpenAPI-Add-Get
+        int Version { get; set; }                           // OpenAPI-Add-Get
+        int ParentId { get; set; }                          // OpenAPI-Add-Get
+        Uri BlueprintUrl { get; set; }                      // OpenAPI-Get  (ex. BlueprintUrl=http://silver02.blueprintsys.net/Web/#/Storyteller/5816)
+        int ArtifactTypeId { get; set; }                    // OpenAPI-Add-Get
+        string ArtifactTypeName { get; set; }               // OpenAPI-Add-Get
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiAttachment> Attachments { get; set; }
+        List<OpenApiProperty> Properties { get; }           // OpenAPI-Add-Get
 
         #endregion Serialized JSON Properties
         #endregion Properties

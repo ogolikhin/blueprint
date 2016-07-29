@@ -24,7 +24,9 @@ export class StateManager implements IStateManager {
     }
 
     public set isArtifactChanged(value: boolean) {
-        this._isArtifactChanged.onNext(value);
+        if (!this.isArtifactChanged) {
+            this._isArtifactChanged.onNext(value);
+        }
     }
 
     public get isArtifactChangedObservable(): Rx.Observable<boolean> {

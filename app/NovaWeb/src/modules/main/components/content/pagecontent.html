@@ -5,11 +5,14 @@
     <li>Infrastructure for directing change</li>
 </ul>
 <messages-container></messages-container>
-<div class="page-content-wrapper" perfect-scrollbar ng-if="$content.viewState">
+
+<div class="page-content-wrapper" perfect-scrollbar> <!--ng-if="$content.viewState" -->
     <div class="page-content">
         <div class="page-heading">
             <bp-artifact-info context="$content.context.artifact"></bp-artifact-info>
         </div>
+        <div class="page-body" ui-view></div>
+        <!--
         <div class="page-body" ng-switch="$content.contentType">
             <bp-diagram ng-switch-when="diagram"></bp-diagram>
             <bp-glossary ng-switch-when="glossary" context="$content.context.artifact.id"></bp-glossary>
@@ -17,5 +20,6 @@
             <bp-general-editor ng-switch-when="general" context="$content.context"></bp-general-editor>
             <bp-artifact-editor ng-switch-default context="$content.context" ></bp-artifact-editor>
         </div>
+        -->
     </div>
 </div>

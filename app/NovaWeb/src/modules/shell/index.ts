@@ -29,7 +29,9 @@ import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-e
 import {MessageComponent} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
-import {config as errorStateRouteConfig} from "./error/error.state";
+import {Routes} from "./router/router.config";
+import {ArtifactStateController} from "./router/artifact.state";
+import {StorytellerStateController} from "./router/storyteller.state";
 import {ErrorComponent} from "./error/error.component";
 
 export { IUser, ISession}
@@ -72,9 +74,11 @@ angular.module("app.shell",
     .component("bpCommentEdit", new BPCommentEdit())   
     .component("message", new MessageComponent())
     .component("messagesContainer", new MessageContainerComponent())  
-    .component("error", new ErrorComponent())    
+    .component("error", new ErrorComponent())
+    .controller("artifactStateController", ArtifactStateController)
+    .controller("storytellerStateController", StorytellerStateController)
     .config(Logger)
-    .config(errorStateRouteConfig)
+    .config(Routes)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

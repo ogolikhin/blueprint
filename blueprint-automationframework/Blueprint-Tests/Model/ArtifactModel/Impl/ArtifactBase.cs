@@ -33,14 +33,14 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
-        public bool ShouldDeleteChildren { get; set; } = false;
+        public bool ShouldDeleteChildren { get; set; }
         public IUser LockOwner { get; set; }
         public string Address { get; set; }
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
-        public bool IsMarkedForDeletion { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
+        public bool IsMarkedForDeletion { get; set; }
+        public bool IsDeleted { get; set; }
         public bool AreTracesReadOnly { get; set; }
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }

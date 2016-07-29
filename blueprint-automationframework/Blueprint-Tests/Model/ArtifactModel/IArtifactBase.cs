@@ -128,8 +128,11 @@ namespace Model.ArtifactModel
         int ProjectId { get; set; }                         // OpenAPI-Add-Get
         int Version { get; set; }                           // OpenAPI-Add-Get
         int ParentId { get; set; }                          // OpenAPI-Add-Get
-        /// <summary>This is a URL link to this artifact.</summary>
-        Uri BlueprintUrl { get; set; }                      // OpenAPI-Get  (ex. BlueprintUrl=http://silver02.blueprintsys.net/Web/#/Storyteller/5816)
+        /// <summary>
+        /// This is a URL link to this artifact.
+        /// Ex. BlueprintUrl=http://silver02.blueprintsys.net/Web/#/Storyteller/5816
+        /// </summary>
+        Uri BlueprintUrl { get; set; }                      // OpenAPI-Get
         int ArtifactTypeId { get; set; }                    // OpenAPI-Add-Get
         string ArtifactTypeName { get; set; }               // OpenAPI-Add-Get
         ArtifactStatus Status { get; set; }                 // OpenAPI-Add

@@ -1,5 +1,5 @@
 ﻿import { Models, Enums, IProjectManager} from "../..";
-import { ILocalizationService, } from "../../../core";
+import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -19,9 +19,12 @@ interface IArtifactInfoContext {
 }
 
 export class BpArtifactInfoController {
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "$timeout"];
+
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "$timeout", "stateManager"];
+    private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
+    private _isArtifactChanged: boolean;
 
     private artifactInfoWidthObserver;
     public currentArtifact: string;
@@ -31,11 +34,15 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
-        private $timeout: ng.ITimeoutService) {
+        private $timeout: ng.ITimeoutService,
+        private stateManager: IStateManager) {
     }
 
     public $onInit() {
         let self = this;
+        this._subscribers = [
+            this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
+        ];
         this.artifactInfoWidthObserver = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.attributeName === "class") {
@@ -52,6 +59,7 @@ export class BpArtifactInfoController {
     }
 
     public $onDestroy() {
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         delete this._artifact;
         try {
             this.artifactInfoWidthObserver.disconnect();
@@ -67,6 +75,10 @@ export class BpArtifactInfoController {
         } catch (ex) {
             //this.messageService.addError(ex.message);
         }
+    }
+
+    private onArtifactChanged(state: boolean) {
+        this._isArtifactChanged = state;
     }
 
     private onLoad = (context: IArtifactInfoContext) => {
@@ -141,7 +153,7 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
-        return false;
+        return this._isArtifactChanged;
     }
     public get isLocked(): boolean {
         return false;

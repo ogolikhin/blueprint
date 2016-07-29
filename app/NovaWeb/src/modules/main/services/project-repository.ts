@@ -21,32 +21,34 @@ export class ProjectRepository implements IProjectRepository {
 
     public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
         var defer = this.$q.defer<any>();
-        this.$http.get<any>(`svc/adminstore/instance/folders/${id || 1}/children`)
-            .success((result: Models.IProjectNode[]) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
-                this.$log.error(err);
+        this.$http.get<Models.IProjectNode[]>(`svc/adminstore/instance/folders/${id || 1}/children`).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode[]>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                this.$log.error(errResult.data);
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Folder_NotFound")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Folder_NotFound")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     } 
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
         var defer = this.$q.defer<any>();
-        this.$http.get<any>(`svc/adminstore/instance/projects/${id}`)
-            .success((result: Models.IProjectNode) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
-                this.$log.error(err);
+        this.$http.get<Models.IProjectNode>(`svc/adminstore/instance/projects/${id}`).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode>) => {
+                defer.resolve(result.data);
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                this.$log.error(errResult.data);
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Project_NotFound")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     } 
 
@@ -55,17 +57,19 @@ export class ProjectRepository implements IProjectRepository {
 
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`;
 
-        this.$http.get<any>(url)
-            .success((result: Models.IArtifact[]) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
-                this.$log.error(err);
+        this.$http.get<Models.IArtifact[]>(url).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
+                defer.resolve(result.data);
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                this.$log.error(errResult.data);
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     }
 
@@ -76,17 +80,19 @@ export class ProjectRepository implements IProjectRepository {
 
         let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
 
-        this.$http.get<any>(url)
-            .success((result: Models.IProjectMeta) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
-                this.$log.error(err);
+        this.$http.get<Models.IProjectMeta>(url).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
+                defer.resolve(result.data);
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                this.$log.error(errResult.data);
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Project_NotFound")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Project_NotFound")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     }
 

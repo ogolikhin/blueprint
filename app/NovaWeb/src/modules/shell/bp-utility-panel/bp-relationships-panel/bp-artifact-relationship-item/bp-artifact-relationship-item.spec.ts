@@ -3,12 +3,12 @@ import "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
-import { BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
+import { BPArtifactRelationshipItemController } from "./bp-artifact-relationship-item";
 import { ProjectRepositoryMock } from "../../../../main/services/project-repository.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { ProjectManager, Models } from "../../../../main/services/project-manager";
-import { ArtifactRelationshipsMock } from "../artifact-relationships.mock";
-import {Relationships} from "../../../../main";
+import { ProjectManager } from "../../../../main/services/project-manager";
+import { Relationships } from "../../../../main";
+import { SelectionManager } from "../../../../main/services/selection-manager";
 
 describe("Component BPDiscussionReplyItem", () => {
 
@@ -18,6 +18,7 @@ describe("Component BPDiscussionReplyItem", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
     let directiveTest: ComponentTest<BPArtifactRelationshipItemController>;
@@ -27,10 +28,6 @@ describe("Component BPDiscussionReplyItem", () => {
 
 
     beforeEach(inject(() => {
-        let bindings: any = {
-            artifact: {}
-        };
-       
         directiveTest = new ComponentTest<BPArtifactRelationshipItemController>(template, "bp-artifact-relationship-item");
         vm = directiveTest.createComponent({});       
     }));
@@ -71,19 +68,19 @@ describe("Component BPDiscussionReplyItem", () => {
 
     it("limitChars, short text", () => {
         //Assert
-        var result = vm.limitChars('<html><body>&#x200b;<div><span>ABC</span></div></body></html>');
+        var result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
        expect(result.length).toBe(4); //zero width space included
     });
 
     it("limitChars, no text", () => {
         //Assert
-        var result = vm.limitChars('');
+        var result = vm.limitChars("");
         expect(result.length).toBe(0);
     });
 
     it("limitChars, long text 110 characters", () => {
         //Assert
-        var result = vm.limitChars('UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1n98dPUrCHh');
+        var result = vm.limitChars("UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1n98dPUrCHh");
         expect(result.length).toBe(103);
     });
 
@@ -163,7 +160,7 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.artifact.isSelected = false;        
 
             //Assert
-            var result = vm.select();
+            vm.select();
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(true);
 
@@ -175,7 +172,7 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.selectedTraces.push(vm.artifact);
 
             //Assert
-            var result = vm.select();
+            vm.select();
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(true);
 
@@ -188,7 +185,7 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.selectedTraces.push(vm.artifact);
 
             //Assert
-            var result = vm.select();
+            vm.select();
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(false);
 
@@ -201,7 +198,7 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.selectedTraces.push(vm.artifact);
 
             //Assert
-            var result = vm.select();
+            vm.select();
             expect(vm.selectedTraces.length).toBe(0);
             expect(vm.artifact.isSelected).toBe(false);
 
@@ -217,14 +214,10 @@ describe("Component BPDiscussionReplyItem", () => {
             vm.selectedTraces.push(artifact);
 
             //Assert
-            var result = vm.select();
+            vm.select();
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(false);
 
         });
-
-
     });
-
-   
 });

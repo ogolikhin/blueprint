@@ -39,18 +39,18 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        let self = this;
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
         ];
-        this.artifactInfoWidthObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
+
+        this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
                 if (mutation.attributeName === "class") {
-                    self.handleArtifactInfoWidth();
+                    this.handleArtifactInfoWidth();
                 }
             });
         });
-        let wrapper = document.querySelector(".bp-sidebar-wrapper");
+        let wrapper = <Node> document.querySelector(".bp-sidebar-wrapper");
         try {
             this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
         } catch (ex) {
@@ -60,12 +60,14 @@ export class BpArtifactInfoController {
 
     public $onDestroy() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        delete this._artifact;
+
         try {
             this.artifactInfoWidthObserver.disconnect();
         } catch (ex) {
             //this.messageService.addError(ex.message);
         }
+
+        delete this._artifact;
     }
 
     public $onChanges(changedObject: any) {
@@ -89,9 +91,9 @@ export class BpArtifactInfoController {
 
     private handleArtifactInfoWidth() {
         if (this.$element.length) {
-            let container = this.$element[0];
-            let toolbar = container.querySelector(".page-top-toolbar");
-            let heading = container.querySelector(".artifact-heading");
+            let container: HTMLElement = this.$element[0];
+            let toolbar: Element = container.querySelector(".page-top-toolbar");
+            let heading: Element = container.querySelector(".artifact-heading");
             if (heading && toolbar) {
                 this.$timeout(() => {
                     angular.element(heading).css("max-width", container.clientWidth < 2 * toolbar.clientWidth ?
@@ -118,13 +120,13 @@ export class BpArtifactInfoController {
         let style = {};
 
         if (this.$element.length) {
-            let container = this.$element[0];
-            let toolbar = container.querySelector(".page-top-toolbar");
-            let heading = container.querySelector(".artifact-heading");
-            let iconWidth = heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
-            let nameWidth = heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
-            let indicatorsWidth = heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth = iconWidth + nameWidth + indicatorsWidth + 20 + 2; // heading's margins + wiggle room
+            let container: HTMLElement = this.$element[0];
+            let toolbar: Element = container.querySelector(".page-top-toolbar");
+            let heading: Element = container.querySelector(".artifact-heading");
+            let iconWidth: number = heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
+            let nameWidth: number = heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
+            let indicatorsWidth: number = heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
+            let headingWidth: number = iconWidth + nameWidth + indicatorsWidth + 20 + 2; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
                     "max-width": "calc(100% - " + toolbar.clientWidth + "px)",

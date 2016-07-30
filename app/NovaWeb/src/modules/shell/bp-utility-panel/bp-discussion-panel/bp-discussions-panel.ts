@@ -60,12 +60,12 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.artifactDiscussionList = null;
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
-            this.getArtifactDiscussions()
+            this.getArtifactDiscussions(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((discussionResultSet: IDiscussionResultSet) => {
                     this.artifactDiscussionList = discussionResultSet.discussions;
                     this.canCreate = discussionResultSet.canCreate;
@@ -112,9 +112,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         discussion.showAddReply = false;
     }
 
-    private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(this.artifactId)
+        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId, subArtifactId)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })

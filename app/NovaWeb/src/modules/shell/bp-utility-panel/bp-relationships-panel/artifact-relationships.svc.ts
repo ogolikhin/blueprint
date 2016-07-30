@@ -7,7 +7,7 @@ export interface IArtifactRelationshipsResultSet {
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationships(artifactId: number, subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet>;
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
 }
 
@@ -26,11 +26,15 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet> {
+        artifactId: number,
+        subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
-            method: "GET"
+            method: "GET",
+            params: {
+                subartifactId: subArtifactId
+            }
         };
 
         this.$http(requestObj)

@@ -42,10 +42,12 @@ export class BpArtifactInfoController {
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
         ];
 
+        window.addEventListener("resize", this.windowResizeHandler);
+
         this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === "class") {
-                    this.handleArtifactInfoWidth(mutation);
+                    this.setArtifactHeadingMaxWidth(mutation);
                 }
             });
         });
@@ -59,6 +61,8 @@ export class BpArtifactInfoController {
 
     public $onDestroy() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+
+        window.removeEventListener("resize", this.windowResizeHandler);
 
         try {
             this.artifactInfoWidthObserver.disconnect();
@@ -85,10 +89,23 @@ export class BpArtifactInfoController {
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
-        this.handleArtifactInfoWidth();
+        this.setArtifactHeadingMaxWidth();
     };
 
-    private handleArtifactInfoWidth(mutationRecord?: MutationRecord) {
+    private windowResizeTick: boolean = false;
+    private windowResizeHandler = () => {
+        if (!this.windowResizeTick) {
+            // resize events can fire at a high rate. We throttle the event using requestAnimationFrame
+            // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+            window.requestAnimationFrame(() => {
+                this.setArtifactHeadingMaxWidth();
+                this.windowResizeTick = false;
+            });
+        }
+        this.windowResizeTick = true;
+    };
+
+    private setArtifactHeadingMaxWidth(mutationRecord?: MutationRecord) {
         let sidebarWrapper: Element;
         const sidebarSize: number = 270; // MUST match $sidebar-size in styles/partials/_variables.scss
         let sidebarsWidth: number = 20 * 2; // main content area padding
@@ -128,7 +145,7 @@ export class BpArtifactInfoController {
         return null;
     }
 
-    public get artifactHeadingWidth() {
+    public get artifactHeadingMinWidth() {
         let style = {};
 
         if (this.$element.length) {
@@ -141,7 +158,6 @@ export class BpArtifactInfoController {
             let headingWidth: number = iconWidth + nameWidth + indicatorsWidth + 20 + 5; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
-                    //"max-width": "calc(100% - " + toolbar.clientWidth + "px)",
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
                 };
             }

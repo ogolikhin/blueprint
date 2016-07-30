@@ -51,11 +51,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         super.$onDestroy();
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactAttachmentsList = null;
 
         if (artifact !== null) {
-            this.getAttachments(artifact.id)
+            this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null)
                 .then( (result: IArtifactAttachmentsResultSet) => {
                     this.artifactAttachmentsList = result;
                 });
@@ -64,7 +64,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     private getAttachments(artifactId: number, subArtifactId: number = null): ng.IPromise<IArtifactAttachmentsResultSet> {
         this.isLoading = true;
-        return this.artifactAttachments.getArtifactAttachments(artifactId)
+        return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 return result;
             })

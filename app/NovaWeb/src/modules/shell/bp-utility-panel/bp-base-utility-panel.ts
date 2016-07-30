@@ -11,18 +11,18 @@ export class BPBaseUtilityPanelController {
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        const selectedArtifact: Rx.Observable<Models.IArtifact> = this.selectionManager.selectedArtifactObservable;
-        const panelVisibility: Rx.Observable<boolean> = this.bpAccordionPanel.isOpenObservable; 
+        const selectionObservable = this.selectionManager.selectionObservable;
+        const panelVisibility = this.bpAccordionPanel.isOpenObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
             Rx.Observable
-                .combineLatest(selectedArtifact, panelVisibility, 
-                    (artifact, visibility) => {
-                        return { artifact: artifact, isVisible: visibility };
+                .combineLatest(selectionObservable, panelVisibility, 
+                    (selection, visibility) => {
+                        return { selection: selection, isVisible: visibility };
                     })
-                .filter(o => o.isVisible)
-                .map(o => o.artifact)
-                .distinctUntilChanged(o => o && o.id)
-                .subscribe(this.setArtifactId);
+                .filter(o => o.selection && o.isVisible)
+                .map(o => o.selection)
+                .distinctUntilChanged()
+                .subscribe(s => this.onSelectionChanged(s.artifact, s.subArtifact));
         
         this._subscribers = [ artifactOrVisibilityChange ];
     }
@@ -32,5 +32,7 @@ export class BPBaseUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {}
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+
+    }
 }

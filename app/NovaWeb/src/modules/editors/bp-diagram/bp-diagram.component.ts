@@ -1,11 +1,12 @@
 import "angular";
 import "angular-sanitize";
-import {IStencilService} from "./impl/stencil.svc";
-import {IDiagramService, CancelationTokenConstant} from "./diagram.svc";
-import {DiagramView} from "./impl/diagram-view";
-import {IProjectManager, Models} from "../../main";
-import {ILocalizationService } from "../../core";
-import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
+import { IStencilService } from "./impl/stencil.svc";
+import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
+import { DiagramView } from "./impl/diagram-view";
+import { IProjectManager, ISelectionManager, Models } from "../../main";
+import { IDiagramElement } from "./impl/models";
+import { ILocalizationService } from "../../core";
+import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -20,6 +21,7 @@ export class BPDiagramController {
         "stencilService", 
         "diagramService",
         "projectManager",
+        "selectionManager",
         "localization",
         "$log"
     ];
@@ -39,6 +41,7 @@ export class BPDiagramController {
         private stencilService: IStencilService,
         private diagramService: IDiagramService,
         private projectManager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private localization: ILocalizationService,
         private $log: ng.ILogService) {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
@@ -86,6 +89,7 @@ export class BPDiagramController {
                         this.$element.css("overflow", "");
                     }
                     this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                    this.diagramView.addSelectionListener(this.onSelectionChanged);
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }
@@ -101,6 +105,16 @@ export class BPDiagramController {
                 this.isLoading = false;
             });
         }
+    }
+
+    private onSelectionChanged = (elements: Array<IDiagramElement>) => {
+        const selection = angular.copy(this.selectionManager.selection);
+        if (elements && elements.length > 0) {
+            selection.subArtifact = elements[0];
+        } else {
+            selection.subArtifact = null;
+        }
+        this.selectionManager.selection = selection;
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {

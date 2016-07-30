@@ -66,10 +66,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {     
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships()
+            this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((list: any) => {
                     this.artifactList = list;
                     this.selectedTraces = {};
@@ -79,9 +79,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private getRelationships(): ng.IPromise<IArtifactRelationshipsResultSet> {
+    private getRelationships(artifactId, subArtifactId: number = null): ng.IPromise<IArtifactRelationshipsResultSet> {
         this.isLoading = true;
-        return this.artifactRelationships.getRelationships(this.artifactId)
+        return this.artifactRelationships.getRelationships(artifactId, subArtifactId)
             .then((list: IArtifactRelationshipsResultSet) => {
                 return list;
             })

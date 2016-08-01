@@ -154,8 +154,11 @@ export class BpArtifactInfoController {
             let heading: Element = container.querySelector(".artifact-heading");
             let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
             let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
+            let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
             let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth: number = iconWidth + nameWidth + indicatorsWidth + 20 + 5; // heading's margins + wiggle room
+            let headingWidth: number = iconWidth + (
+                typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
+                ) + 20 + 5; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"

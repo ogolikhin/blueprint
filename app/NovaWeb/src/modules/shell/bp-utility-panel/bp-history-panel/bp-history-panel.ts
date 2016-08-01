@@ -66,7 +66,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactHistoryList = [];
 
         if (artifact !== null) {

@@ -188,13 +188,15 @@ export class DiagramView implements IDiagramView {
         this.graph.graphHandler.getInitialCellForEvent = this.getInitialCellForEvent;
 
         this.graph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            let cell = this.getLastSelectedCell();
+            const cell = this.getLastSelectedCell();
+            let selectedElements: [IDiagramElement] = null;
             if (cell != null) {
                 let element = this.getDiagramElement(cell);
-                this.selectionListeners.forEach((listener: ISelectionListener) => {
-                    listener([element]);
-                });
+                selectedElements = [element];
             }
+            this.selectionListeners.forEach((listener: ISelectionListener) => {
+                    listener(selectedElements);
+                });
             evt.consume();
         });
     }

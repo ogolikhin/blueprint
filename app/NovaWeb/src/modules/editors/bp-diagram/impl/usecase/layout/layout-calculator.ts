@@ -575,9 +575,9 @@ export class LayoutCalculator implements ILayoutCalculator {
     // to the current node and where the start node of the related flow
     // has a less index than the index of the current node.
     private getMaxRowIndex(graph: FlowGraph, currentFlow: Flow, node: Node, previousNode: Node, rowIndex: number): number {
-        let maxRowIndex = -1;
-        let effectiveEndNode = node;
+        let maxRowIndex = -1;       
         graph.getAlternateFlows().forEach(f => {
+            let effectiveEndNode = node;
             const branchingEndNode = f.endNode != null && f.endNode.getAlternateFlows().length > 0;
             if (branchingEndNode) {
                 if (previousNode != null) {

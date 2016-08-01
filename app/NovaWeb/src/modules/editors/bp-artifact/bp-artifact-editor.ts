@@ -19,7 +19,12 @@ export class BpArtifactEditorController extends BpBaseEditor {
         scrollYMarginOffset: 4
     };
 
-    constructor(messageService: IMessageService, stateManager: IStateManager, private artifactService: IArtifactService, private localization: ILocalizationService) {
+    constructor(
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        private artifactService: IArtifactService,
+        private localization: ILocalizationService
+    ) {
         super(messageService, stateManager);
     }
 

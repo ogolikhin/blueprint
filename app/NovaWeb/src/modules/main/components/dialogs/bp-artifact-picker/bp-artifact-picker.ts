@@ -79,7 +79,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 css.push("has-children");
             }
 
-            if(params.data.predefinedType){
+            if (params.data.predefinedType) {
             if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
@@ -87,10 +87,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             } else {               
                 css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));              
             }
-            }else{
-               if(params.data.type === 0){
+            } else {
+               if (params.data.type === 0) {
                     css.push("is-folder");
-               }else if(params.data.type === 1){
+               } else if (params.data.type === 1) {
                   css.push("is-project");
                }
             }

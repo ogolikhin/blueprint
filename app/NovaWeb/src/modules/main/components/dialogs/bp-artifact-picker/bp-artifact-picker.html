@@ -9,7 +9,7 @@
         <div class="artifact-picker-container">
             <div class="grid-header">
                 <i class="navigate-back fonticon2-arrow-double-left" ng-if="!$ctrl.projectView" ng-click="$ctrl.getProjects()"></i><i ng-if="!$ctrl.projectView" class="icon-project"></i>
-                &nbsp;&nbsp;&nbsp;{{$ctrl.projectName}}
+                &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.projectName}}" bp-tooltip-truncated="true" >{{$ctrl.projectName}}</span>
             </div>
             <bp-tree bp-ref="$ctrl.tree"
                      grid-class="project-tree"

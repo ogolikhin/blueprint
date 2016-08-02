@@ -99,8 +99,8 @@ export class BPCommentEditController {
                 //this.getDoc().body.style.fontFamily = 'Lucida';
                 //this.getDoc().body.style.fontSize = '20';
             });
-        },
-    }
+        }
+    };
 
     constructor() {
     }

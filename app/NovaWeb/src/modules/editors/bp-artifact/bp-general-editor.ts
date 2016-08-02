@@ -1,4 +1,4 @@
-﻿import { IMessageService, IStateManager, Models } from "./";
+﻿import { IMessageService, IStateManager, IWindowResizeHandler, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
@@ -11,7 +11,7 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -19,8 +19,13 @@ export class BpGeneralEditorController extends BpBaseEditor {
         scrollYMarginOffset: 4
     };
 
-    constructor(messageService: IMessageService, stateManager: IStateManager, $timeout: ng.ITimeoutService) {
-        super(messageService, stateManager, $timeout);
+    constructor(
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        windowResizeHandler: IWindowResizeHandler,
+        $timeout: ng.ITimeoutService
+    ) {
+        super(messageService, stateManager, windowResizeHandler, $timeout);
     }
 
     public activeTab: number;

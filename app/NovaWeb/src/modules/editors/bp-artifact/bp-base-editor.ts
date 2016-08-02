@@ -61,7 +61,7 @@ export class BpBaseEditor {
     }
 
     private onWidthResized(width: number) {
-        this.setArtifactEditorLabelsWidth()
+        this.setArtifactEditorLabelsWidth();
     }
      
     public onValueChange($viewValue: any, $modelValue: AngularFormly.IFieldConfigurationObject) {

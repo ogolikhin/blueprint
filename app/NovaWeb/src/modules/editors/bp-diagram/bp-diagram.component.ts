@@ -3,7 +3,7 @@ import "angular-sanitize";
 import { IStencilService } from "./impl/stencil.svc";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { IProjectManager, Models } from "../../main";
+import { Models } from "../../main";
 import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
 import { ILocalizationService } from "../../core";
@@ -12,6 +12,9 @@ import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: Function = BPDiagramController;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BPDiagramController {
@@ -19,9 +22,8 @@ export class BPDiagramController {
         "$element",
         "$q",
         "$sanitize",
-        "stencilService", 
+        "stencilService",
         "diagramService",
-        "projectManager",
         "selectionManager",
         "localization",
         "$log"
@@ -29,7 +31,6 @@ export class BPDiagramController {
 
     public isLoading: boolean = true;
 
-    private subscribers: Rx.IDisposable[];
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
     public isBrokenOrOld: boolean = false;
@@ -41,29 +42,28 @@ export class BPDiagramController {
         private $sanitize: any,
         private stencilService: IStencilService,
         private diagramService: IDiagramService,
-        private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private localization: ILocalizationService,
         private $log: ng.ILogService) {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
-        //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
-        const selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact.subscribe(this.setArtifactId);
-
-        this.subscribers = [ selectedArtifactSubscriber ];
+    public $onChanges(changesObj) {
+        if (changesObj.context) {
+            const artifact = changesObj.context.currentValue as Models.IArtifact;
+            if (artifact) {
+                this.onArtifactChanged(artifact);
+            }
+        }
     }
 
     public $onDestroy() {
         if (this.diagramView) {
             this.diagramView.destroy();
         }
-        //dispose all subscribers
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
     
-    private setArtifactId = (artifact: Models.IArtifact) => {
+    private onArtifactChanged = (artifact: Models.IArtifact) => {
         this.$element.css("height", "100%");
         this.$element.css("width", "");
         this.$element.css("background-color", "transparent");

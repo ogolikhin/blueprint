@@ -7,6 +7,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
@@ -272,6 +273,35 @@ namespace Helper
             {
                 BlueprintServer.LoginUsingBasicAuthorization(user);
                 Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
+            }
+
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database,
+        /// then assigns random fake AdminStore and/or OpenAPI tokens.
+        /// </summary>
+        /// <param name="targets">The authentication targets.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user that has the requested access tokens.</returns>
+        public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
+        {
+            IUser user = CreateUserAndAddToDatabase(instanceAdminRole, source);
+            string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
+
+            if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+            {
+                user.SetToken(fakeTokenValue);
+            }
+
+            if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
+            {
+                user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
+                    BlueprintToken.OPENAPI_START_OF_TOKEN, fakeTokenValue));
             }
 
             return user;

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
 using Common;
 using Model.Impl;
+using Utilities.Factories;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -402,7 +404,144 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+//            OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
+
+            // Use POST only if this is creating the artifact, otherwise use PATCH
+            var restRequestMethod = artifactToSave.Id == 0 ? RestRequestMethod.POST : RestRequestMethod.PATCH;
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)  // TODO: Remove this if the new call doesn't support cookies.
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = BlueprintToken.NO_TOKEN;
+            }
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToSave.ProjectId);  // TODO: Update REST path to include projectID.
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { artifactToSave.Id == 0 ? HttpStatusCode.Created : HttpStatusCode.OK };
+            }
+
+            if (restRequestMethod == RestRequestMethod.POST)
+            {
+                RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
+
+                var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
+                    path,
+                    restRequestMethod,
+                    artifactToSave as ArtifactBase,
+                    expectedStatusCodes: expectedStatusCodes);
+
+                ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
+
+                // Artifact was successfully created so IsSaved is set to true
+                if (artifactResult.ResultCode == HttpStatusCode.Created)
+                {
+                    artifactToSave.IsSaved = true;
+                }
+
+                Logger.WriteDebug("{0} {1} returned the following: Message: {2}, ResultCode: {3}",
+                    restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
+                Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+
+                if (expectedStatusCodes.Contains(HttpStatusCode.OK) || expectedStatusCodes.Contains(HttpStatusCode.Created))
+                {
+                    Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
+                        "The returned ResultCode was '{0}' but '{1}' was expected",
+                        artifactResult.ResultCode,
+                        ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+
+                    Assert.That(artifactResult.Message == "Success",
+                        "The returned Message was '{0}' but 'Success' was expected",
+                        artifactResult.Message);
+                }
+            }
+            else if (restRequestMethod == RestRequestMethod.PATCH)
+            {
+                UpdateArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            }
+            else
+            {
+                throw new InvalidOperationException("Only POST or PATCH methods are supported for saving artifacts!");
+            }
+        }
+
+        /// <summary>
+        /// Update an Artifact with Property Changes.
+        /// </summary>
+        /// <param name="artifactToUpdate">The artifact to be updated.</param>
+        /// <param name="user">The user updating the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
+        public static void UpdateArtifact(IArtifactBase artifactToUpdate,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+
+            Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)      // TODO: Remove this if the new call doesn't support cookies.
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = BlueprintToken.NO_TOKEN;
+            }
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToUpdate.ProjectId);    // TODO: Update REST path to include projectID.
+
+            //TODO: Remove this when solution to have the property to update configurable
+            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
+
+            // TODO: Expand this to have the properties to update configurable
+            // Create a copy of the artifact to update that only includes the properties to be updated
+            var artifactWithPropertyToUpdate = new ArtifactForUpdate
+            {
+                Id = artifactToUpdate.Id,
+                Properties = new List<PropertyForUpdate>
+                {
+                    new PropertyForUpdate
+                    {
+                        PropertyTypeId = propertyToUpdate.PropertyTypeId,
+                        TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
+                    }
+                }
+            };
+
+            var artifactsToUpdate = new List<ArtifactForUpdate> { artifactWithPropertyToUpdate };
+
+            RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
+            var updateResultList = restApi.SendRequestAndDeserializeObject<List<ArtifactResult>, List<ArtifactForUpdate>>(
+                path,
+                RestRequestMethod.PATCH,
+                artifactsToUpdate,
+                expectedStatusCodes: expectedStatusCodes);
+
+            Assert.IsNotEmpty(updateResultList, "No artifact results were returned");
+            Assert.That(updateResultList.Count == 1, "Only a single artifact was updated, but multiple artifact results were returned");
+
+            // Get the updated artifact from the result list
+            var updateResult = updateResultList.Find(a => a.ArtifactId == artifactToUpdate.Id);
+
+            if (updateResult.ResultCode == HttpStatusCode.OK)
+            {
+                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}", updateResult.ArtifactId, updateResult.ResultCode);
+
+                // Copy updated property into original artifact
+                propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
+
+                artifactToUpdate.IsSaved = true;
+            }
         }
 
         /// <summary>

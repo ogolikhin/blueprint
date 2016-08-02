@@ -68,6 +68,7 @@
     <Compile Include="ProjectMetaTests.cs" />
     <Compile Include="ProjectTests.cs" />
     <Compile Include="RelationshipsTests.cs" />
+    <Compile Include="SaveArtifactTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

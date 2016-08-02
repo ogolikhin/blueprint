@@ -4,6 +4,7 @@ import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
 import { IProjectManager, Models, IProjectRepository } from "../../../";
+import { HttpHandledErrorStatusCodes } from "../../../../shell/error/http-error-interceptor";
 
 export interface IArtifactPickerController {
     propertyMap: any;  
@@ -32,6 +33,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         params: IDialogSettings
     ) {
         super($uibModalInstance, params);
+        dialogService.params.okButton = "OK";
         this.projectId = this.manager.currentProject.getValue().id;
         this.projectName = this.manager.currentProject.getValue().name;
     };
@@ -123,7 +125,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         });                         
                     self.tree.reload(arr, artifactId);
                 }, (error) => {
-                     if (error.statusCode === 1401) {
+                     if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
                     this.cancel();
                 } 
                 });
@@ -136,7 +138,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 .then((nodes: Models.IProjectNode[]) => {                  
                     self.tree.reload(nodes, id);
                 }, (error) => {
-                    if (error.statusCode === 1401) {
+                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
                         this.cancel();
                     }
                 });

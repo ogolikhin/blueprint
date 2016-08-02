@@ -53,6 +53,7 @@ export interface IArtifact extends IItem {
     projectId?: number;
     prefix?: string;
     orderIndex?: number;
+    predefinedType?: ItemTypePredefined;
     version?: number;
     createdOn?: Date; 
     lastEditedOn?: Date;
@@ -65,8 +66,8 @@ export interface IArtifact extends IItem {
 
     //for client use
     artifacts?: IArtifact[];
-    predefinedType?: ItemTypePredefined;
     loaded?: boolean;
+    changed?: boolean;
 
 }
 export interface IOption {
@@ -128,6 +129,7 @@ export interface IProjectMeta {
 export interface IProject extends IArtifact {
     description?: string;
     meta?: IProjectMeta;
+    
 }
 
 export class Project implements IProject { 

@@ -262,7 +262,6 @@ export class PropertyEditor implements IPropertyEditor {
                                 value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
                                 })[0];
-                                //value = (value as Models.IUserGroup).displayName;
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {
@@ -271,8 +270,8 @@ export class PropertyEditor implements IPropertyEditor {
                                 value = value.toString();
                             }
                         }
-                        this._model[it.fieldPropertyName] = value;
                     }
+                    this._model[it.fieldPropertyName] = value;
                     this._fields.push(field);
                 }
             });

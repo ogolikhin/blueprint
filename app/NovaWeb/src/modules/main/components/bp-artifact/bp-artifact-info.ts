@@ -41,23 +41,6 @@ export class BpArtifactInfoController {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
         ];
-
-        window.addEventListener("resize", this.windowResizeHandler);
-
-        this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === "class") {
-                    this.setArtifactHeadingMaxWidth(mutation);
-                    this.setArtifactEditorLabelsWidth();
-                }
-            });
-        });
-        let wrapper: Node = document.querySelector(".bp-sidebar-wrapper");
-        try {
-            this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
-        } catch (ex) {
-            //this.messageService.addError(ex.message);
-        }
     }
 
     public $onDestroy() {
@@ -83,6 +66,25 @@ export class BpArtifactInfoController {
         }
     }
 
+    public $postLink() {
+        window.addEventListener("resize", this.windowResizeHandler);
+
+        this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === "class") {
+                    this.setArtifactHeadingMaxWidth(mutation);
+                    this.setArtifactEditorLabelsWidth();
+                }
+            });
+        });
+        let wrapper: Node = document.querySelector(".bp-sidebar-wrapper");
+        try {
+            this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
+    }
+
     private onArtifactChanged(state: boolean) {
         this._isArtifactChanged = state;
     }
@@ -90,8 +92,6 @@ export class BpArtifactInfoController {
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
-        this.setArtifactHeadingMaxWidth();
-        this.setArtifactEditorLabelsWidth();
     };
 
     private windowResizeTick: boolean = false;

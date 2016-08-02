@@ -87,10 +87,10 @@ export class BpBaseEditor {
                 this.onFieldUpdate(it);
 
             });
-            this.setArtifactEditorLabelsWidth()
         } catch (ex) {
             this.messageService.addError(ex);
         }
+        this.setArtifactEditorLabelsWidth();
     }
 
     public setArtifactEditorLabelsWidth() {
@@ -249,7 +249,7 @@ export class PropertyEditor implements IPropertyEditor {
                     this._fields.push(field);
                 }
             });
-        } 
+        }
     }
 
     public destroy() {

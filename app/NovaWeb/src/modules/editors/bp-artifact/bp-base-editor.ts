@@ -10,7 +10,7 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager"];
+    public static $inject: [string] = ["messageService", "stateManager", "$timeout"];
 
     public form: angular.IFormController;
     public model = {};
@@ -21,7 +21,7 @@ export class BpBaseEditor {
 
     public isLoading: boolean = true;
 
-    constructor(public messageService: IMessageService, public stateManager: IStateManager) {
+    constructor(public messageService: IMessageService, public stateManager: IStateManager, private $timeout: ng.ITimeoutService) {
         this.editor = new PropertyEditor(); 
     }
 
@@ -114,10 +114,26 @@ export class BpBaseEditor {
                 this.onFieldUpdate(it);
 
             });
+            this.setArtifactEditorLabelsWidth()
         } catch (ex) {
             this.messageService.addError(ex);
         }
     }
+
+    public setArtifactEditorLabelsWidth() {
+        this.$timeout(() => {
+            let artifactOverview: Element = document.querySelector(".artifact-overview");
+            if (artifactOverview) {
+                const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
+                let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
+                if (actualWidth < propertyWidth) {
+                    artifactOverview.classList.add("single-column");
+                } else {
+                    artifactOverview.classList.remove("single-column");
+                }
+            }
+        }, 0);
+    };
 }
 
 export enum LookupEnum {

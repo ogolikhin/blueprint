@@ -149,6 +149,10 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       font-size: $font-size-normal;
       font-weight: 400;
       margin: 6px 0 0;
+      overflow: hidden;
+      padding: 0 $property-padding-default 0 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       width: $property-label-width;
     }
 
@@ -400,6 +404,11 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       border-bottom-color: $brand-error !important;
     }
   }
+}
+
+.single-column .formly .formly-field label {
+  padding: 0;
+  width: $property-input-width;
 }
 
 .tab-pane {

@@ -529,7 +529,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
-              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label && !to.tinymceOption">
+              <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
+                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}"
+                bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">
                 {{to.label}}
               </label>
               <formly-transclude></formly-transclude>

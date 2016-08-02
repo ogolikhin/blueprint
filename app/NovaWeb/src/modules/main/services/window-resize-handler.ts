@@ -19,6 +19,10 @@ export class WindowResizeHandler implements IWindowResizeHandler {
         window.addEventListener("resize", this.windowResizeHandler);
     };
 
+    public dispose() {
+
+    };
+
     private windowResizeHandler = () => {
         if (!this.tick) {
             // resize events can fire at a high rate. We throttle the event using requestAnimationFrame
@@ -39,10 +43,10 @@ export class WindowResizeHandler implements IWindowResizeHandler {
     };
 
     public get width(): Rx.Observable<number> {
-        return this._width.asObservable();
+        return this._width.distinctUntilChanged().asObservable();
     };
 
     public get height(): Rx.Observable<number> {
-        return this._height.asObservable();
+        return this._height.distinctUntilChanged().asObservable();
     };
 }

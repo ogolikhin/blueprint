@@ -8,7 +8,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         discussionInfo: "=",
         getReplies: "&",
         canCreate: "=",
-        cancelComment: "&"
+        cancelComment: "&",
+        deleteCommentThread: "&"
     };
 }
 
@@ -17,6 +18,7 @@ export class BPArtifactDiscussionItemController {
     public getReplies: Function;
     public discussionInfo: IDiscussion;
     public canCreate: boolean;
+    public deleteCommentThread: Function;
 
     public static $inject: [string] = [
         "$element",

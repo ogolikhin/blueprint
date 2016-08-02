@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
 import {IMessageService} from "../../../shell";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -19,6 +20,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "artifactDiscussions",
         "projectManager",
         "messageService",
+        "dialogService",
         "$q"
     ];
 
@@ -38,6 +40,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         protected projectManager: IProjectManager,
         private messageService: IMessageService,
+        private dialogService: IDialogService,
         private $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
@@ -138,4 +141,34 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.isLoading = false;
             });
     }
+
+    public deleteReply(discussion: IDiscussion, reply: IReply) {
+        this.dialogService.confirm("Comment will be deleted. Continue?").then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                    this.getDiscussionReplies(discussion.discussionId)
+                        .then((updatedReplies: IReply[]) => {
+                            discussion.replies = updatedReplies;
+                            discussion.repliesCount = updatedReplies.length;
+                            discussion.expanded = true;
+                        });
+                });
+            }
+        })
+    }
+
+    public deleteCommentThread(discussion: IDiscussion) {
+        this.dialogService.confirm("Comment Thread will be deleted. Continue?").then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getArtifactDiscussions().then((discussionsResultSet: IDiscussionResultSet) => {
+                        this.artifactDiscussionList = discussionsResultSet.discussions;
+                        this.canDelete = discussionsResultSet.canDelete;
+                        this.canCreate = discussionsResultSet.canCreate;
+                    });
+                });
+            }
+        })
+    }
+
 }

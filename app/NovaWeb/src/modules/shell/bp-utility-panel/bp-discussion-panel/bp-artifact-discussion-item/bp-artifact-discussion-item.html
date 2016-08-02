@@ -29,7 +29,7 @@
        ng-class="{'active' : $ctrl.discussionInfo.repliesCount}">{{$ctrl.discussionInfo.repliesCount}}</i>
 
     <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Comment_Tooltip')}}"
-       class="delete-comment icon fonticon-delete-filled"></i>
+       class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteCommentThread()"></i>
 
     <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Comment_Tooltip')}}"
        class="edit-comment icon fonticon-edit-alt"></i>

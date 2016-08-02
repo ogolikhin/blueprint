@@ -83,5 +83,19 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         deferred.resolve(artifactReplies);
         return deferred.promise;
     }
+
+
+    public deleteReply(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
+
+    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
+
 }
 

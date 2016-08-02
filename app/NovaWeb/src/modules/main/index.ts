@@ -30,10 +30,6 @@ import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 //import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
 //import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
-import "../editors/bp-glossary";
-import "../editors/bp-artifact";
-import "../editors/bp-diagram";
-import "../editors/bp-storyteller";
 
 
 config.$inject = ["$rootScope", "$state"];
@@ -82,11 +78,7 @@ angular.module("app.main", [
     "ngDraggable",
     "angular-perfect-scrollbar-2",
     "formly",
-    "formlyBootstrap",
-    "bp.editors.glossary",
-    "bp.editors.details",
-    "bp.editors.diagram",
-    "bp.editors.storyteller"
+    "formlyBootstrap"
     ])
     .run(config)
     .service("projectRepository", ProjectRepository)

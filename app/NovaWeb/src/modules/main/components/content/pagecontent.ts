@@ -2,6 +2,7 @@
 import {IMessageService} from "../../../shell";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
+import {ArtifactEditorType} from "../../../core";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -17,8 +18,9 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["messageService", "projectManager", "diagramService"];
-    constructor(private messageService: IMessageService,
+    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService"];
+    constructor(private $state: any,
+                private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService) {
     }
@@ -28,9 +30,7 @@ class PageContentCtrl {
     }
 
     public context: any = null;
-
-    public contentType: string = "details";
-    
+        
     public viewState: boolean;
 
     public $onInit() {
@@ -50,14 +50,17 @@ class PageContentCtrl {
         let _context: any = {};
         try {
             if (!artifact) {
+                this.$state.go('main');
                 return;
             }
+
+            let contentType = this.getContentType(artifact);
+            this.$state.go('main.artifact', { id: artifact.id, artifactType: contentType  });
 
             _context.artifact = artifact;
             _context.project = this.projectManager.currentProject.getValue();
             _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
             _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
-            this.contentType = this.getContentType(artifact);
 
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -65,16 +68,18 @@ class PageContentCtrl {
         this.context = _context;
     }
 
-    private getContentType(artifact: Models.IArtifact): string {
+    private getContentType(artifact: Models.IArtifact): ArtifactEditorType {
         if (this.diagramService.isDiagram(artifact.predefinedType)) {
-            return "diagram";
+            return ArtifactEditorType.Diagram;
         } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
-            return "glossary";
+            return ArtifactEditorType.Glossary;
         } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
-            return "general";
+            return ArtifactEditorType.General;
         } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
-            return "general";
+            return ArtifactEditorType.General;
+        } else if (Models.ItemTypePredefined.Process === artifact.predefinedType) {
+            return ArtifactEditorType.Storyteller;
         }
-        return "details";
+        return ArtifactEditorType.Details;
     }
 }

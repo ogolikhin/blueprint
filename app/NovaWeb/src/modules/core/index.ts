@@ -17,6 +17,7 @@ import { BPAvatar } from "./widgets/bp-avatar/bp-avatar";
 import { BPSelect } from "./widgets/bp-select/bp-select";
 import { BPItemTypeIconComponent } from "./widgets/bp-item-icon/bp-item-icon";
 import { BpSpecialLinkContainer } from "./widgets/bp-special-link-container";
+import { ArtifactEditorType } from "./models/enums";
 
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .constant("appConstants", new AppConstants())
@@ -44,5 +45,6 @@ export {
     IDialogSettings,
     IDialogService,
     DialogService,
-    BaseDialogController
+    BaseDialogController,
+    ArtifactEditorType
 };

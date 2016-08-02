@@ -1,5 +1,5 @@
 ﻿<div class="reply-separator"></div>
-<div>
+<div ng-if="$ctrl.editing === false">
     <div>
         <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
                    name="{{ $ctrl.replyInfo.userName }}"
@@ -14,6 +14,14 @@
     </div>
     <div class="button-bar">
         <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}" class="delete-comment icon fonticon-delete-filled"></i>
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" class="edit-comment icon fonticon-edit-alt"></i>
+        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()"></i>
     </div>
 </div>
+<bp-comment-edit ng-if="$ctrl.editing"
+                 add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Post_Button_Text')}}"
+                 cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Cancel_Button_Text')}}"
+                 comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Comment_Place_Holder')}}"
+                 cancel-comment="$ctrl.cancelCommentClick()"
+                 comment-text="{{$ctrl.replyInfo.comment}}"
+                 post-comment="$ctrl.editReply(comment)">
+</bp-comment-edit>

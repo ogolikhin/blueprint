@@ -18,7 +18,10 @@ import * as moment from "moment";
 import * as Enums from "./models/enums";
 import { Helper } from "../shared/utils/helper";
 import * as Models from "./models/models";
-import { IArtifactService, ArtifactService, ProjectRepository, IProjectRepository, IProjectManager, ProjectManager } from "./services/";
+import { IArtifactService, ArtifactService,
+    ProjectRepository, IProjectRepository,
+    IProjectManager, ProjectManager,
+    IWindowResizeHandler, WindowResizeHandler } from "./services/";
 import { ISelectionManager, SelectionManager } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -42,6 +45,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager,
+    IWindowResizeHandler, WindowResizeHandler
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
@@ -89,6 +93,7 @@ angular.module("app.main", [
     .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
+    .service("windowResizeHandler", WindowResizeHandler)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())

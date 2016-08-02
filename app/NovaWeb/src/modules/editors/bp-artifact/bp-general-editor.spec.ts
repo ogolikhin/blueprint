@@ -1,11 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
 import "./";
-import { IStateManager } from "./";
 import { MessageServiceMock } from "../../core/messages/message.mock";
 import { ComponentTest } from "../../util/component.test";
-import { BpGeneralEditorController} from "./bp-general-editor";
-import { StateManager} from "../../core/services/state-manager";
+import { BpGeneralEditorController } from "./bp-general-editor";
+import { StateManager } from "../../core/services/state-manager";
+import { WindowResizeHandler } from "../../main/services/window-resize-handler";
 
 
 
@@ -23,7 +23,8 @@ describe("Component BpGeneralEditorInfo", () => {
         
         $provide.service("messageService", MessageServiceMock);
         $provide.service("stateManager", StateManager);
-        
+        $provide.service("windowResizeHandler", WindowResizeHandler);
+
     }));
 
     beforeEach(() => {

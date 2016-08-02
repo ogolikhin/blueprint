@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, Models } from "./";
+﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, IWindowResizeHandler, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
@@ -11,7 +11,7 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 }
 
 export class BpArtifactEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "artifactService", "localization", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "artifactService", "localization", "$timeout"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -22,11 +22,12 @@ export class BpArtifactEditorController extends BpBaseEditor {
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,
+        windowResizeHandler: IWindowResizeHandler,
         private artifactService: IArtifactService,
         private localization: ILocalizationService,
         $timeout: ng.ITimeoutService
     ) {
-        super(messageService, stateManager, $timeout);
+        super(messageService, stateManager, windowResizeHandler, $timeout);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

@@ -115,8 +115,10 @@ namespace ArtifactStoreTests
         public void SaveArtifact_NonExistentProjectId_404NotFound(int projectId)
         {
             // Setup:
-            IProject nonExistentProject = ProjectFactory.CreateProject(id: projectId);
-            IArtifact artifact = Helper.CreateArtifact(nonExistentProject, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Replace ProjectId with a fake ID that shouldn't exist.
+            artifact.ProjectId = projectId;
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() => artifact.Save(),

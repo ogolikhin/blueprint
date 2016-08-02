@@ -9,6 +9,7 @@ import { ProjectRepositoryMock } from "../../../main/services/project-repository
 import { ProjectManager, Models } from "../../../main/services/project-manager";
 import {IReply} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
+import { DialogService} from "../../../shared/";
 
 describe("Component BPDiscussionPanel", () => {
 
@@ -27,6 +28,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject((projectManager: ProjectManager) => {

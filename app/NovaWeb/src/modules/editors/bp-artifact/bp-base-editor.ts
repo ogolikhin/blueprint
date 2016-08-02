@@ -258,11 +258,11 @@ export class PropertyEditor implements IPropertyEditor {
                             }
                         } else if (it.primitiveType === Models.PrimitiveType.User) {
                             //TODO: must be changed when  a field editor for this type of property is created
-                            if (value.userGroups) {
-                                value = value.map((val: Models.IUserGroup) => {
+                            if (value.usersGroups) {
+                                value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
                                 })[0];
-                                value = (value as Models.IUserGroup).displayName;
+                                //value = (value as Models.IUserGroup).displayName;
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {

@@ -1,4 +1,4 @@
-﻿import { Models, Enums, IProjectManager} from "../..";
+﻿import { Models, Enums, IProjectManager, IWindowResizeHandler } from "../..";
 import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -20,7 +20,7 @@ interface IArtifactInfoContext {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResizeHandler"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
@@ -34,19 +34,20 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
-        private stateManager: IStateManager) {
+        private stateManager: IStateManager,
+        private windowResizeHandler: IWindowResizeHandler
+    ) {
     }
 
     public $onInit() {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
+            this.windowResizeHandler.isResizing.subscribeOnNext(this.onWindowResized, this)
         ];
     }
 
     public $onDestroy() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-
-        window.removeEventListener("resize", this.windowResizeHandler);
 
         try {
             this.artifactInfoWidthObserver.disconnect();
@@ -67,8 +68,6 @@ export class BpArtifactInfoController {
     }
 
     public $postLink() {
-        window.addEventListener("resize", this.windowResizeHandler);
-
         this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === "class") {
@@ -89,23 +88,17 @@ export class BpArtifactInfoController {
         this._isArtifactChanged = state;
     }
 
+    private onWindowResized(isResizing: boolean) {
+        console.log("onWindowResize", isResizing, Math.random());
+        if (isResizing) {
+            this.setArtifactHeadingMaxWidth();
+            this.setArtifactEditorLabelsWidth();
+        }
+    }
+
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
-    };
-
-    private windowResizeTick: boolean = false;
-    private windowResizeHandler = () => {
-        if (!this.windowResizeTick) {
-            // resize events can fire at a high rate. We throttle the event using requestAnimationFrame
-            // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-            window.requestAnimationFrame(() => {
-                this.setArtifactHeadingMaxWidth();
-                this.setArtifactEditorLabelsWidth();
-                this.windowResizeTick = false;
-            });
-        }
-        this.windowResizeTick = true;
     };
 
     private setArtifactHeadingMaxWidth(mutationRecord?: MutationRecord) {

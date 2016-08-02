@@ -291,7 +291,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     textarea {
-      min-height: #{2.25 * $property-min-height};
+      min-height: 96px;
       overflow: hidden;
       padding-right: 20px;
 

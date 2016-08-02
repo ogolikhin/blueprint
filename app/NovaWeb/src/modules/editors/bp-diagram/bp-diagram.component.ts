@@ -3,7 +3,8 @@ import "angular-sanitize";
 import { IStencilService } from "./impl/stencil.svc";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { IProjectManager, ISelectionManager, Models } from "../../main";
+import { IProjectManager, Models } from "../../main";
+import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
 import { ILocalizationService } from "../../core";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
@@ -114,6 +115,7 @@ export class BPDiagramController {
         } else {
             selection.subArtifact = null;
         }
+        selection.source = SelectionSource.Editor;
         this.selectionManager.selection = selection;
     }
 

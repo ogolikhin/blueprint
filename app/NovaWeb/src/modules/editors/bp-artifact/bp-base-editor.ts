@@ -1,4 +1,4 @@
-﻿import {IMessageService, IStateManager, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
 
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -10,8 +10,9 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
 
+    private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
@@ -21,8 +22,18 @@ export class BpBaseEditor {
 
     public isLoading: boolean = true;
 
-    constructor(public messageService: IMessageService, public stateManager: IStateManager, private $timeout: ng.ITimeoutService) {
+    constructor(
+        public messageService: IMessageService,
+        public stateManager: IStateManager,
+        public windowResizeHandler: IWindowResizeHandler,
+        private $timeout: ng.ITimeoutService) {
         this.editor = new PropertyEditor(); 
+    }
+
+    public $onInit() {
+        this._subscribers = [
+            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+        ];
     }
 
     public $onChanges(obj: any) {
@@ -38,6 +49,8 @@ export class BpBaseEditor {
     }
 
     public $onDestroy() {
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+
         if (this.editor) {
             this.editor.destroy();
         }
@@ -45,6 +58,10 @@ export class BpBaseEditor {
         delete this.context;
         delete this.fields;
         delete this.model;
+    }
+
+    private onWidthResized(width: number) {
+        this.setArtifactEditorLabelsWidth()
     }
      
     public onValueChange($viewValue: any, $modelValue: AngularFormly.IFieldConfigurationObject) {
@@ -90,22 +107,23 @@ export class BpBaseEditor {
         } catch (ex) {
             this.messageService.addError(ex);
         }
-        this.setArtifactEditorLabelsWidth();
+
+        this.$timeout(() => {
+            this.setArtifactEditorLabelsWidth();
+        }, 0);
     }
 
     public setArtifactEditorLabelsWidth() {
-        this.$timeout(() => {
-            let artifactOverview: Element = document.querySelector(".artifact-overview");
-            if (artifactOverview) {
-                const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
-                let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
-                if (actualWidth < propertyWidth) {
-                    artifactOverview.classList.add("single-column");
-                } else {
-                    artifactOverview.classList.remove("single-column");
-                }
+        let artifactOverview: Element = document.querySelector(".artifact-overview");
+        if (artifactOverview) {
+            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
+            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
+            if (actualWidth < propertyWidth) {
+                artifactOverview.classList.add("single-column");
+            } else {
+                artifactOverview.classList.remove("single-column");
             }
-        }, 0);
+        }
     };
 }
 

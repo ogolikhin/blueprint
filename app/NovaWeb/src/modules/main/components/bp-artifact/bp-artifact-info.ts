@@ -42,9 +42,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
-            this.windowResizeHandler.isResizing.subscribeOnNext(this.onWindowResized, this),
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this),
-            this.windowResizeHandler.height.subscribeOnNext(this.onHeightResized, this)
+            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -90,20 +88,9 @@ export class BpArtifactInfoController {
         this._isArtifactChanged = state;
     }
 
-    private onHeightResized(height: number) {
-        console.log("onHeightResized", height, Math.random());
-    }
-
     private onWidthResized(width: number) {
-        console.log("onWidthResized", width, Math.random());
-    }
-
-    private onWindowResized(isResizing: boolean) {
-        console.log("onWindowResize", isResizing, Math.random());
-        if (isResizing) {
-            this.setArtifactHeadingMaxWidth();
-            this.setArtifactEditorLabelsWidth();
-        }
+        this.setArtifactHeadingMaxWidth();
+        this.setArtifactEditorLabelsWidth();
     }
 
     private onLoad = (context: IArtifactInfoContext) => {

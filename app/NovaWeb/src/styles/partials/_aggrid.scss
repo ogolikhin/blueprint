@@ -471,6 +471,14 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .artifact-picker {
+    .project-name{        
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 560px;
+    display: inline-block;
+    vertical-align: bottom;   
+    }
     .fonticon2-search {
         margin-left: 10px;
 

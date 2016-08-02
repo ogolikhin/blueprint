@@ -48,6 +48,7 @@ export class BpArtifactInfoController {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === "class") {
                     this.setArtifactHeadingMaxWidth(mutation);
+                    this.setArtifactEditorLabelsWidth();
                 }
             });
         });
@@ -90,6 +91,7 @@ export class BpArtifactInfoController {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
         this.setArtifactHeadingMaxWidth();
+        this.setArtifactEditorLabelsWidth();
     };
 
     private windowResizeTick: boolean = false;
@@ -99,6 +101,7 @@ export class BpArtifactInfoController {
             // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
             window.requestAnimationFrame(() => {
                 this.setArtifactHeadingMaxWidth();
+                this.setArtifactEditorLabelsWidth();
                 this.windowResizeTick = false;
             });
         }
@@ -107,7 +110,7 @@ export class BpArtifactInfoController {
 
     private setArtifactHeadingMaxWidth(mutationRecord?: MutationRecord) {
         let sidebarWrapper: Element;
-        const sidebarSize: number = 270; // MUST match $sidebar-size in styles/partials/_variables.scss
+        const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
         let sidebarsWidth: number = 20 * 2; // main content area padding
         if (mutationRecord && mutationRecord.target  && mutationRecord.target.nodeType === 1) {
             sidebarWrapper = <Element> mutationRecord.target;
@@ -131,6 +134,19 @@ export class BpArtifactInfoController {
             }
         }
     }
+
+    private setArtifactEditorLabelsWidth() {
+        let artifactOverview: Element = document.querySelector(".artifact-overview");
+        if (artifactOverview) {
+            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
+            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
+            if (actualWidth < propertyWidth) {
+                artifactOverview.classList.add("single-column");
+            } else {
+                artifactOverview.classList.remove("single-column");
+            }
+        }
+    };
 
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;

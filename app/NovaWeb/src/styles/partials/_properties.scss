@@ -406,6 +406,11 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   }
 }
 
+.single-column .formly .formly-field label {
+  padding: 0;
+  width: $property-input-width;
+}
+
 .tab-pane {
   .formly {
     margin: 0;

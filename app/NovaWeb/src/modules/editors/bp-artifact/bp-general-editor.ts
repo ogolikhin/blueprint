@@ -11,7 +11,7 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager"];
+    public static $inject: [string] = ["messageService", "stateManager", "$timeout"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -19,8 +19,8 @@ export class BpGeneralEditorController extends BpBaseEditor {
         scrollYMarginOffset: 4
     };
 
-    constructor(messageService: IMessageService, stateManager: IStateManager) {
-        super(messageService, stateManager);
+    constructor(messageService: IMessageService, stateManager: IStateManager, $timeout: ng.ITimeoutService) {
+        super(messageService, stateManager, $timeout);
     }
 
     public activeTab: number;

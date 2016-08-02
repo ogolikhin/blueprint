@@ -11,7 +11,7 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 }
 
 export class BpArtifactEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "artifactService", "localization"];
+    public static $inject: [string] = ["messageService", "stateManager", "artifactService", "localization", "$timeout"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -23,9 +23,10 @@ export class BpArtifactEditorController extends BpBaseEditor {
         messageService: IMessageService,
         stateManager: IStateManager,
         private artifactService: IArtifactService,
-        private localization: ILocalizationService
+        private localization: ILocalizationService,
+        $timeout: ng.ITimeoutService
     ) {
-        super(messageService, stateManager);
+        super(messageService, stateManager, $timeout);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

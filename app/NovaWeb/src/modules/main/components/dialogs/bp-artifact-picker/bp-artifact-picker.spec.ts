@@ -49,9 +49,7 @@ describe("Project Explorer Test", () => {
             null,
             null);
 
-        controller["tree"] = new BPTreeControllerMock();
-
-       
+        controller["tree"] = new BPTreeControllerMock();      
 
         $compile(elem)($scope);
         $scope.$digest();
@@ -71,20 +69,6 @@ describe("Project Explorer Test", () => {
         expect(explorer.propertyMap["artifacts"]).toEqual("children");
 
     }));
-
-    //it("onDestroy", inject(($rootScope: ng.IRootScopeService, explorer: ArtifactPickerController) => {
-    //    // Arrange
-    //    let _before = explorer["_subscribers"] as Rx.IDisposable[];
-
-    //    // Act
-    //    explorer.$onDestroy();
-    //    let _after = explorer["_subscribers"] as Rx.IDisposable[];
-
-    //    // Assert
-    //    expect(_before.length).toEqual(2);
-    //    expect(_after.length).toEqual(0);
-    //}));
-
 
     xit("Load project", inject((projectManager: ProjectManager, explorer: ArtifactPickerController) => {
         // Arrange

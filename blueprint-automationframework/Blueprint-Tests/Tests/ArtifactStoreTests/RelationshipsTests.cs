@@ -566,19 +566,12 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(0)]
-        [Description("...Create manual trace between 2 artifacts, get relationships.  Verify that returned trace has expected value.")]
+        [TestRail(01)]
+        [Description("Create a")]
         public void GetRelationshipsDetails_ManualTrace_ReturnsCorrectTraceDetails()
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
-
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             TraceDetails tracedetails = null;
 
@@ -590,6 +583,47 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(sourceArtifact.Id, tracedetails.ArtifactId, "Id must be correct.");
+        }
+
+        [TestCase]
+        [TestRail(00)]
+        [Description("...Create manual trace between 2 artifacts, get relationships.  Verify that returned trace has expected value.")]
+        public void GetRelationshipsDetails_ManualTraceLongPath_ReturnsCorrectTraceDetails()
+        {
+            // Setup:
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            for (int i = 0; i < 10; i++)
+            {
+                targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase, targetArtifact);
+            }
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+            sourceArtifact.Publish(_user);
+
+            Assert.AreEqual(false, traces[0].IsSuspect,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
+            TraceDetails tracedetails = null;
+            Relationships relationships = null;
+
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, sourceArtifact, ProjectRole.Viewer);
+            Helper.AdminStore.AddSession(_userWithLimitedAccess);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                relationships = Helper.ArtifactStore.GetRelationships(_userWithLimitedAccess, sourceArtifact);
+                var details = Helper.ArtifactStore.GetArtifactDetails(_userWithLimitedAccess, targetArtifact.Id);
+                tracedetails = Helper.ArtifactStore.GetRelationshipsDetails(_userWithLimitedAccess, targetArtifact);
+                Assert.IsNull(details.Description);
+            }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+
+            Assert.AreEqual(sourceArtifact.Id, tracedetails.ArtifactId, "Id must be correct.");
+            Assert.AreEqual(1, relationships.ManualTraces.Count);
         }
 
         // TODO: Test with "Other" traces.

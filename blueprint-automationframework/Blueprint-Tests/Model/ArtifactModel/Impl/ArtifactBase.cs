@@ -509,7 +509,7 @@ namespace Model.ArtifactModel.Impl
                     }
                     else
                     {
-                        artifact.Delete(artifact.LockOwner);
+                        artifact.Delete(artifact.LockOwner, deleteChildren: true);
                         artifact.Publish(artifact.LockOwner);
                     }
                 }

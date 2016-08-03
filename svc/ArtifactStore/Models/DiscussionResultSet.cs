@@ -37,7 +37,7 @@ namespace ArtifactStore.Models
 
         public string Comment { get; set; }
 
-        //public bool CanEdit { get; set; }
+        public bool CanEdit { get; set; }
 
         public bool CanDelete { get; set; }
     }

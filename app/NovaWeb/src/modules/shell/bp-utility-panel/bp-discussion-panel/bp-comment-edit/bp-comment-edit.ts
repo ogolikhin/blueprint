@@ -30,6 +30,7 @@ export class BPCommentEditController {
         statusbar: false,
         menubar: false,
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
+            editor.focus();
             editor.formatter.register("font8px", {
                 inline: "span",
                 styles: { "font-size": "8px" }

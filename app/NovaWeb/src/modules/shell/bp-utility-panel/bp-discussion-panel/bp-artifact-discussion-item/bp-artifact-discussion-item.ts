@@ -1,6 +1,5 @@
 ﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
 import { ILocalizationService } from "../../../../core";
-//import { ISession } from "../../../../shell";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
@@ -29,8 +28,7 @@ export class BPArtifactDiscussionItemController {
         "$scope",
         "artifactDiscussions",
         "localization",
-        "$sce"//,
-        //"session"
+        "$sce"
     ];
 
     constructor(
@@ -38,8 +36,7 @@ export class BPArtifactDiscussionItemController {
         private scope: ng.IScope,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         private localization: ILocalizationService,
-        private $sce: ng.ISCEService//,
-        /*private session: ISession*/) {
+        private $sce: ng.ISCEService) {
         if (this.discussionInfo) {
             let commentContainer = document.createElement("DIV");
             this.addTargetBlankToComment(commentContainer);
@@ -70,7 +67,6 @@ export class BPArtifactDiscussionItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
 
     public cancelCommentClick() {
@@ -84,9 +80,11 @@ export class BPArtifactDiscussionItemController {
     }
 
     public canEdit(): boolean {
-        return !this.discussionInfo.isClosed &&
-            this.canCreate; //&&
-            //this.discussionInfo.userId === this.session.currentUser.id;
+        if (this.discussionInfo) {
+            return !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
+        } else {
+            return false;
+        }
     }
 
     /* tslint:disable:no-unused-variable */

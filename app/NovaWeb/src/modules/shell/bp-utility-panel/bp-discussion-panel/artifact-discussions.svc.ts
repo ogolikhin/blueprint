@@ -30,6 +30,8 @@ export interface ICommentBase {
     userName: string;
     isGuest: boolean;
     comment: string;
+    canEdit: boolean;
+    canDelete: boolean;
 }
 
 export interface IDiscussionResultSet {

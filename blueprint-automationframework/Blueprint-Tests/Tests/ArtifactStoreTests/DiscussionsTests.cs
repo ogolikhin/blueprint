@@ -16,27 +16,35 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class DiscussionsTests : TestBase
     {
-        private IUser _user = null;
+        private IUser _authorUser = null;
+        private IUser _viewerUser = null;
         private IUser _adminUser = null;
         private IProject _project = null;
         private IGroup _authorsGroup = null;
+        private IGroup _viewersGroup = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _authorsGroup = Helper.CreateGroupAndAddToDatabase();
+            _viewersGroup = Helper.CreateGroupAndAddToDatabase();
 
-            _user = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _authorsGroup.AddUser(_user);
+            _authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _authorsGroup.AddUser(_authorUser);
+
+            _viewerUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _viewersGroup.AddUser(_viewerUser);
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
             _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Author);
+            _viewersGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Viewer);
 
-            Helper.AdminStore.AddSession(_user);
-            Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);
+            Helper.AdminStore.AddSession(_authorUser);
+            Helper.BlueprintServer.LoginUsingBasicAuthorization(_authorUser);
+            Helper.AdminStore.AddSession(_viewerUser);
         }
 
         [TearDown]
@@ -53,13 +61,13 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -190,7 +198,7 @@ namespace ArtifactStoreTests
 
             Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                postedRaptorComment, "This is a reply to a comment.", _user);
+                postedRaptorComment, "This is a reply to a comment.", _authorUser);
 
             List<Reply> replies = null;
 
@@ -233,15 +241,15 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
             IRaptorComment updatedComment = null;
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _user, postedRaptorComment);
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
+                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _authorUser, postedRaptorComment);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -249,6 +257,29 @@ namespace ArtifactStoreTests
                 discussions.Comments.Count);
             Assert.True(updatedComment.Equals(discussions.Comments[0]),
                 "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+        }
+
+        [TestCase]
+        [TestRail(01)]
+        [Description("User without rights to comment tries to post comment.")]
+        public void PostDiscussion_PublishedArtifactUserHasNoRights_ReturnsError()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+
+            IRaptorComment raptorComment = null;
+            Discussions discussions = null;
+
+            // Execute:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _viewerUser);
+                raptorComment = artifact.PostRaptorDiscussions("draft", _viewerUser);
+            }, "PostDiscussion should throw 403 error.");
+
+            // Verify:
+            Assert.IsFalse(discussions.CanCreate, "user can't create comments.");
+            Assert.IsFalse(discussions.CanDelete);
         }
 
         /// <summary>

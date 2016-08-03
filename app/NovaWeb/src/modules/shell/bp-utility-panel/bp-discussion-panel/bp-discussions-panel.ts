@@ -199,7 +199,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteReply(discussion: IDiscussion, reply: IReply) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+        this.dialogService.confirm("Comment will be deleted. Continue?").then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
                     this.getDiscussionReplies(discussion.discussionId)
@@ -214,7 +214,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteCommentThread(discussion: IDiscussion) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+        this.dialogService.confirm("Comment Thread will be deleted. Continue?").then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
@@ -228,8 +228,12 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public discussionEdited(discussion: IDiscussion) {
-        const currentIndex = this.artifactDiscussionList.indexOf(discussion);
-        this.artifactDiscussionList.splice(currentIndex, 1);
-        this.artifactDiscussionList.splice(0, 0, discussion);
+        if (this.artifactDiscussionList.length > 1) {
+            const currentIndex = this.artifactDiscussionList.indexOf(discussion);
+            if (currentIndex > 0) {
+                this.artifactDiscussionList.splice(currentIndex, 1);
+                this.artifactDiscussionList.splice(0, 0, discussion);
+            }
+        }
     }
 }

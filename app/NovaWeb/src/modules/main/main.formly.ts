@@ -382,6 +382,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    init_instance_callback: function(editor) {
+                        editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
+                        editor.dom.bind(editor.dom.select("a"), "click", function(e) {
+                            let element: HTMLElement = e.target;
+                            while (element && element.tagName.toUpperCase() !== "A") {
+                                element = element.parentElement;
+                            }
+                            if (element && element.getAttribute("href")) {
+                                window.open(element.getAttribute("href"), "_blank");
+                            }
+                        });
+                    },
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }

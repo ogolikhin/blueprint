@@ -383,7 +383,25 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
         }
 
+        [TestCase]
+        [TestRail(154597)]
+        [Description("Create & publish an artifact.  Try to get attachments with a user that doesn't have permission to access the artifact.  Verify 403 Forbidden is returned.")]
+        public void GetAttachment_PublishedArtifactWithAttachmentUserHasNoPermissionToArtifact_403Forbidden()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.BlueprintAnalytics);
+
+            // Execute & verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, userWithoutPermission);
+            }, "'{0}' should return 403 Forbidden for a user without permission to the artifact.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
         // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596
-        // TODO: Implement GetAttachment_PublishedArtifactWithAttachmentUserHasNoPermissionToArtifact_403Forbidden  TestRail ID: 154597
     }
 }

@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
+import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 //import { ISession } from "../../../../shell";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
@@ -9,7 +9,8 @@ export class BPDiscussionReplyItem implements ng.IComponentOptions {
         replyInfo: "=",
         artifactId: "=",
         canCreate: "=",
-        discussionClosed: "="
+        discussionClosed: "=",
+        deleteReply: "&"
     };
 }
 
@@ -19,6 +20,7 @@ export class BPDiscussionReplyItemController {
     public editing = false;
     public canCreate: boolean;
     public discussionClosed: boolean;
+    public deleteReply: Function;
 
     public static $inject: [string] = [
         "localization",
@@ -51,8 +53,8 @@ export class BPDiscussionReplyItemController {
 
     public editCommentClick() {
         if (this.canEdit()) {
-            this.editing = true;
-        }
+        this.editing = true;
+    }
     }
 
     public canEdit(): boolean {

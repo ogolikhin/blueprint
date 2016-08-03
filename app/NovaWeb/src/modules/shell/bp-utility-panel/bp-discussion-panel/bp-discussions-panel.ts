@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
-
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
+import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -19,6 +19,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "artifactDiscussions",
         "selectionManager",
         "messageService",
+        "dialogService",
         "$q"
     ];
 
@@ -39,6 +40,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         protected selectionManager: ISelectionManager,
         private messageService: IMessageService,
+        private dialogService: IDialogService,
         private $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
@@ -90,17 +92,17 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     private setReplies(discussion: IDiscussion) {
-        this.getDiscussionReplies(discussion.discussionId)
-            .then((replies: IReply[]) => {
-                discussion.replies = replies;
-                discussion.repliesCount = replies.length;
+            this.getDiscussionReplies(discussion.discussionId)
+                .then((replies: IReply[]) => {
+                    discussion.replies = replies;
+                    discussion.repliesCount = replies.length;
             });
     }
 
     public expandCollapseDiscussion(discussion: IDiscussion): void {
         if (!discussion.expanded) {
             this.setReplies(discussion);
-            discussion.expanded = true;
+                    discussion.expanded = true;
         } else {
             discussion.expanded = false;
         }
@@ -182,4 +184,34 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.isLoading = false;
             });
     }
+
+    public deleteReply(discussion: IDiscussion, reply: IReply) {
+        this.dialogService.confirm("Comment will be deleted. Continue?").then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                    this.getDiscussionReplies(discussion.discussionId)
+                        .then((updatedReplies: IReply[]) => {
+                            discussion.replies = updatedReplies;
+                            discussion.repliesCount = updatedReplies.length;
+                            discussion.expanded = true;
+                        });
+                });
+            }
+        });
+    }
+
+    public deleteCommentThread(discussion: IDiscussion) {
+        this.dialogService.confirm("Comment Thread will be deleted. Continue?").then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
+                        this.artifactDiscussionList = discussionsResultSet.discussions;
+                        this.canDelete = discussionsResultSet.canDelete;
+                        this.canCreate = discussionsResultSet.canCreate;
+                    });
+                });
+            }
+        });
+    }
+
 }

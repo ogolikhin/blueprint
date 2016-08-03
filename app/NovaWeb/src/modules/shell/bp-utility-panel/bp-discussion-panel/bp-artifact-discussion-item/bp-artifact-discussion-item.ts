@@ -10,7 +10,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         getReplies: "&",
         canCreate: "=",
         cancelComment: "&",
-        artifactId: "="
+        artifactId: "=",
+        deleteCommentThread: "&"
     };
 }
 
@@ -21,6 +22,7 @@ export class BPArtifactDiscussionItemController {
     public canCreate: boolean;
     public editing = false;
     public artifactId: number;
+    public deleteCommentThread: Function;
 
     public static $inject: [string] = [
         "$element",
@@ -77,8 +79,8 @@ export class BPArtifactDiscussionItemController {
 
     public editCommentClick() {
         if (this.canEdit()) {
-            this.editing = true;
-        }
+        this.editing = true;
+    }
     }
 
     public canEdit(): boolean {

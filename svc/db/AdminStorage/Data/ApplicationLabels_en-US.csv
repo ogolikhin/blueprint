@@ -69,7 +69,7 @@ App_UP_Discussions_No_Artifact, "The item you selected has no information to dis
 App_UP_Discussions_New_Post_Button_Text, "Post comment"
 App_UP_Discussions_New_Cancel_Button_Text, "Cancel"
 App_UP_Discussions_New_Comment_Place_Holder, "Add a new comment..."
-App_UP_Discussions_New_Reply_Post_Button_Text, "Add reply"
+App_UP_Discussions_New_Reply_Post_Button_Text, "Post reply"
 App_UP_Discussions_New_Reply_Cancel_Button_Text, "Cancel"
 App_UP_Discussions_New_Reply_Comment_Place_Holder, "Add a reply..."
 App_UP_Discussions_Show_Replies, "Show replies"

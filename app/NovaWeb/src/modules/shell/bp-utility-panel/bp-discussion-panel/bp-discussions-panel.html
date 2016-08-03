@@ -17,8 +17,7 @@
      ng-if="$ctrl.artifactDiscussionList.length"
      perfect-scrollbar>
     <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
-        <bp-artifact-discussion-item class="utility-panel-artifact-item"
-                                     discussion-info="discussion"
+        <bp-artifact-discussion-item discussion-info="discussion"
                                      get-replies="$ctrl.expandCollapseDiscussion(discussion)"
                                      new-reply-click="$ctrl.newReplyClick()"
                                      can-create="$ctrl.canCreate"
@@ -27,9 +26,10 @@
                                      delete-comment-thread="$ctrl.deleteCommentThread(discussion)">
         </bp-artifact-discussion-item>
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
-            <bp-discussion-reply-item class="utility-panel-artifact-item"
-                                      reply-info="reply"
+            <bp-discussion-reply-item reply-info="reply"
                                       artifact-id="$ctrl.artifactId"
+                                      can-create="$ctrl.canCreate"
+                                      discussion-closed="discussion.isClosed"
                                       delete-reply="$ctrl.deleteReply(discussion, reply)">
             </bp-discussion-reply-item>
         </div>

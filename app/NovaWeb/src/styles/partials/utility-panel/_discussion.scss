@@ -13,7 +13,7 @@ bp-discussion-panel {
     bp-comment-edit {
         .edit-container {
             text-align: center;
-            padding: $padding-smaller;
+            padding: $padding-smallest;
         }
 
         textarea {
@@ -25,9 +25,9 @@ bp-discussion-panel {
             margin-top: $padding-smallest;
         }
 
-        &.reply{
-            margin-bottom:10px;
-}
+        &.reply {
+            margin-bottom: 10px;
+        }
     }
 
     .author {
@@ -84,6 +84,11 @@ bp-discussion-panel {
         &.active {
             color: $gray-darker;
         }
+
+        &.disabled{
+            opacity: 0.6;
+            pointer-events: none;
+        }
     }
 
     .reply-link {
@@ -102,8 +107,10 @@ bp-discussion-panel {
     }
 
     bp-discussion-reply-item {
-        margin-left: $padding-smaller !important;
-        background-color: $blue-lightest;
+        .reply-item {
+            margin-left: $padding-smaller !important;
+            background-color: $blue-lightest;
+        }
 
         .reply-separator {
             width: 2px;
@@ -119,6 +126,12 @@ bp-discussion-panel {
         }
     }
 
+    bp-artifact-discussion-item, bp-discussion-reply-item {
+        .comment-editing {
+            padding: 0;
+        }
+    }
+
     .mce-btn button {
         padding: 2px 3px;
         font-size: 12px;
@@ -126,7 +139,7 @@ bp-discussion-panel {
 
     .mce-ico {
         font-size: 13px;
-        width:15px;
+        width: 14px;
     }
 
     i.mce-ico.mce-i-font-size::before {

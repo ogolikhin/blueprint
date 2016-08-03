@@ -9,7 +9,6 @@ using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -224,6 +223,32 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
+        }
+
+        [TestCase]
+        [TestRail(00)]
+        [Description("!!!Add comment to published artifact, then get discussion for this artifact.  Verify it returns the comment that we added.")]
+        public void UpdateDiscussion_PublishedArtifact_ReturnsUpdatedDiscussion()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
+            IRaptorComment updatedComment = null;
+            Discussions discussions = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _user, postedRaptorComment);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
+            }, "UpdateDiscussions shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
+                discussions.Comments.Count);
+            Assert.True(updatedComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         /// <summary>

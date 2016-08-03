@@ -367,6 +367,15 @@ namespace Model.ArtifactModel.Impl
             return PostRaptorDiscussions(Address, Id, discussionsText, user, expectedStatusCodes);
         }
 
+        public IRaptorComment UpdateRaptorDiscussions(string discussionText,
+            IUser user, IRaptorComment commentToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(commentToUpdate, nameof(commentToUpdate));
+            return UpdateRaptorDiscussion(Address, Id, commentToUpdate, discussionText, user, expectedStatusCodes);
+        }
+
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -689,6 +698,27 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.PostRaptorDiscussion(address, itemId, discussionsText,
+                user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Updates the specified comment using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions/{commentToUpdateId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="commentToUpdate">comment to update</param>
+        /// <param name="discussionText">new text for discussion</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>updated RaptorDiscussion</returns>
+        public static IRaptorComment UpdateRaptorDiscussion(string address,
+            int itemId, IRaptorComment commentToUpdate,
+            string discussionsText,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, commentToUpdate, discussionsText,
                 user, expectedStatusCodes);
         }
 

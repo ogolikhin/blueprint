@@ -192,9 +192,9 @@ namespace Model
                     {
                         public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
                         
-
                         public static class Discussions_id_
                         {
+                            public const string COMMENT             = "svc/components/RapidReview/artifacts/{0}/discussions/{1}";
                             public const string REPLY               = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
                         }
                     }

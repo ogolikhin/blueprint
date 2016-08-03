@@ -595,7 +595,37 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// POST discussion for the specified artifact
+        /// Updates the specified comment.
+        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="commentToUpdate">comment to update</param>
+        /// <param name="discussionText">new text for discussion</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>updated RaptorDiscussion</returns>
+        public static IRaptorComment UpdateRaptorDiscussion(string address, int itemId, IRaptorComment commentToUpdate,
+            string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(commentToUpdate, nameof(commentToUpdate));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, commentToUpdate.DiscussionId);
+            var restApi = new RestApiFacade(address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
+                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+
+            // Derialization
+            var result = JsonConvert.DeserializeObject<RaptorComment>(response.Content);
+
+            return result;
+        }
+
+        /// <summary>
+        /// POST reply for the specified discussion
         /// </summary>
         /// <param name="address">The base url of the Blueprint server</param>
         /// <param name="comment">Comment to reply</param>

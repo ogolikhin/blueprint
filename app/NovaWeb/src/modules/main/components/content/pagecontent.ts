@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models} from "../..";
+﻿import {IProjectManager, Models, ISelectionManager } from "../..";
 import {IMessageService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
@@ -17,10 +17,11 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["messageService", "projectManager", "diagramService"];
+    public static $inject: [string] = ["messageService", "projectManager", "diagramService", "selectionManager"];
     constructor(private messageService: IMessageService,
                 private projectManager: IProjectManager,
-                private diagramService: IDiagramService) {
+                private diagramService: IDiagramService,
+                private selectionManager: ISelectionManager) {
     }
     //TODO remove after testing
     public addMsg() {
@@ -37,7 +38,7 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.selectContext, this),
+            this.selectionManager.selectedArtifactObservable.subscribeOnNext(this.selectContext, this),
         ];
     }
 

@@ -114,7 +114,6 @@ export class ProjectExplorerController {
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
         const artifact = this.doSync(node);
-        this.projectManager.setCurrentArtifact(artifact);
 
         this.selectionManager.selection = this.createSelection(artifact);
 

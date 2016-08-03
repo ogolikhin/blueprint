@@ -383,7 +383,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       padding-right: $property-padding-default !important;
     }
   }
-
+/*
   .formly-field-tinymce,
   .formly-field-tinymceInline {
     display: block;
@@ -393,6 +393,15 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     label {
       display: block;
       width: 100%;
+    }
+  }
+*/
+  .formly-field-bpFieldTinymce,
+  .formly-field-bpFieldInlineTinymce {
+    a {
+      color: blue;
+      cursor: pointer;
+      text-decoration: underline;
     }
   }
 

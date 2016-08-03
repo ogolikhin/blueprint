@@ -35,14 +35,12 @@ namespace Model.ArtifactModel.Impl
         #region Constructors
 
         /// <summary>
-        /// Constructor in order to use it as generic type
+        /// Constructor needed to deserialize it as generic type.
         /// </summary>
         public OpenApiArtifact()
         {
-            //Required for deserializing OpenApiArtifact
-            Properties = new List<OpenApiProperty>();
         }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>

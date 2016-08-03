@@ -5,6 +5,11 @@ $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
 .ps-container {
   position: relative;
 
+  > .ps-scrollbar-x-rail,
+  > .ps-scrollbar-y-rail {
+    z-index: $scrollbar-z-index;
+  }
+
   > .ps-scrollbar-x-rail .ps-scrollbar-x,
   > .ps-scrollbar-y-rail .ps-scrollbar-y {
     background: transparent !important;

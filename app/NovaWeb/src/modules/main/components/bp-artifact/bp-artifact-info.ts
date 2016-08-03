@@ -1,4 +1,4 @@
-﻿import { Models, Enums, IProjectManager} from "../..";
+﻿import { Models, Enums, IProjectManager, IWindowResizeHandler } from "../..";
 import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -19,13 +19,14 @@ interface IArtifactInfoContext {
 }
 
 export class BpArtifactInfoController {
-    
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager"];   
+
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResizeHandler"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
     private _isArtifactChanged: boolean;
 
+    private artifactInfoWidthObserver;
     public currentArtifact: string;
 
     constructor(
@@ -33,17 +34,27 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
-        private stateManager: IStateManager) {
-
+        private stateManager: IStateManager,
+        private windowResizeHandler: IWindowResizeHandler
+    ) {
     }
 
     public $onInit() {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
+            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
         ];
     }
+
     public $onDestroy() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+
+        try {
+            this.artifactInfoWidthObserver.disconnect();
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
+
         delete this._artifact;
     }
 
@@ -56,13 +67,75 @@ export class BpArtifactInfoController {
         }
     }
 
+    public $postLink() {
+        this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === "class") {
+                    this.setArtifactHeadingMaxWidth(mutation);
+                    this.setArtifactEditorLabelsWidth();
+                }
+            });
+        });
+        let wrapper: Node = document.querySelector(".bp-sidebar-wrapper");
+        try {
+            this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
+        } catch (ex) {
+            //this.messageService.addError(ex.message);
+        }
+    }
+
     private onArtifactChanged(state: boolean) {
         this._isArtifactChanged = state;
+    }
+
+    private onWidthResized(width: number) {
+        this.setArtifactHeadingMaxWidth();
+        this.setArtifactEditorLabelsWidth();
     }
 
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
+    };
+
+    private setArtifactHeadingMaxWidth(mutationRecord?: MutationRecord) {
+        let sidebarWrapper: Element;
+        const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+        let sidebarsWidth: number = 20 * 2; // main content area padding
+        if (mutationRecord && mutationRecord.target  && mutationRecord.target.nodeType === 1) {
+            sidebarWrapper = <Element> mutationRecord.target;
+        } else {
+            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+        }
+        if (sidebarWrapper) {
+            for (let c = 0; c < sidebarWrapper.classList.length; c++) {
+                if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
+                    sidebarsWidth += sidebarSize;
+                }
+            }
+        }
+        if (this.$element.length) {
+            let container: HTMLElement = this.$element[0];
+            let toolbar: Element = container.querySelector(".page-top-toolbar");
+            let heading: Element = container.querySelector(".artifact-heading");
+            if (heading && toolbar) {
+                angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
+                    "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
+            }
+        }
+    }
+
+    private setArtifactEditorLabelsWidth() {
+        let artifactOverview: Element = document.querySelector(".artifact-overview");
+        if (artifactOverview) {
+            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
+            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
+            if (actualWidth < propertyWidth) {
+                artifactOverview.classList.add("single-column");
+            } else {
+                artifactOverview.classList.remove("single-column");
+            }
+        }
     };
 
     public get artifactName(): string {
@@ -78,22 +151,24 @@ export class BpArtifactInfoController {
         return null;
     }
 
-    public get artifactHeadingWidth() {
+    public get artifactHeadingMinWidth() {
         let style = {};
 
         if (this.$element.length) {
-            let container = this.$element[0];
-            let toolbar = container.querySelector(".page-top-toolbar");
-            let heading = container.querySelector(".artifact-heading");
-            let iconWidth = heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
-            let nameWidth = heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
-            let indicatorsWidth = heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth = iconWidth + nameWidth + indicatorsWidth + 20 + 2; // heading's margins + wiggle room
+            let container: HTMLElement = this.$element[0];
+            let toolbar: Element = container.querySelector(".page-top-toolbar");
+            let heading: Element = container.querySelector(".artifact-heading");
+            let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
+            let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
+            let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
+            let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
+            let headingWidth: number = iconWidth + (
+                typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
+                ) + 20 + 5; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
-                    "max-width": "calc(100% - " + toolbar.clientWidth + "px)",
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
-                }
+                };
             }
         }
 

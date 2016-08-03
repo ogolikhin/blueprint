@@ -4,11 +4,10 @@ import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
 import { IProjectManager, Models, IProjectRepository } from "../../../";
-
+import { HttpHandledErrorStatusCodes } from "../../../../shell/error/http-error-interceptor";
 
 export interface IArtifactPickerController {
-    propertyMap: any;
-    isItemSelected: boolean;
+    propertyMap: any;  
     selectedItem?: any;
     getProjects: any;
 }
@@ -34,6 +33,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         params: IDialogSettings
     ) {
         super($uibModalInstance, params);
+        dialogService.params.okButton = "OK";
         this.projectId = this.manager.currentProject.getValue().id;
         this.projectName = this.manager.currentProject.getValue().name;
     };
@@ -49,10 +49,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public get returnValue(): any {
         return this.selectedItem || null;
     };
-
-    public get isItemSelected(): boolean {
-        return this.returnValue;
-    }
 
     public get selectedItem() {
         return this._selectedItem;
@@ -79,7 +75,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 css.push("has-children");
             }
 
-            if(params.data.predefinedType){
+            if (params.data.predefinedType) {
             if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
@@ -87,10 +83,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             } else {               
                 css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));              
             }
-            }else{
-               if(params.data.type === 0){
+            } else {
+               if (params.data.type === 0) {
                     css.push("is-folder");
-               }else if(params.data.type === 1){
+               } else if (params.data.type === 1) {
                   css.push("is-project");
                }
             }
@@ -123,10 +119,15 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {                    
-                    self.tree.reload(nodes, artifactId);
+                .then((nodes: Models.IArtifact[]) => {   
+                     var arr = nodes.filter((node : Models.IItemType)=>{
+                          return this.filterCollections(node);
+                        });                         
+                    self.tree.reload(arr, artifactId);
                 }, (error) => {
-
+                     if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
+                    this.cancel();
+                } 
                 });
 
             return null;
@@ -134,10 +135,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             this.projectName = this.localization.get("App_Header_Name");
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
             this.projectRepository.getFolders(id)
-                .then((nodes: Models.IProjectNode[]) => { 
+                .then((nodes: Models.IProjectNode[]) => {                  
                     self.tree.reload(nodes, id);
                 }, (error) => {
-                    if (error.statusCode === 1401) {
+                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
                         this.cancel();
                     }
                 });
@@ -160,8 +161,11 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         this.projectName = project.name;
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
+                                var arr = nodes.filter((node : Models.IItemType)=>{
+                                return this.filterCollections(node);
+                             });   
                                 this.projectView = false;
-                                self.tree.reload(nodes);
+                                self.tree.reload(arr);
                             }, (error) => {
 
                             });
@@ -169,6 +173,12 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 );
 
             }
+        }
+    }
+
+    private filterCollections(node: Models.IItemType){       
+        if(node.predefinedType !== Models.ItemTypePredefined.CollectionFolder){
+            return true;
         }
     }
 

@@ -61,8 +61,6 @@ namespace Model.ArtifactModel.Impl
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
-        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
-
         //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -73,16 +71,14 @@ namespace Model.ArtifactModel.Impl
         #endregion Properties
 
         #region Constructors
-
+        
         /// <summary>
-        /// Constructor in order to use it as generic type
+        /// Constructor needed to deserialize it as generic type.
         /// </summary>
         public ArtifactBase()
         {
-            IsSaved = false;
-            IsPublished = false;
         }
-
+        
         /// <summary>
         /// Constructor
         /// </summary>

@@ -24,6 +24,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     //private loadLimit: number = 10;
     private artifactId: number;
+    private subArtifact: Models.ISubArtifact;
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
@@ -60,36 +61,79 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.artifactDiscussionList = null;
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
-            this.getArtifactDiscussions()
-                .then((discussionResultSet: IDiscussionResultSet) => {
-                    this.artifactDiscussionList = discussionResultSet.discussions;
-                    this.canCreate = discussionResultSet.canCreate;
-                    this.canDelete = discussionResultSet.canDelete;
-                });
+            this.subArtifact = subArtifact;
+            this.setDiscussions();
         } else {
             this.artifactId = null;
+            this.subArtifact = null;
             this.artifactDiscussionList = [];
             this.canCreate = false;
             this.canDelete = false;
         }
     }
 
+    private setDiscussions() {
+        this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
+            .then((discussionResultSet: IDiscussionResultSet) => {
+                this.artifactDiscussionList = discussionResultSet.discussions;
+                this.canCreate = discussionResultSet.canCreate;
+                this.canDelete = discussionResultSet.canDelete;
+                if (this.artifactDiscussionList.length > 0) {
+                    this.expandCollapseDiscussion(this.artifactDiscussionList[0]);
+                }
+            });
+    }
+
+    private setReplies(discussion: IDiscussion) {
+        this.getDiscussionReplies(discussion.discussionId)
+            .then((replies: IReply[]) => {
+                discussion.replies = replies;
+                discussion.repliesCount = replies.length;
+            });
+    }
+
     public expandCollapseDiscussion(discussion: IDiscussion): void {
         if (!discussion.expanded) {
-            this.getDiscussionReplies(discussion.discussionId)
-                .then((replies: IReply[]) => {
-                    discussion.replies = replies;
-                    discussion.repliesCount = replies.length;
-                    discussion.expanded = true;
-                });
+            this.setReplies(discussion);
+            discussion.expanded = true;
         } else {
             discussion.expanded = false;
         }
+    }
+
+    private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
+            .then((discussion: IDiscussion) => {
+                this.cancelCommentClick();
+                this.setDiscussions();
+                return discussion;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
+            .then((reply: IReply) => {
+                //this.cancelCommentClick();
+                this.setReplies(discussion);
+                discussion.showAddReply = false;
+                if (!discussion.expanded) {
+                    this.expandCollapseDiscussion(discussion);
+                }
+                return reply;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
     }
 
     public newCommentClick(): void {
@@ -112,9 +156,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         discussion.showAddReply = false;
     }
 
-    private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(this.artifactId)
+        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId, subArtifactId)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })

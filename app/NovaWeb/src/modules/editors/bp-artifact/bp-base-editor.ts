@@ -284,7 +284,7 @@ export class PropertyEditor implements IPropertyEditor {
                             if (value.usersGroups) {
                                 value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
-                                })[0];
+                                }).join(", ");
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {

@@ -218,16 +218,6 @@ export class Helper {
                 }
             });
         }
-
-        //if (processURLText) {
-        /*
-            let nodeText: string = node.textContent;
-            nodeText.match(autoLinkPattern).forEach((url) => {
-                nodeText = nodeText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
-            });
-            (<HTMLElement>node).innerHTML = nodeText;
-        */
-        //}
     };
 
     public static toFlat(root: any): any[] {

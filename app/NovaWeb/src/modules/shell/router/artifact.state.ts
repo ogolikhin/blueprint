@@ -1,5 +1,7 @@
 import "angular";
-import {ArtifactEditorType} from "../../core";
+import * as Models from "../../main/models/models";
+import {IProjectManager, ProjectManager} from "../../main/services/project-manager";
+import {MessageService} from "../";
 
 export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
@@ -21,30 +23,55 @@ export class ArtifactState implements ng.ui.IState {
  
 export class ArtifactStateController {
 
-    public static $inject = ["$rootScope", "$state"];
+    public static $inject = ["$rootScope", "$state", "projectManager", "messageService"];
 
     constructor(
         private $rootScope,
-        private $state: any) {
+        private $state: any,
+        private projectManager: IProjectManager,
+        private messageService: MessageService) {
 
         console.log("change state");
-        let id = <ArtifactEditorType>$state.params["id"];
 
         // Need to load artifact type from id instead of param        
-        let artifactType = <ArtifactEditorType>$state.params["artifactType"];
+        //let artifactType = <Models.ItemTypePredefined>$state.params["artifactType"];
+        let id = $state.params["id"];
 
-        if (artifactType == ArtifactEditorType.Diagram) {
-            this.$state.go('main.artifact.diagram');
-        } else if (artifactType == ArtifactEditorType.Glossary) {
-            this.$state.go('main.artifact.glossary');
-        } else if (artifactType == ArtifactEditorType.Details) {
-            this.$state.go('main.artifact.details');
-        } else if (artifactType == ArtifactEditorType.General) {
-            this.$state.go('main.artifact.details');
-        } else if (artifactType == ArtifactEditorType.Storyteller) {
-            this.$state.go('main.artifact.storyteller');
-        } else {
-            this.$state.go('main');
+        let artifact = projectManager.getArtifact(id);
+        if (artifact) {
+            let artifactType = artifact.predefinedType;
+            projectManager.setCurrentArtifact(artifact);
+            this.navigateToSubRoute(artifactType);
+        } else{
+            messageService.addError("Cannot find artifact");
+        }
+       
+    }
+
+    public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
+        switch (artifactType) {
+            case Models.ItemTypePredefined.GenericDiagram:
+            case Models.ItemTypePredefined.BusinessProcess:
+            case Models.ItemTypePredefined.DomainDiagram:
+            case Models.ItemTypePredefined.Storyboard:
+            case Models.ItemTypePredefined.UseCaseDiagram:
+            case Models.ItemTypePredefined.UseCase:
+            case Models.ItemTypePredefined.UIMockup:
+                this.$state.go('main.artifact.diagram');
+                break;
+            case Models.ItemTypePredefined.Glossary:
+                this.$state.go('main.artifact.glossary');
+                break;
+            case Models.ItemTypePredefined.Project:
+            case Models.ItemTypePredefined.CollectionFolder:
+                this.$state.go('main.artifact.general');
+                //this.$state.go('main.artifact.details');
+                break;
+            case Models.ItemTypePredefined.Process:
+                this.$state.go('main.artifact.storyteller');
+                break;            
+            default:
+                this.$state.go('main.artifact.details');
         }
     }
    

@@ -6,7 +6,7 @@
 </ul>
 <messages-container></messages-container>
 
-<div class="page-content-wrapper" perfect-scrollbar> <!--ng-if="$content.viewState" -->
+<div class="page-content-wrapper" perfect-scrollbar ng-show="$content.viewState">
     <div class="page-content">
         <div class="page-heading">
             <bp-artifact-info context="$content.context.artifact"></bp-artifact-info>

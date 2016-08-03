@@ -47,8 +47,9 @@ export class ProjectManager implements IProjectManager {
     private _currentProject: Rx.BehaviorSubject<Models.IProject>;
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository"];
+    static $inject: [string] = ["$state", "localization", "messageService", "projectRepository"];
     constructor(
+        private $state: any,
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository
@@ -105,12 +106,16 @@ export class ProjectManager implements IProjectManager {
             let _currentartifact = this.currentArtifact.getValue();
             if (_currentartifact && _currentartifact.id === artifact.id) {
                 return;
-            } 
+            }
 
             let project = this.getProject(artifact.projectId);
             if (project) {
                 this.setCurrentProject(project);
             }
+            this.$state.go('main.artifact', { id: artifact.id, artifactType: artifact.predefinedType });
+        }
+        else {
+            this.$state.go('main');
         }
         this.currentArtifact.onNext(artifact);
     }

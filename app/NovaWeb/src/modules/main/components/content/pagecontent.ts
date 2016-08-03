@@ -2,7 +2,6 @@
 import {IMessageService} from "../../../shell";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
-import {ArtifactEditorType} from "../../../core";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -50,13 +49,9 @@ class PageContentCtrl {
         let _context: any = {};
         try {
             if (!artifact) {
-                this.$state.go('main');
                 return;
             }
-
-            let contentType = this.getContentType(artifact);
-            this.$state.go('main.artifact', { id: artifact.id, artifactType: contentType  });
-
+            
             _context.artifact = artifact;
             _context.project = this.projectManager.currentProject.getValue();
             _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
@@ -67,19 +62,5 @@ class PageContentCtrl {
         }
         this.context = _context;
     }
-
-    private getContentType(artifact: Models.IArtifact): ArtifactEditorType {
-        if (this.diagramService.isDiagram(artifact.predefinedType)) {
-            return ArtifactEditorType.Diagram;
-        } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
-            return ArtifactEditorType.Glossary;
-        } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
-            return ArtifactEditorType.General;
-        } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
-            return ArtifactEditorType.General;
-        } else if (Models.ItemTypePredefined.Process === artifact.predefinedType) {
-            return ArtifactEditorType.Storyteller;
-        }
-        return ArtifactEditorType.Details;
-    }
+    
 }

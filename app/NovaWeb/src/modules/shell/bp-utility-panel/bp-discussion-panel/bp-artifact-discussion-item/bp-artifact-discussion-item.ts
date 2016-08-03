@@ -9,7 +9,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         getReplies: "&",
         canCreate: "=",
         cancelComment: "&",
-        artifactId: "="
+        artifactId: "=",
+        deleteCommentThread: "&"
     };
 }
 
@@ -20,6 +21,7 @@ export class BPArtifactDiscussionItemController {
     public canCreate: boolean;
     public editing = false;
     public artifactId: number;
+    public deleteCommentThread: Function;
 
     public static $inject: [string] = [
         "$element",
@@ -65,7 +67,6 @@ export class BPArtifactDiscussionItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
 
     public cancelCommentClick() {
@@ -73,9 +74,20 @@ export class BPArtifactDiscussionItemController {
     }
 
     public editCommentClick() {
+        if (this.canEdit()) {
         this.editing = true;
     }
+    }
 
+    public canEdit(): boolean {
+        if (this.discussionInfo) {
+            return !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
+        } else {
+            return false;
+        }
+    }
+
+    /* tslint:disable:no-unused-variable */
     private editDiscussion(comment: string): ng.IPromise<IDiscussion> {
         return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
@@ -84,4 +96,5 @@ export class BPArtifactDiscussionItemController {
                 return discussion;
             });
     }
+    /* tslint:disable:no-unused-variable */
 }

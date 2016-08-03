@@ -78,6 +78,14 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             var discussions = await _discussionsRepository.GetDiscussions(itemId, itemInfo.ProjectId);
+
+            foreach (var discussion in discussions)
+            {
+                discussion.CanDelete = permissions.TryGetValue(discussion.ItemId, out permission) &&
+                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
+                discussion.CanEdit = permissions.TryGetValue(discussion.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
+            }
+
             var result = new DiscussionResultSet
             {
                 CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
@@ -130,6 +138,13 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
+            foreach (var reply in result)
+            {
+                reply.CanDelete = permissions.TryGetValue(reply.ItemId, out permission) &&
+                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId));
+                reply.CanEdit = permissions.TryGetValue(reply.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
+            }
+
             return result;
         }
     }

@@ -148,8 +148,12 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       display: inline-block;
       font-size: $font-size-normal;
       font-weight: 400;
-      margin: 6px 0 0;
-      width: $property-label-width;
+      margin: 6px 4px 0 0;
+      overflow: hidden;
+      padding: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: #{$property-label-width - 4px};
     }
 
     input,
@@ -228,7 +232,9 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       }
 
       &.multiple {
-        height: #{2.25 * $property-min-height};
+        max-height: #{2.5 * $property-min-height};
+        min-height: $property-min-height;
+        padding-top: 5px;
       }
 
       &.richtext {
@@ -285,19 +291,28 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     textarea {
-      min-height: #{2.25 * $property-min-height};
+      min-height: 96px;
       overflow: hidden;
       padding-right: 20px;
 
+      &:hover,
       &:focus {
         overflow: auto;
+        -ms-overflow-style: auto;
       }
     }
 
     select {
-      background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
-      -ms-overflow-style: scrollbar;
       padding: 2px;
+
+      &[multiple] {
+        height: #{2.5 * $property-min-height};
+      }
+
+      &:not([multiple]) {
+        background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
+        -ms-overflow-style: scrollbar;
+      }
 
       &[disabled] {
         cursor: default;
@@ -390,6 +405,11 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       border-bottom-color: $brand-error !important;
     }
   }
+}
+
+.single-column .formly .formly-field label {
+  padding: 0;
+  width: $property-input-width;
 }
 
 .tab-pane {

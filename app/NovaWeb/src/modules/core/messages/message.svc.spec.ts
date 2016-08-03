@@ -1,7 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
-import {IMessageService, MessageService, Message, MessageType} from "../../shell";
-import {ConfigValueHelper } from "../../core";
+import { IMessageService, MessageService } from "./message.svc";
+import { Message, MessageType} from "./message";
+import { ConfigValueHelper } from "../configuration";
 
 describe("messageService", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

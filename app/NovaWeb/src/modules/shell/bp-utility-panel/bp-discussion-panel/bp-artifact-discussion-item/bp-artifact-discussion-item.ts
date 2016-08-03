@@ -1,4 +1,4 @@
-﻿import {IDiscussion} from "../artifact-discussions.svc";
+﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
 import { ILocalizationService } from "../../../../core";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
@@ -9,6 +9,7 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         getReplies: "&",
         canCreate: "=",
         cancelComment: "&",
+        artifactId: "=",
         deleteCommentThread: "&"
     };
 }
@@ -18,11 +19,14 @@ export class BPArtifactDiscussionItemController {
     public getReplies: Function;
     public discussionInfo: IDiscussion;
     public canCreate: boolean;
+    public editing = false;
+    public artifactId: number;
     public deleteCommentThread: Function;
 
     public static $inject: [string] = [
         "$element",
         "$scope",
+        "artifactDiscussions",
         "localization",
         "$sce"
     ];
@@ -30,6 +34,7 @@ export class BPArtifactDiscussionItemController {
     constructor(
         private element: ng.IAugmentedJQuery,
         private scope: ng.IScope,
+        private _artifactDiscussionsRepository: IArtifactDiscussions,
         private localization: ILocalizationService,
         private $sce: ng.ISCEService) {
         if (this.discussionInfo) {
@@ -64,4 +69,21 @@ export class BPArtifactDiscussionItemController {
         }
         //return this.discussionInfo.comment;
     };
+
+    public cancelCommentClick() {
+        this.editing = false;
+    }
+
+    public editCommentClick() {
+        this.editing = true;
+    }
+
+    private editDiscussion(comment: string): ng.IPromise<IDiscussion> {
+        return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
+            .then((discussion: IDiscussion) => {
+                this.editing = false;
+                this.discussionInfo.comment = comment;
+                return discussion;
+            });
+    }
 }

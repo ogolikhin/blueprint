@@ -5,14 +5,14 @@
         'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
-            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form" onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();">
+            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form" onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();" autocomplete="off">
                 <div class="nova-login-message" ng-class="{error: ctrl.isLabelErrorStyleShowing}"><span ng-bind-html="ctrl.errorMessage"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isTextFieldErrorStyleShowing}">
                     <input type="text" class="nova-form-control required" ng-disabled="ctrl.isUsernameDisabled" id="nova-username" name="novaUsername" ng-model="ctrl.novaUserName" ng-trim="false">
                     <label for="nova-username" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-bp-actor"></i>{{::$root.config.labels["Login_Username"]}}</label>
                 </div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isTextFieldErrorStyleShowing}">
-                    <input type="password" class="nova-form-control required" id="nova-password" name="novaPassword" ng-model="ctrl.novaPassword">
+                    <input type="password" class="nova-form-control required" id="nova-password" name="novaPassword" ng-model="ctrl.novaPassword" autocomplete="off">
                     <label for="nova-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_Password"]}}</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath" ng-if="ctrl.isForgetPasswordScreenEnabled">
@@ -50,18 +50,18 @@
             </form>
         </div>
         <div class="modal-panel" id="modal-login-change-password" ng-if="ctrl.isInChangePasswordScreen">
-            <form name="novaLoginChangePassword" ng-submit="ctrl.changePassword()" role="form">
+            <form name="novaLoginChangePassword" ng-submit="ctrl.changePassword()" role="form" autocomplete="off">
                 <div class="nova-login-message" ng-class="{error: ctrl.hasChangePasswordScreenError}"><span ng-bind-html="ctrl.changePasswordScreenMessage"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isCurrentPasswordFieldErrorStyleShowing}">
-                    <input type="password" class="nova-form-control required" id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword">
+                    <input type="password" class="nova-form-control required" id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword" autocomplete="off">
                     <label for="nova-current-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_CurrentPassword"]}}</label>
                 </div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isNewPasswordFieldErrorStyleShowing}">
-                    <input type="password" class="nova-form-control required" id="nova-new-password" name="novaNewPassword" ng-model="ctrl.novaNewPassword">
+                    <input type="password" class="nova-form-control required" id="nova-new-password" name="novaNewPassword" ng-model="ctrl.novaNewPassword" autocomplete="new-password">
                     <label for="nova-new-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_NewPassword"]}}</label>
                 </div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isConfirmPasswordFieldErrorStyleShowing}">
-                    <input type="password" class="nova-form-control required" id="nova-confirm-new-password" name="novaConfirmNewPassword" ng-model="ctrl.novaConfirmNewPassword">
+                    <input type="password" class="nova-form-control required" id="nova-confirm-new-password" name="novaConfirmNewPassword" ng-model="ctrl.novaConfirmNewPassword" autocomplete="new-password">
                     <label for="nova-confirm-new-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_ConfirmPassword"]}}</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath">

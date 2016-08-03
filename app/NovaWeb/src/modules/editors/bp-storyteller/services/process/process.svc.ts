@@ -35,19 +35,21 @@ export class ProcessService implements IProcessService {
 
         let restPath = this.processRestPath(processId);
 
-        this.$http.get<ProcessModels.IProcess>(restPath, requestConfig).success((result: ProcessModels.IProcess) => {
+        this.$http.get<ProcessModels.IProcess>(restPath, requestConfig).then(
+            (result: ng.IHttpPromiseCallbackArg<ProcessModels.IProcess>) => {
             
-            result["versionId"] = queryParamData.versionId;
-            result["revisionId"] = queryParamData.revisionId;
-            result["baselineId"] = queryParamData.baselineId;
+                result["versionId"] = queryParamData.versionId;
+                result["revisionId"] = queryParamData.revisionId;
+                result["baselineId"] = queryParamData.baselineId;
 
-            deferred.resolve(result);
+                deferred.resolve(result.data);
             
-        }).error((err: any/*Shell.IHttpError*/, status: number) => {
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
 
-            err.statusCode = status;
-            deferred.reject(err);
-        });
+                result.data.statusCode = result.status;
+                deferred.reject(result.data);
+            }
+        );
         return deferred.promise;
     }
 
@@ -58,15 +60,17 @@ export class ProcessService implements IProcessService {
         const restPath = `/svc/components/storyteller/projects/${projectId}/processes`;
         var deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();
 
-        this.$http.get<ProcessModels.IArtifactReference[]>(restPath).success((processes: ProcessModels.IArtifactReference[]) => {
+        this.$http.get<ProcessModels.IArtifactReference[]>(restPath).then(
+            (result: ng.IHttpPromiseCallbackArg<ProcessModels.IArtifactReference[]>) => {
 
-            deferred.resolve(processes);
+                deferred.resolve(result.data);
 
-        }).error((err: any/*Shell.IHttpError*/, status: number) => {
+            }, (result: ng.IHttpPromiseCallbackArg<any/*Shell.IHttpError*/>) => {
 
-            err.statusCode = status;
-            deferred.reject(err);
-        });
+                result.data.statusCode = result.status;
+                deferred.reject(result.data);
+            }
+        );
 
         return deferred.promise;
     }

@@ -7,12 +7,15 @@ export class BPCommentEdit implements ng.IComponentOptions {
         addButtonText: "@",
         cancelButtonText: "@",
         commentPlaceHolderText: "@",
-        cancelComment: "&"
+        cancelComment: "&",
+        postComment: "&",
+        commentText: "@"
     };
 }
 
 export class BPCommentEditController {
     public cancelComment: Function;
+    public postComment: Function;
     public addButtonText: string;
     public cancelButtonText: string;
     public commentPlaceHolderText: string;
@@ -95,13 +98,18 @@ export class BPCommentEditController {
                         }
                     }]
             });
-            editor.on("init", function () {
-                //this.getDoc().body.style.fontFamily = 'Lucida';
-                //this.getDoc().body.style.fontSize = '20';
-            });
-        },
-    }
+            //editor.on("init", function () {
+            //    this.getDoc().body.style.fontFamily = 'Lucida';
+            //    this.getDoc().body.style.fontSize = '20';
+            //});
+        }
+    };
 
     constructor() {
+    }
+
+    public callPostComment() {
+        //this.postComment({ comment: this.commentText });
+        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
     }
 }

@@ -1,4 +1,4 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../shell/";
+﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
 import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";

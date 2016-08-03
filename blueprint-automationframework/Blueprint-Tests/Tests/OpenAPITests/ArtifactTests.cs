@@ -49,7 +49,7 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
             
             //Set property value
             _artifact.Properties.Add(
@@ -81,7 +81,7 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,
@@ -115,7 +115,7 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,
@@ -152,7 +152,7 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,

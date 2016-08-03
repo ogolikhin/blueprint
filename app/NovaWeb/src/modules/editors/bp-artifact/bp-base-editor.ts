@@ -1,4 +1,4 @@
-﻿import {IMessageService, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
 
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -10,8 +10,9 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
 
+    private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
@@ -21,8 +22,18 @@ export class BpBaseEditor {
 
     public isLoading: boolean = true;
 
-    constructor (public messageService: IMessageService) {
+    constructor(
+        public messageService: IMessageService,
+        public stateManager: IStateManager,
+        public windowResizeHandler: IWindowResizeHandler,
+        private $timeout: ng.ITimeoutService) {
         this.editor = new PropertyEditor(); 
+    }
+
+    public $onInit() {
+        this._subscribers = [
+            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+        ];
     }
 
     public $onChanges(obj: any) {
@@ -38,6 +49,8 @@ export class BpBaseEditor {
     }
 
     public $onDestroy() {
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+
         if (this.editor) {
             this.editor.destroy();
         }
@@ -46,8 +59,42 @@ export class BpBaseEditor {
         delete this.fields;
         delete this.model;
     }
+
+    private onWidthResized(width: number) {
+        this.setArtifactEditorLabelsWidth();
+    }
      
-    public onPropertyChange($viewValue, $modelValue, scope) {
+    public onValueChange($value: any, $model: AngularFormly.IFieldConfigurationObject) {
+        //here we need to update original model
+        let context = $model.data as PropertyContext;
+        if (context && $value !== $model.initialValue) {
+            
+            this.stateManager.isArtifactChanged = true;
+            this.context.artifact.changed = true;
+
+            switch (context.lookup) {
+                case LookupEnum.System:
+                    this.context.artifact[context.modelPropertyName] = $value;
+                    break;
+                case LookupEnum.Custom:
+                    let index: number = -1;
+                    let typeId = context.modelPropertyName as number;
+                    this.context.artifact.customPropertyValues.forEach((it: Models.IPropertyValue, idx: number) => {
+                        if (it.propertyTypeId === typeId as number) {
+                            index = idx;
+                        }
+                    });
+                    if (index >= 0) {
+                        this.context.artifact.customPropertyValues[index].value = $value;
+                    }
+                    break;
+                case LookupEnum.Special:
+                    //TODO: special property value needs its own impelemntation
+                    break;
+            }
+        }
+
+
     };
 
     public onLoading(obj: any): boolean  {
@@ -79,7 +126,7 @@ export class BpBaseEditor {
             this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(it.templateOptions, {
-                    onChange: this.onPropertyChange.bind(this)
+                    onChange: this.onValueChange.bind(this)
                 });
                 this.onFieldUpdate(it);
 
@@ -87,9 +134,25 @@ export class BpBaseEditor {
         } catch (ex) {
             this.messageService.addError(ex);
         }
-    }
-}
 
+        this.$timeout(() => {
+            this.setArtifactEditorLabelsWidth();
+        }, 0);
+    }
+
+    public setArtifactEditorLabelsWidth() {
+        let artifactOverview: Element = document.querySelector(".artifact-overview");
+        if (artifactOverview) {
+            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
+            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
+            if (actualWidth < propertyWidth) {
+                artifactOverview.classList.add("single-column");
+            } else {
+                artifactOverview.classList.remove("single-column");
+            }
+        }
+    };
+}
 
 export enum LookupEnum {
     None = 0,
@@ -191,7 +254,7 @@ export class PropertyEditor implements IPropertyEditor {
                         })[0];
                         value = propertyValue ? propertyValue.value : undefined;
                     } else if (it.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
-                        let propertyValue = this._artifact.customPropertyValues.filter((value) => {
+                        let propertyValue = this._artifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypeId === <number>it.modelPropertyName;
                         })[0];
                         value = propertyValue ? propertyValue.value : undefined;
@@ -202,18 +265,21 @@ export class PropertyEditor implements IPropertyEditor {
                         if (it.primitiveType === Models.PrimitiveType.Date) {
                             value = new Date(value);
                         } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                            if (value.validValueIds) {
-                                value = value.validValueIds[0];  // Temporary user only one value for single select
+                            if (angular.isArray(value.validValueIds)) {
+                                let values = [];
+                                value.validValueIds.forEach((v: number) => {
+                                    values.push(v.toString());
+                                });
+                                value = values;
+                            } else {
+                                value = value.toString();
                             }
-                            value = value.toString();
-
                         } else if (it.primitiveType === Models.PrimitiveType.User) {
                             //TODO: must be changed when  a field editor for this type of property is created
-                            if (value.userGroups) {
-                                value = value.map((val: Models.IUserGroup) => {
+                            if (value.usersGroups) {
+                                value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
                                 })[0];
-                                value = (value as Models.IUserGroup).displayName;
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {
@@ -222,12 +288,12 @@ export class PropertyEditor implements IPropertyEditor {
                                 value = value.toString();
                             }
                         }
-                        this._model[it.fieldPropertyName] = value;
                     }
+                    this._model[it.fieldPropertyName] = value;
                     this._fields.push(field);
                 }
             });
-        } 
+        }
     }
 
     public destroy() {
@@ -309,7 +375,7 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = "select";
+                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (angular.isNumber(context.defaultValidValueId)) {
                         field.defaultValue = context.defaultValidValueId.toString();
                     }

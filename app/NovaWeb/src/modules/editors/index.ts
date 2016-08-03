@@ -8,4 +8,4 @@ angular.module("bp.editors", [
     "bp.editors.details",
     "bp.editors.diagram",
     "bp.editors.storyteller"
-]) 
+]);

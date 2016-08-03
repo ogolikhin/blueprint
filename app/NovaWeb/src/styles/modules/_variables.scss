@@ -96,6 +96,7 @@ $artifact-picker-data-width: 100%;
 
 //vertical order
 $tooltip-z-index: 10000;
+$scrollbar-z-index: $tooltip-z-index - 100;
 $sidebar-z-index: 500;
 $toolbar-z-index: $sidebar-z-index + 100;
 

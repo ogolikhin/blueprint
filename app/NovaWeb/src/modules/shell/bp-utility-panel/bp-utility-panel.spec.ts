@@ -1,16 +1,14 @@
-﻿// import "../../main";
-// import "../../shell";
-import "angular";
+﻿import "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../util/component.test";
-import { BPUtilityPanelController} from "./bp-utility-panel";
+import { BPUtilityPanelController } from "./bp-utility-panel";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { ArtifactHistoryMock } from "./bp-history-panel/artifact-history.mock";
 import { ArtifactRelationshipsMock } from "./bp-relationships-panel/artifact-relationships.mock";
 import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachments.mock";
-import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../main/services/project-manager";
+import { Models } from "../../main/services/project-manager";
+import { SelectionManager, SelectionSource } from "../../main/services/selection-manager";
 
 describe("Component BPUtilityPanel", () => {
 
@@ -26,12 +24,10 @@ describe("Component BPUtilityPanel", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
+    beforeEach(inject(() => {
         directiveTest = new ComponentTest<BPUtilityPanelController>(template, "bp-utility-panel");
         vm = directiveTest.createComponent({});
     }));
@@ -49,18 +45,19 @@ describe("Component BPUtilityPanel", () => {
     });
 
     it("should load data for a selected artifact", 
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+            //Arrange
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;
+            
+            //Act
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
 
-        // Arrange
-        projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-        $rootScope.$digest();
-
-        // Act
-        let artifact = projectManager.getArtifact(22);
-
-        // Assert
-        expect(artifact).toBeDefined();
-        expect(artifact.id).toBe(22);
-        expect(vm.currentArtifact).toBe("2: Project 2");
+            // Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(selectedArtifact.id).toBe(22);
+            expect(vm.currentItem).toBe("My22: Artifact");
     }));
 });

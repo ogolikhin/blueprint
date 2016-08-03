@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { IMessageService, Message } from "../../../shell";
+import { IMessageService, Message } from "../../../core";
 import { IProjectManager, Models } from "../../";
 import { OpenProjectController } from "../dialogs/open-project";
 

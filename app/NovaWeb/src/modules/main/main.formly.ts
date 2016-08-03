@@ -85,21 +85,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
-    let setDirtyFlag = function($scope) {
-        //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-        let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-        if (artifactNameDiv) {
-            if ($scope.fc.$dirty) {
-                let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                if (!dirtyIcon) {
-                    let div = document.createElement("DIV");
-                    div.innerHTML = `<i class="dirty-indicator"></i>`;
-                    artifactNameDiv.appendChild(div.firstChild);
-                }
-            }
-        }
-    };
-
     let blurOnEnterKey = function(event) {
         let inputField = event.target;
         let key = event.keyCode || event.which;
@@ -117,8 +102,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         name: "bpFieldReadOnly",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar ng-bind-html="model[options.key]"></div>
-                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar>{{model[options.key]}}</div>
+                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
                 <div ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
@@ -127,6 +112,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             let currentModelVal = $scope.model[$scope.options.key];
 
             $scope.tooltip = "";
+            $scope.scrollOptions = {
+                minScrollbarLength: 20
+            };
 
             if (currentModelVal) {
                 switch ($scope.options.data.primitiveType) {
@@ -161,7 +149,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldText.keyup($event)"
-                    ng-change="bpFieldText.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -170,8 +157,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -181,24 +166,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {};
 
-            $scope.bpFieldText.change = function ($event) {
-                setDirtyFlag($scope);
-            };
-
             $scope.bpFieldText.keyup = blurOnEnterKey;
         }]
     });
 
     formlyConfig.setType({
         name: "bpFieldTextMulti",
-        extends: "input",
+        extends: "textarea",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
                 <textarea
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-change="bpFieldTextMulti.change($event)"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -207,8 +187,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -217,10 +195,63 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
+        }]
+    });
 
-            $scope.bpFieldTextMulti.change = function ($event) {
-                setDirtyFlag($scope);
-            };
+    formlyConfig.setType({
+        name: "bpFieldSelect",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelect = {};
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldSelectMulti",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    multiple
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelectMulti = {};
         }]
     });
 
@@ -234,7 +265,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldNumber.keyup($event)"
-                    ng-change="bpFieldNumber.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -243,8 +273,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -326,10 +354,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
             }
 
-            $scope.bpFieldNumber.change = function ($event) {
-                setDirtyFlag($scope);
-            };
-
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
     });
@@ -358,6 +382,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    init_instance_callback: function(editor) {
+                        editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
+                        editor.dom.bind(editor.dom.select("a"), "click", function(e) {
+                            let element: HTMLElement = e.target;
+                            while (element && element.tagName.toUpperCase() !== "A") {
+                                element = element.parentElement;
+                            }
+                            if (element && element.getAttribute("href")) {
+                                window.open(element.getAttribute("href"), "_blank");
+                            }
+                        });
+                    },
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
@@ -375,7 +411,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"
-                    ng-change="bpFieldDatepicker.change($event)"
                     ng-keyup="bpFieldDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="bpFieldDatepicker.opened"
@@ -499,10 +534,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.bpFieldDatepicker.selected = false;
             };
 
-            $scope.bpFieldDatepicker.change = function ($event) {
-                setDirtyFlag($scope);
-            };
-
             $scope.bpFieldDatepicker.keyup = blurOnEnterKey;
         }]
     });
@@ -510,7 +541,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
-              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label && !to.tinymceOption">
+              <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
+                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}"
+                bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">
                 {{to.label}}
               </label>
               <formly-transclude></formly-transclude>

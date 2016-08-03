@@ -1,8 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
-import {MessageContainerComponent, IMessageService, MessageService, Message, MessageType} from "../../shell";
-import {MessageContainerController} from "./message-container";
-import {ConfigValueHelper } from "../../core";
+import { IMessageService, MessageService } from "./message.svc";
+import { Message, MessageType, MessageComponent } from "./message";
+import { ConfigValueHelper } from "../configuration";
+import { MessageContainerController, MessageContainerComponent } from "./message-container";
 
 
 describe("messages container directive", () => {

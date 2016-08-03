@@ -31,7 +31,7 @@ describe("Component BpArtifactInfo", () => {
     it("the context is not set, default value ", () => {
         
         //Assert
-        expect(componentTest.element.find(".artifact-icon").length).toBe(1);
+        expect(componentTest.element.find(".icon").length).toBe(1);
         expect(componentTest.element.find(".type-id").length).toBe(1);
         expect(componentTest.element.find(".readonly-indicator").length).toBe(0);
         expect(componentTest.element.find(".lock-indicator").length).toBe(0);

@@ -1,5 +1,5 @@
 ﻿import {IProjectManager, Models} from "../..";
-import {IMessageService} from "../../../shell";
+import {IMessageService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
 

@@ -13,6 +13,16 @@ using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
+    /// <summary>
+    /// This is returned by OpenAPI when adding an artifact.
+    /// Currently I can't see a way for these to ever be set to true.
+    /// </summary>
+    public class ArtifactStatus
+    {
+        public bool IsLocked { get; set; }
+        public bool IsReadOnly { get; set; }
+    }
+
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
@@ -23,15 +33,18 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
-        public bool ShouldDeleteChildren { get; set; } = false;
+        public bool ShouldDeleteChildren { get; set; }
         public IUser LockOwner { get; set; }
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public string Address { get; set; }
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
-        public bool IsMarkedForDeletion { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
+        public bool IsMarkedForDeletion { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public bool AreTracesReadOnly { get; set; }
+        public bool AreAttachmentsReadOnly { get; set; }
+        public bool AreDocumentReferencesReadOnly { get; set; }
 
         #region Serialized JSON Properties
 
@@ -44,46 +57,28 @@ namespace Model.ArtifactModel.Impl
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
         public string ArtifactTypeName { get; set; }
-        public bool AreTracesReadOnly { get; set; }
-        public bool AreAttachmentsReadOnly { get; set; }
-        public bool AreDocumentReferencesReadOnly { get; set; }
+        public ArtifactStatus Status { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
-
-        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
 
         //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
-        public List<OpenApiProperty> Properties { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiComment>>))]
-        public List<OpenApiComment> Comments { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
-        public List<OpenApiTrace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
-        public List<OpenApiAttachment> Attachments { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; set; } = new List<OpenApiProperty>();
 
         #endregion Serialized JSON Properties
         #endregion Properties
 
         #region Constructors
-
+        
         /// <summary>
-        /// Constructor in order to use it as generic type
+        /// Constructor needed to deserialize it as generic type.
         /// </summary>
         public ArtifactBase()
         {
-            IsSaved = false;
-            IsPublished = false;
         }
-
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -117,7 +112,6 @@ namespace Model.ArtifactModel.Impl
             {
                 ShouldDeleteChildren = this.ShouldDeleteChildren,
                 LockOwner = this.LockOwner,
-                BaseItemTypePredefined = this.BaseItemTypePredefined,
                 Address = this.Address,
                 CreatedBy = this.CreatedBy,
                 IsPublished = this.IsPublished,
@@ -135,13 +129,10 @@ namespace Model.ArtifactModel.Impl
                 ArtifactTypeName = this.ArtifactTypeName,
                 AreTracesReadOnly = this.AreTracesReadOnly,
                 AreAttachmentsReadOnly = this.AreAttachmentsReadOnly,
-                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly,
-
-                Properties = new List<OpenApiProperty>(this.Properties),
-                Comments = new List<OpenApiComment>(this.Comments),
-                Traces = new List<OpenApiTrace>(this.Traces),
-                Attachments = new List<OpenApiAttachment>(this.Attachments)
+                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly
             };
+
+            Properties.AddRange(this.Properties);
 
             return artifactBase;
         }

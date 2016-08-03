@@ -37,10 +37,9 @@ export class ServerLoggerSvc implements IServerLogger {
         };
 
         $http.post("/svc/adminstore/log", angular.toJson(logMessage))
-            .success(() => {
+            .then(() => {
                 deferred.resolve();
-            })
-            .error(() => {
+                }, () => {
                 deferred.reject();
             });
 

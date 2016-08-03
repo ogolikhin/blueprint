@@ -5,11 +5,13 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
+import { Models } from "../../../main/services/project-manager";
+import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { IReply } from "./artifact-discussions.svc";
+import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { ProjectManager, Models } from "../../../main/services/project-manager";
-import {IReply} from "./artifact-discussions.svc";
-import {MessageServiceMock} from "../../messages/message.mock";
-import { DialogService} from "../../../shared/";
+import { DialogService } from "../../../shared/";
 
 describe("Component BPDiscussionPanel", () => {
 
@@ -25,14 +27,12 @@ describe("Component BPDiscussionPanel", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactDiscussions", ArtifactDiscussionsMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogService);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
+    beforeEach(inject(() => {
         directiveTest = new ComponentTest<BPDiscussionPanelController>(template, "bp-discussion-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
     }));
@@ -49,15 +49,14 @@ describe("Component BPDiscussionPanel", () => {
     });
 
     it("should load data for a selected artifact",
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             //Arrange
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-            $rootScope.$digest();
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = project;
+            artifact.prefix = "PRO";
 
             //Act
-            let artifact = projectManager.getArtifact(22);
-            projectManager.loadArtifact(artifact);
-            artifact.prefix = "PRO";
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
 
             //Assert
@@ -66,15 +65,14 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("should load replies for expanded discussion",
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-            $rootScope.$digest();
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            artifact.prefix = "PRO";
 
             //Act
-            let artifact = projectManager.getArtifact(22);
-            projectManager.loadArtifact(artifact);
-            artifact.prefix = "PRO";
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = false;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -86,9 +84,11 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("should throw exception for expanded discussion",
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            artifact.prefix = "PRO";
             $rootScope.$digest();
             let deferred = $q.defer();
             //MessageService.prototype.addError = jasmine.createSpy("addError() spy").and.callFake(() => {});
@@ -103,10 +103,9 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            let artifact = projectManager.getArtifact(22);
-            projectManager.loadArtifact(artifact);
-            artifact.prefix = "PRO";
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
+
             vm.artifactDiscussionList[0].expanded = false;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
             $timeout.flush();
@@ -117,15 +116,17 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("expanded should be false for collapsed discussion",
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            artifact.prefix = "PRO";
+            
+            //Act
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
 
             //Act
-            let artifact = projectManager.getArtifact(22);
-            projectManager.loadArtifact(artifact);
-            artifact.prefix = "PRO";
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = true;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);

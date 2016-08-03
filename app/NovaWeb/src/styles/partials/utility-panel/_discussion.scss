@@ -13,7 +13,6 @@ bp-discussion-panel {
     bp-comment-edit {
         .edit-container {
             text-align: center;
-            margin-top: $padding-smaller;
             padding: $padding-smaller;
         }
 
@@ -24,8 +23,11 @@ bp-discussion-panel {
 
         .comment-edit-button-bar {
             margin-top: $padding-smallest;
-            clear: both;
         }
+
+        &.reply{
+            margin-bottom:10px;
+}
     }
 
     .author {

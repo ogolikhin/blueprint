@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models, Relationships } from "../../../main";
+import { ISelectionManager, Models, Relationships } from "../../../main";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -26,7 +26,7 @@ export interface IArtifactSelectedArtifactMap {
 export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "projectManager",
+        "selectionManager",
         "artifactRelationships"
     ];
 
@@ -42,11 +42,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     constructor(
         private localization: ILocalizationService,
-        protected projectManager: IProjectManager,
+        protected selectionManager: ISelectionManager,
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(projectManager, bpAccordionPanel);
+        super(selectionManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           
@@ -66,10 +66,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {     
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships()
+            this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((list: any) => {
                     this.artifactList = list;
                     this.selectedTraces = {};
@@ -79,9 +79,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private getRelationships(): ng.IPromise<IArtifactRelationshipsResultSet> {
+    private getRelationships(artifactId, subArtifactId: number = null): ng.IPromise<IArtifactRelationshipsResultSet> {
         this.isLoading = true;
-        return this.artifactRelationships.getRelationships(this.artifactId)
+        return this.artifactRelationships.getRelationships(artifactId, subArtifactId)
             .then((list: IArtifactRelationshipsResultSet) => {
                 return list;
             })

@@ -35,17 +35,12 @@ namespace Model.ArtifactModel.Impl
         #region Constructors
 
         /// <summary>
-        /// Constructor in order to use it as generic type
+        /// Constructor needed to deserialize it as generic type.
         /// </summary>
         public OpenApiArtifact()
         {
-            //Required for deserializing OpenApiArtifact
-            Properties = new List<OpenApiProperty>();
-            Comments = new List<OpenApiComment>();
-            Traces = new List<OpenApiTrace>();
-            Attachments = new List<OpenApiAttachment>();
         }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -207,19 +202,23 @@ namespace Model.ArtifactModel.Impl
                     artifactToSave.IsSaved = true;
                 }
 
-                Logger.WriteDebug("{0} {1} returned followings: Message: {2}, ResultCode: {3}", restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
+                Logger.WriteDebug("{0} {1} returned the following: Message: {2}, ResultCode: {3}", restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
                 Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-                Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
-                    "The returned ResultCode was '{0}' but '{1}' was expected",
-                    artifactResult.ResultCode,
-                    ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+                if (expectedStatusCodes.Contains(HttpStatusCode.OK) || expectedStatusCodes.Contains(HttpStatusCode.Created))
+                {
+                    Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
+                        "The returned ResultCode was '{0}' but '{1}' was expected",
+                        artifactResult.ResultCode,
+                        ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
 
-                artifactToSave.IsSaved = true;
+                    Assert.That(artifactResult.Message == "Success",
+                        "The returned Message was '{0}' but 'Success' was expected",
+                        artifactResult.Message);
 
-                Assert.That(artifactResult.Message == "Success", 
-                    "The returned Message was '{0}' but 'Success' was expected", 
-                    artifactResult.Message);
+                    Assert.IsFalse(artifactResult.Artifact.Status.IsLocked, "Status.IsLocked should always be false for new artifacts!");
+                    Assert.IsFalse(artifactResult.Artifact.Status.IsReadOnly, "Status.IsReadOnly should always be false for new artifacts!");
+                }
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
@@ -227,7 +226,7 @@ namespace Model.ArtifactModel.Impl
             }
             else
             {
-                Assert.True(restRequestMethod != RestRequestMethod.POST && restRequestMethod != RestRequestMethod.PATCH, "Only POST or PATCH methods are supported!");
+                throw new InvalidOperationException("Only POST or PATCH methods are supported for saving artifacts!");
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IReply} from "../artifact-discussions.svc";
+import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 import { BPDiscussionPanelController } from "../bp-discussions-panel";
-import {IArtifactDiscussions} from "../artifact-discussions.svc";
+import { IArtifactDiscussions } from "../artifact-discussions.svc";
 
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
@@ -9,18 +9,21 @@ export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public controller: Function = BPDiscussionReplyItemController;
     public bindings: any = {
         replyInfo: "=",
+        artifactId: "=",
         deleteReply: "&"
     };
 }
 
 export class BPDiscussionReplyItemController {
     public replyInfo: IReply;
+    public artifactId: number;
+    public editing = false;
     public deleteReply: Function;
 
     public static $inject: [string] = [
         "localization",
         "$sce",
-        "artifactDiscussions"
+        "artifactDiscussions",
     ];
 
     constructor(
@@ -39,4 +42,21 @@ export class BPDiscussionReplyItemController {
         }
         //return this.discussionInfo.comment;
     };
+
+    public cancelCommentClick() {
+        this.editing = false;
+    }
+
+    public editCommentClick() {
+        this.editing = true;
+    }
+
+    private editReply(comment: string): ng.IPromise<IReply> {
+        return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
+            .then((discussion: IReply) => {
+                this.editing = false;
+                this.replyInfo.comment = comment;
+                return discussion;
+            });
+    }
 }

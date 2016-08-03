@@ -30,27 +30,34 @@ export class AuthSvc implements IAuth {
 
 
     static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "configValueHelper"];
-    /* tslint:disable */
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private configValueHelper: IConfigValueHelper) { }
-    /*tslint:enable*/
+    
+    constructor(
+        private $q: ng.IQService,
+        private $log: ng.ILogService,
+        private $http: ng.IHttpService,
+        private $window: ng.IWindowService,
+        private localization: ILocalizationService,
+        private configValueHelper: IConfigValueHelper) {
+        // Nothing
+    }    
 
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
         var config = this.createRequestConfig();
 
         this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
-            .success((result: IUser) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
+            .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
+                defer.resolve(result.data);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
-                    statusCode: statusCode,
-                    message: err ? err.message : this.localization.get("Login_Auth_CannotGetUser")
+                    statusCode: result.status,
+                    message: result.data ? result.data.message : this.localization.get("Login_Auth_CannotGetUser")
                 };
                 if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
-                        .success((token: string) => {
-                            this.onTokenSuccess(token, defer, false, "");
-                        }).error((err) => {
+                        .then((winLoginResult: ng.IHttpPromiseCallbackArg<string>) => {
+                            this.onTokenSuccess(winLoginResult.data, defer, false, "");
+                        }, () => {
                             defer.reject(error);
                         });
 
@@ -70,13 +77,13 @@ export class AuthSvc implements IAuth {
 
         /* tslint:disable */
         this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
-            .success((token: string) => {
-                this.onTokenSuccess(token, deferred, false, "");
-            }).error((err: any, statusCode: number) => {
+            .then((result: ng.IHttpPromiseCallbackArg<string>) => {
+                this.onTokenSuccess(result.data, deferred, false, "");
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
-                    statusCode: statusCode,
-                    message: this.getLoginErrorMessage(err),
-                    errorCode: err.errorCode
+                    statusCode: result.status,
+                    message: this.getLoginErrorMessage(result.data),
+                    errorCode: result.data.errorCode
                 };
                 deferred.reject(error);
 
@@ -111,15 +118,14 @@ export class AuthSvc implements IAuth {
         this.$window["notifyAuthenticationResult"] = (requestId: string, samlResponse: string): string => {
             if (requestId === this.samlRequestId.toString()) {
                 this.$http.post("/svc/adminstore/sessions/sso?force=" + overrideSession, angular.toJson(samlResponse), this.createRequestConfig())
-                    .success(
-                    (token: string) => {
-                        this.onTokenSuccess(token, deferred, true, prevLogin);
-                    })
-                    .error((err: any, statusCode: number) => {
+                    .then(
+                    (result: ng.IHttpPromiseCallbackArg<string>) => {
+                        this.onTokenSuccess(result.data, deferred, true, prevLogin);
+                    }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                         var error = {
-                            statusCode: statusCode,
-                            message: this.getLoginErrorMessage(err),
-                            errorCode: err.errorCode
+                            statusCode: result.status,
+                            message: this.getLoginErrorMessage(result.data),
+                            errorCode: result.data.errorCode
                         };
                         deferred.reject(error);
                     });
@@ -180,8 +186,7 @@ export class AuthSvc implements IAuth {
         requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
 
         this.$http.delete("/svc/adminstore/sessions", requestConfig)
-            .success(() => deferred.resolve())
-            .error(() => deferred.reject());
+            .then(() => deferred.resolve(), () => deferred.reject());
 
         return deferred.promise;
     }
@@ -192,7 +197,8 @@ export class AuthSvc implements IAuth {
                 .then(() => {
                     SessionTokenHelper.setToken(token);
                     this.$http.get<IUser>("/svc/adminstore/users/loginuser", this.createRequestConfig())
-                        .success((user: IUser) => {
+                        .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
+                            let user = result.data;
                             if (isSaml && prevLogin && prevLogin !== user.login) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({ message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser") });
@@ -200,10 +206,10 @@ export class AuthSvc implements IAuth {
                             } else {
                                 deferred.resolve(user);
                             }
-                        }).error((err: any, statusCode: number) => {
+                        }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                             var error = {
-                                statusCode: statusCode,
-                                message: err ? err.message : ""
+                                statusCode: result.status,
+                                message: result.data ? result.data.message : ""
                             };
                             deferred.reject(error);
                         });
@@ -231,9 +237,11 @@ export class AuthSvc implements IAuth {
         requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
 
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
-            .success(() => deferred.resolve())
-            .error((err: any, statusCode: number) => {
+            .then(
+            () => deferred.resolve(),
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {};
+                let statusCode = result.status;
 
                 if (statusCode === 404) { // NotFound
                     error = {
@@ -248,7 +256,7 @@ export class AuthSvc implements IAuth {
                 } else { // Other error
                     error = {
                         statusCode: statusCode,
-                        message: err ? err.message : ""
+                        message: result.data ? result.data.message : ""
                     };
                 }
 
@@ -264,20 +272,21 @@ export class AuthSvc implements IAuth {
         var encNewPassword: string = newPassword ? AuthSvc.encode(newPassword) : "";
 
         var deferred = this.$q.defer<any>();
+        
+        this.$http.post<any>("/svc/adminstore/users/reset?login=" + encUserName,
+            angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }), this.createRequestConfig())
+            .then(
+                () => deferred.resolve(),
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    var error = {
+                        statusCode: result.status,
+                        message: this.getLoginErrorMessage(result.data),
+                        errorCode: result.data.errorCode
+                    };
+                    deferred.reject(error);
+                }
+            );
 
-        /* tslint:disable */
-        this.$http.post<any>("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }), this.createRequestConfig())
-            .success(() => {
-                deferred.resolve();
-            }).error((err: any, statusCode: number) => {
-                var error = {
-                    statusCode: statusCode,
-                    message: this.getLoginErrorMessage(err),
-                    errorCode: err.errorCode
-                };
-                deferred.reject(error);
-            });
-        /* tslint:enable */
         return deferred.promise;
     }
 

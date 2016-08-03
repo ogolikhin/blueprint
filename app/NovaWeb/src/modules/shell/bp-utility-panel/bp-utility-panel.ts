@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { IProjectManager, Models } from "../../main";
+import { ISelectionManager, Models } from "../../main";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -10,34 +10,34 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "projectManager"
+        "selectionManager"
     ];
 
     private _subscribers: Rx.IDisposable[];
-    private _currentArtifact: string;
-    private _currentArtifactClass: string;
+    private _currentItem: string;
+    private _currentItemClass: string;
 
-    public get currentArtifact() { 
-        return this._currentArtifact;
+    public get currentItem() { 
+        return this._currentItem;
     }
 
-    public get currentArtifactClass() {
-        return this._currentArtifactClass;
+    public get currentItemClass() {
+        return this._currentItemClass;
     }
 
     constructor(
         private localization: ILocalizationService,
-        private projectManager: IProjectManager) {
+        private selectionManager: ISelectionManager) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
+        let selectedItemSubscriber: Rx.IDisposable = this.selectionManager.selectedItemObservable
             .distinctUntilChanged()
-            .subscribe(this.displayArtifact);
+            .subscribe(this.onItemChanged);
 
         this._subscribers = [
-            selectedArtifactSubscriber
+            selectedItemSubscriber
         ];
     }
 
@@ -46,10 +46,10 @@ export class BPUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact ? `${(artifact.prefix || "")}${artifact.id}: ${artifact.name}` : null;
-        this._currentArtifactClass = artifact ?
-        "icon-" + Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document") :
+    private onItemChanged = (item: Models.IItem) => {
+        this._currentItem = item ? `${(item.prefix || "")}${item.id}: ${item.name}` : null;
+        this._currentItemClass = item ?
+        "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "document") :
             "icon-document";
     }
 }

@@ -23,16 +23,16 @@ export class ArtifactService implements IArtifactService {
             //}
         };
 
-        this.$http(request)
-            .success((result: Models.IArtifact) => {
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     }
 }

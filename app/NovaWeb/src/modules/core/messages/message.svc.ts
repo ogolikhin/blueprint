@@ -1,6 +1,6 @@
-﻿import {Message, MessageType, IMessage} from "../../shell";
-import {IConfigValueHelper } from "../../core";
-export {IMessage, Message, MessageType}
+﻿import { Message, MessageType, IMessage} from "./message";
+import { IConfigValueHelper } from "../configuration";
+
 export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error): void;    

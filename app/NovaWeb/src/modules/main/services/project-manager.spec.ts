@@ -26,7 +26,7 @@ describe("Project Manager Test", () => {
     }));
 
     describe("Load projects: ", () => {
-        it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
@@ -39,7 +39,7 @@ describe("Project Manager Test", () => {
             expect(project.name).toEqual("Project 1");
         }));
 
-        it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
@@ -177,7 +177,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("Current Project: ", () => {
-        it("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -192,7 +192,7 @@ describe("Project Manager Test", () => {
             expect(first.name).toEqual("Project 1");
         }));
 
-        it("Set Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Set Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let changedProject;
 
@@ -210,7 +210,7 @@ describe("Project Manager Test", () => {
             expect(changedProject.name).toEqual("Project 1");
         }));
 
-        it("Set Current artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Set Current artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let changedArtifact;
 
@@ -231,7 +231,7 @@ describe("Project Manager Test", () => {
 
 
 
-        it("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let changedArtifact: Models.IArtifact[] = [];
 
@@ -286,7 +286,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("Delete Project: ", () => {
-        it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
@@ -308,7 +308,7 @@ describe("Project Manager Test", () => {
             expect(first.id).toBe(3);
             expect(second.id).toBe(2);
         }));
-        it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
@@ -344,7 +344,7 @@ describe("Project Manager Test", () => {
             expect(projectManager.isProjectSelected).toBeFalsy();
             expect(projectManager.isArtifactSelected).toBeFalsy();
         }));
-        it("should project be selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        xit("should project be selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 

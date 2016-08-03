@@ -138,7 +138,7 @@ describe("Project Explorer Test", () => {
 
     }));
 
-    it("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
+    it("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController, selectionManager: SelectionManager) => {
         // Arrange
         isReloadCalled = 0;
         explorer.tree.selectNode = function (id?: number) {
@@ -150,7 +150,12 @@ describe("Project Explorer Test", () => {
         $rootScope.$digest();
         
         // Act
-        expect(isReloadCalled).toEqual(1);
+        const selectedArtifact = selectionManager.selection.artifact;
+
+        expect(selectedArtifact).toBeDefined();
+        expect(selectedArtifact.id).toBe(1);
+        expect(selectedArtifact.name).toBe("Project 1");
+
 
     }));
 

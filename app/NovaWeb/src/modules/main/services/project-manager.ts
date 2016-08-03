@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService } from "../../core";
 import {IMessageService, Message, MessageType} from "../../core";
-import {IProjectRepository, Models} from "./project-repository";
+import {IProjectRepository, Models, } from "./project-repository";
 
 export {Models}
 
@@ -54,7 +54,6 @@ export class ProjectManager implements IProjectManager {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository
-//        private artifactService: IArtifactService
     ) {
     }
 
@@ -133,19 +132,46 @@ export class ProjectManager implements IProjectManager {
                 self.setCurrentArtifact(_project);
 
             } else {
-                this._repository.getArtifacts(project.id)
-                    .then((result: Models.IArtifact[]) => {
-                        _project = new Models.Project(project, {
-                            artifacts: result,
-                            loaded: true,
-                            open: true
-                        });
-                        _projectCollection.unshift(_project);
-                        self.projectCollection.onNext(_projectCollection);
-                        self.loadProjectMeta(_project);
+                this._repository.getProjectMeta(project.id)
+                    .then((result: Models.IProjectMeta) => {
+                        if (angular.isArray(result.artifactTypes)) {
+                            //add specific types 
+                            result.artifactTypes.unshift(
+                                <Models.IItemType>{
+                                    id: -1,
+                                    name: this.localization.get("Label_Project"),
+                                    predefinedType: Models.ItemTypePredefined.Project,
+                                    customPropertyTypeIds: []
+                                },
+                                <Models.IItemType>{
+                                    id: -2,
+                                    name: this.localization.get("Label_Collections"),
+                                    predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                                    customPropertyTypeIds: []
+                                }
+                            );
+                        }
+
+                        project.meta = result;
+
+                        this._repository.getArtifacts(project.id)
+                            .then((result: Models.IArtifact[]) => {
+                                project = new Models.Project(project, {
+                                    artifacts: result,
+                                    loaded: true,
+                                    open: true
+                                });
+                                _projectCollection.unshift(project);
+                                self.projectCollection.onNext(_projectCollection);
+                            }).catch((error: any) => {
+                                this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
+                            });
+
                     }).catch((error: any) => {
                         this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                     });
+
+
             } 
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
@@ -197,46 +223,7 @@ export class ProjectManager implements IProjectManager {
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
-    
-    private loadProjectMeta = (project: Models.IProject) => {
-        try {
-            if (!project) {
-                throw new Error(this.localization.get("Project_NotFound"));
-            }
 
-            let self = this;
-            this._repository.getProjectMeta(project.id)
-                .then((result: Models.IProjectMeta) => {
-                    if (angular.isArray(result.artifactTypes)) {
-                        //add specific types 
-                        result.artifactTypes.unshift(
-                            <Models.IItemType>{
-                                id: -1,
-                                name: this.localization.get("Label_Project"),
-                                predefinedType: Models.ItemTypePredefined.Project,
-                                customPropertyTypeIds: []
-                            },
-                            <Models.IItemType>{
-                                id: -2,
-                                name: this.localization.get("Label_Collections"),
-                                predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                                customPropertyTypeIds: []
-                            }
-                        );
-                    }
-
-                    project.meta = result;
-
-
-                    self.setCurrentProject(project);
-                    self.setCurrentArtifact(project);
-                }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
-                });
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
-        }
-    }
 
     public closeProject = (all: boolean = false) => {
         try {

@@ -1,5 +1,6 @@
 ﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
-
+import {IProjectManager} from "../../main"
+export { IProjectManager }
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export interface IEditorContext {
@@ -10,7 +11,7 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -26,7 +27,9 @@ export class BpBaseEditor {
         public messageService: IMessageService,
         public stateManager: IStateManager,
         public windowResizeHandler: IWindowResizeHandler,
-        private $timeout: ng.ITimeoutService) {
+        private $timeout: ng.ITimeoutService,
+        private projectManager: IProjectManager
+    ) {
         this.editor = new PropertyEditor(); 
     }
 
@@ -99,9 +102,9 @@ export class BpBaseEditor {
 
     public onLoading(obj: any): boolean  {
         this.fields = [];
-        this.context = obj.context ? obj.context.currentValue : null;
-        return !!(this.context && this.context.artifact && this.context.propertyTypes);
+        return !!(this.context && angular.isDefined(this.context.artifact));
     }
+
 
     public onLoad(context: IEditorContext) {
         this.onUpdate(context);
@@ -117,7 +120,9 @@ export class BpBaseEditor {
             if (!context || !this.editor) {
                 return;
             }
-            let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
+            
+
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 

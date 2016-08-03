@@ -1,5 +1,6 @@
 ﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
 import { ILocalizationService } from "../../../../core";
+//import { ISession } from "../../../../shell";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
@@ -9,7 +10,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         getReplies: "&",
         canCreate: "=",
         cancelComment: "&",
-        artifactId: "="
+        artifactId: "=",
+        deleteCommentThread: "&"
     };
 }
 
@@ -20,13 +22,15 @@ export class BPArtifactDiscussionItemController {
     public canCreate: boolean;
     public editing = false;
     public artifactId: number;
+    public deleteCommentThread: Function;
 
     public static $inject: [string] = [
         "$element",
         "$scope",
         "artifactDiscussions",
         "localization",
-        "$sce"
+        "$sce"//,
+        //"session"
     ];
 
     constructor(
@@ -34,7 +38,8 @@ export class BPArtifactDiscussionItemController {
         private scope: ng.IScope,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         private localization: ILocalizationService,
-        private $sce: ng.ISCEService) {
+        private $sce: ng.ISCEService//,
+        /*private session: ISession*/) {
         if (this.discussionInfo) {
             let commentContainer = document.createElement("DIV");
             this.addTargetBlankToComment(commentContainer);
@@ -73,9 +78,18 @@ export class BPArtifactDiscussionItemController {
     }
 
     public editCommentClick() {
+        if (this.canEdit()) {
         this.editing = true;
     }
+    }
 
+    public canEdit(): boolean {
+        return !this.discussionInfo.isClosed &&
+            this.canCreate; //&&
+            //this.discussionInfo.userId === this.session.currentUser.id;
+    }
+
+    /* tslint:disable:no-unused-variable */
     private editDiscussion(comment: string): ng.IPromise<IDiscussion> {
         return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
@@ -84,4 +98,5 @@ export class BPArtifactDiscussionItemController {
                 return discussion;
             });
     }
+    /* tslint:disable:no-unused-variable */
 }

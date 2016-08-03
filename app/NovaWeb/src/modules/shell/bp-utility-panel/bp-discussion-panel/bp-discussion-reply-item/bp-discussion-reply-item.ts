@@ -1,12 +1,16 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
+import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
+//import { ISession } from "../../../../shell";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
     public controller: Function = BPDiscussionReplyItemController;
     public bindings: any = {
         replyInfo: "=",
-        artifactId: "="
+        artifactId: "=",
+        canCreate: "=",
+        discussionClosed: "=",
+        deleteReply: "&"
     };
 }
 
@@ -14,17 +18,22 @@ export class BPDiscussionReplyItemController {
     public replyInfo: IReply;
     public artifactId: number;
     public editing = false;
+    public canCreate: boolean;
+    public discussionClosed: boolean;
+    public deleteReply: Function;
 
     public static $inject: [string] = [
         "localization",
         "$sce",
-        "artifactDiscussions",
+        "artifactDiscussions"//,
+        //"session"
     ];
 
     constructor(
         private localization: ILocalizationService,
         private $sce: ng.ISCEService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions) {
+        private _artifactDiscussionsRepository: IArtifactDiscussions//,
+        /*private session: ISession*/) {
     }
 
     public getTrustedCommentHtml() {
@@ -43,9 +52,18 @@ export class BPDiscussionReplyItemController {
     }
 
     public editCommentClick() {
+        if (this.canEdit()) {
         this.editing = true;
     }
+    }
 
+    public canEdit(): boolean {
+        return !this.discussionClosed &&
+            this.canCreate; //&&
+            //this.replyInfo.userId === this.session.currentUser.id;
+    }
+
+    /* tslint:disable:no-unused-variable */
     private editReply(comment: string): ng.IPromise<IReply> {
         return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
             .then((discussion: IReply) => {
@@ -54,4 +72,5 @@ export class BPDiscussionReplyItemController {
                 return discussion;
             });
     }
+    /* tslint:disable:no-unused-variable */
 }

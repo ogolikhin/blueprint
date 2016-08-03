@@ -1,5 +1,4 @@
 import { IArtifactDiscussions, IDiscussion, IReply, IDiscussionResultSet } from "./artifact-discussions.svc";
-import { Models } from "../../../main";
 
 export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 
@@ -104,6 +103,7 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 
         deferred.resolve(discussion);
         return deferred.promise;
+
     }
 
     public addDiscussionReply(artifactId: number, discussionId: number, comment: string): ng.IPromise<IReply> {
@@ -167,4 +167,15 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         deferred.resolve(reply);
         return deferred.promise;
     }
+    public deleteReply(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
+    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
 }
+

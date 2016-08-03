@@ -5,13 +5,15 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
-import { Models } from "../../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 import { IReply } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
+import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
+import { ProjectManager, Models } from "../../../main/services/project-manager";
+import { DialogService } from "../../../shared/";
 
 describe("Component BPDiscussionPanel", () => {
-    
+
     let directiveTest: ComponentTest<BPDiscussionPanelController>;
     let template = `<bp-discussion-panel></bp-discussion-panel>`;
     let vm: BPDiscussionPanelController;
@@ -26,6 +28,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject(() => {
@@ -50,7 +53,7 @@ describe("Component BPDiscussionPanel", () => {
             const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = project;
             artifact.prefix = "PRO";
-            
+
             //Act
             selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
@@ -66,7 +69,7 @@ describe("Component BPDiscussionPanel", () => {
             const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
-            
+
             //Act
             selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
@@ -97,7 +100,7 @@ describe("Component BPDiscussionPanel", () => {
                     return deferred.promise;
                 }
             );
-            
+
             //Act
             selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();

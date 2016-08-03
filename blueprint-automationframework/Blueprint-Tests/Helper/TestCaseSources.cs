@@ -60,7 +60,7 @@ namespace Helper
         /// <summary>Returns a list of all possible diagram artifact types that can be used by the OpenAPI REST methods.</summary>
         public static IReadOnlyCollection<BaseArtifactType> AllDiagramArtifactTypesForOpenApiRestMethods => _allDiagramArtifactTypesForOpenApiRestMethods.AsReadOnly();
 
-        /// <summary>Returns a list of all error (4xx & 5xx) HttpStatusCodes that Blueprint might return.</summary>
+        /// <summary>Returns a list of all error (4xx and 5xx) HttpStatusCodes that Blueprint might return.</summary>
         public static IReadOnlyCollection<HttpStatusCode> AllHttpErrorStatusCodes => _allHttpErrorStatusCodes.AsReadOnly();
     }
 }

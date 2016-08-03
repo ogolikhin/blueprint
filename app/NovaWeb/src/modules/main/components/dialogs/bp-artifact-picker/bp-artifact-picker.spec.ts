@@ -93,7 +93,7 @@ describe("Project Explorer Test", () => {
         };
 
         // Act
-        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
+//        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
 
         // Assert
         expect(isReloadCalled).toEqual(1);
@@ -170,7 +170,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject();
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(isReloadCalled).toBeTruthy();
@@ -190,7 +190,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject(true);
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(current).toBeNull();

@@ -31,6 +31,7 @@ describe("Component BpGeneralEditorInfo", () => {
         $provide.service("stateManager", StateManager);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("windowResizeHandler", WindowResizeHandler);
 
     }));

@@ -24,7 +24,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this),
+            this.selectionManager.selectedArtifactObservable.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -64,11 +64,6 @@ export class ProjectExplorerController {
             return css;
         },
         
-        //cellClassRules: {
-        //    "has-children": function (params) { return params.data.hasChildren; },
-        //    "is-folder": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder; },
-        //    "is-project": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.Project; }
-        //},
         cellRenderer: "group",
         suppressMenu: true,
         suppressSorting: true,
@@ -84,11 +79,6 @@ export class ProjectExplorerController {
             this.tree.reload(projects);
             if (angular.isDefined(this._selectedArtifactId)) {
                 this.tree.selectNode(this._selectedArtifactId);
-            }
-            if (projects && projects.length > 0) {
-                this.selectionManager.selection = this.createSelection(projects[0]);
-            } else {
-                this.selectionManager.clearSelection();
             }
         }
     }
@@ -113,16 +103,14 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        const artifact = this.doSync(node);
 
-        this.selectionManager.selection = this.createSelection(artifact);
+        this.selectionManager.selection = {
+            source: SelectionSource.Explorer,
+            artifact: this.doSync(node),
+            subArtifact: null
+        };
 
     };
-
-    private createSelection(artifact: Models.IArtifact): ISelection {
-        const project = artifact.id === artifact.projectId ? artifact : this.projectManager.getArtifact(artifact.projectId);
-        return { source: SelectionSource.Explorer, project: project, artifact: artifact, subArtifact: null};
-    }
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter

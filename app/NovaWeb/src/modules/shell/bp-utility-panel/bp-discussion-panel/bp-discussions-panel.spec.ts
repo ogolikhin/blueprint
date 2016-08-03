@@ -50,12 +50,11 @@ describe("Component BPDiscussionPanel", () => {
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
-            const artifact = project;
+            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
 
             //Assert
@@ -66,12 +65,11 @@ describe("Component BPDiscussionPanel", () => {
     it("should load replies for expanded discussion",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = false;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -85,7 +83,6 @@ describe("Component BPDiscussionPanel", () => {
     it("should throw exception for expanded discussion",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             $rootScope.$digest();
@@ -102,7 +99,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
 
             vm.artifactDiscussionList[0].expanded = false;
@@ -117,12 +114,11 @@ describe("Component BPDiscussionPanel", () => {
     it("expanded should be false for collapsed discussion",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
 
             //Act

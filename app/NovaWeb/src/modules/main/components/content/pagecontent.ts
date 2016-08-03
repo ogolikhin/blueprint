@@ -55,8 +55,8 @@ class PageContentCtrl {
             }
 
             _context.artifact = artifact;
-            _context.project = this.projectManager.currentProject.getValue();
-            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
+//            _context.project = this.projectManager.currentProject.getValue();
+//            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
             _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
             this.contentType = this.getContentType(artifact);
 

@@ -141,8 +141,8 @@ export class BPArtifactRelationshipItemController {
         if (relationship.hasAccess) {
             const artifact = this.projectManager.getArtifact(relationship.artifactId);
             if (artifact) {
-                const project = this.projectManager.getProject(artifact.projectId);
-                this.selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+//                const project = this.projectManager.getProject(artifact.projectId);
+                this.selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             }
         }
     }

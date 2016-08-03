@@ -15,7 +15,7 @@
     </div>
     <div class="button-bar">
             <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}" 
-               class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteReply()"></i>
+               class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteReply()" ng-show="$ctrl.replyInfo.canDelete"></i>
             <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" 
                class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()" 
                ng-class="{ 'disabled' : !$ctrl.canEdit() }"></i>

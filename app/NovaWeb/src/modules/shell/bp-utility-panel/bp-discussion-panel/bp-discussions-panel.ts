@@ -199,7 +199,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteReply(discussion: IDiscussion, reply: IReply) {
-        this.dialogService.confirm("Comment will be deleted. Continue?").then((confirmed: boolean) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
                     this.getDiscussionReplies(discussion.discussionId)
@@ -214,7 +214,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteCommentThread(discussion: IDiscussion) {
-        this.dialogService.confirm("Comment Thread will be deleted. Continue?").then((confirmed: boolean) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {

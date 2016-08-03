@@ -3,11 +3,11 @@ using System.Net;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace AdminStoreTests
 {
@@ -18,38 +18,6 @@ namespace AdminStoreTests
     public class AccessControlDoubleTests : TestBase
     {
         private IUser _user;
-
-        #region TestCaseSource data
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]   // It is used through reflection.
-        private readonly object[] StatusCodes =
-        {
-            new object[] {HttpStatusCode.BadRequest},
-            new object[] {HttpStatusCode.Unauthorized},
-            new object[] {HttpStatusCode.Forbidden},
-            new object[] {HttpStatusCode.NotFound},
-            new object[] {HttpStatusCode.MethodNotAllowed},
-            new object[] {HttpStatusCode.NotAcceptable},
-            new object[] {HttpStatusCode.Conflict},
-            new object[] {HttpStatusCode.InternalServerError},
-            new object[] {HttpStatusCode.ServiceUnavailable}
-        };
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]   // It is used through reflection.
-        private readonly object[] StatusCodesAndExpectedExceptions =
-        {
-            new object[] {HttpStatusCode.BadRequest,          typeof(Http400BadRequestException)},
-            new object[] {HttpStatusCode.Unauthorized,        typeof(Http401UnauthorizedException)},
-            new object[] {HttpStatusCode.Forbidden,           typeof(Http403ForbiddenException)},
-            new object[] {HttpStatusCode.NotFound,            typeof(Http404NotFoundException)},
-            new object[] {HttpStatusCode.MethodNotAllowed,    typeof(Http405MethodNotAllowedException)},
-            new object[] {HttpStatusCode.NotAcceptable,       typeof(Http406NotAcceptableException)},
-            new object[] {HttpStatusCode.Conflict,            typeof(Http409ConflictException)},
-            new object[] {HttpStatusCode.InternalServerError, typeof(Http500InternalServerErrorException)},
-            new object[] {HttpStatusCode.ServiceUnavailable,  typeof(Http503ServiceUnavailableException)}
-        };
-
-        #endregion TestCaseSource data
 
         #region Setup and Cleanup
 
@@ -70,7 +38,7 @@ namespace AdminStoreTests
 
         #region Success tests
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107437)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & PUT requests.  " +
             "POST a new session to AdminStore.  Verify it returns 200 OK.")]
@@ -88,7 +56,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107438)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: GET, HEAD & POST requests.  " +
             "Try to delete an existing session from AdminStore.  Verify it returns 200 OK.")]
@@ -107,7 +75,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107439)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
             "Try to get an existing session from AdminStore.  Verify it returns 200 OK.")]
@@ -128,7 +96,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107440)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD, POST & PUT requests.  " +
             "Try to get the config.js file from AdminStore.  Verify it returns 200 OK.")]
@@ -149,7 +117,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107441)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
             "Try to get the Login User for a valid session token.  Verify it returns 200 OK.")]
@@ -173,7 +141,7 @@ namespace AdminStoreTests
 
         #region Error tests
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107442)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: POST requests.  " +
             "Try to POST a new session to AdminStore.  Verify it returns a 500 Internal Server error.")]
@@ -188,15 +156,18 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExpectedExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107443)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE requests.  " +
             "Try to delete an existing session from AdminStore.  Verify it returns the same error code that the AccessControlDouble is set to return.")]
-        public void DeleteSession_AccessControlErrorDELETE_ExpectError(HttpStatusCode accessControlError, Type expectedException)
+        public void DeleteSession_AccessControlErrorDELETE_ExpectError(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)accessControlError, accessControlError.ToString()).GetType();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
 
@@ -205,7 +176,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107444)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
             "Try to delete an existing session from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -222,7 +193,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107445)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
             "Try to get a session token for the specified User ID.  Verify it returns a 401 Unauthorized error.")]
@@ -240,7 +211,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107446)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE requests.  " +
             "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -257,7 +228,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107447)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: GET requests.  " +
             "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -274,7 +245,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107448)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: HEAD requests.  " +
             "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -291,7 +262,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107449)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: POST requests.  " +
             "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -308,7 +279,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107450)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
             "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
@@ -325,7 +296,7 @@ namespace AdminStoreTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107451)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
             "Try to get the Login User for an existing session token.  Verify it returns a 401 Unauthorized error.")]

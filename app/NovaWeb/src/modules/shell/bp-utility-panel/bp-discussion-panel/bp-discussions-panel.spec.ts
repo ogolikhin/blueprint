@@ -5,7 +5,6 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
-import { Models } from "../../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 import { IReply } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";

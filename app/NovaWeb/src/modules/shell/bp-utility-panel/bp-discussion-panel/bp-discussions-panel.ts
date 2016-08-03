@@ -1,9 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
-import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
-import { IDialogSettings, IDialogService } from "../../../shared";
+import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -199,21 +197,21 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                         });
                 });
             }
-        })
+        });
     }
 
     public deleteCommentThread(discussion: IDiscussion) {
         this.dialogService.confirm("Comment Thread will be deleted. Continue?").then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
-                    this.getArtifactDiscussions().then((discussionsResultSet: IDiscussionResultSet) => {
+                    this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.artifactDiscussionList = discussionsResultSet.discussions;
                         this.canDelete = discussionsResultSet.canDelete;
                         this.canCreate = discussionsResultSet.canCreate;
                     });
                 });
             }
-        })
+        });
     }
 
 }

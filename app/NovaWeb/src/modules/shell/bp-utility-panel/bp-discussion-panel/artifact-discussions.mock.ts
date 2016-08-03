@@ -104,20 +104,7 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         deferred.resolve(discussion);
         return deferred.promise;
 
-
-    public deleteReply(itemId: number, discussionId: number): ng.IPromise<boolean> {
-        const defer = this.$q.defer<any>();
-        defer.resolve(true);
-        return defer.promise;
     }
-
-    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
-        const defer = this.$q.defer<any>();
-        defer.resolve(true);
-        return defer.promise;
-    }
-
-}
 
     public addDiscussionReply(artifactId: number, discussionId: number, comment: string): ng.IPromise<IReply> {
         const deferred = this.$q.defer<any>();
@@ -180,4 +167,15 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         deferred.resolve(reply);
         return deferred.promise;
     }
+    public deleteReply(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
+    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        defer.resolve(true);
+        return defer.promise;
+    }
 }
+

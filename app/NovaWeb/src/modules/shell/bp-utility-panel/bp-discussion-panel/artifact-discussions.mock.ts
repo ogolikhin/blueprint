@@ -1,5 +1,4 @@
 import { IArtifactDiscussions, IDiscussion, IReply, IDiscussionResultSet } from "./artifact-discussions.svc";
-import { Models } from "../../../main";
 
 export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 

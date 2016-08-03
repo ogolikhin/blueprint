@@ -19,8 +19,6 @@ export class ArtifactStateController {
         private projectManager: IProjectManager,
         private messageService: MessageService) {
         
-        // Need to load artifact type from id instead of param        
-        //let artifactType = <Models.ItemTypePredefined>$state.params["artifactType"];
         let id = $state.params["id"];
 
         let artifact = projectManager.getArtifact(id);
@@ -51,7 +49,6 @@ export class ArtifactStateController {
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
                 this.$state.go('main.artifact.general');
-                //this.$state.go('main.artifact.details');
                 break;
             case Models.ItemTypePredefined.Process:
                 this.$state.go('main.artifact.storyteller');

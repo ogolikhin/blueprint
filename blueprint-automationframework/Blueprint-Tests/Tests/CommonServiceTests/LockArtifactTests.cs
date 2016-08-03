@@ -42,18 +42,7 @@ namespace CommonServiceTests
         #endregion Setup and Cleanup
 
         [TestRail(107358)]
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [Description("Attempt to get a lock on an artifact that has been published by the same user. Verify that the " +
                      "lock was obtained by the user.")]
         public void Lock_UnlockedArtifactPublishedBySameUser_VerifyLockObtained(BaseArtifactType baseArtifactType)

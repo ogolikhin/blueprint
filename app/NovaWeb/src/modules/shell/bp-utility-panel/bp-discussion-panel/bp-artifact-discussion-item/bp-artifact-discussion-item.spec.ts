@@ -12,7 +12,8 @@ describe("Component BPArtifactDiscussionItem", () => {
 
     let directiveTest: ComponentTest<BPArtifactDiscussionItemController>;
     let template = `<bp-artifact-discussion-item 
-            discussion-info="null">
+            discussion-info="null"
+            artifact-id="1">
         </bp-artifact-discussion-item>`;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

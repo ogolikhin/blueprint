@@ -210,6 +210,33 @@ describe("toStartOfTZDay", () => {
     });
 });
 
+describe("autoLinkURLText", () => {
+    it("should find and replace text URLs in nested HTML elements", () => {
+        // Arrange/Act
+        let node = document.createElement("div");
+        node.innerHTML = `
+<p>
+    <span>This is an inline trace:&nbsp;</span>
+    <a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.3.0.0, Culture=neutral, PublicKeyToken=null" canclick="True" isvalid="True" href="http://localhost:9801/?ArtifactId=392" target="_blank" artifactid="392">
+        <span style="text-decoration: underline; color: #0000FF;">RQ392: TEST ARTIFACT</span>
+    </a>
+</p>
+<p>
+    <span>This is a normal hyperlink:&nbsp;</span>
+    <a href="http://www.google.com">
+        <span>Google</span>
+    </a>
+</p>
+<p>
+    <span>Let's see if https://www.cnn.com, http://127.<span>0.0.1</span>, http://www.google.com, or even ftp://filehippo.com get recognized</span>
+</p>`;
+        Helper.autoLinkURLText(node);
+
+        // Assert
+        expect(node.querySelectorAll("a").length).toBe(5);
+    });
+});
+
 describe("getDecimalSeparator", () => {
     it("shows the decimal separator based on locale (US)", () => {
         // Arrange/Act

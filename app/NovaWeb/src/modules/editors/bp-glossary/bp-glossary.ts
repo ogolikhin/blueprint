@@ -1,4 +1,3 @@
-// import { Models } from "../../../";
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
 import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
@@ -23,6 +22,7 @@ export class BpGlossaryController {
     private _context: number; // Models.IArtifact;
 
     public glossary: IGlossaryDetails;
+    public isLoading: boolean = true;
 
     constructor(
         private $log: ng.ILogService,
@@ -37,6 +37,9 @@ export class BpGlossaryController {
             this._context = changesObj.context.currentValue;
 
             if (this._context) {
+                this.isLoading = true;
+                this.glossary = null;
+
                 this.glossaryService.getGlossary(this._context).then((result: IGlossaryDetails) => {
                     result.terms = result.terms.map((term: IGlossaryTerm) => {
                         term.definition = this.$sce.trustAsHtml(term.definition); 
@@ -44,6 +47,9 @@ export class BpGlossaryController {
                     });
 
                     this.glossary = result;
+
+                }).finally(() => {
+                    this.isLoading = false;
                 });
             }
         }

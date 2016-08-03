@@ -153,9 +153,9 @@ export class ProjectManager implements IProjectManager {
                         project.meta = result;
 
                         this._repository.getArtifacts(project.id)
-                            .then((result: Models.IArtifact[]) => {
+                            .then((data: Models.IArtifact[]) => {
                                 project = new Models.Project(project, {
-                                    artifacts: result,
+                                    artifacts: data,
                                     loaded: true,
                                     open: true
                                 });

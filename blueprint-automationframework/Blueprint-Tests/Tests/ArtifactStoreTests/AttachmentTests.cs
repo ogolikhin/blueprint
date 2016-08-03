@@ -386,7 +386,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(154597)]
         [Description("Create & publish an artifact.  Try to get attachments with a user that doesn't have permission to access the artifact.  Verify 403 Forbidden is returned.")]
-        public void GetAttachment_PublishedArtifactWithAttachmentUserHasNoPermissionToArtifact_403Forbidden()
+        public void GetAttachment_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);

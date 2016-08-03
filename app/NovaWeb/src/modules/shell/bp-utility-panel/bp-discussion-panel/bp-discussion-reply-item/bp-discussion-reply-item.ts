@@ -1,6 +1,5 @@
-﻿import { ILocalizationService } from "../../../../core";
+﻿import { ILocalizationService, IMessageService } from "../../../../core";
 import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
-//import { ISession } from "../../../../shell";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
@@ -25,15 +24,15 @@ export class BPDiscussionReplyItemController {
     public static $inject: [string] = [
         "localization",
         "$sce",
-        "artifactDiscussions"//,
-        //"session"
+        "artifactDiscussions",
+        "messageService"
     ];
 
     constructor(
         private localization: ILocalizationService,
         private $sce: ng.ISCEService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions//,
-        /*private session: ISession*/) {
+        private _artifactDiscussionsRepository: IArtifactDiscussions,
+        private messageService: IMessageService) {
     }
 
     public getTrustedCommentHtml() {
@@ -44,7 +43,6 @@ export class BPDiscussionReplyItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
 
     public cancelCommentClick() {
@@ -58,9 +56,11 @@ export class BPDiscussionReplyItemController {
     }
 
     public canEdit(): boolean {
-        return !this.discussionClosed &&
-            this.canCreate; //&&
-            //this.replyInfo.userId === this.session.currentUser.id;
+        if (this.replyInfo) {
+            return !this.discussionClosed && this.replyInfo.canEdit;
+        } else {
+            return false;
+        }
     }
 
     /* tslint:disable:no-unused-variable */
@@ -70,6 +70,11 @@ export class BPDiscussionReplyItemController {
                 this.editing = false;
                 this.replyInfo.comment = comment;
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             });
     }
     /* tslint:disable:no-unused-variable */

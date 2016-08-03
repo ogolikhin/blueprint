@@ -8,8 +8,7 @@ import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 import { IReply } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../../main/services/project-manager";
+import { Models } from "../../../main/services/project-manager";
 import { DialogService } from "../../../shared/";
 
 describe("Component BPDiscussionPanel", () => {

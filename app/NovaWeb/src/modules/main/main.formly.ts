@@ -36,7 +36,7 @@ formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages"
 export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    let attributes = [
+    let attributes: string[] = [
         "date-disabled",
         "custom-class",
         "show-weeks",
@@ -61,7 +61,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         "datepicker-append-to-body"
     ];
 
-    let bindings = [
+    let bindings: string[] = [
         "datepicker-mode",
         "min-date",
         "max-date"
@@ -69,7 +69,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let ngModelAttrs = {};
 
-    const customProperty = 2;
+    const customProperty: number = 2;
 
     let dateFormat = moment.localeData().longDateFormat("L");
     let datePickerFormat = Helper.uiDatePickerFormatAdaptor(dateFormat);
@@ -383,6 +383,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     init_instance_callback: function(editor) {
+                        Helper.autoLinkURLText(editor.getBody());
                         editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
                         editor.dom.bind(editor.dom.select("a"), "click", function(e) {
                             let element: HTMLElement = e.target;

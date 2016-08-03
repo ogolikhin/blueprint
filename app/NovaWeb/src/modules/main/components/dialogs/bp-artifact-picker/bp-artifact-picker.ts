@@ -124,7 +124,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
                 .then((nodes: Models.IArtifact[]) => {   
-                     var arr = nodes.filter((node : Models.IItemType)=>{
+                     var arr = nodes.filter((node: Models.IItemType) => {
                           return this.filterCollections(node);
                         });                         
                     self.tree.reload(arr, artifactId);
@@ -165,7 +165,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         this.projectName = project.name;
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
-                                var arr = nodes.filter((node : Models.IItemType)=>{
+                                var arr = nodes.filter((node: Models.IItemType) => {
                                 return this.filterCollections(node);
                              });   
                                 this.projectView = false;
@@ -180,8 +180,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     }
 
-    private filterCollections(node: Models.IItemType){       
-        if(node.predefinedType !== Models.ItemTypePredefined.CollectionFolder){
+    private filterCollections(node: Models.IItemType) {       
+        if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
             return true;
         }
     }

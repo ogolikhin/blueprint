@@ -100,6 +100,9 @@ Artifact_Glossary_Term, "Term"
 Artifact_Glossary_Definition, "Definition"
 Artifact_Glossary_Empty, "No terms have been defined."
 
+Confirmation_Delete_Comment, "Are you sure you want to permanently delete the selected comment?"
+Confirmation_Delete_Comment_Thread, "Are you sure you want to permanently delete all comments in this discussion?"
+
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
 Login_Auth_LoginFailed,"Login Failed"

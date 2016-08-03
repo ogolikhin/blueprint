@@ -1,6 +1,5 @@
 ﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
-import { ILocalizationService } from "../../../../core";
-//import { ISession } from "../../../../shell";
+import { ILocalizationService, IMessageService } from "../../../../core";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
@@ -11,7 +10,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         canCreate: "=",
         cancelComment: "&",
         artifactId: "=",
-        deleteCommentThread: "&"
+        deleteCommentThread: "&",
+        discussionEdited: "&"
     };
 }
 
@@ -23,14 +23,15 @@ export class BPArtifactDiscussionItemController {
     public editing = false;
     public artifactId: number;
     public deleteCommentThread: Function;
+    public discussionEdited: Function;
 
     public static $inject: [string] = [
         "$element",
         "$scope",
         "artifactDiscussions",
         "localization",
-        "$sce"//,
-        //"session"
+        "$sce",
+        "messageService"
     ];
 
     constructor(
@@ -38,8 +39,8 @@ export class BPArtifactDiscussionItemController {
         private scope: ng.IScope,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         private localization: ILocalizationService,
-        private $sce: ng.ISCEService//,
-        /*private session: ISession*/) {
+        private $sce: ng.ISCEService,
+        private messageService: IMessageService) {
         if (this.discussionInfo) {
             let commentContainer = document.createElement("DIV");
             this.addTargetBlankToComment(commentContainer);
@@ -70,7 +71,6 @@ export class BPArtifactDiscussionItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
 
     public cancelCommentClick() {
@@ -84,9 +84,11 @@ export class BPArtifactDiscussionItemController {
     }
 
     public canEdit(): boolean {
-        return !this.discussionInfo.isClosed &&
-            this.canCreate; //&&
-            //this.discussionInfo.userId === this.session.currentUser.id;
+        if (this.discussionInfo) {
+            return !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
+        } else {
+            return false;
+        }
     }
 
     /* tslint:disable:no-unused-variable */
@@ -95,7 +97,13 @@ export class BPArtifactDiscussionItemController {
             .then((discussion: IDiscussion) => {
                 this.editing = false;
                 this.discussionInfo.comment = comment;
+                this.discussionEdited();
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             });
     }
     /* tslint:disable:no-unused-variable */

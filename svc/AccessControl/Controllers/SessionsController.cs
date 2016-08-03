@@ -75,7 +75,7 @@ namespace AccessControl.Controllers
 
         [HttpGet, NoCache]
         [Route("{uid}")]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(Session))]
         public async Task<IHttpActionResult> GetSession(int uid)
         {
             try
@@ -102,7 +102,7 @@ namespace AccessControl.Controllers
 
         [HttpGet, NoCache]
         [Route("select")]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(IEnumerable<Session>))]
         public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
             try

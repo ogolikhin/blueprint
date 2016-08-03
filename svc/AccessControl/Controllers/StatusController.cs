@@ -68,7 +68,6 @@ namespace AccessControl.Controllers
         /// <response code="200">OK.</response>
         [HttpGet, NoCache]
         [Route("upcheck"), NoSessionRequired]
-        [ResponseType(typeof(ServiceStatus))]
         public IHttpActionResult GetStatusUpCheck()
         {
             return Ok();

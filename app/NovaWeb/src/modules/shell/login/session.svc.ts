@@ -106,8 +106,9 @@ export class SessionSvc implements ISession {
             this._loginMsg = this.localization.get("Login_Session_Timeout");
             this._isForceSameUsername = true;
             this.showLogin(defer);
+        } else {
+            defer.resolve();
         }
-        defer.resolve();
         return defer.promise;
     }
 

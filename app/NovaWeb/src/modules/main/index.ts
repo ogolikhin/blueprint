@@ -32,15 +32,10 @@ import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
 import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
 import { MainViewComponent } from "./main.view";
 import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
-import { config as routesConfig } from "./main.state";
 import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
 import {ArtifactStateController} from "./router/artifact.state";
 import {Routes} from "./router/router.config";
-import "../editors/bp-storyteller";
-import "../editors/bp-artifact";
-import "../editors/bp-diagram";
-import "../editors/bp-glossary";
 
 config.$inject = ["$rootScope", "$state"];
 export {

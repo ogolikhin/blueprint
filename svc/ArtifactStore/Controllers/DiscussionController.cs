@@ -83,6 +83,7 @@ namespace ArtifactStore.Controllers
             {
                 discussion.CanDelete = permissions.TryGetValue(discussion.ItemId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
+                discussion.CanEdit = permissions.TryGetValue(discussion.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
             }
 
             var result = new DiscussionResultSet
@@ -141,6 +142,7 @@ namespace ArtifactStore.Controllers
             {
                 reply.CanDelete = permissions.TryGetValue(reply.ItemId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId));
+                reply.CanEdit = permissions.TryGetValue(reply.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
             }
 
             return result;

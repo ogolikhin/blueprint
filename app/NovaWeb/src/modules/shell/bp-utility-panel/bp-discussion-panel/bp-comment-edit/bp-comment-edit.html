@@ -1,8 +1,11 @@
 ﻿<div class="edit-container">
-    <textarea placeholder="{{$ctrl.commentPlaceHolderText}}" autofocus></textarea>
-    <div class="comment-edit-button-bar">
+    <textarea ui-tinymce="$ctrl.tinymceOptions" ng-model="$ctrl.commentText" placeholder="{{$ctrl.commentPlaceHolderText}}"></textarea>
+    <!--<div>
+        <input type="text" ng-model="$ctrl.commentText" />
+    </div>-->
+    <div class="comment-edit-button-bar clearfix">
         <div class="pull-left">
-            <button class="btn btn-new-comment" type="button" ng-click="">{{$ctrl.addButtonText}}</button>
+            <button class="btn btn-new-comment" type="button" ng-click="$ctrl.callPostComment()">{{$ctrl.addButtonText}}</button>
         </div>
         <div class="pull-right">
             <button class="btn btn-new-comment" type="button" ng-click="$ctrl.cancelComment()">{{$ctrl.cancelButtonText}}</button>

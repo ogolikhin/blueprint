@@ -1496,7 +1496,6 @@ namespace Model.StorytellerModel.Impl
 
             AssociatedArtifact = new AssociatedArtifact()
             {
-                BaseItemTypePredefined = artifact.BaseItemTypePredefined,
                 Id = artifact.Id,
                 Link = null,
                 Name = artifact.Name,

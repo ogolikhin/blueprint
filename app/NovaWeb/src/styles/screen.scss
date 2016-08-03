@@ -14,10 +14,10 @@ body {
 
 body {
   background-color: $body-bg-color;
-  background-image: url('images/bp_logo_gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  background-image: url('images/logo-storyteller-gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   background-repeat: no-repeat, no-repeat;
   background-position: center 48%, top;
-  background-size: 84%, 120%;
+  background-size: 60%, 120%;
   color: $body-color;
   overflow: hidden;
 }
@@ -61,7 +61,7 @@ body {
 @import 'partials/avatar';
 @import 'partials/select';
 @import 'partials/tinymce';
-@import 'partials/mobile-only';
 @import 'partials/error-messages';
 @import 'partials/diagram';
 @import 'partials/glossary';
+@import 'partials/mobile-only';

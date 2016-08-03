@@ -4,7 +4,7 @@ import "angular-formly-templates-bootstrap";
 import * as moment from "moment";
 import {PrimitiveType} from "./models/enums";
 import {ILocalizationService} from "../core";
-import {Helper} from "../core/utils/helper";
+import {Helper} from "../shared";
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 formlyDecorate.$inject = ["$provide"];
@@ -36,7 +36,7 @@ formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages"
 export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    let attributes = [
+    let attributes: string[] = [
         "date-disabled",
         "custom-class",
         "show-weeks",
@@ -61,7 +61,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         "datepicker-append-to-body"
     ];
 
-    let bindings = [
+    let bindings: string[] = [
         "datepicker-mode",
         "min-date",
         "max-date"
@@ -69,7 +69,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     let ngModelAttrs = {};
 
-    const customProperty = 2;
+    const customProperty: number = 2;
 
     let dateFormat = moment.localeData().longDateFormat("L");
     let datePickerFormat = Helper.uiDatePickerFormatAdaptor(dateFormat);
@@ -85,17 +85,26 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
+    let blurOnEnterKey = function(event) {
+        let inputField = event.target;
+        let key = event.keyCode || event.which;
+        if (inputField && key === 13) {
+            let inputFieldButton = <HTMLInputElement> inputField.parentElement.querySelector("span button");
+            if (inputFieldButton) {
+                inputFieldButton.focus();
+            } else {
+                inputField.blur();
+            }
+        }
+    };
+
     formlyConfig.setType({
         name: "bpFieldReadOnly",
-        extends: "input",
         /* tslint:disable */
-        template: `<div class="input-group has-messages" bp-tooltip="{{tooltip}}">
-                <input type="text"
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    readonly="readonly"
-                    class="form-control read-only" />
+        template: `<div class="input-group has-messages">
+                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
+                <div ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -103,6 +112,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             let currentModelVal = $scope.model[$scope.options.key];
 
             $scope.tooltip = "";
+            $scope.scrollOptions = {
+                minScrollbarLength: 20
+            };
 
             if (currentModelVal) {
                 switch ($scope.options.data.primitiveType) {
@@ -128,6 +140,122 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     });
 
     formlyConfig.setType({
+        name: "bpFieldText",
+        extends: "input",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <input type="text"
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    ng-keyup="bpFieldText.keyup($event)"
+                    class="form-control" />
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldText = {};
+
+            $scope.bpFieldText.keyup = blurOnEnterKey;
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldTextMulti",
+        extends: "textarea",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <textarea
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    class="form-control"></textarea>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldTextMulti = {};
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldSelect",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelect = {};
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldSelectMulti",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    multiple
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            validation: {
+                messages: {
+                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+                }
+            }
+        },
+        controller: ["$scope", function ($scope) {
+            $scope.bpFieldSelectMulti = {};
+        }]
+    });
+
+    formlyConfig.setType({
         name: "bpFieldNumber",
         extends: "input",
         /* tslint:disable */
@@ -137,7 +265,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldNumber.keyup($event)"
-                    ng-change="bpFieldNumber.change($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -146,8 +273,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            templateOptions: {
-            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
@@ -161,7 +286,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         }
 
                         let value = $modelValue || $viewValue;
-                        let decimalPlaces = (<any> scope.to).decimalPlaces;
+                        let decimalPlaces = scope.to["decimalPlaces"];
 
                         if (value && angular.isNumber(decimalPlaces)) {
                             let intValue = parseInt(value, 10);
@@ -229,29 +354,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
             }
 
-            $scope.bpFieldNumber.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
-            };
-
-            $scope.bpFieldNumber.keyup = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                let key = $event.keyCode || $event.which;
-                if (inputField && key === 13) {
-                    inputField.blur();
-                }
-
-            };
+            $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
     });
 
@@ -279,6 +382,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                    init_instance_callback: function(editor) {
+                        Helper.autoLinkURLText(editor.getBody());
+                        editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
+                        editor.dom.bind(editor.dom.select("a"), "click", function(e) {
+                            let element: HTMLElement = e.target;
+                            while (element && element.tagName.toUpperCase() !== "A") {
+                                element = element.parentElement;
+                            }
+                            if (element && element.getAttribute("href")) {
+                                window.open(element.getAttribute("href"), "_blank");
+                            }
+                        });
+                    },
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
@@ -296,7 +412,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"
-                    ng-change="bpFieldDatepicker.change($event)"
                     ng-keyup="bpFieldDatepicker.keyup($event)"
                     uib-datepicker-popup="{{to.datepickerOptions.format}}"
                     is-open="bpFieldDatepicker.opened"
@@ -349,7 +464,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             minDate = moment(minDate).startOf("day");
 
-                            (<any> scope.to).minDate = minDate.format("L");
+                            scope.to["minDate"] = minDate.format("L");
 
                             return value.isSameOrAfter(minDate, "day");
                         }
@@ -369,7 +484,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             value = moment(value).startOf("day");
                             maxDate = moment(maxDate).startOf("day");
 
-                            (<any> scope.to).maxDate = maxDate.format("L");
+                            scope.to["maxDate"] = maxDate.format("L");
 
                             return value.isSameOrBefore(maxDate, "day");
                         }
@@ -385,8 +500,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             let currentModelVal = $scope.model[$scope.options.key];
             if (angular.isString(currentModelVal)) {
                 $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
+            } else if (angular.isDate(currentModelVal)) {
+                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
             }
-            if (angular.isString($scope.defaultValue)) {
+
+            if ($scope.defaultValue) {
                 $scope.defaultValue = moment($scope.defaultValue).startOf("day").toDate();
             }
             if ($scope.to["datepickerOptions"]) {
@@ -405,10 +523,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             $scope.bpFieldDatepicker.selected = false;
             $scope.bpFieldDatepicker.select = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                if (!inputField) {
-                    return;
-                }
+                let inputField = $event.target;
                 inputField.focus();
                 if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
                     inputField.setSelectionRange(0, inputField.value.length);
@@ -417,47 +532,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
 
             $scope.bpFieldDatepicker.blur = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                if (!inputField) {
-                    return;
-                }
                 $scope.bpFieldDatepicker.selected = false;
             };
 
-            $scope.bpFieldDatepicker.change = function ($event) {
-                //TODO: This is just a stub, it will need to be refactored when "dirty" is implemented
-                let artifactNameDiv = document.body.querySelector(".page-content .page-heading .artifact-heading .name");
-                if (artifactNameDiv) {
-                    if ($scope.fc.$dirty) {
-                        let dirtyIcon = artifactNameDiv.querySelector("i.dirty-indicator");
-                        if (!dirtyIcon) {
-                            let div = document.createElement("DIV");
-                            div.innerHTML = `<i class="dirty-indicator"></i>`;
-                            artifactNameDiv.appendChild(div.firstChild);
-                        }
-                    }
-                }
-            };
-
-            $scope.bpFieldDatepicker.keyup = function ($event) {
-                let inputField = <HTMLInputElement> document.getElementById($scope.id);
-                let key = $event.keyCode || $event.which;
-                if (inputField && key === 13) {
-                    let calendarIcon = <HTMLInputElement> inputField.parentElement.querySelector("span button");
-                    if (calendarIcon) {
-                        calendarIcon.focus();
-                    } else {
-                        inputField.blur();
-                    }
-                }
-            };
+            $scope.bpFieldDatepicker.keyup = blurOnEnterKey;
         }]
     });
 
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
-              <label for="{{id}}" class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}" ng-if="to.label">
+              <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
+                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}"
+                bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">
                 {{to.label}}
               </label>
               <formly-transclude></formly-transclude>

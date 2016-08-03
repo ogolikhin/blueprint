@@ -13,6 +13,16 @@ using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
+    /// <summary>
+    /// This is returned by OpenAPI when adding an artifact.
+    /// Currently I can't see a way for these to ever be set to true.
+    /// </summary>
+    public class ArtifactStatus
+    {
+        public bool IsLocked { get; set; }
+        public bool IsReadOnly { get; set; }
+    }
+
     public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
@@ -23,8 +33,22 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
+        public bool ShouldDeleteChildren { get; set; }
+        public IUser LockOwner { get; set; }
+        public string Address { get; set; }
+        public IUser CreatedBy { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsSaved { get; set; }
+        public bool IsMarkedForDeletion { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public bool AreTracesReadOnly { get; set; }
+        public bool AreAttachmentsReadOnly { get; set; }
+        public bool AreDocumentReferencesReadOnly { get; set; }
+
+        #region Serialized JSON Properties
+
         public BaseArtifactType BaseArtifactType { get; set; }
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -33,53 +57,28 @@ namespace Model.ArtifactModel.Impl
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
         public string ArtifactTypeName { get; set; }
-        public bool AreTracesReadOnly { get; set; }
-        public bool AreAttachmentsReadOnly { get; set; }
-        public bool AreDocumentReferencesReadOnly { get; set; }
-        public string Address { get; set; }
-        public IUser CreatedBy { get; set; }
-        public bool IsPublished { get; set; }
-        public bool IsSaved { get; set; }
-        public bool IsMarkedForDeletion { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
-        public bool ShouldDeleteChildren { get; set; } = false;
-        public IUser LockOwner { get; set; }
+        public ArtifactStatus Status { get; set; }
 
         //TODO  Check if we can remove the setters and get rid of these warnings
-
-        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
 
         //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
-        public List<OpenApiProperty> Properties { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; set; } = new List<OpenApiProperty>();
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiComment>>))]
-        public List<OpenApiComment> Comments { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
-        public List<OpenApiTrace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
-        public List<OpenApiAttachment> Attachments { get; set; }
-
+        #endregion Serialized JSON Properties
         #endregion Properties
 
         #region Constructors
-
+        
         /// <summary>
-        /// Constructor in order to use it as generic type
+        /// Constructor needed to deserialize it as generic type.
         /// </summary>
         public ArtifactBase()
         {
-            IsSaved = false;
-            IsPublished = false;
         }
-
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -103,6 +102,42 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        #region Implements IDeepCopyable
+
+        /// <seealso cref="IDeepCopyable{T}.DeepCopy()"/>
+        public IArtifactBase DeepCopy()
+        {
+            IArtifactBase artifactBase = new ArtifactBase
+            {
+                ShouldDeleteChildren = this.ShouldDeleteChildren,
+                LockOwner = this.LockOwner,
+                Address = this.Address,
+                CreatedBy = this.CreatedBy,
+                IsPublished = this.IsPublished,
+                IsSaved = this.IsSaved,
+                IsMarkedForDeletion = this.IsMarkedForDeletion,
+                IsDeleted = this.IsDeleted,
+
+                Id = this.Id,
+                Name = this.Name,
+                ProjectId = this.ProjectId,
+                Version = this.Version,
+                ParentId = this.ParentId,
+                BlueprintUrl = this.BlueprintUrl,
+                ArtifactTypeId = this.ArtifactTypeId,
+                ArtifactTypeName = this.ArtifactTypeName,
+                AreTracesReadOnly = this.AreTracesReadOnly,
+                AreAttachmentsReadOnly = this.AreAttachmentsReadOnly,
+                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly
+            };
+
+            Properties.AddRange(this.Properties);
+
+            return artifactBase;
+        }
+
+        #endregion Implements IDeepCopyable
 
         #region Delete methods
 

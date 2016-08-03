@@ -61,7 +61,6 @@
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
-    <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiArtifact.cs" />
@@ -70,8 +69,9 @@
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
-    <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
+    <Compile Include="IDeepCopyable.cs" />
+    <Compile Include="Impl\ArtifactDetails.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
@@ -95,7 +95,6 @@
     <Compile Include="ArtifactModel\Impl\Property.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
     <Compile Include="ArtifactModel\Impl\NovaTrace.cs" />
-    <Compile Include="ArtifactModel\IProperty.cs" />
     <Compile Include="Impl\PrimitiveFolder.cs" />
     <Compile Include="IPrimitiveFolder.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />

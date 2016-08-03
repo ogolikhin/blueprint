@@ -146,14 +146,16 @@ $modal-open-project-height: 450px;
         white-space: nowrap;
       }
 
-      .project-description {
+      .project-description-wrapper {
         background: $gray-lightest;
         border-radius: $border-radius-amount;
         margin-top: 10px;
         max-height: 137px;
         min-height: 36px;
-        overflow: auto;
-        padding: 8px 15px;
+
+        .project-description {
+          padding: 8px 15px;
+        }
       }
     }
 
@@ -184,7 +186,7 @@ $modal-open-project-height: 450px;
 
 .modal.nova-login {
   .modal-header {
-    background: $brand-secondary url('images/bp_logo_white.svg') center center no-repeat;
+    background: $brand-secondary url('images/logo-storyteller-white.svg') center center no-repeat;
     background-size: 180px;
     height: 89px;
   }

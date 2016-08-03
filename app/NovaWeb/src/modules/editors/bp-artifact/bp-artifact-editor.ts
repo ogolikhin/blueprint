@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService, IArtifactService, Models, Helper} from "./";
+﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, IWindowResizeHandler, Models } from "./";
 import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
@@ -10,12 +10,24 @@ export class BpArtifactEditor implements ng.IComponentOptions {
     };
 }
 
-
 export class BpArtifactEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "artifactService", "localization"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "artifactService", "localization", "$timeout"];
 
-    constructor(messageService: IMessageService, private artifactService: IArtifactService, private localization: ILocalizationService) {
-        super(messageService);
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        scrollXMarginOffset: 4,
+        scrollYMarginOffset: 4
+    };
+
+    constructor(
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        windowResizeHandler: IWindowResizeHandler,
+        private artifactService: IArtifactService,
+        private localization: ILocalizationService,
+        $timeout: ng.ITimeoutService
+    ) {
+        super(messageService, stateManager, windowResizeHandler, $timeout);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -47,6 +59,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
     }
 
     public onLoad(context: IEditorContext) {
+        this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             angular.extend(context.artifact, it);
             this.onUpdate(context);
@@ -54,7 +67,9 @@ export class BpArtifactEditorController extends BpBaseEditor {
             //ignore authentication errors here
             if (error.statusCode !== 1401) {
                 this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-            }
+                }
+        }).finally(() => {
+            this.isLoading = false;
         });
     }
 
@@ -63,7 +78,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         if (!propertyContext) {
             return;
         }
-        //re=group fields
+        //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);
         } else if (LookupEnum.System === propertyContext.lookup) {

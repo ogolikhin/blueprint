@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
 import {Models} from "../../../main";
 

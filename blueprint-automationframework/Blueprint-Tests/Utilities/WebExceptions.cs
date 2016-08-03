@@ -255,6 +255,31 @@ namespace Utilities
     }
 
     [Serializable]
+    public class Http501NotImplementedException : HttpRequestBaseException
+    {
+        public const string ERROR = "Received status code: 501";
+
+        public Http501NotImplementedException()
+        { }
+
+        public Http501NotImplementedException(WebException ex)
+            : base(((ex == null) ? ERROR : ex.Message), ex)
+        { }
+
+        public Http501NotImplementedException(string msg)
+            : base(msg)
+        { }
+
+        public Http501NotImplementedException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected Http501NotImplementedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+    }
+
+    [Serializable]
     public class Http503ServiceUnavailableException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 503";
@@ -404,6 +429,10 @@ namespace Utilities
             else if (ex.Message.Contains(Http500InternalServerErrorException.ERROR))
             {
                 newEx = new Http500InternalServerErrorException(ex);
+            }
+            else if (ex.Message.Contains(Http501NotImplementedException.ERROR))
+            {
+                newEx = new Http501NotImplementedException(ex);
             }
             else if (ex.Message.Contains(Http503ServiceUnavailableException.ERROR))
             {

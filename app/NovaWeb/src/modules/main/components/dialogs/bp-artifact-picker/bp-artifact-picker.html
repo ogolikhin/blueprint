@@ -1,12 +1,16 @@
 ﻿<div class="modal-header">
     <h3 class="modal-title">{{::$ctrl.params.header}}</h3>
 </div>
-<div class="modal-body">
-    <div ng-if="$ctrl.hasError">
-        {{$ctrl.errorMessage}}
+<div class="modal-body artifact-picker">
+    <div ng-click="$ctrl.getProjects()">
+        <input type="text" class="form-control upper-text" /><i class="fonticon2-search"></i>
     </div>
-    <div ng-if="!$ctrl.hasError" class="project-wrapper">
+    <div class="project-wrapper">
         <div class="artifact-picker-container">
+            <div class="grid-header">
+                <i class="navigate-back fonticon2-arrow-double-left" ng-if="!$ctrl.projectView" ng-click="$ctrl.getProjects()"></i><i ng-if="!$ctrl.projectView" class="icon-project"></i>
+                &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.projectName}}" bp-tooltip-truncated="true" >{{$ctrl.projectName}}</span>
+            </div>
             <bp-tree bp-ref="$ctrl.tree"
                      grid-class="project-tree"
                      header-height="20"
@@ -15,11 +19,10 @@
                      property-map="$ctrl.propertyMap"
                      on-load="$ctrl.doLoad(prms)"
                      on-select="$ctrl.doSelect(item)"
-                     header-cell-renderer-f="$ctrl.setHeader()"
                      on-sync="$ctrl.doSync(item)">
             </bp-tree>
         </div>
-      
+
     </div>
 </div>
 <div class="modal-footer">

@@ -1,7 +1,7 @@
-﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
-import {IMessageService, MessageService, Message, MessageType} from "../../../../../shell/";
+﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
-import {Models, Enums} from "../../../../../main";
+import * as Models from "../../../../../main/models/models";
+import * as Enums from "../../../../../main/models/enums";
 import {ProcessModels, ProcessEnums} from "../../../";
 
 export interface IStorytellerViewModel extends IProcessClientModel{
@@ -19,7 +19,7 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
-    isWithinShapeLimit(additionalShapes:number, isLoading?: boolean): boolean;
+    isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
     updateProcessClientModel(process);
@@ -47,14 +47,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _justCreatedShapeIds: number[] = [];
 
-    constructor(process, scope?: any, messageService?: IMessageService) {
+    constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
         this.updateProcessClientModel(process);
-
+        this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
-            this.subscribeToToolbarEvents();
-            this.getConfigurationSettings();
+           // this.subscribeToToolbarEvents();
+            this.getConfigurationSettings(); 
         }
 
         //if (header) {
@@ -74,7 +74,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public set isReadonly(value) {
         this._isReadonly = value;
         //if (this.header) {
-            //this._header.isReadonly = value;
+        //this._header.isReadonly = value;
         //}
     }
 
@@ -294,7 +294,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         return this.processClientModel.projectId;
     }
 
-    public get baseItemTypePredefined(): ItemTypePredefined {
+    public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processClientModel.baseItemTypePredefined;
     }
 
@@ -444,30 +444,30 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
 
-    private subscribeToToolbarEvents() {
-        // subscribe to toolbar commands using the event bus 
-        if (this._scope.subscribe) {
-            if (this._unsubscribeToolbarEvents.length > 0) {
-                // remove previous event listeners 
-                this.removeToolbarEventListeners();
-            }
-            this._unsubscribeToolbarEvents.push(
-                this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
-                    this.resetLock();
-                })
-            );
-        }
-    }
+    //private subscribeToToolbarEvents() {
+    //    // subscribe to toolbar commands using the event bus 
+    //    if (this._scope.subscribe) {
+    //        if (this._unsubscribeToolbarEvents.length > 0) {
+    //            // remove previous event listeners 
+    //            this.removeToolbarEventListeners();
+    //        }
+    //        this._unsubscribeToolbarEvents.push(
+    //            this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
+    //                this.resetLock();
+    //            })
+    //        );
+    //    }
+    //}
 
-    private removeToolbarEventListeners() {
-        if (this._unsubscribeToolbarEvents.length > 0) {
-            for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
-                this._unsubscribeToolbarEvents[i]();
-                this._unsubscribeToolbarEvents[i] = null;
-            }
-        }
-        this._unsubscribeToolbarEvents = [];
-    }
+    //private removeToolbarEventListeners() {
+    //    if (this._unsubscribeToolbarEvents.length > 0) {
+    //        for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
+    //            this._unsubscribeToolbarEvents[i]();
+    //            this._unsubscribeToolbarEvents[i] = null;
+    //        }
+    //    }
+    //    this._unsubscribeToolbarEvents = [];
+    //}
 
     private getConfigurationSettings() {
         // get configuration settings from scope and assign to viewmodel 
@@ -475,8 +475,8 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         if (this._scope) {
             this.isSpa = this._scope["isSpa"];
 
-            if (this._scope["vm"]["$rootScope"]) {
-                let shapeLimitVal = this._scope["vm"]["$rootScope"].config.settings.StorytellerShapeLimit;
+            if (this._rootScope) {
+                let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
                 }
@@ -484,7 +484,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
                     this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
                 }
 
-                let isSMBVal = this._scope["vm"]["$rootScope"].config.settings.StorytellerIsSMB;
+                let isSMBVal = this._rootScope.config.settings.StorytellerIsSMB;
                 if (isSMBVal.toLowerCase() === "true") {
                     this.isSMB = true;
                 } else {
@@ -497,16 +497,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     public getMessageText(message_id: string) {
         // get message text from rootscope settings  
         let text = null;
-        if (this._scope) {
-            if (this._scope["vm"]["$rootScope"]) {
-                text = this._scope["vm"]["$rootScope"].config.labels[message_id];
-            }
+        if (this._rootScope) {
+            text = this._rootScope.config.labels[message_id];
         }
         return text;
     }
 
     public destroy() {
-        this.removeToolbarEventListeners();
+        //this.removeToolbarEventListeners();
         //this._header = null;
         this._scope = null;
         if (this.processClientModel != null) {

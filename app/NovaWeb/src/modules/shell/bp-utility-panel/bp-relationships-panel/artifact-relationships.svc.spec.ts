@@ -1,8 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IArtifactRelationshipsResultSet, IArtifactRelationships, ArtifactRelationships} from "./artifact-relationships.svc";
-import {ILocalizationService } from "../../../core";
 import {Relationships} from "../../../main";
 
 describe("Artifact Relationships Service", () => {

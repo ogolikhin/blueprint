@@ -13,8 +13,7 @@ bp-discussion-panel {
     bp-comment-edit {
         .edit-container {
             text-align: center;
-            margin-top: $padding-smaller;
-            padding: $padding-smaller;
+            padding: $padding-smallest;
         }
 
         textarea {
@@ -24,14 +23,17 @@ bp-discussion-panel {
 
         .comment-edit-button-bar {
             margin-top: $padding-smallest;
-            clear: both;
+        }
+
+        &.reply {
+            margin-bottom: 10px;
         }
     }
 
     .author {
         @include text-ellipsis-flex-width(180px);
-        display:inline-block;
-        vertical-align:middle;
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .comment {
@@ -49,19 +51,19 @@ bp-discussion-panel {
         }
     }
 
-    bp-avatar{
-        display:inline-block;
-        vertical-align:middle;
+    bp-avatar {
+        display: inline-block;
+        vertical-align: middle;
     }
 
     .info {
         line-height: $font-size-bigger;
     }
 
-    .discussion-status{
-        font-size:$font-size-normal;
+    .discussion-status {
+        font-size: $font-size-normal;
         color: $gray-darker;
-        font-style:normal;
+        font-style: normal;
 
         &.inactive {
             color: $gray-light;
@@ -82,6 +84,11 @@ bp-discussion-panel {
         &.active {
             color: $gray-darker;
         }
+
+        &.disabled{
+            opacity: 0.6;
+            pointer-events: none;
+        }
     }
 
     .reply-link {
@@ -100,8 +107,10 @@ bp-discussion-panel {
     }
 
     bp-discussion-reply-item {
-        margin-left: $padding-smaller !important;
-        background-color: $blue-lightest;
+        .reply-item {
+            margin-left: $padding-smaller !important;
+            background-color: $blue-lightest;
+        }
 
         .reply-separator {
             width: 2px;
@@ -115,5 +124,31 @@ bp-discussion-panel {
         .author {
             @include text-ellipsis-flex-width(160px);
         }
+    }
+
+    bp-artifact-discussion-item, bp-discussion-reply-item {
+        .comment-editing {
+            padding: 0;
+        }
+    }
+
+    .mce-btn button {
+        padding: 2px 3px;
+        font-size: 12px;
+    }
+
+    .mce-ico {
+        font-size: 13px;
+        width: 14px;
+    }
+
+    i.mce-ico.mce-i-font-size::before {
+        content: "\e241";
+        font-family: 'Glyphicons Halflings' !important;
+    }
+
+    i.mce-ico.mce-i-format::before {
+        content: "\e81c";
+        font-family: 'bp-font2' !important;
     }
 }

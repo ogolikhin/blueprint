@@ -44,15 +44,15 @@ export class GlossaryService implements IGlossaryService {
     public getGlossary(id: number): ng.IPromise<IGlossaryDetails> {
         const defer = this.$q.defer<IGlossaryDetails>();
 
-        this.$http.get("/svc/components/RapidReview/glossary/" + id + "?includeDraft=true")
-            .success((result: IGlossaryDetails) => {
-                this._glossary.onNext(result);
-                defer.resolve(result);
+        this.$http.get<IGlossaryDetails>("/svc/components/RapidReview/glossary/" + id + "?includeDraft=true")
+            .then((result: ng.IHttpPromiseCallbackArg<IGlossaryDetails>) => {
+                this._glossary.onNext(result.data);
+                defer.resolve(result.data);
 
-            }).error((err: any, statusCode: number) => {
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: result.status,
+                    message: (result.data ? result.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

@@ -1,6 +1,6 @@
-// import { Models } from "../../../";
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
+import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -15,17 +15,20 @@ export class BpGlossaryController {
         "$log",
         "localization",
         "glossaryService",
+        "selectionManager",
         "$sce"
     ];
 
     private _context: number; // Models.IArtifact;
 
     public glossary: IGlossaryDetails;
+    public isLoading: boolean = true;
 
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
+        private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService) {
     }
 
@@ -34,6 +37,9 @@ export class BpGlossaryController {
             this._context = changesObj.context.currentValue;
 
             if (this._context) {
+                this.isLoading = true;
+                this.glossary = null;
+
                 this.glossaryService.getGlossary(this._context).then((result: IGlossaryDetails) => {
                     result.terms = result.terms.map((term: IGlossaryTerm) => {
                         term.definition = this.$sce.trustAsHtml(term.definition); 
@@ -41,6 +47,9 @@ export class BpGlossaryController {
                     });
 
                     this.glossary = result;
+
+                }).finally(() => {
+                    this.isLoading = false;
                 });
             }
         }
@@ -54,5 +63,9 @@ export class BpGlossaryController {
             t.selected = t === term;
             return t;
         });
+        const selection = angular.copy(this.selectionManager.selection);
+        selection.source = SelectionSource.Editor;
+        selection.subArtifact = term;
+        this.selectionManager.selection = selection;
     }
 }

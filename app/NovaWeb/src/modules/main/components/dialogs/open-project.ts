@@ -1,8 +1,6 @@
 ﻿import "angular";
-import { Helper } from "../../../core/utils/helper";
 import { ILocalizationService } from "../../../core";
-import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
-import { IDialogSettings, BaseDialogController, IDialogService} from "../../../core";
+import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../shared";
 import { IProjectManager, Models } from "../../";
 
 export interface IOpenProjectController {
@@ -41,6 +39,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         hasChildren: "hasChildren"
     };
 
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        suppressScrollX: true,
+        scrollYMarginOffset: 4
+    };
+
     //Dialog return value
     public get returnValue(): Models.IProject {
         return this.selectedItem || null;
@@ -60,6 +64,11 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public get selectedItem() {
         return this._selectedItem;
     }
+    private _selectedDescription: string;
+
+    public get selectedDescription() {
+        return this._selectedDescription;
+    }
 
     private setSelectedItem(item: any) {
         this._selectedItem = <Models.IProject>{
@@ -67,19 +76,21 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             name: (item && item["name"]) || "",
             description: (item && item["description"]) || "",
             itemTypeId: (item && item["type"]) || -1
-            
         };
 
         if (this._selectedItem.description) {
             var description = this._selectedItem.description;
             var virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
+
             var aTags = virtualDiv.querySelectorAll("a");
             for (var a = 0; a < aTags.length; a++) {
                 aTags[a].setAttribute("target", "_blank");
             }
-            description = virtualDiv.innerHTML;
-            this._selectedItem.description = this.$sce.trustAsHtml(description);
+            this._selectedDescription = this.$sce.trustAsHtml(virtualDiv.innerHTML);
+            this._selectedItem.description = this._selectedDescription.toString();
+        } else {
+            this._selectedDescription = null;
         }
     }
 
@@ -141,9 +152,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
 
     public doSelect = (item: any) => {
         //check passed in parameter
-        let self = this;
         this.$scope.$applyAsync((s) => {
-            self.setSelectedItem(item);
+            this.setSelectedItem(item);
         });
     }
 

@@ -7,7 +7,7 @@ export interface IArtifactRelationshipsResultSet {
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationships(artifactId: number, subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet>;
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
 }
 
@@ -26,20 +26,25 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public getRelationships(
-        artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet> {
+        artifactId: number,
+        subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           
-            method: "GET"
+            method: "GET",
+            params: {
+                subartifactId: subArtifactId
+            }
         };
 
-        this.$http(requestObj)
-            .success((result: IArtifactRelationshipsResultSet) => {               
-                    defer.resolve(result);               
-            }).error((err: any, statusCode: number) => {
+        this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<IArtifactRelationshipsResultSet>) => {               
+                    defer.resolve(result.data);               
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);
@@ -56,13 +61,14 @@ export class ArtifactRelationships implements IArtifactRelationships {
             method: "GET"
         };
 
-        this.$http(requestObj)
-            .success((result: Relationships.IRelationshipExtendedInfo) => {                
-                    defer.resolve(result);               
-            }).error((err: any, statusCode: number) => {
+        this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<Relationships.IRelationshipExtendedInfo>) => {                
+                    defer.resolve(result.data);               
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

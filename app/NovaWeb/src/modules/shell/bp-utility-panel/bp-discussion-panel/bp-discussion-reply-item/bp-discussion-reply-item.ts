@@ -1,25 +1,36 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import {IReply} from "../artifact-discussions.svc";
+import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
     public controller: Function = BPDiscussionReplyItemController;
     public bindings: any = {
-        replyInfo: "="
+        replyInfo: "=",
+        artifactId: "=",
+        canCreate: "=",
+        discussionClosed: "=",
+        deleteReply: "&"
     };
 }
 
 export class BPDiscussionReplyItemController {
     public replyInfo: IReply;
+    public artifactId: number;
+    public editing = false;
+    public canCreate: boolean;
+    public discussionClosed: boolean;
+    public deleteReply: Function;
 
     public static $inject: [string] = [
         "localization",
-        "$sce"
+        "$sce",
+        "artifactDiscussions"
     ];
 
     constructor(
         private localization: ILocalizationService,
-        private $sce: ng.ISCEService) {
+        private $sce: ng.ISCEService,
+        private _artifactDiscussionsRepository: IArtifactDiscussions) {
     }
 
     public getTrustedCommentHtml() {
@@ -30,6 +41,34 @@ export class BPDiscussionReplyItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
+
+    public cancelCommentClick() {
+        this.editing = false;
+    }
+
+    public editCommentClick() {
+        if (this.canEdit()) {
+        this.editing = true;
+    }
+    }
+
+    public canEdit(): boolean {
+        if (this.replyInfo) {
+            return !this.discussionClosed && this.replyInfo.canEdit;
+        } else {
+            return false;
+        }
+    }
+
+    /* tslint:disable:no-unused-variable */
+    private editReply(comment: string): ng.IPromise<IReply> {
+        return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
+            .then((discussion: IReply) => {
+                this.editing = false;
+                this.replyInfo.comment = comment;
+                return discussion;
+            });
+    }
+    /* tslint:disable:no-unused-variable */
 }

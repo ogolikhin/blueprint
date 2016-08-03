@@ -3,10 +3,10 @@ import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../util/component.test";
 import { BPHistoryPanelController} from "./bp-history-panel";
-import { LocalizationServiceMock } from "../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactHistoryMock } from "./artifact-history.mock";
-import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../../main/services/project-manager";
+import { Models } from "../../../main/services/project-manager";
+import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 
 describe("Component BPHistoryPanel", () => {
 
@@ -22,12 +22,10 @@ describe("Component BPHistoryPanel", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
+    beforeEach(inject((selectionManager: SelectionManager) => {
         directiveTest = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
     }));
@@ -43,18 +41,20 @@ describe("Component BPHistoryPanel", () => {
     });
 
     it("should load data for a selected artifact", 
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
-        //Arrange
-       projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-       $rootScope.$digest();
+            //Arrange
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            
+            //Act
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
 
-       //Act
-       let artifact = projectManager.getArtifact(22);
-
-       //Assert
-       expect(artifact).toBeDefined();
-       expect(vm.artifactHistoryList.length).toBe(11);
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactHistoryList.length).toBe(11);
     }));
 
     it("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {

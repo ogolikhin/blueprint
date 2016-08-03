@@ -1,6 +1,5 @@
 ﻿import * as Models from "../models/models";
 
-import {ArtifactServiceMock} from "./artifact.svc.mock";
 
 export interface IArtifactService {
     getArtifact(id: number): ng.IPromise<Models.IArtifact>;
@@ -18,28 +17,22 @@ export class ArtifactService implements IArtifactService {
 
         const request: ng.IRequestConfig = {
             url: `/svc/bpartifactstore/artifacts/${artifactId}`,
-            //url: `/svc/components/nova/artifacts/${artifactId}`,
             method: "GET",
             //params: {
             //    types: true
             //}
         };
 
-        this.$http(request)
-            .success((result: Models.IArtifact) => {
-                //fake response
-                //let artifact = ArtifactServiceMock.createArtifact(artifactId, 5);
-                //ArtifactServiceMock.createSystemProperty(artifact);
-
-
-                defer.resolve(result);
-            }).error((err: any, statusCode: number) => {
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
-                    statusCode: statusCode,
-                    message: (err ? err.message : "")
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
                 };
                 defer.reject(error);
-            });
+            }
+        );
         return defer.promise;
     }
 }

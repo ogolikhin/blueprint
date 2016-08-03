@@ -1,6 +1,6 @@
-﻿import {IProjectManager, Models} from "../..";
-import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
-import {Helper} from "../../../core/utils/helper";
+﻿import { IProjectManager, Models} from "../..";
+import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
+import { ISelectionManager, ISelection, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -12,8 +12,10 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     private _selectedArtifactId: number;
     private _subscribers: Rx.IDisposable[]; 
-    public static $inject: [string] = ["projectManager"];
-    constructor(private projectManager: IProjectManager) { }
+    public static $inject: [string] = ["projectManager", "selectionManager"];
+    constructor(
+        private projectManager: IProjectManager,
+        private selectionManager: ISelectionManager) { }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -83,6 +85,11 @@ export class ProjectExplorerController {
             if (angular.isDefined(this._selectedArtifactId)) {
                 this.tree.selectNode(this._selectedArtifactId);
             }
+            if (projects && projects.length > 0) {
+                this.selectionManager.selection = this.createSelection(projects[0]);
+            } else {
+                this.selectionManager.clearSelection();
+            }
         }
     }
     private onSelectArtifact = (artifact: Models.IArtifact) => {
@@ -106,9 +113,17 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
+        const artifact = this.doSync(node);
+        this.projectManager.setCurrentArtifact(artifact);
 
-        this.projectManager.setCurrentArtifact(this.doSync(node));
+        this.selectionManager.selection = this.createSelection(artifact);
+
     };
+
+    private createSelection(artifact: Models.IArtifact): ISelection {
+        const project = artifact.id === artifact.projectId ? artifact : this.projectManager.getArtifact(artifact.projectId);
+        return { source: SelectionSource.Explorer, project: project, artifact: artifact, subArtifact: null};
+    }
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter

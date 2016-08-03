@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService } from "../../core";
-import {IMessageService, Message, MessageType} from "../../shell";
+import {IMessageService, Message, MessageType} from "../../core";
 import {IProjectRepository, Models} from "./project-repository";
 
 export {Models}
@@ -25,6 +25,8 @@ export interface IProjectManager {
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     closeProject(all?: boolean): void;
+
+    getProject(id: number);
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
 
@@ -59,14 +61,14 @@ export class ProjectManager implements IProjectManager {
 
     public dispose() {
         //clear all Project Manager event subscription
-        if (this.projectCollection) {
-            this.projectCollection.dispose();
+        if (this._projectCollection) {
+            this._projectCollection.dispose();
         }
-        if (this.currentProject) {
-            this.currentProject.dispose();
+        if (this._currentProject) {
+            this._currentProject.dispose();
         }
-        if (this.currentArtifact) {
-            this.currentArtifact.dispose();
+        if (this._currentArtifact) {
+            this._currentArtifact.dispose();
         }
     }
 
@@ -76,8 +78,6 @@ export class ProjectManager implements IProjectManager {
         this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
         this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
-        
-//        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
@@ -217,13 +217,13 @@ export class ProjectManager implements IProjectManager {
                         result.artifactTypes.unshift(
                             <Models.IItemType>{
                                 id: -1,
-                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.Project],
+                                name: this.localization.get("Label_Project"),
                                 predefinedType: Models.ItemTypePredefined.Project,
                                 customPropertyTypeIds: []
                             },
                             <Models.IItemType>{
                                 id: -2,
-                                name: Models.ItemTypePredefined[Models.ItemTypePredefined.CollectionFolder],
+                                name: this.localization.get("Label_Collections"),
                                 predefinedType: Models.ItemTypePredefined.CollectionFolder,
                                 customPropertyTypeIds: []
                             }

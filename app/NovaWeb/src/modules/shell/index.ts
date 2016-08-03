@@ -2,7 +2,7 @@ import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
-import core from "../core";
+import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
@@ -26,24 +26,21 @@ import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/
 import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
 import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
-import {MessageComponent} from "./messages/message";
-import {MessageContainerComponent} from "./messages/message-container";
-import {MessageService} from "./messages/message.svc";
-import {Routes} from "./router/router.config";
+import {config as errorStateRouteConfig} from "./error/error.state";
 import {ErrorComponent} from "./error/error.component";
+import {Routes} from "./router/router.config";
 
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
-export  {MessageComponent, MessageContainerComponent, MessageService};
-export { IMessageService } from "./messages/message.svc";
 export { IArtifactAttachment, IArtifactAttachments, IArtifactAttachmentsResultSet, IArtifactDocRef }
         from "./bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-export { IMessage, Message, MessageType} from "./messages/message";
+
+export { IMessageService, IMessage, MessageType, MessageService, Message, } from "../core";
 
 angular.module("app.shell",
     [
-        core,
+        "app.core",
         "ui.router",
         "ui.bootstrap",
         "ngSanitize"
@@ -58,7 +55,6 @@ angular.module("app.shell",
     .service("artifactRelationships", ArtifactRelationships)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("artifactAttachments", ArtifactAttachments)
-    .service("messageService", MessageService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())
@@ -71,9 +67,7 @@ angular.module("app.shell",
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
     .component("bpCommentEdit", new BPCommentEdit())   
-    .component("message", new MessageComponent())
-    .component("messagesContainer", new MessageContainerComponent())  
-    .component("error", new ErrorComponent())
+    .component("error", new ErrorComponent())    
     .config(Logger)
     .config(Routes)
     .config(initializeInterceptors);

@@ -54,26 +54,40 @@ namespace Model.ArtifactModel
     public enum BaseArtifactType
     {
         Actor,
+        /// <summary>Not used by OpenAPI.</summary>
         AgilePackEpic,
+        /// <summary>Not used by OpenAPI.</summary>
         AgilePackFeature,
+        /// <summary>Not used by OpenAPI.</summary>
         AgilePackScenario,
+        /// <summary>Not used by OpenAPI.</summary>
         AgilePackTheme,
+        /// <summary>Not used by OpenAPI.</summary>
         AgilePackUserStory,
+        /// <summary>Not used by OpenAPI.</summary>
         Baseline,
+        /// <summary>Not used by OpenAPI.</summary>
         BaselinesAndReviews,
+        /// <summary>Not used by OpenAPI.</summary>
         BaselinesAndReviewsFolder,
         BusinessProcess, //it is BusinessProcessDiagram!
+        /// <summary>Not used by OpenAPI.</summary>
         Collection,
+        /// <summary>Not used by OpenAPI.</summary>
         CollectionFolder,
+        /// <summary>Not used by OpenAPI.</summary>
         Collections,
         Document,
         DomainDiagram,
+        /// <summary>Not used by OpenAPI.</summary>
         Folder,
         GenericDiagram,
         Glossary,
         PrimitiveFolder,
         Process,
+        /// <summary>Not used by OpenAPI.</summary>
         Project,
+        /// <summary>Not used by OpenAPI.</summary>
         Review,
         Storyboard,
         TextualRequirement,
@@ -84,21 +98,16 @@ namespace Model.ArtifactModel
 
     #endregion Enums
 
-    public interface IArtifactBase : IArtifactObservable
+    public interface IArtifactBase : IArtifactObservable, IDeepCopyable<IArtifactBase>
     {
-        BaseArtifactType BaseArtifactType { get; set; }
-        ItemTypePredefined BaseItemTypePredefined { get; set; }
-        int Id { get; set; }
-        string Name { get; set; }
-        int ProjectId { get; set; }
-        int Version { get; set; }
-        int ParentId { get; set; }
-        Uri BlueprintUrl { get; set; }
-        int ArtifactTypeId { get; set; }
-        string ArtifactTypeName { get; set; }
-        bool AreTracesReadOnly { get; set; }
-        bool AreAttachmentsReadOnly { get; set; }
-        bool AreDocumentReferencesReadOnly { get; set; }
+        #region Properties
+
+        /// <summary>
+        /// Set this to true if you want the Delete method to also delete child artifacts.
+        /// Default is false.
+        /// </summary>
+        bool ShouldDeleteChildren { get; set; }
+        IUser LockOwner { get; set; }
         string Address { get; set; }
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
@@ -106,25 +115,32 @@ namespace Model.ArtifactModel
         bool IsMarkedForDeletion { get; set; }
         bool IsDeleted { get; set; }
 
+        // XXX: These 3 properties don't appear to be set anywhere.
+        bool AreTracesReadOnly { get; set; }
+        bool AreAttachmentsReadOnly { get; set; }
+        bool AreDocumentReferencesReadOnly { get; set; }
+
+        #region Serialized JSON Properties
+
+        BaseArtifactType BaseArtifactType { get; set; }     // OpenAPI-Add-Get
+        int Id { get; set; }                                // OpenAPI-Add-Get
+        string Name { get; set; }                           // OpenAPI-Add-Get
+        int ProjectId { get; set; }                         // OpenAPI-Add-Get
+        int Version { get; set; }                           // OpenAPI-Add-Get
+        int ParentId { get; set; }                          // OpenAPI-Add-Get
         /// <summary>
-        /// Set this to true if you want the Delete method to also delete child artifacts.
-        /// Default is false.
+        /// This is a URL link to this artifact.
+        /// Ex. BlueprintUrl=http://silver02.blueprintsys.net/Web/#/Storyteller/5816
         /// </summary>
-        bool ShouldDeleteChildren { get; set; }
+        Uri BlueprintUrl { get; set; }                      // OpenAPI-Get
+        int ArtifactTypeId { get; set; }                    // OpenAPI-Add-Get
+        string ArtifactTypeName { get; set; }               // OpenAPI-Add-Get
+        ArtifactStatus Status { get; set; }                 // OpenAPI-Add
 
-        IUser LockOwner { get; set; }
+        List<OpenApiProperty> Properties { get; }           // OpenAPI-Add-Get
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiProperty> Properties { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiComment> Comments { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiTrace> Traces { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<OpenApiAttachment> Attachments { get; set; }
+        #endregion Serialized JSON Properties
+        #endregion Properties
 
         /// <summary>
         /// Delete the artifact on Blueprint server.

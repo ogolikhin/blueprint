@@ -1,6 +1,7 @@
 ﻿import "angular";
-import {ILocalizationService, IDialogService } from "../../core/";
-import {IAuth, IUser} from "./auth.svc";
+import { ILocalizationService } from "../../core/";
+import { IDialogService } from "../../shared/";
+import { IAuth, IUser} from "./auth.svc";
 
 import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 export interface ISession {
@@ -105,8 +106,9 @@ export class SessionSvc implements ISession {
             this._loginMsg = this.localization.get("Login_Session_Timeout");
             this._isForceSameUsername = true;
             this.showLogin(defer);
+        } else {
+            defer.resolve();
         }
-        defer.resolve();
         return defer.promise;
     }
 

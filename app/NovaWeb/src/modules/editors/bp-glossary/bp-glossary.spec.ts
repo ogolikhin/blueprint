@@ -3,9 +3,10 @@ import "angular";
 import "angular-mocks";
 import "Rx";
 import { ComponentTest } from "../../util/component.test";
-import { LocalizationServiceMock } from "../../core/localization.mock";
+import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { BpGlossaryController } from "./bp-glossary";
 import { GlossaryServiceMock } from "./glossary.svc.mock";
+import { ISelectionManager, SelectionManager } from "./../../main/services/selection-manager";
 
 describe("Component BP Glossary", () => {
 
@@ -21,6 +22,7 @@ describe("Component BP Glossary", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("glossaryService", GlossaryServiceMock);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
     beforeEach(inject(() => {
@@ -43,11 +45,13 @@ describe("Component BP Glossary", () => {
        expect(vm.glossary.terms.length).toBe(4);
     }));
 
-    it("should select a specified term", inject(($rootScope: ng.IRootScopeService) => {
+    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager) => {
        // pre-req
        expect(componentTest.element.find(".selected-term").length).toBe(0);
+       
 
        // Act
+       selectionManager.clearSelection();
        vm.selectTerm(vm.glossary.terms[2]);
        $rootScope.$digest();
 

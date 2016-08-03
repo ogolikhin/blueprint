@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using Common;
 using Model;
 using Model.ArtifactModel;
@@ -29,6 +29,7 @@ namespace Helper
         public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
         public List<IProject> Projects { get; } = new List<IProject>();
         public List<IUser> Users { get; } = new List<IUser>();
+        public List<IGroup> Groups { get; } = new List<IGroup>();
 
         #region IArtifactObserver methods
 
@@ -276,6 +277,21 @@ namespace Helper
 
         #endregion User management
 
+        #region Group management
+        /// <summary>
+        /// Creates a new group object with random values and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="licenseType">(optional) The license level to assign to the group. By default it is Author.</param>
+        /// <returns>A new unique group object that was added to the database.</returns>
+        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+            var group = GroupFactory.CreateGroup(licenseType);
+            group.AddGroupToDatabase();
+            Groups.Add(group);
+            return group;
+        }
+        #endregion Group management
+
         #region Custom Asserts
 
         /// <summary>
@@ -337,6 +353,42 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDate">The first date to compare.</param>
+        /// <param name="secondDate">The second date to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(DateTime firstDate, DateTime secondDate, string message)
+        {
+            Assert.AreEqual(firstDate.ToUniversalTime(), secondDate.ToUniversalTime(), message);
+        }
+
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDate">The first date to compare.</param>
+        /// <param name="secondDateStr">The second date (as a string) to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(DateTime firstDate, string secondDateStr, string message)
+        {
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            AssertUtcDatesAreEqual(firstDate, secondDate, message);
+        }
+
+        /// <summary>
+        /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
+        /// </summary>
+        /// <param name="firstDateStr">The first date (as a string) to compare.</param>
+        /// <param name="secondDateStr">The second date (as a string) to compare.</param>
+        /// <param name="message">The assert message to display if the dates are different.</param>
+        public static void AssertUtcDatesAreEqual(string firstDateStr, string secondDateStr, string message)
+        {
+            DateTime firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            AssertUtcDatesAreEqual(firstDate, secondDate, message);
+        }
+
         #endregion Custom Asserts
 
         #region Members inherited from IDisposable
@@ -368,6 +420,15 @@ namespace Helper
                 {
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
                     ArtifactBase.DisposeArtifacts(Artifacts, this);
+                }
+
+                if (Groups != null)
+                {
+                    Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+                    foreach (var group in Groups)
+                    {
+                        group.DeleteGroup();
+                    }
                 }
 
                 foreach (var project in Projects)

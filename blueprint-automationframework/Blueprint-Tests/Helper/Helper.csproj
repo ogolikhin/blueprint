@@ -52,6 +52,7 @@
     <Compile Include="StorytellerTestHelper.cs" />
     <Compile Include="FileStoreTestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCaseSources.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>

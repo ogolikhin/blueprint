@@ -4,10 +4,10 @@ import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../../util/component.test";
 import { BPAttachmentsPanelController } from "./bp-attachments-panel";
-import { LocalizationServiceMock } from "../../../core/localization.mock";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
-import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../../main/services/project-manager";
+import { Models } from "../../../main/services/project-manager";
+import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 
 describe("Component BP Attachments Panel", () => {
 
@@ -23,12 +23,10 @@ describe("Component BP Attachments Panel", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
-    beforeEach(inject((projectManager: ProjectManager) => {
-        projectManager.initialize();
+    beforeEach(inject(() => {
         componentTest = new ComponentTest<BPAttachmentsPanelController>(template, "bp-attachments-panel");
         vm = componentTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
     }));
@@ -43,22 +41,24 @@ describe("Component BP Attachments Panel", () => {
     });
 
     it("should load data and display it for a selected artifact", 
-        inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+            
+            //Arrange
+            const project = { id: 2, name: "Project 2" } as Models.IProject;
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            
+            //Act
+            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
 
-        //Arrange
-       projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
-       $rootScope.$digest();
-
-       //Act
-       let artifact = projectManager.getArtifact(22);
-
-       //Assert
-       expect(artifact).toBeDefined();
-       expect(vm.artifactAttachmentsList).toBeDefined();
-       expect(vm.artifactAttachmentsList.attachments.length).toBe(7);
-       expect(vm.artifactAttachmentsList.documentReferences.length).toBe(3);
-       expect(componentTest.element.find("bp-artifact-attachment-item").length).toBe(7);
-       expect(componentTest.element.find("bp-artifact-document-item").length).toBe(3);
-       expect(componentTest.element.find(".empty-state").length).toBe(0);
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactAttachmentsList).toBeDefined();
+            expect(vm.artifactAttachmentsList.attachments.length).toBe(7);
+            expect(vm.artifactAttachmentsList.documentReferences.length).toBe(3);
+            expect(componentTest.element.find("bp-artifact-attachment-item").length).toBe(7);
+            expect(componentTest.element.find("bp-artifact-document-item").length).toBe(3);
+            expect(componentTest.element.find(".empty-state").length).toBe(0);
     }));
 });

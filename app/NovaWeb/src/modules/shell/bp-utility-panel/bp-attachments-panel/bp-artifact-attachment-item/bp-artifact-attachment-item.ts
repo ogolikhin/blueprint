@@ -1,7 +1,8 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { IArtifactAttachment } from "../../../../shell";
-import { IProjectManager, Models} from "../../../../main";
-import { FiletypeParser } from "../../../../core/utils/filetypeParser";
+import { Models } from "../../../../main";
+import { ISelectionManager } from "../../../../main/services/selection-manager";
+import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
 
 export class BPArtifactAttachmentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-attachment-item.html");
@@ -19,7 +20,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     public static $inject: [string] = [
         "$log",
         "localization",
-        "projectManager",
+        "selectionManager",
         "$window"
     ];
 
@@ -29,7 +30,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private $window: ng.IWindowService) {
     }
 
@@ -42,7 +43,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     }
     
     public downloadItem(): void {
-        let artifact: Models.IArtifact = this.projectManager.currentArtifact.getValue();
+        const artifact: Models.IArtifact = this.selectionManager.selection.artifact;
         this.$window.open(
                 `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`,
                 "_blank");

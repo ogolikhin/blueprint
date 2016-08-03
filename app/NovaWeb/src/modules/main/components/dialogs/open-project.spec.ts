@@ -4,8 +4,8 @@ import {OpenProjectController} from "./open-project";
 import {ConfigValueHelper } from "../../../core";
 import {MessageService} from "../../../shell/";
 import {ProjectManager } from "../../services/project-manager";
-import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {BPTreeControllerMock} from "../../../shared/widgets/bp-tree/bp-tree.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 

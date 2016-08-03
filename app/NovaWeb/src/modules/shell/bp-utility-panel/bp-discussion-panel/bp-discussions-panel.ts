@@ -1,7 +1,7 @@
-﻿import { ILocalizationService } from "../../../core";
-import { IProjectManager, Models} from "../../../main";
-import {IMessageService} from "../../../shell";
-import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
+﻿import { ILocalizationService, IMessageService } from "../../../core";
+import { ISelectionManager, Models} from "../../../main";
+import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
+import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -17,13 +17,15 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactDiscussions",
-        "projectManager",
+        "selectionManager",
         "messageService",
+        "dialogService",
         "$q"
     ];
 
     //private loadLimit: number = 10;
     private artifactId: number;
+    private subArtifact: Models.ISubArtifact;
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
@@ -36,12 +38,13 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     constructor(
         private localization: ILocalizationService,
         private _artifactDiscussionsRepository: IArtifactDiscussions,
-        protected projectManager: IProjectManager,
+        protected selectionManager: ISelectionManager,
         private messageService: IMessageService,
+        private dialogService: IDialogService,
         private $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(projectManager, bpAccordionPanel);
+        super(selectionManager, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -60,53 +63,104 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.artifactDiscussionList = null;
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
-            this.getArtifactDiscussions()
-                .then((discussionResultSet: IDiscussionResultSet) => {
-                    this.artifactDiscussionList = discussionResultSet.discussions;
-                    this.canCreate = discussionResultSet.canCreate;
-                    this.canDelete = discussionResultSet.canDelete;
-                });
+            this.subArtifact = subArtifact;
+            this.setDiscussions();
         } else {
             this.artifactId = null;
+            this.subArtifact = null;
             this.artifactDiscussionList = [];
             this.canCreate = false;
             this.canDelete = false;
         }
     }
 
-    public expandCollapseDiscussion(discussion: IDiscussion): void {
-        if (!discussion.expanded) {
+    private setDiscussions() {
+        this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
+            .then((discussionResultSet: IDiscussionResultSet) => {
+                this.artifactDiscussionList = discussionResultSet.discussions;
+                this.canCreate = discussionResultSet.canCreate;
+                this.canDelete = discussionResultSet.canDelete;
+                if (this.artifactDiscussionList.length > 0) {
+                    this.expandCollapseDiscussion(this.artifactDiscussionList[0]);
+                }
+            });
+    }
+
+    private setReplies(discussion: IDiscussion) {
             this.getDiscussionReplies(discussion.discussionId)
                 .then((replies: IReply[]) => {
                     discussion.replies = replies;
                     discussion.repliesCount = replies.length;
+            });
+    }
+
+    public expandCollapseDiscussion(discussion: IDiscussion): void {
+        if (!discussion.expanded) {
+            this.setReplies(discussion);
                     discussion.expanded = true;
-                });
         } else {
             discussion.expanded = false;
         }
     }
 
+    private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
+            .then((discussion: IDiscussion) => {
+                this.cancelCommentClick();
+                this.setDiscussions();
+                return discussion;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
+        this.isLoading = true;
+        return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
+            .then((reply: IReply) => {
+                //this.cancelCommentClick();
+                this.setReplies(discussion);
+                discussion.showAddReply = false;
+                if (!discussion.expanded) {
+                    this.expandCollapseDiscussion(discussion);
+                }
+                return reply;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
     public newCommentClick(): void {
-        //this.showAddComment = true;
+        if (this.canCreate) {
+            this.hideAddReplies();
+            this.showAddComment = true;
+        }
     }
 
     public cancelCommentClick(): void {
         this.showAddComment = false;
+        this.hideAddReplies();
+    }
+
+    private hideAddReplies() {
+        this.artifactDiscussionList.filter((discussion) => discussion.showAddReply === true).forEach((discussion) => discussion.showAddReply = false);
     }
 
     public cancelReplyClick(discussion: IDiscussion): void {
         discussion.showAddReply = false;
     }
 
-    private getArtifactDiscussions(): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(this.artifactId)
+        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId, subArtifactId)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })
@@ -130,4 +184,34 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.isLoading = false;
             });
     }
+
+    public deleteReply(discussion: IDiscussion, reply: IReply) {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                    this.getDiscussionReplies(discussion.discussionId)
+                        .then((updatedReplies: IReply[]) => {
+                            discussion.replies = updatedReplies;
+                            discussion.repliesCount = updatedReplies.length;
+                            discussion.expanded = true;
+                        });
+                });
+            }
+        });
+    }
+
+    public deleteCommentThread(discussion: IDiscussion) {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
+                        this.artifactDiscussionList = discussionsResultSet.discussions;
+                        this.canDelete = discussionsResultSet.canDelete;
+                        this.canCreate = discussionsResultSet.canCreate;
+                    });
+                });
+            }
+        });
+    }
+
 }

@@ -30,12 +30,7 @@ import {MessageComponent} from "./messages/message";
 import {MessageContainerComponent} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
 import {Routes} from "./router/router.config";
-import {ArtifactStateController} from "./router/artifact.state";
 import {ErrorComponent} from "./error/error.component";
-import "../editors/bp-storyteller";
-import "../editors/bp-artifact";
-import "../editors/bp-diagram";
-import "../editors/bp-glossary";
 
 
 export { IUser, ISession}
@@ -51,11 +46,7 @@ angular.module("app.shell",
         core,
         "ui.router",
         "ui.bootstrap",
-        "ngSanitize",
-        "bp.editors.storyteller",
-        "bp.editors.details",
-        "bp.editors.glossary",
-        "bp.editors.diagram",
+        "ngSanitize"
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
@@ -83,7 +74,6 @@ angular.module("app.shell",
     .component("message", new MessageComponent())
     .component("messagesContainer", new MessageContainerComponent())  
     .component("error", new ErrorComponent())
-    .controller("artifactStateController", ArtifactStateController)
     .config(Logger)
     .config(Routes)
     .config(initializeInterceptors);

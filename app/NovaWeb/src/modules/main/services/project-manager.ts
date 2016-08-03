@@ -112,7 +112,7 @@ export class ProjectManager implements IProjectManager {
             if (project) {
                 this.setCurrentProject(project);
             }
-            this.$state.go('main.artifact', { id: artifact.id, artifactType: artifact.predefinedType });
+            this.$state.go('main.artifact', { id: artifact.id });
         }
         else {
             this.$state.go('main');

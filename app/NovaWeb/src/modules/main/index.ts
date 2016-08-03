@@ -30,6 +30,12 @@ import {BpArtifactInfo} from "./components/bp-artifact/bp-artifact-info";
 //import {BpGeneralEditor} from "./components/editors/general/bp-general-editor";
 //import {BpArtifactEditor} from "./components/editors/general/bp-artifact-editor";
 import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
+import {ArtifactStateController} from "./router/artifact.state";
+import {Routes} from "./router/router.config";
+import "../editors/bp-storyteller";
+import "../editors/bp-artifact";
+import "../editors/bp-diagram";
+import "../editors/bp-glossary";
 
 
 config.$inject = ["$rootScope", "$state"];
@@ -78,8 +84,12 @@ angular.module("app.main", [
     "ngDraggable",
     "angular-perfect-scrollbar-2",
     "formly",
-    "formlyBootstrap"
-    ])
+    "formlyBootstrap",
+    "bp.editors.storyteller",
+    "bp.editors.details",
+    "bp.editors.glossary",
+    "bp.editors.diagram",
+])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
@@ -92,7 +102,9 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
+    .controller("artifactStateController", ArtifactStateController)
     //.component("bpGeneralEditor", new BpGeneralEditor())
     //.component("bpArtifactEditor", new BpArtifactEditor())
     .config(formlyDecorate)
+    .config(Routes)
     .run(formlyConfigExtendedFields);

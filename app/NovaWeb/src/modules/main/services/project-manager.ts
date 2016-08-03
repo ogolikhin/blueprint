@@ -13,8 +13,6 @@ export interface IProjectManager {
     projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
     currentProject: Rx.BehaviorSubject<Models.IProject>;
     currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
-    isProjectSelected: boolean;
-    isArtifactSelected: boolean;
 
     setCurrentProject(project: Models.IProject): void;
     setCurrentArtifact(artifact: Models.IArtifact): void;
@@ -294,14 +292,6 @@ export class ProjectManager implements IProjectManager {
         return foundArtifact;
     };
 
-    public get isProjectSelected(): boolean {
-        //NOTE: current Project must have a refference if project collection has any items
-        return !!this.currentProject.getValue();
-    }
-
-    public get isArtifactSelected(): boolean {
-        return !!this.currentArtifact.getValue();
-    }
 
     public getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[] {
         let _artifact: Models.IArtifact;

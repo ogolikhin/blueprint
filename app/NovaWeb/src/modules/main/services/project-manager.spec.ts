@@ -333,33 +333,5 @@ describe("Project Manager Test", () => {
             expect(project).toBeNull();
         }));
     });
-    describe("properties", () => {
-        it("should a project be un-selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-
-            //Act
-            
-            //Asserts
-            expect(projectManager.isProjectSelected).toBeFalsy();
-            expect(projectManager.isArtifactSelected).toBeFalsy();
-        }));
-        xit("should project be selected", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-
-            //Act
-            $rootScope.$digest();
-            
-            //Asserts
-            expect(projectManager.isProjectSelected).toBeTruthy();
-            expect(projectManager.isArtifactSelected).toBeTruthy();
-
-            projectManager.closeProject();
-            $rootScope.$digest();
-            expect(projectManager.isProjectSelected).toBeFalsy();
-            expect(projectManager.isArtifactSelected).toBeFalsy();
-        }));
-    });
 
 });

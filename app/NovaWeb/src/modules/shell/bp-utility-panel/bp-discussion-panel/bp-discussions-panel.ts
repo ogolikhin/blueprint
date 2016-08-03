@@ -108,6 +108,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         }
     }
 
+    /* tslint:disable:no-unused-variable */
     private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
@@ -115,28 +116,40 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.cancelCommentClick();
                 this.setDiscussions();
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
+    /* tslint:disable:no-unused-variable */
     private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
-                //this.cancelCommentClick();
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
                 if (!discussion.expanded) {
                     this.expandCollapseDiscussion(discussion);
                 }
                 return reply;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
     public newCommentClick(): void {
         if (this.canCreate) {
@@ -214,4 +227,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         });
     }
 
+    public discussionEdited(discussion: IDiscussion) {
+        const currentIndex = this.artifactDiscussionList.indexOf(discussion);
+        this.artifactDiscussionList.splice(currentIndex, 1);
+        this.artifactDiscussionList.splice(0, 0, discussion);
+    }
 }

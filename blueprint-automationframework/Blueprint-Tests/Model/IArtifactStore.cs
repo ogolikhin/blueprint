@@ -141,5 +141,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
         ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets relationshipsdetails for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifact">The artifact containing the relationship to get.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
+        TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

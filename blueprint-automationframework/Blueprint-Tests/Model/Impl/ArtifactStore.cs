@@ -255,9 +255,37 @@ namespace Model.Impl
             return relationships;
         }
 
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, List{HttpStatusCode}))"/>
+        public TraceDetails GetRelationshipsDetails(IUser user,
+            IArtifactBase artifact,
+            bool? addDrafts = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifact.Id);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return traceDetails;
+        }
+
         #endregion Members inherited from IArtifactStore
 
-        #region Members inherited from IDisposable
+            #region Members inherited from IDisposable
 
         private bool _isDisposed = false;
 

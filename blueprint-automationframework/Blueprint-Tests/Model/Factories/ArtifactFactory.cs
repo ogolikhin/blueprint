@@ -60,8 +60,9 @@ namespace Model.Factories
         /// <param name="user">user for authentication</param>
         /// <param name="project">The target project</param>
         /// <param name="artifactType">artifactType</param>
+        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in root of the project.</param>
         /// <returns>new artifact object for the target project with selected artifactType</returns>
-        public static IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
+        public static IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType, IArtifactBase parent = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -70,8 +71,15 @@ namespace Model.Factories
             artifact.BaseArtifactType = artifactType;
 
             artifact.ProjectId = project.Id;
-            artifact.ParentId = project.Id;
-
+            if (parent == null)
+            {
+                artifact.ParentId = project.Id;
+            }
+            else
+            {
+                artifact.ParentId = parent.Id;
+            }
+            
             var projectArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType));
             artifact.ArtifactTypeId = projectArtifactType.Id;
             artifact.ArtifactTypeName = projectArtifactType.Name;
@@ -90,12 +98,13 @@ namespace Model.Factories
         /// <param name="user">user for authentication</param>
         /// <param name="artifactType">artifactType</param>
         /// <param name="artifactId">(optional) You can specify a custom artifact ID here (for testing non-existent artifacts for example).</param>
+        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, int? artifactId = null)
+        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, int? artifactId = null, IArtifactBase parent = null)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
+            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent);
 
             if (artifactId != null)
             {

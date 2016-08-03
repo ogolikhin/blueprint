@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Common;
 using Helper;
 using Model;
 using NUnit.Framework;
 using Utilities;
 using CustomAttributes;
-using System.Text;
 using TestCommon;
 using Utilities.Factories;
 using Model.ArtifactModel;
@@ -202,6 +200,26 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetAttachments(fakeArtifact, _user);
             }, "'{0}' should return 404 Not Found if passed a sub-artifact ID instead of an artifact ID.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
+        [TestCase]
+        [TestRail(155622)]
+        [Description("Create & publish a Process artifact and an Actor artifact.  Try to get Attachments for the Process User Task but pass the Artifact ID of the Actor instead of the Process.  Verify 400 Bad Request is returned.")]
+        public void GetAttachmentWithSubArtifactId_SubArtifactIdFromDifferentArtifact_400BadRequest()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute & verify:
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact2, _user, subArtifactId: userTask.Id);
+            }, "'{0}' should return 400 Bad Request if passed a sub-artifact ID that doesn't belong to the specified artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 

@@ -4,6 +4,7 @@ export interface ISelectionManager {
     selectedProjectObservable: Rx.Observable<IProject>;
     selectedArtifactObservable: Rx.Observable<IArtifact>;
     selectedSubArtifactObservable: Rx.Observable<ISubArtifact>;
+    selectedItemObservable: Rx.Observable<IItem>;
 
     selectionObservable: Rx.Observable<ISelection>;
     selection: ISelection;
@@ -52,6 +53,26 @@ export class SelectionManager implements ISelectionManager {
             .filter(s => s != null)
             .map(s => s.subArtifact)
             .distinctUntilChanged(this.distinctById).asObservable();
+    }
+
+    public get selectedItemObservable() {
+        return this.selectionSubject
+            .filter(s => s != null)
+            .map(s => this.getSelectedItem(s))
+            .distinctUntilChanged(this.distinctById).asObservable();
+    }
+
+    private getSelectedItem(selection: ISelection): IItem {
+        if (selection) {
+            if (selection.subArtifact) {
+                return selection.subArtifact;
+            }
+            if (selection.artifact) {
+                return selection.artifact;
+            }
+            return selection.project;
+        }
+        return null;
     }
 
     private distinctById(item: IItem) {

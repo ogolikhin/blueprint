@@ -1,6 +1,7 @@
 // import { Models } from "../../../";
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
+import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -15,6 +16,7 @@ export class BpGlossaryController {
         "$log",
         "localization",
         "glossaryService",
+        "selectionManager",
         "$sce"
     ];
 
@@ -26,6 +28,7 @@ export class BpGlossaryController {
         private $log: ng.ILogService,
         private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
+        private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService) {
     }
 
@@ -54,5 +57,9 @@ export class BpGlossaryController {
             t.selected = t === term;
             return t;
         });
+        const selection = angular.copy(this.selectionManager.selection);
+        selection.source = SelectionSource.Editor;
+        selection.subArtifact = term;
+        this.selectionManager.selection = selection;
     }
 }

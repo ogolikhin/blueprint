@@ -148,12 +148,12 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       display: inline-block;
       font-size: $font-size-normal;
       font-weight: 400;
-      margin: 6px 0 0;
+      margin: 6px 4px 0 0;
       overflow: hidden;
-      padding: 0 $property-padding-default 0 0;
+      padding: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
-      width: $property-label-width;
+      width: #{$property-label-width - 4px};
     }
 
     input,
@@ -292,14 +292,14 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
     textarea {
       min-height: 96px;
-      overflow: auto;
-      -ms-overflow-style: auto;
+      overflow: hidden;
       padding-right: 20px;
 
-      //&:focus {
-      //  overflow: auto;
-      //  -ms-overflow-style: auto;
-      //}
+      &:hover,
+      &:focus {
+        overflow: auto;
+        -ms-overflow-style: auto;
+      }
     }
 
     select {

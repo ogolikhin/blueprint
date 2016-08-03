@@ -1,4 +1,5 @@
-﻿<div class="reply-separator"></div>
+﻿<div class="utility-panel-artifact-item reply-item" ng-class="{'comment-editing': $ctrl.editing}">
+<div class="reply-separator"></div>
 <div ng-if="$ctrl.editing === false">
     <div>
         <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
@@ -13,8 +14,11 @@
         <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
     </div>
     <div class="button-bar">
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}" class="delete-comment icon fonticon-delete-filled"></i>
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()"></i>
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}" 
+               class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteReply()"></i>
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" 
+               class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()" 
+               ng-class="{ 'disabled' : !$ctrl.canEdit() }"></i>
     </div>
 </div>
 <bp-comment-edit ng-if="$ctrl.editing"
@@ -25,3 +29,4 @@
                  comment-text="{{$ctrl.replyInfo.comment}}"
                  post-comment="$ctrl.editReply(comment)">
 </bp-comment-edit>
+</div>

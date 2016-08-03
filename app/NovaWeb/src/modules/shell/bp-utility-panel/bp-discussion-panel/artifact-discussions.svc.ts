@@ -8,6 +8,8 @@ export interface IArtifactDiscussions {
     addDiscussionReply(artifactId: number, discussionId: number, comment: string): ng.IPromise<IReply>;
     editDiscussion(artifactId: number, discussionId: number, comment: string): ng.IPromise<IDiscussion>;
     editDiscussionReply(artifactId: number, discussionId: number, replyId: number, comment: string): ng.IPromise<IReply>;
+    deleteReply(itemId: number, replyId: number): ng.IPromise<boolean>;
+    deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean>;
 }
 
 export interface IDiscussion extends ICommentBase {
@@ -205,6 +207,46 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                 defer.reject(error);
             });
 
+        return defer.promise;
+    }
+
+    public deleteReply(itemId: number, replyId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/components/RapidReview/artifacts/${itemId}/deletecomment/${replyId}`,
+            method: "POST"
+        };
+        this.$http(requestObj)
+            .success(() => {
+                defer.resolve(true);
+            }).error((err: any, statusCode: number) => {
+                const error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "")
+                };
+                this.$log.error(error);
+                defer.reject(error);
+            });
+        return defer.promise;
+    }
+
+    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+        const defer = this.$q.defer<any>();
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/components/RapidReview/artifacts/${itemId}/deletethread/${discussionId}`,
+            method: "POST"
+        };
+        this.$http(requestObj)
+            .success(() => {
+                defer.resolve(true);
+            }).error((err: any, statusCode: number) => {
+                const error = {
+                    statusCode: statusCode,
+                    message: (err ? err.message : "")
+                };
+                this.$log.error(error);
+                defer.reject(error);
+            });
         return defer.promise;
     }
 }

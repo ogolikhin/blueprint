@@ -58,6 +58,6 @@ describe("Component BPUtilityPanel", () => {
             // Assert
             expect(selectedArtifact).toBeDefined();
             expect(selectedArtifact.id).toBe(22);
-            expect(vm.currentArtifact).toBe("My22: Artifact");
+            expect(vm.currentItem).toBe("My22: Artifact");
     }));
 });

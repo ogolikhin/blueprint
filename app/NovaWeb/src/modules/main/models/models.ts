@@ -30,6 +30,7 @@ export interface IItem {
     id: number;
     name?: string;
     description?: string;
+    prefix?: string;
     parentId?: number;
     itemTypeId?: number;
     itemTypeVersionId?: number;
@@ -37,6 +38,9 @@ export interface IItem {
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
+
+    //for client use
+    predefinedType?: ItemTypePredefined;
 }
 
 export interface IUserGroup {
@@ -51,7 +55,6 @@ export interface ISubArtifact extends IItem {
 
 export interface IArtifact extends IItem {
     projectId?: number;
-    prefix?: string;
     orderIndex?: number;
     predefinedType?: ItemTypePredefined;
     version?: number;

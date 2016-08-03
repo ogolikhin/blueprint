@@ -37,6 +37,14 @@ bp-glossary {
 
                 > td {
                     padding: 8px 25px;
+
+                    > pre {
+                        border: none;
+                        background: none;
+                        padding: 0;
+                        display: inline;
+                        font-family: "Courier New", monospace;
+                    }
                 }
 
                 &:hover:not(.selected-term):not(.empty-state) {

@@ -8,6 +8,7 @@ using Model.Factories;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace UtilityTests.AccessControlDoubleTests
 {
@@ -24,38 +25,6 @@ namespace UtilityTests.AccessControlDoubleTests
     {
         private readonly IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
 
-        #region TestCaseSource data
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]   // It is used through reflection.
-        private readonly object[] StatusCodesAndExceptions =
-        {
-            new object[] {HttpStatusCode.BadRequest,             typeof(Http400BadRequestException)},
-            new object[] {HttpStatusCode.Unauthorized,           typeof(Http401UnauthorizedException)},
-            new object[] {HttpStatusCode.Forbidden,              typeof(Http403ForbiddenException)},
-            new object[] {HttpStatusCode.NotFound,               typeof(Http404NotFoundException)},
-            new object[] {HttpStatusCode.MethodNotAllowed,       typeof(Http405MethodNotAllowedException)},
-            new object[] {HttpStatusCode.NotAcceptable,          typeof(Http406NotAcceptableException)},
-            new object[] {HttpStatusCode.Conflict,               typeof(Http409ConflictException)},
-            new object[] {HttpStatusCode.InternalServerError,    typeof(Http500InternalServerErrorException)},
-            new object[] {HttpStatusCode.ServiceUnavailable,     typeof(Http503ServiceUnavailableException)}
-        };
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]   // It is used through reflection.
-        private readonly object[] StatusCodes =
-        {
-            new object[] {HttpStatusCode.BadRequest},
-            new object[] {HttpStatusCode.Unauthorized},
-            new object[] {HttpStatusCode.Forbidden},
-            new object[] {HttpStatusCode.NotFound},
-            new object[] {HttpStatusCode.MethodNotAllowed},
-            new object[] {HttpStatusCode.NotAcceptable},
-            new object[] {HttpStatusCode.Conflict},
-            new object[] {HttpStatusCode.InternalServerError},
-            new object[] {HttpStatusCode.ServiceUnavailable}
-        };
-
-        #endregion TestCaseSource data
-
         [TearDown]
         public void TearDown()
         {
@@ -70,15 +39,18 @@ namespace UtilityTests.AccessControlDoubleTests
 
         #region StartInjectingErrors tests
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107486)]
         [Description("Start Injecting Errors for POST requests.  Try to add a session and verify the injected error is returned.")]
-        public void StartInjectingErrorsForPOST_AddSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        public void StartInjectingErrorsForPOST_AddSession_ExpectError(HttpStatusCode statusCode)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
 
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)statusCode, statusCode.ToString()).GetType();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, statusCode);
 
                 Assert.Throws(expectedException, () => { _accessControl.AddSession(randomSession); },
@@ -86,16 +58,19 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107487)]
         [Description("Add a session.  Start Injecting Errors for PUT requests.  Try to authorize a session and verify the injected error is returned.")]
-        public void StartInjectingErrorsForPUT_AuthorizeOperation_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        public void StartInjectingErrorsForPUT_AuthorizeOperation_ExpectError(HttpStatusCode statusCode)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
 
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)statusCode, statusCode.ToString()).GetType();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, statusCode);
 
                 Assert.Throws(expectedException, () => { _accessControl.AuthorizeOperation(createdSession); },
@@ -103,16 +78,19 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107488)]
         [Description("Add a session.  Start Injecting Errors for DELETE requests.  Try to delete a session and verify the injected error is returned.")]
-        public void StartInjectingErrorsForDELETE_DeleteSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        public void StartInjectingErrorsForDELETE_DeleteSession_ExpectError(HttpStatusCode statusCode)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
 
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)statusCode, statusCode.ToString()).GetType();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, statusCode);
 
                 Assert.Throws(expectedException, () => { _accessControl.DeleteSession(createdSession); },
@@ -120,16 +98,19 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107489)]
         [Description("Add a session.  Start Injecting Errors for GET requests.  Try to get a session and verify the injected error is returned.")]
-        public void StartInjectingErrorsForGET_GetSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        public void StartInjectingErrorsForGET_GetSession_ExpectError(HttpStatusCode statusCode)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
 
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)statusCode, statusCode.ToString()).GetType();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, statusCode);
 
                 Assert.Throws(expectedException, () => { _accessControl.GetSession(createdSession.UserId); },
@@ -137,13 +118,16 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107490)]
         [Description("Start Injecting Errors for GET requests.  Try to get /status and verify the injected error is returned.")]
-        public void StartInjectingErrorsForGET_GetStatus_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        public void StartInjectingErrorsForGET_GetStatus_ExpectError(HttpStatusCode statusCode)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
+                // Get the expected exception type that matches the HttpStatusCode error we're injecting.
+                Type expectedException = WebExceptionFactory.Create((int)statusCode, statusCode.ToString()).GetType();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, statusCode);
 
                 Assert.Throws(expectedException, () => { _accessControl.GetStatus(); },
@@ -151,7 +135,7 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107491)]
         [Description("Try to start Injecting Errors for OPTIONS requests.  Verify a 404 error is returned.")]
         public static void StartInjectingErrorsForInvalidRequestType_VerifyAccessControlDoubleReturns404(HttpStatusCode statusCode)
@@ -169,7 +153,7 @@ namespace UtilityTests.AccessControlDoubleTests
 
         #region StopInjectingErrors tests
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107492)]
         [Description("Start Injecting Errors for POST requests, then Stop Injecting Errors.  Try to add a session and verify it's successful.")]
         public void StopInjectingErrorsForPOST_AddSession_ExpectSuccess(HttpStatusCode statusCode)
@@ -186,7 +170,7 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107493)]
         [Description("Add a session.  Start Injecting Errors for PUT requests, then Stop Injecting Errors.  Try to authorize a session and verify it's successful.")]
         public void StopInjectingErrorsForPUT_AuthorizeOperation_ExpectSuccess(HttpStatusCode statusCode)
@@ -204,7 +188,7 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107494)]
         [Description("Add a session.  Start Injecting Errors for DELETE requests, then Stop Injecting Errors.  Try to delete a session and verify it's successful.")]
         public void StopInjectingErrorsForDELETE_DeleteSession_ExpectSuccess(HttpStatusCode statusCode)
@@ -222,7 +206,7 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107495)]
         [Description("Add a session.  Start Injecting Errors for GET requests, then Stop Injecting Errors.  Try to get a session and verify it's successful.")]
         public void StopInjectingErrorsForGET_GetSession_ExpectSuccess(HttpStatusCode statusCode)
@@ -240,7 +224,7 @@ namespace UtilityTests.AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodes))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllHttpErrorStatusCodes))]
         [TestRail(107496)]
         [Description("Start Injecting Errors for GET requests, then Stop Injecting Errors.  Try to get /status and verify it's successful.")]
         public void StopInjectingErrorsForGET_GetStatus_ExpectSuccess(HttpStatusCode statusCode)

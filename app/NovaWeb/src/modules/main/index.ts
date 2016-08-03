@@ -87,10 +87,6 @@ angular.module("app.main", [
     "angular-perfect-scrollbar-2",
     "formly",
     "formlyBootstrap",
-    "bp.editors.storyteller",
-    "bp.editors.details",
-    "bp.editors.glossary",
-    "bp.editors.diagram",
     "bp.editors"
     ])
     .run(config)

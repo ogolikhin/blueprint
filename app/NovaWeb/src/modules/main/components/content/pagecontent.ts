@@ -17,9 +17,8 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService"];
-    constructor(private $state: any,
-                private messageService: IMessageService,
+    public static $inject: [string] = ["messageService", "projectManager", "diagramService"];
+    constructor(private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService) {
     }

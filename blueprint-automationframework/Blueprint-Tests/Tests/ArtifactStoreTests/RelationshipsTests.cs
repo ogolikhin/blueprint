@@ -605,11 +605,11 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                tracedetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, parentArtifact);
+                tracedetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, artifact);
             }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
 
             // Verify:
-            Assert.AreEqual(4, tracedetails.PathToProject.Count, "PathToProject must have 4 items.");
+            Assert.AreEqual(5, tracedetails.PathToProject.Count, "PathToProject must have 5 items.");
             Assert.AreEqual(_project.Id, tracedetails.PathToProject[0].ItemId, "Project must be the first item of the PathToProject");
             Assert.AreEqual(artifact.Id, tracedetails.ArtifactId, "Id must be correct.");
         }

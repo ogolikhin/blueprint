@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Common;
 using Model;
 using Model.ArtifactModel;
@@ -10,7 +9,6 @@ using Model.Factories;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Factories;
 
 namespace Helper
 {

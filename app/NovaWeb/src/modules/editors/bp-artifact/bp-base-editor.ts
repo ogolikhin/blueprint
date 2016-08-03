@@ -1,7 +1,8 @@
 ﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
 import {IProjectManager} from "../../main"
-export { IProjectManager }
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+
+export { IProjectManager }
 
 export interface IEditorContext {
     artifact?: Models.IArtifact;
@@ -392,7 +393,7 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    field.type = "input"; // needs to be changed to user selection
+                    field.type = "bpFieldReadOnly"; // needs to be changed to user selection
                     //if (angular.isNumber(context.defaultValidValueId)) {
                     //    field.defaultValue = context.defaultValidValueId.toString();
                     //}

@@ -1,14 +1,16 @@
 ﻿import "angular";
 import "angular-mocks";
-import {ConfigValueHelper } from "../../../../core";
-import {MessageService} from "../../../../shell/";
-import {ProjectManager, IProjectManager, Models } from "../../../";
-import {IArtifactPickerController, ArtifactPickerController} from "./bp-artifact-picker";
+import { ConfigValueHelper } from "../../../../core";
+import { MessageService } from "../../../../shell/";
+import { ProjectManager, 
+    IProjectManager, 
+    Models } from "../../../";
+import { ArtifactPickerController } from "./bp-artifact-picker";
 
-import {BPTreeControllerMock, ITreeNode} from "../../../../shared/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {ProjectRepositoryMock} from "../../../services/project-repository.mock";
-import {ModalServiceInstanceMock} from "../open-project.spec.ts";
+import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
+import { ModalServiceInstanceMock } from "../open-project.spec.ts";
 
 
 describe("Project Explorer Test", () => {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -34,19 +35,7 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(154601)]
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)

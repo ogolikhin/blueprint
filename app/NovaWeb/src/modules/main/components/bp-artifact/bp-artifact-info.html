@@ -1,4 +1,4 @@
-﻿<div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
+<div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
     <div class="icon" ng-class="$ctrl.artifactClass" bp-tooltip="{{ $ctrl.artifactTypeDescription }}"></div>
     <div class="artifact-heading-group1">
         <div class="artifact-heading-group2">
@@ -6,10 +6,10 @@
                 {{ $ctrl.artifactName }}
             </div>
             <div class="indicators">
-                <i class="readonly-indicator fonticon-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
-                <i class="lock-indicator fonticon-lock" bp-tooltip="Locked" ng-if="$ctrl.isLocked"></i>
+                <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
+                <i class="lock-indicator fonticon2-lock" bp-tooltip="Locked" ng-if="$ctrl.isLocked"></i>
                 <!--TODO  please do not remove, I'll remove after testing-->
-                <i class="dirty-indicator fonticon-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
+                <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>

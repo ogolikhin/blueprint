@@ -103,11 +103,11 @@ pagecontent {
         color: $gray;
         display: inline-block;
         font-style: normal;
-        height: 16px;
         overflow: hidden;
         text-align: center;
         vertical-align: bottom;
-        width: 22px;
+        height: 20px;
+        width: 20px;
 
         &::before {
           font-size: 16px;
@@ -117,11 +117,6 @@ pagecontent {
 
       .readonly-indicator {
         width: 24px;
-
-        &::before {
-          font-size: 22px;
-          margin-top: 1px;
-        }
       }
 
       .lock-indicator::before {
@@ -130,11 +125,6 @@ pagecontent {
 
       .legacy-indicator {
         width: 24px;
-
-        &::before {
-          font-size: 15px;
-          margin-top: 8px;
-        }
       }
     }
 

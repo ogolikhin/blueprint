@@ -1,7 +1,7 @@
 import { IProject, IArtifact, ISubArtifact, IItem } from "./../models/models";
 
 export interface ISelectionManager {
-    selectedProjectObservable: Rx.Observable<IProject>;
+//    selectedProjectObservable: Rx.Observable<IProject>;
     selectedArtifactObservable: Rx.Observable<IArtifact>;
     selectedSubArtifactObservable: Rx.Observable<ISubArtifact>;
     selectedItemObservable: Rx.Observable<IItem>;
@@ -12,14 +12,16 @@ export interface ISelectionManager {
 }
 
 export enum SelectionSource {
+    None = 0,
     Explorer = 1,
-    Editor = 2
+    Editor = 2,
+    Manager = 3
 }
 
 export interface ISelection {
     source: SelectionSource;
-    artifact: IArtifact;
-    project: IProject;
+    artifact?: IArtifact;
+//    project: IProject;
     subArtifact?: ISubArtifact;
 }
 
@@ -34,12 +36,12 @@ export class SelectionManager implements ISelectionManager {
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(null);
     }
 
-    public get selectedProjectObservable() {
-        return this.selectionSubject
-            .filter(s => s != null)
-            .map(s => s.project)
-            .distinctUntilChanged(this.distinctById).asObservable();
-    }
+    //public get selectedProjectObservable() {
+    //    return this.selectionSubject
+    //        .filter(s => s != null)
+    //        .map(s => s.project)
+    //        .distinctUntilChanged(this.distinctById).asObservable();
+    //}
 
     public get selectedArtifactObservable() {
         return this.selectionSubject
@@ -67,10 +69,7 @@ export class SelectionManager implements ISelectionManager {
             if (selection.subArtifact) {
                 return selection.subArtifact;
             }
-            if (selection.artifact) {
-                return selection.artifact;
-            }
-            return selection.project;
+            return selection.artifact;
         }
         return null;
     }
@@ -92,6 +91,6 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public clearSelection() {
-        this.selectionSubject.onNext({ project: null, artifact: null, source: SelectionSource.Explorer });
+        this.selectionSubject.onNext({ artifact: null, subArtifact: null, source: SelectionSource.None });
     }
 }

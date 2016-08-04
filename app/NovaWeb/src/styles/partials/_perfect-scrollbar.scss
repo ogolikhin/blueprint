@@ -156,6 +156,8 @@ $perfect-scrollbar-thickness: 6px;
 $perfect-scrollbar-radius: $perfect-scrollbar-thickness / 2;
 $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
 
+bp-general-editor .ps-container,
+bp-artifact-editor .ps-container,
 .sidebar .ps-container {
   > .ps-scrollbar-x-rail,
   > .ps-scrollbar-x-rail > .ps-scrollbar-x {

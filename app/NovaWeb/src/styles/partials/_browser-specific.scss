@@ -1,6 +1,5 @@
 .is-chrome .formly .formly-field textarea:not([disabled]):hover {
   background-position: #{$property-input-width - 22px} 6px;
-  padding-right: 16px;
 }
 
 .nova-form-control[disabled]::-moz-placeholder,
@@ -61,6 +60,7 @@ input[type=password]::-ms-clear {
   }
 }
 
+// WebKit based browser system scrollbar skin
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 6px;

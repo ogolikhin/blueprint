@@ -1,4 +1,4 @@
-﻿import {IMessageService, IStateManager, IWindowResizeHandler, ISidebarToggle, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
 import {IProjectManager} from "../../main"
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -12,7 +12,7 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -27,7 +27,7 @@ export class BpBaseEditor {
     constructor(
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResizeHandler: IWindowResizeHandler,
+        public windowResize: IWindowResize,
         public sidebarToggle: ISidebarToggle,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
@@ -37,7 +37,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this),
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }

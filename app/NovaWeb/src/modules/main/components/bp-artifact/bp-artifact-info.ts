@@ -1,4 +1,4 @@
-﻿import { Models, Enums, IProjectManager, IWindowResizeHandler, ISidebarToggle } from "../..";
+﻿import { Models, Enums, IProjectManager, IWindowResize, ISidebarToggle } from "../..";
 import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -20,7 +20,7 @@ interface IArtifactInfoContext {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResizeHandler", "sidebarToggle"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResize", "sidebarToggle"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
@@ -34,7 +34,7 @@ export class BpArtifactInfoController {
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowResizeHandler: IWindowResizeHandler,
+        private windowResize: IWindowResize,
         private sidebarToggle: ISidebarToggle
     ) {
     }
@@ -42,7 +42,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this),
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }

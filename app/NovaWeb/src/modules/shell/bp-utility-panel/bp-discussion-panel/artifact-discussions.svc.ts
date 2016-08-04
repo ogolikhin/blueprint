@@ -216,7 +216,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/components/RapidReview/artifacts/${itemId}/deletecomment/${replyId}`,
-            method: "POST"
+            method: "DELETE"
         };
         this.$http(requestObj)
             .success(() => {
@@ -236,7 +236,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/components/RapidReview/artifacts/${itemId}/deletethread/${discussionId}`,
-            method: "POST"
+            method: "DELETE"
         };
         this.$http(requestObj)
             .success(() => {

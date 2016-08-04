@@ -9,8 +9,7 @@ export class StorytellerState implements ng.ui.IState {
 export class StorytellerStateController {
     public static $inject = ["$state"];
     public context;
-    constructor(
-        private $state) {
+    constructor(private $state: angular.ui.IStateService) {
         this.context = $state.params["context"];
     }
 }

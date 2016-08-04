@@ -16,7 +16,7 @@ export class ArtifactStateController {
 
     constructor(
         private $rootScope,
-        private $state: any,
+        private $state: angular.ui.IStateService,
         private projectManager: IProjectManager,
         private messageService: MessageService) {
         
@@ -41,20 +41,20 @@ export class ArtifactStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go('main.artifact.diagram', { context: context });
+                this.$state.go("main.artifact.diagram", { context: context });
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go('main.artifact.glossary', { context: context });
+                this.$state.go("main.artifact.glossary", { context: context });
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go('main.artifact.general', { context: context });
+                this.$state.go("main.artifact.general", { context: context });
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go('main.artifact.storyteller', { context: context });
+                this.$state.go("main.artifact.storyteller", { context: context });
                 break;
             default:
-                this.$state.go('main.artifact.details', { context: context });
+                this.$state.go("main.artifact.details", { context: context });
         }
     }
 }

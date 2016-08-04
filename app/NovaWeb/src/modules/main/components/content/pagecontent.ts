@@ -18,7 +18,7 @@ export class PageContent implements ng.IComponentOptions {
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
     public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager"];
-    constructor(private $state: any,
+    constructor(private $state: angular.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
@@ -50,7 +50,7 @@ class PageContentCtrl {
         let _context: any = {};
         try {
             if (!artifact) {
-                this.$state.go('main');
+                this.$state.go("main");
                 return;
             }
 
@@ -58,7 +58,7 @@ class PageContentCtrl {
 //            _context.project = this.projectManager.currentProject.getValue();
 //            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
             _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
-            this.$state.go('main.artifact', { id: artifact.id, context: _context });
+            this.$state.go("main.artifact", { id: artifact.id, context: _context });
 
         } catch (ex) {
             this.messageService.addError(ex.message);

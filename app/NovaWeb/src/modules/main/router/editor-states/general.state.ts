@@ -8,8 +8,7 @@
 export class GeneralStateController {
     public static $inject = ["$state"];
     public context;
-    constructor(
-        private $state) {
+    constructor(private $state: angular.ui.IStateService) {
         this.context = $state.params["context"];
     }
 }

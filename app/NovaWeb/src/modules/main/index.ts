@@ -21,7 +21,6 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    IWindowResize, WindowResize,
     ISidebarToggle, SidebarToggle } from "./services/";
 import { ISelectionManager, SelectionManager } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
@@ -46,7 +45,6 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager,
-    IWindowResize, WindowResize,
     ISidebarToggle, SidebarToggle
 };
 
@@ -95,7 +93,6 @@ angular.module("app.main", [
     .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
-    .service("windowResize", WindowResize)
     .service("sidebarToggle", SidebarToggle)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())

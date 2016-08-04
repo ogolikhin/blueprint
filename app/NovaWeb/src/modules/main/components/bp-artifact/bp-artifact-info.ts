@@ -1,5 +1,5 @@
-﻿import { Models, Enums, IProjectManager, IWindowResize, ISidebarToggle } from "../..";
-import { ILocalizationService, IStateManager } from "../../../core";
+﻿import { Models, Enums, IProjectManager, ISidebarToggle } from "../..";
+import { ILocalizationService, IStateManager, IWindowResize } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 

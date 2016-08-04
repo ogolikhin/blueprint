@@ -6,7 +6,7 @@ import { LocalizationServiceMock} from "../../core/localization/localization.moc
 import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController } from "./bp-general-editor";
 import { StateManager } from "../../core/services/state-manager";
-import { WindowResize } from "../../main/services/window-resize";
+import { WindowResize } from "../../core/services/window-resize";
 import { SidebarToggle } from "../../main/services/sidebar-toggle";
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager } from "../../main/services/project-manager";

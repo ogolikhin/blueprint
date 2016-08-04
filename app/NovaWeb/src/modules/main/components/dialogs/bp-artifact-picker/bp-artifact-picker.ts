@@ -3,7 +3,7 @@ import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
-import { IProjectManager, Models, IProjectRepository } from "../../../";
+import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
 import { HttpHandledErrorStatusCodes } from "../../../../shell/error/http-error-interceptor";
 
 export interface IArtifactPickerController {
@@ -22,20 +22,24 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectName: string;
 
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "selectionManager", "projectRepository", "dialogService", "params"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private manager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
         params: IDialogSettings
     ) {
         super($uibModalInstance, params);
         dialogService.params.okButton = "OK";
-        this.projectId = this.manager.currentProject.getValue().id;
-        this.projectName = this.manager.currentProject.getValue().name;
+        let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        if (_project) {
+            this.projectId = _project.id;
+            this.projectName = _project.name;
+        }
     };
 
     public propertyMap = {

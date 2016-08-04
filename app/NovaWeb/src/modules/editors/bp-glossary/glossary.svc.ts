@@ -44,7 +44,7 @@ export class GlossaryService implements IGlossaryService {
     public getGlossary(id: number): ng.IPromise<IGlossaryDetails> {
         const defer = this.$q.defer<IGlossaryDetails>();
 
-        this.$http.get<IGlossaryDetails>("/svc/components/RapidReview/glossary/" + id + "?includeDraft=true")
+        this.$http.get<IGlossaryDetails>("/svc/components/RapidReview/glossary/" + id + "?addDrafts=true")
             .then((result: ng.IHttpPromiseCallbackArg<IGlossaryDetails>) => {
                 this._glossary.onNext(result.data);
                 defer.resolve(result.data);

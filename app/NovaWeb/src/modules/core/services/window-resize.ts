@@ -1,10 +1,10 @@
-﻿export interface IWindowResizeHandler {
+﻿export interface IWindowResize {
     isResizing: Rx.Observable<boolean>;
     width: Rx.Observable<number>;
     height: Rx.Observable<number>;
 }
 
-export class WindowResizeHandler implements IWindowResizeHandler {
+export class WindowResize implements IWindowResize {
     private _isResizing: Rx.BehaviorSubject<boolean>;
     private _width: Rx.BehaviorSubject<number>;
     private _height: Rx.BehaviorSubject<number>;
@@ -17,7 +17,7 @@ export class WindowResizeHandler implements IWindowResizeHandler {
         this._height = new Rx.BehaviorSubject<number>(window.innerHeight);
 
         window.addEventListener("resize", this.windowResizeHandler);
-        window.addEventListener("unload", this.dispose);
+        window.addEventListener("beforeunload", () => { this.dispose(); });
     };
 
     public dispose() {

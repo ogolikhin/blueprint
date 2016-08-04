@@ -2,10 +2,9 @@
 import "angular-mocks";
 import { ConfigValueHelper } from "../../../../core";
 import { MessageService } from "../../../../shell/";
-import { ProjectManager, 
-    IProjectManager, 
-    Models } from "../../../";
+import { ProjectManager, IProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
+import { SelectionManager } from "../../../services/selection-manager";
 
 import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
@@ -25,10 +24,11 @@ describe("Project Explorer Test", () => {
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("explorer", ArtifactPickerController);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService, selectionManager: SelectionManager) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -47,6 +47,8 @@ describe("Project Explorer Test", () => {
             new LocalizationServiceMock(),
             new ModalServiceInstanceMock(),
             projectManager,
+            selectionManager,
+            null,
             null,
             null,
             null);
@@ -95,7 +97,7 @@ describe("Project Explorer Test", () => {
         };
 
         // Act
-        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
+//        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
 
         // Assert
         expect(isReloadCalled).toEqual(1);
@@ -172,7 +174,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject();
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(isReloadCalled).toBeTruthy();
@@ -192,7 +194,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject(true);
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(current).toBeNull();

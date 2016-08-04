@@ -21,7 +21,7 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    IWindowResizeHandler, WindowResizeHandler } from "./services/";
+    ISidebarToggle, SidebarToggle } from "./services/";
 import { ISelectionManager, SelectionManager } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -32,9 +32,17 @@ import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
 import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
 import { MainViewComponent } from "./main.view";
 import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
-import { config as routesConfig } from "./main.state";
 import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
+import {ArtifactStateController} from "./router/artifact.state";
+
+import {DetailsStateController} from "./router/editor-states/details.state";
+import {DiagramStateController} from "./router/editor-states/diagram.state";
+import {GeneralStateController} from "./router/editor-states/general.state";
+import {GlossaryStateController} from "./router/editor-states/glossary.state";
+import {StorytellerStateController} from "./router/editor-states/storyteller.state"; 
+
+import {Routes} from "./router/router.config";
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -45,7 +53,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager,
-    IWindowResizeHandler, WindowResizeHandler
+    ISidebarToggle, SidebarToggle
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
@@ -87,13 +95,13 @@ angular.module("app.main", [
     "formly",
     "formlyBootstrap",
     "bp.editors"
-    ])
+])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
-    .service("windowResizeHandler", WindowResizeHandler)
+    .service("sidebarToggle", SidebarToggle)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())
@@ -102,6 +110,12 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    .config(routesConfig)
+    .controller("artifactStateController", ArtifactStateController)
+    .controller("generalStateController", GeneralStateController)
+    .controller("detailsStateController", DetailsStateController)
+    .controller("diagramStateController", DiagramStateController)
+    .controller("glossaryStateController", GlossaryStateController)
+    .controller("storytellerStateController", StorytellerStateController)
     .config(formlyDecorate)
+    .config(Routes)
     .run(formlyConfigExtendedFields);

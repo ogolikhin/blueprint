@@ -70,8 +70,6 @@ export interface IArtifact extends IItem {
     //for client use
     artifacts?: IArtifact[];
     loaded?: boolean;
-    changed?: boolean;
-
 }
 export interface IOption {
     id: number;
@@ -218,6 +216,14 @@ export class Artifact implements IArtifact {
 
 export interface IHashMap<T> {
     [key: string]: T;
+}
+
+
+export interface IEditorContext {
+    artifact?: IArtifact;
+    project?: IProject;
+    type?: IItemType;
+    propertyTypes?: IPropertyType[];
 }
 
   

@@ -215,9 +215,6 @@ var appBootstrap = (function() {
     appBootstrap.prototype.executionEnvironment = {};
     appBootstrap.prototype.isPageHidden = false;
 
-    // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
-    var documentHiddenProperty = "hidden";
-
     function appBootstrap() {
         this.executionEnvironment = new executionEnvironmentDetector();
         this.isSupportedVersion();
@@ -296,35 +293,7 @@ var appBootstrap = (function() {
         }
     };
 
-    appBootstrap.prototype.setupPageVisibility = function() {
-        var self = this;
-
-        // W3C standards:
-        if (documentHiddenProperty in document) {
-            document.addEventListener("visibilitychange", self.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "mozHidden") in document) { // Firefox 10+
-            document.addEventListener("mozvisibilitychange", self.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "webkitHidden") in document) { // Chrome 13+
-            document.addEventListener("webkitvisibilitychange", self.pageVisibilityHandler);
-        } else if ((documentHiddenProperty = "msHidden") in document) { // IE 10+
-            document.addEventListener("msvisibilitychange", self.pageVisibilityHandler);
-        } else if ("onfocusin" in document) { // IE 9-
-            document.onfocusin = document.onfocusout = self.pageVisibilityHandler;
-        } else { // everything else
-            window.onpageshow
-                = window.onpagehide
-                = window.onfocus
-                = window.onblur
-                = self.pageVisibilityHandler;
-        }
-
-        // set the initial state but only if browser supports the Page Visibility API
-        if (document[documentHiddenProperty] !== undefined) {
-            self.pageVisibilityHandler({type: document[documentHiddenProperty] ? "blur" : "focus"});
-        }
-    };
-
-    appBootstrap.prototype.pageVisibilityHandler = function(evt) {
+    appBootstrap.prototype.setupPageVisibility = function(evt) {
         var visible = false, hidden = true;
         var eventMap = {
             focus: visible,
@@ -381,8 +350,15 @@ var appBootstrap = (function() {
     appBootstrap.prototype.initApp = function() {
         var self = this;
 
-        self.setupPageVisibility();
+        // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
+        var documentHiddenProperty = "hidden";
+        // set the initial state but only if browser supports the Page Visibility API
+        if (document[documentHiddenProperty] !== undefined) {
+            self.setupPageVisibility({type: document[documentHiddenProperty] ? "blur" : "focus"});
+        }
+
         self.setupBodyClasses();
+
         setTimeout(function() {
             self.checkWebFont();
         }, 1000);

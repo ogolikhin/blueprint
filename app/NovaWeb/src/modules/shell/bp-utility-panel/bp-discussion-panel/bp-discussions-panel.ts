@@ -108,6 +108,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         }
     }
 
+    /* tslint:disable:no-unused-variable */
     private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
@@ -115,28 +116,40 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.cancelCommentClick();
                 this.setDiscussions();
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
+    /* tslint:disable:no-unused-variable */
     private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
-                //this.cancelCommentClick();
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
                 if (!discussion.expanded) {
                     this.expandCollapseDiscussion(discussion);
                 }
                 return reply;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
     public newCommentClick(): void {
         if (this.canCreate) {
@@ -186,7 +199,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteReply(discussion: IDiscussion, reply: IReply) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment")).then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
                     this.getDiscussionReplies(discussion.discussionId)
@@ -201,7 +214,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteCommentThread(discussion: IDiscussion) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comments")).then((confirmed: boolean) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread")).then((confirmed: boolean) => {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
@@ -214,4 +227,13 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         });
     }
 
+    public discussionEdited(discussion: IDiscussion) {
+        if (this.artifactDiscussionList.length > 1) {
+            const currentIndex = this.artifactDiscussionList.indexOf(discussion);
+            if (currentIndex > 0) {
+                this.artifactDiscussionList.splice(currentIndex, 1);
+                this.artifactDiscussionList.splice(0, 0, discussion);
+            }
+        }
+    }
 }

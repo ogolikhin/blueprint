@@ -1,16 +1,16 @@
-﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
-
+﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
+import {IProjectManager} from "../../main"
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
-export interface IEditorContext {
-    artifact?: Models.IArtifact;
-    project?: Models.IProject;
-    type?: Models.IItemType;
-    propertyTypes?: Models.IPropertyType[];
+export { IProjectManager }
+export enum LookupEnum {
+    None = 0,
+    System = 1,
+    Custom = 2,
+    Special = 3,
 }
-
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -18,21 +18,25 @@ export class BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: IPropertyEditor;
-    public context: IEditorContext;
+    public context: Models.IEditorContext;
 
     public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResizeHandler: IWindowResizeHandler,
-        private $timeout: ng.ITimeoutService) {
+        public windowResize: IWindowResize,
+        public sidebarToggle: ISidebarToggle,
+        private $timeout: ng.ITimeoutService,
+        private projectManager: IProjectManager
+    ) {
         this.editor = new PropertyEditor(); 
     }
 
     public $onInit() {
         this._subscribers = [
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -60,38 +64,26 @@ export class BpBaseEditor {
         delete this.model;
     }
 
-    private onWidthResized(width: number) {
+    private onWidthResized() {
         this.setArtifactEditorLabelsWidth();
     }
+     
+    
      
     public onValueChange($value: any, $model: AngularFormly.IFieldConfigurationObject) {
         //here we need to update original model
         let context = $model.data as PropertyContext;
-        if (context && $value !== $model.initialValue) {
-            
-            this.stateManager.isArtifactChanged = true;
-            this.context.artifact.changed = true;
-
-            switch (context.lookup) {
-                case LookupEnum.System:
-                    this.context.artifact[context.modelPropertyName] = $value;
-                    break;
-                case LookupEnum.Custom:
-                    let index: number = -1;
-                    let typeId = context.modelPropertyName as number;
-                    this.context.artifact.customPropertyValues.forEach((it: Models.IPropertyValue, idx: number) => {
-                        if (it.propertyTypeId === typeId as number) {
-                            index = idx;
-                        }
-                    });
-                    if (index >= 0) {
-                        this.context.artifact.customPropertyValues[index].value = $value;
-                    }
-                    break;
-                case LookupEnum.Special:
-                    //TODO: special property value needs its own impelemntation
-                    break;
+        if (!context) {
+            return;
             }
+        let value = context.getValueOfType($value);
+        if ( !this.form.$invalid ) {
+            let changeSet: any = {
+                lookup: LookupEnum[context.lookup],
+                key: context.modelPropertyName,
+                value: value
+            };
+            this.stateManager.addChangeSet(this.context.artifact, changeSet);
         }
 
 
@@ -99,11 +91,11 @@ export class BpBaseEditor {
 
     public onLoading(obj: any): boolean  {
         this.fields = [];
-        this.context = obj.context ? obj.context.currentValue : null;
-        return !!(this.context && this.context.artifact && this.context.propertyTypes);
+        return !!(this.context && angular.isDefined(this.context.artifact));
     }
 
-    public onLoad(context: IEditorContext) {
+
+    public onLoad(context: Models.IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -111,13 +103,15 @@ export class BpBaseEditor {
         this.fields.push(field);
     }
 
-    public onUpdate(context: IEditorContext) {
+    public onUpdate(context: Models.IEditorContext) {
         try {
             this.isLoading = false;
             if (!context || !this.editor) {
                 return;
             }
-            let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
+            
+
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
@@ -152,13 +146,6 @@ export class BpBaseEditor {
             }
         }
     };
-}
-
-export enum LookupEnum {
-    None = 0,
-    System = 1,
-    Custom = 2,
-    Special = 3,
 }
 
 export interface IPropertyEditor {
@@ -205,12 +192,12 @@ export class PropertyContext implements Models.IPropertyType {
             this.modelPropertyName = propertyTypeName;
         } else if (angular.isUndefined(this.propertyTypePredefined) && angular.isNumber(this.id)) {
             this.lookup = LookupEnum.Custom;
-            this.fieldPropertyName = `property_${this.id.toString()}`;
+            this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
             this.modelPropertyName = this.id;
         }
         //} else {
         //    this.lookup = LookupEnum.Special;
-        //    this.fieldPropertyName = `special_${this.id.toString()}`;
+        //    this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
         //    this.modelPropertyName = this.id;
         //}
     }
@@ -223,6 +210,43 @@ export class PropertyContext implements Models.IPropertyType {
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn,
             Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+    }
+    public getValueOfType($value: any): any {
+        if (angular.isDefined($value)) {
+            switch (this.primitiveType) {
+                case Models.PrimitiveType.Number:
+                    if (!angular.isNumber($value)) {
+                        if (!$value) {
+                            return undefined;
+                        }
+                        return this.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString());
+                    }
+                    break;
+                case Models.PrimitiveType.Date:
+                    if (!angular.isDate($value)) {
+                        if (!$value) {
+                            return undefined;
+                        }
+                        return new Date($value);
+                    }
+                    break;
+                case Models.PrimitiveType.Choice:
+                    let values = $value.toString().split(",").map((it: string) => {
+                        return parseInt(it);
+                    });
+                    if (values.length > 1) {
+                        return {
+                            validValueIds: values
+                        }
+                    } else if (values.length === 1) {
+                        return values[0];
+                    }
+                    return null;
+                default:
+                    break;
+            }
+        } 
+        return $value;
     }
 }
 
@@ -279,7 +303,7 @@ export class PropertyEditor implements IPropertyEditor {
                             if (value.usersGroups) {
                                 value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
-                                })[0];
+                                }).join(", ");
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {
@@ -387,7 +411,7 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    field.type = "input"; // needs to be changed to user selection
+                    field.type = "bpFieldReadOnly"; // needs to be changed to user selection
                     //if (angular.isNumber(context.defaultValidValueId)) {
                     //    field.defaultValue = context.defaultValidValueId.toString();
                     //}

@@ -16,7 +16,7 @@ describe("Glossary Service", () => {
 
         // Arrange
         /* tslint:disable:max-line-length */
-        $httpBackend.expectGET("/svc/components/RapidReview/glossary/263?includeDraft=true")
+        $httpBackend.expectGET("/svc/components/RapidReview/glossary/263?addDrafts=true")
             .respond(200, {
                     "id": 263,
                     "terms": [
@@ -60,7 +60,7 @@ describe("Glossary Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, glossaryService: IGlossaryService) => {
 
         // Arrange
-        $httpBackend.expectGET("/svc/components/RapidReview/glossary/0?includeDraft=true")
+        $httpBackend.expectGET("/svc/components/RapidReview/glossary/0?addDrafts=true")
             .respond(404, {
                 statusCode: 404,
                 message: "Couldn't find the artifact"

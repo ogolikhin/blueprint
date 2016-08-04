@@ -1,10 +1,10 @@
 ﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../core/";
-import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
 import {ProcessModels, ProcessEnums} from "../../../";
 
-export interface IStorytellerViewModel extends IProcessClientModel{
+export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
     isLocked: boolean;
     isLockedByMe: boolean;
@@ -30,12 +30,13 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isShapeJustCreated(id: number): boolean;
 }
 
-export class StorytellerViewModel implements IStorytellerViewModel {
+export class ProcessViewModel implements IProcessViewModel {
+
     private DEFAULT_SHAPE_LIMIT: number = 100;
     private _rootScope: any = null;
     private _scope: any = null;
     private _messageService: IMessageService = null;
-    private processClientModel: IProcessClientModel = null;
+    private processClientModel: IProcessGraphModel = null;
     private _isChanged: boolean = false;
     private _unsubscribeToolbarEvents = [];
     private _showLock: boolean;
@@ -189,7 +190,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     }
 
     public updateProcessClientModel(process: ProcessModels.IProcess) {
-        this.processClientModel = new ProcessClientModel(process);
+        this.processClientModel = new ProcessGraphModel(process);
 
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
@@ -229,7 +230,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         }
         else if (shapeCount > this.shapeLimit) {
             let message: string;
-            let messageType = null;//: Shell.MessageType = Shell.MessageType.Error;
+            let messageType = null; //: Shell.MessageType = Shell.MessageType.Error;
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
                 // replace {0} placeholder with number of shapes added 
@@ -283,7 +284,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     }
 
     public get description(): string {
-        return this.processClientModel.propertyValues['description'].value;
+        return this.processClientModel.propertyValues["description"].value;
     }
 
     public get typePrefix(): string {

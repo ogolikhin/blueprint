@@ -2,7 +2,7 @@
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
 
-export interface IProcessClientModel {
+export interface IProcessGraphModel {
 
     // IProcess wrapper
 
@@ -46,7 +46,7 @@ export interface IProcessClientModel {
     destroy();
 }
 
-export class ProcessClientModel implements IProcessClientModel {
+export class ProcessGraphModel implements IProcessGraphModel {
     private process: ProcessModels.IProcess;
     private tree: Models.IHashMap<ProcessModels.TreeShapeRef>;
     private linkIndex: number[] = [];
@@ -127,7 +127,7 @@ export class ProcessClientModel implements IProcessClientModel {
         this.endShapeId = null;
         this.linkIndex = [];
 
-        for (var i in this.process.shapes) {
+        for (let i in this.process.shapes) {
             var shape = this.process.shapes[i];
 
             if (this.startShapeId == null && this.getShapeType(shape) === ProcessEnums.ProcessShapeType.Start) {
@@ -148,7 +148,7 @@ export class ProcessClientModel implements IProcessClientModel {
             this.tree[shape.id.toString()] = shapeRef;
         }
 
-        for (var i in this.process.links) {
+        for (let i in this.process.links) {
             var link = this.process.links[i];
             this.linkIndex[link.sourceId.toString() + ";" + link.destinationId.toString()] = i;
             this.tree[link.sourceId.toString()].nextShapeIds.push(link.destinationId);
@@ -408,7 +408,7 @@ export class ProcessClientModel implements IProcessClientModel {
     }
 
     public updateDecisionDestinationId(decisionId: number, orderIndex: number, newDestinationId: number) {
-        let link = this.getDecisionBranchDestinationLinks(link => link.sourceId === decisionId && link.orderindex === orderIndex)[0];
+        let link = this.getDecisionBranchDestinationLinks(lnk => lnk.sourceId === decisionId && lnk.orderindex === orderIndex)[0];
         if (link) {
             link.destinationId = newDestinationId;
         }

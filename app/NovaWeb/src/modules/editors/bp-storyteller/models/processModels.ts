@@ -15,7 +15,7 @@ export interface IVersionInfo {
 }
 
 export interface IHashMapOfPropertyValues {
-    [name: string]: IPropertyValueInformation
+    [name: string]: IPropertyValueInformation;
 }
 
 export interface IProcess {
@@ -137,9 +137,9 @@ export interface IProperty {
 
 export interface IProcessFlow {
     parentFlow: IProcessFlow;
-    orderIndex: number,
-    startShapeId: number,
-    endShapeId: number,
+    orderIndex: number;
+    startShapeId: number;
+    endShapeId: number;
     shapes: IHashMap<IProcessShape>;
 }
 

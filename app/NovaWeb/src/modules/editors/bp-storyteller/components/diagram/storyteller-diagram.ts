@@ -1,11 +1,15 @@
 ﻿// References to StorytellerDiagram
-import {ProcessModels, IProcessService} from "../../"
-import {IMessageService} from "../../../../core"
-import {StorytellerViewModel, IStorytellerViewModel} from "./viewmodel/storyteller-view-model";
+import {IProcess} from "../../models/processModels";
+import {IProcessService} from "../../services/process/process.svc";
+import {IMessageService} from "../../../../core";
+import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
+import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
+import {ProcessGraph} from "./presentation/graph/process-graph";
+
 
 export class StorytellerDiagram {
-    public processModel: ProcessModels.IProcess;
-    public storytellerViewModel: IStorytellerViewModel = null;
+    public processModel: IProcess;
+    public processViewModel: IProcessViewModel = null;
 
     constructor(
         private $rootScope: ng.IRootScopeService,
@@ -20,7 +24,7 @@ export class StorytellerDiagram {
         this.processModel = null;
     }
 
-    public debugInformation:string;
+    public debugInformation: string;
     public createDiagram(processId: string) {
         // retrieve the specified process from the server and 
         // create a new diagram
@@ -32,10 +36,10 @@ export class StorytellerDiagram {
             //storytellerParams.revisionId,
             //storytellerParams.baselineId,
             //storytellerParams.readOnly
-        ).then((process: ProcessModels.IProcess) => {
+        ).then((process: IProcess) => {
             this.onLoad(process);
-            //if (!this.storytellerViewModel.isReadonly) {
-            //    this.storytellerViewModel.isWithinShapeLimit(0, true);
+            //if (!this.processViewModel.isReadonly) {
+            //    this.processViewModel.isWithinShapeLimit(0, true);
             //}
         }).catch((err: any) => {
             // if access to proccess info is forbidden
@@ -44,25 +48,26 @@ export class StorytellerDiagram {
             }
         });
     }
-    private onLoad(process: ProcessModels.IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+    private onLoad(process: IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+
         this.processModel = process;
 
         this.debugInformation = "PROCESS LOADED";
         this.dumpDebugInformation(this.processModel);
-        let storytellerViewModel = this.createProcessViewModel(process);
-        //if (storytellerViewModel.isReadonly) this.disableStorytellerToolbar();
-        //this.createGraph(storytellerViewModel, useAutolayout, selectedNodeId);
+        let processViewModel = this.createProcessViewModel(process);
+        //if (processViewModel.isReadonly) this.disableStorytellerToolbar();
+        //this.createGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
-    private createProcessViewModel(process: ProcessModels.IProcess): IStorytellerViewModel {
-        if (this.storytellerViewModel == null) {
-            this.storytellerViewModel = new StorytellerViewModel(process, this.$rootScope, this.$scope, this.messageService);
+    private createProcessViewModel(process: IProcess): IProcessViewModel {
+        if (this.processViewModel == null) {
+            this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
         } else {
-            this.storytellerViewModel.updateProcessClientModel(process);
+            this.processViewModel.updateProcessClientModel(process);
         }
-        return this.storytellerViewModel;
+        return this.processViewModel;
     }
-    private dumpDebugInformation(model: ProcessModels.IProcess): void {
+    private dumpDebugInformation(model: IProcess): void {
         if (window.console && console.log) {
             //let output:string[] = [];
             if (model.shapes) {

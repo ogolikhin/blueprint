@@ -15,7 +15,7 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
 
 export class BpStorytellerEditorController {
     private _subscribers: Rx.IDisposable[];
-    public storytellerDiagram : StorytellerDiagram;
+    public storytellerDiagram: StorytellerDiagram;
 
     public static $inject = [
         "$rootScope",

@@ -1,6 +1,6 @@
 ﻿// References to StorytellerDiagramDirective
 import {ProcessModels, IProcessService} from "./";
-import {IProjectManager} from "../../main/services";
+import {ISelectionManager } from "../../main/services";
 import * as Models from "../../main/models/models";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
@@ -26,6 +26,7 @@ export class BpStorytellerEditorController {
         "$log",
         "processService",
         "projectManager",
+        "selectionManager",
         "messageService"
     ];
 
@@ -37,7 +38,7 @@ export class BpStorytellerEditorController {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private projectManager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private messageService: IMessageService
     ) {
 
@@ -58,7 +59,7 @@ export class BpStorytellerEditorController {
 
         this._subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.artifactChange, this)
+            this.selectionManager.selectedArtifactObservable.subscribeOnNext(this.artifactChange, this)
         ];
     }
 

@@ -1,13 +1,13 @@
 ﻿import "angular";
 import "angular-mocks";
-import {OpenProjectController} from "./open-project";
-import {ConfigValueHelper } from "../../../core";
-import {MessageService} from "../../../shell/";
-import {ProjectManager } from "../../services/project-manager";
-import {BPTreeControllerMock} from "../../../shared/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ProjectRepositoryMock} from "../../services/project-repository.mock";
-
+import { OpenProjectController } from "./open-project";
+import { ConfigValueHelper } from "../../../core";
+import { MessageService } from "../../../shell/";
+import { ProjectManager } from "../../services/project-manager";
+import { SelectionManager } from "../../services/selection-manager";
+import { BPTreeControllerMock } from "../../../shared/widgets/bp-tree/bp-tree.mock";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
+import { ProjectRepositoryMock } from "../../services/project-repository.mock";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -148,6 +148,7 @@ describe("Open Project.", () => {
             $provide.service("messageService", MessageService);
             $provide.service("projectRepository", ProjectRepositoryMock);
             $provide.service("manager", ProjectManager);
+            $provide.service("selectionManager", SelectionManager);
 
         }));
         beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $compile: ng.ICompileService, manager: ProjectManager) => {

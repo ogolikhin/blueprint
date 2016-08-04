@@ -1,14 +1,16 @@
 ﻿import "angular";
 import "angular-mocks";
-import {ConfigValueHelper } from "../../../../core";
-import {MessageService} from "../../../../shell/";
-import {ProjectManager, IProjectManager, Models } from "../../../";
-import {IArtifactPickerController, ArtifactPickerController} from "./bp-artifact-picker";
+import { ConfigValueHelper } from "../../../../core";
+import { MessageService } from "../../../../shell/";
+import { ProjectManager, 
+    IProjectManager, 
+    Models } from "../../../";
+import { ArtifactPickerController } from "./bp-artifact-picker";
 
-import {BPTreeControllerMock, ITreeNode} from "../../../../shared/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {ProjectRepositoryMock} from "../../../services/project-repository.mock";
-import {ModalServiceInstanceMock} from "../open-project.spec.ts";
+import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
+import { ModalServiceInstanceMock } from "../open-project.spec.ts";
 
 
 describe("Project Explorer Test", () => {
@@ -93,7 +95,7 @@ describe("Project Explorer Test", () => {
         };
 
         // Act
-        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
+//        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
 
         // Assert
         expect(isReloadCalled).toEqual(1);
@@ -170,7 +172,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject();
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(isReloadCalled).toBeTruthy();
@@ -190,7 +192,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject(true);
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current: Models.IProject;// = projectManager.currentProject.getValue();
 
         // Assert
         expect(current).toBeNull();

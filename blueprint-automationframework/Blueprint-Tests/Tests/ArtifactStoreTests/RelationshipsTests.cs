@@ -565,6 +565,55 @@ namespace ArtifactStoreTests
             Assert.AreEqual(traces[0].Direction, trace.Direction, "Returned trace must have proper Direction.");
         }
 
+        [TestCase]
+        [TestRail(154763)]
+        [Description("Get relationshipsdetails for artifact, check that artifact path has expected value.")]
+        public void GetRelationshipsDetails_ManualTrace_ReturnsCorrectTraceDetails()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            TraceDetails traceDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, artifact);
+            }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(2, traceDetails.PathToProject.Count, "PathToProject must have 2 items.");
+            Assert.AreEqual(_project.Id, traceDetails.PathToProject[0].ItemId, "Project must be the first item of the PathToProject");
+            Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
+        }
+
+        [TestCase]
+        [TestRail(154764)]
+        [Description("Get relationshipsdetails for artifact which is child of other artifact, check that artifact path has expected value.")]
+        public void GetRelationshipsDetails_ManualTraceLongPath_ReturnsCorrectTraceDetails()
+        {
+            // Setup:
+            IArtifact parentArtifact = null;
+            for (int i = 0; i < 3; i++)
+            {
+                parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase, parentArtifact);
+            }
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, parent: parentArtifact);
+
+            TraceDetails traceDetails = null;
+            
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, artifact);
+            }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
+
+            // Verify:
+            Assert.AreEqual(5, traceDetails.PathToProject.Count, "PathToProject must have 5 items.");
+            Assert.AreEqual(_project.Id, traceDetails.PathToProject[0].ItemId, "Project must be the first item of the PathToProject");
+            Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
+        }
+
         // TODO: Test with "Other" traces.
         // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.
     }

@@ -1,12 +1,15 @@
-﻿import { ILocalizationService } from "../../../../core";
-import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
+﻿import { ILocalizationService, IMessageService } from "../../../../core";
+import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
     public controller: Function = BPDiscussionReplyItemController;
     public bindings: any = {
         replyInfo: "=",
-        artifactId: "="
+        artifactId: "=",
+        canCreate: "=",
+        discussionClosed: "=",
+        deleteReply: "&"
     };
 }
 
@@ -14,17 +17,22 @@ export class BPDiscussionReplyItemController {
     public replyInfo: IReply;
     public artifactId: number;
     public editing = false;
+    public canCreate: boolean;
+    public discussionClosed: boolean;
+    public deleteReply: Function;
 
     public static $inject: [string] = [
         "localization",
         "$sce",
         "artifactDiscussions",
+        "messageService"
     ];
 
     constructor(
         private localization: ILocalizationService,
         private $sce: ng.ISCEService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions) {
+        private _artifactDiscussionsRepository: IArtifactDiscussions,
+        private messageService: IMessageService) {
     }
 
     public getTrustedCommentHtml() {
@@ -35,7 +43,6 @@ export class BPDiscussionReplyItemController {
         } else {
             return "";
         }
-        //return this.discussionInfo.comment;
     };
 
     public cancelCommentClick() {
@@ -43,15 +50,32 @@ export class BPDiscussionReplyItemController {
     }
 
     public editCommentClick() {
+        if (this.canEdit()) {
         this.editing = true;
     }
+    }
 
+    public canEdit(): boolean {
+        if (this.replyInfo) {
+            return !this.discussionClosed && this.replyInfo.canEdit;
+        } else {
+            return false;
+        }
+    }
+
+    /* tslint:disable:no-unused-variable */
     private editReply(comment: string): ng.IPromise<IReply> {
         return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
             .then((discussion: IReply) => {
                 this.editing = false;
                 this.replyInfo.comment = comment;
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             });
     }
+    /* tslint:disable:no-unused-variable */
 }

@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
-
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
+import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 
@@ -19,6 +19,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "artifactDiscussions",
         "selectionManager",
         "messageService",
+        "dialogService",
         "$q"
     ];
 
@@ -39,6 +40,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private _artifactDiscussionsRepository: IArtifactDiscussions,
         protected selectionManager: ISelectionManager,
         private messageService: IMessageService,
+        private dialogService: IDialogService,
         private $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
@@ -90,22 +92,23 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     private setReplies(discussion: IDiscussion) {
-        this.getDiscussionReplies(discussion.discussionId)
-            .then((replies: IReply[]) => {
-                discussion.replies = replies;
-                discussion.repliesCount = replies.length;
+            this.getDiscussionReplies(discussion.discussionId)
+                .then((replies: IReply[]) => {
+                    discussion.replies = replies;
+                    discussion.repliesCount = replies.length;
             });
     }
 
     public expandCollapseDiscussion(discussion: IDiscussion): void {
         if (!discussion.expanded) {
             this.setReplies(discussion);
-            discussion.expanded = true;
+                    discussion.expanded = true;
         } else {
             discussion.expanded = false;
         }
     }
 
+    /* tslint:disable:no-unused-variable */
     private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
@@ -113,28 +116,40 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.cancelCommentClick();
                 this.setDiscussions();
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
+    /* tslint:disable:no-unused-variable */
     private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         this.isLoading = true;
         return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
-                //this.cancelCommentClick();
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
                 if (!discussion.expanded) {
                     this.expandCollapseDiscussion(discussion);
                 }
                 return reply;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
+    /* tslint:disable:no-unused-variable */
 
     public newCommentClick(): void {
         if (this.canCreate) {
@@ -181,5 +196,44 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             .finally(() => {
                 this.isLoading = false;
             });
+    }
+
+    public deleteReply(discussion: IDiscussion, reply: IReply) {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment")).then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                    this.getDiscussionReplies(discussion.discussionId)
+                        .then((updatedReplies: IReply[]) => {
+                            discussion.replies = updatedReplies;
+                            discussion.repliesCount = updatedReplies.length;
+                            discussion.expanded = true;
+                        });
+                });
+            }
+        });
+    }
+
+    public deleteCommentThread(discussion: IDiscussion) {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread")).then((confirmed: boolean) => {
+            if (confirmed) {
+                this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
+                        this.artifactDiscussionList = discussionsResultSet.discussions;
+                        this.canDelete = discussionsResultSet.canDelete;
+                        this.canCreate = discussionsResultSet.canCreate;
+                    });
+                });
+            }
+        });
+    }
+
+    public discussionEdited(discussion: IDiscussion) {
+        if (this.artifactDiscussionList.length > 1) {
+            const currentIndex = this.artifactDiscussionList.indexOf(discussion);
+            if (currentIndex > 0) {
+                this.artifactDiscussionList.splice(currentIndex, 1);
+                this.artifactDiscussionList.splice(0, 0, discussion);
+            }
+        }
     }
 }

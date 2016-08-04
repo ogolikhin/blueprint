@@ -51,6 +51,20 @@ namespace Model.ArtifactModel.Impl
         public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
     }
 
+    public class TracePathItem
+    {
+        public int ItemId { get; set; }
+        public int ParentId { get; set; }
+        public string ItemName { get; set; }
+    }
+
+    public class TraceDetails
+    {
+        public int ArtifactId { get; set; }
+        public string Description { get; set; }
+        public List<TracePathItem> PathToProject { get; } = new List<TracePathItem>();
+    }
+
     public enum TraceDirection
     {
         To,

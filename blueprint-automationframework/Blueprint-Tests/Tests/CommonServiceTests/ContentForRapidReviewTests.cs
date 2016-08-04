@@ -32,12 +32,7 @@ namespace CommonServiceTests
 
         #endregion
 
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForOpenApiRestMethods))]
         [TestRail(107388)]
         [Description("Run:  svc/components/RapidReview/diagram/{artifactId}  with the ID of a diagram artifact.  Verify proper content for Diagram artifact is returned.")]
         public void GetDiagramContentForRapidReview_DiagramArtifacts_ReturnsDefaultDiagramContent(BaseArtifactType artifactType)
@@ -100,19 +95,7 @@ namespace CommonServiceTests
             Assert.AreEqual(1, artifactContent.Steps.Count, "Newly created Use Case must have 1 step, but it has {0}", artifactContent.Steps.Count);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(107391)]
         [Description("Run:  svc/components/RapidReview/artifacts/properties  and pass the ID of an artifact in the request body.  Verify properties of the artifact are returned.")]
         public void GetPropertiesForRapidReview_SingleArtifact_ReturnsArtifactProperties(BaseArtifactType artifactType)

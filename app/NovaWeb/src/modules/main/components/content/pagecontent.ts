@@ -2,6 +2,7 @@
 import {IMessageService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
+import {IEditorContext} from "../../models/models";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -29,7 +30,7 @@ class PageContentCtrl {
         //temporary removed to toolbar component under "Refresh" button
     }
 
-    public context: any = null;
+    public context: IEditorContext = null;
 
     public viewState: boolean;
 

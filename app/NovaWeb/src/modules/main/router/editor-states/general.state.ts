@@ -1,6 +1,8 @@
-﻿export class GeneralState implements ng.ui.IState {
+﻿import {IEditorParameters} from "../artifact.state";
+
+export class GeneralState implements ng.ui.IState {
     public template = "<bp-general-editor context='$content.context'></bp-general-editor>";
-    public params = { context: null };
+    public params: IEditorParameters = { context: null };
     public controller = "generalStateController";
     public controllerAs = "$content";
 }

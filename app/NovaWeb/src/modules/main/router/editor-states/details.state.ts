@@ -1,6 +1,8 @@
-﻿export class ArtifactDetailsState implements ng.ui.IState {
-    public template = '<bp-artifact-editor></bp-artifact-editor>';
-    public params = { context: null };
+﻿import {IEditorParameters} from "../artifact.state";
+
+export class ArtifactDetailsState implements ng.ui.IState {
+    public template = "<bp-artifact-editor context='$content.context'></bp-artifact-editor>";
+    public params: IEditorParameters = { context: null };
     public controller = "detailsStateController";
     public controllerAs = "$content";
 }

@@ -100,7 +100,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145867)]
         [Description("Create artifact, publish it, get history.  Verify 1 published artifact history is returned with the expected values.")]
-        public void GetHistoryForPublishedArtifact_VerifyHistoryHasExpectedValue()
+        public void GetArtifactHistory_PublishedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -123,7 +123,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145868)]
         [Description("Create artifact, save it, get history.  Verify 1 draft artifact history is returned with the expected values.")]
-        public void GetHistoryForArtifactInDraft_VerifyHistoryHasExpectedValue()
+        public void GetArtifactHistory_ArtifactInDraft_VerifyHistoryHasExpectedValue()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -147,7 +147,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145869)]
         [Description("Create artifact, publish, delete, publish, get history.  Verify 2 artifact histories are returned with the expected values (latest one with ArtifactState = Deleted).")]
-        public void GetHistoryForDeletedArtifact_VerifyHistoryHasExpectedValue()
+        public void GetArtifactHistory_DeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -172,7 +172,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145870)]
         [Description("Create artifact, publish, save.  Verify other user doesn't see draft version.")]
-        public void GetHistoryForPublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
+        public void GetArtifactHistory_PublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -196,7 +196,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145871)]
         [Description("Create artifact, save.  Verify other user sees empty history.")]
-        public void GetHistoryForArtifactInDraft_VerifyOtherAdminUserSeeEmptyHistory()
+        public void GetArtifactHistory_UnpublishedArtifactInDraft_VerifyOtherUserGetsEmptyHistory()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -216,8 +216,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145896)]
-        [Description("Create artifact with 12 versions.  Verify 'GET /artifacts/{artifactId}/version' returns 10 items.")]
-        public void GetHistoryForArtifact_VerifyDefaultLimitIs10()
+        [Description("Create artifact with 12 versions.  Verify 'GET /artifacts/{artifactId}/version' returns only the last 10 versions.")]
+        public void GetArtifactHistory_ArtifactWith12PublishedVersions_VerifyOnly10LatestVersionsReturned()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
@@ -232,54 +232,57 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(10, artifactHistory.Count, "Artifact history must have 10 items, but it has {0} items", artifactHistory.Count);//By default versions returns 10 versions
+            Assert.AreEqual(12, artifactHistory[0].VersionId, "The first version in the list should be 12!");
+            Assert.AreEqual(3, artifactHistory[artifactHistory.Count - 1].VersionId, "The last version in the list should be 3!");
+        }
+
+        /// <summary>
+        /// Helper for tests that get versions with the limit parameter.
+        /// </summary>
+        /// <param name="numberOfVersions">The number of versions to publish.</param>
+        /// <param name="limit">The limit to pass to the GetArtifactHistory call.</param>
+        private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: limit);
+            }, "GetArtifactHistory shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(limit, artifactHistory.Count, "Artifact history must have {0} items, but it has {1} items!", limit, artifactHistory.Count);
+            Assert.AreEqual(numberOfVersions, artifactHistory[0].VersionId, "The first version in the list should be {0}!", numberOfVersions);
+
+            int expectedLastVersion = numberOfVersions - limit + 1;
+            Assert.AreEqual(expectedLastVersion, artifactHistory[artifactHistory.Count - 1].VersionId,
+                "The last version in the list should be {0}!", expectedLastVersion);
         }
 
         [TestCase]
         [TestRail(145897)]
-        [Description("Create artifact with 11 versions.  Verify 'GET /artifacts/{artifactId}/version' with limit 5 returns 5 items.")]
-        public void GetHistoryForArtifact_VerifyLimit5ReturnsNoMoreThan5Versions()
+        [Description("Create artifact with 11 versions.  Verify 'GET /artifacts/{artifactId}/version?limit=5' returns only the last 5 items.")]
+        public void GetArtifactHistoryWithLimit5_ArtifactWith11PublishedVersions_VerifyOnly5LatestVersionsReturned()
         {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 11);
-
-            List<ArtifactHistoryVersion> artifactHistory = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                //get first 5 versions from artifact history
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 5);
-            }, "GetArtifactHistory shouldn't throw any error.");
-
-            // Verify:
-            Assert.AreEqual(5, artifactHistory.Count, "Artifact history must have 5 items, but it has {0} items", artifactHistory.Count);
+            GetArtifactHistoryWithLimitHelper(numberOfVersions: 11, limit: 5);
         }
 
         [TestCase]
         [TestRail(145899)]
-        [Description("Create artifact with 13 versions.  Verify 'GET /artifacts/{artifactId}/version' with limit 12 returns 12 items.")]
-        public void GetHistoryForArtifact_VerifyLimit12ReturnsNoMoreThan12Versions()
+        [Description("Create artifact with 13 versions.  Verify 'GET /artifacts/{artifactId}/version?limit=12' returns only the last 12 items.")]
+        public void GetArtifactHistoryWithLimit12_ArtifactWith13PublishedVersions_VerifyOnly12LatestVersionsReturned()
         {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 13);
-
-            List<ArtifactHistoryVersion> artifactHistory = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                //get first 12 versions from artifact history
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 12);
-            }, "GetArtifactHistory shouldn't throw any error.");
-
-            // Verify:
-            Assert.AreEqual(12, artifactHistory.Count, "Artifact history must have 12 items, but it has {0} items", artifactHistory.Count);
+            GetArtifactHistoryWithLimitHelper(numberOfVersions: 13, limit: 12);
         }
 
         [TestCase]
         [TestRail(145901)]
         [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' returns latest version first (descending order).")]
-        public void GetHistoryForArtifact_VerifyDefaultAscIsFalse()
+        public void GetArtifactHistory_ArtifactWith5PublishedVersions_VerifyDefaultAscIsFalse()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
@@ -304,7 +307,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145902)]
         [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=true returns latest version last (ascending order).")]
-        public void GetHistoryForArtifactWithAscIsTrue_VerifyOrderOfVersions()
+        public void GetArtifactHistoryWithAscTrue_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInAscendingOrder()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
@@ -329,7 +332,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145903)]
         [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=false returns latest version first (descending order).")]
-        public void GetHistoryForArtifactWithAscIsFalse_VerifyOrderOfVersions()
+        public void GetArtifactHistoryWithAscFalse_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInDescendingOrder()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
@@ -353,8 +356,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145904)]
-        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with offset=2 returns 3 versions.")]
-        public void GetHistoryForArtifact_VerifyOffset2Skip2Versions()
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version?offset=2' returns only the 3 latest versions.")]
+        public void GetArtifactHistoryWithOffset2_ArtifactWith5PublishedVersions_VerifyOnly3LatestVersionsReturned()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
@@ -378,8 +381,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145909)]
-        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version' with asc=true, offset=3, limit=1 returns version 4.")]
-        public void GetHistoryForArtifactWithNonDefaultParams_VerifyHistory()
+        [Description("Create artifact with 5 versions.  Verify 'GET /artifacts/{artifactId}/version?asc=true&offset=3&limit=1' returns only version 4.")]
+        public void GetArtifactHistoryWithAscTrueAndOffset3AndLimit1_ArtifactWith5PublishedVersions_VerifyOnlyVersion4Returned()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);

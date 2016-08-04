@@ -1,6 +1,6 @@
 ﻿import "angular";
 import * as Models from "../models/models";
-import {IProjectManager, ProjectManager} from "../services/project-manager";
+import {IProjectManager, ProjectManager} from "../";
 import {MessageService} from "../../shell";
 
 export class ArtifactState implements ng.ui.IState {
@@ -24,8 +24,7 @@ export class ArtifactStateController {
 
         let artifact = projectManager.getArtifact(id);
         if (artifact) {
-            let artifactType = artifact.predefinedType;
-            projectManager.setCurrentArtifact(artifact);
+            let artifactType = artifact.predefinedType;            
             this.navigateToSubRoute(artifactType, $state.params["context"]);
         } else {
             messageService.addError($rootScope.config.labels["Artifact_NotFound"]);
@@ -45,14 +44,14 @@ export class ArtifactStateController {
                 this.$state.go('main.artifact.diagram', { context: context });
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go('main.artifact.glossary');
+                this.$state.go('main.artifact.glossary', { context: context });
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
                 this.$state.go('main.artifact.general', { context: context });
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go('main.artifact.storyteller');
+                this.$state.go('main.artifact.storyteller', { context: context });
                 break;
             default:
                 this.$state.go('main.artifact.details', { context: context });

@@ -39,6 +39,8 @@ import {ArtifactStateController} from "./router/artifact.state";
 import {DetailsStateController} from "./router/editor-states/details.state";
 import {DiagramStateController} from "./router/editor-states/diagram.state";
 import {GeneralStateController} from "./router/editor-states/general.state";
+import {GlossaryStateController} from "./router/editor-states/glossary.state";
+import {StorytellerStateController} from "./router/editor-states/storyteller.state"; 
 
 import {Routes} from "./router/router.config";
 
@@ -112,6 +114,8 @@ angular.module("app.main", [
     .controller("generalStateController", GeneralStateController)
     .controller("detailsStateController", DetailsStateController)
     .controller("diagramStateController", DiagramStateController)
+    .controller("glossaryStateController", GlossaryStateController)
+    .controller("storytellerStateController", StorytellerStateController)
     .config(formlyDecorate)
     .config(Routes)
     .run(formlyConfigExtendedFields);

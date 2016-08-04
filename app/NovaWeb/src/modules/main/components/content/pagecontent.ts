@@ -2,6 +2,7 @@
 import {IMessageService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
+import {IEditorContext} from "../../models/models";
 
 
 export class PageContent implements ng.IComponentOptions {
@@ -17,8 +18,9 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["messageService", "projectManager", "diagramService", "selectionManager"];
-    constructor(private messageService: IMessageService,
+    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager"];
+    constructor(private $state: angular.ui.IStateService,
+                private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager) {
@@ -28,10 +30,8 @@ class PageContentCtrl {
         //temporary removed to toolbar component under "Refresh" button
     }
 
-    public context: any = null;
+    public context: IEditorContext = null;
 
-    public contentType: string = "details";
-    
     public viewState: boolean;
 
     public $onInit() {
@@ -51,6 +51,7 @@ class PageContentCtrl {
         let _context: any = {};
         try {
             if (!artifact) {
+                this.$state.go("main");
                 return;
             }
 
@@ -58,7 +59,7 @@ class PageContentCtrl {
 //            _context.project = this.projectManager.currentProject.getValue();
 //            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
             _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
-            this.contentType = this.getContentType(artifact);
+            this.$state.go("main.artifact", { id: artifact.id, context: _context });
 
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -66,16 +67,4 @@ class PageContentCtrl {
         this.context = _context;
     }
 
-    private getContentType(artifact: Models.IArtifact): string {
-        if (this.diagramService.isDiagram(artifact.predefinedType)) {
-            return "diagram";
-        } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
-            return "glossary";
-        } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
-            return "general";
-        } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
-            return "general";
-        }
-        return "details";
-    }
 }

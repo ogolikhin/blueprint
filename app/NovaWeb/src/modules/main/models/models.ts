@@ -218,4 +218,12 @@ export interface IHashMap<T> {
     [key: string]: T;
 }
 
+
+export interface IEditorContext {
+    artifact?: IArtifact;
+    project?: IProject;
+    type?: IItemType;
+    propertyTypes?: IPropertyType[];
+}
+
   

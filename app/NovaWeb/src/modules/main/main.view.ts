@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { IMessageService } from "../core";
+import { IMessageService, IWindowVisibility } from "../core";
 import { IUser, ISession } from "../shell";
 import { IProjectManager, Models, Enums } from "./";
 
@@ -15,13 +15,14 @@ export interface IMainViewController {
 
 export class MainViewController implements IMainViewController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$state", "session", "projectManager", "messageService"];
+    static $inject: [string] = ["$state", "session", "projectManager", "messageService", "windowVisibility"];
     constructor(
         private $state: ng.ui.IState,
         private session: ISession,
         private projectManager: IProjectManager,
-        private messageService: IMessageService) {
-    } 
+        private messageService: IMessageService,
+        private windowVisibility: IWindowVisibility) {
+    }
 
     public $onInit() {
         this.projectManager.initialize();
@@ -29,6 +30,7 @@ export class MainViewController implements IMainViewController {
         this._subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
+            this.windowVisibility.isHidden.subscribeOnNext(this.onVisibilityChanged, this)
         ];
 }
     
@@ -38,6 +40,11 @@ export class MainViewController implements IMainViewController {
         this.messageService.dispose();
         this.projectManager.dispose();
     }
+
+    private onVisibilityChanged = (isHidden: boolean) => {
+        document.body.classList.remove(isHidden ? "is-visible" : "is-hidden");
+        document.body.classList.add(isHidden ? "is-hidden" : "is-visible");
+    };
 
     private onProjectCollectionChanged = (projects: Models.IProject[]) => {
         this.isActive = Boolean(projects.length);

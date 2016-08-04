@@ -1,5 +1,5 @@
-﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, IWindowResizeHandler, Models } from "./";
-import { BpBaseEditor, PropertyContext, LookupEnum, IEditorContext, IProjectManager } from "./bp-base-editor";
+﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, IWindowResize, ISidebarToggle, Models } from "./";
+import { BpBaseEditor, PropertyContext, LookupEnum, IProjectManager } from "./bp-base-editor";
 
 export class BpArtifactEditor implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-editor.html");
@@ -12,7 +12,7 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = [
-        "messageService", "stateManager", "windowResizeHandler", "artifactService", "localization", "$timeout", "projectManager"];
+        "messageService", "stateManager", "windowResize", "sidebarToggle", "artifactService", "localization", "$timeout", "projectManager"];
 
     public scrollOptions = {
         minScrollbarLength: 20,
@@ -23,13 +23,14 @@ export class BpArtifactEditorController extends BpBaseEditor {
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowResizeHandler: IWindowResizeHandler,
+        windowResize: IWindowResize,
+        sidebarToggle: ISidebarToggle,
         private artifactService: IArtifactService,
         private localization: ILocalizationService,
         $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(messageService, stateManager, windowResizeHandler, $timeout, projectManager);
+        super(messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -60,7 +61,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         return super.onLoading(obj);
     }
 
-    public onLoad(context: IEditorContext) {
+    public onLoad(context: Models.IEditorContext) {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             angular.extend(context.artifact, it);

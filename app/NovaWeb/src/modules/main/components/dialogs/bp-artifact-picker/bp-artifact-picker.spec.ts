@@ -2,9 +2,7 @@
 import "angular-mocks";
 import { ConfigValueHelper } from "../../../../core";
 import { MessageService } from "../../../../shell/";
-import { ProjectManager, 
-    IProjectManager, 
-    Models } from "../../../";
+import { ProjectManager, IProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
 import { SelectionManager } from "../../../services/selection-manager";
 
@@ -50,6 +48,7 @@ describe("Project Explorer Test", () => {
             new ModalServiceInstanceMock(),
             projectManager,
             selectionManager,
+            null,
             null,
             null,
             null);

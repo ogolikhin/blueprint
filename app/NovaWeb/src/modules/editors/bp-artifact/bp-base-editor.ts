@@ -1,25 +1,16 @@
-﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
 import {IProjectManager} from "../../main"
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export { IProjectManager }
-
 export enum LookupEnum {
     None = 0,
     System = 1,
     Custom = 2,
     Special = 3,
 }
-
-export interface IEditorContext {
-    artifact?: Models.IArtifact;
-    project?: Models.IProject;
-    type?: Models.IItemType;
-    propertyTypes?: Models.IPropertyType[];
-}
-
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout", "projectManager"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -27,14 +18,15 @@ export class BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: IPropertyEditor;
-    public context: IEditorContext;
+    public context: Models.IEditorContext;
 
     public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResizeHandler: IWindowResizeHandler,
+        public windowResize: IWindowResize,
+        public sidebarToggle: ISidebarToggle,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
@@ -43,7 +35,8 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -71,10 +64,10 @@ export class BpBaseEditor {
         delete this.model;
     }
 
-    private onWidthResized(width: number) {
+    private onWidthResized() {
         this.setArtifactEditorLabelsWidth();
     }
-    
+     
     
      
     public onValueChange($value: any, $model: AngularFormly.IFieldConfigurationObject) {
@@ -82,7 +75,7 @@ export class BpBaseEditor {
         let context = $model.data as PropertyContext;
         if (!context) {
             return;
-        }
+            }
         let value = context.getValueOfType($value);
         if ( !this.form.$invalid ) {
             let changeSet: any = {
@@ -102,7 +95,7 @@ export class BpBaseEditor {
     }
 
 
-    public onLoad(context: IEditorContext) {
+    public onLoad(context: Models.IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -110,7 +103,7 @@ export class BpBaseEditor {
         this.fields.push(field);
     }
 
-    public onUpdate(context: IEditorContext) {
+    public onUpdate(context: Models.IEditorContext) {
         try {
             this.isLoading = false;
             if (!context || !this.editor) {

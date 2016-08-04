@@ -1,5 +1,5 @@
-﻿import { Models, Enums, IProjectManager, IWindowResizeHandler } from "../..";
-import { ILocalizationService, IStateManager } from "../../../core";
+﻿import { Models, Enums, IProjectManager, ISidebarToggle } from "../..";
+import { ILocalizationService, IStateManager, IWindowResize } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -20,13 +20,12 @@ interface IArtifactInfoContext {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResizeHandler"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResize", "sidebarToggle"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
     private _isArtifactChanged: boolean;
 
-    private artifactInfoWidthObserver;
     public currentArtifact: string;
 
     constructor(
@@ -35,25 +34,21 @@ export class BpArtifactInfoController {
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowResizeHandler: IWindowResizeHandler
+        private windowResize: IWindowResize,
+        private sidebarToggle: ISidebarToggle
     ) {
     }
 
     public $onInit() {
         this._subscribers = [
             this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
     public $onDestroy() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-
-        try {
-            this.artifactInfoWidthObserver.disconnect();
-        } catch (ex) {
-            //this.messageService.addError(ex.message);
-        }
 
         delete this._artifact;
     }
@@ -67,28 +62,11 @@ export class BpArtifactInfoController {
         }
     }
 
-    public $postLink() {
-        this.artifactInfoWidthObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === "class") {
-                    this.setArtifactHeadingMaxWidth(mutation);
-                    this.setArtifactEditorLabelsWidth();
-                }
-            });
-        });
-        let wrapper: Node = document.querySelector(".bp-sidebar-wrapper");
-        try {
-            this.artifactInfoWidthObserver.observe(wrapper, { attributes: true });
-        } catch (ex) {
-            //this.messageService.addError(ex.message);
-        }
-    }
-
     private onArtifactChanged(state: boolean) {
         this._isArtifactChanged = state;
     }
 
-    private onWidthResized(width: number) {
+    private onWidthResized() {
         this.setArtifactHeadingMaxWidth();
         this.setArtifactEditorLabelsWidth();
     }
@@ -98,15 +76,11 @@ export class BpArtifactInfoController {
         this._artifactType = context ? context.type : null;
     };
 
-    private setArtifactHeadingMaxWidth(mutationRecord?: MutationRecord) {
+    private setArtifactHeadingMaxWidth() {
         let sidebarWrapper: Element;
         const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
         let sidebarsWidth: number = 20 * 2; // main content area padding
-        if (mutationRecord && mutationRecord.target  && mutationRecord.target.nodeType === 1) {
-            sidebarWrapper = <Element> mutationRecord.target;
-        } else {
-            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-        }
+        sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
         if (sidebarWrapper) {
             for (let c = 0; c < sidebarWrapper.classList.length; c++) {
                 if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {

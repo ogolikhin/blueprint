@@ -1255,7 +1255,7 @@ describe('appBootstrap', function() {
         var app = appBootstrap;
 
         // Act
-        app.pageVisibilityHandler({type: "focus"});
+        app.setupPageVisibility({type: "focus"});
         app.checkWebFont();
 
         // Assert
@@ -1269,7 +1269,7 @@ describe('appBootstrap', function() {
         var app = appBootstrap;
 
         // Act
-        app.pageVisibilityHandler({type: "blur"});
+        app.setupPageVisibility({type: "blur"});
         app.checkWebFont();
 
         // Assert
@@ -1287,7 +1287,7 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
-        app.setupPageVisibility();
+        app.setupPageVisibility({type: "focus"});
         app.setupBodyClasses();
 
         // Assert
@@ -1304,7 +1304,7 @@ describe('appBootstrap', function() {
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
         app.orientationHandler();
-        app.setupPageVisibility();
+        app.setupPageVisibility({type: "focus"});
         app.setupBodyClasses();
 
         // Assert
@@ -1329,7 +1329,7 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaWinIE, bowser._detect(uaWinIE));
         app.executionEnvironment = detector;
-        app.setupPageVisibility();
+        app.setupPageVisibility({type: "focus"});
         app.setupBodyClasses();
 
         // Assert

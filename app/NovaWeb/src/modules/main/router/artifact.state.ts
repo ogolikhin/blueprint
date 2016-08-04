@@ -7,6 +7,7 @@ export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
     public template = "<div ui-view></div>";
     public controller = "artifactStateController";
+    public params = { context: null };
 }
 
 export class ArtifactStateController {
@@ -25,14 +26,14 @@ export class ArtifactStateController {
         if (artifact) {
             let artifactType = artifact.predefinedType;
             projectManager.setCurrentArtifact(artifact);
-            this.navigateToSubRoute(artifactType);
+            this.navigateToSubRoute(artifactType, $state.params["context"]);
         } else {
-            messageService.addError("Cannot find artifact");
+            messageService.addError($rootScope.config.labels["Artifact_NotFound"]);
         }
 
     }
 
-    public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
+    public navigateToSubRoute(artifactType: Models.ItemTypePredefined, context: any) {
         switch (artifactType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -41,20 +42,20 @@ export class ArtifactStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go('main.artifact.diagram');
+                this.$state.go('main.artifact.diagram', { context: context });
                 break;
             case Models.ItemTypePredefined.Glossary:
                 this.$state.go('main.artifact.glossary');
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go('main.artifact.general');
+                this.$state.go('main.artifact.general', { context: context });
                 break;
             case Models.ItemTypePredefined.Process:
                 this.$state.go('main.artifact.storyteller');
                 break;
             default:
-                this.$state.go('main.artifact.details');
+                this.$state.go('main.artifact.details', { context: context });
         }
     }
 }

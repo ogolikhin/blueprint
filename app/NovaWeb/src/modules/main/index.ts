@@ -35,6 +35,11 @@ import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
 import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
 import {ArtifactStateController} from "./router/artifact.state";
+
+import {DetailsStateController} from "./router/editor-states/details.state";
+import {DiagramStateController} from "./router/editor-states/diagram.state";
+import {GeneralStateController} from "./router/editor-states/general.state";
+
 import {Routes} from "./router/router.config";
 
 config.$inject = ["$rootScope", "$state"];
@@ -88,7 +93,7 @@ angular.module("app.main", [
     "formly",
     "formlyBootstrap",
     "bp.editors"
-    ])
+])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
@@ -104,6 +109,9 @@ angular.module("app.main", [
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
     .controller("artifactStateController", ArtifactStateController)
+    .controller("generalStateController", GeneralStateController)
+    .controller("detailsStateController", DetailsStateController)
+    .controller("diagramStateController", DiagramStateController)
     .config(formlyDecorate)
     .config(Routes)
     .run(formlyConfigExtendedFields);

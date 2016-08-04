@@ -1,5 +1,9 @@
 ﻿import {ArtifactState} from "./artifact.state";
-import * as EditorStates from "./editor.states";
+import {ArtifactDetailsState} from "./editor-states/details.state";
+import {DiagramState} from "./editor-states/diagram.state";
+import {GeneralState} from "./editor-states/general.state";
+import {GlossaryState} from "./editor-states/glossary.state";
+import {StorytellerState} from "./editor-states/storyteller.state";
 
 export class Routes {
 
@@ -15,11 +19,11 @@ export class Routes {
         // register states with the router 
         $stateProvider
             .state("main.artifact", new ArtifactState())
-            .state("main.artifact.storyteller", new EditorStates.StorytellerState())
-            .state("main.artifact.details", new EditorStates.ArtifactDetailsState())
-            .state("main.artifact.general", new EditorStates.GeneralState())
-            .state("main.artifact.glossary", new EditorStates.GlossaryState())
-            .state("main.artifact.diagram", new EditorStates.DiagramState());
+            .state("main.artifact.storyteller", new StorytellerState())
+            .state("main.artifact.details", new ArtifactDetailsState())
+            .state("main.artifact.general", new GeneralState())
+            .state("main.artifact.glossary", new GlossaryState())
+            .state("main.artifact.diagram", new DiagramState());
     }
 
 };

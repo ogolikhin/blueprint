@@ -70,8 +70,6 @@ export interface IArtifact extends IItem {
     //for client use
     artifacts?: IArtifact[];
     loaded?: boolean;
-    changed?: boolean;
-
 }
 export interface IOption {
     id: number;

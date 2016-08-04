@@ -1,4 +1,4 @@
-﻿import { ILocalizationService } from "../../../../core";
+﻿import { ILocalizationService, IMessageService } from "../../../../core";
 import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
@@ -24,13 +24,15 @@ export class BPDiscussionReplyItemController {
     public static $inject: [string] = [
         "localization",
         "$sce",
-        "artifactDiscussions"
+        "artifactDiscussions",
+        "messageService"
     ];
 
     constructor(
         private localization: ILocalizationService,
         private $sce: ng.ISCEService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions) {
+        private _artifactDiscussionsRepository: IArtifactDiscussions,
+        private messageService: IMessageService) {
     }
 
     public getTrustedCommentHtml() {
@@ -68,6 +70,11 @@ export class BPDiscussionReplyItemController {
                 this.editing = false;
                 this.replyInfo.comment = comment;
                 return discussion;
+            }).catch((error: any) => {
+                if (error.statusCode && error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                }
+                return null;
             });
     }
     /* tslint:disable:no-unused-variable */

@@ -2,10 +2,16 @@
 import "angular-mocks";
 import "./";
 import { MessageServiceMock } from "../../core/messages/message.mock";
+import { LocalizationServiceMock} from "../../core/localization/localization.mock";
 import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController } from "./bp-general-editor";
 import { StateManager } from "../../core/services/state-manager";
-import { WindowResizeHandler } from "../../main/services/window-resize-handler";
+import { WindowResize } from "../../core/services/window-resize";
+import { SidebarToggle } from "../../main/services/sidebar-toggle";
+import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
+import { ProjectManager } from "../../main/services/project-manager";
+import { SelectionManager } from "../../main/services/selection-manager";
+
 
 
 
@@ -22,8 +28,13 @@ describe("Component BpGeneralEditorInfo", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("localization", LocalizationServiceMock);
         $provide.service("stateManager", StateManager);
-        $provide.service("windowResizeHandler", WindowResizeHandler);
+        $provide.service("projectRepository", ProjectRepositoryMock);
+        $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
+        $provide.service("windowResize", WindowResize);
+        $provide.service("sidebarToggle", SidebarToggle);
 
     }));
 

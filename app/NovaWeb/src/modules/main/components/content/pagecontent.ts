@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models} from "../..";
+﻿import {IProjectManager, Models, ISelectionManager } from "../..";
 import {IMessageService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 import {ItemTypePredefined} from "../../models/enums";
@@ -17,11 +17,12 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService"];
+    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager"];
     constructor(private $state: any,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
-                private diagramService: IDiagramService) {
+                private diagramService: IDiagramService,
+                private selectionManager: ISelectionManager) {
     }
     //TODO remove after testing
     public addMsg() {
@@ -29,14 +30,14 @@ class PageContentCtrl {
     }
 
     public context: any = null;
-        
+
     public viewState: boolean;
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.selectContext, this),
+            this.selectionManager.selectedArtifactObservable.subscribeOnNext(this.selectContext, this),
         ];
     }
 
@@ -52,10 +53,10 @@ class PageContentCtrl {
                 this.$state.go('main');
                 return;
             }
-            
+
             _context.artifact = artifact;
-            _context.project = this.projectManager.currentProject.getValue();
-            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
+//            _context.project = this.projectManager.currentProject.getValue();
+//            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
             _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
             this.$state.go('main.artifact', { id: artifact.id, context: _context });
 
@@ -64,5 +65,5 @@ class PageContentCtrl {
         }
         this.context = _context;
     }
-    
+
 }

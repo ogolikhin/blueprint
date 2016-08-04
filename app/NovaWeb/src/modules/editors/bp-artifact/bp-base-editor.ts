@@ -1,6 +1,8 @@
-﻿import {IMessageService, IStateManager, IWindowResizeHandler, Models, Helper} from "./";
-
+﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
+import {IProjectManager} from "../../main"
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+
+export { IProjectManager }
 
 export interface IEditorContext {
     artifact?: Models.IArtifact;
@@ -10,7 +12,7 @@ export interface IEditorContext {
 }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "$timeout"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -25,14 +27,18 @@ export class BpBaseEditor {
     constructor(
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResizeHandler: IWindowResizeHandler,
-        private $timeout: ng.ITimeoutService) {
+        public windowResize: IWindowResize,
+        public sidebarToggle: ISidebarToggle,
+        private $timeout: ng.ITimeoutService,
+        private projectManager: IProjectManager
+    ) {
         this.editor = new PropertyEditor(); 
     }
 
     public $onInit() {
         this._subscribers = [
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this)
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -60,7 +66,7 @@ export class BpBaseEditor {
         delete this.model;
     }
 
-    private onWidthResized(width: number) {
+    private onWidthResized() {
         this.setArtifactEditorLabelsWidth();
     }
      
@@ -99,9 +105,9 @@ export class BpBaseEditor {
 
     public onLoading(obj: any): boolean  {
         this.fields = [];
-        this.context = obj.context ? obj.context.currentValue : null;
-        return !!(this.context && this.context.artifact && this.context.propertyTypes);
+        return !!(this.context && angular.isDefined(this.context.artifact));
     }
+
 
     public onLoad(context: IEditorContext) {
         this.onUpdate(context);
@@ -117,7 +123,9 @@ export class BpBaseEditor {
             if (!context || !this.editor) {
                 return;
             }
-            let fieldContexts = context.propertyTypes.map((it: Models.IPropertyType) => {
+            
+
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
@@ -279,7 +287,7 @@ export class PropertyEditor implements IPropertyEditor {
                             if (value.usersGroups) {
                                 value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
-                                })[0];
+                                }).join(", ");
                             } else if (value.displayName) {
                                 value = value.displayName;
                             } else if (value.label) {
@@ -387,7 +395,7 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    field.type = "input"; // needs to be changed to user selection
+                    field.type = "bpFieldReadOnly"; // needs to be changed to user selection
                     //if (angular.isNumber(context.defaultValidValueId)) {
                     //    field.defaultValue = context.defaultValidValueId.toString();
                     //}

@@ -64,7 +64,7 @@ describe("Project Explorer Test", () => {
     }));
 
 
-    it("Load project", inject((projectManager: ProjectManager, explorer: ProjectExplorerController) => {
+    it("Load project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
         // Arrange
         isReloadCalled = 0;
         explorer.tree.reload = function (data: any[], id?: number) {
@@ -73,13 +73,14 @@ describe("Project Explorer Test", () => {
 
 
         // Act
-        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Models.IProject]);
+        projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+        $rootScope.$digest();
 
         // Assert
         expect(isReloadCalled).toEqual(1);
 
     }));
-    it("Load project children call", inject((projectManager: IProjectManager, explorer: ProjectExplorerController) => {
+    it("Load project children call", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager, explorer: ProjectExplorerController) => {
         // Arrange
         isReloadCalled = 0;
         explorer.tree.selectNode = function (id: number) {
@@ -87,10 +88,14 @@ describe("Project Explorer Test", () => {
         };
 
         // Act
-        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
+        projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+        $rootScope.$digest();
+
+        projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
+        $rootScope.$digest();
         
         // Assert
-        expect(isReloadCalled).toEqual(1);
+        expect(isReloadCalled).toEqual(3);
     }));
 
     it("close project", inject((projectManager: ProjectManager, explorer: ProjectExplorerController) => {
@@ -138,7 +143,7 @@ describe("Project Explorer Test", () => {
 
     }));
 
-    it("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
+    it("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController, selectionManager: SelectionManager) => {
         // Arrange
         isReloadCalled = 0;
         explorer.tree.selectNode = function (id?: number) {
@@ -150,30 +155,38 @@ describe("Project Explorer Test", () => {
         $rootScope.$digest();
         
         // Act
-        expect(isReloadCalled).toEqual(1);
+        const selectedArtifact = selectionManager.selection.artifact;
+
+        expect(selectedArtifact).toBeDefined();
+        expect(selectedArtifact.id).toBe(1);
+        expect(selectedArtifact.name).toBe("Project 1");
+
 
     }));
 
 
-    it("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+    it("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
         // Arrange
         isReloadCalled = 1;
         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
         $rootScope.$digest();
+        projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
+        $rootScope.$digest();
+
 
         // Act
         projectManager.closeProject();
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current = selectionManager.selection.artifact;
 
         // Assert
         expect(isReloadCalled).toBeTruthy();
-        expect(current).toBeNull();
+        expect(current).toBeDefined();
         expect(projectManager.projectCollection.getValue.length).toEqual(0);
 
     }));
 
-    it("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+    it("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
         // Arrange
         isReloadCalled = 1;
         projectManager.loadProject(new Models.Project({ id: 2, name: "Project 1" }));
@@ -184,7 +197,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject(true);
         $rootScope.$digest();
-        let current = projectManager.currentProject.getValue();
+        let current = selectionManager.selection.artifact;
 
         // Assert
         expect(current).toBeNull();

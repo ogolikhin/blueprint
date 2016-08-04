@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using Model.ArtifactModel;
 
 namespace Helper
@@ -38,6 +39,19 @@ namespace Helper
             BaseArtifactType.UseCaseDiagram
         };
 
+        private static readonly List<HttpStatusCode> _allHttpErrorStatusCodes = new List<HttpStatusCode>
+        {
+            HttpStatusCode.BadRequest,
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden,
+            HttpStatusCode.NotFound,
+            HttpStatusCode.MethodNotAllowed,
+            HttpStatusCode.NotAcceptable,
+            HttpStatusCode.Conflict,
+            HttpStatusCode.InternalServerError,
+            HttpStatusCode.ServiceUnavailable
+        };
+
         #endregion private variables
 
         /// <summary>Returns a list of all possible artifact types that can be used by the OpenAPI REST methods.</summary>
@@ -45,5 +59,8 @@ namespace Helper
 
         /// <summary>Returns a list of all possible diagram artifact types that can be used by the OpenAPI REST methods.</summary>
         public static IReadOnlyCollection<BaseArtifactType> AllDiagramArtifactTypesForOpenApiRestMethods => _allDiagramArtifactTypesForOpenApiRestMethods.AsReadOnly();
+
+        /// <summary>Returns a list of all error (4xx and 5xx) HttpStatusCodes that Blueprint might return.</summary>
+        public static IReadOnlyCollection<HttpStatusCode> AllHttpErrorStatusCodes => _allHttpErrorStatusCodes.AsReadOnly();
     }
 }

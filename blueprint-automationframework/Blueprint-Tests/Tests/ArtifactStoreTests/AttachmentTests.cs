@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Common;
 using Helper;
 using Model;
 using NUnit.Framework;
 using Utilities;
 using CustomAttributes;
-using System.Text;
 using TestCommon;
 using Utilities.Factories;
 using Model.ArtifactModel;
@@ -205,6 +203,26 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
+        [TestCase]
+        [TestRail(155622)]
+        [Description("Create & publish a Process artifact and an Actor artifact.  Try to get Attachments for the Process User Task but pass the Artifact ID of the Actor instead of the Process.  Verify 400 Bad Request is returned.")]
+        public void GetAttachmentWithSubArtifactId_SubArtifactIdFromDifferentArtifact_400BadRequest()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute & verify:
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact2, _user, subArtifactId: userTask.Id);
+            }, "'{0}' should return 400 Bad Request if passed a sub-artifact ID that doesn't belong to the specified artifact ID.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
         [TestCase(null)]
         [TestCase(true)]
         [TestRail(154591)]
@@ -365,7 +383,25 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
         }
 
+        [TestCase]
+        [TestRail(154597)]
+        [Description("Create & publish an artifact.  Try to get attachments with a user that doesn't have permission to access the artifact.  Verify 403 Forbidden is returned.")]
+        public void GetAttachment_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.BlueprintAnalytics);
+
+            // Execute & verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, userWithoutPermission);
+            }, "'{0}' should return 403 Forbidden for a user without permission to the artifact.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+        }
+
         // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596
-        // TODO: Implement GetAttachment_PublishedArtifactWithAttachmentUserHasNoPermissionToArtifact_403Forbidden  TestRail ID: 154597
     }
 }

@@ -184,39 +184,40 @@ export class Helper {
         return moment(momentString).toDate();
     };
 
-    static autoLinkURLText(node: Node): boolean {
+    static autoLinkURLText(node: Node) {
         /* tslint:disable */
         const autoLinkPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
         /* tslint:enable */
-        let processURLText: boolean = true;
+
         // if it's already an A tag we exit
         if (node.nodeType === 1 && node.nodeName.toUpperCase() === "A") {
-            return false;
+            return;
         }
 
         // if it doesn't contain a URL in the text, we exit
         if (!autoLinkPattern.test(node.textContent)) {
-            return false;
+            return;
         }
 
         // if it has children, we go deeper
         if (node.hasChildNodes()) {
             [].forEach.call(node.childNodes, function(child) {
-                // we check HTML children only
-                if (child.nodeType === 1) {
-                    processURLText = Helper.autoLinkURLText(child);
+                if (child.nodeType === 1) { // we dig into HTML children only
+                    Helper.autoLinkURLText(child);
+                } else if (child.nodeType === 3) {
+                    let nodeText: string = child.textContent;
+                    let urls = nodeText.match(autoLinkPattern);
+                    if (urls) {
+                        urls.forEach((url) => {
+                            nodeText = nodeText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+                        });
+                        let span = document.createElement("span");
+                        span.innerHTML = nodeText;
+                        child.parentNode.replaceChild(span, child);
+                    }
                 }
             });
         }
-
-        if (processURLText) {
-            let nodeText: string = node.textContent;
-            nodeText.match(autoLinkPattern).forEach((url) => {
-                nodeText = nodeText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
-            });
-            (<HTMLElement>node).innerHTML = nodeText;
-        }
-        return false;
     };
 
     public static toFlat(root: any): any[] {

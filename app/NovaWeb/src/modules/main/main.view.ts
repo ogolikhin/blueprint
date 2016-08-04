@@ -29,7 +29,6 @@ export class MainViewController implements IMainViewController {
         this._subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
-            this.projectManager.currentProject.subscribeOnNext(this.onProjectChanged, this),
         ];
 }
     
@@ -56,9 +55,6 @@ export class MainViewController implements IMainViewController {
         }
     }
 
-    private onProjectChanged = (project: Models.IProject) => {
-        this.isActive = !!project;
-    }
     public isActive: boolean;
     
     public get currentUser(): IUser {

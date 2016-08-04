@@ -1,10 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {ConfigValueHelper } from "../../core";
-import {MessageService} from "../../shell/";
-import {ProjectRepositoryMock} from "./project-repository.mock";
-import {ProjectManager, Models} from "../";
+import { LocalizationServiceMock } from "../../core/localization/localization.mock";
+import { ConfigValueHelper } from "../../core";
+import { MessageService } from "../../shell/";
+import { ProjectRepositoryMock } from "./project-repository.mock";
+import { SelectionManager } from "./selection-manager";
+import { ProjectManager, Models } from "../";
 
 
 describe("Project Manager Test", () => {
@@ -14,9 +15,10 @@ describe("Project Manager Test", () => {
         $provide.service("configValueHelper", ConfigValueHelper);
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("projectManager", ProjectManager);
     }));
-    beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+    beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager ) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -26,12 +28,12 @@ describe("Project Manager Test", () => {
     }));
 
     describe("Load projects: ", () => {
-        xit("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
             //Act
-            let project = projectManager.currentProject.getValue();
+            let project = selectionManager.selection.artifact;
 
             //Asserts
             expect(project).toBeDefined();
@@ -39,14 +41,14 @@ describe("Project Manager Test", () => {
             expect(project.name).toEqual("Project 1");
         }));
 
-        xit("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
             $rootScope.$digest();
 
             //Act
-            let current = projectManager.currentProject.getValue();
+            let current = selectionManager.selection.artifact;
             let projects = projectManager.projectCollection.getValue();
 
             //Asserts
@@ -55,19 +57,19 @@ describe("Project Manager Test", () => {
             expect(current).toEqual(projects[0]);
         }));
 
-        it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
 
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             $rootScope.$digest();
 
-//            let project: Models.IProject = projectManager.currentProject.getValue();
+            let project = selectionManager.selection.artifact as Models.IProject;
 
             projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
-            let artifact = projectManager.currentProject.getValue().artifacts[0];
+            let artifact = selectionManager.selection.artifact;
 
             //Asserts
             expect(artifact).toBeDefined();
@@ -176,66 +178,14 @@ describe("Project Manager Test", () => {
 
     });
 
-    describe("Current Project: ", () => {
-        xit("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-            $rootScope.$digest();
-
-            //Act
-            let first = projectManager.currentProject.getValue();
-
-            //Asserts
-            expect(first).toBeDefined();
-            expect(first.id).toEqual(1);
-            expect(first.name).toEqual("Project 1");
-        }));
-
-        xit("Set Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            let changedProject;
-
-            projectManager.currentProject.subscribe((project: Models.IProject) => {
-                changedProject = project;
-            });
-
-            //Act
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-            $rootScope.$digest();
-
-            //Asserts
-            expect(changedProject).toBeDefined();
-            expect(changedProject.id).toEqual(1);
-            expect(changedProject.name).toEqual("Project 1");
-        }));
-
-        xit("Set Current artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            let changedArtifact;
-
-            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
-                changedArtifact = artifact;
-            });
-
-            //Act
-            projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-            $rootScope.$digest();
-
-            //Asserts
-            expect(changedArtifact).toBeDefined();
-            expect(changedArtifact.id).toEqual(1);
-            expect(changedArtifact.name).toEqual("Project 1");
-            expect(changedArtifact).toEqual(projectManager.currentProject.getValue());
-        }));
+    describe("Current Artifact: ", () => {
 
 
-
-        xit("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             let changedArtifact: Models.IArtifact[] = [];
 
-            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
+            selectionManager.selectedArtifactObservable.subscribe((artifact: Models.IArtifact) => {
                 changedArtifact.push(artifact);
             });
 
@@ -248,21 +198,19 @@ describe("Project Manager Test", () => {
             //Asserts
             expect(changedArtifact).toBeDefined();
             expect(changedArtifact).toEqual(jasmine.any(Array));
-            expect(changedArtifact.length).toBe(3);
-            expect(changedArtifact[0]).toBeNull();
-            expect(changedArtifact[1].id).toEqual(1);
-            expect(changedArtifact[2].id).toEqual(10);
+            expect(changedArtifact.length).toBe(2);
+            expect(changedArtifact[0]).toBeDefined()
+            expect(changedArtifact[0].id).toEqual(1);
+            expect(changedArtifact[1].id).toEqual(10);
 
         }));
-        it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             let changedArtifact: Models.IArtifact[] = [];
 
-            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
+            selectionManager.selectedArtifactObservable.subscribe((artifact: Models.IArtifact) => {
                 changedArtifact.push(artifact);
-            });
-
-
+            })
 
             //Act
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -279,14 +227,14 @@ describe("Project Manager Test", () => {
             
             expect(changedArtifact).toBeDefined();
             expect(changedArtifact).toEqual(jasmine.any(Array));
-            expect(changedArtifact.length).toBe(2);
-            expect(changedArtifact[0]).toBeNull();
+            expect(changedArtifact.length).toBe(1);
+            expect(changedArtifact[0].name).toBe("Project 1")
 
         }));
     });
 
     describe("Delete Project: ", () => {
-        xit("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
@@ -296,10 +244,10 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let first = projectManager.currentProject.getValue();
+            let first = selectionManager.selection.artifact;
             projectManager.closeProject();
             $rootScope.$digest();
-            let second = projectManager.currentProject.getValue();
+            let second = selectionManager.selection.artifact;
             let projects = projectManager.projectCollection.getValue();
 
             //Asserts
@@ -308,7 +256,7 @@ describe("Project Manager Test", () => {
             expect(first.id).toBe(3);
             expect(second.id).toBe(2);
         }));
-        xit("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
             // Arrange
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
             $rootScope.$digest();
@@ -322,15 +270,13 @@ describe("Project Manager Test", () => {
             projectManager.closeProject(true);
             $rootScope.$digest();
             let projects = projectManager.projectCollection.getValue();
-            let artifact = projectManager.currentArtifact.getValue();
-            let project = projectManager.currentProject.getValue();
+            let artifact = selectionManager.selection.artifact;
 
 
             //Asserts
             expect(projects).toEqual(jasmine.any(Array));
             expect(projects.length).toBe(0);
             expect(artifact).toBeNull();
-            expect(project).toBeNull();
         }));
     });
 

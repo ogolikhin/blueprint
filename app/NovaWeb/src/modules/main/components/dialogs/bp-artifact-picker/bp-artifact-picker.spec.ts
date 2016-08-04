@@ -4,6 +4,8 @@ import { ConfigValueHelper } from "../../../../core";
 import { MessageService } from "../../../../shell/";
 import { ProjectManager, IProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
+import { SelectionManager } from "../../../services/selection-manager";
+
 import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
@@ -22,10 +24,11 @@ describe("Project Explorer Test", () => {
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("explorer", ArtifactPickerController);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService, selectionManager: SelectionManager) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -44,6 +47,7 @@ describe("Project Explorer Test", () => {
             new LocalizationServiceMock(),
             new ModalServiceInstanceMock(),
             projectManager,
+            selectionManager,
             null,
             null,
             null,

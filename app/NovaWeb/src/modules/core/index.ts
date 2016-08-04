@@ -6,6 +6,7 @@ import { LocalizationService, ILocalizationService } from "./localization/";
 import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
 import { IStateManager, StateManager} from "./services/state-manager";
 import { IWindowResize, WindowResize} from "./services/window-resize";
+import { IWindowVisibility, WindowVisibility} from "./services/window-visibility";
 import "./messages";
 
 
@@ -14,7 +15,8 @@ angular.module("app.core", ["ui.router", "ui.bootstrap", "bp.messages"])
     .service("localization", LocalizationService)
     .service("configValueHelper", ConfigValueHelper)
     .service("stateManager", StateManager)
-    .service("windowResize", WindowResize);
+    .service("windowResize", WindowResize)
+    .service("windowVisibility", WindowVisibility);
 
 export {
     IAppConstants,
@@ -22,6 +24,7 @@ export {
     IConfigValueHelper,
     ConfigValueHelper,
     IStateManager,
-    IWindowResize
+    IWindowResize,
+    IWindowVisibility
 };
 export { IMessageService, IMessage, MessageService, Message, MessageType } from "./messages"

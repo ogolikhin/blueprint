@@ -152,6 +152,19 @@ namespace Model.ArtifactModel
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Deletes the specified comment using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="commentToDelete">comment to delete</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>updated RaptorDiscussion</returns>
+        string DeleteRaptorDiscussion(IUser user, IRaptorComment commentToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Adds attachment to the specified artifact.
         /// </summary>
         /// <param name="file">File to attach</param>

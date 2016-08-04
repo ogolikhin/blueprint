@@ -167,7 +167,7 @@ namespace Model.Impl
             var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChange: true);
 
             return artifactDiscussions;
         }

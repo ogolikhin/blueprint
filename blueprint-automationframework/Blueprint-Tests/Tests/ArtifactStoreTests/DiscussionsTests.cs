@@ -261,6 +261,37 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(01)]
+        [Description("!!!")]
+        public void UpdateOtherUserDiscussion__ReturnsError()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            Assert.IsFalse(discussions.CanDelete);
+            Assert.IsTrue(discussions.CanCreate);
+
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            Assert.IsTrue(discussions.CanDelete);
+            Assert.IsTrue(discussions.CanCreate);
+
+
+            IRaptorComment updatedComment = null;
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _authorUser, postedRaptorComment);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            }, "UpdateDiscussions shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
+                discussions.Comments.Count);
+        }
+
+        [TestCase]
+        [TestRail(02)]
         [Description("User without rights to comment tries to post comment.")]
         public void PostDiscussion_PublishedArtifactUserHasNoRights_ReturnsError()
         {
@@ -280,6 +311,48 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.IsFalse(discussions.CanCreate, "user can't create comments.");
             Assert.IsFalse(discussions.CanDelete);
+        }
+
+        [TestCase]
+        [TestRail(03)]
+        [Description("User can delete its own comment.")]
+        public void DeleteDiscussion_PublishedArtifact_ReturnsSuccess()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+
+            IRaptorComment raptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
+            string message = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                message = artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+            }, "DeleteDiscussion shouldn't throw any error.");
+
+            // Verify:
+            Assert.IsNotEmpty(message);
+        }
+
+        [TestCase]
+        [TestRail(04)]
+        [Description("User can't delete its own comment.")]
+        public void DeleteOtherUserDiscussion_ReturnsFail()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+
+            IRaptorComment raptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            string message = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                message = artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+            }, "DeleteDiscussion shouldn't throw any error.");
+
+            // Verify:
+            Assert.IsNotEmpty(message);
         }
 
         /// <summary>

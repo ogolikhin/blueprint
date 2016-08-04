@@ -376,6 +376,14 @@ namespace Model.ArtifactModel.Impl
             return UpdateRaptorDiscussion(Address, Id, commentToUpdate, discussionText, user, expectedStatusCodes);
         }
 
+        public string DeleteRaptorDiscussion(IUser user, IRaptorComment commentToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(commentToDelete, nameof(commentToDelete));
+            return DeleteRaptorDiscussion(Address, Id, commentToDelete, user, expectedStatusCodes);
+        }
+
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -723,6 +731,24 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
+        /// Deletes the specified comment using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToUpdateId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="commentToDelete">comment to delete</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>message</returns>
+        public static string DeleteRaptorDiscussion(string address,
+            int itemId, IRaptorComment commentToDelete,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.DeleteRaptorDiscussion(address, itemId, commentToDelete, user, expectedStatusCodes);
+        }
+
+        /// <summary>
         /// Creates new reply for the specified Comment using Raptor REST API
         /// </summary>
         /// <param name="address">The base url of the Blueprint</param>
@@ -739,6 +765,46 @@ namespace Model.ArtifactModel.Impl
         {
             return OpenApiArtifact.PostRaptorDiscussionReply(address, comment, replyText,
                 user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Updates the specified reply.
+        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="comment">comment containing reply to update</param>
+        /// <param name="replyToUpdate">reply to update</param>
+        /// <param name="discussionText">new text for discussion</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>updated RaptorDiscussion</returns>
+        public static IRaptorReply UpdateRaptorDiscussionReply(string address,
+            int itemId, IRaptorComment comment, IRaptorReply replyToUpdate,
+            string discussionText,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.UpdateRaptorDiscussionReply(address, itemId, comment, replyToUpdate,
+                discussionText, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Deletes the specified reply using Raptor REST API.
+        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletecomment/{replyToDeleteId})
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="itemId">id of artifact</param>
+        /// <param name="replyToDelete">comment to delete</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>message</returns>
+        public static string DeleteRaptorReply(string address,
+            int itemId, IRaptorComment replyToDelete,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
         }
 
         /// <summary>

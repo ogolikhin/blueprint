@@ -287,6 +287,7 @@ namespace Utilities.Facades
         /// <param name="cookies">(optional) Add cookies</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
         public T1 SendRequestAndDeserializeObject<T1,T2>(
             string resourcePath, 
             RestRequestMethod method,
@@ -294,7 +295,8 @@ namespace Utilities.Facades
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null,
-            Dictionary<string, string> cookies = null)
+            Dictionary<string, string> cookies = null,
+            bool shouldControlJsonChanges = false)
             where T1 : new()
             where T2 : new()
         {
@@ -319,6 +321,19 @@ namespace Utilities.Facades
 
                 // Derialization
                 var result = JsonConvert.DeserializeObject<T1>(response.Content);
+
+                ////try to serialize and compare
+                if (shouldControlJsonChanges)
+                {
+                    string serializeObject = JsonConvert.SerializeObject(result);
+                    bool isJSONChanged = !(string.Equals(response.Content, serializeObject, StringComparison.OrdinalIgnoreCase));
+                    if (isJSONChanged)
+                    {
+                        string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", typeof(T1).ToString());
+                        throw new FormatException(msg);
+                    }
+                }
+                ////
 
                 Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
 
@@ -356,9 +371,10 @@ namespace Utilities.Facades
            Dictionary<string, string> additionalHeaders = null,
            Dictionary<string, string> queryParameters = null,
            List<HttpStatusCode> expectedStatusCodes = null,
-           Dictionary<string, string> cookies = null) where T : new()
+           Dictionary<string, string> cookies = null,
+           bool shouldControlJsonChange = false) where T : new()
         {
-            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes, cookies);
+            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes, cookies, shouldControlJsonChange);
         }
 
         /// <summary>

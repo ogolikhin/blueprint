@@ -1,7 +1,6 @@
-import { IProject, IArtifact, ISubArtifact, IItem } from "./../models/models";
+import { IArtifact, ISubArtifact, IItem } from "./../models/models";
 
 export interface ISelectionManager {
-//    selectedProjectObservable: Rx.Observable<IProject>;
     selectedArtifactObservable: Rx.Observable<IArtifact>;
     selectedSubArtifactObservable: Rx.Observable<ISubArtifact>;
     selectedItemObservable: Rx.Observable<IItem>;
@@ -21,7 +20,6 @@ export enum SelectionSource {
 export interface ISelection {
     source: SelectionSource;
     artifact?: IArtifact;
-//    project: IProject;
     subArtifact?: ISubArtifact;
 }
 
@@ -35,13 +33,6 @@ export class SelectionManager implements ISelectionManager {
     constructor() {
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(null);
     }
-
-    //public get selectedProjectObservable() {
-    //    return this.selectionSubject
-    //        .filter(s => s != null)
-    //        .map(s => s.project)
-    //        .distinctUntilChanged(this.distinctById).asObservable();
-    //}
 
     public get selectedArtifactObservable() {
         return this.selectionSubject

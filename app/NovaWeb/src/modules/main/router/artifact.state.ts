@@ -1,6 +1,7 @@
 ﻿import "angular";
 import * as Models from "../models/models";
 import {IProjectManager, ProjectManager} from "../";
+import {ILocalizationService} from "../../core";
 import {MessageService} from "../../shell";
 
 export interface IEditorParameters {
@@ -16,13 +17,14 @@ export class ArtifactState implements ng.ui.IState {
 
 export class ArtifactStateController {
 
-    public static $inject = ["$rootScope", "$state", "projectManager", "messageService"];
+    public static $inject = ["$rootScope", "$state", "projectManager", "messageService", "localization"];
 
     constructor(
         private $rootScope,
         private $state: angular.ui.IStateService,
         private projectManager: IProjectManager,
-        private messageService: MessageService) {
+        private messageService: MessageService,
+        private localization: ILocalizationService) {
         
         let id = $state.params["id"];
 
@@ -32,7 +34,7 @@ export class ArtifactStateController {
             
             this.navigateToSubRoute(artifactType, $state.params["context"]);
         } else {
-            messageService.addError($rootScope.config.labels["Artifact_NotFound"]);
+            messageService.addError(this.localization.get("Artifact_NotFound"));
         }
 
     }

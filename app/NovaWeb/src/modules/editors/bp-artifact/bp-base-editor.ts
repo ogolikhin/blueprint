@@ -4,13 +4,6 @@ import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: ad
 
 export { IProjectManager }
 
-export interface IEditorContext {
-    artifact?: Models.IArtifact;
-    project?: Models.IProject;
-    type?: Models.IItemType;
-    propertyTypes?: Models.IPropertyType[];
-}
-
 export class BpBaseEditor {
     public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
@@ -20,7 +13,7 @@ export class BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: IPropertyEditor;
-    public context: IEditorContext;
+    public context: Models.IEditorContext;
 
     public isLoading: boolean = true;
 
@@ -109,7 +102,7 @@ export class BpBaseEditor {
     }
 
 
-    public onLoad(context: IEditorContext) {
+    public onLoad(context: Models.IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -117,7 +110,7 @@ export class BpBaseEditor {
         this.fields.push(field);
     }
 
-    public onUpdate(context: IEditorContext) {
+    public onUpdate(context: Models.IEditorContext) {
         try {
             this.isLoading = false;
             if (!context || !this.editor) {

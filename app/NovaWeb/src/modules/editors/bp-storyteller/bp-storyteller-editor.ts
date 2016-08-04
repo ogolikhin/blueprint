@@ -9,12 +9,16 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
     public controller: Function = BpStorytellerEditorController;
     public controllerAs = "$ctrl";
-    public bindings: any = {};
+    public bindings: any = {
+        context: "<"
+    };
     public transclude: boolean = true;
 }
 
 export class BpStorytellerEditorController {
-    private _subscribers: Rx.IDisposable[];
+
+    private _context: number;
+
     public storytellerDiagram : StorytellerDiagram;
 
     public static $inject = [
@@ -45,7 +49,23 @@ export class BpStorytellerEditorController {
     }
 
     public $onInit() {
+        
+    }
 
+    public $onChanges(changesObj) {
+        if (changesObj.context) {
+            this._context = changesObj.context.currentValue;
+
+            if (this._context) {
+                this.load(this._context);
+            }
+        }
+    }
+
+    public $onDestroy() {
+    }
+    
+    private load(artifact: number) {
         this.storytellerDiagram = new StorytellerDiagram(
             this.$rootScope,
             this.$scope,
@@ -57,25 +77,6 @@ export class BpStorytellerEditorController {
             this.messageService
         );
 
-        this._subscribers = [
-            //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.selectedArtifactObservable.subscribeOnNext(this.artifactChange, this)
-        ];
-    }
-
-    public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-    }
-
-    //TODO: Temporary code to detect loading of the process.
-    private artifactChange(artifact: Models.IArtifact) {
-        if (artifact && artifact.predefinedType === Models.ItemTypePredefined.Process) {
-            this.storytellerDiagram.createDiagram(artifact.id.toString());
-        } else {
-            this.storytellerDiagram.processModel = null;
-            this.storytellerDiagram.debugInformation = null;
-        }
-
+        this.storytellerDiagram.createDiagram(artifact.toString());
     }
 }

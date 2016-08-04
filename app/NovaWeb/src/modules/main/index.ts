@@ -32,9 +32,17 @@ import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
 import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
 import { MainViewComponent } from "./main.view";
 import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
-import { config as routesConfig } from "./main.state";
 import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
+import {ArtifactStateController} from "./router/artifact.state";
+
+import {DetailsStateController} from "./router/editor-states/details.state";
+import {DiagramStateController} from "./router/editor-states/diagram.state";
+import {GeneralStateController} from "./router/editor-states/general.state";
+import {GlossaryStateController} from "./router/editor-states/glossary.state";
+import {StorytellerStateController} from "./router/editor-states/storyteller.state"; 
+
+import {Routes} from "./router/router.config";
 
 config.$inject = ["$rootScope", "$state"];
 export {
@@ -87,7 +95,7 @@ angular.module("app.main", [
     "formly",
     "formlyBootstrap",
     "bp.editors"
-    ])
+])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
@@ -102,6 +110,12 @@ angular.module("app.main", [
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorer())
     .component("bpArtifactInfo", new BpArtifactInfo())
-    .config(routesConfig)
+    .controller("artifactStateController", ArtifactStateController)
+    .controller("generalStateController", GeneralStateController)
+    .controller("detailsStateController", DetailsStateController)
+    .controller("diagramStateController", DiagramStateController)
+    .controller("glossaryStateController", GlossaryStateController)
+    .controller("storytellerStateController", StorytellerStateController)
     .config(formlyDecorate)
+    .config(Routes)
     .run(formlyConfigExtendedFields);

@@ -2,11 +2,8 @@
 import "angular-mocks";
 import { ConfigValueHelper } from "../../../../core";
 import { MessageService } from "../../../../shell/";
-import { ProjectManager, 
-    IProjectManager, 
-    Models } from "../../../";
+import { ProjectManager, IProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
-
 import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
@@ -47,6 +44,7 @@ describe("Project Explorer Test", () => {
             new LocalizationServiceMock(),
             new ModalServiceInstanceMock(),
             projectManager,
+            null,
             null,
             null,
             null);

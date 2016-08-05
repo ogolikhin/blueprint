@@ -408,4 +408,101 @@ describe("Artifact Discussion Service", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
+    it("successfully deletes reply", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+        // Arrange
+        $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletecomment/1`)
+            .respond(200, {
+                statusCode: 200,
+                message: "Success"
+            });
+
+        // Act
+        let success: boolean;
+        artifactDiscussions.deleteReply(5, 1).then((response) => {
+            success = true;
+        }, () => {
+            success = false;
+        });
+
+        $httpBackend.flush();
+
+        // Assert
+        expect(success).toBe(true);
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    }));
+
+    it("delete reply failes with 404", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+        // Arrange
+        $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletecomment/1`)
+            .respond(404, {
+                statusCode: 404,
+                message: "Comment Not Found"
+            });
+        let success: boolean;
+        let errorStatusCode: number;
+        
+        // Act
+        artifactDiscussions.deleteReply(5, 1).then((response) => {
+            success = true;
+        }, (error) => {
+            success = false;
+            errorStatusCode = error.statusCode;
+        });
+        $httpBackend.flush();
+
+        // Assert
+        expect(success).toBe(false);
+        expect(errorStatusCode).toBe(404);
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    }));
+
+    it("successfully deletes thread", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+        // Arrange
+        $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletethread/1`)
+            .respond(200, {
+                statusCode: 200,
+                message: "Success"
+            });
+
+        // Act
+        let success: boolean;
+        artifactDiscussions.deleteCommentThread(5, 1).then((response) => {
+            success = true;
+        }, () => {
+            success = false;
+        });
+        $httpBackend.flush();
+
+        // Assert
+        expect(success).toBe(true);
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    }));
+
+    it("delete thread failes with 404", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+        // Arrange
+        $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletethread/1`)
+            .respond(404, {
+                statusCode: 404,
+                message: "Comment Not Found"
+            });
+        let success: boolean;
+        let errorStatusCode: number;
+        // Act
+        artifactDiscussions.deleteCommentThread(5, 1).then((response) => {
+            success = true;
+        }, (error) => {
+            success = false;
+            errorStatusCode = error.statusCode;
+        });
+        $httpBackend.flush();
+        // Assert
+        expect(success).toBe(false);
+        expect(errorStatusCode).toBe(404);
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    }));
+
 });

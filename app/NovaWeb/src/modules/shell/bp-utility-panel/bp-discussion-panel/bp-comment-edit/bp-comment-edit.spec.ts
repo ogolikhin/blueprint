@@ -5,8 +5,11 @@ import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPCommentEditController } from "./bp-comment-edit";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import "angular-ui-tinymce";
 
 describe("Component BPCommentEdit", () => {
+
+    let vm: BPCommentEditController;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -19,11 +22,13 @@ describe("Component BPCommentEdit", () => {
             cancel-comment="null"
             add-button-text=''
             cancel-button-text=''
-            comment-place-holder-text=''>
+            comment-place-holder-text=''
+            comment-text='test comment'>
         </bp-comment-edit>`;
 
     beforeEach(() => {
         directiveTest = new ComponentTest<BPCommentEditController>(template, "bp-comment-edit");
+        vm = directiveTest.createComponent({});
     });
 
     it("should be visible by default", () => {

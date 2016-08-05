@@ -64,12 +64,11 @@ describe("Component BPDiscussionPanel", () => {
     it("should not load data for a artifact without prefix",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
-            const artifact = project;
+            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
             artifact.prefix = "ACO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
 
             //Assert
@@ -135,7 +134,7 @@ describe("Component BPDiscussionPanel", () => {
             artifact.prefix = "PRO";
             
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = true;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -148,12 +147,11 @@ describe("Component BPDiscussionPanel", () => {
     it("add discussion should return default discussion",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -166,7 +164,6 @@ describe("Component BPDiscussionPanel", () => {
     it("add discussion throws exception",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             let deferred = $q.defer();
@@ -181,7 +178,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -194,12 +191,11 @@ describe("Component BPDiscussionPanel", () => {
     it("add discussion reply should return default reply",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -213,7 +209,6 @@ describe("Component BPDiscussionPanel", () => {
     it("add discussion reply throws exception",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             let deferred = $q.defer();
@@ -228,7 +223,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -241,12 +236,11 @@ describe("Component BPDiscussionPanel", () => {
     it("Clicking new comment shows add comment",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             vm.newCommentClick();
 
@@ -258,13 +252,12 @@ describe("Component BPDiscussionPanel", () => {
     it("Clicking cancel comment hides add comment",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             vm.showAddComment = true;
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             vm.cancelCommentClick();
 
@@ -275,13 +268,12 @@ describe("Component BPDiscussionPanel", () => {
     it("Editing discussion should move it to the first",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             artifact.prefix = "PRO";
             vm.showAddComment = true;
 
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source: SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
             $rootScope.$digest();
             const secondDiscussionId = vm.artifactDiscussionList[1].discussionId;
             vm.discussionEdited(vm.artifactDiscussionList[1]);

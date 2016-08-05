@@ -1,5 +1,5 @@
 ﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
-import {IProjectManager} from "../../main"
+import {IProjectManager} from "../../main";
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export { IProjectManager }
@@ -219,7 +219,7 @@ export class PropertyContext implements Models.IPropertyType {
                         if (!$value) {
                             return undefined;
                         }
-                        return this.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString());
+                        return this.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString(), 10);
                     }
                     break;
                 case Models.PrimitiveType.Date:
@@ -232,12 +232,12 @@ export class PropertyContext implements Models.IPropertyType {
                     break;
                 case Models.PrimitiveType.Choice:
                     let values = $value.toString().split(",").map((it: string) => {
-                        return parseInt(it);
+                        return parseInt(it, 10);
                     });
                     if (values.length > 1) {
                         return {
                             validValueIds: values
-                        }
+                        };
                     } else if (values.length === 1) {
                         return values[0];
                     }

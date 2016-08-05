@@ -111,8 +111,10 @@ export class BPCommentEditController {
     }
 
     public callPostComment() {
-        this.isWaiting = true;
-        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
-        this.isWaiting = false;
+        if (!this.isWaiting) {
+            this.isWaiting = true;
+            this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+            this.isWaiting = false;
+        }
     }
 }

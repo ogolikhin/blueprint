@@ -1,4 +1,4 @@
-﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ISidebarToggle, Models, Helper} from "./";
 import {IProjectManager} from "../../main";
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -78,9 +78,9 @@ export class BpBaseEditor {
             }
         let value = context.getValueOfType($value);
         if ( !this.form.$invalid ) {
-            let changeSet: any = {
+            let changeSet: IPropertyChangeSet = {
                 lookup: LookupEnum[context.lookup],
-                key: context.modelPropertyName,
+                id: context.modelPropertyName,
                 value: value
             };
             this.stateManager.addChangeSet(this.context.artifact, changeSet);

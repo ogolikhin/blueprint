@@ -30,6 +30,7 @@ export class ArtifactStateController {
         
         let id = parseInt($state.params["id"], 10);
 
+        // TODO: if project manager can't find artifact, need to load artifact by itself (should be covered in 'go to' user story)
         let artifact = projectManager.getArtifact(id);
         if (artifact) {
             let artifactType = artifact.predefinedType;

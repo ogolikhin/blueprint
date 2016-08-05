@@ -1716,7 +1716,10 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View which is going to be greater that the prepaid width", isSelected: false, hasChildTreeItems: false, level: "0.1" }
+                    value: {
+                        isEnabled: true, isSeparator: false, text: "View which is going to be greater that the prepaid width",
+                        isSelected: false, hasChildTreeItems: false, level: "0.1"
+                    }
                 },
                 {
                     name: "ChildTreeItem",

@@ -30,14 +30,15 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
                     "isGuest": false,
                     "comment": "This is a test.",
                     "canEdit": true,
-                    "canDelete": false
+                    "canDelete": false,
+                    "showAddReply": false
                 },
                 {
                     "isClosed": true,
                     "status": "",
                     "itemId": 2,
                     "repliesCount": 0,
-                    "discussionId": 1,
+                    "discussionId": 2,
                     "version": 4,
                     "userId": 2,
                     "lastEditedOn": "",
@@ -45,7 +46,8 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
                     "isGuest": false,
                     "comment": "flakdj alkdjf lajd f.",
                     "canEdit": true,
-                    "canDelete": false
+                    "canDelete": false,
+                    "showAddReply": true
                 }
             ]
         };

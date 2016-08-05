@@ -1,6 +1,7 @@
 ﻿import "angular";
 import * as Models from "../models/models";
-import {IProjectManager, ProjectManager} from "../";
+import {IProjectManager, ProjectManager, ISelectionManager, SelectionManager} from "../";
+import {SelectionSource} from "../services/selection-manager";
 import {ILocalizationService} from "../../core";
 import {MessageService} from "../../shell";
 
@@ -17,21 +18,30 @@ export class ArtifactState implements ng.ui.IState {
 
 export class ArtifactStateController {
 
-    public static $inject = ["$rootScope", "$state", "projectManager", "messageService", "localization"];
+    public static $inject = ["$rootScope", "$state", "projectManager", "selectionManager", "messageService", "localization"];
 
     constructor(
         private $rootScope,
         private $state: angular.ui.IStateService,
         private projectManager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private messageService: MessageService,
         private localization: ILocalizationService) {
         
-        let id = $state.params["id"];
+        let id = parseInt($state.params["id"], 10);
 
         let artifact = projectManager.getArtifact(id);
         if (artifact) {
-            let artifactType = artifact.predefinedType;           
-            
+            let artifactType = artifact.predefinedType;
+            if (selectionManager.selection &&
+                selectionManager.selection.artifact &&
+                selectionManager.selection.artifact.id != artifact.id) {
+
+                selectionManager.selection = {
+                    source: SelectionSource.Explorer,
+                    artifact: artifact
+                };
+            }
             this.navigateToSubRoute(artifactType, $state.params["context"]);
         } else {
             messageService.addError(this.localization.get("Artifact_NotFound"));

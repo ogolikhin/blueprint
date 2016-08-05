@@ -4,6 +4,7 @@ import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from 
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Message, MessageType, IMessage} from "../../../core/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -205,7 +206,10 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                             discussion.repliesCount = updatedReplies.length;
                             discussion.expanded = true;
                         });
-                });
+                }).catch((error) => {
+                    let msg = new Message(MessageType.Error, error.message);
+                    this.messageService.addMessage(msg);
+                    });
             }
         });
     }
@@ -219,6 +223,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                         this.canDelete = discussionsResultSet.canDelete;
                         this.canCreate = discussionsResultSet.canCreate;
                     });
+                }).catch((error) => {
+                    let msg = new Message(MessageType.Error, error.message);
+                    this.messageService.addMessage(msg);
                 });
             }
         });

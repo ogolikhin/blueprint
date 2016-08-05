@@ -4,7 +4,7 @@ import "angular-ui-bootstrap";
 import { AppConstants, IAppConstants } from "./constants/";
 import { LocalizationService, ILocalizationService } from "./localization/";
 import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
-import { ItemState, IStateManager, StateManager } from "./services/state-manager";
+import { ItemState, IPropertyChangeSet, IStateManager, StateManager } from "./services/state-manager";
 import { IWindowResize, WindowResize} from "./services/window-resize";
 import { IWindowVisibility, WindowVisibility} from "./services/window-visibility";
 import "./messages";
@@ -24,6 +24,7 @@ export {
     IConfigValueHelper,
     ConfigValueHelper,
     IStateManager,
+    IPropertyChangeSet,
     ItemState,
     IWindowResize,
     IWindowVisibility

@@ -108,7 +108,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     /* tslint:disable:no-unused-variable */
     public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
+        let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
+        return this._artifactDiscussionsRepository.addDiscussion(artifactId, comment)
             .then((discussion: IDiscussion) => {
                 this.cancelCommentClick();
                 this.setDiscussions();
@@ -128,7 +129,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     /* tslint:disable:no-unused-variable */
     public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
+        let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
+        return this._artifactDiscussionsRepository.addDiscussionReply(artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
                 this.setReplies(discussion);
                 discussion.showAddReply = false;

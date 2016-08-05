@@ -234,16 +234,19 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(00)]
-        [Description("!!!Add comment to published artifact, then get discussion for this artifact.  Verify it returns the comment that we added.")]
+        [TestRail(155659)]
+        [Description("Update discussion for the published artifact. Verify that text was updated.")]
         public void UpdateDiscussion_PublishedArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("original discussion text", _authorUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
+                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
             IRaptorComment updatedComment = null;
-            Discussions discussions = null;
+            
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -257,102 +260,6 @@ namespace ArtifactStoreTests
                 discussions.Comments.Count);
             Assert.True(updatedComment.Equals(discussions.Comments[0]),
                 "The discussion comment returned from ArtifactStore doesn't match what was posted!");
-        }
-
-        [TestCase]
-        [TestRail(01)]
-        [Description("!!!")]
-        public void UpdateOtherUserDiscussion__ReturnsError()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
-            Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
-            Assert.IsFalse(discussions.CanDelete);
-            Assert.IsTrue(discussions.CanCreate);
-
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            Assert.IsTrue(discussions.CanDelete);
-            Assert.IsTrue(discussions.CanCreate);
-
-
-            IRaptorComment updatedComment = null;
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _authorUser, postedRaptorComment);
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            }, "UpdateDiscussions shouldn't throw any error.");
-
-            // Verify:
-            Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
-                discussions.Comments.Count);
-        }
-
-        [TestCase]
-        [TestRail(02)]
-        [Description("User without rights to comment tries to post comment.")]
-        public void PostDiscussion_PublishedArtifactUserHasNoRights_ReturnsError()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-
-            IRaptorComment raptorComment = null;
-            Discussions discussions = null;
-
-            // Execute:
-            Assert.Throws<Http403ForbiddenException>(() =>
-            {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _viewerUser);
-                raptorComment = artifact.PostRaptorDiscussions("draft", _viewerUser);
-            }, "PostDiscussion should throw 403 error.");
-
-            // Verify:
-            Assert.IsFalse(discussions.CanCreate, "user can't create comments.");
-            Assert.IsFalse(discussions.CanDelete);
-        }
-
-        [TestCase]
-        [TestRail(03)]
-        [Description("User can delete its own comment.")]
-        public void DeleteDiscussion_PublishedArtifact_ReturnsSuccess()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-
-            IRaptorComment raptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
-            string message = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                message = artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
-            }, "DeleteDiscussion shouldn't throw any error.");
-
-            // Verify:
-            Assert.IsNotEmpty(message);
-        }
-
-        [TestCase]
-        [TestRail(04)]
-        [Description("User can't delete its own comment.")]
-        public void DeleteOtherUserDiscussion_ReturnsFail()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-
-            IRaptorComment raptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
-            string message = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                message = artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
-            }, "DeleteDiscussion shouldn't throw any error.");
-
-            // Verify:
-            Assert.IsNotEmpty(message);
         }
 
         /// <summary>

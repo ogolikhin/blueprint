@@ -800,7 +800,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
         public static string DeleteRaptorReply(string address,
-            int itemId, IRaptorComment replyToDelete,
+            int itemId, IRaptorReply replyToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

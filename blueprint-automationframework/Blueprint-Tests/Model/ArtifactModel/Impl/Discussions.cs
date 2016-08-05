@@ -61,6 +61,8 @@ namespace Model.ArtifactModel.Impl
 
         public int DiscussionId { get; set; }
 
+        public int Version { get; set; }
+
         public int UserId { get; set; }
 
         public DateTime LastEditedOn { get; set; }
@@ -71,5 +73,9 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty("comment")]
         public string ReplyText { get; set; }
+
+        public bool CanEdit { get; set; }
+
+        public bool CanDelete { get; set; }
     }
 }

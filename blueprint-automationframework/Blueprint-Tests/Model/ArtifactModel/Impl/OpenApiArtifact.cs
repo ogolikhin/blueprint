@@ -644,7 +644,7 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETETHREAD, itemId, commentToDelete.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
 
             // Derialization
@@ -724,17 +724,17 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
-        public static string DeleteRaptorReply(string address, int itemId, IRaptorComment replyToDelete,
+        public static string DeleteRaptorReply(string address, int itemId, IRaptorReply replyToDelete,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETETHREAD, itemId, replyToDelete.DiscussionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETEREPLY, itemId, replyToDelete.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
 
             // Derialization

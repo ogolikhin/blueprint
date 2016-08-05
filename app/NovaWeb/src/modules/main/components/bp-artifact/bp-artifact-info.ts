@@ -41,7 +41,6 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         this._subscribers = [
-            this.stateManager.onArtifactChanged.subscribeOnNext(this.onArtifactChanged, this),
             this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
@@ -166,8 +165,13 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
+        let state = this.stateManager.getArtifactState(this._artifact);
+        if (state) {
+            return state.isChanged;
+        }
         return this._isArtifactChanged;
     }
+
     public get isLocked(): boolean {
         return false;
     }

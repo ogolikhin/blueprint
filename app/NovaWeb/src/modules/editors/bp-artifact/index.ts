@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { ILocalizationService, IMessageService, IStateManager, IWindowResize } from "../../core";
+import { ILocalizationService, IMessageService, IStateManager, IPropertyChangeSet, IWindowResize } from "../../core";
 import { Helper } from "../../shared";
 import { Models, IArtifactService, ISidebarToggle } from "../../main";
 import { BpGeneralEditor } from "./bp-general-editor";
@@ -13,6 +13,7 @@ export {
     IArtifactService,
     IMessageService,
     IStateManager,
+    IPropertyChangeSet,
     Models,
     Helper,
     ILocalizationService,

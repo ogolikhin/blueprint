@@ -85,14 +85,14 @@ export class BPArtifactDiscussionItemController {
 
     public canEdit(): boolean {
         if (this.discussionInfo) {
-            return !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
+            return this.canCreate && !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
         } else {
             return false;
         }
     }
 
     /* tslint:disable:no-unused-variable */
-    private editDiscussion(comment: string): ng.IPromise<IDiscussion> {
+    public editDiscussion(comment: string): ng.IPromise<IDiscussion> {
         return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
                 this.editing = false;

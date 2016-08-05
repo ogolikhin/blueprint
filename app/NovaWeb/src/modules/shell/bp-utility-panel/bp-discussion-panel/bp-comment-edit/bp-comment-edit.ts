@@ -20,6 +20,7 @@ export class BPCommentEditController {
     public cancelButtonText: string;
     public commentPlaceHolderText: string;
     public commentText: string;
+    public isWaiting: boolean = false;
     public tinymceOptions = {
         plugins: "textcolor table noneditable autolink link",
         //toolbar: "fontsize | bold italic underline strikethrough | forecolor format | link",
@@ -110,7 +111,10 @@ export class BPCommentEditController {
     }
 
     public callPostComment() {
-        //this.postComment({ comment: this.commentText });
-        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+        if (!this.isWaiting) {
+            this.isWaiting = true;
+            this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+            this.isWaiting = false;
+        }
     }
 }

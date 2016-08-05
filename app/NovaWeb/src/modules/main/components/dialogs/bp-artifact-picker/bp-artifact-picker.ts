@@ -63,7 +63,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     private onEnterKeyPressed = (e: any) => {
-        var key = e.which || e.keyCode;
+        const key = e.which || e.keyCode;
         if (key === 13) {
             this.ok();
         }
@@ -80,13 +80,13 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             }
 
             if (params.data.predefinedType) {
-            if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
-                css.push("is-folder");
-            } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
-                css.push("is-project");
-            } else {               
-                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));              
-            }
+                if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
+                    css.push("is-folder");
+                } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
+                    css.push("is-project");
+                } else {               
+                    css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
+                }
             } else {
                if (params.data.type === 0) {
                     css.push("is-folder");
@@ -100,10 +100,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = Helper.escapeHTMLText(params.data.name);
+                const sanitizedName = Helper.escapeHTMLText(params.data.name);
 
                 if (params.data.type === 1) {
-                    var cell = params.eGridCell;
+                    const cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
                 return sanitizedName;
@@ -124,16 +124,13 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
                 .then((nodes: Models.IArtifact[]) => {   
-                     var arr = nodes.filter((node: Models.IItemType) => {
-                          return this.filterCollections(node);
-                        });                         
-                    self.tree.reload(arr, artifactId);
+                     const filtered = nodes.filter(this.filterCollections);
+                      self.tree.reload(filtered, artifactId);
                 }, (error) => {
-                     if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
-                    this.cancel();
-                } 
+                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
+                        this.cancel();
+                    } 
                 });
-
             return null;
         } else {
             this.projectName = this.localization.get("App_Header_Name");
@@ -151,36 +148,33 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
-    public doSelect = (item: any) => {
+    public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
         let self = this;
         if (!this.projectView) {
             this.$scope.$applyAsync((s) => {
                 self.setSelectedItem(item);
             });
         } else {
-            if (item) {
+            if (item && item.type === Models.ProjectNodeType.Project) {
                 this.projectId = item.id;
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
                         this.projectName = project.name;
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
-                                var arr = nodes.filter((node: Models.IItemType) => {
-                                return this.filterCollections(node);
-                             });   
+                                const filtered = nodes.filter(this.filterCollections);   
                                 this.projectView = false;
-                                self.tree.reload(arr);
+                                self.tree.reload(filtered);
                             }, (error) => {
 
                             });
                     }
                 );
-
             }
         }
     }
 
-    private filterCollections(node: Models.IItemType) {       
+    private filterCollections(node: Models.IItem) {       
         if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
             return true;
         }
@@ -198,9 +192,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             return artifact;
         }
     };
+
     public getProjects() {
         this.projectView = true;
         this.doLoad(null);
     }
 }
-

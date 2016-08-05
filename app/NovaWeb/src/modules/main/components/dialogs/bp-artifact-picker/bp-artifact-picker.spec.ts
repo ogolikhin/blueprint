@@ -50,7 +50,6 @@ describe("Project Explorer Test", () => {
             selectionManager,
             null,
             null,
-            null,
             null);
 
         controller["tree"] = new BPTreeControllerMock();      
@@ -174,7 +173,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject();
         $rootScope.$digest();
-        let current: Models.IProject;// = projectManager.currentProject.getValue();
+        let current: Models.IProject; // = projectManager.currentProject.getValue();
 
         // Assert
         expect(isReloadCalled).toBeTruthy();
@@ -194,7 +193,7 @@ describe("Project Explorer Test", () => {
         // Act
         projectManager.closeProject(true);
         $rootScope.$digest();
-        let current: Models.IProject;// = projectManager.currentProject.getValue();
+        let current: Models.IProject; // = projectManager.currentProject.getValue();
 
         // Assert
         expect(current).toBeNull();

@@ -231,12 +231,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <select
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    multiple
-                    class="form-control"></select>
+                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}">
+                    <ui-select-match placeholder="{{to.placeholder}}">{{$item[to.labelProp]}}</ui-select-match>
+                    <ui-select-choices data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
@@ -244,6 +244,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
+            templateOptions: {
+                placeholder: localization.get("Property_Placeholder_Select_Option"),
+                valueProp: "value",
+                labelProp: "name"
+            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`

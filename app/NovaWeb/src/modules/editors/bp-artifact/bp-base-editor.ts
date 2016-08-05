@@ -399,7 +399,12 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
+                    if (context.isMultipleAllowed) {
+                        field.type = "bpFieldSelectMulti";
+                        field.templateOptions["optionsAttr"] = "bs-options";
+                    } else {
+                        field.type = "bpFieldSelect";
+                    }
                     if (angular.isNumber(context.defaultValidValueId)) {
                         field.defaultValue = context.defaultValidValueId.toString();
                     }

@@ -1,19 +1,19 @@
 ﻿import "angular";
 import { Models} from "../../main/models";
 
+
 export interface IStateManager {
-    isArtifactChanged: boolean;
-    isArtifactChangedObservable: Rx.Observable<boolean>;
+    onArtifactChanged: Rx.Observable<ItemState>;
     addChangeSet(origin: Models.IArtifact, changeSet: IPropertyChangeSet): void;
 }
 
 export interface IPropertyChangeSet {
     lookup: string
-    key: string | number;
+    id: string | number;
     value: any;
 }
 
-export class ArtifactState {
+export class ItemState {
     private _isChanged: boolean = false;
     constructor(artifact: Models.IArtifact) {
         this.originArtifact = artifact;
@@ -38,14 +38,15 @@ export class ArtifactState {
         }
         switch ((changeSet.lookup || "").toLowerCase()) {
             case "system":
-                this.changedArtifact[changeSet.key] = changeSet.value;
+                if (changeSet.id in this.originArtifact) {
+                    this.changedArtifact[changeSet.id] = changeSet.value;
+                } else {
+                    return;
+                }
                 break; 
             case "custom":
-                if (!angular.isArray(this.changedArtifact.customPropertyValues)) {
-                    this.changedArtifact.customPropertyValues = []
-                }
-                let propertyTypeId = changeSet.key as number;
-                let customProperty = this.changedArtifact.customPropertyValues.filter((it: Models.IPropertyValue) => {
+                let propertyTypeId = changeSet.id as number;
+                let customProperty = (this.changedArtifact.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
                     return it.propertyTypeId === propertyTypeId;
                 })[0];
                 if (customProperty) {
@@ -57,7 +58,14 @@ export class ArtifactState {
                     if (customProperty) {
                         customProperty = angular.copy(customProperty);
                         customProperty.value = changeSet.value;
+
+                        if (!angular.isArray(this.changedArtifact.customPropertyValues)) {
+                            this.changedArtifact.customPropertyValues = []
+                        }
+
                         this.changedArtifact.customPropertyValues.push(customProperty);
+                    } else {
+                        return;
                     }
                 }
                 break; 
@@ -76,45 +84,16 @@ export class ArtifactState {
 
 export class StateManager implements IStateManager {
 
-    private _collection: ArtifactState[];
+    private _collection: ItemState[];
 
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    private _isArtifactChanged: Rx.BehaviorSubject<boolean>;
+    private _artifactChanged: Rx.BehaviorSubject<ItemState>;
 
     constructor() {
         this._collection = [];
-        this._isArtifactChanged = new Rx.BehaviorSubject<boolean>(false);
+        this._artifactChanged = new Rx.BehaviorSubject<ItemState>(null);
     }
-
-
-    public addChangeSet(originArtifact: Models.IArtifact, changeSet: IPropertyChangeSet) {
-        let artifactState = this._collection.filter((it: ArtifactState) => {
-            return it.originArtifact.id === originArtifact.id;
-        })[0];
-        if (!artifactState) {
-            this._collection.push(artifactState = new ArtifactState(originArtifact));
-        }
-
-        artifactState.addChange(changeSet);
-        this.isArtifactChanged = true;
-    }
-
-
-    public get isArtifactChanged(): boolean {
-        return this._isArtifactChanged.getValue();
-    }
-
-    public set isArtifactChanged(value: boolean) {
-        if (!this.isArtifactChanged) {
-            this._isArtifactChanged.onNext(value);
-        }
-    }
-
-    public get isArtifactChangedObservable(): Rx.Observable<boolean> {
-        return this._isArtifactChanged.asObservable();
-    }
-
 
     public dispose() {
         //clear all subjects
@@ -124,12 +103,24 @@ export class StateManager implements IStateManager {
         }
     }
 
-    public initialize = () => {
-        //subscribe to event
-        this.dispose();
-        this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
+    public addChangeSet(originArtifact: Models.IArtifact, changeSet: IPropertyChangeSet) {
+        let artifactState = this._collection.filter((it: ItemState) => {
+            return it.originArtifact.id === originArtifact.id;
+        })[0];
+        if (!artifactState) {
+            this._collection.push(artifactState = new ItemState(originArtifact));
+        }
+
+        artifactState.addChange(changeSet);
+        this._artifactChanged.onNext(artifactState);
     }
 
+
+    public get onArtifactChanged(): Rx.Observable<ItemState> {
+        return this._artifactChanged
+            .filter(it => it != null)
+            .asObservable();
+    }
 
 
 }

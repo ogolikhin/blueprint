@@ -85,7 +85,7 @@ export class BPArtifactDiscussionItemController {
 
     public canEdit(): boolean {
         if (this.discussionInfo) {
-            return !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
+            return this.canCreate && !this.discussionInfo.isClosed && this.discussionInfo.canEdit;
         } else {
             return false;
         }

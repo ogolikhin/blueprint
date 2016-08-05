@@ -92,7 +92,7 @@ export class BPArtifactDiscussionItemController {
     }
 
     /* tslint:disable:no-unused-variable */
-    private editDiscussion(comment: string): ng.IPromise<IDiscussion> {
+    public editDiscussion(comment: string): ng.IPromise<IDiscussion> {
         return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
                 this.editing = false;

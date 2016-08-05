@@ -8,9 +8,14 @@ export enum ArtifactStateEnum {
     Deleted = 2
 }
 
+export enum ProjectNodeType {
+    Folder = 0,
+    Project = 1
+}
+
 export interface IProjectNode {
     id: number;
-    type: number;
+    type: ProjectNodeType;
     name: string;
     parentFolderId: number;
     description?: string;

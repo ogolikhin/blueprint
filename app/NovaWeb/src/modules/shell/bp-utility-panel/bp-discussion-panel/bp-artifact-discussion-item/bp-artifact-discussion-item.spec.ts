@@ -128,6 +128,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.editing = false;
+            vm.canCreate = true;
 
             //Act
             vm.editCommentClick();

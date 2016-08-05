@@ -1,10 +1,11 @@
 ﻿import "angular";
 import { Models} from "../../main/models";
 
-
 export interface IStateManager {
     onArtifactChanged: Rx.Observable<ItemState>;
     addChangeSet(origin: Models.IArtifact, changeSet: IPropertyChangeSet): void;
+    getArtifactState(artifact: number | Models.IArtifact): ItemState;
+    deleteArtifactState(artifact: number | Models.IArtifact);
 }
 
 export interface IPropertyChangeSet {
@@ -17,24 +18,40 @@ export class ItemState {
     private _isChanged: boolean = false;
     constructor(artifact: Models.IArtifact) {
         this.originArtifact = artifact;
+        this._changes = [];
     }
+
     public originArtifact: Models.IArtifact;
-    public changedArtifact: Models.IArtifact;
-    public isLocked: boolean;
-    public isReadOnly: boolean;
+    public isLocked: boolean = false;;
+    public isReadOnly: boolean = false;
+
+    private _changes: IPropertyChangeSet[] ;
+    private _changedArtifact: Models.IArtifact;
     
     public get isChanged(): boolean {
         return this._isChanged;
     }
 
+    public get changedArtifact(): Models.IArtifact {
+        return this._changedArtifact || (this._changedArtifact = angular.copy(this.originArtifact));
+    }
+
+    public clear() {
+        this.originArtifact = null;
+        this._changedArtifact = null;
+        this._changes = null;
+        this._isChanged = false;
+        this.isLocked = false;
+        this.isReadOnly = false;
+    }
+
+    private saveChangeSet(changeSet: IPropertyChangeSet) {
+        this._changes.push(changeSet)
+    }
+
     public addChange(changeSet: IPropertyChangeSet) {
         if (!changeSet) {
             return;
-        }
-        if (!this.changedArtifact) {
-            this.changedArtifact = {
-                id: this.originArtifact.id
-            } as Models.IArtifact;
         }
         switch ((changeSet.lookup || "").toLowerCase()) {
             case "system":
@@ -52,21 +69,7 @@ export class ItemState {
                 if (customProperty) {
                     customProperty.value = changeSet.value;
                 } else {
-                    customProperty = this.originArtifact.customPropertyValues.filter((it: Models.IPropertyValue) => {
-                        return it.propertyTypeId === propertyTypeId;
-                    })[0];
-                    if (customProperty) {
-                        customProperty = angular.copy(customProperty);
-                        customProperty.value = changeSet.value;
-
-                        if (!angular.isArray(this.changedArtifact.customPropertyValues)) {
-                            this.changedArtifact.customPropertyValues = []
-                        }
-
-                        this.changedArtifact.customPropertyValues.push(customProperty);
-                    } else {
-                        return;
-                    }
+                    return;
                 }
                 break; 
             case "special":
@@ -75,17 +78,15 @@ export class ItemState {
             default:
                 break;
         }
+        this._changes.push(changeSet);
         this._isChanged = true;
     }
 
-
 }
-
 
 export class StateManager implements IStateManager {
 
     private _collection: ItemState[];
-
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
     private _artifactChanged: Rx.BehaviorSubject<ItemState>;
@@ -122,5 +123,23 @@ export class StateManager implements IStateManager {
             .asObservable();
     }
 
+    public getArtifactState(artifact: number | Models.IArtifact): ItemState {
+        let artifactId = angular.isNumber(artifact) ? artifact as number : (artifact ? artifact.id : -1);
+        let state: ItemState = this._collection.filter((it: ItemState) => {
+            return it.originArtifact.id === artifactId;
+        })[0];
 
+        return state;
+    }
+
+    public deleteArtifactState(artifact: number | Models.IArtifact) {
+        let artifactId = angular.isNumber(artifact) ? artifact as number : (artifact ? artifact.id : -1);
+        this._collection = this._collection.filter((it: ItemState) => {
+            if (it.originArtifact.id === artifactId) {
+                it.clear();
+                return false;
+            }
+            return true;
+        });
+    }
 }

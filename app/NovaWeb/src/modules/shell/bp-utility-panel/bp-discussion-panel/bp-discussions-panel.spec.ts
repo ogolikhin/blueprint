@@ -9,7 +9,7 @@ import { SelectionManager, SelectionSource } from "../../../main/services/select
 import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { Models } from "../../../main/services/project-manager";
-import { DialogService } from "../../../shared/";
+import { DialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPDiscussionPanel", () => {
 

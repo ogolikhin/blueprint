@@ -105,10 +105,12 @@ export class StateManager implements IStateManager {
     public dispose() {
         
         //clear all subjects
-        this._itemStateCollection.forEach((it: ItemState) => {
-            it.clear();
-        });
-        this._itemStateCollection = null;
+        if (this._itemStateCollection) {
+            this._itemStateCollection.forEach((it: ItemState) => {
+                it.clear();
+            });
+            this._itemStateCollection = null;
+        }
 
         if (this._itemChanged) {
             this._itemChanged.dispose();

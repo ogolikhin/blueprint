@@ -110,10 +110,10 @@ export class BpBaseEditor {
                 return;
             }
             let artifact: Models.IArtifact;
-            let state = this.stateManager.getArtifactState(context.artifact.id);
+            let state = this.stateManager.getState(context.artifact.id);
 
             if (state) {
-                artifact = state.changedArtifact;
+                artifact = state.changedItem;
             } else {
                 artifact = this.context.artifact;
             }

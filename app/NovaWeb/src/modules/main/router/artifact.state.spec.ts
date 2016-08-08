@@ -58,6 +58,7 @@ describe("Artifact state tests", () => {
             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
 
             spyOn(projectManager, "getArtifact").and.returnValue(artifact);
+            spyOn(projectManager, "getArtifactType").and.returnValue(null);
             $state.params["context"] = editorContext;
             let stateSpy = spyOn($state, 'go');
 

@@ -51,7 +51,7 @@ class PageContentCtrl {
 
             _context.artifact = artifact;
             _context.type = this.projectManager.getArtifactType(_context.artifact);
-            this.$state.go("main.artifact", { id: artifact.id, context: _context });
+            this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
             this.messageService.addError(ex.message);

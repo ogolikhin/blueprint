@@ -1,9 +1,8 @@
-import {Shapes, ShapeProps, Diagrams} from "./utils/constants";
-import {MxFactory, ShapeExtensions} from "./utils/helpers";
-import {IShape} from "./models";
-import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
-import {Style} from "./utils/style-builder";
-
+import { Shapes, ShapeProps } from "./utils/constants";
+import { MxFactory, ShapeExtensions } from "./utils/helpers";
+import { IShape } from "./models";
+import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
+import { Style, Styles } from "./utils/style-builder";
 
 export class StoryboardShapeFactory extends AbstractShapeFactory {
 
@@ -46,7 +45,7 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
     private createIndicator(): MxCell {
         const style = new Style();
         style[mxConstants.STYLE_SHAPE] = "first";
-        style[Diagrams.STYLE_SELECTABLE] = 0;
+        style[Styles.STYLE_SELECTABLE] = 0;
         const indicator = MxFactory.vertex(null, MxFactory.geometry(0, 1, 16, 16), style.convertToString());
         indicator.getGeometry().relative = true;
         indicator.getGeometry().offset = MxFactory.point(0, -16 - this.frameMargin);
@@ -55,7 +54,7 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
 
     private createLabelShape(shape: IShape): MxCell {
         const style = new Style();
-        style[Diagrams.STYLE_SELECTABLE] = 0;
+        style[Styles.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
@@ -68,7 +67,7 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
 
     private createDescriptionShape(shape: IShape, hasMockup: boolean): MxCell {
         const style = new Style();
-        style[Diagrams.STYLE_SELECTABLE] = 0;
+        style[Styles.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_STROKECOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;

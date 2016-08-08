@@ -597,34 +597,6 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// POST discussion for the specified artifact
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="commentToDelete">comment to update</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorDiscussion(string address, int itemId, IRaptorComment commentToDelete,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(commentToDelete, nameof(commentToDelete));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, commentToDelete.DiscussionId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
-
-            return resultMessage;
-        }
-
-        /// <summary>
-        /// POST reply for the specified discussion
-        /// </summary>
         /// <param name="address">The base url of the Blueprint server</param>
         /// <param name="comment">Comment to reply</param>
         /// <param name="discussionText">Text for replying</param>
@@ -648,68 +620,6 @@ namespace Model.ArtifactModel.Impl
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;
-        }
-
-        /// <summary>
-        /// Updates the specified reply.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="comment">comment containing reply to update</param>
-        /// <param name="replyToUpdate">reply to update</param>
-        /// <param name="discussionText">new text for discussion</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        public static IRaptorReply UpdateRaptorDiscussionReply(string address, int itemId, IRaptorComment comment,
-            IRaptorReply replyToUpdate, string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(comment, nameof(comment));
-            ThrowIf.ArgumentNull(replyToUpdate, nameof(replyToUpdate));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY_ID,
-                itemId, comment.DiscussionId, replyToUpdate.ReplyId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
-                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Deletes the specified reply.
-        /// (Runs: POST /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">comment to update</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorReply(string address, int itemId, IRaptorReply replyToDelete,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyToDelete.ReplyId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
-
-            return resultMessage;
         }
 
         /// <summary>

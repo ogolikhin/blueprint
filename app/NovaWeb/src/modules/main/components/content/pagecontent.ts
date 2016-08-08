@@ -65,4 +65,10 @@ class PageContentCtrl {
             .map(s => s.artifact)
             .distinctUntilChanged(a => a ? a.id : -1).asObservable();
     }
+
+    public onContentSelected($event: MouseEvent) {
+        if ($event.target && $event.target["tagName"] !== "BUTTON") {
+            this.selectionManager.clearSubArtifactSelection();
+        }
+    }
 }

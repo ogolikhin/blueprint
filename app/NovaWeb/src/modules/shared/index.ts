@@ -1,8 +1,6 @@
 ﻿import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
-
-import { Helper } from "./utils/helper";
 import "./widgets";
 
 angular.module("app.shared", [
@@ -10,7 +8,6 @@ angular.module("app.shared", [
     "ui.bootstrap",
     "bp.widjets"]);
     
-
 export {
     IBPTreeController,
     ITreeNode,
@@ -21,4 +18,4 @@ export {
 
 export {
     Helper,
-}  from "./utils/helper";
+} from "./utils/helper";

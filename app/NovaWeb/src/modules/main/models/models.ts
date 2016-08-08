@@ -226,9 +226,7 @@ export interface IHashMap<T> {
 
 export interface IEditorContext {
     artifact?: IArtifact;
-    project?: IProject;
     type?: IItemType;
-    propertyTypes?: IPropertyType[];
 }
 
   

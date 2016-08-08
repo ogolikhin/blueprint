@@ -28,6 +28,11 @@ bp-discussion-panel {
         &.reply {
             margin-bottom: 10px;
         }
+
+        .comment-edit-waiting{
+            margin-top:5px;
+            padding:0;
+        }
     }
 
     .author {

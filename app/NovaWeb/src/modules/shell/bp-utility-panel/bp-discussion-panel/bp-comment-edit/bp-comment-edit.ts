@@ -22,8 +22,8 @@ export class BPCommentEditController {
     public commentText: string;
     public isWaiting: boolean = false;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link",
-        //toolbar: "fontsize | bold italic underline strikethrough | forecolor format | link",
+        plugins: "textcolor table noneditable autolink link autoresize",
+        autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,
         relative_urls: false,
@@ -100,10 +100,6 @@ export class BPCommentEditController {
                         }
                     }]
             });
-            //editor.on("init", function () {
-            //    this.getDoc().body.style.fontFamily = 'Lucida';
-            //    this.getDoc().body.style.fontSize = '20';
-            //});
         }
     };
 

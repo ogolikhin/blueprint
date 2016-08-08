@@ -7,6 +7,6 @@ export class LocalizationService implements ILocalizationService {
     constructor(private scope: ng.IRootScopeService) {
     }
     get(name: string, defaultValue?: string): string {
-        return  this.scope["config"].labels[name] || defaultValue || "";
+        return this.scope["config"].labels[name] || defaultValue || name || "";
     }
 }

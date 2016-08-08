@@ -31,7 +31,8 @@
     "moment": "^2.14.1",
     "ng-draggable": "~1.0.0",
     "rx": "^4.1.0",
-    "tinymce": "4.3.12"
+    "tinymce": "4.3.12",
+    "ui-select": "^0.18.1"
   },
   "devDependencies": {
     "angular-mocks": "~1.5.2",

@@ -1,9 +1,8 @@
-﻿import { IProjectManager, Models } from "../..";
+import { IProjectManager, Models } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 import { IMessageService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
-
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./pagecontent.html");
@@ -19,17 +18,12 @@ export class PageContent implements ng.IComponentOptions {
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
     public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager"];
-    constructor(private $state: angular.ui.IStateService,
+    constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager) {
     }
-    //TODO remove after testing
-    public addMsg() {
-        //temporary removed to toolbar component under "Refresh" button
-    }
-
     public context: IEditorContext = null;
 
     public viewState: boolean;
@@ -48,7 +42,7 @@ class PageContentCtrl {
     }
 
     private selectContext(artifact: Models.IArtifact) {
-        let _context: any = {};
+        let _context: IEditorContext = {};
         try {
             if (!artifact) {
                 this.$state.go("main");
@@ -56,9 +50,7 @@ class PageContentCtrl {
             }
 
             _context.artifact = artifact;
-//            _context.project = this.projectManager.currentProject.getValue();
-//            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
-            _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
+            _context.type = this.projectManager.getArtifactType(_context.artifact);
             this.$state.go("main.artifact", { id: artifact.id, context: _context });
 
         } catch (ex) {
@@ -73,5 +65,4 @@ class PageContentCtrl {
             .map(s => s.artifact)
             .distinctUntilChanged(a => a ? a.id : -1).asObservable();
     }
-
 }

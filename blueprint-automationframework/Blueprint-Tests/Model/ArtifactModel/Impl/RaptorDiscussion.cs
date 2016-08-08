@@ -62,7 +62,8 @@ namespace Model.Impl
                     (comment.IsGuest == IsGuest) && (comment.ItemId == ItemId) &&
                     //(DateTime.Equals(comment.LastEditedOn, LastEditedOnUtc)) && //microseconds are different
                     (comment.UserId == UserId) && (string.Equals(comment.UserName, Username)) &&
-                    (comment.Version == Version);
+                    (comment.Version == Version) && (comment.CanDelete == CanDelete) &&
+                    (comment.CanEdit == CanEdit);
             }
         }
     }

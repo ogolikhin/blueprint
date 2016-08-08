@@ -1,5 +1,5 @@
 ﻿import { Models, Enums, IProjectManager, ISidebarToggle } from "../..";
-import { ILocalizationService, IStateManager, ItemState, IWindowResize } from "../../../core";
+import { ILocalizationService, IStateManager, IWindowResize } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -41,7 +41,6 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         this._subscribers = [
-            this.stateManager.onArtifactChanged.subscribeOnNext(this.onArtifactChanged, this),
             this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
@@ -62,9 +61,9 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onArtifactChanged(item: ItemState) {
-        this._isArtifactChanged = item.isChanged;
-    }
+    //private onArtifactChanged(item: ItemState) {
+    //    this._isArtifactChanged = item.isChanged;
+    //}
 
     private onWidthResized() {
         this.setArtifactHeadingMaxWidth();
@@ -166,8 +165,13 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isChanged;
+        }
         return this._isArtifactChanged;
     }
+
     public get isLocked(): boolean {
         return false;
     }

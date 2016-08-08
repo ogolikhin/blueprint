@@ -26,11 +26,13 @@ namespace Model.ArtifactModel.Impl
 
         public string Status { get; set; }
 
-        public int Version { get; set; }
+        public int RepliesCount { get; set; }
 
         public int ItemId { get; set; }
 
         public int DiscussionId { get; set; }
+
+        public int Version { get; set; }
 
         public int UserId { get; set; }
 
@@ -42,6 +44,10 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty("comment")]
         public string CommentText { get; set; }
+
+        public bool CanEdit { get; set; }
+
+        public bool CanDelete { get; set; }
 
         public Comment()
         { }
@@ -55,6 +61,8 @@ namespace Model.ArtifactModel.Impl
 
         public int DiscussionId { get; set; }
 
+        public int Version { get; set; }
+
         public int UserId { get; set; }
 
         public DateTime LastEditedOn { get; set; }
@@ -65,5 +73,9 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty("comment")]
         public string ReplyText { get; set; }
+
+        public bool CanEdit { get; set; }
+
+        public bool CanDelete { get; set; }
     }
 }

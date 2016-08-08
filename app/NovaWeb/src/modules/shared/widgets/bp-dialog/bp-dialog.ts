@@ -124,5 +124,24 @@ export class BaseDialogController implements IDialogController {
     };
 }
 
+export class DialogServiceMock implements IDialogService {
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
 
-
+    public open(params: IDialogSettings): ng.IPromise<any> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(true);
+        return deferred.promise;
+    }
+    public alert(message: string, header?: string): ng.IPromise<any> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(true);
+        return deferred.promise;
+    }
+    public confirm(message: string, header?: string): ng.IPromise<any> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(true);
+        return deferred.promise;
+    }
+    params: IDialogSettings;
+}

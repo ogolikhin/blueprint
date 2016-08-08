@@ -5,7 +5,7 @@ import "Rx";
 import { ItemState, StateManager } from "./state-manager";
 import { Models} from "../../main/models";
 
-describe("State Manager: ", () => {
+describe("State Manager:", () => {
     let subscriber;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -24,7 +24,7 @@ describe("State Manager: ", () => {
         const artifact = { id: 1 , name: ""} as Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
         });
 
@@ -41,7 +41,7 @@ describe("State Manager: ", () => {
         const artifact = { id: 1, name: "" } as Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
         });
 
@@ -57,22 +57,22 @@ describe("State Manager: ", () => {
 
     it("system property", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1 } as Models.IArtifact;
-        let changedArtifact: Models.IArtifact;
+        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        let changedItem: Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
-            changedArtifact = change.changedArtifact;
+            changedItem = change.changedItem;
         });
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "artifact" }); 
+        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" }); 
             
         //Assert
-        expect(changedArtifact).toBeDefined();
-        expect(isChanged).toBeFalsy();
+        expect(changedItem).toBeDefined();
+        expect(changedItem.name).toBe("new");
     }));
 
     it("missing system property", inject((stateManager: StateManager) => {
@@ -80,9 +80,11 @@ describe("State Manager: ", () => {
         const artifact = {
             id: 1
         } as Models.IArtifact;
-        let changedArtifact: Models.IArtifact;
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
-            changedArtifact = change.changedArtifact;
+        let changedItem: Models.IArtifact;
+        let isChanged: boolean;
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+            isChanged = change.isChanged;
+            changedItem = change.changedItem;
         });
 
             
@@ -90,10 +92,8 @@ describe("State Manager: ", () => {
         stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "artifact" }); 
             
         //Assert
-        expect(changedArtifact).toBeDefined();
-        //expect(changedArtifact.customPropertyValues).toEqual(jasmine.any(Array));
-        //expect(changedArtifact.customPropertyValues.length).toBe(0);
-        //        expect(changedArtifact.customPropertyValues[0].value).toBe("value");
+        expect(changedItem).toBeDefined();
+        expect(isChanged).toBeFalsy();
 
     }));
 
@@ -111,9 +111,9 @@ describe("State Manager: ", () => {
             ]
 
         } as Models.IArtifact;
-        let changedArtifact: Models.IArtifact;
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
-            changedArtifact = change.changedArtifact;
+        let changedItem: Models.IArtifact;
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+            changedItem = change.changedItem;
         });
 
             
@@ -121,10 +121,10 @@ describe("State Manager: ", () => {
         stateManager.addChangeSet(artifact, { lookup: "custom", id: 1, value: "value" }); 
             
         //Assert
-        expect(changedArtifact).toBeDefined();
-        expect(changedArtifact.customPropertyValues).toEqual(jasmine.any(Array));
-        expect(changedArtifact.customPropertyValues.length).toBe(1);
-        expect(changedArtifact.customPropertyValues[0].value).toBe("value");
+        expect(changedItem).toBeDefined();
+        expect(changedItem.customPropertyValues).toEqual(jasmine.any(Array));
+        expect(changedItem.customPropertyValues.length).toBe(1);
+        expect(changedItem.customPropertyValues[0].value).toBe("value");
 
     }));
 
@@ -143,9 +143,9 @@ describe("State Manager: ", () => {
             ]
 
         } as Models.IArtifact;
-        let changedArtifact: Models.IArtifact;
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
-            changedArtifact = change.changedArtifact;
+        let changedItem: Models.IArtifact;
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+            changedItem = change.changedItem;
         });
 
             
@@ -154,8 +154,9 @@ describe("State Manager: ", () => {
         stateManager.addChangeSet(artifact, { lookup: "custom", id: 2, value: 500 }); 
             
         //Assert
-        expect(changedArtifact).toBeDefined();
-        expect(changedArtifact.customPropertyValues).toBeUndefined();
+        expect(changedItem).toBeDefined();
+        expect(changedItem.customPropertyValues.length).toBe(1);
+        expect(changedItem.customPropertyValues[0].value).toBeUndefined();
     }));
 
     it("multiple custom property", inject((stateManager: StateManager) => {
@@ -178,9 +179,9 @@ describe("State Manager: ", () => {
             ]
 
         } as Models.IArtifact;
-        let changedArtifact: Models.IArtifact;
-        subscriber = stateManager.onArtifactChanged.subscribeOnNext((change: ItemState) => {
-            changedArtifact = change.changedArtifact;
+        let changedItem: Models.IArtifact;
+        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+            changedItem = change.changedItem;
         });
 
             
@@ -189,13 +190,75 @@ describe("State Manager: ", () => {
         stateManager.addChangeSet(artifact, { lookup: "custom", id: 2, value: 300 }); 
             
         //Assert
-        expect(changedArtifact).toBeDefined();
-        expect(changedArtifact.customPropertyValues).toEqual(jasmine.any(Array));
-        expect(changedArtifact.customPropertyValues.length).toBe(2);
-        expect(changedArtifact.customPropertyValues[0].value).toBe("value");
-        expect(changedArtifact.customPropertyValues[1].value).toBe(300);
+        expect(changedItem).toBeDefined();
+        expect(changedItem.customPropertyValues).toEqual(jasmine.any(Array));
+        expect(changedItem.customPropertyValues.length).toBe(2);
+        expect(changedItem.customPropertyValues[0].value).toBe("value");
+        expect(changedItem.customPropertyValues[1].value).toBe(300);
 
     }));
+
+    it("get artifact state by id", inject((stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+            
+        //Act
+        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+
+        let state = stateManager.getState(1);
+
+        //Assert
+        expect(state).toBeDefined();
+        expect(state.originItem).toEqual(artifact);
+        expect(state.changedItem).toBeDefined();
+        expect(state.changedItem.name).toBe("new");
+    }));
+
+    it("get artifact state by artifact ", inject((stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+            
+        //Act
+        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+
+        let state = stateManager.getState(artifact);
+
+        //Assert
+        expect(state).toBeDefined();
+        expect(state.originItem).toEqual(artifact);
+        expect(state.changedItem).toBeDefined();
+        expect(state.changedItem.name).toBe("new");
+    }));
+    it("get artifact state: missing artifact", inject((stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+            
+        //Act
+        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+
+        let state = stateManager.getState(2);
+
+        //Assert
+        expect(state).toBeUndefined()
+    }));
+
+    it("delete artifact state", inject((stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+            
+        //Act
+        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+        let state1 = stateManager.getState(1);
+
+        stateManager.deleteState(1);
+        let state2 = stateManager.getState(1);
+
+
+        //Assert
+        expect(state1).toBeDefined()
+        expect(state2).toBeUndefined()
+    }));
+
 
 
 });

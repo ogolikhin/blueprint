@@ -148,6 +148,79 @@ export enum TraceType {
     Reuse = 8
 }
 
+export enum RolePermissions {
+    /// <summary>
+    /// No privileges
+    /// </summary>
+    None = 0,  //0
+
+    /// <summary>
+    /// Allows the viewing of an artifact
+    /// </summary>
+    Read = 1 << 0, // = 1
+    /// <summary>
+    /// Allows the editing of an artifact. This includes deleting & adding children.
+    /// </summary>
+    Edit = 1 << 1, // = 2
+
+    /// <summary>
+    /// Allows deleting an artifact.
+    /// </summary>
+    Delete = 1 << 2, // = 4
+
+    /// <summary>
+    /// Allow tracing from/To an artifact project.
+    /// In addition to having the correct trace To/From Privileges on the two artifacts being a user must have edit privileges on at least one of the related artifacts .
+    /// </summary>
+    Trace = 1 << 3, // = 8
+
+    /// <summary>
+    /// Allow the user to comment on an artifact.
+    /// </summary>
+    Comment = 1 << 4, // 16
+
+    /// <summary>
+    /// Allows a user to steal a lock on artifacts.
+    /// </summary>
+    StealLock = 1 << 5, //= 32
+
+    // Do not use old ProjectAdmin flag
+    //ProjectAdmin = 0x20,
+
+    /// <summary>
+    /// Allows a user to report on the project.
+    /// </summary>
+    CanReport = 1 << 6, // = 64
+
+    /// <summary>
+    /// Allows a user to share an artifact.
+    /// </summary>
+    Share = 1 << 7, // = 128
+
+    /// <summary>
+    /// Allow reuse traces from/To an artifact project.
+    /// In addition to having the correct trace To/From Privileges on the two artifacts being a user must have edit privileges on at least one of the related artifacts .
+    /// </summary>
+    Reuse = 1 << 8, // = 256
+
+    /// <summary>
+    /// Allows a user to perform Excel Update.
+    /// </summary>
+    ExcelUpdate = 1 << 9, // = 512
+
+    /// <summary>
+    /// Allow the user to delete someone else's comment on an artifact.
+    /// </summary>
+    DeleteAnyComment = 1 << 10, // = 1024
+
+    /// <summary>
+    /// Allow the user to create/edit/save rapid review
+    /// </summary>
+    CreateRapidReview = 1 << 11 // = 2048
+}
+
+
+
 export enum TraceDirection {
     /// <summary>
     /// Child link always has direction To

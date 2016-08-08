@@ -186,7 +186,8 @@ export class Helper {
 
     static autoLinkURLText(node: Node) {
         /* tslint:disable */
-        const autoLinkPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
+        const urlPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
+        const protocolPattern: RegExp = /((?:ht|f)tp(?:s?)\:\/\/)/;
         /* tslint:enable */
 
         // if it's already an A tag we exit
@@ -195,7 +196,7 @@ export class Helper {
         }
 
         // if it doesn't contain a URL in the text, we exit
-        if (!autoLinkPattern.test(node.textContent)) {
+        if (!urlPattern.test(node.textContent)) {
             return;
         }
 
@@ -206,10 +207,15 @@ export class Helper {
                     Helper.autoLinkURLText(child);
                 } else if (child.nodeType === 3) {
                     let nodeText: string = child.textContent;
-                    let urls = nodeText.match(autoLinkPattern);
+                    let urls = nodeText.match(urlPattern);
                     if (urls) {
                         urls.forEach((url) => {
-                            nodeText = nodeText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+                            let defaultProtocol = "";
+                            if (!protocolPattern.test(url)) {
+                                defaultProtocol = "http://";
+                            }
+
+                            nodeText = nodeText.replace(url, `<a href="${defaultProtocol + url}" target="_blank">${url}</a>`);
                         });
                         let span = document.createElement("span");
                         span.innerHTML = nodeText;

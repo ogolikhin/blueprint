@@ -102,9 +102,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         name: "bpFieldReadOnly",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
-                <div ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
-                <div ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
+                <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -231,12 +231,14 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <select
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    multiple
-                    class="form-control"></select>
+                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}">
+                    <ui-select-match placeholder="{{to.placeholder}}">
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
+                    </ui-select-match>
+                    <ui-select-choices data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    </ui-select-choices>
+                </ui-select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
@@ -244,6 +246,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
+            templateOptions: {
+                placeholder: localization.get("Property_Placeholder_Select_Option"),
+                valueProp: "value",
+                labelProp: "name"
+            },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`

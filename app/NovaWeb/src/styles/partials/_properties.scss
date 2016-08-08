@@ -1,7 +1,8 @@
+$properties-min-width: $page-body-min-width - 30px - 2px;
 $property-min-height: 28px;
-$property-width: 392px;
 $property-horiz-spacing: 10px;
 $property-label-width: 100px;
+$property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px;
 $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
 $property-input-icon-width: 40px;
 $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
@@ -11,6 +12,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
 .properties {
   border: solid 1px $gray-lighter;
+  min-width: $properties-min-width;
 
   + .properties {
     margin-top: 15px;
@@ -100,8 +102,8 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
   flex-wrap: wrap;
   font-size: .9rem;
   justify-content: space-between;
-  margin: 0 10px;
-  min-width: 302px;
+  margin: 0 $property-horiz-spacing;
+  min-width: $property-width - $property-label-width;
   padding: 0 0 10px;
 
   // create "padding" to align un-even numbers of property groups
@@ -113,7 +115,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     flex-grow: 0;
     flex-shrink: 1;
     order: 0;
-    width: 392px;
+    width: $property-width;
   }
 
   &::before {
@@ -159,22 +161,19 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     input,
     textarea,
     select {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
       box-shadow: none !important;
       box-sizing: border-box;
       color: $gray-dark;
       display: inline-block;
       font-size: $font-size-normal;
       font-weight: 400;
+      height: $property-min-height;
       max-width: $property-input-width;
-      padding-left: $property-padding-default;
+      min-height: $property-min-height;
+      padding: 0 $property-padding-default;
       width: $property-input-width;
-    }
-
-    input,
-    textarea,
-    select {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
     }
 
     input,
@@ -189,23 +188,98 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         }
       }
 
-      &:not([disabled]):hover {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-      }
-
       &::-ms-clear {
         display: none;
       }
     }
 
-    input,
-    select {
-      height: 28px;
-      min-height: $property-min-height;
+    input {
+      &:not([disabled]):hover,
+      &:not([disabled]):focus {
+        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        padding-right: 20px;
+      }
+
+      &[type="date"]:hover,
+      &[type="date"]:focus {
+        background: $yellow-pale;
+        padding-right: $property-padding-default;
+      }
     }
 
-    input {
-      padding-right: $property-padding-default;
+    textarea {
+      min-height: 96px;
+      overflow: hidden;
+      padding-right: 17px;
+      padding-top: 6px;
+
+      &:not([disabled]):hover,
+      &:not([disabled]):focus {
+        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        overflow: auto;
+        -ms-overflow-style: auto;
+        padding-right: 0;
+      }
+    }
+
+    .ui-select-multiple {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
+      box-shadow: none !important;
+      font-size: 0;
+      float: none;
+      padding: 1px;
+      width: $property-input-width;
+
+      .ui-select-match-item {
+        background: $gray-lightest;
+        border-color: $gray-lighter;
+        border-width: 1px;
+        margin: 2px;
+        max-width: #{$property-input-width - 8px};
+        min-width: #{($property-input-width / 4) - 4px};
+        padding: 0;
+
+        span.close {
+          color: $gray;
+          font-size: 16px;
+          line-height: 18px;
+          opacity: 1;
+          text-shadow: none;
+          width: 20px;
+        }
+
+        span:not(.close) {
+          float: left;
+        }
+      }
+
+      .ui-select-match-item-chosen {
+        color: $gray-darker;
+        font-size: 1.2rem;
+        line-height: 18px;
+        max-width: $property-input-width - 10px - 20px;
+        overflow: hidden;
+        padding-left: 4px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      input,
+      input:hover,
+      input:focus {
+        background: transparent;
+        border: 0;
+        font-size: 1.2rem;
+        height: 20px;
+        line-height: 18px;
+        margin: 2px 0;
+        max-height: 20px;
+        min-height: 20px;
+        outline: none;
+        padding: 0 0 0 2px;
+      }
     }
 
     .read-only-input {
@@ -279,26 +353,6 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
             box-shadow: none;
           }
         }
-      }
-    }
-
-    input[type="date"] {
-      &:hover {
-        background: $yellow-pale;
-        padding-right: $property-padding-default;
-      }
-    }
-
-    textarea {
-      min-height: 96px;
-      overflow: hidden;
-      padding-right: 17px;
-
-      &:hover,
-      &:focus {
-        overflow: auto;
-        -ms-overflow-style: auto;
-        padding-right: 0;
       }
     }
 
@@ -418,6 +472,7 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
 .single-column .formly .formly-field label {
   padding: 0;
+  margin-right: 0;
   width: $property-input-width;
 }
 

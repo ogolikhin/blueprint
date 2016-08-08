@@ -67,7 +67,8 @@ input[type=password]::-ms-clear {
         padding-right: 17px;
       }
 
-      &:not([disabled]):hover {
+      &:not([disabled]):hover,
+      &:not([disabled]):focus {
         background-position: #{$property-input-width - 24px} 6px;
       }
     }

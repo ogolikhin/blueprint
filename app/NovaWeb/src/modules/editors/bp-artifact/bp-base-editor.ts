@@ -282,7 +282,7 @@ export class PropertyEditor implements IPropertyEditor {
         var $this = this;
         if (artifact && angular.isArray(properties)) {
             this._artifact = artifact;
-            
+
             properties.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let field = this.createPropertyField(propertyContext);
@@ -295,7 +295,7 @@ export class PropertyEditor implements IPropertyEditor {
                         } else {
                             field.hide = true;
                         }
-                        
+
                     } else if (propertyContext.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
                         let propertyValue = this._artifact.customPropertyValues.filter((value) => {
                             return value.propertyTypeId === <number>propertyContext.modelPropertyName;
@@ -433,7 +433,12 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
+                    if (context.isMultipleAllowed) {
+                        field.type = "bpFieldSelectMulti";
+                        field.templateOptions["optionsAttr"] = "bs-options";
+                    } else {
+                        field.type = "bpFieldSelect";
+                    }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {

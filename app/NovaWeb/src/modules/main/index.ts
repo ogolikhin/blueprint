@@ -4,6 +4,7 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
+import "ui-select";
 require("script!mxClient");
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
@@ -88,6 +89,7 @@ angular.module("app.main", [
     "app.shared",
     "ui.router",
     "ui.bootstrap",
+    "ui.select",
     "ui.tinymce",
     "agGrid",
     "ngDraggable",

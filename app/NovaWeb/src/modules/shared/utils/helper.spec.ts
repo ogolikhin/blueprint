@@ -235,6 +235,20 @@ describe("autoLinkURLText", () => {
         // Assert
         expect(node.querySelectorAll("a").length).toBe(5);
     });
+
+    it("should find and replace text URLs even if there is no protocol in the url", () => {
+        // Arrange/Act
+        let node = document.createElement("div");
+        node.innerHTML = `
+<p>
+    <span>Let's see if https://www.cnn.com, www.google.com, or even ftp://filehippo.com get recognized</span>
+</p>`;
+        Helper.autoLinkURLText(node);
+
+        // Assert
+        expect(node.querySelectorAll("a").length).toBe(3);
+        expect(node.querySelectorAll("a")[1].getAttribute("href")).toContain("http://")
+    });
 });
 
 describe("getDecimalSeparator", () => {

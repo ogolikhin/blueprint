@@ -191,11 +191,15 @@ namespace Model
                     public static class Artifacts_id_
                     {
                         public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
-                        
+                        public const string DELETE_THREAD_ID        = "svc/components/RapidReview/artifacts/{0}/deletethread/{1}";
+                        public const string DELETE_COMMENT_ID       = "svc/components/RapidReview/artifacts/{0}/deletecomment/{1}";
+
 
                         public static class Discussions_id_
                         {
+                            public const string COMMENT             = "svc/components/RapidReview/artifacts/{0}/discussions/{1}";
                             public const string REPLY               = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
+                            public const string REPLY_ID            = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply/{2}";
                         }
                     }
 

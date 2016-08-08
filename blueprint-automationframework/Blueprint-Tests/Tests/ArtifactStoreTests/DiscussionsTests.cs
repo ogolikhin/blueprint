@@ -243,6 +243,7 @@ namespace ArtifactStoreTests
 
             var postedRaptorComment = artifact.PostRaptorDiscussions("original discussion text", _authorUser);
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            Assert.AreEqual(1, discussions.Comments.Count, "There should be 1 comment returned!");
             Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
                 "The discussion comment returned from ArtifactStore doesn't match what was posted!");
             IRaptorComment updatedComment = null;
@@ -252,10 +253,10 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 updatedComment = artifact.UpdateRaptorDiscussions("updated text", _authorUser, postedRaptorComment);
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
                 discussions.Comments.Count);
             Assert.True(updatedComment.Equals(discussions.Comments[0]),

@@ -285,6 +285,7 @@ namespace Utilities.Facades
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <param name="cookies">(optional) Add cookies</param>
+        /// <param name="shouldControlJsonChanges">(optional) If true method will check that JSON returned by server corresponds to the current model. If JSON has been changed method will throw a FormatException. False by default.</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
@@ -363,8 +364,10 @@ namespace Utilities.Facades
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <param name="cookies">(optional) Add cookies</param>
+        /// <param name="shouldControlJsonChanges">(optional) If true method will check that JSON returned by server corresponds to the current model. If JSON has been changed method will throw a FormatException. False by default.</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
         public T SendRequestAndDeserializeObject<T>(
            string resourcePath,
            RestRequestMethod method,

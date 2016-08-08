@@ -686,7 +686,7 @@ namespace Model.ArtifactModel.Impl
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
+        /// <param name="itemId">id of artifact/subartifact</param>
         /// <param name="comment">comment containing reply to update</param>
         /// <param name="replyToUpdate">reply to update</param>
         /// <param name="discussionText">new text for discussion</param>

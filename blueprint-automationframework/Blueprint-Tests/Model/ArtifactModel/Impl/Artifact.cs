@@ -367,6 +367,7 @@ namespace Model.ArtifactModel.Impl
             return PostRaptorDiscussions(Address, Id, discussionsText, user, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.UpdateRaptorDiscussions(string, IUser, IRaptorComment, List{HttpStatusCode})"/>
         public IRaptorComment UpdateRaptorDiscussions(string discussionText,
             IUser user, IRaptorComment commentToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -711,7 +712,7 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Updates the specified comment using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions/{commentToUpdateId})
+        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{artifactId}/discussions/{commentToUpdateId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
@@ -732,7 +733,7 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Deletes the specified comment using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToUpdateId})
+        /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
@@ -775,18 +776,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="itemId">id of artifact</param>
         /// <param name="comment">comment containing reply to update</param>
         /// <param name="replyToUpdate">reply to update</param>
-        /// <param name="discussionText">new text for discussion</param>
+        /// <param name="newDiscussionText">new text for discussion</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorReply UpdateRaptorDiscussionReply(string address,
             int itemId, IRaptorComment comment, IRaptorReply replyToUpdate,
-            string discussionText,
+            string newDiscussionText,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.UpdateRaptorDiscussionReply(address, itemId, comment, replyToUpdate,
-                discussionText, user, expectedStatusCodes);
+                newDiscussionText, user, expectedStatusCodes);
         }
 
         /// <summary>

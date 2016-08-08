@@ -1,32 +1,41 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
+import "./services";
+import "./messages";
 import { AppConstants, IAppConstants } from "./constants/";
 import { LocalizationService, ILocalizationService } from "./localization/";
 import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
-import { ItemState, IPropertyChangeSet, IStateManager, StateManager } from "./services/state-manager";
-import { IWindowResize, WindowResize} from "./services/window-resize";
-import { IWindowVisibility, WindowVisibility} from "./services/window-visibility";
-import "./messages";
 
 
-angular.module("app.core", ["ui.router", "ui.bootstrap", "bp.messages"])
+angular.module("app.core", [
+    "ui.router",
+    "ui.bootstrap",
+    "bp.core.services",
+    "bp.core.messages"])
     .constant("appConstants", new AppConstants())
     .service("localization", LocalizationService)
-    .service("configValueHelper", ConfigValueHelper)
-    .service("stateManager", StateManager)
-    .service("windowResize", WindowResize)
-    .service("windowVisibility", WindowVisibility);
+    .service("configValueHelper", ConfigValueHelper);
 
 export {
     IAppConstants,
     ILocalizationService, 
     IConfigValueHelper,
     ConfigValueHelper,
+};
+
+export {
     IStateManager,
     IPropertyChangeSet,
     ItemState,
     IWindowResize,
     IWindowVisibility
-};
-export { IMessageService, IMessage, MessageService, Message, MessageType } from "./messages"
+} from "./services";
+
+export {
+    IMessageService,
+    IMessage,
+    MessageService,
+    Message,
+    MessageType
+} from "./messages";

@@ -1,6 +1,5 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../core";
-import { IMessageService, Message, MessageType} from "../../core";
+import { ILocalizationService, IMessageService } from "../../core";
 import { IProjectRepository, Models } from "./project-repository";
 import { ISelectionManager, SelectionSource } from "./selection-manager";
 
@@ -119,7 +118,7 @@ export class ProjectManager implements IProjectManager {
                                 });
                                 _projectCollection.unshift(_project);
                                 self.projectCollection.onNext(_projectCollection);
-                                this.selectionManager.selection = { source: SelectionSource.Manager, artifact: _project }
+                                this.selectionManager.selection = { source: SelectionSource.Manager, artifact: _project };
 
                             }).catch((error: any) => {
                                 this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
@@ -204,7 +203,7 @@ export class ProjectManager implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null }
+            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null };
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }

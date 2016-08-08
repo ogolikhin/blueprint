@@ -8,7 +8,7 @@ import { BPArtifactDiscussionItemController } from "./bp-artifact-discussion-ite
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "../artifact-discussions.mock";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
-import { DialogService } from "../../../../shared/";
+import { DialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPArtifactDiscussionItem", () => {
 
@@ -128,6 +128,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.editing = false;
+            vm.canCreate = true;
 
             //Act
             vm.editCommentClick();

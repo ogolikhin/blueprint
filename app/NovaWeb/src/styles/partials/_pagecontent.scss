@@ -182,14 +182,11 @@ pagecontent {
       display: inline-block;
       font-size: $font-size-small;
       font-weight: 600;
-      line-height: 92%;
-      margin-top: -2px;
-      max-height: 29px;
-      min-height: 12px;
       overflow: hidden;
       padding: 0 10px 0 26px;
-      position: relative;
-      vertical-align: middle;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
     }
 
     .icon {

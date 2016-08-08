@@ -226,7 +226,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                 if (statusCode === 404) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
-                    msg = (err ? err.message : "")
+                    msg = (err ? err.message : "");
                 }
                 const error = {
                     statusCode: statusCode,
@@ -252,7 +252,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                 if (statusCode === 404) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
-                    msg = (err ? err.message : "")
+                    msg = (err ? err.message : "");
                 }
                 const error = {
                     statusCode: statusCode,

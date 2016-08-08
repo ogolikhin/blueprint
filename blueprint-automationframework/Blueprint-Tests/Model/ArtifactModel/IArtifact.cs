@@ -139,30 +139,6 @@ namespace Model.ArtifactModel
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Updates the specified comment.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
-        /// </summary>
-        /// <param name="discussionText">new text for discussion</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="commentToUpdate">comment to update</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        IRaptorComment UpdateRaptorDiscussions(string discussionText,
-            IUser user, IRaptorComment commentToUpdate,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
-        /// Deletes the specified comment using Raptor REST API.
-        /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
-        /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="commentToDelete">comment to delete</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        string DeleteRaptorDiscussion(IUser user, IRaptorComment commentToDelete,
-            List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
         /// Adds attachment to the specified artifact.
         /// </summary>
         /// <param name="file">File to attach</param>

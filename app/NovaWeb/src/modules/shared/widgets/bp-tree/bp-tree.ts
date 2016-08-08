@@ -1,7 +1,6 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
 import { Helper } from "../../utils/helper";
-import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";
 
 /*
@@ -80,7 +79,7 @@ export interface IBPTreeController {
 
 
 export class BPTreeController implements IBPTreeController  {
-    static $inject = ["localization", "$element", "$timeout"];
+    static $inject = ["$element", "$timeout"];
     //properties
     public gridClass: string;
     public enableEditingOn: string;
@@ -110,7 +109,7 @@ export class BPTreeController implements IBPTreeController  {
     private clickTimeout: any;
    
 
-    constructor(private localization: ILocalizationService, private $element?, private $timeout?: ng.ITimeoutService) {
+    constructor(private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
 
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
@@ -167,8 +166,7 @@ export class BPTreeController implements IBPTreeController  {
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,
-            localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
+            onModelUpdated: this.perfectScrollbars
 
         };
     };  

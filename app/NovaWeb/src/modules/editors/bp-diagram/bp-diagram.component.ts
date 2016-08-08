@@ -4,10 +4,11 @@ import { IStencilService } from "./impl/stencil.svc";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
 import { Models } from "../../main";
-import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
+import { ISelectionManager } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
 import { ILocalizationService } from "../../core";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
+import { SelectionHelper } from "./impl/utils/selection-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -90,7 +91,7 @@ export class BPDiagramController {
                         this.$element.css("overflow", "");
                     }
                     this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                    this.diagramView.addSelectionListener(this.onSelectionChanged);
+                    this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }
@@ -108,15 +109,11 @@ export class BPDiagramController {
         }
     }
 
-    private onSelectionChanged = (elements: Array<IDiagramElement>) => {
-        const selection = angular.copy(this.selectionManager.selection);
-        if (elements && elements.length > 0) {
-            selection.subArtifact = elements[0];
-        } else {
-            selection.subArtifact = null;
-        }
-        selection.source = SelectionSource.Editor;
-        this.selectionManager.selection = selection;
+    private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
+        const selectionHelper = new SelectionHelper();
+        this.selectionManager.selection = selectionHelper.getEffectiveSelection(
+            this.selectionManager.selection,
+            elements, diagramType);
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {

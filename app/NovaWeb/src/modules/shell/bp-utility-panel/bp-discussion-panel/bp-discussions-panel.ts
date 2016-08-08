@@ -4,6 +4,7 @@ import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from 
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Message, MessageType, IMessage} from "../../../core/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -85,9 +86,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.artifactDiscussionList = discussionResultSet.discussions;
                 this.canCreate = discussionResultSet.canCreate;
                 this.canDelete = discussionResultSet.canDelete;
-                if (this.artifactDiscussionList.length > 0) {
-                    this.expandCollapseDiscussion(this.artifactDiscussionList[0]);
-                }
             });
     }
 
@@ -109,9 +107,10 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     /* tslint:disable:no-unused-variable */
-    private addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
+    public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.addDiscussion(this.artifactId, comment)
+        let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
+        return this._artifactDiscussionsRepository.addDiscussion(artifactId, comment)
             .then((discussion: IDiscussion) => {
                 this.cancelCommentClick();
                 this.setDiscussions();
@@ -129,9 +128,10 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     /* tslint:disable:no-unused-variable */
 
     /* tslint:disable:no-unused-variable */
-    private addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
+    public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.addDiscussionReply(this.artifactId, discussion.discussionId, comment)
+        let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
+        return this._artifactDiscussionsRepository.addDiscussionReply(artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
@@ -208,7 +208,10 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                             discussion.repliesCount = updatedReplies.length;
                             discussion.expanded = true;
                         });
-                });
+                }).catch((error) => {
+                    let msg = new Message(MessageType.Error, error.message);
+                    this.messageService.addMessage(msg);
+                    });
             }
         });
     }
@@ -222,6 +225,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                         this.canDelete = discussionsResultSet.canDelete;
                         this.canCreate = discussionsResultSet.canCreate;
                     });
+                }).catch((error) => {
+                    let msg = new Message(MessageType.Error, error.message);
+                    this.messageService.addMessage(msg);
                 });
             }
         });

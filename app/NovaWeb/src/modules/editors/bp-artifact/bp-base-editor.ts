@@ -1,4 +1,4 @@
-﻿import {IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Helper} from "./";
+﻿import {IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ISidebarToggle, Models, Helper} from "./";
 import {IProjectManager} from "../../main";
 import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -78,9 +78,9 @@ export class BpBaseEditor {
             }
         let value = context.getValueOfType($value);
         if ( !this.form.$invalid ) {
-            let changeSet: any = {
+            let changeSet: IPropertyChangeSet = {
                 lookup: LookupEnum[context.lookup],
-                key: context.modelPropertyName,
+                id: context.modelPropertyName,
                 value: value
             };
             this.stateManager.addChangeSet(this.context.artifact, changeSet);
@@ -109,13 +109,22 @@ export class BpBaseEditor {
             if (!context || !this.editor) {
                 return;
             }
-            
+            let artifact: Models.IArtifact;
+            let state = this.stateManager.getArtifactState(context.artifact.id);
 
-            let fieldContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
+            if (state) {
+                artifact = state.changedArtifact;
+            } else {
+                artifact = this.context.artifact;
+            }
+
+
+
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
-            this.editor.load(context.artifact, fieldContexts);
+            this.editor.load(artifact, fieldContexts);
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
@@ -261,7 +270,7 @@ export class PropertyEditor implements IPropertyEditor {
     public load(artifact: Models.IArtifact, properties: PropertyContext[]) {
 
         this._fields = [];
-
+        var $this = this;
         if (artifact && angular.isArray(properties)) {
             this._artifact = artifact;
             properties.forEach((it: PropertyContext) => {
@@ -284,11 +293,17 @@ export class PropertyEditor implements IPropertyEditor {
                         value = propertyValue ? propertyValue.value : undefined;
                     }
                 
+                    if (angular.equals({}, value)) {
+                        value = undefined;
+                    }
                     //create internal model property value
-                    if (angular.isDefined(value)) {
-                        if (it.primitiveType === Models.PrimitiveType.Date) {
+                    if (it.primitiveType === Models.PrimitiveType.Date) {
+                        if (value) {
                             value = new Date(value);
-                        } else if (it.primitiveType === Models.PrimitiveType.Choice) {
+                        }
+
+                    } else if (it.primitiveType === Models.PrimitiveType.Choice) {
+                        if (value) {
                             if (angular.isArray(value.validValueIds)) {
                                 let values = [];
                                 value.validValueIds.forEach((v: number) => {
@@ -298,8 +313,10 @@ export class PropertyEditor implements IPropertyEditor {
                             } else {
                                 value = value.toString();
                             }
-                        } else if (it.primitiveType === Models.PrimitiveType.User) {
-                            //TODO: must be changed when  a field editor for this type of property is created
+                        }
+                    } else if (it.primitiveType === Models.PrimitiveType.User) {
+                        //TODO: must be changed when  a field editor for this type of property is created
+                        if (value) {
                             if (value.usersGroups) {
                                 value = value.usersGroups.map((val: Models.IUserGroup) => {
                                     return val.displayName;
@@ -416,16 +433,8 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    field.type = "bpFieldReadOnly"; // needs to be changed to user selection
-                    //if (angular.isNumber(context.defaultValidValueId)) {
-                    //    field.defaultValue = context.defaultValidValueId.toString();
-                    //}
-                    //field.templateOptions.options = [];
-                    //if (context.validValues && context.validValues.length) {
-                    //    field.templateOptions.options = context.validValues.map(function (it) {
-                    //        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                    //    });
-                    //}
+                    //TODO needs to be changed to user selection
+                    field.type = "bpFieldReadOnly"; 
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

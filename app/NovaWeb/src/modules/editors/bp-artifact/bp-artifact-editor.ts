@@ -14,12 +14,6 @@ export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = [
         "messageService", "stateManager", "windowResize", "sidebarToggle", "artifactService", "localization", "$timeout", "projectManager"];
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        scrollXMarginOffset: 4,
-        scrollYMarginOffset: 4
-    };
-
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,

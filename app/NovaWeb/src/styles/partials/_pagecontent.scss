@@ -1,3 +1,5 @@
+$page-body-min-width: 346px;
+
 pagecontent {
   box-sizing: border-box;
   display: flex;
@@ -26,6 +28,10 @@ pagecontent {
       content: '';
       display: table;
     }
+  }
+
+  .page-body {
+    min-width: $page-body-min-width;
   }
 
   bp-artifact-info {
@@ -140,7 +146,7 @@ pagecontent {
     position: relative;
 
     > .heading {
-      background: #cbcbcb;
+      background: $gray-lighter;
       color: $gray-dark;
       font-size: $font-size-big;
       font-weight: 600;
@@ -154,7 +160,7 @@ pagecontent {
     }
 
     > .content {
-      border: solid 1px #d9d9d9;
+      border: solid 1px $gray-lighter;
       padding: 18px 15px;
     }
 

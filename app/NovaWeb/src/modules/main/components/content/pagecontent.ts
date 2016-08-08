@@ -1,8 +1,8 @@
-﻿import {IProjectManager, Models, ISelectionManager } from "../..";
-import {IMessageService} from "../../../core";
-import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-import {IEditorContext} from "../../models/models";
-
+import { IProjectManager, Models } from "../..";
+import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
+import { IMessageService } from "../../../core";
+import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
+import { IEditorContext } from "../../models/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./pagecontent.html");
@@ -32,7 +32,7 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.selectedArtifactObservable.subscribeOnNext(this.selectContext, this),
+            this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
         ];
     }
 
@@ -59,4 +59,10 @@ class PageContentCtrl {
         this.context = _context;
     }
 
+    private getSelectedArtifactObservable() {
+        return this.selectionManager.selectionObservable
+            .filter(s => s != null && s.source === SelectionSource.Explorer)
+            .map(s => s.artifact)
+            .distinctUntilChanged(a => a ? a.id : -1).asObservable();
+    }
 }

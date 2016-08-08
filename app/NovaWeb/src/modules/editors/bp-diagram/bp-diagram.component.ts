@@ -27,6 +27,7 @@ export class BPDiagramController {
         "diagramService",
         "selectionManager",
         "localization",
+        "$rootScope",
         "$log"
     ];
 
@@ -45,6 +46,7 @@ export class BPDiagramController {
         private diagramService: IDiagramService,
         private selectionManager: ISelectionManager,
         private localization: ILocalizationService,
+        private $rootScope: ng.IRootScopeService,
         private $log: ng.ILogService) {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
@@ -110,10 +112,13 @@ export class BPDiagramController {
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
-        const selectionHelper = new SelectionHelper();
-        this.selectionManager.selection = selectionHelper.getEffectiveSelection(
-            this.selectionManager.selection,
-            elements, diagramType);
+        this.$rootScope.$applyAsync(() => {
+            const selectionHelper = new SelectionHelper();
+                this.selectionManager.selection = selectionHelper.getEffectiveSelection(
+                this.selectionManager.selection,
+                elements,
+                diagramType);
+        });
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {

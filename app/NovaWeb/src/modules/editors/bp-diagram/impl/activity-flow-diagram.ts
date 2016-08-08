@@ -1,10 +1,10 @@
-import {IStep, StepOfType} from "./usecase/models";
-import {IUseCaseShape} from "./usecase/usecase-to-diagram";
-import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
-import {IConnection} from "./models";
-import {Shapes} from "./utils/constants";
-import {MxFactory} from "./utils/helpers";
-import {Style, Styles} from "./utils/style-builder";
+import { IStep, StepOfType } from "./usecase/models";
+import { IUseCaseShape } from "./usecase/usecase-to-diagram";
+import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
+import { IConnection } from "./models";
+import { Shapes } from "./utils/constants";
+import { MxFactory } from "./utils/helpers";
+import { Style, Styles } from "./utils/style-builder";
 
 export class UsecaseShapeFactory extends AbstractShapeFactory {
 
@@ -87,6 +87,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
 
     private exit = (shape: IUseCaseShape): MxCell => {
         var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
+        style[Styles.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR;
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_WIDTH;

@@ -135,7 +135,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
                 if (!discussion.expanded) {
-                    this.expandCollapseDiscussion(discussion);
+                    discussion.expanded = true;
                 }
                 return reply;
             }).catch((error: any) => {

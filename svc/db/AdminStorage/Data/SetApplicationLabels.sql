@@ -189,6 +189,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shape_Limit_Exceeded_Initial_Load', 'en-US', N'The Process has {0} shapes. It exceeds the maximum of {1} shapes and cannot be edited. Please refactor it and move more detailed user tasks to included Processes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shape_Limit_Exceeded', 'en-US', N'The shape cannot be added. The Process will exceed the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Eighty_Percent_of_Shape_Limit_Reached', 'en-US', N'The Process now has {0} of the maximum {1} shapes. Please consider refactoring it to move more detailed user tasks to included Processes.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

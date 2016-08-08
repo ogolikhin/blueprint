@@ -13,6 +13,7 @@ export class BpGlossary implements ng.IComponentOptions {
 
 export class BpGlossaryController {
     public static $inject: [string] = [
+        "$element",
         "$log",
         "localization",
         "glossaryService",
@@ -21,16 +22,30 @@ export class BpGlossaryController {
     ];
 
     private _context: number; // Models.IArtifact;
+    private subscribers: Rx.IDisposable[];
 
     public glossary: IGlossaryDetails;
     public isLoading: boolean = true;
 
     constructor(
+        private $element: ng.IAugmentedJQuery,
         private $log: ng.ILogService,
         private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
         private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService) {
+    }
+
+    public $onInit() {
+        this.subscribers = [
+            this.selectionManager.selectedSubArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this),
+        ];
+        this.$element.on("click", this.stopPropagation);
+    }
+
+    public $onDestroy() {
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.$element.off("click", this.stopPropagation);
     }
 
     public $onChanges(changesObj) {
@@ -56,6 +71,15 @@ export class BpGlossaryController {
         }
     }
 
+    private clearSelection() {
+        if (this.glossary) {
+            this.glossary.terms = this.glossary.terms.map((t: IGlossaryTerm) => {
+                t.selected = false;
+                return t;
+            });
+        }
+    }
+
     public selectTerm(term: IGlossaryTerm) {
         if (term.selected) {
             return;
@@ -76,5 +100,10 @@ export class BpGlossaryController {
             }
         };
         this.selectionManager.selection = selection;
+    }
+    private stopPropagation(event: JQueryEventObject) {
+        if (event.target.tagName !== "TH") {
+            event.stopPropagation();
+        }
     }
 }

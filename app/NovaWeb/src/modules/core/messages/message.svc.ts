@@ -1,4 +1,5 @@
-﻿import { Message, MessageType, IMessage} from "./message";
+﻿import { ILocalizationService } from "../localization";
+import { Message, MessageType, IMessage} from "./message";
 import { IConfigValueHelper } from "../configuration";
 
 export interface IMessageService {
@@ -13,8 +14,8 @@ export class MessageService implements IMessageService {
     private timers: { [id: number]: ng.IPromise<any>; } = {};
     private id: number = 0;
 
-    public static $inject = ["$timeout", "configValueHelper"];
-    constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+    public static $inject = ["$timeout", "configValueHelper", "localization"];
+    constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper, private localization: ILocalizationService) {
         this.initialize();
     }
 
@@ -95,9 +96,9 @@ export class MessageService implements IMessageService {
 
     public addError(text: string | Error): void {
         if (text instanceof Error) {
-            this.addMessage(new Message(MessageType.Error, (text as Error).message));
+            this.addMessage(new Message(MessageType.Error, this.localization.get((text as Error).message)));
         } else {
-            this.addMessage(new Message(MessageType.Error, text as string));
+            this.addMessage(new Message(MessageType.Error, this.localization.get(text as string)));
         }
     }
 

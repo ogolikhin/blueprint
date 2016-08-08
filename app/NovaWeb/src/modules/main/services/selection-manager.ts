@@ -70,7 +70,10 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public get selection() {
-        return this.selectionSubject.getValue();
+        if (!this.selectionSubject.isDisposed) {
+            return this.selectionSubject.getValue();
+        }
+        return null;
     }
 
     public set selection(value: ISelection) {

@@ -1,6 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "Rx";
+import "../../";
 import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
@@ -9,7 +11,7 @@ import { SelectionManager, SelectionSource } from "../../../main/services/select
 import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { Models } from "../../../main/services/project-manager";
-import { DialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
+import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPDiscussionPanel", () => {
 
@@ -27,7 +29,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("dialogService", DialogService);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
     beforeEach(inject(() => {
@@ -281,4 +283,120 @@ describe("Component BPDiscussionPanel", () => {
             //Assert
             expect(vm.artifactDiscussionList[0].discussionId).toBe(secondDiscussionId);
         }));
+    it("delete comment success, replies reloaded.",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+            //Arrange
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            artifact.prefix = "PRO";
+            vm.showAddComment = true;
+            let reply: IReply = {
+                itemId: 100,
+                discussionId: 1,
+                version: 1,
+                userId: 1,
+                lastEditedOn: "1/1/1/1",
+                userName: "Test User",
+                isGuest: false,
+                comment: "test comment",
+                canEdit: true,
+                canDelete: true,
+                replyId: 2
+            };
+            let discussion: IDiscussion = {
+                itemId: 100,
+                discussionId: 1,
+                version: 1,
+                userId: 1,
+                lastEditedOn: "1/1/1/1",
+                userName: "Test User",
+                isGuest: false,
+                comment: "test comment",
+                canEdit: true,
+                canDelete: true,
+                status: "teststatus",
+                isClosed: false,
+                repliesCount: 1,
+                replies: [reply],
+                expanded: true,
+                showAddReply: true
+            };
+            ArtifactDiscussionsMock.prototype.getReplies = (
+                artifactId: number,
+                discussionId: number,
+                subArtifactId?: number): ng.IPromise<IReply[]> => {
+                const deferred = $q.defer<any[]>();
+                let artifactReplies = [
+                    {
+                        "replyId": 2,
+                        "itemId": 1,
+                        "discussionId": 1,
+                        "version": 3,
+                        "userId": 1,
+                        "lastEditedOn": "",
+                        "userName": "Mehdi",
+                        "isGuest": false,
+                        "comment": "This is a test.",
+                        "canEdit": true,
+                        "canDelete": false
+                    }
+                ];
+                deferred.resolve(artifactReplies);
+                return deferred.promise;
+            };
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            vm.deleteReply(discussion, reply);
+            $rootScope.$digest();
+            //Assert
+            expect(discussion.replies[0].replyId).toBe(2);
+        }));
+
+    it("delete comment thread success, discussions reloaded.",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+            //Arrange
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            artifact.prefix = "PRO";
+            vm.showAddComment = true;
+            let reply: IReply = {
+                itemId: 100,
+                discussionId: 1,
+                version: 1,
+                userId: 1,
+                lastEditedOn: "1/1/1/1",
+                userName: "Test User",
+                isGuest: false,
+                comment: "test comment",
+                canEdit: true,
+                canDelete: true,
+                replyId: 2
+            };
+            let discussion: IDiscussion = {
+                itemId: 100,
+                discussionId: 1,
+                version: 1,
+                userId: 1,
+                lastEditedOn: "1/1/1/1",
+                userName: "Test User",
+                isGuest: false,
+                comment: "test comment",
+                canEdit: true,
+                canDelete: true,
+                status: "teststatus",
+                isClosed: false,
+                repliesCount: 1,
+                replies: [reply],
+                expanded: true,
+                showAddReply: true
+            };
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            vm.deleteCommentThread(discussion);
+            $rootScope.$digest();
+            //Assert
+            expect(vm.artifactDiscussionList[0].itemId).toBe(1);
+            expect(vm.artifactDiscussionList[0].discussionId).toBe(1);
+            expect(vm.artifactDiscussionList[0].lastEditedOn).toBe("2016-05-31T17:19:53.07");
+        }));
+
+
 });

@@ -641,7 +641,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(commentToDelete, nameof(commentToDelete));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETETHREAD, itemId, commentToDelete.DiscussionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, commentToDelete.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
@@ -731,7 +731,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETEREPLY, itemId, replyToDelete.ReplyId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyToDelete.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,

@@ -108,7 +108,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     /* tslint:disable:no-unused-variable */
     public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
-        this.isLoading = true;
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this._artifactDiscussionsRepository.addDiscussion(artifactId, comment)
             .then((discussion: IDiscussion) => {
@@ -121,15 +120,11 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 }
                 return null;
             })
-            .finally(() => {
-                this.isLoading = false;
-            });
     }
     /* tslint:disable:no-unused-variable */
 
     /* tslint:disable:no-unused-variable */
     public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
-        this.isLoading = true;
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this._artifactDiscussionsRepository.addDiscussionReply(artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
@@ -145,9 +140,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 }
                 return null;
             })
-            .finally(() => {
-                this.isLoading = false;
-            });
     }
     /* tslint:disable:no-unused-variable */
 

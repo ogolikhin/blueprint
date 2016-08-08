@@ -14,6 +14,8 @@ export class BPCommentEdit implements ng.IComponentOptions {
 }
 
 export class BPCommentEditController {
+    static $inject: [string] = ["$q"];
+
     public cancelComment: Function;
     public postComment: Function;
     public addButtonText: string;
@@ -103,14 +105,25 @@ export class BPCommentEditController {
         }
     };
 
-    constructor() {
+    constructor(private $q: ng.IQService) {
     }
 
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
-            this.isWaiting = false;
+            this.postCommentInternal()
+                .then(() => {
+                })
+                .finally(() => {
+                    this.isWaiting = false;
+                });
         }
+    }
+
+
+    public postCommentInternal(): ng.IPromise<void> {
+        const defer = this.$q.defer<any>();
+        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+        return defer.promise;
     }
 }

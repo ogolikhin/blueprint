@@ -1,6 +1,7 @@
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
-import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
+import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
+import { ItemTypePredefined } from "./../../main/models/enums";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -63,9 +64,17 @@ export class BpGlossaryController {
             t.selected = t === term;
             return t;
         });
-        const selection = angular.copy(this.selectionManager.selection);
-        selection.source = SelectionSource.Editor;
-        selection.subArtifact = term;
+        const oldSelection = this.selectionManager.selection;
+        const selection: ISelection = {
+            source: SelectionSource.Editor,
+            artifact: oldSelection.artifact,
+            subArtifact: {
+                id: term.id,
+                name: term.name,
+                predefinedType: ItemTypePredefined.Term,
+                prefix: "TR"
+            }
+        };
         this.selectionManager.selection = selection;
     }
 }

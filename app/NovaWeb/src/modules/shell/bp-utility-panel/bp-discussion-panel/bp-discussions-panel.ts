@@ -208,10 +208,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                             discussion.repliesCount = updatedReplies.length;
                             discussion.expanded = true;
                         });
-                }).catch((error) => {
-                    let msg = new Message(MessageType.Error, error.message);
-                    this.messageService.addMessage(msg);
-                    });
+                }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }
         });
     }
@@ -225,10 +222,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                         this.canDelete = discussionsResultSet.canDelete;
                         this.canCreate = discussionsResultSet.canCreate;
                     });
-                }).catch((error) => {
-                    let msg = new Message(MessageType.Error, error.message);
-                    this.messageService.addMessage(msg);
-                });
+                }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }
         });
     }

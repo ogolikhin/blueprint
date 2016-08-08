@@ -1,5 +1,13 @@
-﻿import { IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models } from "./";
-import { BpBaseEditor, PropertyContext, LookupEnum, IProjectManager } from "./bp-base-editor";
+﻿import {
+    BpBaseEditor,
+    PropertyContext,
+    LookupEnum,
+    IProjectManager,
+    IMessageService,
+    IStateManager,
+    IWindowResize,
+    ISidebarToggle,
+    Models  } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");

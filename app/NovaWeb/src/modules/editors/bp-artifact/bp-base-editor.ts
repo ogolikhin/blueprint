@@ -118,8 +118,6 @@ export class BpBaseEditor {
                 artifact = this.context.artifact;
             }
 
-
-
             let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
@@ -273,65 +271,73 @@ export class PropertyEditor implements IPropertyEditor {
         var $this = this;
         if (artifact && angular.isArray(properties)) {
             this._artifact = artifact;
-            properties.forEach((it: PropertyContext) => {
-                if (it.fieldPropertyName && it.modelPropertyName) {
-                    let field = this.createPropertyField(it);
+            
+            properties.forEach((propertyContext: PropertyContext) => {
+                if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
+                    let field = this.createPropertyField(propertyContext);
                     let value: any;
 
                     //Get property value 
-                    if (it.lookup === LookupEnum.System) {
-                        value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
-                    } else if (it.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
+                    if (propertyContext.lookup === LookupEnum.System) {
+                        if (angular.isDefined(this._artifact[propertyContext.modelPropertyName])) {
+                            value = this._artifact[propertyContext.modelPropertyName];
+                        } else {
+                            field.hide = true;
+                        }
+                        
+                    } else if (propertyContext.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
                         let propertyValue = this._artifact.customPropertyValues.filter((value) => {
-                            return value.propertyTypeId === <number>it.modelPropertyName;
+                            return value.propertyTypeId === <number>propertyContext.modelPropertyName;
                         })[0];
-                        value = propertyValue ? propertyValue.value : undefined;
-                    } else if (it.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
+                        if (propertyValue) {
+                            value = propertyValue.value;
+                        } else {
+                            field.hide = true;
+                        }
+                    } else if (propertyContext.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
                         let propertyValue = this._artifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypeId === <number>it.modelPropertyName;
+                            return value.propertyTypeId === <number>propertyContext.modelPropertyName;
                         })[0];
-                        value = propertyValue ? propertyValue.value : undefined;
-                    }
-                
-                    if (angular.equals({}, value)) {
-                        value = undefined;
-                    }
-                    //create internal model property value
-                    if (it.primitiveType === Models.PrimitiveType.Date) {
-                        if (value) {
-                            value = new Date(value);
+                        if (propertyValue) {
+                            value = propertyValue.value;
+                        } else {
+                            field.hide = true;
                         }
+                    }
+                    if (!field.hide) {
+                        if (value && !angular.equals({}, value)) {
+                            //create internal model property value
+                            if (propertyContext.primitiveType === Models.PrimitiveType.Date) {
+                                value = new Date(value);
 
-                    } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                        if (value) {
-                            if (angular.isArray(value.validValueIds)) {
-                                let values = [];
-                                value.validValueIds.forEach((v: number) => {
-                                    values.push(v.toString());
-                                });
-                                value = values;
-                            } else {
-                                value = value.toString();
+                            } else if (propertyContext.primitiveType === Models.PrimitiveType.Choice) {
+                                if (angular.isArray(value.validValueIds)) {
+                                    let values = [];
+                                    value.validValueIds.forEach((v: number) => {
+                                        values.push(v.toString());
+                                    });
+                                    value = propertyContext.isMultipleAllowed ? values : values[0];
+                                } else {
+                                    value = value.toString();
+                                }
+                            } else if (propertyContext.primitiveType === Models.PrimitiveType.User) {
+                                //TODO: must be changed when  a field editor for this type of property is created
+                                if (value.usersGroups) {
+                                    value = value.usersGroups.map((val: Models.IUserGroup) => {
+                                        return val.displayName;
+                                    }).join(", ");
+                                } else if (value.displayName) {
+                                    value = value.displayName;
+                                } else if (value.label) {
+                                    value = value.label;
+                                } else {
+                                    value = value.toString();
+                                }
                             }
                         }
-                    } else if (it.primitiveType === Models.PrimitiveType.User) {
-                        //TODO: must be changed when  a field editor for this type of property is created
-                        if (value) {
-                            if (value.usersGroups) {
-                                value = value.usersGroups.map((val: Models.IUserGroup) => {
-                                    return val.displayName;
-                                }).join(", ");
-                            } else if (value.displayName) {
-                                value = value.displayName;
-                            } else if (value.label) {
-                                value = value.label;
-                            } else {
-                                value = value.toString();
-                            }
-                        }
+                        this._model[propertyContext.fieldPropertyName] = value;
+                        this._fields.push(field);
                     }
-                    this._model[it.fieldPropertyName] = value;
-                    this._fields.push(field);
                 }
             });
         }
@@ -417,14 +423,14 @@ export class PropertyEditor implements IPropertyEditor {
                     break;
                 case Models.PrimitiveType.Choice:
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
-                    if (angular.isNumber(context.defaultValidValueId)) {
-                        field.defaultValue = context.defaultValidValueId.toString();
-                    }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {
                             return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
                         });
+                        if (angular.isNumber(context.defaultValidValueId)) {
+                            field.defaultValue = context.defaultValidValueId.toString();
+                        }
                     }
                     break;
                 case Models.PrimitiveType.User:

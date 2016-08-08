@@ -231,13 +231,14 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}">
+                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                        <div class="ui-select-choice-item" ng-bind-html="option[to.labelProp] | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
+                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -259,6 +260,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
+
+            function moveToBottom() {
+                console.log("here")
+            }
         }]
     });
 

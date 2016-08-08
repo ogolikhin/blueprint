@@ -1087,6 +1087,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Today',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Clear', 'en-US', N'Clear')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Done', 'en-US', N'Close')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Placeholder_Select_Option', 'en-US', N'Select an option')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_No_Matching_Options', 'en-US', N'No matching options')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Cannot_Be_Empty', 'en-US', N'This value is required.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Wrong_Format', 'en-US', N'Please check the format of the value.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Decimal_Places', 'en-US', N'There is a maximum number of decimal places:')

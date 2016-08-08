@@ -159,22 +159,19 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     input,
     textarea,
     select {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
       box-shadow: none !important;
       box-sizing: border-box;
       color: $gray-dark;
       display: inline-block;
       font-size: $font-size-normal;
       font-weight: 400;
+      height: $property-min-height;
       max-width: $property-input-width;
-      padding-left: $property-padding-default;
+      min-height: $property-min-height;
+      padding: 0 $property-padding-default;
       width: $property-input-width;
-    }
-
-    input,
-    textarea,
-    select {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
     }
 
     input,
@@ -189,23 +186,74 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
         }
       }
 
-      &:not([disabled]):hover {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-      }
-
       &::-ms-clear {
         display: none;
       }
     }
 
-    input,
-    select {
-      height: 28px;
-      min-height: $property-min-height;
+    input {
+      &:not([disabled]):hover,
+      &:not([disabled]):focus {
+        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        padding-right: 20px;
+      }
+
+      &[type="date"]:hover,
+      &[type="date"]:focus {
+        background: $yellow-pale;
+        padding-right: $property-padding-default;
+      }
     }
 
-    input {
-      padding-right: $property-padding-default;
+    textarea {
+      min-height: 96px;
+      overflow: hidden;
+      padding-right: 17px;
+      padding-top: 6px;
+
+      &:not([disabled]):hover,
+      &:not([disabled]):focus {
+        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        overflow: auto;
+        -ms-overflow-style: auto;
+        padding-right: 0;
+      }
+    }
+
+    .ui-select-multiple {
+      border: solid 1px $gray-lightest;
+      border-radius: 0;
+      box-shadow: none !important;
+      float: none;
+      padding: 2px;
+      width: $property-input-width;
+
+      .ui-select-match-item {
+        margin: 2px;
+        max-width: #{$property-input-width - 8px};
+        min-width: #{($property-input-width / 3) - 4px};
+        padding: 2px;
+
+        span:not(.close) {
+          float: left;
+        }
+      }
+
+      .ui-select-match-item-chosen {
+        max-width: $property-input-width;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      input,
+      input:hover,
+      input:focus {
+        background: transparent;
+        border: 0;
+        outline: none;
+        padding: 0;
+      }
     }
 
     .read-only-input {
@@ -279,26 +327,6 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
             box-shadow: none;
           }
         }
-      }
-    }
-
-    input[type="date"] {
-      &:hover {
-        background: $yellow-pale;
-        padding-right: $property-padding-default;
-      }
-    }
-
-    textarea {
-      min-height: 96px;
-      overflow: hidden;
-      padding-right: 17px;
-
-      &:hover,
-      &:focus {
-        overflow: auto;
-        -ms-overflow-style: auto;
-        padding-right: 0;
       }
     }
 

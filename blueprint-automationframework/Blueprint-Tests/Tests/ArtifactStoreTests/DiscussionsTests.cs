@@ -9,6 +9,7 @@ using Model.ArtifactModel;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -16,35 +17,27 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class DiscussionsTests : TestBase
     {
-        private IUser _authorUser = null;
-        private IUser _viewerUser = null;
+        private IUser _user = null;
         private IUser _adminUser = null;
         private IProject _project = null;
         private IGroup _authorsGroup = null;
-        private IGroup _viewersGroup = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            _viewersGroup = Helper.CreateGroupAndAddToDatabase();
 
-            _authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _authorsGroup.AddUser(_authorUser);
-
-            _viewerUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _viewersGroup.AddUser(_viewerUser);
+            _user = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _authorsGroup.AddUser(_user);
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
             _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Author);
-            _viewersGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Viewer);
 
-            Helper.AdminStore.AddSession(_authorUser);
-            Helper.BlueprintServer.LoginUsingBasicAuthorization(_authorUser);
-            Helper.AdminStore.AddSession(_viewerUser);
+            Helper.AdminStore.AddSession(_user);
+            Helper.BlueprintServer.LoginUsingBasicAuthorization(_user);
         }
 
         [TearDown]
@@ -61,13 +54,13 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _authorUser);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _user);
             Discussions discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _user);
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -198,7 +191,7 @@ namespace ArtifactStoreTests
 
             Discussions discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                postedRaptorComment, "This is a reply to a comment.", _authorUser);
+                postedRaptorComment, "This is a reply to a comment.", _user);
 
             List<Reply> replies = null;
 
@@ -231,36 +224,6 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
-        }
-
-        [TestCase]
-        [TestRail(155659)]
-        [Description("Update discussion for the published artifact. Verify that text was updated.")]
-        public void UpdateDiscussion_PublishedArtifact_ReturnsUpdatedDiscussion()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-
-            var postedRaptorComment = artifact.PostRaptorDiscussions("original discussion text", _authorUser);
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
-            Assert.AreEqual(1, discussions.Comments.Count, "There should be 1 comment returned!");
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
-            IRaptorComment updatedComment = null;
-            
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                updatedComment = artifact.UpdateRaptorDiscussions("updated text", _authorUser, postedRaptorComment);
-            }, "UpdateDiscussions shouldn't throw any error.");
-
-            // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
-            Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
-                discussions.Comments.Count);
-            Assert.True(updatedComment.Equals(discussions.Comments[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         /// <summary>

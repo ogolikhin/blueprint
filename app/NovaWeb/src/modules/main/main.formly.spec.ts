@@ -8,7 +8,7 @@ import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "./models/enums";
 import {LocalizationServiceMock} from "../core//localization/localization.mock";
-import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
+import {/*formlyDecorate, */formlyConfigExtendedFields} from "./main.formly";
 
 let moduleName = createModule();
 
@@ -436,7 +436,7 @@ function createModule() {
     function setupFormly(ngModule) {
         ngModule
             .service("localization", LocalizationServiceMock)
-            .config(formlyDecorate)
+            //.config(formlyDecorate)
             .run(formlyConfigExtendedFields);
     }
 

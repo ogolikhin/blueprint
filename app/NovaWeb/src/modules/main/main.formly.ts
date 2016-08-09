@@ -6,30 +6,6 @@ import {PrimitiveType} from "./models/enums";
 import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
-// from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
-formlyDecorate.$inject = ["$provide"];
-export function formlyDecorate($provide): void {
-    moment.locale(Helper.getFirstBrowserLanguage());
-
-    let weekdaysMin = moment.weekdaysMin();
-    weekdaysMin.forEach(function(item, index, arr) {
-        arr[index] = item.substr(0, 1).toUpperCase();
-    });
-
-    delegated.$inject = ["$delegate"];
-    function delegated($delegate) {
-        let value = $delegate.DATETIME_FORMATS;
-
-        value.DAY = moment.weekdays();
-        value.SHORTDAY = weekdaysMin;
-        value.MONTH = moment.months();
-        value.SHORTMONTH = moment.monthsShort();
-
-        return $delegate;
-    }
-
-    $provide.decorator("$locale", delegated);
-}
 
 formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 /* tslint:disable */
@@ -70,13 +46,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     let ngModelAttrs = {};
 
     const customProperty: number = 2;
-
-    let dateFormat = moment.localeData().longDateFormat("L");
-    let datePickerFormat = Helper.uiDatePickerFormatAdaptor(dateFormat);
-
-    let datePickerDayTitle = moment.localeData().longDateFormat("LL").toUpperCase();
-    datePickerDayTitle = datePickerDayTitle.indexOf("Y") < datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
-
+    
     angular.forEach(attributes, function(attr) {
         ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
@@ -127,7 +97,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 case PrimitiveType.Date:
                     if (moment(currentModelVal).isValid()) {
                         if ($scope.options.data.lookup === customProperty) {
-                            $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(dateFormat);
+                            $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(localization.current.longDateFormat);
                         } else {
                             $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
                         }
@@ -137,15 +107,15 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     break;
                 case PrimitiveType.Number:
                     if (currentModelVal) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
+                        $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
                     } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber($scope.options.data.decimalDefaultValue);
+                        $scope.model[$scope.options.key] = localization.toLocaleNumber($scope.options.data.decimalDefaultValue);
                     }
                     break;
                 case PrimitiveType.User:
 
                     if (currentModelVal) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
+                        $scope.model[$scope.options.key] = currentModelVal;
                     } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
                         $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
                     }
@@ -328,7 +298,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
                         if (value) {
-                            let separator = Helper.getDecimalSeparator();
+                            let separator = localization.current.decimalSeparator;
                             let regExp = new RegExp("^-?[0-9]\\d*(\\" + separator + "\\d+)?$", "g");
 
                             return regExp.test(value);
@@ -344,7 +314,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
                         let value = $modelValue || $viewValue;
                         if (value) {
-                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                            value = localization.parseLocaleNumber($modelValue || $viewValue);
                             let max = scope.to.max;
 
                             if (angular.isNumber(value) && !angular.isUndefined(max)) {
@@ -362,7 +332,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
                         let value = $modelValue || $viewValue;
                         if (value) {
-                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
+                            value = localization.parseLocaleNumber($modelValue || $viewValue);
                             let min = scope.to.min;
 
                             if (angular.isNumber(value) && !angular.isUndefined(min)) {
@@ -379,7 +349,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal) {
-                $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
+                $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
             }
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
@@ -458,10 +428,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             ngModelAttrs: ngModelAttrs,
             templateOptions: {
                 datepickerOptions: {
-                    format: datePickerFormat,
+                    format: localization.current.datePickerFormat,
                     formatDay: "d",
                     formatDayHeader: "EEE",
-                    formatDayTitle: datePickerDayTitle,
+                    formatDayTitle: localization.current.datePickerDayTitle,
                     initDate: new Date(),
                     showWeeks: false,
                     startingDay: (<any> moment.localeData()).firstDayOfWeek()
@@ -470,12 +440,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: datePickerFormat.toUpperCase()
+                placeholder: localization.current.datePickerFormat.toUpperCase()
             },
             validation: {
                 messages: {
                     required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
-                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + datePickerFormat.toUpperCase() + `)"`
+                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + localization.current.datePickerFormat.toUpperCase() + `)"`
                 }
             },
             validators: {
@@ -529,7 +499,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             if (angular.isString(currentModelVal)) {
                 $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
             } else if (angular.isDate(currentModelVal)) {
-                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
+                $scope.model[$scope.options.key] = localization.toStartOfTZDay(currentModelVal);
             }
 
             if ($scope.defaultValue) {

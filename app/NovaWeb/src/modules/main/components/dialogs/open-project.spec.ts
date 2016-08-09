@@ -23,20 +23,24 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 
     public closed: angular.IPromise<any>;
 }
+var controller: OpenProjectController;
 
 
 describe("Open Project.", () => {
-    var controller: OpenProjectController;
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
+    }));
 
-    beforeEach( ()  => {
+
+    beforeEach(inject((localization: LocalizationServiceMock)  => {
         controller = new OpenProjectController(
             null,
-            new LocalizationServiceMock(),
+            localization,
             new ModalServiceInstanceMock(),
             null,
             null, null, null);
 
-    });
+    }));
 
     it("Test InnerRenderer", () => {
         // Arrange
@@ -138,103 +142,110 @@ describe("Open Project.", () => {
 
     
 
-    describe("Embedded ag-grid events", () => {
-        let $scope ;
-        let elem;
+});
 
-        beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-            $provide.service("localization", LocalizationServiceMock);
-            $provide.service("configValueHelper", ConfigValueHelper);
-            $provide.service("messageService", MessageService);
-            $provide.service("projectRepository", ProjectRepositoryMock);
-            $provide.service("manager", ProjectManager);
-            $provide.service("selectionManager", SelectionManager);
+describe("Embedded ag-grid events", () => {
+    let $scope;
+    let elem;
 
-        }));
-        beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $compile: ng.ICompileService, manager: ProjectManager) => {
-            $rootScope["config"] = {
-                "settings": {
-                    "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
-                }
-            };
-            manager.initialize();
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("messageService", MessageService);
+        $provide.service("projectRepository", ProjectRepositoryMock);
+        $provide.service("manager", ProjectManager);
+        $provide.service("selectionManager", SelectionManager);
 
-            $scope = $rootScope.$new();
+    }));
+    beforeEach(inject((
+        $q: ng.IQService,
+        $rootScope: ng.IRootScopeService,
+        $compile: ng.ICompileService,
+        manager: ProjectManager,
+        localization: LocalizationServiceMock
+    ) => {
+        $rootScope["config"] = {
+            "settings": {
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
+            }
+        };
+        manager.initialize();
 
-            elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
+        $scope = $rootScope.$new();
 
-            controller = new OpenProjectController(
-                $scope,
-                new LocalizationServiceMock(),
-                new ModalServiceInstanceMock(),
-                manager,
-                null,
-                null,
-                null);
+        elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
 
-            controller["tree"] = new BPTreeControllerMock();
+        controller = new OpenProjectController(
+            $scope,
+            localization,
+            new ModalServiceInstanceMock(),
+            manager,
+            null,
+            null,
+            null);
 
-            $compile(elem)($scope);
-            $scope.$digest();
-        }));
+        controller["tree"] = new BPTreeControllerMock();
 
-
-        it("onEnterKeyOnProject", () => {
-            // Arrange
-            var event = new Event("keydown");
-            var div = document.createElement("div");
-            var paramsMock = {
-                data: {
-                    type: "Project",
-                    name: "project"
-                },
-                eGridCell: div
-            };
-
-            // Act
-            var columns = controller.columns;
-            var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-            div.dispatchEvent(event);
-
-            // Assert
-            expect(cellRenderer).toContain("project");
-        });
-
-        it("Load data", inject(( $rootScope: ng.IRootScopeService) => {
-            // Arrange
-            controller.doLoad({ id: 1 });
-            var event = new Event("keydown");
-            var div = document.createElement("div");
-            var paramsMock = {
-                data: {
-                    type: "Project",
-                    name: "project"
-                },
-                eGridCell: div
-            };
-
-            // Act
-            var columns = controller.columns;
-            var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-            div.dispatchEvent(event);
-
-            // Assert
-            expect(cellRenderer).toContain("project");
-        }));
-        
-        it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
-
-            // Arrange
-
-            // Act, load empty datasource
-            controller.doLoad({ id: -1 });
-            $rootScope.$digest();
-
-            // Assert
-            expect(controller.hasError).toBeTruthy();
-            expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
-        }));
+        $compile(elem)($scope);
+        $scope.$digest();
+    }));
 
 
+    it("onEnterKeyOnProject", () => {
+        // Arrange
+        var event = new Event("keydown");
+        var div = document.createElement("div");
+        var paramsMock = {
+            data: {
+                type: "Project",
+                name: "project"
+            },
+            eGridCell: div
+        };
+
+        // Act
+        var columns = controller.columns;
+        var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        div.dispatchEvent(event);
+
+        // Assert
+        expect(cellRenderer).toContain("project");
     });
+
+    it("Load data", inject(($rootScope: ng.IRootScopeService) => {
+        // Arrange
+        controller.doLoad({ id: 1 });
+        var event = new Event("keydown");
+        var div = document.createElement("div");
+        var paramsMock = {
+            data: {
+                type: "Project",
+                name: "project"
+            },
+            eGridCell: div
+        };
+
+        // Act
+        var columns = controller.columns;
+        var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        div.dispatchEvent(event);
+
+        // Assert
+        expect(cellRenderer).toContain("project");
+    }));
+
+    it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
+
+        // Arrange
+
+        // Act, load empty datasource
+        controller.doLoad({ id: -1 });
+        $rootScope.$digest();
+
+        // Assert
+        expect(controller.hasError).toBeTruthy();
+        expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
+    }));
+
+
 });

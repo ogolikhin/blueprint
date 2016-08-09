@@ -28,7 +28,12 @@ describe("Project Explorer Test", () => {
         $provide.service("explorer", ArtifactPickerController);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService, selectionManager: SelectionManager) => {
+    beforeEach(inject((
+        $rootScope: ng.IRootScopeService,
+        localization: LocalizationServiceMock,
+        projectManager: ProjectManager,
+        $compile: ng.ICompileService,
+        selectionManager: SelectionManager) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -44,7 +49,7 @@ describe("Project Explorer Test", () => {
 
         controller = new ArtifactPickerController(
             $scope,
-            new LocalizationServiceMock(),
+            localization,
             new ModalServiceInstanceMock(),
             projectManager,
             selectionManager,

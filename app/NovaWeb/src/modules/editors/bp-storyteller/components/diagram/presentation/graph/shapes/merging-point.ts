@@ -1,12 +1,12 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
 import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType, ElementType} from "../process-graph-constants";
+import {NodeType} from "../process-graph-constants";
 import {DiagramNode} from "./diagram-node";
 
 export class MergingPoint extends DiagramNode<IProcessShape> {
 
     private MERGING_POINT_WIDTH = 16;
-    private MERGING_POINT_HEIGHT = 16;
+    //private MERGING_POINT_HEIGHT = 16;
 
     constructor(model: IProcessShape) {
         super(model, NodeType.MergingPoint);

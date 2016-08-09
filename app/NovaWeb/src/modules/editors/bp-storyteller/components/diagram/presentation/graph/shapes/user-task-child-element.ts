@@ -1,5 +1,5 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
+import {IProcessGraph} from "../process-graph-interfaces";
 import {IUserTaskChildElement, IUserTask} from "../process-graph-interfaces";
 import {NodeType} from "../process-graph-constants";
 import {DiagramNode} from "./diagram-node";

@@ -1,5 +1,5 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../../core/";
-import {IProcess, IProcessShape, IProcessLink} from "../../../../models/processModels";
+﻿import {IMessageService, Message, MessageType} from "../../../../../../core/";
+import {IProcessShape, IProcessLink} from "../../../../models/processModels";
 import {SourcesAndDestinations} from "../../../../models/processModels";
 import {ProcessShapeType} from "../../../../models/enums";
 import {IProcessGraph, ILayout} from "./process-graph-interfaces";
@@ -9,7 +9,7 @@ import {ISelectionListener, INextIdsProvider} from "./process-graph-interfaces";
 import {IIconRackSelectionListener, IIconRackListener} from "./process-graph-interfaces";
 import {IOverlayHandler, IShapeInformation} from "./process-graph-interfaces";
 import {IDiagramNode, IDiagramNodeElement} from "./process-graph-interfaces";
-import {Direction, NodeType, NodeChange, ElementType} from "./process-graph-constants";
+import {NodeType, NodeChange} from "./process-graph-constants";
 import {IProcessService} from "../../../../services/process/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
@@ -19,15 +19,14 @@ import {IconRackHelper} from "./shapes/icon-rack-helper";
 import {ConnectorStyles} from "./shapes/connector-styles";
 import {NodeShapes} from "./shapes/node-shapes";
 import {DiagramNode} from "./shapes/diagram-node";
-import {DiagramElement} from "./shapes/diagram-element";
-import {IDiagramLink, DiagramLink} from "./shapes/diagram-link";
+import {DiagramLink} from "./shapes/diagram-link";
 import {SystemTask} from "./shapes/system-task";
 import {SystemDecision} from "./shapes/system-decision";
 import {ShapeInformation} from "./shapes/shape-information";
 
 
 export class ProcessGraph implements IProcessGraph {
-    public layout: Layout;
+    public layout: ILayout;
     public container: HTMLElement;
     public wrapper: HTMLElement;
     public startNode: IDiagramNode;
@@ -38,6 +37,7 @@ export class ProcessGraph implements IProcessGraph {
     //public dragDropHandler: IDragDropHandler;
     private graph: MxGraph;    
     private isIe11: boolean;
+    private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     
@@ -62,7 +62,6 @@ export class ProcessGraph implements IProcessGraph {
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
         public viewModel: IProcessViewModel,
-        private shapesFactory: ShapesFactory,
         private messageService: IMessageService = null,
         private $log: ng.ILogService = null) {
 
@@ -70,8 +69,10 @@ export class ProcessGraph implements IProcessGraph {
         this.container = scope.graphContainer;
         this.wrapper = scope.graphWrapper;
         this.graph = new mxGraph(this.container, new BpMxGraphModel());
+        this.shapesFactory = new ShapesFactory(this.rootScope);
+        
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
-        // #TODO fix up these references later 
+        
         // this.iconRackHelper = new IconRackHelper(this.graph, this.viewModel.isHistorical, this.viewModel.isSMB);
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
         this.init();
@@ -135,11 +136,10 @@ export class ProcessGraph implements IProcessGraph {
 
         let model = this.graph.getModel();
 
-        model.beginUpdate()
+        model.beginUpdate();
         try {
             action();
-        }
-        catch (e) {
+        } catch (e) {
             this.logError(e);
         }
         finally {
@@ -179,13 +179,11 @@ export class ProcessGraph implements IProcessGraph {
         } else if (this.hasMaxConditions(decisionId)) {
             canAdd = false;
             errorMessage = this.rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"];
-        }
-        else if (shapeType === ProcessShapeType.SystemDecision &&
-            this.viewModel.isWithinShapeLimit(1) == false) {
+        } else if (shapeType === ProcessShapeType.SystemDecision &&
+            this.viewModel.isWithinShapeLimit(1) === false) {
             canAdd = false;
-        }
-        else if (shapeType === ProcessShapeType.UserDecision &&
-            this.viewModel.isWithinShapeLimit(2) == false) {
+        } else if (shapeType === ProcessShapeType.UserDecision &&
+            this.viewModel.isWithinShapeLimit(2) === false) {
             canAdd = false;
         }
         if (!canAdd && errorMessage && this.messageService) {
@@ -334,7 +332,7 @@ export class ProcessGraph implements IProcessGraph {
 
                         link.destinationId = newDestinationId;
 
-                        let branchEndMappings: IProcessLink[] = this.viewModel.decisionBranchDestinationLinks.filter(link => link.destinationId == id);
+                        let branchEndMappings: IProcessLink[] = this.viewModel.decisionBranchDestinationLinks.filter(link => link.destinationId === id);
                         for (let decisionBranchDestinationLink of branchEndMappings) {
                             decisionBranchDestinationLink.destinationId = Number(newDestinationId);
                         }
@@ -366,7 +364,7 @@ export class ProcessGraph implements IProcessGraph {
             }
 
             this.unsubscribeToolbarEvents.push(
-                this.scope.subscribe('Toolbar:Delete', (event, target: IDiagramNode) => {
+                this.scope.subscribe("Toolbar:Delete", (event, target: IDiagramNode) => {
                     if (target) {
 
                         if (this.viewModel.status && this.viewModel.status.isReadOnly) {
@@ -375,9 +373,9 @@ export class ProcessGraph implements IProcessGraph {
                             return;
                         }
 
-                        if (target.getNodeType() == NodeType.UserTask) {
+                        if (target.getNodeType() === NodeType.UserTask) {
                             this.deleteUserTask(target.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
-                        } else if (target.getNodeType() == NodeType.UserDecision || target.getNodeType() == NodeType.SystemDecision) {
+                        } else if (target.getNodeType() === NodeType.UserDecision || target.getNodeType() === NodeType.SystemDecision) {
                             this.deleteDecision(target.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
                         }
                     }
@@ -458,7 +456,7 @@ export class ProcessGraph implements IProcessGraph {
         var minHeight = this.getMinHeight(delta);
         var minWidth = this.getMinWidth();
         this.container.style.height = minHeight;
-        this.container.style.width = minWidth
+        this.container.style.width = minWidth;
         this.container.style.minHeight = minHeight;
         this.container.style.minWidth = minWidth;
     }
@@ -487,7 +485,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private fireUIEvent(eventName: string) {
-        var evt: UIEvent = document.createEvent('UIEvents');
+        var evt: UIEvent = document.createEvent("UIEvents");
         evt.initEvent(eventName, true, true);
         window.dispatchEvent(evt);
     }
@@ -582,7 +580,7 @@ export class ProcessGraph implements IProcessGraph {
                     }
                 },
                 mouseMove: function (sender, me) {
-                    if (this.currentState != null && me.getState() == this.currentState) {
+                    if (this.currentState != null && me.getState() === this.currentState) {
                         return;
                     }
 
@@ -593,7 +591,7 @@ export class ProcessGraph implements IProcessGraph {
                         tmp = null;
                     }
 
-                    if (tmp != this.currentState) {
+                    if (tmp !== this.currentState) {
                         if (this.currentState != null) {
                             this.onMouseLeave(sender, me.getEvent(), this.currentState);
                         }
@@ -826,7 +824,7 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         let destinationId = this.viewModel.getBranchDestinationId(decisionId, userTaskId);
-        return destinationId && destinationId == nextShapeId;
+        return destinationId && destinationId === nextShapeId;
     }
 
     private hasMaxConditions(decisionId: number): boolean {
@@ -839,8 +837,8 @@ export class ProcessGraph implements IProcessGraph {
 
     private deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[]) {
         for (var i in shapesToBeDeletedIds) {
-            this.viewModel.shapes = this.viewModel.shapes.filter(shape => { return shape.id !== shapesToBeDeletedIds[i] });
-            this.viewModel.links = this.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i] });
+            this.viewModel.shapes = this.viewModel.shapes.filter(shape => { return shape.id !== shapesToBeDeletedIds[i]; });
+            this.viewModel.links = this.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i]; });
         }
     }
 
@@ -961,10 +959,9 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public publishProcess() {
-        /****
-        * business logic to publish the current process
-        *  
-        */
+          
+        // business logic to publish the current process
+        
         // #TODO: implement this function later 
 
         //this.artifactVersionControlService.publish(this.viewModel,
@@ -978,10 +975,9 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public discardChanges() {
-        /****
-        * business logic to discard changes
-        *  
-        */
+         
+        // business logic to discard changes
+         
         // #TODO: implement this function later 
 
         //this.artifactVersionControlService.discardArtifactChanges([
@@ -1046,9 +1042,8 @@ export class ProcessGraph implements IProcessGraph {
                     }
                 }
             }
-        }
-        catch (e) {
-            this.logError("setSystemTasksVisible, error = " + e.message)
+        } catch (e) {
+            this.logError("setSystemTasksVisible, error = " + e.message);
         }
         finally {
             graphModel.endUpdate();
@@ -1099,7 +1094,7 @@ export class ProcessGraph implements IProcessGraph {
             mergeIds: [],
             mappings: [],
             currentMappings: []
-        }
+        };
 
         if (initialBranchLink.orderindex < 1) {
             context.visitedIds[context.id] = new ShapeInformation(context.id, []);
@@ -1145,7 +1140,7 @@ export class ProcessGraph implements IProcessGraph {
                 mappings: [],
                 mergeIds: [],
                 currentMappings: []
-            }
+            };
             this.getScopeInternal(context, this.defaultStopCondition, this.defaultNextIdsProvider);
             this.globalScope = context;
 
@@ -1271,20 +1266,21 @@ export class ProcessGraph implements IProcessGraph {
 
     // returns a list of links in sorted order index.
     public getNextLinks(sourceId: number): IProcessLink[] {
-        return this.viewModel.links.filter(a => a.sourceId == sourceId).sort((a, b) => a.orderindex - b.orderindex);
+        return this.viewModel.links.filter(a => a.sourceId === sourceId).sort((a, b) => a.orderindex - b.orderindex);
     }
 
-    private findNestedDecisions(link: IProcessLink, targetIds: number[]) {
-        let decisionMergeLinks = this.viewModel.decisionBranchDestinationLinks.filter(b => b.sourceId === link.sourceId && b.orderindex == link.orderindex);
-        if (decisionMergeLinks.length > 0) {
-            decisionMergeLinks.forEach((mergeDestinationLink) => {
-                // Append to targetIds, if the id is not already in the list.
-                if (targetIds.indexOf(mergeDestinationLink.destinationId) < 0) {
-                    targetIds.push(mergeDestinationLink.destinationId);
-                }
-            });
-        }
-    }
+    // #UNUSED
+    //private findNestedDecisions(link: IProcessLink, targetIds: number[]) {
+    //    let decisionMergeLinks = this.viewModel.decisionBranchDestinationLinks.filter(b => b.sourceId === link.sourceId && b.orderindex === link.orderindex);
+    //    if (decisionMergeLinks.length > 0) {
+    //        decisionMergeLinks.forEach((mergeDestinationLink) => {
+    //            // Append to targetIds, if the id is not already in the list.
+    //            if (targetIds.indexOf(mergeDestinationLink.destinationId) < 0) {
+    //                targetIds.push(mergeDestinationLink.destinationId);
+    //            }
+    //        });
+    //    }
+    //}
 
     private getDecisionBranchDestinationLinks(decisionId: number): IProcessLink[] {
         return this.viewModel.getDecisionBranchDestinationLinks((link) => link.sourceId === decisionId);
@@ -1334,10 +1330,10 @@ export class ProcessGraph implements IProcessGraph {
         for (let shape of this.viewModel.shapes) {
             // Filters out the shapes that aren't allowed to be merge nodes
             let clientType = shape.propertyValues[this.shapesFactory.ClientType.key].value;
-            if (clientType == ProcessShapeType.Start ||
-                clientType == ProcessShapeType.PreconditionSystemTask ||
-                clientType == ProcessShapeType.SystemDecision ||
-                clientType == ProcessShapeType.SystemTask) {
+            if (clientType === ProcessShapeType.Start ||
+                clientType === ProcessShapeType.PreconditionSystemTask ||
+                clientType === ProcessShapeType.SystemDecision ||
+                clientType === ProcessShapeType.SystemTask) {
                 continue;
             }
 
@@ -1358,7 +1354,7 @@ export class ProcessGraph implements IProcessGraph {
             let mainBranchOnly: INextIdsProvider = (context) => {
                 let ids = this.viewModel.getNextShapeIds(context.id);
                 return [Number(ids[0])];
-            }
+            };
             var scope = this.getBranchScope(condition, mainBranchOnly);
             let lastShapeId = scope.mappings[0].endId;
             let origLastLinkInCondition = this.getLink(lastShapeId, originalEndNode.destinationId);
@@ -1377,13 +1373,13 @@ export class ProcessGraph implements IProcessGraph {
 
     private logError(arg: any) {
         if (this.$log) {
-            this.$log.error(arg)
+            this.$log.error(arg);
         }
     }
 
     private logInfo(arg: any) {
         if (this.$log) {
-            this.$log.info(arg)
+            this.$log.info(arg);
         }
     }
 }

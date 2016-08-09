@@ -10,7 +10,7 @@ export class ConnectorOverlay extends mxCellOverlay {
 
     constructor(image?: MxImage, tooltip?: string, align?: string, verticalAlign?: string, offset?: number, cursor?: string) {
         super(image, tooltip, align, verticalAlign, offset, cursor);
-        this.cursor = 'hand';
+        this.cursor = "hand";
         this.offset = 0;
     }
 
@@ -47,8 +47,7 @@ export class ConnectorOverlay extends mxCellOverlay {
             if (target.getNodeType) {
                 if (target.getNodeType() === NodeType.UserDecision) {
                     sourceX = sourceX - 15;
-                }
-                else if (target.getNodeType() === NodeType.SystemDecision) {
+                } else if (target.getNodeType() === NodeType.SystemDecision) {
                     sourceX = sourceX + 15;
                 }
             }
@@ -84,15 +83,15 @@ export class Connector {
         if (!processLink || !source || !target) {
             return;
         }
-
-        var model = graph.getMxGraphModel();
+        var mxGraph = graph.getMxGraph();
+        // #UNUSED
+        // var model = graph.getMxGraphModel();
         var parent = graph.getDefaultParent();
 
         if (style !== undefined) {
             style = "fontColor=#999999;strokeColor=#d4d5da;strokeWidth=3";
             style += ";fontSize=" + Connector.LABEL_SIZE + ";fontFamily=" + Connector.LABEL_FONT;
-        }
-        else {
+        } else {
             style = "fontColor=#999999;strokeColor=#d4d5da;strokeWidth=3" + style;
             style += ";fontSize=" + Connector.LABEL_SIZE + ";fontFamily=" + Connector.LABEL_FONT;
         }
@@ -111,11 +110,9 @@ export class Connector {
 
         if ((source.getNodeType() === NodeType.UserDecision || source.getNodeType() === NodeType.SystemDecision) && source.getX() < target.getX() && source.getY() < target.getY()) {
             style += ";edgeStyle=" + CS_VERTICAL;
-        }
-        else if (source.getX() < target.getX()) {
+        } else if (source.getX() < target.getX()) {
             style += ";edgeStyle=" + CS_RIGHT;
-        }
-        else if (source.getX() >= target.getX()) {
+        } else if (source.getX() >= target.getX()) {
             style += ";edgeStyle=" + CS_LEFT;
         }
 
@@ -129,7 +126,7 @@ export class Connector {
         connectorCell.initializeLabel(graph, source, target);
 
         if (hasOverlay && !graph.viewModel.isReadonly) {
-            connectorCell.showMenu(graph);
+            connectorCell.showMenu(mxGraph);
         }
 
         return edge;

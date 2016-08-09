@@ -10,6 +10,7 @@ import {ProcessGraph} from "./presentation/graph/process-graph";
 export class StorytellerDiagram {
     public processModel: IProcess;
     public processViewModel: IProcessViewModel = null;
+    private graph: IProcessGraph = null;
 
     constructor(
         private $rootScope: ng.IRootScopeService,
@@ -56,7 +57,7 @@ export class StorytellerDiagram {
         this.dumpDebugInformation(this.processModel);
         let processViewModel = this.createProcessViewModel(process);
         //if (processViewModel.isReadonly) this.disableStorytellerToolbar();
-        //this.createGraph(processViewModel, useAutolayout, selectedNodeId);
+        this.createGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
     private createProcessViewModel(process: IProcess): IProcessViewModel {
@@ -67,6 +68,44 @@ export class StorytellerDiagram {
         }
         return this.processViewModel;
     }
+
+    private createGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+
+        // create a new process graph and render it
+        try {
+            if (this.graph) {
+                this.graph.destroy();
+                this.graph = null;
+            }
+            this.graph = new ProcessGraph(
+                            this.$rootScope,
+                            this.$scope,
+                            this.processService,
+                            processViewModel,
+                            this.messageService,
+                            this.$log);
+
+            this.graph.render(useAutolayout, selectedNodeId);
+
+        } catch (err) {
+            this.messageService.addError("Cannot create graph: " + err.message);
+            this.$log.error("Fatal: cannot render graph for process " + processViewModel.id);
+            this.$log.error("Error: " + err.message);
+        }
+    }
+
+    public destroy() {
+        // tear down embedded objects and event handlers
+        if (this.graph != null) {
+            this.graph.destroy();
+            this.graph = null;
+        } 
+        if (this.processViewModel != null) {
+            this.processViewModel.destroy();
+            this.processViewModel = null;
+        }
+    }
+
     private dumpDebugInformation(model: IProcess): void {
         if (window.console && console.log) {
             //let output:string[] = [];

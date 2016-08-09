@@ -1,4 +1,4 @@
-﻿import {IProcessShape, IArtifactProperty, IUserTaskShape} from "../../../../../models/processModels";
+﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/processModels";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
 import {ICommandData} from "../../../../dialogs/modal-dialog-interfaces";
@@ -37,7 +37,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private _userStoryId: number;
+    // #UNUSED
+    // private _userStoryId: number;
 
     public userStoryProperties: IUserStoryProperties;
 
@@ -134,8 +135,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (!this.userStoryId) {
             this.previewButton.disable();
-        }
-        else {
+        } else {
             this.previewButton.activate();
         }
 
@@ -257,9 +257,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             // if next node is a system task, then push it in and return
             if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemTask) {
                 resultSystemTasks.push(<ISystemTask>firstTarget);
-            }
-            // if next node is system decision, traverse through all the immediate next node after the system decision, and try to push them all into result
-            else if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemDecision) {
+                // if next node is system decision, traverse through all the immediate next node after the system decision, and try to push them all into result
+            } else if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemDecision) {
                 this.getSystemDecisionFirstTasks(graph, firstTarget, resultSystemTasks);
             }
         }
@@ -380,8 +379,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
 
         // header overlays
-        var personaIcon = "/Areas/Web/Style/images/Storyteller/defaultuser.svg";
-        var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+        
+        // #TODO: change url to defaultuser.svg
+        // var personaIcon = "/Areas/Web/Style/images/Storyteller/defaultuser.svg";
+        // var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.USER_TASK_WIDTH / 2, this.USER_TASK_HEIGHT / 2);
@@ -395,8 +396,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-        var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
         // #TODO fix up reference to StorytellerCommands 
+        // var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
         // StorytellerCommands.getStorytellerCommands().getNavigateToProcessCommand().execute(data);
     }
 
@@ -417,18 +418,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         var element = <IDiagramNodeElement>cell;
         if (element.getElementType() === ElementType.UserTaskHeader) {
             maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        }
-        else {
+        } else {
             maxLen = this.LABEL_EDIT_MAXLENGTH;
         }
         return maxLen;
     }
 
     public formatElementText(cell: MxCell, text: string): string {
-        /***
-        * This function returns formatted text to the getLabel()
-        * function to display the node's label and persona.  
-        */
+       
+        // This function returns formatted text to the getLabel()
+        // function to display the node's label and persona.  
+        
 
         if (cell && text) {
             var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
@@ -436,8 +436,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             var element = <IDiagramNodeElement>cell;
             if (element.getElementType() === ElementType.UserTaskHeader) {
                 maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            }
-            else {
+            } else {
                 maxLen = this.LABEL_VIEW_MAXLENGTH;
             }
 
@@ -450,16 +449,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public setElementText(cell: MxCell, text: string) {
-        /*
-        * save text for the node or for an element within
-        * the node
-        */
+       
+        // save text for the node or for an element within
+        // the node
+       
         var element = <IDiagramNodeElement>cell;
 
         if (element.getElementType() === ElementType.UserTaskHeader) {
             this.persona = text;
-        }
-        else {
+        } else {
             this.label = text;
         }
     }

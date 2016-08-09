@@ -1,5 +1,5 @@
 ﻿// References to StorytellerDiagramDirective
-import {ProcessModels, IProcessService} from "./";
+import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import * as Models from "../../main/models/models";
 import {IMessageService} from "../../core";

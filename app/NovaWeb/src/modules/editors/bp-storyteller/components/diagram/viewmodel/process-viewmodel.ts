@@ -1,4 +1,4 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../core/";
+﻿import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
@@ -38,7 +38,6 @@ export class ProcessViewModel implements IProcessViewModel {
     private _messageService: IMessageService = null;
     private processClientModel: IProcessGraphModel = null;
     private _isChanged: boolean = false;
-    private _unsubscribeToolbarEvents = [];
     private _showLock: boolean;
     private _showLockOpen: boolean;
     private _isReadonly: boolean = false;
@@ -227,8 +226,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (shapeCount < eightyPercent) {
             // okay:  less than eighty percent of the shape limit 
             result = true;
-        }
-        else if (shapeCount > this.shapeLimit) {
+        } else if (shapeCount > this.shapeLimit) {
             let message: string;
             let messageType = null; //: Shell.MessageType = Shell.MessageType.Error;
             if (isLoading) {
@@ -246,8 +244,7 @@ export class ProcessViewModel implements IProcessViewModel {
 
             this.showMessage(messageType, message);
             return false;
-        }
-        else if (shapeCount >= eightyPercent &&
+        } else if (shapeCount >= eightyPercent &&
             shapeCount <= this.shapeLimit) {
             // if between eighty percent of shape limit and the shape limit
             // show warning
@@ -480,8 +477,7 @@ export class ProcessViewModel implements IProcessViewModel {
                 let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
-                }
-                else {
+                } else {
                     this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
                 }
 

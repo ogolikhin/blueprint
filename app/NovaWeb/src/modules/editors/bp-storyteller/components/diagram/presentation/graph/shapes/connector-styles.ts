@@ -1,4 +1,4 @@
-﻿import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "../process-graph-constants";
+﻿import {GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "../process-graph-constants";
 
 
 export var CS_VERTICAL: string = "Vertical";

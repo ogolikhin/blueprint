@@ -16,6 +16,6 @@
 
 export class NodeShapes {
     public static register(graph: MxGraph) {
-        mxCellRenderer.registerShape('systemTask', SystemTaskShape);
+        mxCellRenderer.registerShape("systemTask", SystemTaskShape);
     }
 }

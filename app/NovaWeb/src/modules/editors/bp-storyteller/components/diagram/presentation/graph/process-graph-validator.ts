@@ -1,7 +1,7 @@
 ﻿import {IHashMap} from "../../../../../../main/models/models";
 import {IProcessShape, IProcessLink} from "../../../../models/processModels";
 import {ProcessShapeType} from "../../../../models/enums";
-import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
+import {IProcessGraphModel} from "../../viewmodel/process-graph-model";
 
 export class ProcessValidator {
     private addToValidationErrors(error: string, validationErrors: string[]): void {
@@ -81,7 +81,7 @@ export class ProcessValidator {
 
         for (let key in locationMap) {
             if (locationMap[key].length > 1) {
-                this.addToValidationErrors(`Shapes '${locationMap[key].join(', ')}' are overlapping at ${key}`, validationErrors);
+                this.addToValidationErrors(`Shapes '${locationMap[key].join(", ")}' are overlapping at ${key}`, validationErrors);
                 return false;
             }
         }

@@ -1,10 +1,8 @@
-﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
+﻿import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
 import {IDiagramElement, IMenuContainer} from "../process-graph-interfaces";
 import {IProcessLinkModel} from "../../../../../models/processModels";
 import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
 import {Label, LabelStyle} from "../labels/label";
-import {DiagramNode} from "./diagram-node";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";
 
@@ -42,7 +40,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     public initializeLabel(graph: IProcessGraph, sourceNode: IDiagramNode, targetNode: IDiagramNode) {
-        if (sourceNode.getNodeType() == NodeType.SystemDecision || sourceNode.getNodeType() == NodeType.UserDecision) {
+        if (sourceNode.getNodeType() === NodeType.SystemDecision || sourceNode.getNodeType() === NodeType.UserDecision) {
 
             let XandY = this.getXandYForLabel(sourceNode, targetNode);
             let width = this.target.getCenter().x - this.target.getWidth() / 2 - (this.source.getCenter().x + this.source.getWidth() / 2);
@@ -75,7 +73,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     private getXandYForLabel(source: IDiagramNode, target: IDiagramNode): { x: number, y: number } {
         let points = { x: 0, y: 0 };
 
-        if (source.getNodeType() == NodeType.SystemDecision || source.getNodeType() == NodeType.UserDecision) {
+        if (source.getNodeType() === NodeType.SystemDecision || source.getNodeType() === NodeType.UserDecision) {
             // height of the connector (ex. the height of 'L' connector)
             //var visibleText = edge.formatElementText(edge, edge.model.label);
             //var sanitizedText = mxUtils.htmlEntities(visibleText, false);
@@ -101,7 +99,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     public set label(value: string) {
-        if (this.model.label != value) {
+        if (this.model.label !== value) {
             this.model.label = value;
 
             if (this.textLabel) {

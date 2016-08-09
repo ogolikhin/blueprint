@@ -1,13 +1,12 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../../core/";
+﻿import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/processModels";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/processModels";
 import {ProcessType, ProcessShapeType} from "../../../../models/enums";
-import {Direction, NodeType, NodeChange, ElementType} from "./process-graph-constants";
+import {NodeType, NodeChange} from "./process-graph-constants";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./process-graph-constants";
-import {IDialogParams} from "../../../messages/message-dialog";
 import {IProcessGraph, IDiagramNode} from "./process-graph-interfaces";
-import {IDiagramLink, IDiagramNodeElement} from "./process-graph-interfaces";
+import {IDiagramNodeElement} from "./process-graph-interfaces";
 import {ILayout, IGraphLayoutPreprocessor, IScopeContext} from "./process-graph-interfaces";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {GraphLayoutPreprocessor} from "./graph-layout-preprocessor";
@@ -15,11 +14,7 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 import {ProcessCellRenderer} from "./process-cell-renderer";
 import {ProcessValidator} from "./process-graph-validator";
 import {NodeFactory, NodeFactorySettings} from "./shapes/node-factory";
-import {ProcessStart} from "./shapes/process-start";
-import {ProcessEnd} from "./shapes/process-end";
-import {UserTask} from "./shapes/user-task";
 import {SystemTask} from "./shapes/system-task";
-import {UserDecision} from "./shapes/user-decision";
 import {SystemDecision} from "./shapes/system-decision";
 import {MergingPoint} from "./shapes/merging-point";
 import {DiagramLink} from "./shapes/diagram-link";
@@ -98,7 +93,7 @@ export class Layout implements ILayout {
 
         // collect links with same destinations
         for (i in this.viewmodel.links) {
-            var link: IProcessLinkModel = this.viewmodel.links[i];
+            link = this.viewmodel.links[i];
             if (linksMap[link.destinationId.toString()] == null) {
                 linksMap[link.destinationId.toString()] = [];
             }
@@ -128,7 +123,7 @@ export class Layout implements ILayout {
 
                     // Hide system tasks for process types different than 'Business Process'
                     if (this.viewmodel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
-                        if (node.getNodeType() == NodeType.SystemTask) {
+                        if (node.getNodeType() === NodeType.SystemTask) {
                             (<SystemTask>node).setCellVisible(this.mxGraph, false);
                         }
                         if (node.getNodeType() === NodeType.SystemDecision) {
@@ -166,8 +161,7 @@ export class Layout implements ILayout {
                 }
             }
 
-        }
-        catch (e) {
+        } catch (e) {
             this.logError(e);
         }
         finally {
@@ -184,9 +178,9 @@ export class Layout implements ILayout {
                 tS = Date.now();
             }
             for (i in this.viewmodel.shapes) {
-                var shape: IProcessShape = this.viewmodel.shapes[i];
-                var node = this.graph.getNodeById(shape.id.toString());
-                node.renderLabels();
+                var thisShape: IProcessShape = this.viewmodel.shapes[i];
+                var thisNode = this.graph.getNodeById(thisShape.id.toString());
+                thisNode.renderLabels();
             }
 
             if (window.console != null) {
@@ -196,8 +190,8 @@ export class Layout implements ILayout {
             }
 
             let edges: DiagramLink[] = this.mxGraph.getChildEdges(this.graph.getDefaultParent());
-            for (let j of edges) {
-                j.renderLabel();
+            for (let thisEdge of edges) {
+                thisEdge.renderLabel();
             }
 
             if (useAutolayout) {
@@ -399,10 +393,10 @@ export class Layout implements ILayout {
             return id;
         }
     }
-
-    private isConditionDestinationInScope(decisionId: number, orderindex: number, scopeIds: number[]) {
-        return scopeIds.indexOf(this.graph.getDecisionBranchDestLinkForIndex(decisionId, orderindex).destinationId) > -1;
-    }
+    // #UNUSED
+    //private isConditionDestinationInScope(decisionId: number, orderindex: number, scopeIds: number[]) {
+    //    return scopeIds.indexOf(this.graph.getDecisionBranchDestLinkForIndex(decisionId, orderindex).destinationId) > -1;
+    //}
 
     private getNextSystemTaskOnMainCondition(id: number): number {
         let nextIds = this.viewmodel.getNextShapeIds(id);
@@ -658,8 +652,7 @@ export class Layout implements ILayout {
         if (this.viewmodel.decisionBranchDestinationLinks == null) {
             this.viewmodel.decisionBranchDestinationLinks = new Array<IProcessLink>();
             this.viewmodel.decisionBranchDestinationLinks.push(processLink);
-        }
-        else {
+        } else {
             var matchingLinks = this.viewmodel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
                 return processLink.sourceId === link.sourceId &&
                     processLink.destinationId === link.destinationId &&
@@ -680,17 +673,17 @@ export class Layout implements ILayout {
             link.destinationId = newDestinationId;
         });
     }
+    // #UNUSED
+    //private getBranchDestinationIds(decisionId: number): number[] {
+    //    if (this.viewmodel.decisionBranchDestinationLinks == null) {
+    //        // select the end shape
+    //        return [Number(this.viewmodel.getEndShapeId())];
+    //    }
 
-    private getBranchDestinationIds(decisionId: number): number[] {
-        if (this.viewmodel.decisionBranchDestinationLinks == null) {
-            // select the end shape
-            return [Number(this.viewmodel.getEndShapeId())];
-        }
-
-        return this.viewmodel.decisionBranchDestinationLinks
-            .filter((link: IProcessLink) => link.sourceId === decisionId)
-            .map((link: IProcessLink) => link.destinationId);
-    }
+    //    return this.viewmodel.decisionBranchDestinationLinks
+    //        .filter((link: IProcessLink) => link.sourceId === decisionId)
+    //        .map((link: IProcessLink) => link.destinationId);
+    //}
 
     private getDecisionConditionDestination(shapeId: number): IProcessShape {
         let nextShapeIds: number[] = this.viewmodel.getNextShapeIds(shapeId);
@@ -876,24 +869,24 @@ export class Layout implements ILayout {
             }
         }
     }
-
-    private deleteLink(sourceId: number, destinationId: number): void {
-        var links = this.viewmodel.links.filter(link => {
-            return !(link.sourceId === sourceId && link.destinationId === destinationId);
-        });
-        this.viewmodel.links = links;
-    }
+    // #UNUSED
+    //private deleteLink(sourceId: number, destinationId: number): void {
+    //    var links = this.viewmodel.links.filter(link => {
+    //        return !(link.sourceId === sourceId && link.destinationId === destinationId);
+    //    });
+    //    this.viewmodel.links = links;
+    //}
 
     private logError(arg: any) {
         if (this.$log) {
-            this.$log.error(arg)
+            this.$log.error(arg);
         }
     }
-
-    private logInfo(arg: any) {
-        if (this.$log) {
-            this.$log.info(arg)
-        }
-    }
+    // #UNUSED
+    //private logInfo(arg: any) {
+    //    if (this.$log) {
+    //        this.$log.info(arg);
+    //    }
+    //}
 }
 

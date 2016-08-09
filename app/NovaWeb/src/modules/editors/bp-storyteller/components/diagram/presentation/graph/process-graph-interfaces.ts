@@ -107,6 +107,7 @@ export interface IProcessGraph {
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getDefaultParent();
+    render(useAutolayout: boolean, selectedNodeId: number);
     deleteUserTask(userTaskId: number, postDeleteFunction?: INotifyModelChanged);
     deleteDecision(decisionId: number, postDeleteFunction?: INotifyModelChanged);
     addDecisionBranches(decisionId: number, newConditions: ICondition[]);
@@ -123,6 +124,7 @@ export interface IProcessGraph {
     getNodeById(id: string): IDiagramNode;
     getNextLinks(id: number): IProcessLink[];
     addLink(link: IDiagramLink, parent, index?: number, source?: MxCell, target?: MxCell);
+    addSelectionListener(listener: ISelectionListener);
     updateAfterRender();
     redraw(action: any);
     saveProcess();
@@ -149,6 +151,8 @@ export interface ILayout {
     insertUserDecisionConditionWithUpdate(decisionId: number, label?: string, conditionDestinationId?: number);
     handleUserTaskDragDrop(userTaskShapeId: number, edge: MxCell);
     isValidForDrop(userTaskShapeId: number, edge: MxCell): boolean;
+    getConditionDestination(decisionId: number): IProcessShape;
+    createAutoInsertTaskMessage();
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
     hideInsertNodePopupMenu();

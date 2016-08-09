@@ -1,16 +1,14 @@
-﻿import {IProcessShape, IArtifactProperty, ISystemTaskShape} from "../../../../../models/processModels";
+﻿import {ISystemTaskShape} from "../../../../../models/processModels";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
 import {ICommandData} from "../../../../dialogs/modal-dialog-interfaces";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../process-graph-interfaces";
 import {IDiagramNodeElement, ISystemTask} from "../process-graph-interfaces";
-import {IUserTask, IUserStoryProperties, ILabel} from "../process-graph-interfaces";
+import {ILabel} from "../process-graph-interfaces";
 import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
 import {UserTaskChildElement} from "./user-task-child-element";
-import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
-import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
@@ -432,8 +430,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (this.associatedArtifact == null) {
             return;
         }
-        var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
         // #TODO fix up reference to StorytellerCommands 
+        // var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
         // StorytellerCommands.getStorytellerCommands().getNavigateToProcessCommand().execute(data);
     }
 
@@ -445,16 +443,15 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public getElementTextLength(cell: MxCell): number {
-        /***
-        * get the maximum length of text that can be entered
-        */
+         
+        // get the maximum length of text that can be entered
+        
         var maxLen: number = this.LABEL_EDIT_MAXLENGTH;
 
         var element = <IDiagramNodeElement>cell;
         if (element.getElementType() === ElementType.SystemTaskHeader) {
             maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        }
-        else {
+        } else {
             maxLen = this.LABEL_EDIT_MAXLENGTH;
         }
         return maxLen;
@@ -462,10 +459,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
     public formatElementText(cell: MxCell, text: string): string {
 
-        /***
-            * This function returns formatted text to the getLabel()
-            * function to display the node's label and persona  
-            */
+         
+         // This function returns formatted text to the getLabel()
+         // function to display the node's label and persona  
+         
 
         if (cell && text) {
             var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
@@ -473,8 +470,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             var element = <IDiagramNodeElement>cell;
             if (element.getElementType() === ElementType.SystemTaskHeader) {
                 maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            }
-            else {
+            } else {
                 maxLen = this.LABEL_VIEW_MAXLENGTH;
             }
 
@@ -487,17 +483,16 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public setElementText(cell: MxCell, text: string) {
-        /***
-        * save text for the node or for an element within
-        * the node
-        */
+        
+        // save text for the node or for an element within
+        // the node
+        
 
         var element = <IDiagramNodeElement>cell;
 
         if (element.getElementType() === ElementType.SystemTaskHeader) {
             this.persona = text;
-        }
-        else {
+        } else {
             this.label = text;
         }
     }

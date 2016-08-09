@@ -82,8 +82,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
 
         if (this._redraw || redraw) {
             this._redraw = true;
-        }
-        else {
+        } else {
             this._redraw = false;
         }
 
@@ -97,8 +96,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
             if (callback != null) {
                 callback();
             }
-        }
-        else {
+        } else {
             if (callback != null) {
                 callback();
             }
@@ -146,8 +144,7 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
 
                 if (geometry.relative) {
                     return new mxPoint(geometry.x * this.parent.getWidth() + geometry.width / 2, geometry.y * this.parent.getHeight() + geometry.height / 2);
-                }
-                else {
+                } else {
                     return new mxPoint(geometry.getCenterX() + parentX, geometry.getCenterY() + parentY);
                 }
             }

@@ -82,7 +82,8 @@ export class Label implements ILabel {
     public wrapperDiv: HTMLDivElement;
     private div: HTMLDivElement;
     private mode: divMode;
-    private shortContent: string;
+    // #UNUSED
+    //private shortContent: string;
     private visibility: string;
     // private executionEnvironmentDetector: ExecutionEnvironmentDetector;
 
@@ -149,10 +150,10 @@ export class Label implements ILabel {
         let offsets = this.getCaretCharacterOffsetWithin();
 
         if ((this.div.innerText.length >= this.maxTextLength) && (offsets.selectionEnd === offsets.selectionStart) &&
-            (e.keyCode != action.DELETE) && (e.keyCode != action.BACKSPASE) &&
-            (e.keyCode != action.LEFT) && (e.keyCode != action.RIGHT) &&
-            (e.keyCode != action.UP) && (e.keyCode != action.DOWN) &&
-            (e.keyCode != action.HOME) && (e.keyCode != action.END)) {
+            (e.keyCode !== action.DELETE) && (e.keyCode !== action.BACKSPASE) &&
+            (e.keyCode !== action.LEFT) && (e.keyCode !== action.RIGHT) &&
+            (e.keyCode !== action.UP) && (e.keyCode !== action.DOWN) &&
+            (e.keyCode !== action.HOME) && (e.keyCode !== action.END)) {
             this.cancelDefaultAction(e);
             return false;
         }
@@ -161,7 +162,8 @@ export class Label implements ILabel {
     private onPaste = (e) => {
         let win: any = window;
         let text: string;
-        let oldValue: string = this.div.innerText;
+        //#UNUSED
+        //let oldValue: string = this.div.innerText;
         let clipboardData = win.clipboardData || e.clipboardData || e.originalEvent.clipboardData;
         text = clipboardData.getData("Text");
         let offsets = this.getCaretCharacterOffsetWithin();
@@ -254,7 +256,7 @@ export class Label implements ILabel {
             this.div.style.backgroundColor = "#c7edf8";
             this.div.style.color = this.style.highlitedTextColor;
         } else {
-            this.setMouseoutStyle()
+            this.setMouseoutStyle();
         }
     }
 
@@ -270,7 +272,7 @@ export class Label implements ILabel {
     }
 
     public render() {
-        this.wrapperDiv = document.createElement('div');
+        this.wrapperDiv = document.createElement("div");
         this.wrapperDiv.style.display = "table";
         this.wrapperDiv.style.position = "absolute";
         this.wrapperDiv.style.top = this.numberToPx(this.style.top);
@@ -281,7 +283,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.backgroundColor = this.style.backColor;
         this.wrapperDiv.style.visibility = this.visibility;
 
-        this.div = document.createElement('div');
+        this.div = document.createElement("div");
         this.div.id = this.id;
         this.div.className = "storytellerEditorCustomLabel";
         this.div.style.overflow = "hidden";
@@ -349,10 +351,10 @@ export class Label implements ILabel {
     private numberToPx(val: number): string {
         return `${val}px`;
     }
-
-    private numberToPt(val: number): string {
-        return `${val}pt`;
-    }
+    //#UNUSED
+    //private numberToPt(val: number): string {
+    //    return `${val}pt`;
+    //}
 
     private cancelDefaultAction(e) {
         let evt = e ? e : window.event;
@@ -386,12 +388,13 @@ export class Label implements ILabel {
 
     private getCaretCharacterOffsetWithin(): SelectionOffsets {
         let offsets = new SelectionOffsets();
-        let caretOffset = 0;
+        //#UNUSED
+        //let caretOffset = 0;
         let element: any = this.div;
         let doc = element.ownerDocument || element.document;
         let win = doc.defaultView || doc.parentWindow;
         var sel;
-        if (typeof win.getSelection != "undefined") {
+        if (typeof win.getSelection !== "undefined") {
             sel = win.getSelection();
             if (sel.rangeCount > 0) {
                 var range = win.getSelection().getRangeAt(0);
@@ -402,7 +405,7 @@ export class Label implements ILabel {
                 offsets.selectionEnd = range.endOffset;
                 offsets.caretOffset = preCaretRange.toString().length;
             }
-        } else if ((sel = doc.selection) && sel.type != "Control") {
+        } else if ((sel = doc.selection) && sel.type !== "Control") {
             var textRange = sel.createRange();
             var preCaretTextRange = doc.body.createTextRange();
             preCaretTextRange.moveToElementText(element);

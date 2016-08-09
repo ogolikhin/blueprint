@@ -1,15 +1,10 @@
-﻿import {IProcessShape, IArtifactProperty, ISystemTaskShape} from "../../../../../models/processModels";
-import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
+﻿import {IProcessShape} from "../../../../../models/processModels";
 import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {ICommandData} from "../../../../dialogs/modal-dialog-interfaces";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../process-graph-interfaces";
-import {IDiagramNodeElement, IDecision, ISystemTask} from "../process-graph-interfaces";
-import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
+import {IDecision, ISystemTask} from "../process-graph-interfaces";
+import {NodeType, NodeChange} from "../process-graph-constants";
 import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
-import {ShapesFactory} from "./shapes-factory";
-import {DiagramNodeElement} from "./diagram-element";
-import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";

@@ -3,8 +3,7 @@ import {NodeType} from "./process-graph-constants";
 
 
 export class ProcessCellRenderer extends mxCellRenderer {
-    private graph: MxGraph;
-
+   
     public installCellOverlayListeners(state, overlay, shape) {
         super.installCellOverlayListeners(state, overlay, shape);
 

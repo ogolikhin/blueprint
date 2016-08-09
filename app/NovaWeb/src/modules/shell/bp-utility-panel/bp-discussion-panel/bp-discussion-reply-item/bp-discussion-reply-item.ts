@@ -51,25 +51,25 @@ export class BPDiscussionReplyItemController {
 
     public editCommentClick() {
         if (this.canEdit()) {
-        this.editing = true;
-    }
+            this.editing = true;
+        }
     }
 
     public canEdit(): boolean {
         if (this.replyInfo) {
-            return !this.discussionClosed && this.replyInfo.canEdit;
+            return this.canCreate && !this.discussionClosed && this.replyInfo.canEdit;
         } else {
             return false;
         }
     }
 
     /* tslint:disable:no-unused-variable */
-    private editReply(comment: string): ng.IPromise<IReply> {
+    public editReply(comment: string): ng.IPromise<IReply> {
         return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
-            .then((discussion: IReply) => {
+            .then((reply: IReply) => {
                 this.editing = false;
                 this.replyInfo.comment = comment;
-                return discussion;
+                return reply;
             }).catch((error: any) => {
                 if (error.statusCode && error.statusCode !== 1401) {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));

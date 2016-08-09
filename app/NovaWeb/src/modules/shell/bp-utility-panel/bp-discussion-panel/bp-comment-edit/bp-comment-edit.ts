@@ -112,8 +112,6 @@ export class BPCommentEditController {
         if (!this.isWaiting) {
             this.isWaiting = true;
             this.postCommentInternal()
-                .then(() => {
-                })
                 .finally(() => {
                     this.isWaiting = false;
                 });
@@ -123,7 +121,7 @@ export class BPCommentEditController {
 
     public postCommentInternal(): ng.IPromise<void> {
         const defer = this.$q.defer<any>();
-        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+        this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
         return defer.promise;
     }
 }

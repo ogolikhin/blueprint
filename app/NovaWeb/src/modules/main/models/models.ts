@@ -43,7 +43,6 @@ export interface IItem {
     specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
-    //for client use
     predefinedType?: ItemTypePredefined;
 }
 
@@ -60,14 +59,18 @@ export interface ISubArtifact extends IItem {
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;
-    predefinedType?: ItemTypePredefined;
     version?: number;
+
     createdOn?: Date; 
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
-    permissions?: RolePermissions;
+
     lockedByUserId?: number;
+
+    permissions?: RolePermissions;
+
+
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 

@@ -148,74 +148,45 @@ export enum TraceType {
     Reuse = 8
 }
 
+
 export enum RolePermissions {
-    /// <summary>
-    /// No privileges
-    /// </summary>
+    // No privileges
     None = 0,  //0
 
-    /// <summary>
-    /// Allows the viewing of an artifact
-    /// </summary>
+    // Allows the viewing of an artifact
     Read = 1 << 0, // = 1
-    /// <summary>
-    /// Allows the editing of an artifact. This includes deleting & adding children.
-    /// </summary>
+
+    // Allows the editing of an artifact. This includes deleting & adding children.
     Edit = 1 << 1, // = 2
 
-    /// <summary>
-    /// Allows deleting an artifact.
-    /// </summary>
+    // Allows deleting an artifact.
     Delete = 1 << 2, // = 4
 
-    /// <summary>
-    /// Allow tracing from/To an artifact project.
-    /// In addition to having the correct trace To/From Privileges on the two artifacts being a user must have edit privileges on at least one of the related artifacts .
-    /// </summary>
+    // Allow tracing from/To an artifact project.
     Trace = 1 << 3, // = 8
 
-    /// <summary>
-    /// Allow the user to comment on an artifact.
-    /// </summary>
+    // Allow the user to comment on an artifact.
     Comment = 1 << 4, // 16
 
-    /// <summary>
-    /// Allows a user to steal a lock on artifacts.
-    /// </summary>
+    // Allows a user to steal a lock on artifacts.
     StealLock = 1 << 5, //= 32
 
-    // Do not use old ProjectAdmin flag
-    //ProjectAdmin = 0x20,
-
-    /// <summary>
-    /// Allows a user to report on the project.
-    /// </summary>
+    // Allows a user to report on the project.
     CanReport = 1 << 6, // = 64
 
-    /// <summary>
-    /// Allows a user to share an artifact.
-    /// </summary>
+    // Allows a user to share an artifact.
     Share = 1 << 7, // = 128
 
-    /// <summary>
-    /// Allow reuse traces from/To an artifact project.
-    /// In addition to having the correct trace To/From Privileges on the two artifacts being a user must have edit privileges on at least one of the related artifacts .
-    /// </summary>
+    // Allow reuse traces from/To an artifact project.
     Reuse = 1 << 8, // = 256
 
-    /// <summary>
-    /// Allows a user to perform Excel Update.
-    /// </summary>
+    // Allows a user to perform Excel Update.
     ExcelUpdate = 1 << 9, // = 512
 
-    /// <summary>
-    /// Allow the user to delete someone else's comment on an artifact.
-    /// </summary>
+    // Allow the user to delete someone else's comment on an artifact.
     DeleteAnyComment = 1 << 10, // = 1024
 
-    /// <summary>
-    /// Allow the user to create/edit/save rapid review
-    /// </summary>
+    // Allow the user to create/edit/save rapid review
     CreateRapidReview = 1 << 11 // = 2048
 }
 

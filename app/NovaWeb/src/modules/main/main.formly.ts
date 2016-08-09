@@ -116,25 +116,41 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 minScrollbarLength: 20
             };
 
-            if (currentModelVal) {
-                switch ($scope.options.data.primitiveType) {
-                    case PrimitiveType.Text:
+            switch ($scope.options.data.primitiveType) {
+                case PrimitiveType.Text:
+                    if (currentModelVal) {
                         $scope.tooltip = currentModelVal;
-                        break;
-                    case PrimitiveType.Date:
-                        if (moment(currentModelVal).isValid()) {
-                            if ($scope.options.data.lookup === customProperty) {
-                                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(dateFormat);
-                            } else {
-                                $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
-                            }
+                    } else if ($scope.options.data && $scope.options.data.stringDefaultValue) {
+                        $scope.model[$scope.options.key] = $scope.options.data.stringDefaultValue;
+                    }
+                    break;
+                case PrimitiveType.Date:
+                    if (moment(currentModelVal).isValid()) {
+                        if ($scope.options.data.lookup === customProperty) {
+                            $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(dateFormat);
+                        } else {
+                            $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
                         }
-                        break;
-                    case PrimitiveType.Number:
+                    } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
+                        $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
+                    }
+                    break;
+                case PrimitiveType.Number:
+                    if (currentModelVal) {
                         $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
-                        break;
-                    default:
-                }
+                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                        $scope.model[$scope.options.key] = Helper.toLocaleNumber($scope.options.data.decimalDefaultValue);
+                    }
+                    break;
+                case PrimitiveType.User:
+
+                    if (currentModelVal) {
+                        $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
+                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                        $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
+                    }
+                    break;
+                default:
             }
         }]
     });

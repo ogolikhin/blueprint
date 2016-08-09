@@ -101,19 +101,39 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyConfig.setType({
         name: "bpFieldReadOnly",
         /* tslint:disable */
-        template: `<div class="input-group has-messages">
+        template: `
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
                 <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
                 <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+            </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Date">
+                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+            </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Number">
+                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+            </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice">
+                <div id="{{::id}}" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">
+                    <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
+                </div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
 
+            $scope.primitiveType = PrimitiveType;
             $scope.tooltip = "";
             $scope.scrollOptions = {
                 minScrollbarLength: 20
+            };
+
+            $scope.filterMultiChoice = function(item): boolean {
+                if(angular.isArray(currentModelVal)) {
+                    return currentModelVal.indexOf(item.value) >= 0;
+                }
+                return false;
             };
 
             switch ($scope.options.data.primitiveType) {
@@ -142,12 +162,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         $scope.model[$scope.options.key] = Helper.toLocaleNumber($scope.options.data.decimalDefaultValue);
                     }
                     break;
+                case PrimitiveType.Choice:
+                    if (!currentModelVal) {
+                        if ($scope.options.data && $scope.options.data.defaultValidValueId) {
+                            $scope.model[$scope.options.key] = [$scope.options.data.defaultValidValueId];
+                        }
+                    }
+                    break;
                 case PrimitiveType.User:
-
-                    if (currentModelVal) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
-                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
+                    if (!currentModelVal) {
+                        if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                            $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
+                        }
                     }
                     break;
                 default:

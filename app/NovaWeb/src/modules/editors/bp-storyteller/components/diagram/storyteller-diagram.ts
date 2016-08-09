@@ -88,7 +88,7 @@ export class StorytellerDiagram {
             this.graph.render(useAutolayout, selectedNodeId);
 
         } catch (err) {
-            this.messageService.addError("Cannot create graph: " + err.message);
+            this.messageService.addError("There was an error creating the diagram.");
             this.$log.error("Fatal: cannot render graph for process " + processViewModel.id);
             this.$log.error("Error: " + err.message);
         }

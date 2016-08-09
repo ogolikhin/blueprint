@@ -50,7 +50,6 @@ describe("Project Explorer Test", () => {
             selectionManager,
             null,
             null,
-            null,
             null);
 
         controller["tree"] = new BPTreeControllerMock();      

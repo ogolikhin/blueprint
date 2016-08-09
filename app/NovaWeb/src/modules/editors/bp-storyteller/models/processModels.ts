@@ -205,3 +205,26 @@ export class ProcessModel implements IProcess {
         this.status = status || <IItemStatus>{};
     }
 }
+
+// TODO: replace declaration:
+// export class Condition implements ICondition {
+export class Condition {
+    constructor(
+        public sourceId: number,
+        public destinationId: number,
+        public orderindex: number,
+        public label: string,
+        // TODO: replace code:
+        // public mergeNode: IDiagramNode,
+        // public validMergeNodes: IDiagramNode[]) {
+        public mergeNode: any,
+        public validMergeNodes: any[]) {
+    }
+
+    // TODO: replace code:
+    // public static create(link: IProcessLink, mergeNode: IDiagramNode, validMergeNodes: IDiagramNode[]): ICondition {
+    public static create(link: IProcessLink, mergeNode: any, validMergeNodes: any[]): any {
+        return new Condition(link.sourceId, link.destinationId, link.orderindex, link.label, mergeNode, validMergeNodes);
+
+    }
+}

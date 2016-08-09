@@ -36,7 +36,7 @@ export class ArtifactStateController {
             let artifactType = artifact.predefinedType;
             if (selectionManager.selection &&
                 selectionManager.selection.artifact &&
-                selectionManager.selection.artifact.id != artifact.id) {
+                selectionManager.selection.artifact.id !== artifact.id) {
 
                 selectionManager.selection = {
                     source: SelectionSource.Explorer,

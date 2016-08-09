@@ -83,6 +83,6 @@
     "webpack": "^1.12.14"
   },
   "config": {
-    "backend": "http://localhost:9801"
+    "backend": "http://titan.blueprintsys.net"
   }
 }

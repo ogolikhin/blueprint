@@ -1,4 +1,5 @@
 import { IDiagramElement, IShape } from "./../models";
+import { Models } from "../../../../main";
 import { Diagrams, ShapeProps, Shapes } from "./constants";
 import { ShapeExtensions } from "./helpers";
 import { ItemTypePredefined } from "./../../../../main/models/enums";
@@ -7,9 +8,9 @@ import { ISelection, SelectionSource } from "./../../../../main/services/selecti
 
 export class SelectionHelper {
 
-    public getEffectiveSelection(currentSelection: ISelection, elements: IDiagramElement[], diagramType: string): ISelection {
+    public getEffectiveSelection(artifact: Models.IArtifact, elements: IDiagramElement[], diagramType: string): ISelection {
         const effectiveSelection: ISelection = {
-            artifact: currentSelection.artifact,
+            artifact: artifact,
             source: SelectionSource.Editor
         };
         if (elements && elements.length > 0) {
@@ -45,6 +46,7 @@ export class SelectionHelper {
                 case Diagrams.USECASE_DIAGRAM:
                     if (element.type === Shapes.USECASE || element.type === Shapes.ACTOR) {
                         const artifactId = ShapeExtensions.getPropertyByName(element, ShapeProps.ARTIFACT_ID);
+                        effectiveSelection.source = SelectionSource.UtilityPanel;
                         effectiveSelection.subArtifact = null;
                         effectiveSelection.artifact = {
                             id: artifactId,

@@ -4,7 +4,7 @@ import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from 
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { Message, MessageType, IMessage} from "../../../core/messages/message";
+import { Message, MessageType} from "../../../core/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -34,6 +34,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
+    public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
 
     constructor(
@@ -69,6 +70,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
+            this.artifactEverPublished = (artifact.version >= 0);
             this.subArtifact = subArtifact;
             this.setDiscussions();
         } else {
@@ -77,6 +79,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             this.artifactDiscussionList = [];
             this.canCreate = false;
             this.canDelete = false;
+            this.artifactEverPublished = false;
         }
     }
 
@@ -84,7 +87,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 this.artifactDiscussionList = discussionResultSet.discussions;
-                this.canCreate = discussionResultSet.canCreate;
+                this.canCreate = discussionResultSet.canCreate && this.artifactEverPublished;
                 this.canDelete = discussionResultSet.canDelete;
             });
     }
@@ -119,7 +122,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
+            });
     }
     /* tslint:disable:no-unused-variable */
 
@@ -139,7 +142,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
+            });
     }
     /* tslint:disable:no-unused-variable */
 
@@ -212,7 +215,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.artifactDiscussionList = discussionsResultSet.discussions;
                         this.canDelete = discussionsResultSet.canDelete;
-                        this.canCreate = discussionsResultSet.canCreate;
+                        this.canCreate = discussionsResultSet.canCreate && this.artifactEverPublished;
                     });
                 }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }

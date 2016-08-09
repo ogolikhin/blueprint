@@ -68,7 +68,11 @@ class PageContentCtrl {
 
     public onContentSelected($event: MouseEvent) {
         if ($event.target && $event.target["tagName"] !== "BUTTON") {
-            this.selectionManager.clearSubArtifactSelection();
+            if (this.context) {
+                this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
+            } else {
+                this.selectionManager.clearSelection();
+            }
         }
     }
 }

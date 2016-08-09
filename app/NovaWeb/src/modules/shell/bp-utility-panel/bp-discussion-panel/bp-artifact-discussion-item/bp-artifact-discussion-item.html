@@ -40,7 +40,7 @@
         <a class="reply-link"
            bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Reply_Tooltip')}}"
            ng-click="$ctrl.newReplyClick()"
-           ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">Reply</a>
+           ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed || !$ctrl.canCreate }">{{$ctrl.localization.get('App_UP_Discussions_Reply_Link')}}</a>
     </div>
 </div>
 <bp-comment-edit ng-if="$ctrl.editing"

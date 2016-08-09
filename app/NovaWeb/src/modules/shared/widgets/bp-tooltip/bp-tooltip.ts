@@ -52,7 +52,7 @@ export class BPTooltip implements ng.IDirective {
             if (tooltipText !== "" && shouldDisplayTooltipForTruncated(angular.element(this))) {
                 let tooltipContent = document.createElement("DIV");
                 tooltipContent.className = "bp-tooltip-content";
-                tooltipContent.innerHTML = tooltipText;
+                tooltipContent.textContent = tooltipText;
 
                 angular.element(tooltip).empty();
                 tooltip.appendChild(tooltipContent);

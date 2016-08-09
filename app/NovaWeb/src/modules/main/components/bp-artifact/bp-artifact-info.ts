@@ -1,5 +1,5 @@
-﻿import { Models, Enums, IProjectManager, IWindowResizeHandler, ISidebarToggle } from "../..";
-import { ILocalizationService, IStateManager } from "../../../core";
+﻿import { Models, Enums, IProjectManager, ISidebarToggle } from "../..";
+import { ILocalizationService, IStateManager, IWindowResize } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -20,7 +20,7 @@ interface IArtifactInfoContext {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResizeHandler", "sidebarToggle"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResize", "sidebarToggle"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
@@ -34,15 +34,14 @@ export class BpArtifactInfoController {
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowResizeHandler: IWindowResizeHandler,
+        private windowResize: IWindowResize,
         private sidebarToggle: ISidebarToggle
     ) {
     }
 
     public $onInit() {
         this._subscribers = [
-            this.stateManager.isArtifactChangedObservable.subscribeOnNext(this.onArtifactChanged, this),
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this),
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
@@ -62,9 +61,9 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onArtifactChanged(state: boolean) {
-        this._isArtifactChanged = state;
-    }
+    //private onArtifactChanged(item: ItemState) {
+    //    this._isArtifactChanged = item.isChanged;
+    //}
 
     private onWidthResized() {
         this.setArtifactHeadingMaxWidth();
@@ -166,8 +165,13 @@ export class BpArtifactInfoController {
     }
 
     public get isChanged(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isChanged;
+        }
         return this._isArtifactChanged;
     }
+
     public get isLocked(): boolean {
         return false;
     }

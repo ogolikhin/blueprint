@@ -7,4 +7,5 @@ out
 typings
 *.iml
 /*.sln
+npm-debug.*
 *.njsproj

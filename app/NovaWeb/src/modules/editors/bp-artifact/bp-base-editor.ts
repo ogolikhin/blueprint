@@ -1,18 +1,20 @@
-﻿import {IMessageService, IStateManager, IWindowResizeHandler, ISidebarToggle, Models, Helper} from "./";
-import {IProjectManager} from "../../main"
-import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize } from "../../core";
+import { Helper } from "../../shared";
+import { Enums, Models, ISidebarToggle } from "../../main"
+import { IProjectManager} from "../../main";
 
-export { IProjectManager }
+import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
-export interface IEditorContext {
-    artifact?: Models.IArtifact;
-    project?: Models.IProject;
-    type?: Models.IItemType;
-    propertyTypes?: Models.IPropertyType[];
+export { IProjectManager, IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Enums }
+
+export enum LookupEnum {
+    None = 0,
+    System = 1,
+    Custom = 2,
+    Special = 3,
 }
-
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -20,14 +22,14 @@ export class BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: IPropertyEditor;
-    public context: IEditorContext;
+    public context: Models.IEditorContext;
 
     public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResizeHandler: IWindowResizeHandler,
+        public windowResize: IWindowResize,
         public sidebarToggle: ISidebarToggle,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
@@ -37,7 +39,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.windowResizeHandler.width.subscribeOnNext(this.onWidthResized, this),
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
             this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
@@ -70,34 +72,22 @@ export class BpBaseEditor {
         this.setArtifactEditorLabelsWidth();
     }
      
+    
+     
     public onValueChange($value: any, $model: AngularFormly.IFieldConfigurationObject) {
         //here we need to update original model
         let context = $model.data as PropertyContext;
-        if (context && $value !== $model.initialValue) {
-            
-            this.stateManager.isArtifactChanged = true;
-            this.context.artifact.changed = true;
-
-            switch (context.lookup) {
-                case LookupEnum.System:
-                    this.context.artifact[context.modelPropertyName] = $value;
-                    break;
-                case LookupEnum.Custom:
-                    let index: number = -1;
-                    let typeId = context.modelPropertyName as number;
-                    this.context.artifact.customPropertyValues.forEach((it: Models.IPropertyValue, idx: number) => {
-                        if (it.propertyTypeId === typeId as number) {
-                            index = idx;
-                        }
-                    });
-                    if (index >= 0) {
-                        this.context.artifact.customPropertyValues[index].value = $value;
-                    }
-                    break;
-                case LookupEnum.Special:
-                    //TODO: special property value needs its own impelemntation
-                    break;
+        if (!context) {
+            return;
             }
+        let value = context.getValueOfType($value);
+        if ( !this.form.$invalid ) {
+            let changeSet: IPropertyChangeSet = {
+                lookup: LookupEnum[context.lookup],
+                id: context.modelPropertyName,
+                value: value
+            };
+            this.stateManager.addChangeSet(this.context.artifact, changeSet);
         }
 
 
@@ -109,7 +99,7 @@ export class BpBaseEditor {
     }
 
 
-    public onLoad(context: IEditorContext) {
+    public onLoad(context: Models.IEditorContext) {
         this.onUpdate(context);
     }
 
@@ -117,26 +107,40 @@ export class BpBaseEditor {
         this.fields.push(field);
     }
 
-    public onUpdate(context: IEditorContext) {
+    public onUpdate(context: Models.IEditorContext) {
         try {
             this.isLoading = false;
             if (!context || !this.editor) {
                 return;
             }
+            let artifact: Models.IArtifact;
+            let state = this.stateManager.getState(context.artifact.id);
+
+            if (state) {
+                artifact = state.changedItem;
+            } else {
+                artifact = this.context.artifact;
+            }
             
 
-            let fieldContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
-            this.editor.load(context.artifact, fieldContexts);
+            this.editor.load(artifact, fieldContexts);
             this.model = this.editor.getModel();
-            this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
-                angular.extend(it.templateOptions, {
+                angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
                 });
-                this.onFieldUpdate(it);
+
+                if ((artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
+                    field.type = "bpFieldReadOnly";
+                }               
+
+                this.onFieldUpdate(field);
+
 
             });
         } catch (ex) {
@@ -160,13 +164,6 @@ export class BpBaseEditor {
             }
         }
     };
-}
-
-export enum LookupEnum {
-    None = 0,
-    System = 1,
-    Custom = 2,
-    Special = 3,
 }
 
 export interface IPropertyEditor {
@@ -213,12 +210,12 @@ export class PropertyContext implements Models.IPropertyType {
             this.modelPropertyName = propertyTypeName;
         } else if (angular.isUndefined(this.propertyTypePredefined) && angular.isNumber(this.id)) {
             this.lookup = LookupEnum.Custom;
-            this.fieldPropertyName = `property_${this.id.toString()}`;
+            this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
             this.modelPropertyName = this.id;
         }
         //} else {
         //    this.lookup = LookupEnum.Special;
-        //    this.fieldPropertyName = `special_${this.id.toString()}`;
+        //    this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
         //    this.modelPropertyName = this.id;
         //}
     }
@@ -231,6 +228,43 @@ export class PropertyContext implements Models.IPropertyType {
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn,
             Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+    }
+    public getValueOfType($value: any): any {
+        if (angular.isDefined($value)) {
+            switch (this.primitiveType) {
+                case Models.PrimitiveType.Number:
+                    if (!angular.isNumber($value)) {
+                        if (!$value) {
+                            return undefined;
+                        }
+                        return this.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString(), 10);
+                    }
+                    break;
+                case Models.PrimitiveType.Date:
+                    if (!angular.isDate($value)) {
+                        if (!$value) {
+                            return undefined;
+                        }
+                        return new Date($value);
+                    }
+                    break;
+                case Models.PrimitiveType.Choice:
+                    let values = $value.toString().split(",").map((it: string) => {
+                        return parseInt(it, 10);
+                    });
+                    if (values.length > 1) {
+                        return {
+                            validValueIds: values
+                        };
+                    } else if (values.length === 1) {
+                        return values[0];
+                    }
+                    return null;
+                default:
+                    break;
+            }
+        } 
+        return $value;
     }
 }
 
@@ -245,60 +279,76 @@ export class PropertyEditor implements IPropertyEditor {
     public load(artifact: Models.IArtifact, properties: PropertyContext[]) {
 
         this._fields = [];
-
+        var $this = this;
         if (artifact && angular.isArray(properties)) {
             this._artifact = artifact;
-            properties.forEach((it: PropertyContext) => {
-                if (it.fieldPropertyName && it.modelPropertyName) {
-                    let field = this.createPropertyField(it);
+
+            properties.forEach((propertyContext: PropertyContext) => {
+                if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
+                    let field = this.createPropertyField(propertyContext);
                     let value: any;
 
                     //Get property value 
-                    if (it.lookup === LookupEnum.System) {
-                        value = angular.isDefined(this._artifact[it.modelPropertyName]) ? this._artifact[it.modelPropertyName] : undefined;
-                    } else if (it.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
+                    if (propertyContext.lookup === LookupEnum.System) {
+                        if (angular.isDefined(this._artifact[propertyContext.modelPropertyName])) {
+                            value = this._artifact[propertyContext.modelPropertyName];
+                        } else {
+                            field.hide = true;
+                        }
+
+                    } else if (propertyContext.lookup === LookupEnum.Custom && angular.isArray(this._artifact.customPropertyValues)) {
                         let propertyValue = this._artifact.customPropertyValues.filter((value) => {
-                            return value.propertyTypeId === <number>it.modelPropertyName;
+                            return value.propertyTypeId === <number>propertyContext.modelPropertyName;
                         })[0];
-                        value = propertyValue ? propertyValue.value : undefined;
-                    } else if (it.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
+                        if (propertyValue) {
+                            value = propertyValue.value;
+                        } else {
+                            field.hide = true;
+                        }
+                    } else if (propertyContext.lookup === LookupEnum.Special && angular.isArray(this._artifact.specificPropertyValues)) {
                         let propertyValue = this._artifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypeId === <number>it.modelPropertyName;
+                            return value.propertyTypeId === <number>propertyContext.modelPropertyName;
                         })[0];
-                        value = propertyValue ? propertyValue.value : undefined;
-                    }
-                
-                    //create internal model property value
-                    if (angular.isDefined(value)) {
-                        if (it.primitiveType === Models.PrimitiveType.Date) {
-                            value = new Date(value);
-                        } else if (it.primitiveType === Models.PrimitiveType.Choice) {
-                            if (angular.isArray(value.validValueIds)) {
-                                let values = [];
-                                value.validValueIds.forEach((v: number) => {
-                                    values.push(v.toString());
-                                });
-                                value = values;
-                            } else {
-                                value = value.toString();
-                            }
-                        } else if (it.primitiveType === Models.PrimitiveType.User) {
-                            //TODO: must be changed when  a field editor for this type of property is created
-                            if (value.usersGroups) {
-                                value = value.usersGroups.map((val: Models.IUserGroup) => {
-                                    return val.displayName;
-                                }).join(", ");
-                            } else if (value.displayName) {
-                                value = value.displayName;
-                            } else if (value.label) {
-                                value = value.label;
-                            } else {
-                                value = value.toString();
-                            }
+                        if (propertyValue) {
+                            value = propertyValue.value;
+                        } else {
+                            field.hide = true;
                         }
                     }
-                    this._model[it.fieldPropertyName] = value;
-                    this._fields.push(field);
+                    if (!field.hide) {
+                        if (value && !angular.equals({}, value)) {
+                            //create internal model property value
+                            if (propertyContext.primitiveType === Models.PrimitiveType.Date) {
+                                value = new Date(value);
+
+                            } else if (propertyContext.primitiveType === Models.PrimitiveType.Choice) {
+                                if (angular.isArray(value.validValueIds)) {
+                                    let values = [];
+                                    value.validValueIds.forEach((v: number) => {
+                                        values.push(v.toString());
+                                    });
+                                    value = propertyContext.isMultipleAllowed ? values : values[0];
+                                } else {
+                                    value = value.toString();
+                                }
+                            } else if (propertyContext.primitiveType === Models.PrimitiveType.User) {
+                                //TODO: must be changed when  a field editor for this type of property is created
+                                if (value.usersGroups) {
+                                    value = value.usersGroups.map((val: Models.IUserGroup) => {
+                                        return val.displayName;
+                                    }).join(", ");
+                                } else if (value.displayName) {
+                                    value = value.displayName;
+                                } else if (value.label) {
+                                    value = value.label;
+                                } else {
+                                    value = value.toString();
+                                }
+                            }
+                        }
+                        this._model[propertyContext.fieldPropertyName] = value;
+                        this._fields.push(field);
+                    }
                 }
             });
         }
@@ -383,28 +433,25 @@ export class PropertyEditor implements IPropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
-                    if (angular.isNumber(context.defaultValidValueId)) {
-                        field.defaultValue = context.defaultValidValueId.toString();
+                    if (context.isMultipleAllowed) {
+                        field.type = "bpFieldSelectMulti";
+                        field.templateOptions["optionsAttr"] = "bs-options";
+                    } else {
+                        field.type = "bpFieldSelect";
                     }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {
                             return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
                         });
+                        if (angular.isNumber(context.defaultValidValueId)) {
+                            field.defaultValue = context.defaultValidValueId.toString();
+                        }
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    field.type = "bpFieldReadOnly"; // needs to be changed to user selection
-                    //if (angular.isNumber(context.defaultValidValueId)) {
-                    //    field.defaultValue = context.defaultValidValueId.toString();
-                    //}
-                    //field.templateOptions.options = [];
-                    //if (context.validValues && context.validValues.length) {
-                    //    field.templateOptions.options = context.validValues.map(function (it) {
-                    //        return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
-                    //    });
-                    //}
+                    //TODO needs to be changed to user selection
+                    field.type = "bpFieldReadOnly"; 
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

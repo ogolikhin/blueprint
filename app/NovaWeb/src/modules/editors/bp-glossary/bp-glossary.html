@@ -4,7 +4,7 @@
 </div>
 
 <table ng-if="!$ctrl.isLoading">
-    <thead>
+    <thead ng-click="$ctrl.clearSelection()">
         <tr>
             <th>{{::$ctrl.localization.get('Artifact_Glossary_Term') }}</th>
             <th>{{::$ctrl.localization.get('Artifact_Glossary_Definition') }}</th>

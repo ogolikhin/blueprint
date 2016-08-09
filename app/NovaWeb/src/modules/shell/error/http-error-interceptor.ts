@@ -10,7 +10,7 @@ export class HttpHandledErrorStatusCodes {
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
     ignoreInterceptor: boolean;
-    isRetry: boolean;
+    dontRetry: boolean;
 }
 
 export class HttpErrorInterceptor {
@@ -27,16 +27,16 @@ export class HttpErrorInterceptor {
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && (config.ignoreInterceptor || config.isRetry)) {
+        if (config && (config.ignoreInterceptor || config.dontRetry)) {
             deferred.reject(response);
         } else if (response.status === 401) {            
             session.onExpired().then(
                 () => {
-                    if (config && config.method === "GET") { // Retry only for Get operations
+                    if (config) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
                         HttpErrorInterceptor.applyNewSessionToken(config);                    
 
-                        config.isRetry = true;
+                        config.dontRetry = true;
 
                         $http(config).then(retryResponse => deferred.resolve(retryResponse), retryResponse => deferred.reject(retryResponse));
                     } else {

@@ -216,15 +216,21 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/components/RapidReview/artifacts/${itemId}/deletecomment/${replyId}`,
-            method: "POST"
+            method: "DELETE"
         };
         this.$http(requestObj)
             .success(() => {
                 defer.resolve(true);
             }).error((err: any, statusCode: number) => {
+                let msg: string;
+                if (statusCode === 404) {
+                    msg = this.localization.get("Error_Comment_Deleted", "Error");
+                } else {
+                    msg = (err ? err.message : "");
+                }
                 const error = {
                     statusCode: statusCode,
-                    message: (err ? err.message : "")
+                    message: msg
                 };
                 this.$log.error(error);
                 defer.reject(error);
@@ -236,15 +242,21 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/components/RapidReview/artifacts/${itemId}/deletethread/${discussionId}`,
-            method: "POST"
+            method: "DELETE"
         };
         this.$http(requestObj)
             .success(() => {
                 defer.resolve(true);
             }).error((err: any, statusCode: number) => {
+                let msg: string;
+                if (statusCode === 404) {
+                    msg = this.localization.get("Error_Comment_Deleted", "Error");
+                } else {
+                    msg = (err ? err.message : "");
+                }
                 const error = {
                     statusCode: statusCode,
-                    message: (err ? err.message : "")
+                    message: msg
                 };
                 this.$log.error(error);
                 defer.reject(error);

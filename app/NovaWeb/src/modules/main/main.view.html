@@ -1,6 +1,6 @@
 ﻿<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
-<bp-sidebar-layout left-panel-title="Project Explorer" 
-                   right-panel-title="Utility Panel" 
+<bp-sidebar-layout left-panel-title="{{$main.localization.get('App_Sidebar_Left')}}"
+                   right-panel-title="{{$main.localization.get('App_Sidebar_Right')}}"
                    ng-if="$main.currentUser" 
                    toggle-panel="$main.toggle(id)" 
                    is-left-toggled="$main.isLeftToggled" 
@@ -10,8 +10,6 @@
     </bp-sidebar-layout-content-left>
 
     <bp-sidebar-layout-content-center>
-        <!-- TODO: Storyteller placeholder. WILL REMOVE AFTER ROUTING IS COMPLETE-->
-        <bp-storyteller-editor></bp-storyteller-editor>
         <pagecontent view-state="$main.isActive"></pagecontent>
     </bp-sidebar-layout-content-center>
     

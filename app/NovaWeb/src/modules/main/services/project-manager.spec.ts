@@ -63,8 +63,6 @@ describe("Project Manager Test", () => {
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
             $rootScope.$digest();
 
-            let project = selectionManager.selection.artifact as Models.IProject;
-
             projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
             $rootScope.$digest();
 
@@ -199,7 +197,7 @@ describe("Project Manager Test", () => {
             expect(changedArtifact).toBeDefined();
             expect(changedArtifact).toEqual(jasmine.any(Array));
             expect(changedArtifact.length).toBe(2);
-            expect(changedArtifact[0]).toBeDefined()
+            expect(changedArtifact[0]).toBeDefined();
             expect(changedArtifact[0].id).toEqual(1);
             expect(changedArtifact[1].id).toEqual(10);
 
@@ -210,7 +208,7 @@ describe("Project Manager Test", () => {
 
             selectionManager.selectedArtifactObservable.subscribe((artifact: Models.IArtifact) => {
                 changedArtifact.push(artifact);
-            })
+            });
 
             //Act
             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -228,7 +226,7 @@ describe("Project Manager Test", () => {
             expect(changedArtifact).toBeDefined();
             expect(changedArtifact).toEqual(jasmine.any(Array));
             expect(changedArtifact.length).toBe(1);
-            expect(changedArtifact[0].name).toBe("Project 1")
+            expect(changedArtifact[0].name).toBe("Project 1");
 
         }));
     });

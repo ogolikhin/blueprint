@@ -1,5 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, TraceType, TraceDirection } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -8,9 +7,14 @@ export enum ArtifactStateEnum {
     Deleted = 2
 }
 
+export enum ProjectNodeType {
+    Folder = 0,
+    Project = 1
+}
+
 export interface IProjectNode {
     id: number;
-    type: number;
+    type: ProjectNodeType;
     name: string;
     parentFolderId: number;
     description?: string;
@@ -39,7 +43,6 @@ export interface IItem {
     specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
-    //for client use
     predefinedType?: ItemTypePredefined;
 }
 
@@ -56,22 +59,24 @@ export interface ISubArtifact extends IItem {
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;
-    predefinedType?: ItemTypePredefined;
     version?: number;
+
     createdOn?: Date; 
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
-    permissions?: number;
+
     lockedByUserId?: number;
+
+    permissions?: RolePermissions;
+
+
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 
     //for client use
     artifacts?: IArtifact[];
     loaded?: boolean;
-    changed?: boolean;
-
 }
 export interface IOption {
     id: number;
@@ -220,4 +225,10 @@ export interface IHashMap<T> {
     [key: string]: T;
 }
 
+
+export interface IEditorContext {
+    artifact?: IArtifact;
+    type?: IItemType;
+}
   
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };

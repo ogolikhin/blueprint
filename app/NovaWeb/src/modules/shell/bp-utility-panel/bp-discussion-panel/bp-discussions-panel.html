@@ -1,10 +1,10 @@
 ﻿<div ng-if="$ctrl.artifactId && !$ctrl.artifactDiscussionList.length && !$ctrl.isLoading && !$ctrl.showAddComment" class="empty-state">
     <p>{{ $ctrl.localization.get('App_UP_Discussions_Introduction_Message') }}</p>
-    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_Start_Discussion') }}</button>
+    <button ng-disabled="!$ctrl.canCreate" class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_Start_Discussion') }}</button>
 </div>
 <div ng-if="!$ctrl.artifactId" class="empty-state">{{ $ctrl.localization.get('App_UP_Discussions_No_Artifact') }}</div>
 <div class="filter-bar" ng-if="$ctrl.artifactDiscussionList.length">
-    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
+    <button ng-disabled="!$ctrl.canCreate" class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
 </div>
 <bp-comment-edit ng-if="$ctrl.showAddComment"
                  add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Post_Button_Text')}}"
@@ -22,13 +22,13 @@
                                      new-reply-click="$ctrl.newReplyClick()"
                                      can-create="$ctrl.canCreate"
                                      cancel-comment="$ctrl.cancelCommentClick()"
-                                     artifact-id="$ctrl.artifactId"
+                                     artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
                                      delete-comment-thread="$ctrl.deleteCommentThread(discussion)"
                                      discussion-edited="$ctrl.discussionEdited(discussion)">
         </bp-artifact-discussion-item>
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
             <bp-discussion-reply-item reply-info="reply"
-                                      artifact-id="$ctrl.artifactId"
+                                      artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
                                       can-create="$ctrl.canCreate"
                                       discussion-closed="discussion.isClosed"
                                       delete-reply="$ctrl.deleteReply(discussion, reply)">

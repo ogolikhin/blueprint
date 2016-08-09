@@ -14,15 +14,18 @@ export class BPCommentEdit implements ng.IComponentOptions {
 }
 
 export class BPCommentEditController {
+    static $inject: [string] = ["$q"];
+
     public cancelComment: Function;
     public postComment: Function;
     public addButtonText: string;
     public cancelButtonText: string;
     public commentPlaceHolderText: string;
     public commentText: string;
+    public isWaiting: boolean = false;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link",
-        //toolbar: "fontsize | bold italic underline strikethrough | forecolor format | link",
+        plugins: "textcolor table noneditable autolink link autoresize",
+        autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,
         relative_urls: false,
@@ -99,18 +102,26 @@ export class BPCommentEditController {
                         }
                     }]
             });
-            //editor.on("init", function () {
-            //    this.getDoc().body.style.fontFamily = 'Lucida';
-            //    this.getDoc().body.style.fontSize = '20';
-            //});
         }
     };
 
-    constructor() {
+    constructor(private $q: ng.IQService) {
     }
 
     public callPostComment() {
-        //this.postComment({ comment: this.commentText });
-        this.postComment({ comment: tinymce.activeEditor.contentDocument.body.innerHTML });
+        if (!this.isWaiting) {
+            this.isWaiting = true;
+            this.postCommentInternal()
+                .finally(() => {
+                    this.isWaiting = false;
+                });
+        }
+    }
+
+
+    public postCommentInternal(): ng.IPromise<void> {
+        const defer = this.$q.defer<any>();
+        this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
+        return defer.promise;
     }
 }

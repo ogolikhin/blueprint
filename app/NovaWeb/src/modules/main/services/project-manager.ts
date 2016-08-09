@@ -1,6 +1,5 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../core";
-import { IMessageService, Message, MessageType} from "../../core";
+import { ILocalizationService, IMessageService } from "../../core";
 import { IProjectRepository, Models } from "./project-repository";
 import { ISelectionManager, SelectionSource } from "./selection-manager";
 
@@ -74,7 +73,7 @@ export class ProjectManager implements IProjectManager {
     public loadProject = (project: Models.IProject) => {
         try {
             if (!project) {
-                throw new Error(this.localization.get("Project_NotFound"));
+                throw new Error("Project_NotFound");
             }
             let self = this;
             var _projectCollection: Models.IProject[] = this.projectCollection.getValue();
@@ -119,20 +118,20 @@ export class ProjectManager implements IProjectManager {
                                 });
                                 _projectCollection.unshift(_project);
                                 self.projectCollection.onNext(_projectCollection);
-                                this.selectionManager.selection = { source: SelectionSource.Manager, artifact: _project }
+                                this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
-                                this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
+                                this.messageService.addError(error["message"] || "Project_NotFound");
                             });
 
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
+                        this.messageService.addError(error["message"] || "Project_NotFound");
                     });
 
 
             } 
         } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+            this.messageService.addError(ex["message"] || "Project_NotFound");
         }
     }
 
@@ -143,12 +142,12 @@ export class ProjectManager implements IProjectManager {
                 return;
             }
             if (!artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
+                throw new Error("Artifact_NotFound");
             }
 
             artifact = this.getArtifact(artifact.id);
             if (!artifact) {
-                throw new Error(this.localization.get("Artifact_NotFound"));
+                throw new Error("Artifact_NotFound");
             }
 
             this._repository.getArtifacts(artifact.projectId, artifact.id)
@@ -173,12 +172,12 @@ export class ProjectManager implements IProjectManager {
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
                     } else {
-                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 
         } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
+            this.messageService.addError(ex["message"] || "Artifact_NotFound");
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
@@ -186,8 +185,11 @@ export class ProjectManager implements IProjectManager {
 
     public closeProject = (all: boolean = false) => {
         try {
-            let selection = this.selectionManager.selection;
-            if (!selection || !selection.artifact) {
+            var selection = this.selectionManager.selection;
+            if (!selection) {
+                return;
+            }
+            if (!selection.artifact) {
                 throw new Error("Artifact_NotFound");
             }
             let projectsToRemove: Models.IProject[] = [];
@@ -204,9 +206,9 @@ export class ProjectManager implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null }
+            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null };
         } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+            this.messageService.addError(ex["message"] || "Project_NotFound");
         }
 
     }
@@ -215,7 +217,7 @@ export class ProjectManager implements IProjectManager {
         try {
             return this._repository.getFolders(id);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
+            this.messageService.addError(ex["message"] || "Project_NotFound");
         }
     }
 
@@ -264,21 +266,21 @@ export class ProjectManager implements IProjectManager {
             _artifact = artifact as Models.IArtifact;
         }
         if (!_artifact) {
-            throw new Error(this.localization.get("Artifact_NotFound"));
+            throw new Error("Artifact_NotFound");
         }
         let _project = this.getProject(_artifact.projectId);
         if (!_project) {
-            throw new Error(this.localization.get("Project_NotFound"));
+            throw new Error("Project_NotFound");
         }
         if (!_project.meta) {
-            throw new Error(this.localization.get("Project_MetaDataNotFound"));
+            throw new Error("Project_MetaDataNotFound");
         }
 
         let properties: Models.IPropertyType[] = [];
         let _artifactType: Models.IItemType = this.getArtifactType(_artifact, _project);
 
         if (!_artifactType) {
-            throw new Error(this.localization.get("ArtifactType_NotFound"));
+            throw new Error("ArtifactType_NotFound");
         }
         
         //create list of system properties
@@ -318,18 +320,23 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "Never published",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             primitiveType: Models.PrimitiveType.User,
+            userGroupDefaultValue: [{
+                displayName : "<empty>"
+            }],
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
@@ -351,16 +358,16 @@ export class ProjectManager implements IProjectManager {
 
     public getArtifactType(artifact: Models.IArtifact, project?: Models.IProject): Models.IItemType {
         if (!artifact) {
-            throw new Error(this.localization.get("Artifact_NotFound"));
+            throw new Error("Artifact_NotFound");
         }
         if (!project) {
             project = this.getProject(artifact.projectId);
         }
         if (!project) {
-            throw new Error(this.localization.get("Project_NotFound"));
+            throw new Error("Project_NotFound");
         }
         if (!project.meta) {
-            throw new Error(this.localization.get("Project_MetaDataNotFound"));
+            throw new Error("Project_MetaDataNotFound");
         }
         let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
             return it.id === artifact.itemTypeId;
@@ -383,10 +390,10 @@ export class ProjectManager implements IProjectManager {
             _project = project as Models.IProject;
         }
         if (!_project) {
-            throw new Error(this.localization.get("Project_NotFound"));
+            throw new Error("Project_NotFound");
         }
         if (!_project.meta) {
-            throw new Error(this.localization.get("Project_MetaDataNotLoaded"));
+            throw new Error("Project_MetaDataNotLoaded");
         }
 
         let propertyType: Models.IPropertyType = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {

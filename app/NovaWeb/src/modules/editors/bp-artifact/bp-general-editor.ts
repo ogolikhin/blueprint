@@ -1,5 +1,13 @@
-﻿import { IMessageService, IStateManager, IWindowResizeHandler, ISidebarToggle, Models } from "./";
-import { BpBaseEditor, PropertyContext, LookupEnum, IProjectManager } from "./bp-base-editor";
+﻿import {
+    BpBaseEditor,
+    PropertyContext,
+    LookupEnum,
+    IProjectManager,
+    IMessageService,
+    IStateManager,
+    IWindowResize,
+    ISidebarToggle,
+    Models  } from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -11,23 +19,17 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResizeHandler", "sidebarToggle", "$timeout", "projectManager"];
-
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        scrollXMarginOffset: 4,
-        scrollYMarginOffset: 4
-    };
+    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowResizeHandler: IWindowResizeHandler,
+        windowResize: IWindowResize,
         sidebarToggle: ISidebarToggle,
         $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(messageService, stateManager, windowResizeHandler, sidebarToggle, $timeout, projectManager);
+        super(messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
     }
 
     public activeTab: number;

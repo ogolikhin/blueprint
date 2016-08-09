@@ -1,7 +1,6 @@
-import { IProject, IArtifact, ISubArtifact, IItem } from "./../models/models";
+import { IArtifact, ISubArtifact, IItem } from "./../models/models";
 
 export interface ISelectionManager {
-//    selectedProjectObservable: Rx.Observable<IProject>;
     selectedArtifactObservable: Rx.Observable<IArtifact>;
     selectedSubArtifactObservable: Rx.Observable<ISubArtifact>;
     selectedItemObservable: Rx.Observable<IItem>;
@@ -9,19 +8,19 @@ export interface ISelectionManager {
     selectionObservable: Rx.Observable<ISelection>;
     selection: ISelection;
     clearSelection();
+    clearSubArtifactSelection();
 }
 
 export enum SelectionSource {
     None = 0,
     Explorer = 1,
     Editor = 2,
-    Manager = 3
+    UtilityPanel = 3
 }
 
 export interface ISelection {
     source: SelectionSource;
     artifact?: IArtifact;
-//    project: IProject;
     subArtifact?: ISubArtifact;
 }
 
@@ -35,13 +34,6 @@ export class SelectionManager implements ISelectionManager {
     constructor() {
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(null);
     }
-
-    //public get selectedProjectObservable() {
-    //    return this.selectionSubject
-    //        .filter(s => s != null)
-    //        .map(s => s.project)
-    //        .distinctUntilChanged(this.distinctById).asObservable();
-    //}
 
     public get selectedArtifactObservable() {
         return this.selectionSubject
@@ -79,7 +71,10 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public get selection() {
-        return this.selectionSubject.getValue();
+        if (!this.selectionSubject.isDisposed) {
+            return this.selectionSubject.getValue();
+        }
+        return null;
     }
 
     public set selection(value: ISelection) {
@@ -92,5 +87,15 @@ export class SelectionManager implements ISelectionManager {
 
     public clearSelection() {
         this.selectionSubject.onNext({ artifact: null, subArtifact: null, source: SelectionSource.None });
+    }
+
+    public clearSubArtifactSelection() {
+        const oldSelection = this.selectionSubject.getValue();
+        if (oldSelection) {
+            this.selectionSubject.onNext({
+                source: oldSelection.source,
+                artifact: oldSelection.artifact
+            });
+        }
     }
 }

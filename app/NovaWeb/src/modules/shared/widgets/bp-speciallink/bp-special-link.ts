@@ -83,7 +83,8 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             return $target;
         }
         const $parent = $target.parent();
-        if ($parent[0].tagName === "A") {
+        const element = $parent[0];
+        if (element && element.tagName === "A") {
             return $parent;
         }
         return null;

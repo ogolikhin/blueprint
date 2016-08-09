@@ -4,10 +4,11 @@ import { IStencilService } from "./impl/stencil.svc";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
 import { Models } from "../../main";
-import { ISelectionManager, SelectionSource } from "../../main/services/selection-manager";
+import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
 import { ILocalizationService } from "../../core";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
+import { SelectionHelper } from "./impl/utils/selection-helper";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -26,15 +27,18 @@ export class BPDiagramController {
         "diagramService",
         "selectionManager",
         "localization",
+        "$rootScope",
         "$log"
     ];
 
     public isLoading: boolean = true;
+    public isBrokenOrOld: boolean = false;
+    public errorMsg: string;
 
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    public isBrokenOrOld: boolean = false;
-    public errorMsg: string;
+    private subscribers: Rx.IDisposable[];
+    private artifact: Models.IArtifact;
 
     constructor(
         private $element: ng.IAugmentedJQuery,
@@ -44,26 +48,40 @@ export class BPDiagramController {
         private diagramService: IDiagramService,
         private selectionManager: ISelectionManager,
         private localization: ILocalizationService,
+        private $rootScope: ng.IRootScopeService,
         private $log: ng.ILogService) {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
+    public $onInit() {
+        //use context reference as the last parameter on subscribe...
+        this.subscribers = [
+            //subscribe for current artifact change (need to distinct artifact)
+            this.selectionManager.selectionObservable
+                .filter(s => s != null && s.source !== SelectionSource.UtilityPanel && !s.subArtifact)
+                .subscribeOnNext(this.clearSelection, this),
+        ];
+        this.$element.on("click", this.stopPropagation);
+    }
+
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            const artifact = changesObj.context.currentValue as Models.IArtifact;
-            if (artifact) {
-                this.onArtifactChanged(artifact);
+            this.artifact = changesObj.context.currentValue as Models.IArtifact;
+            if (this.artifact) {
+                this.onArtifactChanged();
             }
         }
     }
 
     public $onDestroy() {
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.$element.off("click", this.stopPropagation);
         if (this.diagramView) {
             this.diagramView.destroy();
         }
     }
     
-    private onArtifactChanged = (artifact: Models.IArtifact) => {
+    private onArtifactChanged = () => {
         this.$element.css("height", "100%");
         this.$element.css("width", "");
         this.$element.css("background-color", "transparent");
@@ -74,9 +92,9 @@ export class BPDiagramController {
            this.cancelationToken.resolve();
         }
         this.isLoading = true;
-        if (artifact !== null && this.diagramService.isDiagram(artifact.predefinedType)) {
+        if (this.artifact !== null && this.diagramService.isDiagram(this.artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
-            this.diagramService.getDiagram(artifact.id, artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+            this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
@@ -90,7 +108,7 @@ export class BPDiagramController {
                         this.$element.css("overflow", "");
                     }
                     this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                    this.diagramView.addSelectionListener(this.onSelectionChanged);
+                    this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }
@@ -108,15 +126,20 @@ export class BPDiagramController {
         }
     }
 
-    private onSelectionChanged = (elements: Array<IDiagramElement>) => {
-        const selection = angular.copy(this.selectionManager.selection);
-        if (elements && elements.length > 0) {
-            selection.subArtifact = elements[0];
-        } else {
-            selection.subArtifact = null;
+    private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
+        this.$rootScope.$applyAsync(() => {
+            const selectionHelper = new SelectionHelper();
+            this.selectionManager.selection = selectionHelper.getEffectiveSelection(
+                this.artifact,
+                elements,
+                diagramType);
+        });
+    }
+
+    private clearSelection(selection: ISelection) {
+        if (this.diagramView) {
+            this.diagramView.clearSelection();
         }
-        selection.source = SelectionSource.Editor;
-        this.selectionManager.selection = selection;
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {
@@ -135,5 +158,9 @@ export class BPDiagramController {
         $element.css("height", h);
         $element.css("overflow", "hidden");
         $element.css("background-color", "");
+    }
+
+    private stopPropagation(eventObject: JQueryEventObject) {
+        eventObject.stopPropagation();
     }
 }

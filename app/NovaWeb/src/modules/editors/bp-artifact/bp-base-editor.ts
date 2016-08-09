@@ -1,8 +1,12 @@
-﻿import {IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ISidebarToggle, Models, Helper} from "./";
-import {IProjectManager} from "../../main";
-import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize } from "../../core";
+import { Helper } from "../../shared";
+import { Enums, Models, ISidebarToggle } from "../../main"
+import { IProjectManager} from "../../main";
 
-export { IProjectManager }
+import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+
+export { IProjectManager, IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Enums }
+
 export enum LookupEnum {
     None = 0,
     System = 1,
@@ -117,6 +121,7 @@ export class BpBaseEditor {
             } else {
                 artifact = this.context.artifact;
             }
+            
 
             let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
@@ -124,12 +129,18 @@ export class BpBaseEditor {
 
             this.editor.load(artifact, fieldContexts);
             this.model = this.editor.getModel();
-            this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
-                angular.extend(it.templateOptions, {
+                angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
                 });
-                this.onFieldUpdate(it);
+
+                if ((artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
+                    field.type = "bpFieldReadOnly";
+                }               
+
+                this.onFieldUpdate(field);
+
 
             });
         } catch (ex) {

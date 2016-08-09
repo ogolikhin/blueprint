@@ -118,7 +118,7 @@ export class ProjectManager implements IProjectManager {
                                 });
                                 _projectCollection.unshift(_project);
                                 self.projectCollection.onNext(_projectCollection);
-                                this.selectionManager.selection = { source: SelectionSource.Manager, artifact: _project };
+                                this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
                                 this.messageService.addError(error["message"] || "Project_NotFound");
@@ -172,7 +172,7 @@ export class ProjectManager implements IProjectManager {
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
                     } else {
-                        this.messageService.addError(error["message"] ||"Artifact_NotFound");
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 
@@ -320,18 +320,23 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "Never published",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             primitiveType: Models.PrimitiveType.User,
+            userGroupDefaultValue: [{
+                displayName : "<empty>"
+            }],
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{

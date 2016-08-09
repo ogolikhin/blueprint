@@ -1,5 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, TraceType, TraceDirection } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -44,7 +43,6 @@ export interface IItem {
     specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
-    //for client use
     predefinedType?: ItemTypePredefined;
 }
 
@@ -61,14 +59,18 @@ export interface ISubArtifact extends IItem {
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;
-    predefinedType?: ItemTypePredefined;
     version?: number;
+
     createdOn?: Date; 
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
-    permissions?: number;
+
     lockedByUserId?: number;
+
+    permissions?: RolePermissions;
+
+
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 
@@ -228,5 +230,5 @@ export interface IEditorContext {
     artifact?: IArtifact;
     type?: IItemType;
 }
-
   
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };

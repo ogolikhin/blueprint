@@ -1,5 +1,17 @@
-﻿import { ILocalizationService, IStateManager, IMessageService, IArtifactService, IWindowResize, ISidebarToggle, Models } from "./";
-import { BpBaseEditor, PropertyContext, LookupEnum, IProjectManager } from "./bp-base-editor";
+﻿import {
+    BpBaseEditor,
+    PropertyContext,
+    LookupEnum,
+    IProjectManager,
+    IMessageService,
+    IStateManager,
+    IWindowResize,
+    ISidebarToggle,
+    Enums,
+    Models
+} from "./bp-base-editor";
+import { IArtifactService } from "../../main"
+
 
 export class BpArtifactEditor implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-editor.html");
@@ -12,7 +24,7 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = [
-        "messageService", "stateManager", "windowResize", "sidebarToggle", "artifactService", "localization", "$timeout", "projectManager"];
+        "messageService", "stateManager", "windowResize", "sidebarToggle", "artifactService",  "$timeout", "projectManager"];
 
     constructor(
         messageService: IMessageService,
@@ -20,7 +32,6 @@ export class BpArtifactEditorController extends BpBaseEditor {
         windowResize: IWindowResize,
         sidebarToggle: ISidebarToggle,
         private artifactService: IArtifactService,
-        private localization: ILocalizationService,
         $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
@@ -63,7 +74,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error.statusCode !== 1401) {
-                this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                this.messageService.addError(error["message"] || "Artifact_NotFound");
                 }
         }).finally(() => {
             this.isLoading = false;
@@ -75,6 +86,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         if (!propertyContext) {
             return;
         }
+        
         //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);

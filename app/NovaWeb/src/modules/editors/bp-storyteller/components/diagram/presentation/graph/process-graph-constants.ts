@@ -1,4 +1,9 @@
-﻿export enum Direction {
+﻿export var GRAPH_LEFT: number = 30;
+export var GRAPH_TOP: number = 140;
+export var GRAPH_COLUMN_WIDTH: number = 150;
+export var GRAPH_ROW_HEIGHT: number = 220;
+
+export enum Direction {
     LeftToRight = 0,
     RightToLeft
 };

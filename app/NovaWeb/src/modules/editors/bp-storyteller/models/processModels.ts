@@ -1,6 +1,32 @@
 import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/enums";
 import {IHashMap} from "../../../main/models/models";
-import {PropertyType} from "./enums";
+import {PropertyType, PropertyValueFormat} from "./enums";
+
+export interface IArtifactInfo {
+    id: number;
+    typePrefix: string;
+    name: string;
+    typeId: number;
+    parentId: number;
+    orderIndex: number;
+    shortDescription: string;
+    notInCollection: boolean;
+    isDiagram: boolean;
+    predefined: ItemTypePredefined;
+    hasComments: boolean;
+}
+export interface IArtifactProperty {
+    name: string;
+    value: any;
+    format: PropertyValueFormat;
+    propertyTypeId: number;
+}
+export interface IArtifactWithProperties {
+    artifactId: number;
+    properties: IArtifactProperty[];
+    authorHistory: IArtifactProperty[];
+    description: IArtifactProperty;
+}
 
 export interface IVersionInfo {
     artifactId: number;
@@ -204,4 +230,61 @@ export class ProcessModel implements IProcess {
         public requestedVersionInfo: IVersionInfo = null) {
         this.status = status || <IItemStatus>{};
     }
+}
+
+export class TaskShapeModel extends ProcessShapeModel implements ITaskShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
+    }
+}
+
+export class UserTaskShapeModel extends TaskShapeModel implements IUserTaskShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
+    }
+}
+
+export class SystemTaskShapeModel extends TaskShapeModel implements ISystemTaskShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
+    }
+}
+
+export class NewUserTaskInfo {
+    public userTaskId: number;
+    public systemTaskId: number;
+}
+
+export class SourcesAndDestinations {
+    public sourceIds: number[];
+    public destinationIds: number[];
+}
+
+export class EdgeGeo {
+    edge: MxCell;
+    state: MxCellState;
 }

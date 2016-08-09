@@ -238,7 +238,7 @@ describe("Component BPDiscussionPanel", () => {
     it("Clicking new comment shows add comment",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            const artifact = { id: 22, name: "Artifact", version: 1 } as Models.IArtifact;
             artifact.prefix = "PRO";
 
             //Act

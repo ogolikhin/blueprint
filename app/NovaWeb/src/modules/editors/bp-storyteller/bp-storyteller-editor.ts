@@ -4,8 +4,8 @@ import {ISelectionManager } from "../../main/services";
 import * as Models from "../../main/models/models";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
-import {SubArtifactEditorModalOpener} from "./dialogs/sub-artifact-editor-modal-opener-controller";
-import {ICommunicationService, CommunicationService} from "./dialogs/communication-service";
+import {SubArtifactEditorModalOpener} from "./dialogs/sub-artifact-editor-modal-opener";
+import {IDialogManager, DialogManager} from "./dialogs/dialog-manager";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -23,7 +23,7 @@ export class BpStorytellerEditorController {
 
     public storytellerDiagram : StorytellerDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
-    public communicationService: ICommunicationService;
+    public dialogManager: IDialogManager;
 
     public static $inject = [
         "$rootScope",
@@ -52,8 +52,8 @@ export class BpStorytellerEditorController {
         private $uibModal: ng.ui.bootstrap.IModalService
     ) {
 
-        this.communicationService = new CommunicationService();
-        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.communicationService);
+        this.dialogManager = new DialogManager();
+        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
 
     }
 
@@ -84,7 +84,7 @@ export class BpStorytellerEditorController {
             this.$log,
             this.processService,
             this.messageService,
-            this.communicationService
+            this.dialogManager
         );
 
         this.storytellerDiagram.createDiagram(artifact.toString());

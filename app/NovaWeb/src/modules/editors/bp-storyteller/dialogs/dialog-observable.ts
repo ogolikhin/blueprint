@@ -1,20 +1,11 @@
-export interface IObserver<T> {
-    update(...arg: any[]);
-}
-
-export interface IObservable<T> {
+export interface IDialogObservable<T> {
     registerObserver(observer: any): void;
     removeObserver(observer: any): void;
     notifyObservers(...arg: any[]): void;
 }
 
 
-export class Observer<T> implements IObserver<T> {
-    update(...arg: any[]) {
-    }
-}
-
-export class Observable<T> implements IObservable<T> {
+export class DialogObservable<T> implements IDialogObservable<T> {
     private _observers: any;
 
     constructor() {

@@ -2,7 +2,7 @@
 import {ProcessModels, IProcessService} from "../../"
 import {IMessageService} from "../../../../core"
 import {StorytellerViewModel, IStorytellerViewModel} from "./viewmodel/storyteller-view-model";
-import {ICommunicationService, CommunicationService} from "../../dialogs/communication-service";
+import {IDialogManager, DialogManager} from "../../dialogs/dialog-manager";
 
 export class StorytellerDiagram {
     public processModel: ProcessModels.IProcess;
@@ -17,7 +17,7 @@ export class StorytellerDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private communicationService: ICommunicationService) {
+        private dialogManager: IDialogManager) {
 
         this.processModel = null;
     }
@@ -59,13 +59,13 @@ export class StorytellerDiagram {
     }
 
     public openDialog() {
-        this.storytellerViewModel.communicationService.openDialog(1, 0);
+        this.storytellerViewModel.dialogManager.openDialog(1, 0);
     }
 
     private createProcessViewModel(process: ProcessModels.IProcess): IStorytellerViewModel {
         if (this.storytellerViewModel == null) {
             this.storytellerViewModel = new StorytellerViewModel(process, this.$rootScope, this.$scope, this.messageService);
-            this.storytellerViewModel.communicationService = this.communicationService; 
+            this.storytellerViewModel.dialogManager = this.dialogManager; 
         } else {
             this.storytellerViewModel.updateProcessClientModel(process);
         }

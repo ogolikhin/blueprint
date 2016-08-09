@@ -1,7 +1,7 @@
 import {ModalDialogType} from "./base-modal-dialog-controller";
-import {Observable} from "./observable";
+import {DialogObservable} from "./dialog-observable";
 
-export interface ICommunicationService {
+export interface IDialogManager {
     registerSetGraphObserver(observer: any);
     removeSetGraphObserver(observer: any);
     setGraph(func: any);
@@ -11,17 +11,17 @@ export interface ICommunicationService {
     openDialog(id: number, dialogType: ModalDialogType);
 }
 
-export class CommunicationService implements ICommunicationService {
-    private setGraphObservable: Observable<any>;
-    private openDialogObservable: Observable<any>;
+export class DialogManager implements IDialogManager {
+    private setGraphObservable: DialogObservable<any>;
+    private openDialogObservable: DialogObservable<any>;
 
     constructor() {
 
         //this.exceptionHandler = new Shell.ExceptionHandler(messageService, $rootScope);
 
         // Create observables
-        this.setGraphObservable = new Observable<any>();
-        this.openDialogObservable = new Observable<any>();
+        this.setGraphObservable = new DialogObservable<any>();
+        this.openDialogObservable = new DialogObservable<any>();
     };
 
     // 1. Set graph object  

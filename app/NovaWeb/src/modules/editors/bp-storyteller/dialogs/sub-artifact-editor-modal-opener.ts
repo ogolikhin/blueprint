@@ -1,4 +1,4 @@
-import {ICommunicationService, CommunicationService} from "./communication-service";
+import {IDialogManager, DialogManager} from "../dialogs/dialog-manager";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./user-story-dialog-model";
@@ -19,10 +19,10 @@ export class SubArtifactEditorModalOpener {
     constructor(private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
         private $rootScope: ng.IRootScopeService,
-        private communicationService: ICommunicationService
+        private dialogManager: IDialogManager
     ) {
-        communicationService.registerSetGraphObserver(this.setGraph);
-        communicationService.registerOpenDialogObserver(this.openDialog);
+        dialogManager.registerSetGraphObserver(this.setGraph);
+        dialogManager.registerOpenDialogObserver(this.openDialog);
     }
 
     private setGraph = (graph) => {
@@ -260,8 +260,8 @@ export class SubArtifactEditorModalOpener {
     }
 
     public onDestroy = () => {
-        this.communicationService.removeSetGraphObserver(this.setGraph);
-        this.communicationService.removeOpenDialogObserver(this.openDialog);
+        this.dialogManager.removeSetGraphObserver(this.setGraph);
+        this.dialogManager.removeOpenDialogObserver(this.openDialog);
     }
 
 }

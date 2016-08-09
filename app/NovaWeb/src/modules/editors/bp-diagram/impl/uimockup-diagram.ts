@@ -225,7 +225,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
 
         const calendarIconStyle = new Style();
-        calendarIconStyle["selectable"] = 0;
+        calendarIconStyle[Styles.STYLE_SELECTABLE] = 0;
         calendarIconStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         calendarIconStyle[mxConstants.STYLE_FILLCOLOR] = "black";
         calendarIconStyle[mxConstants.STYLE_SHAPE] = "calendaricon";
@@ -2132,8 +2132,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     //Makes the Vertex Unselectable
     public makeVertexUnselectable = (vertex: MxCell) => {
         let vertexStyle = vertex.getStyle();
-        if (vertexStyle.indexOf("selectable") < 0) {
-            vertexStyle += "selectable=0;";
+        if (vertexStyle.indexOf(Styles.STYLE_SELECTABLE) < 0) {
+            const noneSelectable = Styles.STYLE_SELECTABLE + "=0;";
+            vertexStyle += noneSelectable;
         }
         vertex.setStyle(vertexStyle);
     };

@@ -32,11 +32,12 @@ export class BPDiagramController {
     ];
 
     public isLoading: boolean = true;
+    public isBrokenOrOld: boolean = false;
+    public errorMsg: string;
 
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    public isBrokenOrOld: boolean = false;
-    public errorMsg: string;
+    private subscribers: Rx.IDisposable[];
 
     constructor(
         private $element: ng.IAugmentedJQuery,
@@ -51,6 +52,15 @@ export class BPDiagramController {
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
+    public $onInit() {
+        //use context reference as the last parameter on subscribe...
+        this.subscribers = [
+            //subscribe for current artifact change (need to distinct artifact)
+            this.selectionManager.selectedSubArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this),
+        ];
+        this.$element.on("click", this.stopPropagation);
+    }
+
     public $onChanges(changesObj) {
         if (changesObj.context) {
             const artifact = changesObj.context.currentValue as Models.IArtifact;
@@ -61,6 +71,8 @@ export class BPDiagramController {
     }
 
     public $onDestroy() {
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.$element.off("click", this.stopPropagation);
         if (this.diagramView) {
             this.diagramView.destroy();
         }
@@ -121,6 +133,12 @@ export class BPDiagramController {
         });
     }
 
+    private clearSelection() {
+        if (this.diagramView) {
+            this.diagramView.clearSelection();
+        }
+    }
+
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {
         var w = width + "px";
         var h = height + "px";
@@ -137,5 +155,9 @@ export class BPDiagramController {
         $element.css("height", h);
         $element.css("overflow", "hidden");
         $element.css("background-color", "");
+    }
+
+    private stopPropagation(eventObject: JQueryEventObject) {
+        eventObject.stopPropagation();
     }
 }

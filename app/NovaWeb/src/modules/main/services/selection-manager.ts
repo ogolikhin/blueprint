@@ -8,6 +8,7 @@ export interface ISelectionManager {
     selectionObservable: Rx.Observable<ISelection>;
     selection: ISelection;
     clearSelection();
+    clearSubArtifactSelection();
 }
 
 export enum SelectionSource {
@@ -86,5 +87,15 @@ export class SelectionManager implements ISelectionManager {
 
     public clearSelection() {
         this.selectionSubject.onNext({ artifact: null, subArtifact: null, source: SelectionSource.None });
+    }
+
+    public clearSubArtifactSelection() {
+        const oldSelection = this.selectionSubject.getValue();
+        if (oldSelection) {
+            this.selectionSubject.onNext({
+                source: oldSelection.source,
+                artifact: oldSelection.artifact
+            });
+        }
     }
 }

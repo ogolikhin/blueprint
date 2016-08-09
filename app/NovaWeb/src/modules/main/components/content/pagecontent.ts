@@ -51,7 +51,7 @@ class PageContentCtrl {
 
             _context.artifact = artifact;
             _context.type = this.projectManager.getArtifactType(_context.artifact);
-            this.$state.go("main.artifact", { id: artifact.id, context: _context });
+            this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -64,5 +64,11 @@ class PageContentCtrl {
             .filter(s => s != null && s.source === SelectionSource.Explorer)
             .map(s => s.artifact)
             .distinctUntilChanged(a => a ? a.id : -1).asObservable();
+    }
+
+    public onContentSelected($event: MouseEvent) {
+        if ($event.target && $event.target["tagName"] !== "BUTTON") {
+            this.selectionManager.clearSubArtifactSelection();
+        }
     }
 }

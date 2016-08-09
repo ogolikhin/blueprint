@@ -1,6 +1,6 @@
 ﻿import { IProjectManager, Models} from "../..";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, ISelection, SelectionSource } from "./../../services/selection-manager";
+import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -24,7 +24,11 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.selectedArtifactObservable.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this),
+            this.selectionManager.selectionObservable
+                .filter(s => s != null && s.source === SelectionSource.Explorer)
+                .map(s => s.artifact)
+                .distinctUntilChanged()
+                .subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -32,7 +36,6 @@ export class ProjectExplorerController {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
-
 
     // the object defines how data will map to ITreeNode
     // key: data property names, value: ITreeNode property names
@@ -70,7 +73,6 @@ export class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-
     private onLoadProject = (projects: Models.IProject[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
@@ -82,6 +84,7 @@ export class ProjectExplorerController {
             }
         }
     }
+
     private onSelectArtifact = (artifact: Models.IArtifact) => {
         // so, just need to do an extra check if the component has created
         if (this.tree && artifact) {
@@ -99,7 +102,6 @@ export class ProjectExplorerController {
         this.projectManager.loadArtifact(prms as Models.IArtifact);
         return null;
     };
-
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
@@ -123,6 +125,4 @@ export class ProjectExplorerController {
         };
         return artifact;
     };
-
-
 }

@@ -34,6 +34,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
+    public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
 
     constructor(
@@ -69,6 +70,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
+            this.artifactEverPublished = (artifact.version >= 0);
             this.subArtifact = subArtifact;
             this.setDiscussions();
         } else {
@@ -77,6 +79,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             this.artifactDiscussionList = [];
             this.canCreate = false;
             this.canDelete = false;
+            this.artifactEverPublished = false;
         }
     }
 
@@ -84,7 +87,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 this.artifactDiscussionList = discussionResultSet.discussions;
-                this.canCreate = discussionResultSet.canCreate;
+                this.canCreate = discussionResultSet.canCreate && this.artifactEverPublished;
                 this.canDelete = discussionResultSet.canDelete;
             });
     }
@@ -212,7 +215,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.artifactDiscussionList = discussionsResultSet.discussions;
                         this.canDelete = discussionsResultSet.canDelete;
-                        this.canCreate = discussionsResultSet.canCreate;
+                        this.canCreate = discussionsResultSet.canCreate && this.artifactEverPublished;
                     });
                 }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }

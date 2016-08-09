@@ -396,6 +396,7 @@ $property-multichoice-height: 24px;
 
         .choice {
           overflow: hidden;
+          text-overflow: ellipsis;
           white-space: nowrap;
         }
       }

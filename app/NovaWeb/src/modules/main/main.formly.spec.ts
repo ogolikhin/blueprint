@@ -3,6 +3,7 @@ import "angular-mocks";
 import "angular-messages";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
+import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
@@ -66,6 +67,44 @@ describe("Formly", () => {
             let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[1];
 
             expect(fieldInput.innerHTML).toContain("2016");
+        });
+    });
+
+    describe("SelectMulti", () => {
+        it("should be initialized properly", function () {
+            compileAndSetupStuff({model: {selectMulti: ""}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti");
+            let fieldScope = angular.element(fieldNode[0]).isolateScope();
+            let fieldInput = fieldNode[0].querySelector("input");
+            (<any>fieldScope).bpFieldSelectMulti.scrollIntoView({target: fieldInput});
+
+            expect(fieldNode.length).toBe(2);
+            expect(fieldNode[0]).toBeDefined();
+            expect(fieldScope).toBeDefined();
+            expect(fieldInput).toBe(document.activeElement);
+        });
+
+        it("should fail if empty", function () {
+            compileAndSetupStuff({model: {selectMulti: []}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti")[0];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.required).toBeTruthy();
+        });
+
+        it("should succeed if empty, as not required", function () {
+            compileAndSetupStuff({model: {selectMultiNotVal: []}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti")[1];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+            expect((<any>fieldScope).fc.$error.required).toBeUndefined();
         });
     });
 
@@ -428,7 +467,13 @@ describe("Formly", () => {
 });
 
 function createModule() {
-    let app = angular.module("formlyModule", ["formly", "formlyBootstrap"]);
+    let app = angular.module("formlyModule", [
+        //"ui.bootstrap",
+        "ui.select",
+        "ui.tinymce",
+        "formly",
+        "formlyBootstrap"
+    ]);
     setupFormly(app);
     setupDirectiveThatUsesFormly(app);
     return app.name;
@@ -500,6 +545,35 @@ function createModule() {
                         {
                             type: "bpFieldInlineTinymce",
                             key: "inlineTinymce"
+                        },
+                        {
+                            type: "bpFieldSelectMulti",
+                            key: "selectMulti",
+                            templateOptions: {
+                                options: [
+                                    { value: 1, name: "Option 1" },
+                                    { value: 2, name: "Option 2" },
+                                    { value: 3, name: "Option 3" },
+                                    { value: 4, name: "Option 4" },
+                                    { value: 5, name: "Option 5" }
+                                ],
+                                optionsAttr: "bs-options",
+                                required: true
+                            }
+                        },
+                        {
+                            type: "bpFieldSelectMulti",
+                            key: "selectMultiNotVal",
+                            templateOptions: {
+                                options: [
+                                    { value: 10, name: "Option 10" },
+                                    { value: 20, name: "Option 20" },
+                                    { value: 30, name: "Option 30" },
+                                    { value: 40, name: "Option 40" },
+                                    { value: 50, name: "Option 50" }
+                                ],
+                                optionsAttr: "bs-options"
+                            }
                         },
                         {
                             type: "bpFieldText",

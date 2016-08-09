@@ -130,7 +130,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             };
 
             $scope.filterMultiChoice = function(item): boolean {
-                if(angular.isArray(currentModelVal)) {
+                if (angular.isArray(currentModelVal)) {
                     return currentModelVal.indexOf(item.value) >= 0;
                 }
                 return false;

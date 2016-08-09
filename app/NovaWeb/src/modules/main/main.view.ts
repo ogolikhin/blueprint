@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { IMessageService, IWindowVisibility, IStateManager } from "../core";
+import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../core";
 import { IUser, ISession } from "../shell";
 import { IProjectManager, Models, Enums } from "./";
 
@@ -15,13 +15,14 @@ export interface IMainViewController {
 
 export class MainViewController implements IMainViewController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$state", "session", "projectManager", "messageService", "stateManager", "windowVisibility"];
+    static $inject: [string] = ["$state", "session", "projectManager", "messageService", "stateManager", "localization", "windowVisibility"];
     constructor(
         private $state: ng.ui.IState,
         private session: ISession,
         private projectManager: IProjectManager,
         private messageService: IMessageService,
         private stateManager: IStateManager,
+        private localization: ILocalizationService,
         private windowVisibility: IWindowVisibility) {
     }
 
@@ -54,7 +55,7 @@ export class MainViewController implements IMainViewController {
         if (!this.isActive) {
             this.stateManager.dispose();
         }
-    }
+    };
 
     public isLeftToggled: boolean;
     public isRightToggled: boolean;
@@ -64,7 +65,7 @@ export class MainViewController implements IMainViewController {
         } else if (Enums.ILayoutPanel.Right === id) {
             this.isRightToggled = angular.isDefined(state) ? state : !this.isRightToggled;
         }
-    }
+    };
 
     public isActive: boolean;
     

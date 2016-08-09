@@ -393,6 +393,11 @@ $property-multichoice-height: 24px;
         max-height: #{2.5 * $property-min-height};
         min-height: $property-min-height;
         padding-top: 5px;
+
+        .choice {
+          overflow: hidden;
+          white-space: nowrap;
+        }
       }
 
       &.richtext {

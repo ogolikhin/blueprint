@@ -68,6 +68,14 @@ describe("Formly", () => {
 
             expect(fieldInput.innerHTML).toContain("2016");
         });
+
+        it("should display read only multichoice", function () {
+            compileAndSetupStuff({model: {readonlySelectMulti: [1, 2]}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[2];
+
+            expect(fieldInput.children.length).toBe(2);
+        });
     });
 
     describe("SelectMulti", () => {
@@ -536,6 +544,22 @@ function createModule() {
                             key: "readonlyDate",
                             data: {
                                 primitiveType: PrimitiveType.Date
+                            }
+                        },
+                        {
+                            type: "bpFieldReadOnly",
+                            key: "readonlySelectMulti",
+                            data: {
+                                primitiveType: PrimitiveType.Choice
+                            },
+                            templateOptions: {
+                                options: [
+                                    { value: 1, name: "Option 1" },
+                                    { value: 2, name: "Option 2" },
+                                    { value: 3, name: "Option 3" },
+                                    { value: 4, name: "Option 4" },
+                                    { value: 5, name: "Option 5" }
+                                ]
                             }
                         },
                         {

@@ -252,7 +252,7 @@ $property-multichoice-height: 24px;
         box-shadow: none;
         margin: 2px;
         max-width: calc(100% - 8px);
-        min-width: #{($property-input-width / 4) - 4px};
+        min-width: calc(100% / 3 - 8px);
         outline: none;
         padding: 0;
 
@@ -522,10 +522,13 @@ $property-multichoice-height: 24px;
 */
   .formly-field-bpFieldTinymce,
   .formly-field-bpFieldInlineTinymce {
-    a {
-      color: blue;
-      cursor: pointer;
-      text-decoration: underline;
+    div.form-tinymce,
+    div.form-tinymce[contenteditable="true"] {
+      a {
+        color: blue;
+        cursor: pointer;
+        text-decoration: underline;
+      }
     }
   }
 

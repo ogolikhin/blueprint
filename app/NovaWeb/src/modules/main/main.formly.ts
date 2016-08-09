@@ -231,7 +231,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false">
+                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -261,9 +261,14 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
 
-            function moveToBottom() {
-                console.log("here")
-            }
+            $scope.bpFieldSelectMulti.scrollIntoView = function ($event) {
+                let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
+
+                if (target) {
+                    target.scrollTop = 0;
+                    target.focus();
+                }
+            };
         }]
     });
 

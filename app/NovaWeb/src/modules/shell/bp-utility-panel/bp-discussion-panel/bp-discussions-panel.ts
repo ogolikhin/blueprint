@@ -4,7 +4,7 @@ import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from 
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { Message, MessageType, IMessage} from "../../../core/messages/message";
+import { Message, MessageType} from "../../../core/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -122,7 +122,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
+            });
     }
     /* tslint:disable:no-unused-variable */
 
@@ -142,7 +142,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
+            });
     }
     /* tslint:disable:no-unused-variable */
 

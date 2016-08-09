@@ -48,7 +48,6 @@ describe("Component BPCommentEdit", () => {
             vm.postComment = () => { };
             vm.isWaiting = false;
             spyOn(vm, "postCommentInternal").and.callThrough();
-            let deferred = $q.defer();
             let formatter = {};
             let editor = {
                 formatter: formatter
@@ -102,19 +101,19 @@ describe("Component BPCommentEdit", () => {
     it("tinymce setup should call apply after onclick call",
         inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange 
-            interface menuItem {
+            interface IMenuItem {
                 icon: string;
                 text: string;
                 onclick();
             };
-            interface menuToolbar {
+            interface IMenuToolbar {
                 type: string;
                 text: string;
                 icon: string;
-                menu: menuItem[];
+                menu: IMenuItem[];
             };
-            let menuItems: menuItem[];
-            let addButton = (a: string, menuToolbar: menuToolbar) => {
+            let menuItems: IMenuItem[];
+            let addButton = (a: string, menuToolbar: IMenuToolbar) => {
                 if (!menuItems) {
                     menuItems = menuToolbar.menu;
                 } else {

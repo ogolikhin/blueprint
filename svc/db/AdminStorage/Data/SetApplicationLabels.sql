@@ -42,6 +42,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Discar
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Publish_All', 'en-US', N'Publish All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Refresh_All', 'en-US', N'Refresh All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Delete', 'en-US', N'Delete')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Tour', 'en-US', N'Tour')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Discussions', 'en-US', N'Discussions')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Properties', 'en-US', N'Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Attachments', 'en-US', N'Attachments')

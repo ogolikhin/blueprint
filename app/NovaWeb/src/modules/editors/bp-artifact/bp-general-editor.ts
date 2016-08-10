@@ -2,6 +2,7 @@
     BpBaseEditor,
     PropertyContext,
     LookupEnum,
+    ILocalizationService,
     IProjectManager,
     IMessageService,
     IStateManager,
@@ -19,9 +20,10 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     constructor(
+        localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
         windowResize: IWindowResize,
@@ -29,7 +31,7 @@ export class BpGeneralEditorController extends BpBaseEditor {
         $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
     }
 
     public activeTab: number;

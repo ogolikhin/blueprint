@@ -15,7 +15,7 @@ import "angular-formly-templates-bootstrap";
 import "../shell";
 import "../shared";
 import "tinymce";
-import * as moment from "moment";
+//import * as moment from "moment";
 import * as Enums from "./models/enums";
 import { Helper } from "../shared/utils/helper";
 import * as Models from "./models/models";
@@ -33,7 +33,7 @@ import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
 import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
 import { MainViewComponent } from "./main.view";
 import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
-import { formlyDecorate, formlyConfigExtendedFields } from "./main.formly";
+import { formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
 import {ArtifactStateController} from "./router/artifact.state";
 
@@ -73,7 +73,7 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
 
     tinymce.baseURL = "../novaweb/libs/tinymce";
 
-    moment.locale(Helper.getFirstBrowserLanguage());
+//    moment.locale(Helper.getFirstBrowserLanguage());
     //console.log("language: " + moment.locale(), "date format: " + moment.localeData().longDateFormat("L"));
 }
 
@@ -118,6 +118,5 @@ angular.module("app.main", [
     .controller("diagramStateController", DiagramStateController)
     .controller("glossaryStateController", GlossaryStateController)
     .controller("storytellerStateController", StorytellerStateController)
-    .config(formlyDecorate)
     .config(Routes)
     .run(formlyConfigExtendedFields);

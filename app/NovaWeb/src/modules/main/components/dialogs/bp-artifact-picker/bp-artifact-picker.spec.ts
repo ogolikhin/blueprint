@@ -31,7 +31,15 @@ describe("Project Explorer Test", () => {
         $provide.service("dialogService", DialogServiceMock);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService, selectionManager: SelectionManager, projectRepository: ProjectRepositoryMock, dialogService: DialogServiceMock) => {
+    beforeEach(inject((
+        $rootScope: ng.IRootScopeService,
+        localization: LocalizationServiceMock,
+        projectRepository: ProjectRepositoryMock,
+        projectManager: ProjectManager,
+        $compile: ng.ICompileService,
+        selectionManager: SelectionManager,
+        dialogService: DialogServiceMock
+    ) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -47,7 +55,7 @@ describe("Project Explorer Test", () => {
 
         controller = new ArtifactPickerController(
             $scope,
-            new LocalizationServiceMock(),
+            localization,
             new ModalServiceInstanceMock(),
             projectManager,
             selectionManager,

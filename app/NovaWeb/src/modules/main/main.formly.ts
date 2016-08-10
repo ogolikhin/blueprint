@@ -84,6 +84,9 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Number">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.User">
+                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+            </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice">
                 <div id="{{::id}}" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">
                     <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
@@ -108,49 +111,47 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 return false;
             };
 
-            switch ($scope.options.data.primitiveType) {
-                case PrimitiveType.Text:
-                    if (currentModelVal) {
-                        $scope.tooltip = currentModelVal;
-                    } else if ($scope.options.data && $scope.options.data.stringDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.stringDefaultValue;
-                    }
-                    break;
-                case PrimitiveType.Date:
-                    if (moment(currentModelVal).isValid()) {
-                        if ($scope.options.data.lookup === customProperty) {
-                            $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(localization.current.longDateFormat);
-                        } else {
-                            $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
+                switch ($scope.options.data.primitiveType) {
+                    case PrimitiveType.Text:
+                        if (currentModelVal) {
+                            $scope.tooltip = currentModelVal;
+                        } else if ($scope.options.data && $scope.options.data.stringDefaultValue) {
+                            $scope.model[$scope.options.key] = $scope.options.data.stringDefaultValue;
                         }
-                    } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
-                    }
-                    break;
-                case PrimitiveType.Number:
-                    if (currentModelVal) {
-                        $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
-                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                        $scope.model[$scope.options.key] = localization.toLocaleNumber($scope.options.data.decimalDefaultValue);
-                    }
-                    break;
-                case PrimitiveType.Choice:
-                    if (!currentModelVal) {
-                        if ($scope.options.data && $scope.options.data.defaultValidValueId) {
+                        break;
+                    case PrimitiveType.Date:
+                        if (moment(currentModelVal).isValid()) {
+                            if ($scope.options.data.lookup === customProperty) {
+                                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(localization.current.longDateFormat);
+                            } else {
+                                $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
+                            }
+                        } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
+                            $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
+                        }
+                        break;
+                    case PrimitiveType.Number:
+                        if (currentModelVal) {
+                            $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
+                        } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                            $scope.model[$scope.options.key] = localization.toLocaleNumber($scope.options.data.decimalDefaultValue);
+                        }
+                        break;
+                    case PrimitiveType.Choice:
+                        if (angular.isUndefined(currentModelVal) && $scope.options.data && $scope.options.data.defaultValidValueId) {
                             $scope.model[$scope.options.key] = [$scope.options.data.defaultValidValueId];
                         }
-                    }
-                    break;
-                case PrimitiveType.User:
+                        break;
+                    case PrimitiveType.User:
+                        if (angular.isUndefined(currentModelVal) && $scope.options.data && $scope.options.data.decimalDefaultValue) {
+                            $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
+                        }
+                        break;
+                    default:
+                        break;
 
-                    if (currentModelVal) {
-                        $scope.model[$scope.options.key] = currentModelVal;
-                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
-                    }
-                    break;
-                default:
-            }
+                }
+            
         }]
     });
 
@@ -296,6 +297,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-model-options="{allowInvalid: true}"
                     ng-keyup="bpFieldNumber.keyup($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
@@ -441,6 +443,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-model-options="{allowInvalid: true}"
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"

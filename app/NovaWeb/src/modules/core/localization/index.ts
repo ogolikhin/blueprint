@@ -10,10 +10,12 @@ export interface ILocalizationService {
 }
 export interface ILocaleFormat {
     locale: string;
+    shortDateFormat: string;
     longDateFormat: string;
     datePickerDayTitle: string;
     datePickerFormat: string;
     decimalSeparator: string;
+    thousandSeparator: string;
 
 }
 
@@ -50,11 +52,13 @@ export class LocalizationService implements ILocalizationService {
 
         this._current.locale = moment.locale(LocalizationService.getBrowserLanguage());
 
-        this._current.longDateFormat = moment.localeData().longDateFormat("L");
+        this._current.shortDateFormat = moment.localeData().longDateFormat("L");
+        this._current.longDateFormat = moment.localeData().longDateFormat("L LT");
         this._current.datePickerDayTitle = moment.localeData().longDateFormat("LL");
         this._current.datePickerDayTitle = this._current.datePickerDayTitle.indexOf("Y") < this._current.datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
         this._current.datePickerFormat = this.uiDatePickerFormatAdaptor(this._current.longDateFormat);
-        this._current.decimalSeparator = this.getDecimalSeparator()
+        this._current.decimalSeparator = this.getDecimalSeparator();
+        this._current.thousandSeparator = this._current.decimalSeparator === "." ? "," : ".";
 
     }
     get(name: string, defaultValue?: string): string {
@@ -118,6 +122,7 @@ export class LocalizationService implements ILocalizationService {
 
 
     private getDecimalSeparator(): string {
+
         let separator = ".";
         if (Number.toLocaleString) {
             separator = (1.1).toLocaleString(this.current.locale).replace(/\d/g, "");
@@ -156,6 +161,48 @@ export class LocalizationService implements ILocalizationService {
 
         return numberAsString;
     };
+
+    
+
+    public toNumber(value: string): number {
+        
+        let rx = new RegExp(`^(-?)((?!\\${this._current.decimalSeparator}))(\\d *|\\d{1,3}(${this._current.thousandSeparator}\\d{3 })*)(\\${this._current.decimalSeparator}\\d +)?`, "g");
+        if (rx.test(value)) {
+            if (value.indexOf(this._current.decimalSeparator)) {
+                return parseFloat(value);
+            } else {
+                return parseInt(value, 10);
+            }
+        } else {
+            return null;
+        }
+    };
+
+    public toDate(value: string): Date {
+        let d = moment(value);
+        if (d.isValid()) {
+            return d.toDate();
+        }
+        return null;
+    };
+
+    public toDateSting(value: Date, format?: string) {
+        let d = moment(value);
+        if (d.isValid()) {
+            return d.format(format);
+        }
+        return null;
+    }
+
+    public toNumberSting(value: number, decimals?: number) {
+        if (angular.isNumber) {
+            return value.toLocaleString(this._locale, {
+                useGrouping: false,
+                maximumFractionDigits: decimals || 0
+            });
+        }
+        return null;
+    }
 
     public toLocaleNumber(number: number): string {
         if (number === null || typeof number === "undefined" || isNaN(number)) {

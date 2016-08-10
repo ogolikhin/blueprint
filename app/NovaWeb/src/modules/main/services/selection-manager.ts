@@ -20,6 +20,7 @@ export enum SelectionSource {
 
 export interface ISelection {
     source: SelectionSource;
+    parameter?: any[]
     artifact?: IArtifact;
     subArtifact?: ISubArtifact;
 }
@@ -57,6 +58,7 @@ export class SelectionManager implements ISelectionManager {
     }
 
     private getSelectedItem(selection: ISelection): IItem {
+        this.tt(selection.source, ...selection.parameter)
         if (selection) {
             if (selection.subArtifact) {
                 return selection.subArtifact;

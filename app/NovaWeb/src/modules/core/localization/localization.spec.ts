@@ -1,19 +1,24 @@
-﻿//import {LocalizationService} from "./";
+﻿import {LocalizationService} from "./";
 
 
+describe("Localization", () => {
 
-//describe("getFirstBrowserLanguage", () => {
-//    it("returns a value", function () {
-//        // Arrange
-//        let language;
+    describe("Language", () => {
+        it("is set", function () {
+            // Arrange
+            let language;
 
-//        // Act
-//        language = LocalizationService.getBrowserLanguage();
+            // Act
+            language = LocalizationService.getBrowserLanguage();
 
-//        // Assert
-//        expect(language).not.toBeNull();
-//    });
-//});
+            // Assert
+            expect(language).not.toBeNull();
+        });
+    });
+
+});
+
+
 
 ////describe("uiDatePickerFormatAdaptor", () => {
 ////    it("should correctly parse en-US format", () => {

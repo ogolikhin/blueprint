@@ -589,6 +589,13 @@ $property-multichoice-height: 24px;
       padding: 2px;
       width: calc(100% + 4px);
     }
+
+    .formly-field-bpFieldReadOnly {
+      > div,
+      .input-group {
+        width: 100%;
+      }
+    }
   }
 }
 

@@ -3,6 +3,15 @@ import { Helper } from "../../shared";
 import { ISelectionManager, Models } from "../../main";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
+// TODO: change order after Properites US: 872
+enum PanelType {
+    History,
+    Discussions,
+    Files,
+    Properties,
+    Relationships
+}
+
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
     public controller: Function = BPUtilityPanelController;
@@ -49,17 +58,14 @@ export class BPUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    public testHidePanel() {
-        console.log("Test hide");
+    private hidePanel(panelType: PanelType) {
         let accordionCtrl: IBpAccordionController = this.getAccordionController();
-        let panels = accordionCtrl.getPanels();
-        accordionCtrl.hidePanel(panels[3]);
+        accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
     }
-    public testShowPanel() {
-        console.log("Test show");
+
+    private showPanel(panelType: PanelType) {
         let accordionCtrl: IBpAccordionController = this.getAccordionController();
-        let panels = accordionCtrl.getPanels();
-        accordionCtrl.showPanel(panels[3]);
+        accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
     }
 
     private getAccordionController(): IBpAccordionController {

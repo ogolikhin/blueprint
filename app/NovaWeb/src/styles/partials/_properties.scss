@@ -146,6 +146,10 @@ $property-multichoice-height: 24px;
       margin: 0;
     }
 
+    .form-control {
+      z-index: auto;
+    }
+
     label {
       color: $gray-dark;
       display: inline-block;

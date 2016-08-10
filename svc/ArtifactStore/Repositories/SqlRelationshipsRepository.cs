@@ -186,15 +186,11 @@ namespace ArtifactStore.Repositories
             var pathToProject = new List<ItemIdItemNameParentId>();
             var itemId = artifactId;
             ItemIdItemNameParentId item;
-            pathInfoDictionary.TryGetValue(itemId, out item);
-            while (item != null && item.ParentId != 0)
+            while (pathInfoDictionary.TryGetValue(itemId, out item) && (item != null && item.ParentId != 0))
             {
                 pathToProject.Add(item);
                 itemId = item.ParentId;
-                pathInfoDictionary.TryGetValue(itemId, out item);
             }
-            pathToProject.Add(item);
-
             pathToProject.Reverse();
             return pathToProject;
         }

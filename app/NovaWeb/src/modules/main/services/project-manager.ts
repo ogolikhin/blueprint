@@ -206,7 +206,7 @@ export class ProjectManager implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null };
+            this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: this.projectCollection.getValue()[0] || null };
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Project_NotFound");
         }

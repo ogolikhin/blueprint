@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Web.Http;
+using ServiceLibrary.Swagger;
 
 namespace ConfigControl
 {
@@ -23,7 +24,7 @@ namespace ConfigControl
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(SwaggerConfig.Register);
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "ConfigControl", "~/bin/ConfigControl.XML"));
 #endif
         }
 

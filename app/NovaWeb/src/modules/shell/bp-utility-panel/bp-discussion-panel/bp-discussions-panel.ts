@@ -81,6 +81,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     if (error.statusCode && error.statusCode !== 1401) {
                         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                     }
+                    artifact = null;
                 });
             } else {
                 this.setEverPublishedAndDiscussions(artifact.version);

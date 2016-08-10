@@ -313,7 +313,7 @@ $property-multichoice-height: 24px;
         .ui-select-choices-row {
           height: $property-multichoice-height;
 
-          a {
+          .ui-select-choices-row-inner {
             color: $gray-darker;
             cursor: pointer;
             text-decoration: none;
@@ -349,7 +349,7 @@ $property-multichoice-height: 24px;
         }
 
         .ui-select-choices-row.disabled {
-          a {
+          .ui-select-choices-row-inner {
             color: $gray;
             cursor: not-allowed;
 
@@ -533,7 +533,8 @@ $property-multichoice-height: 24px;
 
     .has-error {
       textarea,
-      input {
+      input,
+      .ui-select-container {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }

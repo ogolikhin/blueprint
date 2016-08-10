@@ -73,9 +73,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:disable */
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
+                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+                <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Date">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
@@ -84,9 +85,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice">
-                <div id="{{::id}}" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">
+                <div id="{{::id}}" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">
                     <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
                 </div>
+                <div class="overflow-fade"></div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],

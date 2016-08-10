@@ -390,9 +390,10 @@ $property-multichoice-height: 24px;
       }
 
       &.multiple {
+        margin-top: 5px;
         max-height: #{2.5 * $property-min-height};
-        min-height: $property-min-height;
-        padding-top: 5px;
+        min-height: #{$property-min-height - 5px};
+        padding-bottom: 4px;
 
         .choice {
           overflow: hidden;
@@ -406,6 +407,18 @@ $property-multichoice-height: 24px;
         min-width: $property-input-width;
         padding: 0;
       }
+    }
+
+    .overflow-fade {
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+      display: none;
+      height: 10px;
+      margin-top: -10px;
+      position: relative;
+    }
+
+    .read-only-input.ps-active-y + .overflow-fade {
+      display: block;
     }
 
     .has-messages {
@@ -588,6 +601,13 @@ $property-multichoice-height: 24px;
       margin: 0 -2px;
       padding: 2px;
       width: calc(100% + 4px);
+    }
+
+    .formly-field-bpFieldReadOnly {
+      > div,
+      .input-group {
+        width: 100%;
+      }
     }
   }
 }

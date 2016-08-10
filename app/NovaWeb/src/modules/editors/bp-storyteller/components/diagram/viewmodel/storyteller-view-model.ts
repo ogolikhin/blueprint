@@ -3,6 +3,7 @@ import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
 import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
 import {ProcessModels, ProcessEnums} from "../../../";
+import {IDialogManager} from "../../../dialogs/dialog-manager";
 
 export interface IStorytellerViewModel extends IProcessClientModel{
     description: string;
@@ -19,6 +20,7 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
+    dialogManager: IDialogManager;
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
@@ -45,6 +47,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     private _isSpa: boolean;
     private _isSMB: boolean;
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
+    private _dialogManager: IDialogManager;
     private _justCreatedShapeIds: number[] = [];
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
@@ -154,6 +157,14 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     public set shapeLimit(value: number) {
         this._shapeLimit = value;
+    }
+
+    public get dialogManager(): IDialogManager {
+        return this._dialogManager;
+    }
+
+    public set dialogManager(value: IDialogManager) {
+        this._dialogManager = value;
     }
 
     public get licenseType(): Enums.LicenseTypeEnum {

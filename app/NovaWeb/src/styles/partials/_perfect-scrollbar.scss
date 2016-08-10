@@ -10,6 +10,14 @@ $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
     z-index: $scrollbar-z-index;
   }
 
+  // to make scrollbars always visible
+  &.always-visible {
+    > .ps-scrollbar-x-rail,
+    > .ps-scrollbar-y-rail {
+      opacity: .6;
+    }
+  }
+
   > .ps-scrollbar-x-rail .ps-scrollbar-x,
   > .ps-scrollbar-y-rail .ps-scrollbar-y {
     background: transparent !important;

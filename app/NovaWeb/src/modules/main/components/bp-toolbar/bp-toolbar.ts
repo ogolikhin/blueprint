@@ -3,6 +3,7 @@ import { IDialogSettings, IDialogService } from "../../../shared";
 import { IMessageService, Message } from "../../../core";
 import { IProjectManager, Models, ISelectionManager } from "../../";
 import { OpenProjectController } from "../dialogs/open-project";
+import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -22,7 +23,7 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope"];
+    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope", "$uibModal"];
 
     constructor(
         private localization: ILocalizationService,
@@ -30,7 +31,8 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService) {
+        private $rootScope: ng.IRootScopeService,
+        private $uibModal: ng.ui.bootstrap.IModalService) {
     }
 
     execute(evt: any): void {
@@ -64,7 +66,6 @@ class BPToolbarController implements IBPToolbarController {
         evt.stopImmediatePropagation();
     }
 
-
     public openProject() {
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
@@ -85,6 +86,19 @@ class BPToolbarController implements IBPToolbarController {
     public goToImpactAnalysis() {
         let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
         window.open(url);
+    }
+
+    public openTour() {
+        this.dialogService.open(<IDialogSettings>{
+            template: require("../dialogs/bp-tour/bp-tour.html"),
+            controller: BPTourController,
+            css: "image-preview-modal onboarding"
+        });
+        // this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
+        //     template: require("../dialogs/bp-tour/bp-tour.html"),
+        //     controller: BPTourController,
+        //     controllerAs: "$ctrl"
+        // });
     }
 
     public $onInit(o) {

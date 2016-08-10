@@ -9,10 +9,12 @@ export interface IDialogManager {
     registerOpenDialogObserver(observer: any);
     removeOpenDialogObserver(observer: any);
     openDialog(id: number, dialogType: ModalDialogType);
+
+    onDestroy();
 }
 
 export class DialogManager implements IDialogManager {
-    private setGraphObservable: DialogObservable<any>;
+    private setGraphObservable: DialogObservable<any>; 
     private openDialogObservable: DialogObservable<any>;
 
     constructor() {
@@ -48,6 +50,11 @@ export class DialogManager implements IDialogManager {
 
     public openDialog(id: number, dialogType: ModalDialogType) {
         this.openDialogObservable.notifyObservers(id, dialogType);
+    }
+
+    public onDestroy() {
+        this.setGraphObservable.removeAllObservers();
+        this.openDialogObservable.removeAllObservers();
     }
 }
 

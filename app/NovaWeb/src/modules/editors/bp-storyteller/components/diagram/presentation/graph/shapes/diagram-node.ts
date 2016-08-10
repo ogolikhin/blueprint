@@ -289,9 +289,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return false;
     }
 
-    // TODO: change url 
     public getImageSource(image: string) {
-        return "/Areas/Web/Style/images/Storyteller/" + image;
+        return "/novaweb/static/bp-storyteller/images/" + image;
     }
 
     // TODO: communication with utility panel is different in Nova

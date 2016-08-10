@@ -51,15 +51,19 @@ export class BPUtilityPanelController {
 
     public testHidePanel() {
         console.log("Test hide");
-        let accordionCtrl: IBpAccordionController = angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
+        let accordionCtrl: IBpAccordionController = this.getAccordionController();
         let panels = accordionCtrl.getPanels();
         accordionCtrl.hidePanel(panels[3]);
     }
     public testShowPanel() {
         console.log("Test show");
-        let accordionCtrl: IBpAccordionController = angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
+        let accordionCtrl: IBpAccordionController = this.getAccordionController();
         let panels = accordionCtrl.getPanels();
         accordionCtrl.showPanel(panels[3]);
+    }
+
+    private getAccordionController(): IBpAccordionController {
+        return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
     private onItemChanged = (item: Models.IItem) => {

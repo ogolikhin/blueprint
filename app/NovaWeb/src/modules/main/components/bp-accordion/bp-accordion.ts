@@ -105,49 +105,39 @@ export class BpAccordionCtrl implements IBpAccordionController {
         return this.panels;
     };
 
-    // public getPinnedPanels = () => {
-    //     return this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned);
-    // }
-
     public hidePanel = (panel: IBpAccordionPanelController) => {
-        let otherPinnedPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned && p !== panel);
+        let otherOpenPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isOpen && p !== panel);
         panel.isVisible = false;
 
-        if (otherPinnedPanels.length === 0 && panel.isOpen) {
+        if (panel.isOpen && otherOpenPanels.length === 0) {
             this.openNextAvailablePanel(panel);
-
-        } else if (!panel.isOpen) {
-            this.recalculateLayout();
-
         } else {
-            this.cleanUpOpenPanels();
             this.recalculateLayout();
         }
     }
     
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
-        if (panel.isPinned) {
-            this.openPanels.push(panel);
-        }
+        // if (panel.isPinned) {
+        //     this.openPanels.push(panel);
+        // }
         this.recalculateLayout();
     }
 
     private openNextAvailablePanel(currentPanel: IBpAccordionPanelController): void {
-        // find location of the panel
         let curLoc = this.panels.indexOf(currentPanel);
-        let panelToOpen: number = 0;
+        let panelToOpen: IBpAccordionPanelController;
 
-        // TODO: loop forwards to find next panel (some panels may not be visible)
-        if (curLoc === this.panels.length - 1) {
-            panelToOpen = this.panels.length - 2;
+        // [1, 2, x, 4, 5] => [4, 5] + [2, 1]
+        let availablePanelsToOpen = this.panels.slice(curLoc + 1).concat(this.panels.slice(0, curLoc).reverse());
+
+        panelToOpen = availablePanelsToOpen.filter((p: IBpAccordionPanelController) => p.isVisible)[0];
+
+        if (panelToOpen && !panelToOpen.isOpen) {
+            panelToOpen.openPanel();
         } else {
-            panelToOpen = curLoc + 1;
+            this.recalculateLayout();
         }
-
-        // TODO: loop backwards if forward found nothing (some panels may not be visible)
-
-        this.panels[panelToOpen].openPanel();
     }
 
     public openPanel = (panel: IBpAccordionPanelController) => {
@@ -164,26 +154,6 @@ export class BpAccordionCtrl implements IBpAccordionController {
         this.recalculateLayout();
     }
 
-    public cleanUpHiddenPanels = () => {
-        const numPinnedPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
-        // const openPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isVisible);
-
-        // if (openPanels.length > 1) {
-        if (this.openPanels.length > 1) {
-            this.openPanels = this.openPanels
-                .map( (panel: IBpAccordionPanelController) => {
-                    if (numPinnedPanels > 0 && !panel.isPinned) {
-                        panel.closePanel();
-                    } else if (numPinnedPanels === 0 && panel !== this.lastOpenedPanel) { //} && !panel.isPinned) {
-                        panel.closePanel();
-                    }
-                    return panel;
-                })
-                .filter( (panel: IBpAccordionPanelController) => panel.isOpen && panel.isVisible);
-            this.recalculateLayout();
-        }
-    };
-
     public cleanUpOpenPanels = () => {
         const numPinnedPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
         // const openPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isVisible);
@@ -192,14 +162,16 @@ export class BpAccordionCtrl implements IBpAccordionController {
         if (this.openPanels.length > 1) {
             this.openPanels = this.openPanels
                 .map( (panel: IBpAccordionPanelController) => {
-                    if (numPinnedPanels > 0 && !panel.isPinned) {
+                    if (!panel.isVisible) {
+                        return panel;
+                    } else if (numPinnedPanels > 0 && !panel.isPinned) {
                         panel.closePanel();
-                    } else if (numPinnedPanels === 0 && panel !== this.lastOpenedPanel) { //} && !panel.isPinned) {
+                    } else if (numPinnedPanels === 0 && panel !== this.lastOpenedPanel) {
                         panel.closePanel();
                     }
                     return panel;
                 })
-                .filter( (panel: IBpAccordionPanelController) => panel.isOpen && panel.isVisible);
+                .filter( (panel: IBpAccordionPanelController) => panel.isOpen); // && panel.isVisible);
             this.recalculateLayout();
         }
     };

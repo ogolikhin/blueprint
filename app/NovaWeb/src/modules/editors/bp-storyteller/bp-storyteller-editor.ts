@@ -1,7 +1,6 @@
 ﻿// References to StorytellerDiagramDirective
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import * as Models from "../../main/models/models";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 
@@ -19,11 +18,12 @@ export class BpStorytellerEditorController {
 
     private _context: number;
 
-    public storytellerDiagram : StorytellerDiagram;
+    public storytellerDiagram: StorytellerDiagram;
 
     public static $inject = [
         "$rootScope",
         "$scope",
+        "$element", 
         "$state",
         "$timeout",
         "$q",
@@ -37,14 +37,14 @@ export class BpStorytellerEditorController {
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
         private $state: ng.ui.IState,
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
-        private messageService: IMessageService
-    ) {
+        private messageService: IMessageService) {
 
     }
 
@@ -55,17 +55,19 @@ export class BpStorytellerEditorController {
     public $onChanges(changesObj) {
         if (changesObj.context) {
             this._context = changesObj.context.currentValue;
+        }
+    }
 
-            if (this._context) {
-                this.load(this._context);
-            }
+    public $postLink() {
+        if (this._context) {
+            this.load(this._context);
         }
     }
 
     public $onDestroy() {
     }
     
-    private load(artifact: number) {
+    private load(artifactId: number) {
         this.storytellerDiagram = new StorytellerDiagram(
             this.$rootScope,
             this.$scope,
@@ -76,7 +78,29 @@ export class BpStorytellerEditorController {
             this.processService,
             this.messageService
         );
+       
+        let htmlElement = this.getHtmlElement();
+         
+        this.storytellerDiagram.createDiagram(artifactId, htmlElement);
+        
+    }
 
-        this.storytellerDiagram.createDiagram(artifact.toString());
+    private getHtmlElement(): HTMLElement {
+
+        // this.$element is jqLite and does not support selectors
+        // so we must traverse its children to find the designated
+        // containing element  for the diagram
+        let htmlElement = null;
+         
+        let childElements = this.$element.find("div");
+        for (let i = 0; i < childElements.length; i++) {
+            if (childElements[i].className.match(/storyteller-graph-container/)) {
+                htmlElement = childElements[i];
+                break;
+            }
+        } 
+         
+        return htmlElement;
+
     }
 }

@@ -27,15 +27,13 @@ import {ShapeInformation} from "./shapes/shape-information";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
-    public container: HTMLElement;
-    public wrapper: HTMLElement;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public iconRackHelper: IconRackHelper;
     //#TODO fix up references later 
     //public nodeLabelEditor: NodeLabelEditor;
     //public dragDropHandler: IDragDropHandler;
-    private graph: MxGraph;    
+    private mxgraph: MxGraph;    
     private isIe11: boolean;
     private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
@@ -58,6 +56,7 @@ export class ProcessGraph implements IProcessGraph {
     constructor(
         private rootScope: any,
         private scope: any,
+        private htmlElement: HTMLElement,
         private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
@@ -66,14 +65,13 @@ export class ProcessGraph implements IProcessGraph {
         private $log: ng.ILogService = null) {
 
         // Creates the graph inside the given container
-        this.container = scope.graphContainer;
-        this.wrapper = scope.graphWrapper;
-        this.graph = new mxGraph(this.container, new BpMxGraphModel());
+         
+        this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
         this.shapesFactory = new ShapesFactory(this.rootScope);
         
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
         
-        // this.iconRackHelper = new IconRackHelper(this.graph, this.viewModel.isHistorical, this.viewModel.isSMB);
+        this.iconRackHelper = new IconRackHelper(this.mxgraph, this.viewModel.isHistorical, this.viewModel.isSMB);
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
         this.init();
     }
@@ -83,17 +81,18 @@ export class ProcessGraph implements IProcessGraph {
 
         this.initializeGraphContainer();
 
-        this.subscribeToToolbarEvents();
+        // #TODO: interaction with the toolbar will be different in Nova
+        // this.subscribeToToolbarEvents();
 
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
 
         // non movable
-        this.graph.setCellsMovable(false);
+        this.mxgraph.setCellsMovable(false);
 
         ConnectorStyles.createStyles();
-        NodeShapes.register(this.graph);
+        NodeShapes.register(this.mxgraph);
 
-        this.addMouseEventListener(this.graph);
+        this.addMouseEventListener(this.mxgraph);
 
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);
@@ -134,7 +133,7 @@ export class ProcessGraph implements IProcessGraph {
             return;
         }
 
-        let model = this.graph.getModel();
+        let model = this.mxgraph.getModel();
 
         model.beginUpdate();
         try {
@@ -148,11 +147,15 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public getMxGraph(): MxGraph {
-        return this.graph;
+        return this.mxgraph;
     }
  
     public getMxGraphModel() {
-        return this.graph.getModel();
+        return this.mxgraph.getModel();
+    }
+
+    public getHtmlElement() {
+        return this.htmlElement;
     }
 
     private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, label?: string, conditionDestinationId?: number) => number {
@@ -344,9 +347,9 @@ export class ProcessGraph implements IProcessGraph {
 
     private buttonUpdated = (event) => {
         var cellId = event.detail.id;
-        var overlayHandler: IOverlayHandler = this.graph.getModel().getCell(cellId);
+        var overlayHandler: IOverlayHandler = this.mxgraph.getModel().getCell(cellId);
         if (overlayHandler != null) {
-            overlayHandler.updateOverlay(this.graph);
+            overlayHandler.updateOverlay(this.mxgraph);
         }
     };
 
@@ -412,15 +415,15 @@ export class ProcessGraph implements IProcessGraph {
 
     private initializeGraphContainer() {
 
-        mxEvent.disableContextMenu(this.container);
+        mxEvent.disableContextMenu(this.htmlElement);
 
         // This enables scrolling for the container of mxGraph
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
-            this.container.style.overflow = "auto";
+            this.htmlElement.style.overflow = "auto";
         } else {
-            this.container.style.overflowX = "auto";
-            this.container.style.overflowY = "none";
+            this.htmlElement.style.overflowX = "auto";
+            this.htmlElement.style.overflowY = "none";
         }
     }
 
@@ -437,13 +440,13 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private getMinHeight(delta: number): string {
-        var shift = this.getPosition(this.container).y + delta;
+        var shift = this.getPosition(this.htmlElement).y + delta;
         var height = window.innerHeight - shift;
         return "" + height + "px";
     }
     private getMinWidth(): string {
         // the shift applies to both the left side and right side of screen. The padding of outer layer elements.
-        var shift = this.getPosition(this.container).x * 2;
+        var shift = this.getPosition(this.htmlElement).x * 2;
         var width = window.innerWidth - shift;
         return "" + width + "px";
     }
@@ -455,18 +458,18 @@ export class ProcessGraph implements IProcessGraph {
     private setContainerSize(delta: number) {
         var minHeight = this.getMinHeight(delta);
         var minWidth = this.getMinWidth();
-        this.container.style.height = minHeight;
-        this.container.style.width = minWidth;
-        this.container.style.minHeight = minHeight;
-        this.container.style.minWidth = minWidth;
+        this.htmlElement.style.height = minHeight;
+        this.htmlElement.style.width = minWidth;
+        this.htmlElement.style.minHeight = minHeight;
+        this.htmlElement.style.minWidth = minWidth;
     }
 
     private updateSizeChanges() {
         this.setContainerSize(0);
 
         //// This prevents some weird issue with the graph growing as we drag off the container edge.
-        var svgElement = angular.element(this.container.children[0])[0];
-        var containerElement: any = angular.element(this.container)[0];
+        var svgElement = angular.element(this.htmlElement.children[0])[0];
+        var containerElement: any = angular.element(this.htmlElement)[0];
         svgElement.style.height = containerElement.style.height;
         svgElement.style.maxHeight = containerElement.style.height;
         if (this.isIe11) {
@@ -492,13 +495,13 @@ export class ProcessGraph implements IProcessGraph {
 
     private applyReadOnlyStyles() {
         //init readonly mode
-        this.graph.edgeLabelsMovable = false;
-        this.graph.isCellDisconnectable = () => false;
-        this.graph.isTerminalPointMovable = () => false;
-        this.graph.isCellMovable = () => false;
-        this.graph.isCellResizable = () => false;
-        this.graph.isCellEditable = () => false;
-        this.graph.isCellDeletable = () => false;
+        this.mxgraph.edgeLabelsMovable = false;
+        this.mxgraph.isCellDisconnectable = () => false;
+        this.mxgraph.isTerminalPointMovable = () => false;
+        this.mxgraph.isCellMovable = () => false;
+        this.mxgraph.isCellResizable = () => false;
+        this.mxgraph.isCellEditable = () => false;
+        this.mxgraph.isCellDeletable = () => false;
         //this.graph.isCellsLocked = () => true;
     }
 
@@ -543,11 +546,11 @@ export class ProcessGraph implements IProcessGraph {
         this.iconRackHelper.destroy();
 
         // remove graph
-        this.graph.getModel().clear();
-        this.graph.destroy();
+        this.mxgraph.getModel().clear();
+        this.mxgraph.destroy();
 
-        while (this.container.hasChildNodes()) {
-            this.container.removeChild(this.container.firstChild);
+        while (this.htmlElement.hasChildNodes()) {
+            this.htmlElement.removeChild(this.htmlElement.firstChild);
         }
 
         // #TODO: fix up these references later 
@@ -646,35 +649,35 @@ export class ProcessGraph implements IProcessGraph {
 
 
     public addCellOverlay(parentCell, overlay) {
-        return this.graph.addCellOverlay(parentCell, overlay);
+        return this.mxgraph.addCellOverlay(parentCell, overlay);
     }
 
     public getDefaultParent() {
-        return this.graph.getDefaultParent();
+        return this.mxgraph.getDefaultParent();
     }
 
     public addCell<T extends IProcessShape>(node: DiagramNode<T>, parent) {
-        return this.graph.addCell(node, parent);
+        return this.mxgraph.addCell(node, parent);
     }
 
     public addLink(link: DiagramLink, parent, index?: number, source?: MxCell, target?: MxCell) {
-        return this.graph.addCell(link, parent, index, source, target);
+        return this.mxgraph.addCell(link, parent, index, source, target);
     }
 
     public insertVertex(parent, id, value, x, y, width, height, style, relative?) {
-        return this.graph.insertVertex(parent, id, value, x, y, width, height, style, relative);
+        return this.mxgraph.insertVertex(parent, id, value, x, y, width, height, style, relative);
     }
 
     public getCellOverlays(cell: MxCell) {
-        return this.graph.getCellOverlays(cell);
+        return this.mxgraph.getCellOverlays(cell);
     }
 
     public removeCellOverlays(cell: MxCell) {
-        this.graph.removeCellOverlays(cell);
+        this.mxgraph.removeCellOverlays(cell);
     }
 
     public insertEdge(parent, id, value, source, target, style: string) {
-        return this.graph.insertEdge(parent, id, value, source, target, style);
+        return this.mxgraph.insertEdge(parent, id, value, source, target, style);
     }
 
     public getXbyColumn(col: number): number {
@@ -694,11 +697,11 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public getNodeById(id: string): IDiagramNode {
-        return this.graph.getModel().getCell(id);
+        return this.mxgraph.getModel().getCell(id);
     }
 
     public getNodeAt(x: number, y: number): IDiagramNode {
-        let cells = this.graph.getChildVertices(this.graph.getDefaultParent());
+        let cells = this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent());
         let nodes: IDiagramNode[] = cells.filter(cell => cell.getNodeType);
 
         for (let node of nodes) {
@@ -711,7 +714,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public updateGraphNodes(filter: (MxCell) => boolean, update: (MxCell) => void) {
-        var cells = this.graph.getChildVertices(this.graph.getDefaultParent());
+        var cells = this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent());
         for (let cell of cells) {
             if (filter(cell)) {
                 update(cell);
@@ -990,14 +993,14 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public setSystemTasksVisible(value: boolean) {
-        var cells = this.graph.getChildVertices(this.graph.getDefaultParent());
-        var edges = this.graph.getChildEdges(this.graph.getDefaultParent());
-        var graphModel: MxGraphModel = this.graph.getModel();
+        var cells = this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent());
+        var edges = this.mxgraph.getChildEdges(this.mxgraph.getDefaultParent());
+        var graphModel: MxGraphModel = this.mxgraph.getModel();
 
         this.logInfo("Enter setSystemTasksVisible, value = " + value);
 
         if (!value &&
-            this.graph.getSelectionCells().filter(e => e instanceof SystemTask).length > 0) {
+            this.mxgraph.getSelectionCells().filter(e => e instanceof SystemTask).length > 0) {
             this.iconRackHelper.disposeIconRack();
         }
 
@@ -1017,9 +1020,9 @@ export class ProcessGraph implements IProcessGraph {
                         && this.viewModel.isReadonly === false
                         && (targetNode.getNodeType() === NodeType.SystemTask || targetNode.getNodeType() === NodeType.SystemDecision)) {
                         if (value) {
-                            (<DiagramLink>edge).showMenu(this.graph);
+                            (<DiagramLink>edge).showMenu(this.mxgraph);
                         } else {
-                            (<DiagramLink>edge).hideMenu(this.graph);
+                            (<DiagramLink>edge).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -1030,14 +1033,14 @@ export class ProcessGraph implements IProcessGraph {
                     this.logInfo("cell.getNodeType() = " + cell.getNodeType());
                     if (cell.getNodeType() === NodeType.SystemTask) {
                         this.logInfo("Call cell.setCellVisible, value = " + value);
-                        cell.setCellVisible(this.graph, value);
+                        cell.setCellVisible(this.mxgraph, value);
                     }
                     if (cell.getNodeType() === NodeType.SystemDecision &&
                         !this.viewModel.isReadonly) {
                         if (value) {
-                            (<SystemDecision>cell).showMenu(this.graph);
+                            (<SystemDecision>cell).showMenu(this.mxgraph);
                         } else {
-                            (<SystemDecision>cell).hideMenu(this.graph);
+                            (<SystemDecision>cell).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -1061,8 +1064,8 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private initSelection() {
-        this.graph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            var elements = <Array<IDiagramNode>>this.graph.getSelectionCells();
+        this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
+            var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
             elements = elements.filter(e => e instanceof DiagramNode);
             this.selectionListeners.forEach((listener: ISelectionListener) => {
                 listener(elements);

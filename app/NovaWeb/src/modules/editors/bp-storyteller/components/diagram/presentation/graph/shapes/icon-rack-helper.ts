@@ -25,7 +25,7 @@ export class IconRackHelper {
 
         return true;
     }
-
+    // #TODO: change the URL to the icon
     public createInfoIconRack(action: any): IconRack {
         return new IconRack("/Scripts/mxClient/images/information.png", action);
     }

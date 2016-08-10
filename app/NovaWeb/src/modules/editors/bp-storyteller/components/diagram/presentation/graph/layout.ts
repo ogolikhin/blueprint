@@ -24,7 +24,7 @@ export var tempShapeId: number = 0;
 
 
 export class Layout implements ILayout {
-    private mxGraph: MxGraph;
+    private mxgraph: MxGraph;
     private tempId = 0;
     //private insertNodePopupMenu: InsertNodePopupMenu;
     private preprocessor: IGraphLayoutPreprocessor;
@@ -32,14 +32,17 @@ export class Layout implements ILayout {
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
 
     constructor(
-        private graph: IProcessGraph,
+        private processGraph: IProcessGraph,
         private viewmodel: IProcessViewModel,
         private rootScope: any,
         private shapesFactoryService: ShapesFactory,
         private messageService: IMessageService,
         private $log: ng.ILogService) {
 
-        this.mxGraph.cellRenderer = new ProcessCellRenderer();
+        // cache reference to mxGraph
+        this.mxgraph = processGraph.getMxGraph();
+
+        this.mxgraph.cellRenderer = new ProcessCellRenderer();
         // #TODO: add back the popup menu afterwards
         //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
         this.tempId = 0;
@@ -65,7 +68,7 @@ export class Layout implements ILayout {
     }
 
     public render(useAutolayout: boolean, selectedNodeId: number) {
-        var graphModel: MxGraphModel = this.mxGraph.getModel();
+        var graphModel: MxGraphModel = this.mxgraph.getModel();
         var i, j;
         var link: IProcessLinkModel;
         var linksMap = [];
@@ -118,16 +121,16 @@ export class Layout implements ILayout {
                 var node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
 
                 if (node != null) {
-                    node.render(this.graph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
+                    node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
                         this.viewmodel.isShapeJustCreated(shape.id));
 
                     // Hide system tasks for process types different than 'Business Process'
                     if (this.viewmodel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
                         if (node.getNodeType() === NodeType.SystemTask) {
-                            (<SystemTask>node).setCellVisible(this.mxGraph, false);
+                            (<SystemTask>node).setCellVisible(this.mxgraph, false);
                         }
                         if (node.getNodeType() === NodeType.SystemDecision) {
-                            (<SystemDecision>node).hideMenu(this.mxGraph);
+                            (<SystemDecision>node).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -144,7 +147,7 @@ export class Layout implements ILayout {
                     var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
 
                     var mergingPoint = new MergingPoint(mergingPointShape);
-                    mergingPoint.render(this.graph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
+                    mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
 
                     // Add connectors to the merging point
                     for (j in linkArray) {
@@ -179,7 +182,7 @@ export class Layout implements ILayout {
             }
             for (i in this.viewmodel.shapes) {
                 var thisShape: IProcessShape = this.viewmodel.shapes[i];
-                var thisNode = this.graph.getNodeById(thisShape.id.toString());
+                var thisNode = this.processGraph.getNodeById(thisShape.id.toString());
                 thisNode.renderLabels();
             }
 
@@ -189,7 +192,7 @@ export class Layout implements ILayout {
                 tS = Date.now();
             }
 
-            let edges: DiagramLink[] = this.mxGraph.getChildEdges(this.graph.getDefaultParent());
+            let edges: DiagramLink[] = this.mxgraph.getChildEdges(this.mxgraph.getDefaultParent());
             for (let thisEdge of edges) {
                 thisEdge.renderLabel();
             }
@@ -207,11 +210,11 @@ export class Layout implements ILayout {
             }
 
             // Set vertices z-order on top in case some of them are overlaped by edges
-            this.mxGraph.orderCells(false, this.mxGraph.getChildVertices(this.mxGraph.getDefaultParent()));
+            this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));
 
             this.viewmodel.resetJustCreatedShapeIds();
 
-            setTimeout(() => this.graph.updateAfterRender(), 100);
+            setTimeout(() => this.processGraph.updateAfterRender(), 100);
 
             if (window.console != null) {
                 ////// profiling
@@ -227,12 +230,12 @@ export class Layout implements ILayout {
     public scrollShapeToView(shapeId: string) {
         var node = this.getNodeById(shapeId);
         if (node) {
-            (<any>this.mxGraph).scrollCellToVisible(node, true);
+            (<any>this.mxgraph).scrollCellToVisible(node, true);
         }
     }
 
     public getDropEdgeState(mouseCoordinates: MxPoint): any {
-        var view: MxGraphView = this.mxGraph.getView();
+        var view: MxGraphView = this.mxgraph.getView();
         var edge: MxCell = null;
         var state = null;
         for (let edgeGeo of this.edgesGeo) {
@@ -279,7 +282,7 @@ export class Layout implements ILayout {
     }
 
     public getNodeById(id: string): IDiagramNode {
-        return this.graph.getNodeById(id);
+        return this.processGraph.getNodeById(id);
     }
 
     public updateBranchDestinationId(oldDestinationId: number, newDestinationId: number) {
@@ -411,8 +414,8 @@ export class Layout implements ILayout {
     }
 
     private needToReplaceUserTask(userTaskId: number, previousIds: number[], nextId: number): boolean {
-        return this.graph.isLastUserTaskInCondition(userTaskId, previousIds, nextId) ||
-            this.graph.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId);
+        return this.processGraph.isLastUserTaskInCondition(userTaskId, previousIds, nextId) ||
+            this.processGraph.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId);
     }
 
     private replaceUserTask(userTaskId: number, previousIds: number[], nextId: number): NewUserTaskInfo {
@@ -460,7 +463,7 @@ export class Layout implements ILayout {
             this.createAutoInsertTaskMessage();
         } else {
             // update old location links
-            originalSourcesWithNewDestinations = this.graph.updateSourcesWithDestinations(userTaskShapeId, oldAfterShapeId);
+            originalSourcesWithNewDestinations = this.processGraph.updateSourcesWithDestinations(userTaskShapeId, oldAfterShapeId);
         }
 
         // If the destination of edge is the task you're dragging, point edge to the shape after the move.
@@ -552,7 +555,7 @@ export class Layout implements ILayout {
         let dropTargetNode: IDiagramNode = diagramLink.targetNode;
 
         // find all shapes involved in the drag
-        let scopeContext: IScopeContext = this.graph.getScope(userTaskShapeId);
+        let scopeContext: IScopeContext = this.processGraph.getScope(userTaskShapeId);
         let shapeIds: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
 
         // don't allow dropping on any links coming into or coming out of the scope
@@ -582,7 +585,7 @@ export class Layout implements ILayout {
     }
 
     private getEdgeCellState(edge: MxCell): MxCellState {
-        var view: MxGraphView = this.mxGraph.getView();
+        var view: MxGraphView = this.mxgraph.getView();
         var state = view.getState(edge);
         return state;
     }
@@ -609,7 +612,7 @@ export class Layout implements ILayout {
 
         if (sourceNode !== null && targetNode !== null) {
             let edgeGeo = new EdgeGeo();
-            edgeGeo.edge = Connector.render(this.graph, link, sourceNode, targetNode, this.hasOverlay(sourceNode, targetNode), link.label, null);
+            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode, this.hasOverlay(sourceNode, targetNode), link.label, null);
             this.edgesGeo.push(edgeGeo);
         }
 
@@ -741,8 +744,8 @@ export class Layout implements ILayout {
     private selectNode(node) {
         if (node) {
             var evt = { consume() { } };
-            this.mxGraph.selectCellForEvent(node, evt);
-            this.graph.iconRackHelper.iconRackClickBehaviour(evt);
+            this.mxgraph.selectCellForEvent(node, evt);
+            this.processGraph.iconRackHelper.iconRackClickBehaviour(evt);
         }
     }
 

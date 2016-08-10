@@ -1,7 +1,7 @@
 ﻿// References to StorytellerDiagram
+import {IMessageService, Message, MessageType} from "../../../../core";
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
-import {IMessageService} from "../../../../core";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
 import {ProcessGraph} from "./presentation/graph/process-graph";
@@ -11,7 +11,8 @@ export class StorytellerDiagram {
     public processModel: IProcess;
     public processViewModel: IProcessViewModel = null;
     private graph: IProcessGraph = null;
-
+    private htmlElement: HTMLElement; 
+   
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -26,13 +27,18 @@ export class StorytellerDiagram {
     }
 
     public debugInformation: string;
-    public createDiagram(processId: string) {
+
+    public createDiagram(processId: number, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
 
+        this.checkParams(processId, htmlElement);
+        this.htmlElement = htmlElement;
+        let id: string = processId.toString();
+
         //const storytellerParams = this.bpUrlParsingService.getStateParams();   
 
-        this.processService.load(processId//,
+        this.processService.load(id //,
             //storytellerParams.versionId,
             //storytellerParams.revisionId,
             //storytellerParams.baselineId,
@@ -49,53 +55,79 @@ export class StorytellerDiagram {
             }
         });
     }
+
+    private checkParams(processId: number, htmlElement: HTMLElement): void {
+        if (!this.validProcessId(processId)) {
+            throw new Error("Process id '" + processId + "' is invalid.");
+        }
+        if (htmlElement) {
+            // okay 
+        } else {
+            throw new Error("There is no html element for the diagram");
+        }
+    }
+
+    private validProcessId(processId: number): boolean {
+        return processId != null && processId > 0;
+    }
+
     private onLoad(process: IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
 
+        this.resetBeforeLoad();
+        
         this.processModel = process;
 
         this.debugInformation = "PROCESS LOADED";
         this.dumpDebugInformation(this.processModel);
         let processViewModel = this.createProcessViewModel(process);
+        // set isSpa flag to true. Note: this flag may no longer be needed.
+        processViewModel.isSpa = true;
+
         //if (processViewModel.isReadonly) this.disableStorytellerToolbar();
-        this.createGraph(processViewModel, useAutolayout, selectedNodeId);
+        this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
         } else {
-            this.processViewModel.updateProcessClientModel(process);
+            this.processViewModel.updateProcessGraphModel(process);
         }
         return this.processViewModel;
     }
 
-    private createGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+    private createProcessGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
 
-        // create a new process graph and render it
         try {
-            if (this.graph) {
-                this.graph.destroy();
-                this.graph = null;
-            }
             this.graph = new ProcessGraph(
                             this.$rootScope,
                             this.$scope,
+                            this.htmlElement,
                             this.processService,
                             processViewModel,
                             this.messageService,
                             this.$log);
+        } catch (err) {
+            this.handleInitProcessGraphFailed(processViewModel.id, err);
+        }
 
+        try {
             this.graph.render(useAutolayout, selectedNodeId);
 
         } catch (err) {
-            this.messageService.addError("There was an error creating the diagram.");
-            this.$log.error("Fatal: cannot render graph for process " + processViewModel.id);
-            this.$log.error("Error: " + err.message);
+            this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
 
+    private resetBeforeLoad() {
+        if (this.graph != null) {
+            this.graph.destroy();
+            this.graph = null;
+        } 
+    }
+
     public destroy() {
-        // tear down embedded objects and event handlers
+        // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
@@ -131,5 +163,19 @@ export class StorytellerDiagram {
             }
             //this.debugInformation = output;//.join("<br>");
         }
+    }
+
+    private handleInitProcessGraphFailed(processId: number, err: any) {
+        this.messageService.addMessage(new Message(
+            MessageType.Error, "There was an error initializing the process graph."));
+        this.$log.error("Fatal: cannot initialize process graph for process " + processId);
+        this.$log.error("Error: " + err.message);
+    }
+
+    private handleRenderProcessGraphFailed(processId: number, err: any) {
+        this.messageService.addMessage(new Message(
+            MessageType.Error, "There was an error displaying the process graph."));
+        this.$log.error("Fatal: cannot render process graph for process " + processId);
+        this.$log.error("Error: " + err.message);
     }
 }

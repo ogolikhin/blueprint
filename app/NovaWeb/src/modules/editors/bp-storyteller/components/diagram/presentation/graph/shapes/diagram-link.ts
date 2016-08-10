@@ -57,7 +57,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 "#999999"
             );
             this.textLabel = new Label((value: string) => { this.label = value; },
-                graph.container,
+                graph.getHtmlElement(),
                 this.model.sourceId + "-" + this.model.destinationId,
                 "Label-B" + this.model.sourceId + "-" + this.model.destinationId,
                 this.label,

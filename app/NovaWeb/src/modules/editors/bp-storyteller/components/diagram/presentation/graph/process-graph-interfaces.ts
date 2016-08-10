@@ -98,7 +98,6 @@ export interface IUserStoryProvider {
 }
 
 export interface IProcessGraph {
-    container: HTMLElement;
     viewModel: IProcessViewModel;
     layout: ILayout;
     startNode: IDiagramNode;
@@ -106,6 +105,7 @@ export interface IProcessGraph {
     iconRackHelper: IconRackHelper;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
+    getHtmlElement(): HTMLElement;
     getDefaultParent();
     render(useAutolayout: boolean, selectedNodeId: number);
     deleteUserTask(userTaskId: number, postDeleteFunction?: INotifyModelChanged);

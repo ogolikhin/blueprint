@@ -312,7 +312,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "#4C4C4C"
         );
         this.textLabel = new Label((value: string) => { this.label = value; },
-            graph.container,
+            graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
             this.label,
@@ -336,7 +336,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "#4C4C4C"
         );
         this.personaLabel = new Label((value: string) => { this.persona = value; },
-            graph.container,
+            graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
             this.persona,

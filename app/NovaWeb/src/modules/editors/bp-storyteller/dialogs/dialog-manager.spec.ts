@@ -44,7 +44,7 @@ describe("DialogManager test", () => {
         dm = null;
     });
 
-    fit("OpenDialog observable", () => {
+    it("OpenDialog observable", () => {
         let observer1 = new Observer1();
         let observer2 = new Observer2();
         let observerSpy1 = spyOn(observer1, "somePrivateFunc1");
@@ -60,7 +60,7 @@ describe("DialogManager test", () => {
         expect(observerSpy2).toHaveBeenCalled();
     });
 
-    fit("SetGraph  observable", () => {
+    it("SetGraph  observable", () => {
         // Arrange
         let observer1 = new Observer1();
         let observer2 = new Observer2();
@@ -77,7 +77,7 @@ describe("DialogManager test", () => {
         expect(observerSpy2).toHaveBeenCalled();
     });
 
-    fit("do not notify a removed observer", () => {
+    it("do not notify a removed observer", () => {
         // Arrange
         let observer1 = new Observer1();
         let observer2 = new Observer2();

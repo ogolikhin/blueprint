@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+import { ISelectionManager, Models, IArtifactService} from "../../../main";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -21,7 +21,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "selectionManager",
         "messageService",
         "dialogService",
-        "$q"
+        "$q",
+        "artifactService"
     ];
 
     //private loadLimit: number = 10;
@@ -44,6 +45,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private $q: ng.IQService,
+        private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super(selectionManager, bpAccordionPanel);
@@ -70,9 +72,19 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.showAddComment = false;
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
-            this.artifactEverPublished = (artifact.version >= 0);
             this.subArtifact = subArtifact;
-            this.setDiscussions();
+            if (artifact.version === undefined) {
+                this.artifactService.getArtifact(artifact.id).then((result: Models.IArtifact) => {
+                    artifact = result;
+                    this.setEverPublishedAndDiscussions(artifact.version);
+                }).catch((error: any) => {
+                    if (error.statusCode && error.statusCode !== 1401) {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    }
+                });
+            } else {
+                this.setEverPublishedAndDiscussions(artifact.version);
+            }
         } else {
             this.artifactId = null;
             this.subArtifact = null;
@@ -81,6 +93,11 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             this.canDelete = false;
             this.artifactEverPublished = false;
         }
+    }
+
+    private setEverPublishedAndDiscussions(artifactVersion) {
+        this.artifactEverPublished = artifactVersion > 0;
+        this.setDiscussions();
     }
 
     private setDiscussions() {

@@ -118,7 +118,7 @@ export class ProjectManager implements IProjectManager {
                                 });
                                 _projectCollection.unshift(_project);
                                 self.projectCollection.onNext(_projectCollection);
-                                this.selectionManager.selection = { source: SelectionSource.Manager, artifact: _project };
+                                this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
                                 this.messageService.addError(error["message"] || "Project_NotFound");
@@ -172,7 +172,7 @@ export class ProjectManager implements IProjectManager {
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
                     } else {
-                        this.messageService.addError(error["message"] ||"Artifact_NotFound");
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 
@@ -206,7 +206,7 @@ export class ProjectManager implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-            this.selectionManager.selection = { source: SelectionSource.None, artifact: this.projectCollection.getValue()[0] || null };
+            this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: this.projectCollection.getValue()[0] || null };
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Project_NotFound");
         }

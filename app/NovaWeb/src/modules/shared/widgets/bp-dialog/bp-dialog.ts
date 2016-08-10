@@ -143,5 +143,15 @@ export class DialogServiceMock implements IDialogService {
         deferred.resolve(true);
         return deferred.promise;
     }
-    params: IDialogSettings;
+    public params: IDialogSettings = {
+        type: DialogTypeEnum.Base,
+        header: "test",
+        message: "test",
+        cancelButton: "test",
+        okButton: "test",
+        template: "test",
+        controller: null,
+        css: null,
+        backdrop: false
+    }
 }

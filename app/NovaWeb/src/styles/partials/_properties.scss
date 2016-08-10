@@ -146,6 +146,10 @@ $property-multichoice-height: 24px;
       margin: 0;
     }
 
+    .form-control {
+      z-index: auto;
+    }
+
     label {
       color: $gray-dark;
       display: inline-block;
@@ -244,6 +248,7 @@ $property-multichoice-height: 24px;
       > div {
         max-height: #{$ui-select-input-height * 3};
         overflow: auto;
+        -ms-overflow-style: auto;
         overflow-x: hidden;
       }
 
@@ -311,46 +316,58 @@ $property-multichoice-height: 24px;
 
         .ui-select-choices-row {
           height: $property-multichoice-height;
-        }
 
-        a {
-          color: $gray;
-          cursor: not-allowed;
-          text-decoration: none;
-        }
-
-        .ui-select-choice-item {
-          font-size: 1.2rem;
-          line-height: $property-multichoice-height;
-          overflow: hidden;
-          padding: 0 8px;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          width: 100%;
-
-          &::before {
-            content: '\2713';
-            display: inline-block;
-            width: 12px;
-          }
-        }
-
-        .ui-select-choices-row:not(.disabled) {
-          a {
+          .ui-select-choices-row-inner {
             color: $gray-darker;
             cursor: pointer;
+            text-decoration: none;
+
+            .ui-select-choice-item {
+              font-size: 1.2rem;
+              line-height: $property-multichoice-height;
+              overflow: hidden;
+              padding: 0 8px;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              width: 100%;
+
+              &::before {
+                content: '';
+                display: inline-block;
+                width: 12px;
+              }
+
+              .ui-select-highlight {
+                text-decoration: underline;
+              }
+            }
 
             &:hover .ui-select-choice-item {
               background: $blue-lightest;
-            }
 
-            &:not(:hover) .ui-select-choice-item::before {
-              content: '';
+              &::before {
+                content: '\2713';
+              }
             }
           }
+        }
 
-          .ui-select-highlight {
-            text-decoration: underline;
+        .ui-select-choices-row.disabled {
+          .ui-select-choices-row-inner {
+            color: $gray;
+            cursor: not-allowed;
+
+            .ui-select-choice-item {
+              background: transparent;
+
+              &::before {
+                content: '\2713';
+              }
+
+              .ui-select-highlight {
+                text-decoration: none;
+              }
+            }
           }
         }
       }
@@ -390,9 +407,16 @@ $property-multichoice-height: 24px;
       }
 
       &.multiple {
+        margin-top: 5px;
         max-height: #{2.5 * $property-min-height};
-        min-height: $property-min-height;
-        padding-top: 5px;
+        min-height: #{$property-min-height - 5px};
+        padding-bottom: 4px;
+
+        .choice {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
 
       &.richtext {
@@ -400,6 +424,18 @@ $property-multichoice-height: 24px;
         min-width: $property-input-width;
         padding: 0;
       }
+    }
+
+    .overflow-fade {
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+      display: none;
+      height: 10px;
+      margin-top: -10px;
+      position: relative;
+    }
+
+    .read-only-input.ps-active-y + .overflow-fade {
+      display: block;
     }
 
     .has-messages {
@@ -501,7 +537,8 @@ $property-multichoice-height: 24px;
 
     .has-error {
       textarea,
-      input {
+      input,
+      .ui-select-container {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }
@@ -582,6 +619,13 @@ $property-multichoice-height: 24px;
       margin: 0 -2px;
       padding: 2px;
       width: calc(100% + 4px);
+    }
+
+    .formly-field-bpFieldReadOnly {
+      > div,
+      .input-group {
+        width: 100%;
+      }
     }
   }
 }

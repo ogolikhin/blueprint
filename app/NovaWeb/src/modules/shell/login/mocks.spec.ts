@@ -122,8 +122,8 @@ export class AuthSvcMock implements IAuth {
 }
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
-    public static $inject = ["$q", "$timeout"];
-    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService) {
+    public static $inject = ["$q", "$timeout", "$rootScope"];
+    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService, private $rootScope: ng.IRootScopeService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
 
@@ -136,7 +136,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
         
         /* tslint:disable:no-unused-variable */
         var ctrl = new controller(
-            new LocalizationServiceMock(),
+            new LocalizationServiceMock(this.$rootScope),
             this.instanceMock,
             new SessionSvcMock(this.$q),
             this.$timeout,

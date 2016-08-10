@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using ServiceLibrary.Swagger;
 
 namespace ArtifactStore
 {
@@ -8,7 +9,7 @@ namespace ArtifactStore
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(SwaggerConfig.Register);
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "ArtifactStore", "~/bin/ArtifactStore.XML"));
 #endif
         }
     }

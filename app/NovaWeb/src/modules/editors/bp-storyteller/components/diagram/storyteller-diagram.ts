@@ -2,6 +2,7 @@
 import {ProcessModels, IProcessService} from "../../"
 import {IMessageService} from "../../../../core"
 import {StorytellerViewModel, IStorytellerViewModel} from "./viewmodel/storyteller-view-model";
+import {IDialogManager, DialogManager} from "../../dialogs/dialog-manager";
 
 export class StorytellerDiagram {
     public processModel: ProcessModels.IProcess;
@@ -15,7 +16,8 @@ export class StorytellerDiagram {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private messageService: IMessageService) {
+        private messageService: IMessageService,
+        private dialogManager: IDialogManager) {
 
         this.processModel = null;
     }
@@ -44,19 +46,26 @@ export class StorytellerDiagram {
             }
         });
     }
+
     private onLoad(process: ProcessModels.IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
         this.processModel = process;
 
         this.debugInformation = "PROCESS LOADED";
         this.dumpDebugInformation(this.processModel);
-        let storytellerViewModel = this.createProcessViewModel(process);
+        this.storytellerViewModel = this.createProcessViewModel(process);
+        
         //if (storytellerViewModel.isReadonly) this.disableStorytellerToolbar();
         //this.createGraph(storytellerViewModel, useAutolayout, selectedNodeId);
+    }
+
+    public openDialog() {
+        this.storytellerViewModel.dialogManager.openDialog(1, 0);
     }
 
     private createProcessViewModel(process: ProcessModels.IProcess): IStorytellerViewModel {
         if (this.storytellerViewModel == null) {
             this.storytellerViewModel = new StorytellerViewModel(process, this.$rootScope, this.$scope, this.messageService);
+            this.storytellerViewModel.dialogManager = this.dialogManager; 
         } else {
             this.storytellerViewModel.updateProcessClientModel(process);
         }

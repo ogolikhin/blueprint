@@ -9,7 +9,7 @@ import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "./models/enums";
 import {LocalizationServiceMock} from "../core//localization/localization.mock";
-import {formlyDecorate, formlyConfigExtendedFields} from "./main.formly";
+import {/*formlyDecorate, */formlyConfigExtendedFields} from "./main.formly";
 
 let moduleName = createModule();
 
@@ -67,6 +67,14 @@ describe("Formly", () => {
             let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[1];
 
             expect(fieldInput.innerHTML).toContain("2016");
+        });
+
+        it("should display read only multichoice", function () {
+            compileAndSetupStuff({model: {readonlySelectMulti: [1, 2]}});
+
+            let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[2];
+
+            expect(fieldInput.children.length).toBe(2);
         });
     });
 
@@ -481,7 +489,7 @@ function createModule() {
     function setupFormly(ngModule) {
         ngModule
             .service("localization", LocalizationServiceMock)
-            .config(formlyDecorate)
+            //.config(formlyDecorate)
             .run(formlyConfigExtendedFields);
     }
 
@@ -536,6 +544,22 @@ function createModule() {
                             key: "readonlyDate",
                             data: {
                                 primitiveType: PrimitiveType.Date
+                            }
+                        },
+                        {
+                            type: "bpFieldReadOnly",
+                            key: "readonlySelectMulti",
+                            data: {
+                                primitiveType: PrimitiveType.Choice
+                            },
+                            templateOptions: {
+                                options: [
+                                    { value: 1, name: "Option 1" },
+                                    { value: 2, name: "Option 2" },
+                                    { value: 3, name: "Option 3" },
+                                    { value: 4, name: "Option 4" },
+                                    { value: 5, name: "Option 5" }
+                                ]
                             }
                         },
                         {

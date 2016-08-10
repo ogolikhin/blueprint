@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
 import { ISelectionManager, Models } from "../../main";
+import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -10,7 +11,8 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "selectionManager"
+        "selectionManager",
+        "$element"
     ];
 
     private _subscribers: Rx.IDisposable[];
@@ -27,7 +29,8 @@ export class BPUtilityPanelController {
 
     constructor(
         private localization: ILocalizationService,
-        private selectionManager: ISelectionManager) {
+        private selectionManager: ISelectionManager,
+        private $element: ng.IAugmentedJQuery) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -44,6 +47,19 @@ export class BPUtilityPanelController {
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+    }
+
+    public testHidePanel() {
+        console.log("Test hide");
+        let accordionCtrl: IBpAccordionController = angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
+        let panels = accordionCtrl.getPanels();
+        accordionCtrl.hidePanel(panels[3]);
+    }
+    public testShowPanel() {
+        console.log("Test show");
+        let accordionCtrl: IBpAccordionController = angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
+        let panels = accordionCtrl.getPanels();
+        accordionCtrl.showPanel(panels[3]);
     }
 
     private onItemChanged = (item: Models.IItem) => {

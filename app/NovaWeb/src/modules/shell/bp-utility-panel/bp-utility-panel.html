@@ -1,5 +1,7 @@
 ﻿<div class="utility-panel-title">
     <span bp-tooltip="{{ $ctrl.currentItem }}" bp-tooltip-truncated="true">
+        <a href ng-click="$ctrl.testHidePanel()">Hide</a>, 
+        <a href ng-click="$ctrl.testShowPanel()">Show</a>
         <i class="icon" ng-show="$ctrl.currentItemClass != null" ng-class="$ctrl.currentItemClass"></i>{{ $ctrl.currentItem }}
     </span>
 </div>

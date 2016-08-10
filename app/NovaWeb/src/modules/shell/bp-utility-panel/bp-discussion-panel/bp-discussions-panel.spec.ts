@@ -11,6 +11,7 @@ import { SelectionManager, SelectionSource } from "../../../main/services/select
 import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { Models } from "../../../main/services/project-manager";
+import { ArtifactServiceMock } from "../../../main/services/artifact.svc.mock";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPDiscussionPanel", () => {
@@ -30,6 +31,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("artifactService", ArtifactServiceMock);
     }));
 
     beforeEach(inject(() => {

@@ -73,11 +73,7 @@ describe("Project Explorer Test", () => {
 
 
     it("check property map", inject(() => {
-        // Arrange
-        // Act
-
         // Assert
-
         expect(controller.propertyMap).toBeDefined();
         expect(controller.propertyMap["id"]).toEqual("id");
         expect(controller.propertyMap["type"]).toEqual("type");
@@ -86,6 +82,7 @@ describe("Project Explorer Test", () => {
     }));
 
     it("check columns", inject(() => {
+        // Assert
         var column = controller.columns[0]
         expect(column).toBeDefined();
         expect(column.headerName).toEqual("");
@@ -103,12 +100,11 @@ describe("Project Explorer Test", () => {
         controller.tree.reload = function (data: any[], id?: number) {
             isReloadCalled += 1;
         };
+        // Act
         controller.doLoad(new Models.Project({ id: 1, name: "Project 1" }));
         $rootScope.$digest();
-
-        // Act
+        // Assert
         expect(isReloadCalled).toEqual(1);
-
     }));
 
     it("doLoad (project view)", inject(($rootScope: ng.IRootScopeService) => {
@@ -117,11 +113,11 @@ describe("Project Explorer Test", () => {
         controller.tree.reload = function (data: any[], id?: number) {
             isReloadCalled += 1;
         };
+        // Act
         controller.projectView = true;
         controller.doLoad(null);
         $rootScope.$digest();
-
-        // Act
+        // Assert
         expect(isReloadCalled).toEqual(1);
 
     }));
@@ -134,11 +130,11 @@ describe("Project Explorer Test", () => {
         };
         projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
         $rootScope.$digest();
+        // Act
         controller.projectView = false;
         controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
         $rootScope.$digest();
-
-        // Act
+        // Assert
         expect(isReloadCalled).toEqual(0);
 
     }));
@@ -151,21 +147,23 @@ describe("Project Explorer Test", () => {
         };
         projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
         $rootScope.$digest();
+        // Act
         controller.projectView = true;
         controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
         $rootScope.$digest();
 
-        // Act
+        // Assert
         expect(isReloadCalled).toEqual(1);
     }));
 
     it("doSync (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
         controller.projectView = false;
+        // Act
         var result = controller.doSync(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
         $rootScope.$digest();
 
-        // Act
+        // Assert
         expect(result.id).toEqual(1);
     }));
 

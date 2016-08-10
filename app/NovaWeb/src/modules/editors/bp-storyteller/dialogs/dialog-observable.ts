@@ -2,11 +2,12 @@ export interface IDialogObservable<T> {
     registerObserver(observer: any): void;
     removeObserver(observer: any): void;
     notifyObservers(...arg: any[]): void;
+    removeAllObservers(): void;
 }
 
 
 export class DialogObservable<T> implements IDialogObservable<T> {
-    private _observers: any;
+    private _observers: any[];
 
     constructor() {
         this._observers = [];
@@ -44,4 +45,9 @@ export class DialogObservable<T> implements IDialogObservable<T> {
             }
         });
     }
+
+    public removeAllObservers(): void {
+        this._observers = [];
+    }
+
 }

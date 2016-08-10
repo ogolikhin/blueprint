@@ -252,6 +252,10 @@ $property-multichoice-height: 24px;
         overflow-x: hidden;
       }
 
+      .ui-select-match {
+        margin-right: 18px;
+      }
+
       .ui-select-match-item {
         background: $gray-lightest;
         border-color: $gray-lighter;
@@ -259,7 +263,7 @@ $property-multichoice-height: 24px;
         box-shadow: none;
         margin: 2px;
         max-width: calc(100% - 8px);
-        min-width: calc(100% / 3 - 8px);
+        min-width: calc((100% - 32px) / 3);
         outline: none;
         padding: 0;
 
@@ -297,6 +301,7 @@ $property-multichoice-height: 24px;
         height: $ui-select-input-height;
         line-height: $ui-select-input-height;
         margin: 0;
+        margin-left: -16px;
         max-height: $ui-select-input-height;
         min-height: $ui-select-input-height;
         outline: none;

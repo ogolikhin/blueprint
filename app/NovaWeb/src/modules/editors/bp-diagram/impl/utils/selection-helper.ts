@@ -48,11 +48,16 @@ export class SelectionHelper {
                         const artifactId = ShapeExtensions.getPropertyByName(element, ShapeProps.ARTIFACT_ID);
                         effectiveSelection.source = SelectionSource.UtilityPanel;
                         effectiveSelection.subArtifact = null;
-                        effectiveSelection.artifact = {
-                            id: artifactId,
-                            prefix: this.getArtifactPrefix((<IShape>element).label, artifactId),
-                            name: element.name
-                        };
+                        if (artifactId != null) {
+                            effectiveSelection.artifact = {
+                                id: artifactId,
+                                predefinedType: element.type === Shapes.USECASE ? ItemTypePredefined.UseCase : ItemTypePredefined.Actor,
+                                prefix: this.getArtifactPrefix((<IShape>element).label, artifactId),
+                                name: this.getArtifactName((<IShape>element).label, artifactId),
+                            };
+                        } else {
+                            effectiveSelection.artifact = null;
+                        }
                     } else {
                         item.prefix = element.isShape ? "UCDS" : "UCDC";
                         item.predefinedType = element.isShape ? ItemTypePredefined.UCDShape : ItemTypePredefined.UCDConnector;
@@ -63,6 +68,17 @@ export class SelectionHelper {
             }
         }
         return effectiveSelection;
+    }
+
+    private getArtifactName(label: string, id: number) {
+        if (label) {
+            const delimeter = ": ";
+            const index = label.indexOf(delimeter);
+            if (index > 0) {
+                return label.substring(index + delimeter.length, label.length);
+            }
+        }
+        return "";
     }
 
     private getArtifactPrefix(label: string, id: number) {

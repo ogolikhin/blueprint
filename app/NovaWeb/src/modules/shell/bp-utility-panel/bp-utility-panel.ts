@@ -47,9 +47,12 @@ export class BPUtilityPanelController {
     }
 
     private onItemChanged = (item: Models.IItem) => {
-        this._currentItem = item ? `${(item.prefix || "")}${item.id}: ${item.name}` : null;
-        this._currentItemClass = item ?
-        "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "document") :
-            "icon-document";
+        if (item != null) {
+            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
+            this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType]);
+        } else {
+            this._currentItem = null;
+            this._currentItemClass = null;
+        }
     }
 }

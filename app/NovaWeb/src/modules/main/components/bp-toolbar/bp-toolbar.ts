@@ -23,7 +23,7 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope", "$uibModal"];
+    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope"];
 
     constructor(
         private localization: ILocalizationService,
@@ -31,8 +31,7 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService,
-        private $uibModal: ng.ui.bootstrap.IModalService) {
+        private $rootScope: ng.IRootScopeService) {
     }
 
     execute(evt: any): void {

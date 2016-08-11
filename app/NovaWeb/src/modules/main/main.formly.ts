@@ -59,7 +59,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         let inputField = event.target;
         let key = event.keyCode || event.which;
         if (inputField && key === 13) {
-            let inputFieldButton = <HTMLInputElement> inputField.parentElement.querySelector("span button");
+            let inputFieldButton = inputField.parentElement.querySelector("span button") as HTMLElement;
             if (inputFieldButton) {
                 inputFieldButton.focus();
             } else {
@@ -246,7 +246,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)">
+                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -275,6 +275,20 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
+
+            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class. Not needed for textareas
+            $scope.bpFieldSelectMulti.onMouseOver = function ($event) {
+                let elem = $event.target as HTMLElement;
+                while (elem && !elem.classList.contains("ui-select-container")) {
+                    elem = elem.parentElement;
+                }
+                if (elem) {
+                    elem = elem.querySelector("div") as HTMLElement;
+                    if (elem && !elem.classList.contains("ps-child")) {
+                        elem.classList.add("ps-child");
+                    }
+                }
+            };
 
             $scope.bpFieldSelectMulti.scrollIntoView = function ($event) {
                 let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
@@ -418,7 +432,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         Helper.autoLinkURLText(editor.getBody());
                         editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
                         editor.dom.bind(editor.dom.select("a"), "click", function(e) {
-                            let element: HTMLElement = e.target;
+                            let element = e.target as HTMLElement;
                             while (element && element.tagName.toUpperCase() !== "A") {
                                 element = element.parentElement;
                             }

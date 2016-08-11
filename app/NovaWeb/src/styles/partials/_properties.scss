@@ -231,29 +231,27 @@ $property-multichoice-height: 24px;
 
     $ui-select-input-height: $property-min-height - 4px;
     .ui-select-multiple {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
+      border: 0;
       box-shadow: none !important;
       float: none;
       height: $property-min-height;
-      max-width: $property-input-width;
-      padding: 1px;
-      width: $property-input-width;
-
-      &:not([disabled]):hover,
-      &:not([disabled]):focus {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-      }
+      max-width: #{$property-input-width - 20px};
+      overflow: visible;
+      padding: 0;
+      width: #{$property-input-width - 20px};
 
       > div {
+        border: solid 1px $gray-lightest;
         max-height: #{$ui-select-input-height * 3};
         overflow: auto;
         -ms-overflow-style: auto;
-        overflow-x: hidden;
-      }
+        padding: 0;
+        width: $property-input-width;
 
-      .ui-select-match {
-        margin-right: 18px;
+        &:hover,
+        &:focus {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        }
       }
 
       .ui-select-match-item {
@@ -301,7 +299,6 @@ $property-multichoice-height: 24px;
         height: $ui-select-input-height;
         line-height: $ui-select-input-height;
         margin: 0;
-        margin-left: -16px;
         max-height: $ui-select-input-height;
         min-height: $ui-select-input-height;
         outline: none;

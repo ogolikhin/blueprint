@@ -1,6 +1,4 @@
-﻿import * as moment from "moment";
-
-export class Helper {
+﻿export class Helper {
 
     static get UID(): string {        
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {

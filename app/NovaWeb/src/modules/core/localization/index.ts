@@ -3,19 +3,139 @@ import * as moment from "moment";
 
 export interface ILocalizationService {
     get: (name: string, defaultValue?: string) => string;
-    current: ILocaleFormat;
-    toLocaleNumber(number: number): string;
-    parseLocaleNumber(numberAsAny: any): number;
-    toStartOfTZDay(date: Date): Date;
+    current: BPLocale;
 }
-export interface ILocaleFormat {
-    locale: string;
-    longDateFormat: string;
-    datePickerDayTitle: string;
-    datePickerFormat: string;
-    decimalSeparator: string;
+
+export class BPLocale  {
+    private _locale: string;
+    private _shortDateFormat: string;
+    private _longDateFormat: string;
+    private _datePickerDayTitle: string;
+    private _datePickerFormat: string;
+    private _decimalSeparator: string;
+    private _thousandSeparator: string;
+    private _firstDayOfWeek: number;
+    constructor(locale: string) {
+        let format: string;
+        this._locale = moment.locale(locale);
+
+        this._decimalSeparator = ".";
+        if (Number.toLocaleString) {
+            this._decimalSeparator = (1.1).toLocaleString(this.locale).replace(/\d/g, "");
+        }
+
+        this._thousandSeparator = this.decimalSeparator === "." ? "," : ".";
+
+        this._shortDateFormat = moment.localeData().longDateFormat("L");
+        this._longDateFormat = this._shortDateFormat + " " + moment.localeData().longDateFormat("LT");
+
+        format = moment.localeData().longDateFormat("LL");
+        this._datePickerDayTitle = format.indexOf("Y") < format.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
+
+        this._datePickerFormat = this.getDatePickerFormat();
+
+        this._firstDayOfWeek = (moment.localeData() as any).firstDayOfWeek() as number;
+    }
+
+    public get locale(): string {
+        return this._locale;
+    }
+    public get shortDateFormat(): string {
+        return this._shortDateFormat;
+    }
+    public get longDateFormat(): string {
+        return this._longDateFormat;
+    }
+    public get datePickerDayTitle(): string {
+        return this._datePickerDayTitle;
+    }
+    public get datePickerFormat(): string {
+        return this._datePickerFormat;
+    }
+    public get decimalSeparator(): string {
+        return this._decimalSeparator;
+    }
+    public get thousandSeparator(): string {
+        return this._thousandSeparator;
+    }
+    public get firstDayOfWeek(): number {
+        return this._firstDayOfWeek;
+    }
+
+    
+
+    public toNumber(value: string | number): number {
+
+        if (angular.isNumber(value)) {
+            return value;
+        }
+        let ts = this.thousandSeparator === "." ? "\\." : ",";
+        let ds = this.decimalSeparator === "." ? "\\." : ",";
+        
+        let stingValue = String(value);
+        let rx = new RegExp("^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+)(" + ds + "\\d+)?$", "g");
+        if (rx.test(stingValue)) {
+            if (stingValue.indexOf(this.decimalSeparator)) {
+                return parseFloat(stingValue.replace(new RegExp(ts, "g"), ""));
+            } else {
+                return parseInt(stingValue.replace(new RegExp(ts, "g"), ""), 10);
+            }
+        } else {
+            return null;
+        }
+    };
+
+    public formatNumber(value: number | string, decimals?: number, groups?: boolean) {
+        let options: Intl.NumberFormatOptions = {};
+        if (angular.isNumber(value)) {
+            if (angular.isNumber(decimals)) {
+                options.minimumFractionDigits = decimals;
+                options.maximumFractionDigits = decimals;
+            }
+            if (groups) {
+                options.useGrouping = groups;
+            }
+
+            return value.toLocaleString(this.locale, options);
+        }
+        return null;
+    }
+
+    public toDate(value: string | Date, reset?: boolean): Date {
+        let d = moment(value);
+        if (d.isValid()) {
+            if (reset === true) {
+                d.utc().startOf("day");
+            }
+            return d.toDate();
+        }
+        return null;
+    };
+
+    public formatDate(value: Date, format?: string) {
+        let d = moment(value);
+        let result: string = null;
+        if (d.isValid()) {
+            result = d.format(format);
+        }
+        return result;
+    }
+
+    private getDatePickerFormat(): string {
+        let adapted = this.shortDateFormat;
+        //adapted = adapted.replace(/[^DMY/.-]/gi, "");
+        adapted = adapted.replace(/[\u200F]/g, ""); //special case for RTL languages
+        adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
+
+        if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {
+            adapted = adapted.match(/(d{1,4}|M{1,4}|y{1,4})/g).join(" ");
+        }
+
+        return adapted;
+    };
 
 }
+
 
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 localeConfig.$inject = ["$provide"];
@@ -26,7 +146,7 @@ export function localeConfig($provide: ng.auto.IProvideService): void {
         let value = $delegate.DATETIME_FORMATS;
 
         value.DAY = moment.weekdays();
-        value.SHORTDAY = moment.weekdaysMin().map((it : string) => {
+        value.SHORTDAY = moment.weekdaysMin().map((it: string) => {
             return it.substr(0, 1).toUpperCase();
         });
         value.MONTH = moment.months();
@@ -41,29 +161,15 @@ export function localeConfig($provide: ng.auto.IProvideService): void {
 
 export class LocalizationService implements ILocalizationService {
     public static $inject: [string] = [ "$rootScope"];
-    private _locale: string;
-    private language: moment.MomentLanguageData;
-    private _current: ILocaleFormat;
-    constructor(private scope: ng.IRootScopeService) {
 
-        this._current = {} as ILocaleFormat;
-
-        this._current.locale = moment.locale(LocalizationService.getBrowserLanguage());
-
-        this._current.longDateFormat = moment.localeData().longDateFormat("L");
-        this._current.datePickerDayTitle = moment.localeData().longDateFormat("LL");
-        this._current.datePickerDayTitle = this._current.datePickerDayTitle.indexOf("Y") < this._current.datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
-        this._current.datePickerFormat = this.uiDatePickerFormatAdaptor(this._current.longDateFormat);
-        this._current.decimalSeparator = this.getDecimalSeparator()
-
+    constructor(private scope: ng.IRootScopeService, locale?: string) {
+        this.current = new BPLocale(locale || LocalizationService.getBrowserLanguage());
     }
     get(name: string, defaultValue?: string): string {
         return this.scope["config"].labels[name] || defaultValue || name || "";
     }
 
-    public get current(): ILocaleFormat{
-        return this._current;
-    }
+    public current: BPLocale;
 
     public static getBrowserLanguage(): string {
         // The most reliable way of getting the user's preferred langauge would be to read the Accept-Languages request
@@ -102,104 +208,5 @@ export class LocalizationService implements ILocalizationService {
 
         return null;
     };
-    
-    public parseNumber(numberAsAny: any): number {
-        let number: string;
-        let thousandSeparator = this._current.decimalSeparator === "." ? "," : ".";
-
-        number = (numberAsAny || "").toString();
-        number = number.replace(thousandSeparator, "");
-        if (this._current.decimalSeparator !== ".") {
-            number = number.replace(this._current.decimalSeparator, ".");
-        }
-
-        return parseFloat(number);
-    };
-
-
-    private getDecimalSeparator(): string {
-        let separator = ".";
-        if (Number.toLocaleString) {
-            separator = (1.1).toLocaleString(this.current.locale).replace(/\d/g, "");
-        }
-        return separator;
-    };        
-
-
-    private  uiDatePickerFormatAdaptor(format: string): string {
-        let adapted = format;
-        //adapted = adapted.replace(/[^DMY/.-]/gi, "");
-        adapted = adapted.replace(/[\u200F]/g, ""); //special case for RTL languages
-        adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
-
-        if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {
-            adapted = adapted.match(/(d{1,4}|M{1,4}|y{1,4})/g).join(" ");
-        }
-
-        return adapted;
-    };
-
-    public formatNumber(number: number): string {
-        if (number === null || typeof number === "undefined" || isNaN(number)) {
-            return null;
-        }
-
-        let numberAsString: string = number.toString();
-        
-        if (number - Math.round(number) !== 0) {
-            let decimalSeparator = this.getDecimalSeparator();
-
-            if (decimalSeparator !== ".") {
-                numberAsString = numberAsString.replace(".", decimalSeparator);
-            }
-        }
-
-        return numberAsString;
-    };
-
-    public toLocaleNumber(number: number): string {
-        if (number === null || typeof number === "undefined" || isNaN(number)) {
-            return null;
-        }
-
-        let numberAsString: string = number.toString();
-
-        if (number - Math.round(number) !== 0) {
-
-            if (this._current.decimalSeparator !== ".") {
-                numberAsString = numberAsString.replace(".", this._current.decimalSeparator);
-            }
-        }
-
-        return numberAsString;
-    };
-
-    public parseLocaleNumber(numberAsAny: any ): number {
-        let number: string;
-        let thousandSeparator = this._current.decimalSeparator === "." ? "," : ".";
-
-        number = (numberAsAny || "").toString();
-        number = number.replace(thousandSeparator, "");
-        if (this._current.decimalSeparator !== ".") {
-            number = number.replace(this._current.decimalSeparator, ".");
-        }
-
-        return parseFloat(number);
-    };
-
-    public toStartOfTZDay(date: Date): Date {
-        let momentDate = moment(date);
-        
-        if (!momentDate.isValid()) {
-            return null;
-        }
-
-        let momentString = momentDate.utc().startOf("day").format("YYYY-MM-DD");
-
-        return moment(momentString).toDate();
-    };
-
-
-
 
 }

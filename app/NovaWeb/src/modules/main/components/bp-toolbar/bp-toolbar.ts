@@ -92,13 +92,9 @@ class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
             template: require("../dialogs/bp-tour/bp-tour.html"),
             controller: BPTourController,
-            css: "image-preview-modal onboarding"
+            backdrop: true,
+            css: "nova-tour"
         });
-        // this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-        //     template: require("../dialogs/bp-tour/bp-tour.html"),
-        //     controller: BPTourController,
-        //     controllerAs: "$ctrl"
-        // });
     }
 
     public $onInit(o) {
@@ -113,7 +109,9 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.version !== 0 ? artifact.id : null;
+        this._currentArtifact = 
+            artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && 
+            artifact.version !== 0 ? artifact.id : null;
     }
 
 }

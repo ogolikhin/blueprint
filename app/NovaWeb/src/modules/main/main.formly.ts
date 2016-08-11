@@ -251,7 +251,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div class="ui-select-choice-item" ng-bind-html="option[to.labelProp] | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -290,13 +290,17 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
             };
 
+            $scope.bpFieldSelectMulti.escapeHTMLText = function (str: string): string {
+                return Helper.escapeHTMLText(str);
+            };
+
             $scope.bpFieldSelectMulti.scrollIntoView = function ($event) {
                 let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
 
                 if (target) {
                     target.scrollTop = 0;
                     target.focus();
-            }
+                }
             };
         }]
     });

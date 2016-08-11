@@ -548,7 +548,7 @@ $property-multichoice-height: 24px;
     .has-error {
       textarea,
       input,
-      .ui-select-container {
+      .ui-select-container > div {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }

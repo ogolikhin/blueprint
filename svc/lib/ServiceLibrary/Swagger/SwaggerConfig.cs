@@ -6,12 +6,12 @@ namespace ServiceLibrary.Swagger
 {
     public class SwaggerConfig
     {
-        public static void Register(HttpConfiguration config, string title, string xmlCommentsPath)
+        public static void Register(HttpConfiguration config, string xmlCommentsPath, string title, string description = null)
         {
             config
                 .EnableSwagger(c =>
                 {
-                    c.SingleApiVersion("v1", title);
+                    c.SingleApiVersion("v1", title).Description(description);
                     c.ApiKey("apiKey").Description("API Key Authentication").Name("apiKey").In("header");
                     c.IncludeXmlComments(HostingEnvironment.MapPath(xmlCommentsPath));
                     c.IncludeXmlComments(HostingEnvironment.MapPath("~/bin/ServiceLibrary.XML"));

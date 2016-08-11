@@ -11,7 +11,10 @@ formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages"
 export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    let attributes: string[] = [
+    //const systemProperty: number = 1;
+    const customProperty: number = 2;
+
+    let datepickerAttributes: string[] = [
         "date-disabled",
         "custom-class",
         "show-weeks",
@@ -36,22 +39,20 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         "datepicker-append-to-body"
     ];
 
-    let bindings: string[] = [
+    let datepickerBindings: string[] = [
         "datepicker-mode",
         "min-date",
         "max-date"
     ];
 
-    let ngModelAttrs = {};
+    let datepickerNgModelAttrs = {};
 
-    const customProperty: number = 2;
-
-    angular.forEach(attributes, function(attr) {
-        ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
+    angular.forEach(datepickerAttributes, function(attr) {
+        datepickerNgModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
 
-    angular.forEach(bindings, function(binding) {
-        ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
+    angular.forEach(datepickerBindings, function(binding) {
+        datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
     let blurOnEnterKey = function(event) {
@@ -231,7 +232,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" ng-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
+                <ui-select multiple ng-model="model[options.key]" ng-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -256,8 +257,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
                 // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
                 requiredCustom: {
-                    expression: function ($viewValue, $modelValue, scope) {
-                        if(scope.$parent.to.required) {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
                             if (angular.isArray($modelValue) && $modelValue.length === 0) {
                                 return false;
                             }
@@ -457,7 +458,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            ngModelAttrs: ngModelAttrs,
+            ngModelAttrs: datepickerNgModelAttrs,
             templateOptions: {
                 datepickerOptions: {
                     format: localization.current.datePickerFormat,

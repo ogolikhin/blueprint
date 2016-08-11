@@ -28,6 +28,11 @@ bp-discussion-panel {
         &.reply {
             margin-bottom: 10px;
         }
+
+        .comment-edit-waiting {
+            margin-top: 5px;
+            padding: 0;
+        }
     }
 
     .author {
@@ -85,7 +90,7 @@ bp-discussion-panel {
             color: $gray-darker;
         }
 
-        &.disabled{
+        &.disabled {
             opacity: 0.6;
             pointer-events: none;
         }
@@ -129,6 +134,10 @@ bp-discussion-panel {
     bp-artifact-discussion-item, bp-discussion-reply-item {
         .comment-editing {
             padding: 0;
+        }
+
+        .button-bar i {
+            font-style: normal;
         }
     }
 

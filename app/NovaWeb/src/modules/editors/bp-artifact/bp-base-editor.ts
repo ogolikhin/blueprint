@@ -1,8 +1,13 @@
-﻿import {IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ISidebarToggle, Models, Helper} from "./";
-import {IProjectManager} from "../../main";
-import {tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+﻿import * as moment from "moment";
+import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ILocalizationService } from "../../core";
+import { Helper } from "../../shared";
+import { Enums, Models, ISidebarToggle } from "../../main"
+import { IProjectManager} from "../../main";
 
-export { IProjectManager }
+import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
+
+export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Enums }
+
 export enum LookupEnum {
     None = 0,
     System = 1,
@@ -10,7 +15,7 @@ export enum LookupEnum {
     Special = 3,
 }
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -23,6 +28,7 @@ export class BpBaseEditor {
     public isLoading: boolean = true;
 
     constructor(
+        public localization: ILocalizationService,
         public messageService: IMessageService,
         public stateManager: IStateManager,
         public windowResize: IWindowResize,
@@ -75,8 +81,8 @@ export class BpBaseEditor {
         let context = $model.data as PropertyContext;
         if (!context) {
             return;
-            }
-        let value = context.getValueOfType($value);
+        }
+        let value = context.convertToModelValue($value);
         if ( !this.form.$invalid ) {
             let changeSet: IPropertyChangeSet = {
                 lookup: LookupEnum[context.lookup],
@@ -97,6 +103,7 @@ export class BpBaseEditor {
 
     public onLoad(context: Models.IEditorContext) {
         this.onUpdate(context);
+        var t = this.localization.current;
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -117,6 +124,7 @@ export class BpBaseEditor {
             } else {
                 artifact = this.context.artifact;
             }
+            
 
             let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
@@ -124,12 +132,18 @@ export class BpBaseEditor {
 
             this.editor.load(artifact, fieldContexts);
             this.model = this.editor.getModel();
-            this.editor.getFields().forEach((it: AngularFormly.IFieldConfigurationObject) => {
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
-                angular.extend(it.templateOptions, {
+                angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
                 });
-                this.onFieldUpdate(it);
+
+                if ((artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
+                    field.type = "bpFieldReadOnly";
+                }               
+
+                this.onFieldUpdate(field);
+
 
             });
         } catch (ex) {
@@ -218,7 +232,7 @@ export class PropertyContext implements Models.IPropertyType {
             Models.PropertyTypePredefined.LastEditedOn,
             Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
     }
-    public getValueOfType($value: any): any {
+    public convertToModelValue($value: any): any {
         if (angular.isDefined($value)) {
             switch (this.primitiveType) {
                 case Models.PrimitiveType.Number:
@@ -241,12 +255,10 @@ export class PropertyContext implements Models.IPropertyType {
                     let values = $value.toString().split(",").map((it: string) => {
                         return parseInt(it, 10);
                     });
-                    if (values.length > 1) {
+                    if (values.length >= 1) {
                         return {
                             validValueIds: values
                         };
-                    } else if (values.length === 1) {
-                        return values[0];
                     }
                     return null;
                 default:
@@ -254,6 +266,41 @@ export class PropertyContext implements Models.IPropertyType {
             }
         } 
         return $value;
+    }
+
+    public convertToFieldValue($value: any): any {
+        let fieldValue: any;
+        switch (this.primitiveType) {
+            case Enums.PrimitiveType.Date:
+                //if (moment($value).isValid()) {
+                //    if (this.lookup === LookupEnum.Custom) {
+                //        fieldValue = moment($value).startOf("day").format(dateFormat);
+                //    } else {
+                //        fieldValue = moment($value).format("L") + " " + moment($value).format("LT");
+                //    }
+                //}
+                //} else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
+                //    $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
+                //}
+                break;
+            case Enums.PrimitiveType.Number:
+                //if (angular.isNumber($value)) {
+                //    fieldValue = Helper.toLocaleNumber(currentModelVal.toString());
+                //} else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                //    $scope.model[$scope.options.key] = Helper.toLocaleNumber($scope.options.data.decimalDefaultValue);
+                //}
+                break;
+            case Enums.PrimitiveType.User:
+
+                //if (currentModelVal) {
+                //    $scope.model[$scope.options.key] = currentModelVal;
+                //} else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
+                //    $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
+                //}
+                break;
+            default:
+        }
+        return fieldValue;
     }
 }
 

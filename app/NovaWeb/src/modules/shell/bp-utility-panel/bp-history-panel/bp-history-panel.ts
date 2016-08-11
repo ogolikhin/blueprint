@@ -67,7 +67,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
-        if (artifact !== null && this.artifactId !== artifact.id) {
+        if (artifact == null) {
+            this.artifactHistoryList = [];
+            return;
+        }
+        if (this.artifactId !== artifact.id) {
             this.artifactHistoryList = [];
             this.artifactId = artifact.id;
             this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)

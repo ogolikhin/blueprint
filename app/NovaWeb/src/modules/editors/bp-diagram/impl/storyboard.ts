@@ -26,6 +26,7 @@ export class StoryboardShapeFactory extends AbstractShapeFactory {
         geometry.offset = MxFactory.point(0, this.frameMargin);
         style[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE;
         style[mxConstants.STYLE_STROKECOLOR] = "black";
+        style[Styles.STYLE_SELECTABLE] = 0;
         const border = MxFactory.vertex(null, geometry, style.convertToString());
         frame.insert(border);
 

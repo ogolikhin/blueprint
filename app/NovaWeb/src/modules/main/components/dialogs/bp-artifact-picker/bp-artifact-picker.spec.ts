@@ -10,6 +10,8 @@ import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-t
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
 import { ModalServiceInstanceMock } from "../open-project.spec.ts";
+import { DialogServiceMock, DialogTypeEnum } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+
 
 
 describe("Project Explorer Test", () => {
@@ -26,9 +28,18 @@ describe("Project Explorer Test", () => {
         $provide.service("projectManager", ProjectManager);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("explorer", ArtifactPickerController);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, $compile: ng.ICompileService, selectionManager: SelectionManager) => {
+    beforeEach(inject((
+        $rootScope: ng.IRootScopeService,
+        localization: LocalizationServiceMock,
+        projectRepository: ProjectRepositoryMock,
+        projectManager: ProjectManager,
+        $compile: ng.ICompileService,
+        selectionManager: SelectionManager,
+        dialogService: DialogServiceMock
+    ) => {
         $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
@@ -44,13 +55,23 @@ describe("Project Explorer Test", () => {
 
         controller = new ArtifactPickerController(
             $scope,
-            new LocalizationServiceMock(),
+            localization,
             new ModalServiceInstanceMock(),
             projectManager,
             selectionManager,
-            null,
-            null,
-            null);
+            projectRepository,
+            dialogService,
+            {
+                type: DialogTypeEnum.Base,
+                header: "test" ,
+                message: "test" ,
+                cancelButton: "test",
+                okButton: "test",
+                template: "test",
+                controller: null,
+                css: null,
+                backdrop: false
+            });
 
         controller["tree"] = new BPTreeControllerMock();      
 
@@ -59,146 +80,99 @@ describe("Project Explorer Test", () => {
     }));
 
 
-    xit("check property map", inject((explorer: ArtifactPickerController) => {
-        // Arrange
-        // Act
+    it("check property map", inject(() => {
         // Assert
-
-        expect(explorer.propertyMap).toBeDefined();
-        expect(explorer.propertyMap["id"]).toEqual("id");
-        expect(explorer.propertyMap["itemTypeId"]).toEqual("type");
-        expect(explorer.propertyMap["name"]).toEqual("name");
-        expect(explorer.propertyMap["hasChildren"]).toEqual("hasChildren");
-        expect(explorer.propertyMap["artifacts"]).toEqual("children");
-
+        expect(controller.propertyMap).toBeDefined();
+        expect(controller.propertyMap["id"]).toEqual("id");
+        expect(controller.propertyMap["type"]).toEqual("type");
+        expect(controller.propertyMap["name"]).toEqual("name");
+        expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
     }));
 
-    xit("Load project", inject((projectManager: ProjectManager, explorer: ArtifactPickerController) => {
-        // Arrange
-        isReloadCalled = 0;
-        explorer.tree.reload = function (data: any[], id?: number) {
-            isReloadCalled += 1;
-        };
-
-
-        // Act
-        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1" } as Models.IProject]);
-
+    it("check columns", inject(() => {
         // Assert
-        expect(isReloadCalled).toEqual(1);
-
-    }));
-    xit("Load project children call", inject((projectManager: IProjectManager, explorer: ArtifactPickerController) => {
-        // Arrange
-        isReloadCalled = 0;
-        explorer.tree.selectNode = function (id: number) {
-            isReloadCalled += 1;
-        };
-
-        // Act
-//        projectManager.currentArtifact.onNext({ id: 1, name: "Artifact 1" } as Models.IArtifact);
-
-        // Assert
-        expect(isReloadCalled).toEqual(1);
+        var column = controller.columns[0]
+        expect(column).toBeDefined();
+        expect(column.headerName).toEqual("");
+        expect(column.field).toEqual("name");
+        expect(column.cellRenderer).toEqual("group");
+        expect(column.suppressMenu).toEqual(true);
+        expect(column.suppressFiltering).toEqual(true);
+        expect(column.suppressFiltering).toEqual(true);
     }));
 
-    xit("close project", inject((projectManager: ProjectManager, explorer: ArtifactPickerController) => {
+
+    it("doLoad", inject(($rootScope: ng.IRootScopeService) => {
         // Arrange
         isReloadCalled = 0;
-        explorer.tree.reload = function (data: any[], id?: number) {
+        controller.tree.reload = function (data: any[], id?: number) {
             isReloadCalled += 1;
         };
-
         // Act
-        projectManager.projectCollection.onNext([{ id: 1, name: "Project 1" } as Models.IProject]);
-
-        projectManager.closeProject();
-
-        // Assert
-        expect(isReloadCalled).toEqual(1);
-
-    }));
-
-    xit("doLoad", inject(($rootScope: ng.IRootScopeService, explorer: ArtifactPickerController) => {
-        // Arrange
-        isReloadCalled = 0;
-        explorer.tree.reload = function (data: any[], id?: number) {
-            isReloadCalled += 1;
-        };
-        explorer.doLoad(new Models.Project({ id: 1, name: "Project 1" }));
+        controller.doLoad(new Models.Project({ id: 1, name: "Project 1" }));
         $rootScope.$digest();
+        // Assert
+        expect(isReloadCalled).toEqual(1);
+    }));
 
+    it("doLoad (project view)", inject(($rootScope: ng.IRootScopeService) => {
+        // Arrange
+        isReloadCalled = 0;
+        controller.tree.reload = function (data: any[], id?: number) {
+            isReloadCalled += 1;
+        };
         // Act
-        //expect(isReloadCalled).toEqual(1);
+        controller.projectView = true;
+        controller.doLoad(null);
+        $rootScope.$digest();
+        // Assert
+        expect(isReloadCalled).toEqual(1);
 
     }));
 
-    xit("doLoad (nothing)", inject(($rootScope: ng.IRootScopeService, explorer: ArtifactPickerController) => {
+    it("doSelect (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
         isReloadCalled = 0;
-        explorer.tree.reload = function (data: any[], id?: number) {
+        controller.tree.reload = function (data: any[], id?: number) {
             isReloadCalled += 1;
         };
-        explorer.doLoad(null);
+        projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
         $rootScope.$digest();
-
         // Act
+        controller.projectView = false;
+        controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
+        $rootScope.$digest();
+        // Assert
         expect(isReloadCalled).toEqual(0);
 
     }));
 
-    xit("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ArtifactPickerController) => {
+    it("doSelect (project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
         isReloadCalled = 0;
-        explorer.tree.selectNode = function (id?: number) {
+        controller.tree.reload = function (data: any[], id?: number) {
             isReloadCalled += 1;
         };
-        explorer["projectManager"].projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
+        projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
         $rootScope.$digest();
-        explorer.doSelect(({ id: 1, name: "Project 1" } as ITreeNode));
+        // Act
+        controller.projectView = true;
+        controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
         $rootScope.$digest();
 
-        // Act
+        // Assert
         expect(isReloadCalled).toEqual(1);
-
     }));
 
-
-    xit("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+    it("doSync (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
-        isReloadCalled = 1;
-        projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-        $rootScope.$digest();
-
+        controller.projectView = false;
         // Act
-        projectManager.closeProject();
+        var result = controller.doSync(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
         $rootScope.$digest();
-        let current: Models.IProject; // = projectManager.currentProject.getValue();
 
         // Assert
-        expect(isReloadCalled).toBeTruthy();
-        expect(current).toBeNull();
-        expect(projectManager.projectCollection.getValue.length).toEqual(0);
-
-    }));
-
-    xit("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-        // Arrange
-        isReloadCalled = 1;
-        projectManager.loadProject(new Models.Project({ id: 2, name: "Project 1" }));
-        $rootScope.$digest();
-        projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
-        $rootScope.$digest();
-
-        // Act
-        projectManager.closeProject(true);
-        $rootScope.$digest();
-        let current: Models.IProject; // = projectManager.currentProject.getValue();
-
-        // Assert
-        expect(current).toBeNull();
-        expect(projectManager.projectCollection.getValue.length).toEqual(0);
-
+        expect(result.id).toEqual(1);
     }));
 
 });

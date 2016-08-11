@@ -16,21 +16,24 @@ export interface IPropertyChangeSet {
 }
 
 export class ItemState {
-    constructor(artifact: Models.IItem) {
-        this.originItem = artifact;
-        this._changes = [];
+    constructor(item: Models.IItem) {
+        this.originItem = item;
+        this._changesets = [];
     }
 
-    private _isChanged: boolean = false;
-    private _changes: IPropertyChangeSet[];
+    private _changed: boolean = false;
+    private _readonly: boolean = false;
+    private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IItem;
     
     public originItem: Models.IItem;
     public isLocked: boolean = false;
-    public isReadOnly: boolean = false;
 
+    public get isReadOnly(): boolean {
+        return this._readonly;
+    }
     public get isChanged(): boolean {
-        return this._isChanged;
+        return this._changed;
     }
 
     public get changedItem(): Models.IItem {
@@ -40,14 +43,22 @@ export class ItemState {
     public clear() {
         this.originItem = null;
         this._changedItem = null;
-        this._changes = null;
-        this._isChanged = false;
+        this._changesets = null;
+        this._changed = false;
+        this._readonly = false;
         this.isLocked = false;
-        this.isReadOnly = false;
     }
 
     private saveChange(changeSet: IPropertyChangeSet) {
-        this._changes.push(changeSet);
+        let _changeset = this._changesets.filter((it: IPropertyChangeSet) => {
+            return it.lookup === changeSet.lookup && it.id === changeSet.id;
+        })[0]
+        if (_changeset) {
+            _changeset.value = changeSet.value;
+        } else {
+            this._changesets.push(changeSet);
+        }
+        
     }
 
     public addChange(changeSet: IPropertyChangeSet) {
@@ -80,7 +91,7 @@ export class ItemState {
                 break;
         }
         this.saveChange(changeSet);
-        this._isChanged = true;
+        this._changed = true;
     }
 
 }
@@ -91,8 +102,7 @@ export class StateManager implements IStateManager {
 
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor() {
-    }
+    constructor() { }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
         return this._itemChanged || (this._itemChanged = new Rx.BehaviorSubject<ItemState>(null));
@@ -100,7 +110,6 @@ export class StateManager implements IStateManager {
     private get itemStateCollection(): ItemState[] {
         return this._itemStateCollection || (this._itemStateCollection = []);
     }
-
 
     public dispose() {
         

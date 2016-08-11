@@ -2,12 +2,12 @@ bp-toolbar {
   > .navbar-toolbar {
     background: $gray-lighter;
     height: $toolbar-height;
-    padding: 0 0 0 12px;
+    padding: 0 12px 0 12px;
 
     .navbar-nav {
       float: left;
       margin: 0;
-      display: inline-block;      
+      display: inline-block;
 
       > li {
         float: left !important; //override media query
@@ -114,7 +114,7 @@ bp-toolbar {
     }
 
     .nav-right{
-          float:right;
-      }
+        float:right;
+    }
   }
 }

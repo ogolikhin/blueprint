@@ -1,10 +1,10 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+import { ISelectionManager, Models, IArtifactService} from "../../../main";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { Message, MessageType, IMessage} from "../../../core/messages/message";
+import { Message, MessageType} from "../../../core/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -21,7 +21,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "selectionManager",
         "messageService",
         "dialogService",
-        "$q"
+        "$q",
+        "artifactService"
     ];
 
     //private loadLimit: number = 10;
@@ -34,6 +35,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
+    public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
 
     constructor(
@@ -43,6 +45,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private $q: ng.IQService,
+        private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super(selectionManager, bpAccordionPanel);
@@ -70,21 +73,39 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
-            this.setDiscussions();
+            if (artifact.version === undefined) {
+                this.artifactService.getArtifact(artifact.id).then((result: Models.IArtifact) => {
+                    artifact = result;
+                    this.setEverPublishedAndDiscussions(artifact.version);
+                }).catch((error: any) => {
+                    if (error.statusCode && error.statusCode !== 1401) {
+                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    }
+                    artifact = null;
+                });
+            } else {
+                this.setEverPublishedAndDiscussions(artifact.version);
+            }
         } else {
             this.artifactId = null;
             this.subArtifact = null;
             this.artifactDiscussionList = [];
             this.canCreate = false;
             this.canDelete = false;
+            this.artifactEverPublished = false;
         }
+    }
+
+    private setEverPublishedAndDiscussions(artifactVersion) {
+        this.artifactEverPublished = artifactVersion > 0;
+        this.setDiscussions();
     }
 
     private setDiscussions() {
         this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 this.artifactDiscussionList = discussionResultSet.discussions;
-                this.canCreate = discussionResultSet.canCreate;
+                this.canCreate = discussionResultSet.canCreate && this.artifactEverPublished;
                 this.canDelete = discussionResultSet.canDelete;
             });
     }
@@ -108,7 +129,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     /* tslint:disable:no-unused-variable */
     public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
-        this.isLoading = true;
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this._artifactDiscussionsRepository.addDiscussion(artifactId, comment)
             .then((discussion: IDiscussion) => {
@@ -120,16 +140,12 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
-            .finally(() => {
-                this.isLoading = false;
             });
     }
     /* tslint:disable:no-unused-variable */
 
     /* tslint:disable:no-unused-variable */
     public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
-        this.isLoading = true;
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this._artifactDiscussionsRepository.addDiscussionReply(artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
@@ -144,9 +160,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;
-            })
-            .finally(() => {
-                this.isLoading = false;
             });
     }
     /* tslint:disable:no-unused-variable */
@@ -220,7 +233,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.artifactDiscussionList = discussionsResultSet.discussions;
                         this.canDelete = discussionsResultSet.canDelete;
-                        this.canCreate = discussionsResultSet.canCreate;
+                        this.canCreate = discussionsResultSet.canCreate && this.artifactEverPublished;
                     });
                 }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }

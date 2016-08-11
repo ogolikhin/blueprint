@@ -13,7 +13,7 @@ export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
     public template = "<div ui-view></div>";
     public controller = "artifactStateController";
-    public params = { context: null };
+    public reloadOnSearch = false;
 }
 
 export class ArtifactStateController {
@@ -36,14 +36,19 @@ export class ArtifactStateController {
             let artifactType = artifact.predefinedType;
             if (selectionManager.selection &&
                 selectionManager.selection.artifact &&
-                selectionManager.selection.artifact.id != artifact.id) {
+                selectionManager.selection.artifact.id !== artifact.id) {
 
                 selectionManager.selection = {
                     source: SelectionSource.Explorer,
                     artifact: artifact
                 };
             }
-            this.navigateToSubRoute(artifactType, $state.params["context"]);
+            let context: Models.IEditorContext = {};
+            context.artifact = artifact;
+            context.type = projectManager.getArtifactType(artifact);      
+
+            this.navigateToSubRoute(artifactType, context);
+
         } else {
             messageService.addError(this.localization.get("Artifact_NotFound"));
         }

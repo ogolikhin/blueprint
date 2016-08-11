@@ -172,11 +172,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {};
@@ -202,11 +197,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -230,11 +220,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
@@ -246,7 +231,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
+                <ui-select multiple data-ng-model="model[options.key]" ng-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -267,9 +252,18 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 valueProp: "value",
                 labelProp: "name"
             },
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+            validators: {
+                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
+                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
+                requiredCustom: {
+                    expression: function ($viewValue, $modelValue, scope) {
+                        if(scope.$parent.to.required) {
+                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
                 }
             }
         },
@@ -324,11 +318,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            },
             validators: {
                 decimalPlaces: {
                     expression: function($viewValue, $modelValue, scope) {
@@ -497,7 +486,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
                     date: `"` + localization.get("Property_Wrong_Format") + ` (` + localization.current.datePickerFormat.toUpperCase() + `)"`
                 }
             },
@@ -622,5 +610,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("requiredCustom", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
+    formlyValidationMessages.addTemplateOptionValueMessage("required", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     /* tslint:enable */
 }

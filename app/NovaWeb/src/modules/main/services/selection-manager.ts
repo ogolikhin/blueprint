@@ -58,7 +58,6 @@ export class SelectionManager implements ISelectionManager {
     }
 
     private getSelectedItem(selection: ISelection): IItem {
-        this.tt(selection.source, ...selection.parameter)
         if (selection) {
             if (selection.subArtifact) {
                 return selection.subArtifact;

@@ -1,4 +1,8 @@
 ﻿// References to StorytellerDiagram
+
+
+
+import {IDialogManager, DialogManager} from "../../dialogs/dialog-manager";
 import {IMessageService, Message, MessageType} from "../../../../core";
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
@@ -21,7 +25,8 @@ export class StorytellerDiagram {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private messageService: IMessageService) {
+        private messageService: IMessageService,
+        private dialogManager: IDialogManager) {
 
         this.processModel = null;
     }
@@ -90,6 +95,14 @@ export class StorytellerDiagram {
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
+    public openDialog() {
+        this.storytellerViewModel.dialogManager.openDialog(1, 0);
+    }
+
+    private createProcessViewModel(process: ProcessModels.IProcess): IStorytellerViewModel {
+        if (this.storytellerViewModel == null) {
+            this.storytellerViewModel = new StorytellerViewModel(process, this.$rootScope, this.$scope, this.messageService);
+            this.storytellerViewModel.dialogManager = this.dialogManager; 
         } else {
             this.processViewModel.updateProcessGraphModel(process);
         }

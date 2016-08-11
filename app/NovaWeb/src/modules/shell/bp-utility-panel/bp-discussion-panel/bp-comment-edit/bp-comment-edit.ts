@@ -118,10 +118,15 @@ export class BPCommentEditController {
         }
     }
 
-
     public postCommentInternal(): ng.IPromise<void> {
         const defer = this.$q.defer<any>();
         this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
         return defer.promise;
+    }
+
+    public $onDestroy() {
+        this.tinymceOptions.setup = null;
+        this.tinymceOptions.init_instance_callback = null;
+        this.tinymceOptions = null;
     }
 }

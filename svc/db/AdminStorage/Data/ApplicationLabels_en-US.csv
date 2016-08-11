@@ -36,6 +36,7 @@ App_Toolbar_Discard_All,"Discard All"
 App_Toolbar_Publish_All,"Publish All"
 App_Toolbar_Refresh_All,"Refresh All"
 App_Toolbar_Delete,"Delete"
+App_Toolbar_Tour,"Tour"
 
 App_UtilityPanel_Discussions,"Discussions"
 App_UtilityPanel_Properties,"Properties"

@@ -1,5 +1,6 @@
 ﻿using System.Web;
 using System.Web.Http;
+using ServiceLibrary.Swagger;
 
 namespace AccessControl
 {
@@ -9,7 +10,7 @@ namespace AccessControl
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(SwaggerConfig.Register);
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "AccessControl", "~/bin/AccessControl.XML"));
 #endif
         }
     }

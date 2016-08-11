@@ -3,6 +3,8 @@ import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
+import {SubArtifactEditorModalOpener} from "./dialogs/sub-artifact-editor-modal-opener";
+import {IDialogManager, DialogManager} from "./dialogs/dialog-manager";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -18,7 +20,9 @@ export class BpStorytellerEditorController {
 
     private _context: number;
 
-    public storytellerDiagram: StorytellerDiagram;
+    public storytellerDiagram : StorytellerDiagram;
+    public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
+    public dialogManager: IDialogManager;
 
     public static $inject = [
         "$rootScope",
@@ -31,7 +35,8 @@ export class BpStorytellerEditorController {
         "processService",
         "projectManager",
         "selectionManager",
-        "messageService"
+        "messageService",
+        "$uibModal"
     ];
 
     constructor(
@@ -44,7 +49,12 @@ export class BpStorytellerEditorController {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
-        private messageService: IMessageService) {
+        private messageService: IMessageService,
+        private $uibModal: ng.ui.bootstrap.IModalService
+    ) {
+
+        this.dialogManager = new DialogManager();
+        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
 
     }
 
@@ -76,7 +86,8 @@ export class BpStorytellerEditorController {
             this.$q,
             this.$log,
             this.processService,
-            this.messageService
+            this.messageService,
+            this.dialogManager
         );
        
         let htmlElement = this.getHtmlElement();

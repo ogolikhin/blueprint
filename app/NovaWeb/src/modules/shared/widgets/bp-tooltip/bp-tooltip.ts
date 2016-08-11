@@ -67,9 +67,11 @@ export class BPTooltip implements ng.IDirective {
         function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
             if (element.attr("bp-tooltip-truncated") === "true") {
                 const elem = element[0];
+                // the "- 1" allows some wiggle room in IE, as scrollWidth/Height round to the biggest integer
+                // while offsetWidth/Height to the smallest
                 return (elem && (
-                    elem.offsetWidth < elem.scrollWidth ||
-                    elem.offsetHeight < elem.scrollHeight - 1) // the "- 1" allows some wiggle room in IE
+                    elem.offsetWidth < elem.scrollWidth - 1 ||
+                    elem.offsetHeight < elem.scrollHeight - 1)
                 );
             }
             return true;

@@ -20,7 +20,9 @@ export class BPBaseUtilityPanelController {
                         return { selection: selection, isVisible: visibility };
                     })
                 .filter(o => o.selection && o.isVisible)
-                .map(o => o.selection)
+                .map(o => {
+                    return { artifact: o.selection.artifact, subArtifact: o.selection.subArtifact };
+                })
                 .distinctUntilChanged()
                 .subscribe(s => this.onSelectionChanged(s.artifact, s.subArtifact));
         

@@ -530,10 +530,6 @@ $property-multichoice-height: 24px;
       }
     }
 
-    .form-read-only {
-
-    }
-
     .error-messages {
       bottom: calc((#{$font-size-smaller} + 2px) * -1);
       position: absolute;
@@ -545,10 +541,14 @@ $property-multichoice-height: 24px;
       }
     }
 
+    &.formly-field-bpFieldSelectMulti .error-messages {
+      right: -20px;
+    }
+
     .has-error {
       textarea,
       input,
-      .ui-select-container {
+      .ui-select-container > div {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }

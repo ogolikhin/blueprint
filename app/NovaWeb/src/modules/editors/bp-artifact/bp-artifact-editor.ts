@@ -8,10 +8,9 @@
     IStateManager,
     IWindowResize,
     ISidebarToggle,
-    Enums,
     Models
 } from "./bp-base-editor";
-import { IArtifactService } from "../../main"
+import { IArtifactService } from "../../main";
 
 
 export class BpArtifactEditor implements ng.IComponentOptions {

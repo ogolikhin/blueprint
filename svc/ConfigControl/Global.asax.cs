@@ -24,7 +24,7 @@ namespace ConfigControl
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "ConfigControl", "~/bin/ConfigControl.XML"));
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/ConfigControl.XML", "ConfigControl"));
 #endif
         }
 

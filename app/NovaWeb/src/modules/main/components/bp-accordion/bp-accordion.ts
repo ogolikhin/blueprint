@@ -43,7 +43,7 @@ export interface IBpAccordionPanelController {
     accordionGroup: IBpAccordionController;
 
     isOpen: boolean;
-    isOpenObservable: Rx.Observable<boolean>;
+    isActiveObservable: Rx.Observable<boolean>;
     isPinned: boolean;
     isVisible: boolean;
 
@@ -118,9 +118,6 @@ export class BpAccordionCtrl implements IBpAccordionController {
     
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
-        // if (panel.isPinned) {
-        //     this.openPanels.push(panel);
-        // }
         this.recalculateLayout();
     }
 
@@ -156,9 +153,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
 
     public cleanUpOpenPanels = () => {
         const numPinnedPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
-        // const openPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isVisible);
 
-        // if (openPanels.length > 1) {
         if (this.openPanels.length > 1) {
             this.openPanels = this.openPanels
                 .map( (panel: IBpAccordionPanelController) => {
@@ -171,7 +166,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
                     }
                     return panel;
                 })
-                .filter( (panel: IBpAccordionPanelController) => panel.isOpen); // && panel.isVisible);
+                .filter( (panel: IBpAccordionPanelController) => panel.isOpen);
             this.recalculateLayout();
         }
     };
@@ -218,8 +213,9 @@ export class BpAccordionCtrl implements IBpAccordionController {
 export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     static $inject: [string] = ["localization", "$element"];
     
-    private isOpenSubject: Rx.BehaviorSubject<boolean>;
+    private _isOpen: boolean;
     private _isVisible: boolean;
+    private isActiveSubject: Rx.BehaviorSubject<boolean>;
 
     public accordionGroup: BpAccordionCtrl;
     public accordionPanelId: string;
@@ -230,22 +226,34 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     constructor(private localization: ILocalizationService, private $element) {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
-        this.isOpenSubject = new Rx.BehaviorSubject<boolean>(false);
+        // this.isOpenSubject = new Rx.BehaviorSubject<boolean>(false);
+        this.isActiveSubject = new Rx.BehaviorSubject<boolean>(true);
         this.isOpen = false;
         this.isPinned = false;
         this._isVisible = true;
     }
 
     public get isOpen(): boolean {
-        return this.isOpenSubject.getValue();
+        return this._isOpen;
     }
 
     public set isOpen(value: boolean) {
-        this.isOpenSubject.onNext(value);
+        if (this._isOpen !== value) {
+            this._isOpen = value;
+            this.isActive = this.isVisible && this._isOpen;
+        }
     }
 
-    public get isOpenObservable(): Rx.Observable<boolean> {
-        return this.isOpenSubject.asObservable();
+    public get isActive(): boolean {
+        return this.isActiveSubject.getValue();
+    }
+
+    public set isActive(value: boolean) {
+        this.isActiveSubject.onNext(value);
+    }
+
+    public get isActiveObservable(): Rx.Observable<boolean> {
+        return this.isActiveSubject.asObservable();
     }
 
     public get isVisible(): boolean {
@@ -261,6 +269,8 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
             } else {
                 this.getElement().className += " bp-accordion-panel-hidden";
             }
+
+            this.isActive = this.isVisible && this.isOpen;
         }
     }
 

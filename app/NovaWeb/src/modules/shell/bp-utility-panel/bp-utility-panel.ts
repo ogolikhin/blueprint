@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { ISelectionManager, Models } from "../../main";
+import { ISelectionManager, Models, ISelection } from "../../main";
+import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
 // TODO: change order after Properites US: 872
@@ -44,11 +45,16 @@ export class BPUtilityPanelController {
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        let selectedItemSubscriber: Rx.IDisposable = this.selectionManager.selectedItemObservable
+        const selectionObservable = this.selectionManager.selectionObservable
+            .distinctUntilChanged()
+            .subscribe(this.onSelectionChanged);
+
+        const selectedItemSubscriber: Rx.IDisposable = this.selectionManager.selectedItemObservable
             .distinctUntilChanged()
             .subscribe(this.onItemChanged);
 
         this._subscribers = [
+            selectionObservable,
             selectedItemSubscriber
         ];
     }
@@ -79,6 +85,40 @@ export class BPUtilityPanelController {
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
+        }
+    }
+
+    private onSelectionChanged = (selection: ISelection) => {
+        if (selection) {
+            this.toggleHistoryPanel(selection);
+            this.togglePropertiesPanel(selection);
+        }
+    }
+
+    private toggleHistoryPanel(selection: ISelection) {
+        if (selection.subArtifact) {
+            this.hidePanel(PanelType.History);
+        } else {
+            this.showPanel(PanelType.History);
+        }
+    }
+    
+    private togglePropertiesPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (selection.subArtifact 
+            || artifact.predefinedType === ItemTypePredefined.Glossary
+            || artifact.predefinedType === ItemTypePredefined.GenericDiagram
+            || artifact.predefinedType === ItemTypePredefined.BusinessProcess
+            || artifact.predefinedType === ItemTypePredefined.DomainDiagram
+            || artifact.predefinedType === ItemTypePredefined.Storyboard
+            || artifact.predefinedType === ItemTypePredefined.UseCaseDiagram
+            || artifact.predefinedType === ItemTypePredefined.UseCase
+            || artifact.predefinedType === ItemTypePredefined.UIMockup) {
+
+            this.showPanel(PanelType.Properties);
+        } else {
+            this.hidePanel(PanelType.Properties);
         }
     }
 }

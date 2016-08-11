@@ -23,7 +23,7 @@ import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
     ISidebarToggle, SidebarToggle } from "./services/";
-import { ISelectionManager, SelectionManager } from "./services/selection-manager";
+import { ISelectionManager, SelectionManager, ISelection } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
 import { BPToolbar } from "./components/bp-toolbar/bp-toolbar";
@@ -53,7 +53,7 @@ export {
     IProjectRepository, ProjectRepository,
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
-    ISelectionManager, SelectionManager,
+    ISelectionManager, SelectionManager, ISelection,
     ISidebarToggle, SidebarToggle
 };
 

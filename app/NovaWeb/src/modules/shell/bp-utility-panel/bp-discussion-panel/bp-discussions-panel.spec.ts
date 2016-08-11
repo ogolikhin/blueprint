@@ -20,7 +20,7 @@ describe("Component BPDiscussionPanel", () => {
     let template = `<bp-discussion-panel></bp-discussion-panel>`;
     let vm: BPDiscussionPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));

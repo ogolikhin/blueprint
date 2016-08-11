@@ -15,7 +15,7 @@ describe("Component BP Attachments Panel", () => {
     let template = `<bp-attachments-panel></bp-attachments-panel>`;
     let vm: BPAttachmentsPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));

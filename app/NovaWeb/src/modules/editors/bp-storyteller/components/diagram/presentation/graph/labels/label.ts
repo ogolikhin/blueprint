@@ -318,29 +318,27 @@ export class Label implements ILabel {
 
         if (!this.isReadOnly) {
             //event handlers
-            $(this.div).on("labeldblclick", (e) => this.onEdit(e));
-            //$(this.div).on("blur", (e) => this.blur(e));
+            angular.element(this.div).on("labeldblclick", (e) => this.onEdit(e));
             this.div.addEventListener("blur", this.onBlur, true);
             this.div.addEventListener("labelmouseover", this.onMouseover, true);
             this.div.addEventListener("labelmouseout", this.onMouseout, true);
 
-            $(this.div).on("keydown", (e) => this.onKeyDown(e));
-            $(this.div).on("paste", (e) => this.onPaste(e));
-            $(this.div).on("dispose", () => this.onDispose());
+            angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
+            angular.element(this.div).on("paste", (e) => this.onPaste(e));
+            angular.element(this.div).on("dispose", () => this.onDispose());
         }
     }
 
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {
-                $(this.div).off("labeldblclick", (e) => this.onEdit(e));
-                //$(this.div).off("blur", (e) => this.blur(e));
+                angular.element(this.div).off("labeldblclick", (e) => this.onEdit(e));
                 this.div.removeEventListener("blur", this.onBlur, true);
                 this.div.removeEventListener("labelmouseover", this.onMouseover, true);
                 this.div.removeEventListener("labelmouseout", this.onMouseout, true);
-                $(this.div).off("keydown", (e) => this.onKeyDown(e));
-                $(this.div).off("paste", (e) => this.onPaste(e));
-                $(this.div).off("dispose", () => this.onDispose());
+                angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
+                angular.element(this.div).off("paste", (e) => this.onPaste(e));
+                angular.element(this.div).off("dispose", () => this.onDispose());
             }
             this.wrapperDiv.removeChild(this.div);
             this.container.removeChild(this.wrapperDiv);

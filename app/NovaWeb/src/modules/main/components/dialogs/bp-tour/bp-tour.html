@@ -1,0 +1,8 @@
+<div class="modal-content">
+    <a href="#" ng-click="$ctrl.close()"><i class="fonticon fonticon-close"></i></a>
+    <div uib-carousel active="0" no-wrap="true">
+        <div uib-slide ng-repeat="image in $ctrl.images track by image.id" index="image.id">
+            <img ng-src="{{image.src}}" style="margin:auto;">
+        </div>
+    </div>
+</div>

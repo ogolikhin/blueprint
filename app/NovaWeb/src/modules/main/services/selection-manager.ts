@@ -87,7 +87,7 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public clearSelection() {
-        this.selectionSubject.onNext({ artifact: null, subArtifact: null, source: SelectionSource.None });
+        this.selectionSubject.onNext({ artifact: null, source: SelectionSource.None });
     }
 
     public clearSubArtifactSelection() {

@@ -92,7 +92,7 @@ describe("Selection Manager", () => {
             //Assert
             expect(selectionManager.selection).toBeDefined();
             expect(selectionManager.selection.artifact).toBeNull();
-            expect(selectionManager.selection.subArtifact).toBeNull();
+            expect(selectionManager.selection.subArtifact).not.toBeDefined();
             expect(selectionManager.selection.source).toEqual(SelectionSource.None);
         }));
     });

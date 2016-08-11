@@ -1,3 +1,13 @@
+/*@import "modules/normalize";
+@import "modules/variables";
+@import "modules/mixins";
+@import "modules/typography";
+@import "partials/toolbar";
+@import "partials/breadcrumbs";
+@import "partials/_form.scss";
+@import "partials/tabs";
+@import "partials/button";
+@import "partials/dialog";*/
 
 bp-storyteller-editor{
     .storyteller-view-min-width {
@@ -774,6 +784,7 @@ bp-storyteller-editor{
     .dropdown-menu {
         width: 100% !important;
         padding: 10px;
+        background-color:aqua;
     }
 
     .delete-condition {

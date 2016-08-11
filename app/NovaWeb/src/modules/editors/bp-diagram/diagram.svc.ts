@@ -95,8 +95,8 @@ export class DiagramService implements IDiagramService {
 
     private getPath(id: number, itemType: ItemTypePredefined): string {
         if (itemType === ItemTypePredefined.UseCase) {
-            return `/svc/components/RapidReview/usecase/${id}`;
+            return `/svc/bpartifactstore/usecase/${id}`;
         }
-        return `/svc/components/RapidReview/diagram/${id}?addDraft=true`;
+        return `/svc/bpartifactstore/diagram/${id}?addDraft=true`;
     }
 }

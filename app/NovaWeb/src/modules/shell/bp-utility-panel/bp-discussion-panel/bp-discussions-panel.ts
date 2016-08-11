@@ -73,7 +73,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
-            if (artifact.version === undefined) {
+            if (artifact.version) {
+                this.setEverPublishedAndDiscussions(artifact.version);
+            } else {
                 this.artifactService.getArtifact(artifact.id).then((result: Models.IArtifact) => {
                     artifact = result;
                     this.setEverPublishedAndDiscussions(artifact.version);
@@ -83,8 +85,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     }
                     artifact = null;
                 });
-            } else {
-                this.setEverPublishedAndDiscussions(artifact.version);
             }
         } else {
             this.artifactId = null;
@@ -97,6 +97,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     private setEverPublishedAndDiscussions(artifactVersion) {
+        //We should not check the subartifact version to make sure it's published
         this.artifactEverPublished = artifactVersion > 0;
         this.setDiscussions();
     }

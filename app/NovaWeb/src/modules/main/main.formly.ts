@@ -276,7 +276,8 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
 
-            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class. Not needed for textareas
+            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
+            // Not needed for textareas
             $scope.bpFieldSelectMulti.onMouseOver = function ($event) {
                 let elem = $event.target as HTMLElement;
                 while (elem && !elem.classList.contains("ui-select-container")) {

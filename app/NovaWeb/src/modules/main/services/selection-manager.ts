@@ -20,6 +20,7 @@ export enum SelectionSource {
 
 export interface ISelection {
     source: SelectionSource;
+    parameter?: any[]
     artifact?: IArtifact;
     subArtifact?: ISubArtifact;
 }

@@ -1,7 +1,7 @@
-﻿import {IProcessShape, IProcessLink} from "../../../../../models/processModels";
+﻿import {IProcessShape} from "../../../../../models/processModels";
 import {IIconRackSelectionListener, IIconRackListener} from "../process-graph-interfaces";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
+import {IDiagramNode} from "../process-graph-interfaces";
+import {NodeType} from "../process-graph-constants";
 import {DiagramNode} from "./diagram-node";
 import {IconRack} from "./icon-rack";
 import {SystemTask} from "./system-task";

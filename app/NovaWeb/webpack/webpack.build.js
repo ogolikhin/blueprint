@@ -93,7 +93,8 @@ module.exports = {
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' },
              { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
-             { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' }
+             { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' },
+             { from: '../src/modules/editors/bp-storyteller/styles/images', to: './static/bp-storyteller/images' }
 
          ]),
          new webpack.DefinePlugin({

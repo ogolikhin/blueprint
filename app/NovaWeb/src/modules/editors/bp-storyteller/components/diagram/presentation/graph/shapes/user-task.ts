@@ -379,16 +379,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
 
         // header overlays
-        
-        // #TODO: change url to defaultuser.svg
-        // var personaIcon = "/Areas/Web/Style/images/Storyteller/defaultuser.svg";
+       
+        // var personaIcon = "/novaweb/static/bp-storyteller/images/defaultuser.svg";
         // var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.USER_TASK_WIDTH / 2, this.USER_TASK_HEIGHT / 2);
 
         // TODO: re-add for later sprints, when there's functionality attached to it (color coding nodes)
-        //var colorsIcon = "/Areas/Web/Style/images/Storyteller/colors-on.png";
+        //var colorsIcon = "/novaweb/static/bp-storyteller/images/colors-on.png";
         //var overlayColors = this.addOverlay(graph, this, colorsIcon, 20, 20, this.rootScope.config.labels["ST_Colors_Label"], mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 

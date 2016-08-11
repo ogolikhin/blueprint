@@ -245,11 +245,10 @@ export class Label implements ILabel {
     private onMouseout = (e) => {
         this.setMouseoutStyle();
     }
-
-    // #TODO url for image must be changed
+   
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
-            this.div.style.background = "url('/Areas/Web/Style/images/Storyteller/pencil.png') no-repeat top right";
+            this.div.style.background = "url('/novaweb/static/bp-storyteller/images/pencil.png') no-repeat top right";
             this.div.style.borderStyle = "dashed";
             this.div.style.borderWidth = "thin";
             this.div.style.borderColor = "#666";

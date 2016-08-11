@@ -48,12 +48,12 @@ export class SubArtifactDecisionDialogModel implements IDialogModel {
     public isUserDecision(): boolean {
         // TODO: replace code:
         //return this.clonedDecision.getNodeType() === NodeType.UserDecision;
-        return this.clonedDecision.getNodeType() == 6;
+        return this.clonedDecision.getNodeType() === 6;
     }
 
     public isSystemDecision(): boolean {
         // TODO: replace code:
         //return this.clonedDecision.getNodeType() === NodeType.SystemDecision;
-        return this.clonedDecision.getNodeType() == 4;
+        return this.clonedDecision.getNodeType() === 4;
     }
 }

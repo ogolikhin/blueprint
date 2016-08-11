@@ -3,8 +3,8 @@ import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
-import {SubArtifactEditorModalOpener} from "./dialogs/sub-artifact-editor-modal-opener";
-import {IDialogManager, DialogManager} from "./dialogs/dialog-manager";
+import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
+import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");

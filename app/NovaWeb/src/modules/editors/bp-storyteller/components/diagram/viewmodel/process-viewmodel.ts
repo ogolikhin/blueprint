@@ -1,9 +1,9 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../../core/";
-import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
-import * as Models from "../../../../../main/models/models";
+﻿import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
+import {IMessageService, Message, MessageType} from "../../../../../core/";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
-import {IDialogManager} from "../../../dialogs/dialog-manager";
+import {IDialogManager} from "../../dialogs/dialog-manager";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -26,7 +26,6 @@ export interface IProcessViewModel extends IProcessGraphModel {
     showMessage(messageType: MessageType, messageText: string);
     updateProcessGraphModel(process);
     resetLock();
-
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;

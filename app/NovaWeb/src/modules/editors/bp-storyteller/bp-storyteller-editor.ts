@@ -20,7 +20,7 @@ export class BpStorytellerEditorController {
 
     private _context: number;
 
-    public storytellerDiagram : StorytellerDiagram;
+    public storytellerDiagram: StorytellerDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
 

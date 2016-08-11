@@ -255,12 +255,10 @@ export class PropertyContext implements Models.IPropertyType {
                     let values = $value.toString().split(",").map((it: string) => {
                         return parseInt(it, 10);
                     });
-                    if (values.length > 1) {
+                    if (values.length >= 1) {
                         return {
                             validValueIds: values
                         };
-                    } else if (values.length === 1) {
-                        return values[0];
                     }
                     return null;
                 default:

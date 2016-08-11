@@ -131,7 +131,7 @@ describe("Localization", () => {
 
         }));
 
-        it("from number - valid", inject(($rootScope: ng.IRootScopeService) => {
+        it("format number - valid", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("en-US");
             
@@ -147,11 +147,12 @@ describe("Localization", () => {
                 expect(locale.formatNumber(-67, 0, true)).toBe("-67");
                 expect(locale.formatNumber(0.15896, 3)).toBe("0.159");
                 expect(locale.formatNumber(0.154, 2)).toBe("0.15");
+                expect(locale.formatNumber(0.15, 4)).toBe("0.1500");
             }
 
 
         }));
-        it("from number - invalid", inject(($rootScope: ng.IRootScopeService) => {
+        it("format number - invalid", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("en-US");
             

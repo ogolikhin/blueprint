@@ -1,7 +1,6 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import * as moment from "moment";
 import {PrimitiveType} from "./models/enums";
 import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
@@ -120,21 +119,21 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         }
                         break;
                     case PrimitiveType.Date:
-                        if (moment(currentModelVal).isValid()) {
-                            if ($scope.options.data.lookup === customProperty) {
-                                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(localization.current.longDateFormat);
-                            } else {
-                                $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
-                            }
+                        let date = localization.current.toDate(currentModelVal);
+                        if (date) {
+                            $scope.model[$scope.options.key] = localization.current.formatDate(date,
+                                $scope.options.data.lookup === customProperty ?
+                                    localization.current.shortDateFormat :
+                                    localization.current.longDateFormat);
                         } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
                             $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
                         }
                         break;
                     case PrimitiveType.Number:
                         if (currentModelVal) {
-                            $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
+                            $scope.model[$scope.options.key] = localization.current.formatNumber(currentModelVal);
                         } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                            $scope.model[$scope.options.key] = localization.toLocaleNumber($scope.options.data.decimalDefaultValue);
+                            $scope.model[$scope.options.key] = localization.current.formatNumber($scope.options.data.decimalDefaultValue);
                         }
                         break;
                     case PrimitiveType.Choice:
@@ -318,14 +317,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         if (!(<any> scope.options).data.isValidated) {
                             return true;
                         }
-
-                        let value = $modelValue || $viewValue;
-                        let decimalPlaces = scope.to["decimalPlaces"];
-
-                        if (value && angular.isNumber(decimalPlaces)) {
-                            let intValue = parseInt(value, 10);
-
-                            return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
+                        let value = String($modelValue || $viewValue);
+                        let decimalPlaces = localization.current.toNumber(scope.to["decimalPlaces"]);
+                        if (value && decimalPlaces) {
+                            let digits = String($modelValue || $viewValue).split(localization.current.decimalSeparator)[1] || "";
+                            return digits.length <= decimalPlaces;
                         }
                         return true;
                     }
@@ -333,13 +329,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 wrongFormat: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
-                        if (value) {
-                            let separator = localization.current.decimalSeparator;
-                            let regExp = new RegExp("^-?[0-9]\\d*(\\" + separator + "\\d+)?$", "g");
-
-                            return regExp.test(value);
-                        }
-                        return true;
+                        return value && localization.current.toNumber(value);
                     }
                 },
                 max: {
@@ -348,12 +338,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        if (value) {
-                            value = localization.parseLocaleNumber($modelValue || $viewValue);
-                            let max = scope.to.max;
+                        let value = localization.current.toNumber($modelValue || $viewValue);
+                        if (angular.isNumber(value)) {
+                            let max = localization.current.toNumber(scope.to.max);
 
-                            if (angular.isNumber(value) && !angular.isUndefined(max)) {
+                            if (angular.isNumber(max)) {
                                 return value <= max;
                             }
                         }
@@ -365,13 +354,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         if (!(<any> scope.options).data.isValidated) {
                             return true;
                         }
+                        let value = localization.current.toNumber($modelValue || $viewValue);
+                        if (angular.isNumber(value)) {
+                            let min = localization.current.toNumber(scope.to.min);
 
-                        let value = $modelValue || $viewValue;
-                        if (value) {
-                            value = localization.parseLocaleNumber($modelValue || $viewValue);
-                            let min = scope.to.min;
-
-                            if (angular.isNumber(value) && !angular.isUndefined(min)) {
+                            if (angular.isNumber(min)) {
                                 return value >= min;
                             }
                         }
@@ -385,7 +372,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal) {
-                $scope.model[$scope.options.key] = localization.toLocaleNumber(currentModelVal.toString());
+                $scope.model[$scope.options.key] = localization.current.formatNumber(currentModelVal);
             }
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
@@ -471,7 +458,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     formatDayTitle: localization.current.datePickerDayTitle,
                     initDate: new Date(),
                     showWeeks: false,
-                    startingDay: (<any> moment.localeData()).firstDayOfWeek()
+                    startingDay: localization.current.firstDayOfWeek
                 },
                 datepickerAppendToBody: true,
                 clearText: localization.get("Datepicker_Clear"),
@@ -492,16 +479,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        let minDate = scope.to["datepickerOptions"].minDate;
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
 
-                        if (value && minDate) {
-                            value = moment(value).startOf("day");
-                            minDate = moment(minDate).startOf("day");
-
-                            scope.to["minDate"] = minDate.format("L");
-
-                            return value.isSameOrAfter(minDate, "day");
+                        if (date && minDate) {
+                            return date.getTime() > minDate.getTime();
                         }
                         return true;
                     }
@@ -512,17 +494,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        let maxDate = scope.to["datepickerOptions"].maxDate;
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
 
-                        if (value && maxDate) {
-                            value = moment(value).startOf("day");
-                            maxDate = moment(maxDate).startOf("day");
-
-                            scope.to["maxDate"] = maxDate.format("L");
-
-                            return value.isSameOrBefore(maxDate, "day");
+                        if (date && maxDate) {
+                            return date.getTime() < maxDate.getTime();
                         }
+
                         return true;
                     }
                 }
@@ -533,21 +511,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the values are of type Date!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isString(currentModelVal)) {
-                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
-            } else if (angular.isDate(currentModelVal)) {
-                $scope.model[$scope.options.key] = localization.toStartOfTZDay(currentModelVal);
+            if (currentModelVal) {
+                $scope.model[$scope.options.key] = localization.current.toDate(currentModelVal, true);
             }
 
             if ($scope.defaultValue) {
-                $scope.defaultValue = moment($scope.defaultValue).startOf("day").toDate();
+                $scope.defaultValue = localization.current.toDate($scope.defaultValue, true);
             }
             if ($scope.to["datepickerOptions"]) {
                 if (angular.isString($scope.to["datepickerOptions"].maxDate)) {
-                    $scope.to["datepickerOptions"].maxDate = moment($scope.to["datepickerOptions"].maxDate).startOf("day").toDate();
+                    $scope.to["datepickerOptions"].maxDate = localization.current.toDate($scope.to["datepickerOptions"].maxDate, true);
                 }
                 if (angular.isString($scope.to["datepickerOptions"].minDate)) {
-                    $scope.to["datepickerOptions"].minDate = moment($scope.to["datepickerOptions"].minDate).startOf("day").toDate();
+                    $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
                 }
             }
 

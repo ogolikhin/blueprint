@@ -1,15 +1,16 @@
-﻿import {UsecaseToDiagram, UsecaseFlowGraphBuilder, FlowGraphDiagramBuilder, BranchingStep, ExitStep, UseCaseShape, PrePostConditionShape} from "./usecase-to-diagram";
-import {IStep, IFlow, IUseCase, StepOfType, IUseCaseElement} from "./models";
-import {FlowGraph} from "./layout/flow-graph";
-import {ConnectionInfo} from "./layout/connection-info";
-import {LayoutResult} from "./layout/layout-result";
-import {ConnectorTypes, Shapes} from "../utils/constants";
+﻿import { UsecaseToDiagram, UsecaseFlowGraphBuilder, FlowGraphDiagramBuilder } from "./usecase-to-diagram";
+import { BranchingStep, ExitStep, UseCaseShape, PrePostConditionShape } from "./usecase-to-diagram";
+import { IStep, IFlow, IUseCase, StepOfType, IUseCaseElement } from "./models";
+import { FlowGraph } from "./layout/flow-graph";
+import { ConnectionInfo } from "./layout/connection-info";
+import { LayoutResult } from "./layout/layout-result";
+import { ConnectorTypes, Shapes } from "../utils/constants";
 
 var nextIndexGenerator = () => {
     var orderIndex = 0;
     var generate = () => {
         return orderIndex++;
-    }
+    };
     return generate;
 };
 

@@ -356,11 +356,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {};
              
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isNumber(currentModelVal)) {
+            //let currentModelVal = $scope.model[$scope.options.key];
+            //if (angular.isNumber(currentModelVal)) {
 
-                $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
-            }
+            //    $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
+            //}
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]

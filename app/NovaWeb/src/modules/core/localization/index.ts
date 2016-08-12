@@ -79,7 +79,7 @@ export class BPLocale  {
                 expression += "(" + ds + "\\d{1," + fraction.toString() + "})";
             }
         } else {
-            expression += "(" + ds+ "\\d+)?"
+            expression += "(" + ds + "\\d+)?";
         }
         expression += "$";
         
@@ -90,7 +90,7 @@ export class BPLocale  {
             if (stringValue.indexOf(this.decimalSeparator) > 0) {
                 let parts = stringValue.split(this.decimalSeparator);
                 let numberValue = parseInt(parts[0], 10);
-                numberValue += parseFloat('0.' + parts[1]);
+                numberValue += parseFloat("0." + parts[1]) * (numberValue < 0 ?  -1 : 1);
                 return numberValue;
             } else {
                 return parseInt(stringValue.replace(new RegExp(ts, "g"), ""), 10);

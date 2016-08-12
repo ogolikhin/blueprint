@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { IMessageService, Message } from "../../../core";
+import { IMessageService } from "../../../core";
 import { IProjectManager, Models, ISelectionManager } from "../../";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";

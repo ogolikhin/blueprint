@@ -22,7 +22,7 @@ export class Routes  {
         // register states with the router 
         $stateProvider
             .state("main", new MainState())
-        	.state("error", new ErrorState());
+            .state("error", new ErrorState());
     }
 
 };

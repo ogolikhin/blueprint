@@ -4,7 +4,7 @@ import "angular-ui-bootstrap";
 import "./services";
 import "./messages";
 import { AppConstants, IAppConstants } from "./constants/";
-import { LocalizationService, ILocalizationService, localeConfig } from "./localization/";
+import { LocalizationService, localeConfig } from "./localization/";
 import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
 
 
@@ -19,10 +19,12 @@ angular.module("app.core", [
 
 export {
     IAppConstants,
-    ILocalizationService, 
     IConfigValueHelper,
     ConfigValueHelper,
 };
+export {
+    ILocalizationService,
+    BPLocale} from "./localization/";
 
 export {
     IStateManager,

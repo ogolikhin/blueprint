@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 
-import {LocalizationService, ILocalizationService, BPLocale } from "./";
+import {LocalizationService, BPLocale } from "./";
 
 
 describe("Localization", () => {
@@ -22,7 +22,7 @@ describe("Localization", () => {
             // Arrange
             let service = new LocalizationService($rootScope);
             // Act
-            let current = service.current
+            let current = service.current;
 
             // Assert
             expect(current).toBeDefined();

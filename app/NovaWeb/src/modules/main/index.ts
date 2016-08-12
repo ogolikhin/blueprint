@@ -17,7 +17,6 @@ import "../shared";
 import "tinymce";
 //import * as moment from "moment";
 import * as Enums from "./models/enums";
-import { Helper } from "../shared/utils/helper";
 import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,

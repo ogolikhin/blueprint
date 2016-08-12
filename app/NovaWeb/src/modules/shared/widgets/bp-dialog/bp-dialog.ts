@@ -153,5 +153,5 @@ export class DialogServiceMock implements IDialogService {
         controller: null,
         css: null,
         backdrop: false
-    }
+    };
 }

@@ -439,15 +439,13 @@ export class ProcessGraph implements IProcessGraph {
         return { x: xPosition, y: yPosition };
     }
 
-    private getMinHeight(delta: number): string {
-        var shift = this.getPosition(this.htmlElement).y + delta;
+    private getMinHeight(): string {
+        var shift = this.getPosition(this.htmlElement).y;
         var height = window.innerHeight - shift;
         return "" + height + "px";
     }
-    private getMinWidth(): string {
-        // the shift applies to both the left side and right side of screen. The padding of outer layer elements.
-        var shift = this.getPosition(this.htmlElement).x * 2;
-        var width = window.innerWidth - shift;
+    private getMinWidth(delta: number): string {
+        let width = this.htmlElement.parentElement.offsetWidth + delta;
         return "" + width + "px";
     }
 
@@ -456,16 +454,23 @@ export class ProcessGraph implements IProcessGraph {
     };
 
     private setContainerSize(delta: number) {
-        var minHeight = this.getMinHeight(delta);
-        var minWidth = this.getMinWidth();
+        var minHeight = this.getMinHeight();
+        var minWidth = this.getMinWidth(delta);
+        if (delta === 0) {
+            this.htmlElement.style.transition = "";
+        } else {
+            this.htmlElement.style.transition = "width 400ms, height 400ms";
+        }
+
         this.htmlElement.style.height = minHeight;
         this.htmlElement.style.width = minWidth;
-        this.htmlElement.style.minHeight = minHeight;
-        this.htmlElement.style.minWidth = minWidth;
+        //this.htmlElement.style.minHeight = minHeight;
+        //this.htmlElement.style.minWidth = minWidth;
+
     }
 
-    private updateSizeChanges() {
-        this.setContainerSize(0);
+    public updateSizeChanges(width: number = 0) {
+        this.setContainerSize(width);
 
         //// This prevents some weird issue with the graph growing as we drag off the container edge.
         var svgElement = angular.element(this.htmlElement.children[0])[0];

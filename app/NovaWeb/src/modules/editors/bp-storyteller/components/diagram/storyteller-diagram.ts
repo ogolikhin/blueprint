@@ -178,4 +178,8 @@ export class StorytellerDiagram {
         this.$log.error("Fatal: cannot render process graph for process " + processId);
         this.$log.error("Error: " + err.message);
     }
+
+    public resize = (width: number) => {
+        this.graph.updateSizeChanges(width);
+    }
 }

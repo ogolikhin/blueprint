@@ -1,4 +1,5 @@
 ﻿// References to StorytellerDiagramDirective
+import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
@@ -6,7 +7,6 @@ import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
-import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -18,13 +18,14 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpStorytellerEditorController extends BpBaseEditor {
+export class BpStorytellerEditorController { //extends BpBaseEditor {
 
     private _context: number;
 
     public storytellerDiagram: StorytellerDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
+    private _subscribers: Rx.IDisposable[];
 
     public static $inject: [string] = [
         "$rootScope",
@@ -35,14 +36,14 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         "$log",
         "processService",
         "selectionManager",
+        "$uibModal",
         "localization",
         "messageService", 
         "stateManager", 
         "windowResize", 
         "sidebarToggle", 
         "$timeout", 
-        "projectManager",
-        "$uibModal"
+        "projectManager"
     ];
 
     constructor(
@@ -54,16 +55,16 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
-        localization: ILocalizationService,
-        messageService: IMessageService,
-        stateManager: IStateManager,
-        windowResize: IWindowResize,
-        sidebarToggle: ISidebarToggle,
-        $timeout: ng.ITimeoutService,
-        projectManager: IProjectManager,
-        private $uibModal: ng.ui.bootstrap.IModalService
+        private $uibModal: ng.ui.bootstrap.IModalService,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private stateManager: IStateManager,
+        private windowResize: IWindowResize,
+        private sidebarToggle: ISidebarToggle,
+        private $timeout: ng.ITimeoutService,
+        private projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+       // super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
@@ -91,7 +92,7 @@ export class BpStorytellerEditorController extends BpBaseEditor {
     }
 
     public $onDestroy() {
-        super.$onDestroy();
+        //super.$onDestroy();
     }
     
     private load(artifactId: number) {

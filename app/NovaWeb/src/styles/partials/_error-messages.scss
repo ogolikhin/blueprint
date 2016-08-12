@@ -7,8 +7,14 @@ bp-messages-container {
 .bp-sidebar-wrapper:not(.left-panel-visible) messages-container {
   padding-left: 25px;
 }
+
 .bp-sidebar-wrapper:not(.right-panel-visible) messages-container {
   padding-right: 25px;
+}
+
+.bp-sidebar-wrapper .breadcrumbs + messages-container {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 message,

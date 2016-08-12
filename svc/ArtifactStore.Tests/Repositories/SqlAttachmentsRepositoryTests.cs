@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories
 
             cxn.SetupQueryAsync("GetItemAttachments", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<Attachment> { new Attachment { FileName = "Test File Name", FileGuid = new System.Guid() } });
             cxn.SetupQueryAsync("GetDocumentReferenceArtifacts", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<DocumentReference> { new DocumentReference { UserId = userId, ArtifactId = artifactId } });
-            cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> {{ "artifactIds", DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId }) }, { "userId", userId }, { "addDrafts", addDrafts }}, new List<LinkedArtifactInfo> { new LinkedArtifactInfo { ArtifactId = artifactId, ArtifactName = "Test Document Name" } });
+            cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value") }, { "addDrafts", addDrafts }}, new List<LinkedArtifactInfo> { new LinkedArtifactInfo { ArtifactId = artifactId, ArtifactName = "Test Document Name" } });
             var repository = new SqlAttachmentsRepository(cxn.Object, mockUserRepository);
             // Act
             var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, subArtifactId, addDrafts);
@@ -55,7 +55,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetItemAttachments", new Dictionary<string, object> { { "itemId", subArtifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<Attachment> { new Attachment { FileName = "Test File Name", FileGuid = new System.Guid() } });
             cxn.SetupQueryAsync("GetDocumentReferenceArtifacts", new Dictionary<string, object> { { "itemId", subArtifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<DocumentReference> { new DocumentReference { UserId = userId, ArtifactId = artifactId } });
-            cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> { { "artifactIds", DapperHelper.GetIntCollectionTableValueParameter(new List<int> { subArtifactId.Value }) }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<LinkedArtifactInfo> { new LinkedArtifactInfo { ArtifactId = artifactId, ArtifactName = "Test Document Name" } });
+            cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value") }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<LinkedArtifactInfo> { new LinkedArtifactInfo { ArtifactId = artifactId, ArtifactName = "Test Document Name" } });
             var repository = new SqlAttachmentsRepository(cxn.Object, mockUserRepository);
 
             // Act

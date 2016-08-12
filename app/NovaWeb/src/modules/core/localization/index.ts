@@ -64,21 +64,36 @@ export class BPLocale  {
 
     
 
-    public toNumber(value: string | number): number {
+    public toNumber(value: string | number, fraction?: number): number {
 
         if (angular.isNumber(value)) {
             return value;
         }
+
         let ts = this.thousandSeparator === "." ? "\\." : ",";
         let ds = this.decimalSeparator === "." ? "\\." : ",";
+        let expression = "^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+)";
+
+        if (angular.isNumber(fraction)) {
+            if (fraction > 0) {
+                expression += "(" + ds + "\\d{1," + fraction.toString() + "})";
+            }
+        } else {
+            expression += "(" + ds + "\\d+)?";
+        }
+        expression += "$";
         
-        let stingValue = String(value);
-        let rx = new RegExp("^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+)(" + ds + "\\d+)?$", "g");
-        if (rx.test(stingValue)) {
-            if (stingValue.indexOf(this.decimalSeparator)) {
-                return parseFloat(stingValue.replace(new RegExp(ts, "g"), ""));
+        let stringValue = String(value);
+        let rx = new RegExp(expression, "g");
+        if (rx.test(stringValue)) {
+            stringValue = stringValue.replace(new RegExp(ts, "g"), "");
+            if (stringValue.indexOf(this.decimalSeparator) > 0) {
+                let parts = stringValue.split(this.decimalSeparator);
+                let numberValue = parseInt(parts[0], 10);
+                numberValue += parseFloat("0." + parts[1]) * (numberValue < 0 ?  -1 : 1);
+                return numberValue;
             } else {
-                return parseInt(stingValue.replace(new RegExp(ts, "g"), ""), 10);
+                return parseInt(stringValue.replace(new RegExp(ts, "g"), ""), 10);
             }
         } else {
             return null;
@@ -89,7 +104,7 @@ export class BPLocale  {
         let options: Intl.NumberFormatOptions = {};
         if (angular.isNumber(value)) {
             if (angular.isNumber(decimals)) {
-                options.minimumFractionDigits = decimals;
+                options.minimumFractionDigits = 0;
                 options.maximumFractionDigits = decimals;
             }
             if (groups) {

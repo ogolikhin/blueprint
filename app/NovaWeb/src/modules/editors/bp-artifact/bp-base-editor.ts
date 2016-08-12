@@ -258,36 +258,20 @@ export class PropertyEditor implements IPropertyEditor {
         if (angular.isDefined($value)) {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Number:
-
-                    if (!angular.isNumber($value)) {
-                        if (!$value) {
-                            return undefined;
-                        }
-                        return context.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString(), 10);
-                    }
-                    break;
+                    return this.locale.toNumber($value);
                 case Models.PrimitiveType.Date:
-                    if (!angular.isDate($value)) {
-                        if (!$value) {
-                            return undefined;
-                        }
-                        return new Date($value);
-                    }
-                    break;
+                    return this.locale.toDate($value);
                 case Models.PrimitiveType.Choice:
-                    if (angular.isArray($value) && $value.length > 0) {
-                        let values = $value.toString().split(",").map((it: string) => {
-                            return parseInt(it, 10);
-                        });
-                        if (values.length >= 1) {
-                            return {
-                                validValueIds: values
-                            };
+                    if (angular.isArray($value)) {
+                        return {
+                            validValueIds: $value
                         }
+                    } else if (angular.isNumber($value)) {
+                        return $value;
                     }
-                    return {
-                        validValueIds: []
-                    };
+                case Models.PrimitiveType.Choice:
+                    //TODO: please implement on time of user editor field implementation
+                    break;
                 default:
                     break;
             }
@@ -442,7 +426,7 @@ export class PropertyEditor implements IPropertyEditor {
                     break;
                 case Models.PrimitiveType.Number:
                     field.type = "bpFieldNumber";
-                    field.defaultValue = context.decimalDefaultValue;
+                    field.defaultValue = this.locale.toNumber(context.decimalDefaultValue);
                     if (angular.isNumber(context.minNumber)) {
                         field.templateOptions.min = context.minNumber;
                     }

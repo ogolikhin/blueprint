@@ -161,7 +161,7 @@ export class BpArtifactInfoController {
     }
 
     public get isReadonly(): boolean {
-        return false;
+        return true;
     }
 
     public get isChanged(): boolean {

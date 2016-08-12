@@ -102,7 +102,7 @@ describe("Localization", () => {
             expect(locale.toNumber("123,895")).toBe(123895);
             expect(locale.toNumber("123,555.44")).toBe(123555.44);
             expect(locale.toNumber("1,123,555.38")).toBe(1123555.38);
-            expect(locale.toNumber("0.34")).toBe(0.34);
+            expect(locale.toNumber("0.35")).toBe(0.35);
 
         }));
 
@@ -141,13 +141,13 @@ describe("Localization", () => {
             // see https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
             if (!/PhantomJS/.test(window.navigator.userAgent)) {
 
-                expect(locale.formatNumber(567, 2)).toBe("567.00");
-                expect(locale.formatNumber(12345, 2, true)).toBe("12,345.00");
+                expect(locale.formatNumber(567, 2)).toBe("567");
+                expect(locale.formatNumber(12345, 2, true)).toBe("12,345");
                 expect(locale.formatNumber(1234567, 0, true)).toBe("1,234,567");
                 expect(locale.formatNumber(-67, 0, true)).toBe("-67");
                 expect(locale.formatNumber(0.15896, 3)).toBe("0.159");
                 expect(locale.formatNumber(0.154, 2)).toBe("0.15");
-                expect(locale.formatNumber(0.15, 4)).toBe("0.1500");
+                expect(locale.formatNumber(0.1500, 4)).toBe("0.15");
             }
 
 

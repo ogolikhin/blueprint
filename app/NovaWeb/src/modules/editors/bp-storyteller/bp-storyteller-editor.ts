@@ -1,10 +1,12 @@
 ﻿// References to StorytellerDiagramDirective
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import {IMessageService} from "../../core";
+import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
+import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
+import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -16,7 +18,7 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpStorytellerEditorController {
+export class BpStorytellerEditorController extends BpBaseEditor {
 
     private _context: number;
 
@@ -24,18 +26,22 @@ export class BpStorytellerEditorController {
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
 
-    public static $inject = [
+    public static $inject: [string] = [
         "$rootScope",
         "$scope",
         "$element", 
         "$state",
-        "$timeout",
         "$q",
         "$log",
         "processService",
-        "projectManager",
         "selectionManager",
-        "messageService",
+        "localization",
+        "messageService", 
+        "stateManager", 
+        "windowResize", 
+        "sidebarToggle", 
+        "$timeout", 
+        "projectManager",
         "$uibModal"
     ];
 
@@ -44,14 +50,20 @@ export class BpStorytellerEditorController {
         private $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
         private $state: ng.ui.IState,
-        private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
-        private messageService: IMessageService,
+        localization: ILocalizationService,
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        windowResize: IWindowResize,
+        sidebarToggle: ISidebarToggle,
+        $timeout: ng.ITimeoutService,
+        projectManager: IProjectManager,
         private $uibModal: ng.ui.bootstrap.IModalService
     ) {
+        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
@@ -59,6 +71,10 @@ export class BpStorytellerEditorController {
     }
 
     public $onInit() {
+        //super.$onInit();
+        this._subscribers = [
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+        ];
         
     }
 
@@ -75,6 +91,7 @@ export class BpStorytellerEditorController {
     }
 
     public $onDestroy() {
+        super.$onDestroy();
     }
     
     private load(artifactId: number) {
@@ -114,4 +131,25 @@ export class BpStorytellerEditorController {
         return htmlElement;
 
     }
+
+    public onWidthResized(toggleAction: ToggleAction) {
+        if (!!this.storytellerDiagram) {
+            //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
+            let deltaX: number;
+            switch (toggleAction) {
+                case ToggleAction.leftClose:
+                case ToggleAction.rightClose:
+                    deltaX = -270;
+                    break;
+                case ToggleAction.leftOpen:
+                case ToggleAction.rightOpen:
+                    deltaX = 270;
+                    break;
+                default:
+                    deltaX = 0;
+            }
+            this.storytellerDiagram.resize(deltaX);
+        }
+    }
+    
 }

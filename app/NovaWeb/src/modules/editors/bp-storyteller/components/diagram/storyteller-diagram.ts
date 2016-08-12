@@ -5,7 +5,7 @@ import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {IDialogManager, DialogManager} from "../dialogs/dialog-manager";
+import {IDialogManager} from "../dialogs/dialog-manager";
 
 
 export class StorytellerDiagram {
@@ -184,5 +184,9 @@ export class StorytellerDiagram {
             MessageType.Error, "There was an error displaying the process graph."));
         this.$log.error("Fatal: cannot render process graph for process " + processId);
         this.$log.error("Error: " + err.message);
+    }
+
+    public resize = (width: number) => {
+        this.graph.updateSizeChanges(width);
     }
 }

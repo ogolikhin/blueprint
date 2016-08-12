@@ -293,7 +293,7 @@ export class PropertyEditor implements IPropertyEditor {
 
     public convertToFieldValue(field: AngularFormly.IFieldConfigurationObject, $value: any): string | number | Date { 
         let context = field.data as PropertyContext;
-        if (!context || angular.isUndefined($value) || angular.equals({}, $value)) {
+        if (!context || angular.isUndefined($value) || $value === null || angular.equals({}, $value)) {
             return null;
         }
 
@@ -340,14 +340,12 @@ export class PropertyEditor implements IPropertyEditor {
             properties.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any;
-                    let field = this.createPropertyField(propertyContext);
+                    let found: boolean = false;
 
                     //Get property value 
                     if (propertyContext.lookup === LookupEnum.System) {
                         if (angular.isDefined(artifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifact[propertyContext.modelPropertyName];
-                        } else {
-                            field = null;
+                            modelValue = artifact[propertyContext.modelPropertyName] || null;
                         }
 
                     } else if (propertyContext.lookup === LookupEnum.Custom && angular.isArray(artifact.customPropertyValues)) {
@@ -355,21 +353,18 @@ export class PropertyEditor implements IPropertyEditor {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (modelValue) {
-                            modelValue = modelValue.value;
-                        } else {
-                            field = null;
-                        }
+                            modelValue = modelValue.value || null;
+                        } 
                     } else if (propertyContext.lookup === LookupEnum.Special && angular.isArray(artifact.specificPropertyValues)) {
                         modelValue = artifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (modelValue) {
-                            modelValue = modelValue.value;
-                        } else {
-                            field = null;
-                        }
+                            modelValue = modelValue.value || null;
+                        } 
                     }
-                    if (field) {
+                    if (angular.isDefined(modelValue)) {
+                        let field = this.createPropertyField(propertyContext);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
                     }
@@ -465,7 +460,7 @@ export class PropertyEditor implements IPropertyEditor {
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {
-                            return <AngularFormly.ISelectOption>{ value: it.id, name: it.value };
+                            return { value: it.id, name: it.value } as any;
                         });
                         if (angular.isNumber(context.defaultValidValueId)) {
                             field.defaultValue = context.defaultValidValueId.toString();

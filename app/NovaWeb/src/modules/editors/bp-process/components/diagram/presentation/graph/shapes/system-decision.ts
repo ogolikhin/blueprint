@@ -34,14 +34,14 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Modal Dialog
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-storyteller/images/adddetails-neutral.svg");
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
             this.detailsButton.setClickAction(() => { });
         }
-        this.detailsButton.setHoverImage("/novaweb/static/bp-storyteller/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-storyteller/images/adddetails-mute.svg");
+        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
+        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
     }
 
@@ -56,7 +56,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public showMenu(mxGraph: MxGraph) {
         // #TODO change the URL to load svg
-        this.addOverlay(mxGraph, this, "/novaweb/static/bp-storyteller/images/add-neutral.svg", this.MENU_SIZE, this.MENU_SIZE, "Add Branch", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
+        this.addOverlay(mxGraph, this, "/novaweb/static/bp-process/images/add-neutral.svg", this.MENU_SIZE, this.MENU_SIZE, "Add Branch", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
         this.detailsButton.setVisible(true);
     }
 

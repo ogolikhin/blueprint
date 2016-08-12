@@ -290,7 +290,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getImageSource(image: string) {
-        return "/novaweb/static/bp-storyteller/images/" + image;
+        return "/novaweb/static/bp-process/images/" + image;
     }
 
     // TODO: communication with utility panel is different in Nova

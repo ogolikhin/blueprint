@@ -248,7 +248,7 @@ export class Label implements ILabel {
    
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
-            this.div.style.background = "url('/novaweb/static/bp-storyteller/images/pencil.png') no-repeat top right";
+            this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
             this.div.style.borderStyle = "dashed";
             this.div.style.borderWidth = "thin";
             this.div.style.borderColor = "#666";

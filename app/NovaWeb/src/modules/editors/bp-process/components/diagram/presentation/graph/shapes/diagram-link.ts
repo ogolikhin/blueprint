@@ -132,7 +132,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
 
     public showMenu(graph: MxGraph) {
         this.geometry.offset = new mxPoint(0, 30);
-        var overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-storyteller/images/add-neutral.svg", 16, 16), "Add Task/Decision");
+        var overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
         graph.addCellOverlay(this, overlay);
     }
 

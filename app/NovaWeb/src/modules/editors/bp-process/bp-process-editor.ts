@@ -1,5 +1,4 @@
-﻿// References to StorytellerDiagramDirective
-import {IProcessService} from "./";
+﻿import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
@@ -8,9 +7,9 @@ import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager
 import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
 import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 
-export class BpStorytellerEditor implements ng.IComponentOptions {
-    public template: string = require("./bp-storyteller-editor.html");
-    public controller: Function = BpStorytellerEditorController;
+export class BpProcessEditor implements ng.IComponentOptions {
+    public template: string = require("./bp-process-editor.html");
+    public controller: Function = BpProcessEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         context: "<"
@@ -18,7 +17,7 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpStorytellerEditorController extends BpBaseEditor {
+export class BpProcessEditorController extends BpBaseEditor {
 
     private _context: number;
 

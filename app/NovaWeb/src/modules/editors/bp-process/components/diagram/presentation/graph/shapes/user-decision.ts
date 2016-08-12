@@ -27,7 +27,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-storyteller/images/adddetails-neutral.svg");
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
@@ -35,8 +35,8 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             this.detailsButton.setClickAction(() => { });
         }
 
-        this.detailsButton.setHoverImage("/novaweb/static/bp-storyteller/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-storyteller/images/adddetails-mute.svg");
+        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
+        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
     }
 
@@ -74,7 +74,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public showMenu(mxGraph: MxGraph) {
         // #TODO change URL for svg 
-        this.addOverlay(mxGraph, this, "/novaweb/static/bp-storyteller/images/add-neutral.svg", 16, 16, "Add Task/Decision", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
+        this.addOverlay(mxGraph, this, "/novaweb/static/bp-process/images/add-neutral.svg", 16, 16, "Add Task/Decision", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
     }
 
     public renderLabels() {

@@ -76,7 +76,7 @@ export class ArtifactStateController {
                 this.$state.go("main.artifact.general", parameters);
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.artifact.storyteller", parameters);
+                this.$state.go("main.artifact.process", parameters);
                 break;
             default:
                 this.$state.go("main.artifact.details", parameters);

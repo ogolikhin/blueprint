@@ -1,12 +1,12 @@
 ﻿// References to StorytellerDiagramDirective
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import {IMessageService, IWindowResize, IStateManager} from "../../core";
+import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
-import { Enums, Models, ISidebarToggle, IProjectManager, ToggleAction } from "../../main"
-import {BpBaseEditor} from "../bp-artifact/bp-base-editor"
+import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
+import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -35,12 +35,13 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         "$log",
         "processService",
         "selectionManager",
+        "localization",
         "messageService", 
         "stateManager", 
         "windowResize", 
         "sidebarToggle", 
         "$timeout", 
-        "projectManager"
+        "projectManager",
         "$uibModal"
     ];
 
@@ -53,6 +54,7 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
+        localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
         windowResize: IWindowResize,
@@ -61,6 +63,7 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         projectManager: IProjectManager,
         private $uibModal: ng.ui.bootstrap.IModalService
     ) {
+        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);

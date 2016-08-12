@@ -1,6 +1,6 @@
 ﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ILocalizationService, BPLocale } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, ISidebarToggle, ToggleAction } from "../../main"
+import { Enums, Models, ISidebarToggle, ToggleAction } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
@@ -344,7 +344,6 @@ export class PropertyEditor implements IPropertyEditor {
             properties.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any;
-                    let found: boolean = false;
 
                     //Get property value 
                     if (propertyContext.lookup === LookupEnum.System) {

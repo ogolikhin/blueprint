@@ -25,3 +25,16 @@ export const enum PropertyType {
     Choice = 4,
     User = 5
 }
+export const enum PropertyValueFormat {
+    Text = 0,
+    Html = 1,
+    Date = 2,
+    DateTimeUtc = 3
+}
+export const enum ItemIndicatorFlags {
+    None = 0,
+    HasComments = 1,
+    HasAttachmentsOrDocumentRefs = 2,
+    HasManualReuseOrOtherTraces = 4,
+    HasLast24HoursChanges = 8
+}

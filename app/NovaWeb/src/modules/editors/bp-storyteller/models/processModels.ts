@@ -1,6 +1,32 @@
 import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/enums";
 import {IHashMap} from "../../../main/models/models";
-import {PropertyType} from "./enums";
+import {PropertyType, PropertyValueFormat} from "./enums";
+
+export interface IArtifactInfo {
+    id: number;
+    typePrefix: string;
+    name: string;
+    typeId: number;
+    parentId: number;
+    orderIndex: number;
+    shortDescription: string;
+    notInCollection: boolean;
+    isDiagram: boolean;
+    predefined: ItemTypePredefined;
+    hasComments: boolean;
+}
+export interface IArtifactProperty {
+    name: string;
+    value: any;
+    format: PropertyValueFormat;
+    propertyTypeId: number;
+}
+export interface IArtifactWithProperties {
+    artifactId: number;
+    properties: IArtifactProperty[];
+    authorHistory: IArtifactProperty[];
+    description: IArtifactProperty;
+}
 
 export interface IVersionInfo {
     artifactId: number;
@@ -15,7 +41,7 @@ export interface IVersionInfo {
 }
 
 export interface IHashMapOfPropertyValues {
-    [name: string]: IPropertyValueInformation
+    [name: string]: IPropertyValueInformation;
 }
 
 export interface IProcess {
@@ -137,9 +163,9 @@ export interface IProperty {
 
 export interface IProcessFlow {
     parentFlow: IProcessFlow;
-    orderIndex: number,
-    startShapeId: number,
-    endShapeId: number,
+    orderIndex: number;
+    startShapeId: number;
+    endShapeId: number;
     shapes: IHashMap<IProcessShape>;
 }
 
@@ -206,25 +232,59 @@ export class ProcessModel implements IProcess {
     }
 }
 
-// TODO: replace declaration:
-// export class Condition implements ICondition {
-export class Condition {
+export class TaskShapeModel extends ProcessShapeModel implements ITaskShape {
     constructor(
-        public sourceId: number,
-        public destinationId: number,
-        public orderindex: number,
-        public label: string,
-        // TODO: replace code:
-        // public mergeNode: IDiagramNode,
-        // public validMergeNodes: IDiagramNode[]) {
-        public mergeNode: any,
-        public validMergeNodes: any[]) {
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
     }
+}
 
-    // TODO: replace code:
-    // public static create(link: IProcessLink, mergeNode: IDiagramNode, validMergeNodes: IDiagramNode[]): ICondition {
-    public static create(link: IProcessLink, mergeNode: any, validMergeNodes: any[]): any {
-        return new Condition(link.sourceId, link.destinationId, link.orderindex, link.label, mergeNode, validMergeNodes);
-
+export class UserTaskShapeModel extends TaskShapeModel implements IUserTaskShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
     }
+}
+
+export class SystemTaskShapeModel extends TaskShapeModel implements ISystemTaskShape {
+    constructor(
+        public id: number = 0,
+        public name: string = "",
+        public projectId: number = 0,
+        public typePrefix: string = "",
+        public parentId: number = 0,
+        public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
+        public associatedArtifact: IArtifactReference = null,
+        public propertyValues: IHashMapOfPropertyValues = {}) {
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, propertyValues);
+    }
+}
+
+export class NewUserTaskInfo {
+    public userTaskId: number;
+    public systemTaskId: number;
+}
+
+export class SourcesAndDestinations {
+    public sourceIds: number[];
+    public destinationIds: number[];
+}
+
+export class EdgeGeo {
+    edge: MxCell;
+    state: MxCellState;
 }

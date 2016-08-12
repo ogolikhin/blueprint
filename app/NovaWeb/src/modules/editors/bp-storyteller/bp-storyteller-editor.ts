@@ -1,11 +1,10 @@
 ﻿// References to StorytellerDiagramDirective
-import {ProcessModels, IProcessService} from "./";
+import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import * as Models from "../../main/models/models";
 import {IMessageService} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
-import {SubArtifactEditorModalOpener} from "./dialogs/sub-artifact-editor-modal-opener";
-import {IDialogManager, DialogManager} from "./dialogs/dialog-manager";
+import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
+import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -21,13 +20,14 @@ export class BpStorytellerEditorController {
 
     private _context: number;
 
-    public storytellerDiagram : StorytellerDiagram;
+    public storytellerDiagram: StorytellerDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
 
     public static $inject = [
         "$rootScope",
         "$scope",
+        "$element", 
         "$state",
         "$timeout",
         "$q",
@@ -42,6 +42,7 @@ export class BpStorytellerEditorController {
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
         private $state: ng.ui.IState,
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
@@ -64,17 +65,19 @@ export class BpStorytellerEditorController {
     public $onChanges(changesObj) {
         if (changesObj.context) {
             this._context = changesObj.context.currentValue;
+        }
+    }
 
-            if (this._context) {
-                this.load(this._context);
-            }
+    public $postLink() {
+        if (this._context) {
+            this.load(this._context);
         }
     }
 
     public $onDestroy() {
     }
     
-    private load(artifact: number) {
+    private load(artifactId: number) {
         this.storytellerDiagram = new StorytellerDiagram(
             this.$rootScope,
             this.$scope,
@@ -86,7 +89,29 @@ export class BpStorytellerEditorController {
             this.messageService,
             this.dialogManager
         );
+       
+        let htmlElement = this.getHtmlElement();
+         
+        this.storytellerDiagram.createDiagram(artifactId, htmlElement);
+        
+    }
 
-        this.storytellerDiagram.createDiagram(artifact.toString());
+    private getHtmlElement(): HTMLElement {
+
+        // this.$element is jqLite and does not support selectors
+        // so we must traverse its children to find the designated
+        // containing element  for the diagram
+        let htmlElement = null;
+         
+        let childElements = this.$element.find("div");
+        for (let i = 0; i < childElements.length; i++) {
+            if (childElements[i].className.match(/storyteller-graph-container/)) {
+                htmlElement = childElements[i];
+                break;
+            }
+        } 
+         
+        return htmlElement;
+
     }
 }

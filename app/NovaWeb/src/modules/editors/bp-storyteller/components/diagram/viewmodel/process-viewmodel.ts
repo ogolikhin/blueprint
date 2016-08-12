@@ -1,11 +1,11 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../../../../core/";
-import {IProcessClientModel, ProcessClientModel} from "./process-client-model";
-import * as Models from "../../../../../main/models/models";
+﻿import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
+import {IMessageService, Message, MessageType} from "../../../../../core/";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
-import {IDialogManager} from "../../../dialogs/dialog-manager";
+import {IDialogManager} from "../../dialogs/dialog-manager";
 
-export interface IStorytellerViewModel extends IProcessClientModel{
+export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
     isLocked: boolean;
     isLockedByMe: boolean;
@@ -24,22 +24,21 @@ export interface IStorytellerViewModel extends IProcessClientModel{
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
-    updateProcessClientModel(process);
+    updateProcessGraphModel(process);
     resetLock();
-
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
 }
 
-export class StorytellerViewModel implements IStorytellerViewModel {
+export class ProcessViewModel implements IProcessViewModel {
+
     private DEFAULT_SHAPE_LIMIT: number = 100;
     private _rootScope: any = null;
     private _scope: any = null;
     private _messageService: IMessageService = null;
-    private processClientModel: IProcessClientModel = null;
+    private processGraphModel: IProcessGraphModel = null;
     private _isChanged: boolean = false;
-    private _unsubscribeToolbarEvents = [];
     private _showLock: boolean;
     private _showLockOpen: boolean;
     private _isReadonly: boolean = false;
@@ -52,7 +51,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
-        this.updateProcessClientModel(process);
+        this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
@@ -199,8 +198,8 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         this.status.isUnpublished = value;
     }
 
-    public updateProcessClientModel(process: ProcessModels.IProcess) {
-        this.processClientModel = new ProcessClientModel(process);
+    public updateProcessGraphModel(process: ProcessModels.IProcess) {
+        this.processGraphModel = new ProcessGraphModel(process);
 
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
@@ -237,10 +236,9 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         if (shapeCount < eightyPercent) {
             // okay:  less than eighty percent of the shape limit 
             result = true;
-        }
-        else if (shapeCount > this.shapeLimit) {
+        } else if (shapeCount > this.shapeLimit) {
             let message: string;
-            let messageType = null;//: Shell.MessageType = Shell.MessageType.Error;
+            let messageType = null; //: Shell.MessageType = Shell.MessageType.Error;
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
                 // replace {0} placeholder with number of shapes added 
@@ -256,8 +254,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
 
             this.showMessage(messageType, message);
             return false;
-        }
-        else if (shapeCount >= eightyPercent &&
+        } else if (shapeCount >= eightyPercent &&
             shapeCount <= this.shapeLimit) {
             // if between eighty percent of shape limit and the shape limit
             // show warning
@@ -286,161 +283,161 @@ export class StorytellerViewModel implements IStorytellerViewModel {
     }
 
     public get id(): number {
-        return this.processClientModel.id;
+        return this.processGraphModel.id;
     }
 
     public get name(): string {
-        return this.processClientModel.name;
+        return this.processGraphModel.name;
     }
 
     public get description(): string {
-        return this.processClientModel.propertyValues['description'].value;
+        return this.processGraphModel.propertyValues["description"].value;
     }
 
     public get typePrefix(): string {
-        return this.processClientModel.typePrefix;
+        return this.processGraphModel.typePrefix;
     }
 
     public get projectId(): number {
-        return this.processClientModel.projectId;
+        return this.processGraphModel.projectId;
     }
 
     public get baseItemTypePredefined(): Enums.ItemTypePredefined {
-        return this.processClientModel.baseItemTypePredefined;
+        return this.processGraphModel.baseItemTypePredefined;
     }
 
     public get shapes(): ProcessModels.IProcessShape[] {
-        return this.processClientModel.shapes;
+        return this.processGraphModel.shapes;
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
-        this.processClientModel.shapes = newValue;
+        this.processGraphModel.shapes = newValue;
     }
 
     public get links(): ProcessModels.IProcessLinkModel[] {
-        return <ProcessModels.IProcessLinkModel[]>this.processClientModel.links;
+        return <ProcessModels.IProcessLinkModel[]>this.processGraphModel.links;
     }
 
     public set links(newValue: ProcessModels.IProcessLinkModel[]) {
-        this.processClientModel.links = newValue;
+        this.processGraphModel.links = newValue;
     }
 
     public get propertyValues(): ProcessModels.IHashMapOfPropertyValues {
-        return this.processClientModel.propertyValues;
+        return this.processGraphModel.propertyValues;
     }
 
     public set propertyValues(newValue: ProcessModels.IHashMapOfPropertyValues) {
-        this.processClientModel.propertyValues = newValue;
+        this.processGraphModel.propertyValues = newValue;
     }
 
     public get decisionBranchDestinationLinks(): ProcessModels.IProcessLink[] {
-        return this.processClientModel.decisionBranchDestinationLinks;
+        return this.processGraphModel.decisionBranchDestinationLinks;
     }
 
     public set decisionBranchDestinationLinks(newValue: ProcessModels.IProcessLink[]) {
-        this.processClientModel.decisionBranchDestinationLinks = newValue;
+        this.processGraphModel.decisionBranchDestinationLinks = newValue;
     }
 
     public get status(): ProcessModels.IItemStatus {
-        return this.processClientModel.status;
+        return this.processGraphModel.status;
     }
 
     public updateTree() {
-        this.processClientModel.updateTree();
+        this.processGraphModel.updateTree();
     }
     public updateTreeAndFlows() {
-        this.processClientModel.updateTreeAndFlows();
+        this.processGraphModel.updateTreeAndFlows();
     }
 
     public getTree(): Models.IHashMap<ProcessModels.TreeShapeRef> {
-        return this.processClientModel.getTree();
+        return this.processGraphModel.getTree();
     }
 
     public getLinkIndex(sourceId: number, destinationId: number): number {
-        return this.processClientModel.getLinkIndex(sourceId, destinationId);
+        return this.processGraphModel.getLinkIndex(sourceId, destinationId);
     }
 
     public getNextOrderIndex(id: number): number {
-        return this.processClientModel.getNextOrderIndex(id);
+        return this.processGraphModel.getNextOrderIndex(id);
     }
 
     public getShapeById(id: number): ProcessModels.IProcessShape {
-        return this.processClientModel.getShapeById(id);
+        return this.processGraphModel.getShapeById(id);
     }
 
     public getShapeTypeById(id: number): ProcessEnums.ProcessShapeType {
-        return this.processClientModel.getShapeTypeById(id);
+        return this.processGraphModel.getShapeTypeById(id);
     }
 
     public getShapeType(shape: ProcessModels.IProcessShape): ProcessEnums.ProcessShapeType {
-        return this.processClientModel.getShapeType(shape);
+        return this.processGraphModel.getShapeType(shape);
     }
 
     public getNextShapeIds(id: number): number[] {
-        return this.processClientModel.getNextShapeIds(id);
+        return this.processGraphModel.getNextShapeIds(id);
     }
 
     public getPrevShapeIds(id: number): number[] {
-        return this.processClientModel.getPrevShapeIds(id);
+        return this.processGraphModel.getPrevShapeIds(id);
     }
 
     public getStartShapeId(): number {
-        return this.processClientModel.getStartShapeId();
+        return this.processGraphModel.getStartShapeId();
     }
 
     public getPreconditionShapeId(): number {
-        return this.processClientModel.getPreconditionShapeId();
+        return this.processGraphModel.getPreconditionShapeId();
     }
 
     public getEndShapeId(): number {
-        return this.processClientModel.getEndShapeId();
+        return this.processGraphModel.getEndShapeId();
     }
 
     public hasMultiplePrevShapesById(id: number): boolean {
-        return this.processClientModel.hasMultiplePrevShapesById(id);
+        return this.processGraphModel.hasMultiplePrevShapesById(id);
     }
 
     public getFirstNonSystemShapeId(id: number): number {
-        return this.processClientModel.getFirstNonSystemShapeId(id);
+        return this.processGraphModel.getFirstNonSystemShapeId(id);
     }
 
     public getDecisionBranchDestinationLinks(isMatch: (link: ProcessModels.IProcessLink) => boolean): ProcessModels.IProcessLink[] {
-        return this.processClientModel.getDecisionBranchDestinationLinks(isMatch);
+        return this.processGraphModel.getDecisionBranchDestinationLinks(isMatch);
     }
 
     public getConnectedDecisionIds(destinationId: number): number[] {
-        return this.processClientModel.getConnectedDecisionIds(destinationId);
+        return this.processGraphModel.getConnectedDecisionIds(destinationId);
     }
 
     public getBranchDestinationIds(decisionId: number): number[] {
-        return this.processClientModel.getBranchDestinationIds(decisionId);
+        return this.processGraphModel.getBranchDestinationIds(decisionId);
     }
 
     public getBranchDestinationId(decisionId: number, firstShapeInConditionId: number): number {
-        return this.processClientModel.getBranchDestinationId(decisionId, firstShapeInConditionId);
+        return this.processGraphModel.getBranchDestinationId(decisionId, firstShapeInConditionId);
     }
 
     public isInSameFlow(id: number, otherId: number): boolean {
-        return this.processClientModel.isInSameFlow(id, otherId);
+        return this.processGraphModel.isInSameFlow(id, otherId);
     }
 
     public isInChildFlow(id: number, otherId: number): boolean {
-        return this.processClientModel.isInChildFlow(id, otherId);
+        return this.processGraphModel.isInChildFlow(id, otherId);
     }
 
     public isDecision(id: number) {
-        return this.processClientModel.isDecision(id);
+        return this.processGraphModel.isDecision(id);
     }
 
     public updateDecisionDestinationId(decisionId: number, orderIndex: number, newDestinationId: number) {
-        this.processClientModel.updateDecisionDestinationId(decisionId, orderIndex, newDestinationId);
+        this.processGraphModel.updateDecisionDestinationId(decisionId, orderIndex, newDestinationId);
     }
 
     public get isHistorical(): boolean {
         // TODO: provide proper implementation once version information is available in the model
-        return this.processClientModel["process"]["versionId"] != null ||
-            this.processClientModel["process"]["revisionId"] != null ||
-            this.processClientModel["process"]["baselineId"] != null;
+        return this.processGraphModel["process"]["versionId"] != null ||
+            this.processGraphModel["process"]["revisionId"] != null ||
+            this.processGraphModel["process"]["baselineId"] != null;
     }
 
     public resetJustCreatedShapeIds() {
@@ -490,8 +487,7 @@ export class StorytellerViewModel implements IStorytellerViewModel {
                 let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
-                }
-                else {
+                } else {
                     this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
                 }
 
@@ -518,9 +514,9 @@ export class StorytellerViewModel implements IStorytellerViewModel {
         //this.removeToolbarEventListeners();
         //this._header = null;
         this._scope = null;
-        if (this.processClientModel != null) {
-            this.processClientModel.destroy();
-            this.processClientModel = null;
+        if (this.processGraphModel != null) {
+            this.processGraphModel.destroy();
+            this.processGraphModel = null;
         }
 
     }

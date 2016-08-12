@@ -109,7 +109,8 @@ module.exports = {
              { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
              { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' },
-             { from: '../assets', to: './static'}
+             { from: '../assets', to: './static'},
+             { from: '../src/modules/editors/bp-storyteller/styles/images', to: './static/bp-storyteller/images' }
          ]),
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),

@@ -1,5 +1,5 @@
 ﻿import { IProjectManager } from "./project-manager";
-import { IProjectRepository, Models } from "./project-repository";
+import { Models } from "./project-repository";
 
 
 export class ProjectManagerMock implements IProjectManager {
@@ -24,14 +24,14 @@ export class ProjectManagerMock implements IProjectManager {
         return deferred.promise;
     };
     public closeProject = (all?: boolean) => { };
-    public getProject = (id: number) => { return null };
+    public getProject = (id: number) => { return null; };
     public getArtifact = (artifactId: number, project?: Models.IArtifact) => {
-        let artifact: Models.IArtifact = { hasChildren: true, id: 1 }
+        let artifact: Models.IArtifact = { hasChildren: true, id: 1 };
         return artifact;
     };
-    public getSubArtifact = (artifact: number | Models.IArtifact, subArtifactId: number) => { return null };
-    public getArtifactType = (artifact: number | Models.IArtifact, project?: number | Models.IProject) => { return null };
-    public getArtifactPropertyTypes = (artifact: number | Models.IArtifact) => { return null };
-    public getSubArtifactPropertyTypes = (subArtifact: number | Models.IArtifact) => { return null };
-    public getPropertyTypes = (project: number, propertyTypeId: number) => { return null };
+    public getSubArtifact = (artifact: number | Models.IArtifact, subArtifactId: number) => { return null; };
+    public getArtifactType = (artifact: number | Models.IArtifact, project?: number | Models.IProject) => { return null; };
+    public getArtifactPropertyTypes = (artifact: number | Models.IArtifact) => { return null; };
+    public getSubArtifactPropertyTypes = (subArtifact: number | Models.IArtifact) => { return null; };
+    public getPropertyTypes = (project: number, propertyTypeId: number) => { return null; };
 }

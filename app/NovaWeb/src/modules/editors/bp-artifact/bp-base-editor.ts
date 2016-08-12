@@ -252,17 +252,19 @@ export class PropertyContext implements Models.IPropertyType {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    let values = $value.toString().split(",").map((it: string) => {
-                        return parseInt(it, 10);
-                    });
-                    if (values.length > 1) {
-                        return {
-                            validValueIds: values
-                        };
-                    } else if (values.length === 1) {
-                        return values[0];
+                    if (angular.isArray($value) && $value.length > 0) {
+                        let values = $value.toString().split(",").map((it: string) => {
+                            return parseInt(it, 10);
+                        });
+                        if (values.length >= 1) {
+                            return {
+                                validValueIds: values
+                            };
+                        }
                     }
-                    return null;
+                    return {
+                        validValueIds: []
+                    };
                 default:
                     break;
             }

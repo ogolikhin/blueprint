@@ -9,7 +9,8 @@ namespace AdminStore
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "AdminStore", "~/bin/AdminStore.XML"));
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/AdminStore.XML", "AdminStore",
+                "AdminStore is Web Service to facilitate application and project administration functionality, user authentication and authorization."));
 #endif
         }
     }

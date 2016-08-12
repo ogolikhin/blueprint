@@ -47,7 +47,7 @@ export class SelectionHelper {
                     if (element.type === Shapes.USECASE || element.type === Shapes.ACTOR) {
                         const artifactId = ShapeExtensions.getPropertyByName(element, ShapeProps.ARTIFACT_ID);
                         effectiveSelection.source = SelectionSource.UtilityPanel;
-                        effectiveSelection.subArtifact = null;
+                        effectiveSelection.subArtifact = undefined;
                         if (artifactId != null) {
                             effectiveSelection.artifact = {
                                 id: artifactId,

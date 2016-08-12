@@ -2,7 +2,7 @@
 import "angular-mocks";
 import { ConfigValueHelper } from "../../../../core";
 import { MessageService } from "../../../../shell/";
-import { ProjectManager, IProjectManager, Models } from "../../../";
+import { ProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
 import { SelectionManager } from "../../../services/selection-manager";
 
@@ -91,7 +91,7 @@ describe("Project Explorer Test", () => {
 
     it("check columns", inject(() => {
         // Assert
-        var column = controller.columns[0]
+        var column = controller.columns[0];
         expect(column).toBeDefined();
         expect(column.headerName).toEqual("");
         expect(column.field).toEqual("name");

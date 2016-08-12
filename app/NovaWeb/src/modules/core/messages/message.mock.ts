@@ -1,4 +1,4 @@
-﻿import { Message, MessageType, IMessage } from "./message";
+﻿import { Message, IMessage } from "./message";
 import { IMessageService} from "./message.svc";
 
 export class MessageServiceMock implements IMessageService {

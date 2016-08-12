@@ -1,5 +1,6 @@
 $properties-min-width: $page-body-min-width - 30px - 2px;
 $property-min-height: 28px;
+$property-multiple-height: 98px;
 $property-horiz-spacing: 10px;
 $property-label-width: 100px;
 $property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px;
@@ -213,12 +214,11 @@ $property-multichoice-height: 24px;
     }
 
     textarea {
-      min-height: 96px;
+      min-height: $property-multiple-height;
       //overflow: hidden;
       overflow: auto;
       -ms-overflow-style: auto;
-      padding-right: 17px;
-      padding-top: 6px;
+      padding: 5px 17px 0 $property-padding-default;
 
       &:not([disabled]):hover,
       &:not([disabled]):focus {
@@ -226,34 +226,42 @@ $property-multichoice-height: 24px;
         overflow: auto;
         -ms-overflow-style: auto;
         //padding-right: 0;
+
       }
     }
 
     $ui-select-input-height: $property-min-height - 4px;
     .ui-select-multiple {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
+      border: 0;
       box-shadow: none !important;
       float: none;
       height: $property-min-height;
-      max-width: $property-input-width;
-      padding: 1px;
-      width: $property-input-width;
-
-      &:not([disabled]):hover,
-      &:not([disabled]):focus {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-      }
+      max-width: #{$property-input-width - 20px};
+      overflow: visible;
+      padding: 0;
+      width: #{$property-input-width - 20px};
 
       > div {
-        max-height: #{$ui-select-input-height * 3};
+        border: solid 1px $gray-lightest;
+        max-height: $property-multiple-height;
         overflow: auto;
         -ms-overflow-style: auto;
-        overflow-x: hidden;
-      }
+        padding: 0;
+        width: $property-input-width;
 
-      .ui-select-match {
-        margin-right: 18px;
+        &:hover,
+        &:focus {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+        }
+
+        &::before {
+          background: transparent;
+          content: ' ';
+          display: block;
+          float: right;
+          height: $ui-select-input-height;
+          width: 20px;
+        }
       }
 
       .ui-select-match-item {
@@ -262,7 +270,7 @@ $property-multichoice-height: 24px;
         border-width: 1px;
         box-shadow: none;
         margin: 2px;
-        max-width: calc(100% - 8px);
+        max-width: calc(100% - 24px);
         min-width: calc((100% - 32px) / 3);
         outline: none;
         padding: 0;
@@ -301,7 +309,6 @@ $property-multichoice-height: 24px;
         height: $ui-select-input-height;
         line-height: $ui-select-input-height;
         margin: 0;
-        margin-left: -16px;
         max-height: $ui-select-input-height;
         min-height: $ui-select-input-height;
         outline: none;
@@ -312,7 +319,6 @@ $property-multichoice-height: 24px;
         border-color: $gray-lighter;
         border-radius: 0;
         border-width: 1px;
-        margin-left: -1px;
         max-height: #{$property-multichoice-height * 10};
         overflow: auto;
         -ms-overflow-style: auto;
@@ -383,7 +389,6 @@ $property-multichoice-height: 24px;
         border-width: 1px;
         font-size: 1.2rem;
         line-height: $property-multichoice-height;
-        margin-left: -1px;
         padding: 0 8px;
         width: $property-input-width;
       }
@@ -525,10 +530,6 @@ $property-multichoice-height: 24px;
       }
     }
 
-    .form-read-only {
-
-    }
-
     .error-messages {
       bottom: calc((#{$font-size-smaller} + 2px) * -1);
       position: absolute;
@@ -540,10 +541,14 @@ $property-multichoice-height: 24px;
       }
     }
 
+    &.formly-field-bpFieldSelectMulti .error-messages {
+      right: -20px;
+    }
+
     .has-error {
       textarea,
       input,
-      .ui-select-container {
+      .ui-select-container > div {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }

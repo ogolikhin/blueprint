@@ -52,7 +52,7 @@ export class ItemState {
     private saveChange(changeSet: IPropertyChangeSet) {
         let _changeset = this._changesets.filter((it: IPropertyChangeSet) => {
             return it.lookup === changeSet.lookup && it.id === changeSet.id;
-        })[0]
+        })[0];
         if (_changeset) {
             _changeset.value = changeSet.value;
         } else {

@@ -226,7 +226,6 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     constructor(private localization: ILocalizationService, private $element) {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
-        // this.isOpenSubject = new Rx.BehaviorSubject<boolean>(false);
         this.isActiveSubject = new Rx.BehaviorSubject<boolean>(true);
         this.isOpen = false;
         this.isPinned = false;

@@ -14,7 +14,7 @@ describe("Component BPRelationshipsPanel", () => {
     let template = `<bp-relationships-panel></bp-relationships-panel>`;
     let vm: BPRelationshipsPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));

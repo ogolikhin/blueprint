@@ -20,6 +20,10 @@ bp-accordion {
         visibility: hidden;
       }
 
+      &.bp-accordion-panel-hidden {
+        display: none;
+      }
+
       &.bp-accordion-panel-open {
         .bp-accordion-panel-heading {
           background: $brand-secondary !important;

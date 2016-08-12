@@ -101,7 +101,18 @@ describe("Formly", () => {
 
             expect((<any>fieldScope).fc.$valid).toBeFalsy();
             expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$error.required).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.requiredCustom).toBeTruthy();
+        });
+
+        it("should succeed with values", function () {
+            compileAndSetupStuff({model: {selectMulti: [1, 3]}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti")[0];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeTruthy();
+            expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+            expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
         });
 
         it("should succeed if empty, as not required", function () {
@@ -112,7 +123,7 @@ describe("Formly", () => {
 
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-            expect((<any>fieldScope).fc.$error.required).toBeUndefined();
+            expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
         });
     });
 

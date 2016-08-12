@@ -9,7 +9,7 @@ namespace ArtifactStore
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "ArtifactStore", "~/bin/ArtifactStore.XML"));
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/ArtifactStore.XML", "ArtifactStore"));
 #endif
         }
     }

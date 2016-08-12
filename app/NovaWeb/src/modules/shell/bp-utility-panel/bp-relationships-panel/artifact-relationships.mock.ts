@@ -1,5 +1,5 @@
 import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
-import { Models, Relationships } from "../../../main";
+import { Relationships } from "../../../main";
 
 export class ArtifactRelationshipsMock implements IArtifactRelationships {
 
@@ -87,7 +87,7 @@ export class ArtifactRelationshipsMock implements IArtifactRelationships {
                 "hasAccess": true,
                 "primitiveItemTypePredefined": 1
             }]
-        }    
+        };
 
         deferred.resolve(artifactList);
         return deferred.promise;

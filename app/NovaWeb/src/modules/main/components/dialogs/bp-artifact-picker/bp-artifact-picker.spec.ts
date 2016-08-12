@@ -12,9 +12,7 @@ import { ProjectRepositoryMock } from "../../../services/project-repository.mock
 import { ModalServiceInstanceMock } from "../open-project.spec.ts";
 import { DialogServiceMock, DialogTypeEnum } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
-
-
-describe("Project Explorer Test", () => {
+describe("Artifact Picker", () => {
     let isReloadCalled: number = 0;
     let $scope;
     let elem;

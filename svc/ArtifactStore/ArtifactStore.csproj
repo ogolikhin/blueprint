@@ -153,10 +153,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="doc\ArtifactStore Web Service API - Swagger.URL" />
-    <Content Include="doc\ArtifactStore Web Service API.docx" />
-    <Content Include="doc\ArtifactStore Web Service Design.docx" />
-    <Content Include="doc\ref\Cookies vs Tokens. Getting auth right with Angular.JS.url" />
-    <Content Include="doc\ref\draft-ietf-oauth-json-web-token-32 - JSON Web Token %28JWT%29.url" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

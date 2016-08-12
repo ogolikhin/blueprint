@@ -108,10 +108,8 @@ export class ProjectExplorerController {
 
         this.selectionManager.selection = {
             source: SelectionSource.Explorer,
-            artifact: this.doSync(node),
-            subArtifact: null
+            artifact: this.doSync(node)
         };
-
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {

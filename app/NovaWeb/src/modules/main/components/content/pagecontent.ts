@@ -1,6 +1,6 @@
-import { IProjectManager, Models } from "../..";
+import { IProjectManager, Models, ISidebarToggle } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
-import { IMessageService } from "../../../core";
+import { IMessageService, IWindowResize } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -10,29 +10,38 @@ export class PageContent implements ng.IComponentOptions {
     public controller: Function = PageContentCtrl;
     public controllerAs = "$content";
     public bindings: any = {
-        viewState: "<",
+        viewState: "<"
     };
-
 } 
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager"];
+    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager", "windowResize", "sidebarToggle"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
-                private selectionManager: ISelectionManager) {
+                private selectionManager: ISelectionManager,
+                private windowResize: IWindowResize,
+                private sidebarToggle: ISidebarToggle) {
     }
     public context: IEditorContext = null;
 
     public viewState: boolean;
+
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        scrollXMarginOffset: 4,
+        scrollYMarginOffset: 4
+    };
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
+            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
+            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -73,6 +82,13 @@ class PageContentCtrl {
             } else {
                 this.selectionManager.clearSelection();
             }
+        }
+    }
+
+    private onWidthResized() {
+        let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
+        if (scrollableElem) {
+            (<any>window).PerfectScrollbar.update(scrollableElem);
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../../core/";
-import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
-import * as Models from "../../../../../main/models/models";
+﻿import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
+import {IMessageService, Message, MessageType} from "../../../../../core/";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
+import {IDialogManager} from "../../dialogs/dialog-manager";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -19,12 +20,12 @@ export interface IProcessViewModel extends IProcessGraphModel {
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
+    dialogManager: IDialogManager;
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
     updateProcessGraphModel(process);
     resetLock();
-
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
@@ -45,6 +46,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private _isSpa: boolean;
     private _isSMB: boolean;
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
+    private _dialogManager: IDialogManager;
     private _justCreatedShapeIds: number[] = [];
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
@@ -154,6 +156,14 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set shapeLimit(value: number) {
         this._shapeLimit = value;
+    }
+
+    public get dialogManager(): IDialogManager {
+        return this._dialogManager;
+    }
+
+    public set dialogManager(value: IDialogManager) {
+        this._dialogManager = value;
     }
 
     public get licenseType(): Enums.LicenseTypeEnum {

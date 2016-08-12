@@ -4,25 +4,27 @@ import "angular-ui-bootstrap";
 import "./services";
 import "./messages";
 import { AppConstants, IAppConstants } from "./constants/";
-import { LocalizationService, ILocalizationService } from "./localization/";
+import { LocalizationService, localeConfig } from "./localization/";
 import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
 
 
 angular.module("app.core", [
-    "ui.router",
-    "ui.bootstrap",
     "bp.core.services",
     "bp.core.messages"])
     .constant("appConstants", new AppConstants())
     .service("localization", LocalizationService)
-    .service("configValueHelper", ConfigValueHelper);
+    .service("configValueHelper", ConfigValueHelper)
+    .config(localeConfig);
+
 
 export {
     IAppConstants,
-    ILocalizationService, 
     IConfigValueHelper,
     ConfigValueHelper,
 };
+export {
+    ILocalizationService,
+    BPLocale} from "./localization/";
 
 export {
     IStateManager,

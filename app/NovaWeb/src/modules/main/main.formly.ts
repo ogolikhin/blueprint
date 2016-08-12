@@ -1,42 +1,20 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import * as moment from "moment";
 import {PrimitiveType} from "./models/enums";
 import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
-// from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
-formlyDecorate.$inject = ["$provide"];
-export function formlyDecorate($provide): void {
-    moment.locale(Helper.getFirstBrowserLanguage());
-
-    let weekdaysMin = moment.weekdaysMin();
-    weekdaysMin.forEach(function(item, index, arr) {
-        arr[index] = item.substr(0, 1).toUpperCase();
-    });
-
-    delegated.$inject = ["$delegate"];
-    function delegated($delegate) {
-        let value = $delegate.DATETIME_FORMATS;
-
-        value.DAY = moment.weekdays();
-        value.SHORTDAY = weekdaysMin;
-        value.MONTH = moment.months();
-        value.SHORTMONTH = moment.monthsShort();
-
-        return $delegate;
-    }
-
-    $provide.decorator("$locale", delegated);
-}
 
 formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 /* tslint:disable */
 export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    let attributes: string[] = [
+    //const systemProperty: number = 1;
+    const customProperty: number = 2;
+
+    let datepickerAttributes: string[] = [
         "date-disabled",
         "custom-class",
         "show-weeks",
@@ -61,35 +39,27 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         "datepicker-append-to-body"
     ];
 
-    let bindings: string[] = [
+    let datepickerBindings: string[] = [
         "datepicker-mode",
         "min-date",
         "max-date"
     ];
 
-    let ngModelAttrs = {};
+    let datepickerNgModelAttrs = {};
 
-    const customProperty: number = 2;
-
-    let dateFormat = moment.localeData().longDateFormat("L");
-    let datePickerFormat = Helper.uiDatePickerFormatAdaptor(dateFormat);
-
-    let datePickerDayTitle = moment.localeData().longDateFormat("LL").toUpperCase();
-    datePickerDayTitle = datePickerDayTitle.indexOf("Y") < datePickerDayTitle.indexOf("M") ? "yyyy MMMM" : "MMMM yyyy";
-
-    angular.forEach(attributes, function(attr) {
-        ngModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
+    angular.forEach(datepickerAttributes, function(attr) {
+        datepickerNgModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
     });
 
-    angular.forEach(bindings, function(binding) {
-        ngModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
+    angular.forEach(datepickerBindings, function(binding) {
+        datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
     let blurOnEnterKey = function(event) {
         let inputField = event.target;
         let key = event.keyCode || event.which;
         if (inputField && key === 13) {
-            let inputFieldButton = <HTMLInputElement> inputField.parentElement.querySelector("span button");
+            let inputFieldButton = inputField.parentElement.querySelector("span button") as HTMLElement;
             if (inputFieldButton) {
                 inputFieldButton.focus();
             } else {
@@ -103,9 +73,10 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:disable */
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
+                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+                <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Date">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
@@ -113,15 +84,20 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Number">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.User">
+                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
+            </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice">
-                <div id="{{::id}}" class="read-only-input multiple" perfect-scrollbar opts="scrollOptions">
+                <div id="{{::id}}" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">
                     <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
                 </div>
+                <div class="overflow-fade"></div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
+            let newvalue: any;
 
             $scope.primitiveType = PrimitiveType;
             $scope.tooltip = "";
@@ -135,49 +111,41 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
                 return false;
             };
+            
+                switch ($scope.options.data.primitiveType) {
+                    case PrimitiveType.Text:
+                        if (currentModelVal) {
+                            $scope.tooltip = currentModelVal;
+                            newvalue = currentModelVal;
+                        } else if ($scope.options.data) {
+                            newvalue = $scope.options.data.stringDefaultValue;
+                        }
+                        break;
+                    case PrimitiveType.Date:
+                        let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
+                        if (date) {
+                            newvalue = localization.current.formatDate(date,
+                                $scope.options.data.lookup === customProperty ?
+                                    localization.current.shortDateFormat :
+                                    localization.current.longDateFormat);
+                        }
+                        break;
+                    case PrimitiveType.Number:
+                        let decimal = localization.current.toNumber($scope.options.data.decimalPlaces);
+                        newvalue = localization.current.formatNumber(
+                            currentModelVal || ($scope.options.data ? $scope.options.data.decimalDefaultValue : null), decimal);
+                        break;
+                    case PrimitiveType.Choice:
+                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.defaultValidValueId : null);
+                        break;
+                    case PrimitiveType.User:
+                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                        break;
+                    default:
+                        break;
 
-            switch ($scope.options.data.primitiveType) {
-                case PrimitiveType.Text:
-                    if (currentModelVal) {
-                        $scope.tooltip = currentModelVal;
-                    } else if ($scope.options.data && $scope.options.data.stringDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.stringDefaultValue;
-                    }
-                    break;
-                case PrimitiveType.Date:
-                    if (moment(currentModelVal).isValid()) {
-                        if ($scope.options.data.lookup === customProperty) {
-                            $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").format(dateFormat);
-                        } else {
-                            $scope.model[$scope.options.key] = moment(currentModelVal).format("L") + " " + moment(currentModelVal).format("LT");
-                        }
-                    } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
-                        $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
-                    }
-                    break;
-                case PrimitiveType.Number:
-                    if (currentModelVal) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
-                    } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                        $scope.model[$scope.options.key] = Helper.toLocaleNumber($scope.options.data.decimalDefaultValue);
-                    }
-                    break;
-                case PrimitiveType.Choice:
-                    if (!currentModelVal) {
-                        if ($scope.options.data && $scope.options.data.defaultValidValueId) {
-                            $scope.model[$scope.options.key] = [$scope.options.data.defaultValidValueId];
-                        }
-                    }
-                    break;
-                case PrimitiveType.User:
-                    if (!currentModelVal) {
-                        if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                            $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
-                        }
-                    }
-                    break;
-                default:
-            }
+                }
+                $scope.model[$scope.options.key] = newvalue;
         }]
     });
 
@@ -199,11 +167,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {};
@@ -229,11 +192,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -257,11 +215,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
@@ -273,12 +226,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple data-ng-model="model[options.key]" data-required="{{to.required}}" data-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)">
+                <ui-select multiple ng-model="model[options.key]" ng-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div class="ui-select-choice-item" ng-bind-html="option[to.labelProp] | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -294,14 +247,42 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 valueProp: "value",
                 labelProp: "name"
             },
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
+            validators: {
+                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
+                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
+                requiredCustom: {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
+                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
                 }
             }
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};
+
+            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
+            // Not needed for textareas
+            $scope.bpFieldSelectMulti.onMouseOver = function ($event) {
+                let elem = $event.target as HTMLElement;
+                while (elem && !elem.classList.contains("ui-select-container")) {
+                    elem = elem.parentElement;
+                }
+                if (elem) {
+                    elem = elem.querySelector("div") as HTMLElement;
+                    if (elem && !elem.classList.contains("ps-child")) {
+                        elem.classList.add("ps-child");
+                    }
+                }
+            };
+
+            $scope.bpFieldSelectMulti.escapeHTMLText = function (str: string): string {
+                return Helper.escapeHTMLText(str);
+            };
 
             $scope.bpFieldSelectMulti.scrollIntoView = function ($event) {
                 let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
@@ -323,6 +304,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-model-options="{allowInvalid: true}"
                     ng-keyup="bpFieldNumber.keyup($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
@@ -332,25 +314,17 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            validation: {
-                messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`
-                }
-            },
             validators: {
                 decimalPlaces: {
                     expression: function($viewValue, $modelValue, scope) {
                         if (!(<any> scope.options).data.isValidated) {
                             return true;
                         }
-
-                        let value = $modelValue || $viewValue;
-                        let decimalPlaces = scope.to["decimalPlaces"];
-
-                        if (value && angular.isNumber(decimalPlaces)) {
-                            let intValue = parseInt(value, 10);
-
-                            return $viewValue.length <= (intValue.toString().length + 1 + decimalPlaces);
+                        let value = String($modelValue || $viewValue);
+                        let decimalPlaces = localization.current.toNumber(scope.to["decimalPlaces"]);
+                        if (value && decimalPlaces) {
+                            let digits = String($modelValue || $viewValue).split(localization.current.decimalSeparator)[1] || "";
+                            return digits.length <= decimalPlaces;
                         }
                         return true;
                     }
@@ -358,13 +332,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 wrongFormat: {
                     expression: function($viewValue, $modelValue, scope) {
                         let value = $modelValue || $viewValue;
-                        if (value) {
-                            let separator = Helper.getDecimalSeparator();
-                            let regExp = new RegExp("^-?[0-9]\\d*(\\" + separator + "\\d+)?$", "g");
-
-                            return regExp.test(value);
-                        }
-                        return true;
+                        return value && localization.current.toNumber(value);
                     }
                 },
                 max: {
@@ -373,12 +341,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        if (value) {
-                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
-                            let max = scope.to.max;
+                        let value = localization.current.toNumber($modelValue || $viewValue);
+                        if (angular.isNumber(value)) {
+                            let max = localization.current.toNumber(scope.to.max);
 
-                            if (angular.isNumber(value) && !angular.isUndefined(max)) {
+                            if (angular.isNumber(max)) {
                                 return value <= max;
                             }
                         }
@@ -390,13 +357,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         if (!(<any> scope.options).data.isValidated) {
                             return true;
                         }
+                        let value = localization.current.toNumber($modelValue || $viewValue);
+                        if (angular.isNumber(value)) {
+                            let min = localization.current.toNumber(scope.to.min);
 
-                        let value = $modelValue || $viewValue;
-                        if (value) {
-                            value = Helper.parseLocaleNumber($modelValue || $viewValue);
-                            let min = scope.to.min;
-
-                            if (angular.isNumber(value) && !angular.isUndefined(min)) {
+                            if (angular.isNumber(min)) {
                                 return value >= min;
                             }
                         }
@@ -410,7 +375,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal) {
-                $scope.model[$scope.options.key] = Helper.toLocaleNumber(currentModelVal.toString());
+                $scope.model[$scope.options.key] = localization.current.formatNumber(currentModelVal);
             }
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
@@ -445,7 +410,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         Helper.autoLinkURLText(editor.getBody());
                         editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
                         editor.dom.bind(editor.dom.select("a"), "click", function(e) {
-                            let element: HTMLElement = e.target;
+                            let element = e.target as HTMLElement;
                             while (element && element.tagName.toUpperCase() !== "A") {
                                 element = element.parentElement;
                             }
@@ -468,6 +433,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-model-options="{allowInvalid: true}"
                     class="form-control has-icon"
                     ng-click="bpFieldDatepicker.select($event)"
                     ng-blur="bpFieldDatepicker.blur($event)"
@@ -486,27 +452,26 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
-            ngModelAttrs: ngModelAttrs,
+            ngModelAttrs: datepickerNgModelAttrs,
             templateOptions: {
                 datepickerOptions: {
-                    format: datePickerFormat,
+                    format: localization.current.datePickerFormat,
                     formatDay: "d",
                     formatDayHeader: "EEE",
-                    formatDayTitle: datePickerDayTitle,
+                    formatDayTitle: localization.current.datePickerDayTitle,
                     initDate: new Date(),
                     showWeeks: false,
-                    startingDay: (<any> moment.localeData()).firstDayOfWeek()
+                    startingDay: localization.current.firstDayOfWeek
                 },
                 datepickerAppendToBody: true,
                 clearText: localization.get("Datepicker_Clear"),
                 closeText: localization.get("Datepicker_Done"),
                 currentText: localization.get("Datepicker_Today"),
-                placeholder: datePickerFormat.toUpperCase()
+                placeholder: localization.current.datePickerFormat.toUpperCase()
             },
             validation: {
                 messages: {
-                    required: `"` + localization.get("Property_Cannot_Be_Empty") + `"`,
-                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + datePickerFormat.toUpperCase() + `)"`
+                    date: `"` + localization.get("Property_Wrong_Format") + ` (` + localization.current.datePickerFormat.toUpperCase() + `)"`
                 }
             },
             validators: {
@@ -516,16 +481,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        let minDate = scope.to["datepickerOptions"].minDate;
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
 
-                        if (value && minDate) {
-                            value = moment(value).startOf("day");
-                            minDate = moment(minDate).startOf("day");
-
-                            scope.to["minDate"] = minDate.format("L");
-
-                            return value.isSameOrAfter(minDate, "day");
+                        if (date && minDate) {
+                            return date.getTime() > minDate.getTime();
                         }
                         return true;
                     }
@@ -536,17 +496,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                             return true;
                         }
 
-                        let value = $modelValue || $viewValue;
-                        let maxDate = scope.to["datepickerOptions"].maxDate;
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
 
-                        if (value && maxDate) {
-                            value = moment(value).startOf("day");
-                            maxDate = moment(maxDate).startOf("day");
-
-                            scope.to["maxDate"] = maxDate.format("L");
-
-                            return value.isSameOrBefore(maxDate, "day");
+                        if (date && maxDate) {
+                            return date.getTime() < maxDate.getTime();
                         }
+
                         return true;
                     }
                 }
@@ -557,21 +513,19 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
             // make sure the values are of type Date!
             let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isString(currentModelVal)) {
-                $scope.model[$scope.options.key] = moment(currentModelVal).startOf("day").toDate();
-            } else if (angular.isDate(currentModelVal)) {
-                $scope.model[$scope.options.key] = Helper.toStartOfTZDay(currentModelVal);
+            if (currentModelVal) {
+                $scope.model[$scope.options.key] = localization.current.toDate(currentModelVal, true);
             }
 
             if ($scope.defaultValue) {
-                $scope.defaultValue = moment($scope.defaultValue).startOf("day").toDate();
+                $scope.defaultValue = localization.current.toDate($scope.defaultValue, true);
             }
             if ($scope.to["datepickerOptions"]) {
                 if (angular.isString($scope.to["datepickerOptions"].maxDate)) {
-                    $scope.to["datepickerOptions"].maxDate = moment($scope.to["datepickerOptions"].maxDate).startOf("day").toDate();
+                    $scope.to["datepickerOptions"].maxDate = localization.current.toDate($scope.to["datepickerOptions"].maxDate, true);
                 }
                 if (angular.isString($scope.to["datepickerOptions"].minDate)) {
-                    $scope.to["datepickerOptions"].minDate = moment($scope.to["datepickerOptions"].minDate).startOf("day").toDate();
+                    $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
                 }
             }
 
@@ -630,5 +584,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("requiredCustom", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
+    formlyValidationMessages.addTemplateOptionValueMessage("required", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     /* tslint:enable */
 }

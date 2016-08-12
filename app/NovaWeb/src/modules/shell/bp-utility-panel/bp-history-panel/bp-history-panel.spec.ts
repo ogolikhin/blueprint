@@ -14,7 +14,7 @@ describe("Component BPHistoryPanel", () => {
     let template = `<bp-history-panel></bp-history-panel>`;
     let vm: BPHistoryPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));

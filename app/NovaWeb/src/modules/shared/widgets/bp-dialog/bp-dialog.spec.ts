@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import { IDialogSettings, IDialogService, DialogService, BaseDialogController, DialogTypeEnum} from "./bp-dialog";
+import { IDialogSettings, IDialogService, DialogService, DialogTypeEnum} from "./bp-dialog";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {

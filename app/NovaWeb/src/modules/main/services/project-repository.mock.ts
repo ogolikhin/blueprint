@@ -67,7 +67,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
 
         var deferred = this.$q.defer<Models.IProjectNode>();
-        let item: Models.IProjectNode;
+        let item: Models.IProjectNode = { id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false };
         deferred.resolve(item);
         return deferred.promise;
     }

@@ -12,12 +12,12 @@ describe("State Manager:", () => {
         $provide.service("stateManager", StateManager);
     }));
 
-    afterEach(() => { 
+    afterEach(() => {
         if (subscriber) {
             subscriber.dispose();
         }
 
-    })
+    });
 
     it("artifact changed", inject((stateManager: StateManager) => {
         //Arrange
@@ -106,7 +106,7 @@ describe("State Manager:", () => {
                     propertyTypeId: 1,
                     propertyTypePredefined: 300,
                     propertyTypeVersionId: 1,
-                    value:undefined
+                    value: undefined
                 }
             ]
 
@@ -239,7 +239,7 @@ describe("State Manager:", () => {
         let state = stateManager.getState(2);
 
         //Assert
-        expect(state).toBeUndefined()
+        expect(state).toBeUndefined();
     }));
 
     it("delete artifact state", inject((stateManager: StateManager) => {
@@ -255,8 +255,8 @@ describe("State Manager:", () => {
 
 
         //Assert
-        expect(state1).toBeDefined()
-        expect(state2).toBeUndefined()
+        expect(state1).toBeDefined();
+        expect(state2).toBeUndefined();
     }));
 
 

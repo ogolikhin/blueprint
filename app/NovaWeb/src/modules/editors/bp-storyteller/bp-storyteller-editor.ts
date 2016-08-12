@@ -3,6 +3,8 @@ import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {IMessageService, IWindowResize, IStateManager} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
+import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
+import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 import { Enums, Models, ISidebarToggle, IProjectManager, ToggleAction } from "../../main"
 import {BpBaseEditor} from "../bp-artifact/bp-base-editor"
 
@@ -21,6 +23,8 @@ export class BpStorytellerEditorController extends BpBaseEditor {
     private _context: number;
 
     public storytellerDiagram: StorytellerDiagram;
+    public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
+    public dialogManager: IDialogManager;
 
     public static $inject: [string] = [
         "$rootScope",
@@ -37,6 +41,7 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         "sidebarToggle", 
         "$timeout", 
         "projectManager"
+        "$uibModal"
     ];
 
     constructor(
@@ -48,15 +53,17 @@ export class BpStorytellerEditorController extends BpBaseEditor {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
-        messageService: IMessageService,         
+        messageService: IMessageService,
         stateManager: IStateManager,
         windowResize: IWindowResize,
         sidebarToggle: ISidebarToggle,
         $timeout: ng.ITimeoutService,
-        projectManager: IProjectManager
-        ) {
+        projectManager: IProjectManager,
+        private $uibModal: ng.ui.bootstrap.IModalService
+    ) {
 
-        super(messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+        this.dialogManager = new DialogManager();
+        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
 
     }
 
@@ -93,7 +100,8 @@ export class BpStorytellerEditorController extends BpBaseEditor {
             this.$q,
             this.$log,
             this.processService,
-            this.messageService
+            this.messageService,
+            this.dialogManager
         );
        
         let htmlElement = this.getHtmlElement();

@@ -6,7 +6,6 @@ import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../dialogs/modal-dialog-constants";
 import {IconRackHelper} from "./shapes/icon-rack-helper";
 
-
 export interface IDeletable {
     canDelete(): boolean;
 }
@@ -48,6 +47,11 @@ export interface ILinkFilter {
     (value: IProcessLink, index: number, array: IProcessLink[]): boolean;
 }
 
+export interface ICondition extends IProcessLink {
+    mergeNode: IDiagramNode;
+    validMergeNodes: IDiagramNode[];
+}
+
 export interface IConditionContext {
     decisionId: number;
     orderindex: number;
@@ -81,11 +85,6 @@ export interface IShapeInformation {
     id: number;
     parentConditions: IConditionContext[];
     innerParentCondition(): IConditionContext;
-}
-
-export interface ICondition extends IProcessLink {
-    mergeNode: IDiagramNode;
-    validMergeNodes: IDiagramNode[];
 }
 
 export interface IMenuContainer {

@@ -1,8 +1,9 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { IMessageService, Message } from "../../../core";
+import { IMessageService } from "../../../core";
 import { IProjectManager, Models, ISelectionManager } from "../../";
 import { OpenProjectController } from "../dialogs/open-project";
+import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -64,7 +65,6 @@ class BPToolbarController implements IBPToolbarController {
         evt.stopImmediatePropagation();
     }
 
-
     public openProject() {
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
@@ -87,6 +87,15 @@ class BPToolbarController implements IBPToolbarController {
         window.open(url);
     }
 
+    public openTour() {
+        this.dialogService.open(<IDialogSettings>{
+            template: require("../dialogs/bp-tour/bp-tour.html"),
+            controller: BPTourController,
+            backdrop: true,
+            css: "nova-tour"
+        });
+    }
+
     public $onInit(o) {
         this._subscribers = [
             this.selectionManager.selectedArtifactObservable.subscribe(this.displayArtifact)
@@ -99,7 +108,9 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.version !== 0 ? artifact.id : null;
+        this._currentArtifact = 
+            artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && 
+            artifact.version !== 0 ? artifact.id : null;
     }
 
 }

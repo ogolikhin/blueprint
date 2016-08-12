@@ -1,7 +1,6 @@
 ﻿import {ISystemTaskShape} from "../../../../../models/processModels";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {ICommandData} from "../../../../dialogs/modal-dialog-interfaces";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../process-graph-interfaces";
 import {IDiagramNodeElement, ISystemTask} from "../process-graph-interfaces";
 import {ILabel} from "../process-graph-interfaces";

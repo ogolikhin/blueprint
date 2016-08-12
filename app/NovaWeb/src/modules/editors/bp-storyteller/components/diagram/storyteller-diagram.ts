@@ -5,6 +5,7 @@ import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
 import {ProcessGraph} from "./presentation/graph/process-graph";
+import {IDialogManager, DialogManager} from "../dialogs/dialog-manager";
 
 
 export class StorytellerDiagram {
@@ -21,7 +22,8 @@ export class StorytellerDiagram {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private messageService: IMessageService) {
+        private messageService: IMessageService,
+        private dialogManager: IDialogManager) {
 
         this.processModel = null;
     }
@@ -90,6 +92,7 @@ export class StorytellerDiagram {
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
+            this.processViewModel.dialogManager = this.dialogManager; 
         } else {
             this.processViewModel.updateProcessGraphModel(process);
         }
@@ -117,6 +120,10 @@ export class StorytellerDiagram {
         } catch (err) {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
+    }
+
+    public openDialog() {
+        this.processViewModel.dialogManager.openDialog(1, 0);
     }
 
     private resetBeforeLoad() {

@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using ServiceLibrary.Swagger;
 
 namespace AdminStore
 {
@@ -8,7 +9,8 @@ namespace AdminStore
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 #if DEBUG
-            GlobalConfiguration.Configure(SwaggerConfig.Register);
+            GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/AdminStore.XML", "AdminStore",
+                "AdminStore is Web Service to facilitate application and project administration functionality, user authentication and authorization."));
 #endif
         }
     }

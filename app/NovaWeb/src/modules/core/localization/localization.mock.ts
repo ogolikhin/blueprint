@@ -1,5 +1,6 @@
-﻿import {ILocalizationService} from "./";
-export class LocalizationServiceMock implements ILocalizationService {
+﻿import { LocalizationService } from "./";
+
+export class LocalizationServiceMock extends LocalizationService {
     public get(name: string): string {
         return name;
     }

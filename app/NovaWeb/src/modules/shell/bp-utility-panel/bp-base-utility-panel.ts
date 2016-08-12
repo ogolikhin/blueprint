@@ -12,14 +12,14 @@ export class BPBaseUtilityPanelController {
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
         const selectionObservable = this.selectionManager.selectionObservable;
-        const panelVisibility = this.bpAccordionPanel.isOpenObservable; 
+        const panelActiveObservable = this.bpAccordionPanel.isActiveObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
             Rx.Observable
-                .combineLatest(selectionObservable, panelVisibility, 
-                    (selection, visibility) => {
-                        return { selection: selection, isVisible: visibility };
+                .combineLatest(selectionObservable, panelActiveObservable, 
+                    (selection, isActive) => {
+                        return { selection: selection, isActive: isActive };
                     })
-                .filter(o => o.selection && o.isVisible)
+                .filter(o => o.selection && o.isActive)
                 .map(o => {
                     return { artifact: o.selection.artifact, subArtifact: o.selection.subArtifact };
                 })

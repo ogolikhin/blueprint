@@ -65,12 +65,12 @@ export class BPUtilityPanelController {
     }
 
     private hidePanel(panelType: PanelType) {
-        let accordionCtrl: IBpAccordionController = this.getAccordionController();
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
         accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
     }
 
     private showPanel(panelType: PanelType) {
-        let accordionCtrl: IBpAccordionController = this.getAccordionController();
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
         accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
     }
 

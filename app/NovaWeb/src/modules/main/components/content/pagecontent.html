@@ -5,12 +5,13 @@
     <li>Infrastructure for directing change</li>
 </ul>
 <messages-container></messages-container>
-
 <div class="page-content-wrapper" perfect-scrollbar ng-show="$content.viewState" ng-click="$content.onContentSelected($event)">
     <div class="page-content">
         <div class="page-heading">
             <bp-artifact-info context="$content.context"></bp-artifact-info>
         </div>
-        <div class="page-body" ui-view></div>
+        <!-- <perfect-scrollbar opts="$content.scrollOptions"> -->
+            <div class="page-body" ui-view></div>
+        <!-- </perfect-scrollbar> -->
     </div>
 </div>

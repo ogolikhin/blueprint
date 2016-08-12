@@ -5,7 +5,7 @@ var path = require('path');
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
       {
-          test: /^((?!\.spec\.ts).)*.ts$/,
+          test: /^((?!(\.spec\.ts)|(\.mock\.ts)).)*.ts$/,
           exclude: [/node_modules/, /bower_components/, /storyteller/],
           loader: 'istanbul-instrumenter'
       }

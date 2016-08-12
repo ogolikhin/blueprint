@@ -1,6 +1,6 @@
 import {BPTourController} from "./bp-tour";
 
-fdescribe("Tour Dialog", () => {
+describe("Tour Dialog", () => {
     let dialogMock: any;
     let controller: BPTourController;
 

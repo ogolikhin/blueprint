@@ -1,6 +1,6 @@
 ﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ILocalizationService, BPLocale } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, ISidebarToggle } from "../../main";
+import { Enums, Models, ISidebarToggle, ToggleAction } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
@@ -16,7 +16,7 @@ export enum LookupEnum {
 export class BpBaseEditor {
     public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
 
-    private _subscribers: Rx.IDisposable[];
+    public _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
@@ -32,7 +32,7 @@ export class BpBaseEditor {
         public stateManager: IStateManager,
         public windowResize: IWindowResize,
         public sidebarToggle: ISidebarToggle,
-        private $timeout: ng.ITimeoutService,
+        public $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
         this.editor = new PropertyEditor(this.localization.current); 
@@ -69,7 +69,7 @@ export class BpBaseEditor {
         delete this.model;
     }
 
-    private onWidthResized() {
+    public onWidthResized(toggleAction: ToggleAction) {
         this.setArtifactEditorLabelsWidth();
     }
      
@@ -328,7 +328,6 @@ export class PropertyEditor implements IPropertyEditor {
             properties.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any;
-                    let found: boolean = false;
 
                     //Get property value 
                     if (propertyContext.lookup === LookupEnum.System) {

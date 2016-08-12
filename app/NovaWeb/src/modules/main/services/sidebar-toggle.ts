@@ -1,15 +1,23 @@
-﻿export interface ISidebarToggle {
+﻿export enum ToggleAction {
+    none,
+    leftOpen,
+    leftClose,
+    rightOpen,
+    rightClose
+}
+
+export interface ISidebarToggle {
     areBothSidebarsVisible: Rx.Observable<boolean>;
     isLeftSidebarVisible: Rx.Observable<boolean>;
     isRightSidebarVisible: Rx.Observable<boolean>;
-    isConfigurationChanged: Rx.Observable<boolean>;
+    isConfigurationChanged: Rx.Observable<ToggleAction>;
 }
 
 export class SidebarToggle implements ISidebarToggle {
     private _areBothSidebarsVisible: Rx.BehaviorSubject<boolean>;
     private _isLeftSidebarVisible: Rx.BehaviorSubject<boolean>;
     private _isRightSidebarVisible: Rx.BehaviorSubject<boolean>;
-    private _isConfigurationChanged: Rx.BehaviorSubject<boolean>;
+    private _isConfigurationChanged: Rx.BehaviorSubject<ToggleAction>;
 
     private _observer: MutationObserver;
 
@@ -22,7 +30,7 @@ export class SidebarToggle implements ISidebarToggle {
             this._areBothSidebarsVisible = new Rx.BehaviorSubject<boolean>(isLeftVisible || isRightVisible);
             this._isLeftSidebarVisible = new Rx.BehaviorSubject<boolean>(isLeftVisible);
             this._isRightSidebarVisible = new Rx.BehaviorSubject<boolean>(isRightVisible);
-            this._isConfigurationChanged = new Rx.BehaviorSubject<boolean>(true);
+            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
 
             this._observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -31,7 +39,12 @@ export class SidebarToggle implements ISidebarToggle {
                         isRightVisible = wrapper.classList.contains("right-panel-visible");
 
                         if (this._isLeftSidebarVisible.getValue() !== isLeftVisible || this._isRightSidebarVisible.getValue() !== isRightVisible) {
-                            this._isConfigurationChanged.onNext(true);
+                            let toggleAction: ToggleAction = (isLeftVisible && !this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftClose +
+                                                             (!isLeftVisible && this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftOpen +
+                                                             (isRightVisible && !this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightClose +
+                                                             (!isRightVisible && this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightOpen;
+
+                            this._isConfigurationChanged.onNext(toggleAction);
                         }
                         this._areBothSidebarsVisible.onNext(isLeftVisible || isRightVisible);
                         this._isLeftSidebarVisible.onNext(isLeftVisible);
@@ -48,7 +61,7 @@ export class SidebarToggle implements ISidebarToggle {
             this._areBothSidebarsVisible = new Rx.BehaviorSubject<boolean>(false);
             this._isLeftSidebarVisible = new Rx.BehaviorSubject<boolean>(false);
             this._isRightSidebarVisible = new Rx.BehaviorSubject<boolean>(false);
-            this._isConfigurationChanged = new Rx.BehaviorSubject<boolean>(false);
+            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
         }
     };
 
@@ -77,7 +90,7 @@ export class SidebarToggle implements ISidebarToggle {
         return this._isRightSidebarVisible.distinctUntilChanged().asObservable();
     };
 
-    public get isConfigurationChanged(): Rx.Observable<boolean> {
+    public get isConfigurationChanged(): Rx.Observable<ToggleAction> {
         return this._isConfigurationChanged.asObservable();
     };
 }

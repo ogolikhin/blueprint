@@ -7,20 +7,21 @@ pagecontent {
   height: 100%;
   margin: 0;
   padding: 0;
-  transition: all .4s ease;
+  //transition: all .4s ease;
   width: 100%;
 
-  .page-content-wrapper {
-    height: calc(100% - #{$breadcrumbs-height});
-    overflow: auto;
-  }
-
   .page-content {
-    margin: 15px 20px 10px;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
   }
 
   .page-heading {
+    flex-grow: 0;
+    flex-shrink: 0;
     font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+    min-width: $page-body-min-width;
+    padding: 15px 20px 0;
     white-space: nowrap;
 
     &::after {
@@ -30,8 +31,10 @@ pagecontent {
     }
   }
 
-  .page-body {
+  .page-body-wrapper {
     min-width: $page-body-min-width;
+    overflow: hidden !important;
+    padding: 0 20px 10px;
   }
 
   bp-artifact-info {

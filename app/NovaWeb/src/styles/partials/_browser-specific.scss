@@ -1,3 +1,22 @@
+.is-chrome {
+  .content-center {
+    transition: width .4s ease;
+  }
+
+  .left-panel-visible,
+  .right-panel-visible {
+    .content-center {
+      width: calc(100% - #{$sidebar-size});
+    }
+  }
+
+  .left-panel-visible.right-panel-visible {
+    .content-center {
+      width: calc(100% - #{2 * $sidebar-size});
+    }
+  }
+}
+
 .nova-form-control[disabled]::-moz-placeholder,
 .nova-form-control[readonly]::-moz-placeholder,
 fieldset[disabled] .nova-form-control::-moz-placeholder {

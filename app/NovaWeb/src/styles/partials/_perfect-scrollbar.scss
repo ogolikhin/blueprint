@@ -94,7 +94,7 @@ $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
     }
   }
 
-  &.page-content-wrapper {
+  &.page-body-wrapper {
     > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
     > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
     &:hover > .ps-scrollbar-x-rail:hover::before,

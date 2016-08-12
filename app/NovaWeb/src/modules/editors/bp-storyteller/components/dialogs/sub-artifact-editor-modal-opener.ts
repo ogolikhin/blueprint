@@ -1,10 +1,9 @@
-import {IDialogManager, DialogManager} from "../dialogs/dialog-manager";
+import {IDialogManager} from "../dialogs/dialog-manager";
+import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./user-story-dialog-model";
 import {SubArtifactDecisionDialogModel} from "./sub-artifact-decision-dialog-model";
-import * as ProcessModels from "../models/processModels";
-
 
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 
@@ -42,8 +41,7 @@ export class SubArtifactEditorModalOpener {
             if (viewModel) {
                 this.isReadonly = viewModel.isReadonly;
                 this.isHistorical = viewModel.isHistorical;
-            }
-            else {
+            } else {
                 throw new Error("StorytellerViewModel is null in SubArtifactEditorModalOpener");
             }
 
@@ -56,8 +54,8 @@ export class SubArtifactEditorModalOpener {
             } else if (dialogType === ModalDialogType.PreviewDialogType) {
                 this.openPreviewModalDialog(this.$scope, id, graph);
             }
-        }
-        catch (err) {
+
+        } catch (err) {
             // log error
         }
     };
@@ -74,18 +72,18 @@ export class SubArtifactEditorModalOpener {
         var systemTaskNode: any;
         // TODO: replace code:
         // if (node.getNodeType() === NodeType.UserTask) {
-        if (node.getNodeType() == 7) {
+        if (node.getNodeType() === 7) {
             // TODO: replace code:
             // userTaskNode = <UserTask>node;
             userTaskNode = node;
             let nextNodes = userTaskNode.getNextSystemTasks(graph);
-            if (nextNodes){
+            if (nextNodes) {
                 systemTaskNode = nextNodes[0];
             }
             userTaskDialogModel.isUserTask = true;
         // TODO: replace code:
         // } else if (node.getNodeType() === NodeType.SystemTask) {
-        } else if (node.getNodeType() == 5) {
+        } else if (node.getNodeType() === 5) {
             // TODO: replace code:
             // systemTaskNode = <SystemTask>node;
             // userTaskNode = <UserTask>systemTaskNode.getUserTask(graph);
@@ -115,7 +113,7 @@ export class SubArtifactEditorModalOpener {
 
         // TODO: replace code:
         //if (node == null || (node.getNodeType() !== NodeType.UserDecision && node.getNodeType() !== NodeType.SystemDecision)) {
-        if (node == null || (node.getNodeType() != 6 && node.getNodeType() != 4)) {
+        if (node == null || (node.getNodeType() !== 6 && node.getNodeType() !== 4)) {
             return null;
         }
 
@@ -144,7 +142,7 @@ export class SubArtifactEditorModalOpener {
         // let outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
         let outgoingLinks: any[] = dialogModel.graph.getNextLinks(decisionId);
 
-        for (let index = 0; index < outgoingLinks.length; index++){
+        for (let index = 0; index < outgoingLinks.length; index++) {
             // TODO: replace definitions:
             // let outgoingLink: IProcessLink = outgoingLinks[index];
             // let mergePoint: IDiagramNode = null;
@@ -161,7 +159,7 @@ export class SubArtifactEditorModalOpener {
             // let validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
             // let condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
             let validMergeNodes: any[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
-            let condition: any = ProcessModels.Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            let condition: any = Condition.create(outgoingLink, mergePoint, validMergeNodes);
             dialogModel.conditions.push(condition);
         }
         
@@ -212,8 +210,10 @@ export class SubArtifactEditorModalOpener {
         userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph);
         userStoryDialogModel.originalUserTask = userTaskNode;
         userStoryDialogModel.clonedUserTask = this.cloneNode(userStoryDialogModel.originalUserTask);
-        if (this.$scope.$parent["vm"].processModelService)
-            userStoryDialogModel.isUserSystemProcess = this.$scope.$parent["vm"].processModelService.isUserToSystemProcess();
+        // #TODO: processService should not be used here to get state 
+        //if (this.$scope.$parent["vm"].processModelService) {
+        //    userStoryDialogModel.isUserSystemProcess = this.$scope.$parent["vm"].processModelService.isUserToSystemProcess();
+        //}
         userStoryDialogModel.isUserSystemProcess = graph.IsUserSystemProcess;
 
         // set dialog model isReadonly property to enable/disable input controls
@@ -239,7 +239,7 @@ export class SubArtifactEditorModalOpener {
         return jQuery.extend(true, {}, node);
     }
 
-    public cloneArray = (arr:any[]): any[] => {
+    public cloneArray = (arr: any[]): any[] => {
         return jQuery.extend(true, [], arr);
     }
 

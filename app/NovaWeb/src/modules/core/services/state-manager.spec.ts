@@ -12,7 +12,7 @@ describe("State Manager:", () => {
         $provide.service("stateManager", StateManager);
     }));
 
-    afterEach(() => { 
+    afterEach(() => {
         if (subscriber) {
             subscriber.dispose();
         }

@@ -97,6 +97,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
+            let newvalue: any;
 
             $scope.primitiveType = PrimitiveType;
             $scope.tooltip = "";
@@ -110,48 +111,41 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                 }
                 return false;
             };
-
+            
                 switch ($scope.options.data.primitiveType) {
                     case PrimitiveType.Text:
                         if (currentModelVal) {
                             $scope.tooltip = currentModelVal;
-                        } else if ($scope.options.data && $scope.options.data.stringDefaultValue) {
-                            $scope.model[$scope.options.key] = $scope.options.data.stringDefaultValue;
+                            newvalue = currentModelVal;
+                        } else if ($scope.options.data) {
+                            newvalue = $scope.options.data.stringDefaultValue;
                         }
                         break;
                     case PrimitiveType.Date:
-                        let date = localization.current.toDate(currentModelVal);
+                        let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
                         if (date) {
-                            $scope.model[$scope.options.key] = localization.current.formatDate(date,
+                            newvalue = localization.current.formatDate(date,
                                 $scope.options.data.lookup === customProperty ?
                                     localization.current.shortDateFormat :
                                     localization.current.longDateFormat);
-                        } else if ($scope.options.data && $scope.options.data.dateDefaultValue) {
-                            $scope.model[$scope.options.key] = $scope.options.data.dateDefaultValue;
                         }
                         break;
                     case PrimitiveType.Number:
-                        if (currentModelVal) {
-                            $scope.model[$scope.options.key] = localization.current.formatNumber(currentModelVal);
-                        } else if ($scope.options.data && $scope.options.data.decimalDefaultValue) {
-                            $scope.model[$scope.options.key] = localization.current.formatNumber($scope.options.data.decimalDefaultValue);
-                        }
+                        let decimal = localization.current.toNumber($scope.options.data.decimalPlaces);
+                        newvalue = localization.current.formatNumber(
+                            currentModelVal || ($scope.options.data ? $scope.options.data.decimalDefaultValue : null), decimal);
                         break;
                     case PrimitiveType.Choice:
-                        if (angular.isUndefined(currentModelVal) && $scope.options.data && $scope.options.data.defaultValidValueId) {
-                            $scope.model[$scope.options.key] = [$scope.options.data.defaultValidValueId];
-                        }
+                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.defaultValidValueId : null);
                         break;
                     case PrimitiveType.User:
-                        if (angular.isUndefined(currentModelVal) && $scope.options.data && $scope.options.data.decimalDefaultValue) {
-                            $scope.model[$scope.options.key] = $scope.options.data.userGroupDefaultValue;
-                        }
+                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
                         break;
                     default:
                         break;
 
                 }
-            
+                $scope.model[$scope.options.key] = newvalue;
         }]
     });
 

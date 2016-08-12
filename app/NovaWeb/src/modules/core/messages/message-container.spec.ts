@@ -2,7 +2,7 @@
 import "angular-mocks";
 import { LocalizationServiceMock } from "../localization/localization.mock";
 import { IMessageService, MessageService } from "./message.svc";
-import { Message, MessageType, MessageComponent } from "./message";
+import { Message, MessageType } from "./message";
 import { ConfigValueHelper } from "../configuration";
 import { MessageContainerController, MessageContainerComponent } from "./message-container";
 

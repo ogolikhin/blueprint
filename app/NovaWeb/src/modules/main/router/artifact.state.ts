@@ -50,7 +50,8 @@ export class ArtifactStateController {
             this.navigateToSubRoute(artifactType, context);
 
         } else {
-            messageService.addError(this.localization.get("Artifact_NotFound"));
+            //TODO: to restore error message when then user story "GO TO Artifact"is comleted
+            //messageService.addError(this.localization.get("Artifact_NotFound"));
         }
 
     }

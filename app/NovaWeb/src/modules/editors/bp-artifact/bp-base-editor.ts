@@ -74,14 +74,14 @@ export class BpBaseEditor {
     }
      
     
-     
-    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: any) {
+
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         //here we need to update original model
         let context = $field.data as PropertyContext;
         if (!context) {
             return;
         }
-        if ( !$scope.$invalid ) {
+        if (($scope.fc as angular.IFormController).$valid) {
             let value = this.editor.convertToModelValue($field, $value);
             let changeSet: IPropertyChangeSet = {
                 lookup: LookupEnum[context.lookup],

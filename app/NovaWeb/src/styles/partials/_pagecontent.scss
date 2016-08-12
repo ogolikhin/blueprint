@@ -13,6 +13,7 @@ pagecontent {
   .page-content {
     display: flex;
     flex-flow: column nowrap;
+    height: 100%;
   }
 
   .page-heading {
@@ -32,7 +33,7 @@ pagecontent {
 
   .page-body-wrapper {
     min-width: $page-body-min-width;
-    overflow: hidden;
+    overflow: hidden !important;
     padding: 0 20px 10px;
   }
 

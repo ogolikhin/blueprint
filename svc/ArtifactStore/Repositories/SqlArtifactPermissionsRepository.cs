@@ -54,13 +54,13 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
+        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
             prm.Add("@artifactIds", DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds));
-            prm.Add("@revisionId", revisionId ?? int.MaxValue);
-            prm.Add("@addDrafts", (revisionId == null));
+            prm.Add("@revisionId", revisionId);
+            prm.Add("@addDrafts", addDrafts);
             var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
 
             foreach (var openArtifactPermission in openArtifactPermissions)
@@ -84,18 +84,18 @@ namespace ArtifactStore.Repositories
             return (await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<Tuple <IEnumerable<bool>, IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int? revisionId, bool contextUser)
+        private async Task<Tuple<IEnumerable<bool>, IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, bool contextUser, int revisionId, bool addDrafts)
         {
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
             prm.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
-            prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
-            prm.Add("@addDrafts", (revisionId == null));
+            prm.Add("@revisionId", revisionId);
+            prm.Add("@addDrafts", addDrafts);
            return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInChunks(List<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInChunks(List<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             var dictionary = new Dictionary < int, RolePermissions>();
             int index = 0;
@@ -107,14 +107,14 @@ namespace ArtifactStore.Repositories
                     chunkSize = itemIds.Count - index;
                 }
                 var chunk = itemIds.GetRange(index, chunkSize);
-                var localResult = await GetArtifactPermissions(chunk, sessionUserId, contextUser, revisionId);
+                var localResult = await GetArtifactPermissions(chunk, sessionUserId, contextUser, revisionId, addDrafts);
                 dictionary = dictionary.Union(localResult).ToDictionary(k => k.Key, v=> v.Value);
                 index += chunkSize;
             }
             return dictionary;
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             if (itemIds.Count() > 50)
             {
@@ -128,7 +128,7 @@ namespace ArtifactStore.Repositories
             }
             else
             {
-                var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, contextUser);
+                var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, contextUser, revisionId, addDrafts);
                 var projectsArtifactsItems = multipleResult.Item2.ToList();//???Do we need always do it
                 var versionProjectInfos = multipleResult.Item3;
 
@@ -175,7 +175,7 @@ namespace ArtifactStore.Repositories
 
                     try
                     {
-                        await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
+                        await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId, addDrafts);
                     }
                     catch (SqlException sqle)
                     {

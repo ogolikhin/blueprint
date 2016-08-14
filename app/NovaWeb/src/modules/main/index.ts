@@ -21,7 +21,7 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    ISidebarToggle, SidebarToggle } from "./services/";
+    ISidebarToggle, SidebarToggle, IAvailableContentArea } from "./services/";
 import { ISelectionManager, SelectionManager, ISelection } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -53,7 +53,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection,
-    ISidebarToggle, SidebarToggle
+    ISidebarToggle, SidebarToggle, IAvailableContentArea
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin

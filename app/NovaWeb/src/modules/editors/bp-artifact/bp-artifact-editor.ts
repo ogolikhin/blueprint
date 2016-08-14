@@ -23,7 +23,7 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = [
-        "localization", "messageService", "stateManager", "sidebarToggle", "artifactService",  "$timeout", "projectManager"];
+        "localization", "messageService", "stateManager", "sidebarToggle", "artifactService", "projectManager"];
 
     constructor(
         localization: ILocalizationService,
@@ -31,10 +31,9 @@ export class BpArtifactEditorController extends BpBaseEditor {
         stateManager: IStateManager,
         sidebarToggle: ISidebarToggle,
         private artifactService: IArtifactService,
-        $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, sidebarToggle, $timeout, projectManager);
+        super(localization, messageService, stateManager, sidebarToggle, projectManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

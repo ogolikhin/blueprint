@@ -19,17 +19,16 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "projectManager"];
 
     constructor(
         localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
         sidebarToggle: ISidebarToggle,
-        $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, sidebarToggle, $timeout, projectManager);
+        super(localization, messageService, stateManager, sidebarToggle, projectManager);
     }
 
     public activeTab: number;

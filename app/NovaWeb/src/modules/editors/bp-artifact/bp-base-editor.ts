@@ -14,7 +14,7 @@ export enum LookupEnum {
     Special = 3,
 }
 export class BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -31,7 +31,6 @@ export class BpBaseEditor {
         public messageService: IMessageService,
         public stateManager: IStateManager,
         public sidebarToggle: ISidebarToggle,
-        private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
         this.editor = new PropertyEditor(this.localization.current);
@@ -142,21 +141,18 @@ export class BpBaseEditor {
             this.messageService.addError(ex);
         }
 
-        this.$timeout(() => {
-            this.setArtifactEditorLabelsWidth();
-        }, 0);
+        this.setArtifactEditorLabelsWidth();
     }
 
     public setArtifactEditorLabelsWidth() {
-        let artifactOverview: Element = document.querySelector(".artifact-overview");
-        if (artifactOverview) {
-            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
-            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
-            if (actualWidth < propertyWidth) {
-                artifactOverview.classList.add("single-column");
-            } else {
-                artifactOverview.classList.remove("single-column");
-            }
+        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        let avaliableWidth: number = pageBodyWrapper.offsetWidth;
+        // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
+        const propertyWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+        if (avaliableWidth < propertyWidth) {
+            pageBodyWrapper.classList.add("single-column-property");
+        } else {
+            pageBodyWrapper.classList.remove("single-column-property");
         }
     };
 }

@@ -1,11 +1,11 @@
-﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ILocalizationService, BPLocale } from "../../core";
+﻿import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale } from "../../core";
 import { Helper } from "../../shared";
 import { Enums, Models, ISidebarToggle } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
-export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Enums }
+export { ILocalizationService, IProjectManager, IMessageService, IStateManager, ISidebarToggle, Models, Enums }
 
 export enum LookupEnum {
     None = 0,
@@ -14,7 +14,7 @@ export enum LookupEnum {
     Special = 3,
 }
 export class BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "$timeout", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -30,18 +30,16 @@ export class BpBaseEditor {
         public localization: ILocalizationService,
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResize: IWindowResize,
         public sidebarToggle: ISidebarToggle,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-        this.editor = new PropertyEditor(this.localization.current); 
+        this.editor = new PropertyEditor(this.localization.current);
     }
 
     public $onInit() {
         this._subscribers = [
-            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.sidebarToggle.isWidthChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -72,8 +70,6 @@ export class BpBaseEditor {
     private onWidthResized() {
         this.setArtifactEditorLabelsWidth();
     }
-     
-    
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         //here we need to update original model

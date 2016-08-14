@@ -6,7 +6,6 @@
     IProjectManager,
     IMessageService,
     IStateManager,
-    IWindowResize,
     ISidebarToggle,
     Models
 } from "./bp-base-editor";
@@ -24,19 +23,18 @@ export class BpArtifactEditor implements ng.IComponentOptions {
 
 export class BpArtifactEditorController extends BpBaseEditor {
     public static $inject: [string] = [
-        "localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "artifactService",  "$timeout", "projectManager"];
+        "localization", "messageService", "stateManager", "sidebarToggle", "artifactService",  "$timeout", "projectManager"];
 
     constructor(
         localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowResize: IWindowResize,
         sidebarToggle: ISidebarToggle,
         private artifactService: IArtifactService,
         $timeout: ng.ITimeoutService,
         projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+        super(localization, messageService, stateManager, sidebarToggle, $timeout, projectManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

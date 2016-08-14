@@ -9,4 +9,4 @@ angular.module("bp.editors.details", [])
     .component("bpArtifactEditor", new BpArtifactEditor());
 
 
-export { ILocalizationService, IMessageService, IStateManager, IPropertyChangeSet, IWindowResize } from "../../core";
+export { ILocalizationService, IMessageService, IStateManager, IPropertyChangeSet } from "../../core";

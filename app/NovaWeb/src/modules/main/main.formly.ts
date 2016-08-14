@@ -129,6 +129,8 @@ export function formlyConfigExtendedFields(
                                 $scope.options.data.lookup === PropertyLookupEnum.Custom ?
                                     localization.current.shortDateFormat :
                                     localization.current.longDateFormat);
+                        } else {
+                            newvalue = $scope.options.data.stringDefaultValue;
                         }
                         break;
                     case PrimitiveType.Number:

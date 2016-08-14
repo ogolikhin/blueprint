@@ -319,16 +319,13 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            dateDefaultValue: "Never published",
+            stringDefaultValue: "Never published",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_LastEditBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             primitiveType: Models.PrimitiveType.User,
-            userGroupDefaultValue: [{
-                displayName : "<empty>"
-            }],
             disabled: true
         });
         properties.push(<Models.IPropertyType>{

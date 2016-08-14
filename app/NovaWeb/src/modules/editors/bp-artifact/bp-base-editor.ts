@@ -79,7 +79,6 @@ export class BpBaseEditor {
 
 
     public onLoad(context: Models.IEditorContext) {
-        this.stateManager.addChange(context.artifact);
         this.onUpdate(context);
     }
 

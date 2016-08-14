@@ -145,14 +145,18 @@ export class BpBaseEditor {
     }
 
     public setArtifactEditorLabelsWidth() {
-        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
-        let avaliableWidth: number = pageBodyWrapper.offsetWidth;
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const propertyWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
-        if (avaliableWidth < propertyWidth) {
-            pageBodyWrapper.classList.add("single-column-property");
-        } else {
-            pageBodyWrapper.classList.remove("single-column-property");
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+
+        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        if (pageBodyWrapper) {
+            let avaliableWidth: number = pageBodyWrapper.offsetWidth;
+
+            if (avaliableWidth < minimumWidth) {
+                pageBodyWrapper.classList.add("single-column-property");
+            } else {
+                pageBodyWrapper.classList.remove("single-column-property");
+            }
         }
     };
 }

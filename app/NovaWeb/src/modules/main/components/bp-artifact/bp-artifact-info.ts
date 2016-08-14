@@ -161,6 +161,10 @@ export class BpArtifactInfoController {
     }
 
     public get isReadonly(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isReadOnly;
+        }
         return false;
     }
 
@@ -173,6 +177,10 @@ export class BpArtifactInfoController {
     }
 
     public get isLocked(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isLocked;
+        }
         return false;
     }
 

@@ -12,6 +12,12 @@ export enum PrimitiveType {
     Image = 5
 }
 
+export enum PropertyLookupEnum {
+    None = 0,
+    System = 1,
+    Custom = 2,
+    Special = 3,
+}
 
 export enum ItemTypePredefined {
     Project = -1,       // for client use only 

@@ -182,7 +182,6 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-
     public closeProject = (all: boolean = false) => {
         try {
             var selection = this.selectionManager.selection;
@@ -193,14 +192,14 @@ export class ProjectManager implements IProjectManager {
                 throw new Error("Artifact_NotFound");
             }
             let projectsToRemove: Models.IProject[] = [];
-            let _projectCollection = this.projectCollection.getValue().filter(function (it: Models.IProject) {
+            let _projectCollection = this.projectCollection.getValue().filter((it: Models.IProject) => {
                 let result = true;
                 if (all || it.id === selection.artifact.projectId) {
                     projectsToRemove.push(it);
                     result = false;
                 }
                 return result;
-            }.bind(this));
+            });
             if (!projectsToRemove.length) {
                 throw new Error("Project_NotFound");
             }

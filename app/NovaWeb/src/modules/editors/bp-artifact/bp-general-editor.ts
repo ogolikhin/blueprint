@@ -1,14 +1,15 @@
 ﻿import {
     BpBaseEditor,
     PropertyContext,
-    LookupEnum,
     ILocalizationService,
     IProjectManager,
     IMessageService,
     IStateManager,
     IWindowResize,
     ISidebarToggle,
-    Models  } from "./bp-base-editor";
+    Models,
+    Enums
+} from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -70,7 +71,7 @@ export class BpGeneralEditorController extends BpBaseEditor {
             field.type = "bpFieldReadOnly";
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
-            } else if (LookupEnum.System === propertyContext.lookup) {
+            } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

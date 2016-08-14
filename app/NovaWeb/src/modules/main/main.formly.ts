@@ -1,18 +1,19 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType} from "./models/enums";
+import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
 import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
 
 formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 /* tslint:disable */
-export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
+export function formlyConfigExtendedFields(
+    formlyConfig: AngularFormly.IFormlyConfig,
+    formlyValidationMessages: AngularFormly.IValidationMessages,
+    localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    //const systemProperty: number = 1;
-    const customProperty: number = 2;
 
     let datepickerAttributes: string[] = [
         "date-disabled",
@@ -125,7 +126,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
                         if (date) {
                             newvalue = localization.current.formatDate(date,
-                                $scope.options.data.lookup === customProperty ?
+                                $scope.options.data.lookup === PropertyLookupEnum.Custom ?
                                     localization.current.shortDateFormat :
                                     localization.current.longDateFormat);
                         }

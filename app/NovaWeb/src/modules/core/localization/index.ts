@@ -117,12 +117,14 @@ export class BPLocale  {
     }
 
     public toDate(value: string | Date, reset?: boolean): Date {
-        let d = moment(value);
-        if (d.isValid()) {
-            if (reset === true) {
-                d.utc().startOf("day");
+        if (value) {
+            let d = moment(value);
+            if (d.isValid()) {
+                if (reset === true) {
+                    d.utc().startOf("day");
+                }
+                return d.toDate();
             }
-            return d.toDate();
         }
         return null;
     };

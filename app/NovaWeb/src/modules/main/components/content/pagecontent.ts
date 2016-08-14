@@ -1,6 +1,6 @@
 import { IProjectManager, Models, ISidebarToggle } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
-import { IMessageService, IWindowResize } from "../../../core";
+import { IMessageService, IWindowResize, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -16,12 +16,21 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager", "windowResize", "sidebarToggle"];
+    public static $inject: [string] = [
+        "$state",
+        "messageService",
+        "projectManager",
+        "diagramService",
+        "selectionManager", 
+        "stateManager",
+        "windowResize",
+        "sidebarToggle"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager,
+                private stateManager: IStateManager,
                 private windowResize: IWindowResize,
                 private sidebarToggle: ISidebarToggle) {
     }
@@ -60,6 +69,7 @@ class PageContentCtrl {
 
             _context.artifact = artifact;
             _context.type = this.projectManager.getArtifactType(_context.artifact);
+            this.stateManager.addChange(artifact);
             this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {

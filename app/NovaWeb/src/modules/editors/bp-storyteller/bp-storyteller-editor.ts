@@ -6,7 +6,7 @@ import {ILocalizationService, IMessageService, IWindowResize, IStateManager} fro
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
-import {IWindowManager, IProjectManager, ToggleAction} from "../../main";
+import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -26,6 +26,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
     private _subscribers: Rx.IDisposable[];
+    private contentAreaWidth: number;
 
     public static $inject: [string] = [
         "$rootScope",
@@ -68,13 +69,13 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
-
+        this.contentAreaWidth = null;
     }
 
     public $onInit() {
         //super.$onInit();
         this._subscribers = [
-            this.windowManager.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
         ];
         
     }
@@ -89,6 +90,8 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         if (this._context) {
             this.load(this._context);
         }
+
+        this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
     }
 
     public $onDestroy() {
@@ -133,22 +136,13 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
 
     }
 
-    public onWidthResized(toggleAction: ToggleAction) {
-        if (!!this.storytellerDiagram) {
+    public onWidthResized(mainWindow: IMainWindow) {
+        if (
+            (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle)
+            && !!this.storytellerDiagram
+        ) {
             //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
-            let deltaX: number;
-            switch (toggleAction) {
-                case ToggleAction.leftClose:
-                case ToggleAction.rightClose:
-                    deltaX = -270;
-                    break;
-                case ToggleAction.leftOpen:
-                case ToggleAction.rightOpen:
-                    deltaX = 270;
-                    break;
-                default:
-                    deltaX = 0;
-            }
+            let deltaX: number = mainWindow.contentWidth - this.contentAreaWidth;
             this.storytellerDiagram.resize(deltaX);
         }
     }

@@ -12,7 +12,7 @@ export class BPTooltip implements ng.IDirective {
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
 
-        function updateTooltip(e) {
+        function updateTooltip(e: MouseEvent) {
             if (e.clientX > document.body.clientWidth / 2) {
                 tooltip.style.left = "";
                 tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
@@ -33,7 +33,7 @@ export class BPTooltip implements ng.IDirective {
             }
         }
 
-        function createTooltip(e) {
+        function createTooltip(e?: MouseEvent) {
             if (window["MutationObserver"]) {
                 observer = new MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
@@ -77,15 +77,15 @@ export class BPTooltip implements ng.IDirective {
             return true;
         }
 
-        function hideTooltip(e) {
+        function hideTooltip(e?: MouseEvent) {
             angular.element(tooltip).removeClass("show");
         }
 
-        function removeTooltip(e) {
+        function removeTooltip(e?: MouseEvent) {
             angular.element(this).removeClass("bp-tooltip-trigger");
             angular.element(tooltip).remove();
 
-            if (window["MutationObserver"]) {
+            if (window["MutationObserver"] && observer) {
                 observer.disconnect();
             }
         }
@@ -103,12 +103,13 @@ export class BPTooltip implements ng.IDirective {
                 //elem.addEventListener("transitionend", hideTooltip);
 
                 $scope.$on("$destroy", function () {
+                    removeTooltip();
+
                     elem.removeEventListener("mousemove", updateTooltip);
                     elem.removeEventListener("mouseover", createTooltip);
                     elem.removeEventListener("mousedown", hideTooltip);
                     elem.removeEventListener("mouseout", removeTooltip);
                     //elem.removeEventListener("transitionend", hideTooltip);
-                    angular.element(tooltip).remove();
                 });
             }
         }

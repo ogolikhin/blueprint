@@ -21,7 +21,7 @@ describe("State Manager:", () => {
 
     it("artifact changed", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1 , name: "", projectId:1} as Models.IArtifact;
+        const artifact = { id: 1 , name: "", projectId: 1} as Models.IArtifact;
         let isChanged: boolean;
 
         subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
@@ -38,7 +38,7 @@ describe("State Manager:", () => {
     }));
     it("artifact not changed: null changeset", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "", projectId:1 } as Models.IArtifact;
+        const artifact = { id: 1, name: "", projectId: 1 } as Models.IArtifact;
         let isChanged: boolean;
 
         subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
@@ -79,7 +79,7 @@ describe("State Manager:", () => {
         //Arrange
         const artifact = {
             id: 1,
-            projectId:1
+            projectId: 1
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
         let isChanged: boolean;
@@ -135,7 +135,7 @@ describe("State Manager:", () => {
         const artifact = {
             id: 1,
             name: "",
-            projectId :1,
+            projectId: 1,
             customPropertyValues: [
                 {
                     propertyTypeId: 1,

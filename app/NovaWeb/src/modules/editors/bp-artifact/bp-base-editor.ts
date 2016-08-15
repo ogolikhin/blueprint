@@ -263,7 +263,7 @@ export class PropertyEditor implements IPropertyEditor {
                 if (angular.isArray($value)) {
                     return {
                         validValueIds : $value.map((it) => { return this.locale.toNumber(it); })
-                    }
+                    };
                 }
                 return this.locale.toNumber($value);
 

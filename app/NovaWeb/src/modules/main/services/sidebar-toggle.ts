@@ -1,5 +1,13 @@
 ﻿import { IWindowResize } from "../../core";
 
+export enum ToggleAction {
+    none,
+    leftOpen,
+    leftClose,
+    rightOpen,
+    rightClose
+}
+
 export interface IAvailableContentArea {
     width: number;
     height: number;
@@ -13,6 +21,9 @@ export interface ISidebarToggle {
     isWidthChanged: Rx.Observable<boolean>;
     isHeightChanged: Rx.Observable<boolean>;
     getAvailableArea: Rx.Observable<IAvailableContentArea>;
+
+    //@mtalis
+    isConfigurationChanged: Rx.Observable<ToggleAction>;
 }
 
 export class SidebarToggle implements ISidebarToggle {
@@ -25,6 +36,9 @@ export class SidebarToggle implements ISidebarToggle {
     private _isWidthChanged: Rx.BehaviorSubject<boolean>;
     private _isHeightChanged: Rx.BehaviorSubject<boolean>;
     private _getAvailableArea: Rx.BehaviorSubject<IAvailableContentArea>;
+
+    //@mtalis
+    private _isConfigurationChanged: Rx.BehaviorSubject<ToggleAction>;
 
     private isLeftVisible: boolean;
     private isRightVisible: boolean;
@@ -48,6 +62,9 @@ export class SidebarToggle implements ISidebarToggle {
             this._isRightSidebarVisible = new Rx.BehaviorSubject<boolean>(this.isRightVisible);
             this._isWidthChanged = new Rx.BehaviorSubject<boolean>(true);
 
+            //@mtalis
+            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
+
             this._toggleObserver = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.attributeName === "class") {
@@ -56,6 +73,13 @@ export class SidebarToggle implements ISidebarToggle {
 
                         if (this._isLeftSidebarVisible.getValue() !== this.isLeftVisible || this._isRightSidebarVisible.getValue() !== this.isRightVisible) {
                             this.onAvailableAreaResized();
+
+                            //@mtalis
+                            let toggleAction: ToggleAction = (this.isLeftVisible && !this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftClose +
+                                (!this.isLeftVisible && this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftOpen +
+                                (this.isRightVisible && !this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightClose +
+                                (!this.isRightVisible && this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightOpen;
+                            this._isConfigurationChanged.onNext(toggleAction);
                         }
                         this._areBothSidebarsVisible.onNext(this.isLeftVisible || this.isRightVisible);
                         this._isLeftSidebarVisible.onNext(this.isLeftVisible);
@@ -76,6 +100,9 @@ export class SidebarToggle implements ISidebarToggle {
 
             this.isLeftVisible = false;
             this.isRightVisible = false;
+
+            //@mtalis
+            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
         }
 
         let messageContainer: Element = document.querySelector(".message-container");
@@ -147,8 +174,12 @@ export class SidebarToggle implements ISidebarToggle {
         this._isWidthChanged.dispose();
         this._isHeightChanged.dispose();
 
+        //@mtalis
+        this._isConfigurationChanged.dispose();
+
         try {
             this._toggleObserver.disconnect();
+            this._messageObserver.disconnect();
         } catch (ex) {
             //this.messageService.addError(ex.message);
         }
@@ -180,5 +211,10 @@ export class SidebarToggle implements ISidebarToggle {
 
     public get getAvailableArea(): Rx.Observable<IAvailableContentArea> {
         return this._getAvailableArea.asObservable();
+    };
+
+    //@mtalis
+    public get isConfigurationChanged(): Rx.Observable<ToggleAction> {
+        return this._isConfigurationChanged.asObservable();
     };
 }

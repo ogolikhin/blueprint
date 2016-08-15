@@ -1,6 +1,6 @@
-import { IProjectManager, Models, ISidebarToggle } from "../..";
+import { IProjectManager, Models, IWindowManager } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
-import { IMessageService, IWindowResize, IStateManager } from "../../../core";
+import { IMessageService, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -21,18 +21,16 @@ class PageContentCtrl {
         "messageService",
         "projectManager",
         "diagramService",
-        "selectionManager", 
+        "selectionManager",
         "stateManager",
-        "windowResize",
-        "sidebarToggle"];
+        "windowManager"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager,
                 private stateManager: IStateManager,
-                private windowResize: IWindowResize,
-                private sidebarToggle: ISidebarToggle) {
+                private windowManager: IWindowManager) {
     }
     public context: IEditorContext = null;
 
@@ -49,8 +47,7 @@ class PageContentCtrl {
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
-            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.getAvailableArea.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -95,10 +92,12 @@ class PageContentCtrl {
         }
     }
 
-    private onWidthResized() {
+    private onAvailableAreaResized() {
         let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
         if (scrollableElem) {
-            (<any>window).PerfectScrollbar.update(scrollableElem);
+            setTimeout(() => {
+                (<any>window).PerfectScrollbar.update(scrollableElem);
+            }, 500);
         }
     }
 }

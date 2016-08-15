@@ -166,6 +166,7 @@ describe("autoLinkURLText", () => {
     it("should find and replace text URLs in nested HTML elements", () => {
         // Arrange/Act
         let node = document.createElement("div");
+        /* tslint:disable */
         node.innerHTML = `
 <p>
     <span>This is an inline trace:&nbsp;</span>
@@ -182,6 +183,7 @@ describe("autoLinkURLText", () => {
 <p>
     <span>Let's see if https://www.cnn.com, http://127.<span>0.0.1</span>, http://www.google.com, or even ftp://filehippo.com get recognized</span>
 </p>`;
+        /* tslint:enable */
         Helper.autoLinkURLText(node);
 
         // Assert

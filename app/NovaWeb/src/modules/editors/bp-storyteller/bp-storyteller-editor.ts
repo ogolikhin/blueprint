@@ -6,7 +6,7 @@ import {ILocalizationService, IMessageService, IWindowResize, IStateManager} fro
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
-import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
+import {IWindowManager, IProjectManager, ToggleAction} from "../../main";
 
 export class BpStorytellerEditor implements ng.IComponentOptions {
     public template: string = require("./bp-storyteller-editor.html");
@@ -41,7 +41,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         "messageService", 
         "stateManager", 
         "windowResize", 
-        "sidebarToggle", 
+        "windowManager",
         "$timeout", 
         "projectManager"
     ];
@@ -60,11 +60,11 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         private messageService: IMessageService,
         private stateManager: IStateManager,
         private windowResize: IWindowResize,
-        private sidebarToggle: ISidebarToggle,
+        private windowManager: IWindowManager,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-       // super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+       // super(localization, messageService, stateManager, windowResize, windowManager, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
@@ -74,7 +74,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
     public $onInit() {
         //super.$onInit();
         this._subscribers = [
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
         
     }

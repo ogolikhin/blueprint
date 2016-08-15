@@ -7,7 +7,7 @@ import { ComponentTest } from "../../util/component.test";
 import { BpGeneralEditorController } from "./bp-general-editor";
 import { StateManager } from "../../core/services/state-manager";
 import { WindowResize } from "../../core/services/window-resize";
-import { SidebarToggle } from "../../main/services/sidebar-toggle";
+import { WindowManager } from "../../main/services/window-manager";
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager } from "../../main/services/project-manager";
 import { SelectionManager } from "../../main/services/selection-manager";
@@ -34,7 +34,7 @@ describe("Component BpGeneralEditorInfo", () => {
         $provide.service("projectManager", ProjectManager);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("windowResize", WindowResize);
-        $provide.service("sidebarToggle", SidebarToggle);
+        $provide.service("windowManager", WindowManager);
 
     }));
 

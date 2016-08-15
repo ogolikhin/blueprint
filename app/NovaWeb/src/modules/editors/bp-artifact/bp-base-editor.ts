@@ -1,14 +1,14 @@
-﻿import { IMessageService, IStateManager, IPropertyChangeSet, IWindowResize, ILocalizationService, BPLocale, ItemState } from "../../core";
+import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale, ItemState } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, ISidebarToggle } from "../../main";
+import { Enums, Models, IWindowManager, IAvailableContentArea } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
-export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowResize, ISidebarToggle, Models, Enums }
+export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, Models, Enums }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowManager", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -25,18 +25,15 @@ export class BpBaseEditor {
         public localization: ILocalizationService,
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public windowResize: IWindowResize,
-        public sidebarToggle: ISidebarToggle,
-        private $timeout: ng.ITimeoutService,
+        public windowManager: IWindowManager,
         private projectManager: IProjectManager
     ) {
-        this.editor = new PropertyEditor(this.localization.current); 
+        this.editor = new PropertyEditor(this.localization.current);
     }
 
     public $onInit() {
         this._subscribers = [
-            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
         ];
     }
 
@@ -64,12 +61,6 @@ export class BpBaseEditor {
         delete this.fields;
         delete this.model;
     }
-
-    private onWidthResized() {
-        this.setArtifactEditorLabelsWidth();
-    }
-     
-    
 
     public onLoading(obj: any): boolean  {
         this.fields = [];
@@ -122,7 +113,7 @@ export class BpBaseEditor {
                 if (this.artifactState && this.artifactState.isLocked) {
                     field.type = "bpFieldReadOnly";
                 }
-                            
+
 
 
             });
@@ -130,9 +121,7 @@ export class BpBaseEditor {
             this.messageService.addError(ex);
         }
 
-        this.$timeout(() => {
-            this.setArtifactEditorLabelsWidth();
-        }, 0);
+        this.setArtifactEditorLabelsWidth();
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
@@ -152,17 +141,18 @@ export class BpBaseEditor {
         }
     };
 
+    public setArtifactEditorLabelsWidth(contentArea?: IAvailableContentArea) {
+        // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
 
+        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        if (pageBodyWrapper) {
+            let avaliableWidth: number = contentArea ? contentArea.width : pageBodyWrapper.offsetWidth;
 
-    public setArtifactEditorLabelsWidth() {
-        let artifactOverview: Element = document.querySelector(".artifact-overview");
-        if (artifactOverview) {
-            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
-            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
-            if (actualWidth < propertyWidth) {
-                artifactOverview.classList.add("single-column");
+            if (avaliableWidth < minimumWidth) {
+                pageBodyWrapper.classList.add("single-column-property");
             } else {
-                artifactOverview.classList.remove("single-column");
+                pageBodyWrapper.classList.remove("single-column-property");
             }
         }
     };
@@ -267,10 +257,10 @@ export class PropertyEditor implements IPropertyEditor {
                 if (angular.isArray($value)) {
                     return {
                         validValueIds : $value.map((it) => { return this.locale.toNumber(it); })
-                    }
-                } 
+                    };
+                }
                 return this.locale.toNumber($value);
-                    
+
             case Models.PrimitiveType.User:
                 //TODO: please implement on time of user editor field implementation
                 return $value;

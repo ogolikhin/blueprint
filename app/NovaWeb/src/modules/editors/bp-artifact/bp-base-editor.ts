@@ -1,6 +1,6 @@
 import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale, ItemState } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, ISidebarToggle } from "../../main";
+import { Enums, Models, ISidebarToggle, IAvailableContentArea } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
@@ -33,7 +33,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.sidebarToggle.isWidthChanged.subscribeOnNext(this.onWidthResized, this)
+            this.sidebarToggle.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
         ];
     }
 
@@ -60,10 +60,6 @@ export class BpBaseEditor {
         delete this.artifactState;
         delete this.fields;
         delete this.model;
-    }
-
-    private onWidthResized() {
-        this.setArtifactEditorLabelsWidth();
     }
 
     public onLoading(obj: any): boolean  {
@@ -145,15 +141,13 @@ export class BpBaseEditor {
         }
     };
 
-
-
-    public setArtifactEditorLabelsWidth() {
+    public setArtifactEditorLabelsWidth(contentArea?: IAvailableContentArea) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
         const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
-            let avaliableWidth: number = pageBodyWrapper.offsetWidth;
+            let avaliableWidth: number = contentArea ? contentArea.width : pageBodyWrapper.offsetWidth;
 
             if (avaliableWidth < minimumWidth) {
                 pageBodyWrapper.classList.add("single-column-property");

@@ -65,7 +65,6 @@ export class BpArtifactInfoController {
 
     private onWidthResized() {
         this.setArtifactHeadingMaxWidth();
-        this.setArtifactEditorLabelsWidth();
     }
 
     private onLoad = (context: IArtifactInfoContext) => {
@@ -95,19 +94,6 @@ export class BpArtifactInfoController {
             }
         }
     }
-
-    private setArtifactEditorLabelsWidth() {
-        let artifactOverview: Element = document.querySelector(".artifact-overview");
-        if (artifactOverview) {
-            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
-            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
-            if (actualWidth < propertyWidth) {
-                artifactOverview.classList.add("single-column");
-            } else {
-                artifactOverview.classList.remove("single-column");
-            }
-        }
-    };
 
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;

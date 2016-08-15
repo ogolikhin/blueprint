@@ -605,9 +605,9 @@ $property-multichoice-height: 24px;
   }
 }
 
-.single-column .formly .formly-field label {
-  padding: 0;
+.single-column-property .formly .formly-field label {
   margin-right: 0;
+  padding: 0;
   width: $property-input-width;
 }
 

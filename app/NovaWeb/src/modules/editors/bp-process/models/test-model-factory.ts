@@ -1237,6 +1237,45 @@ export function createSystemDecisionWithMultipleBranchesModel(): IProcess {
 }
 
 
+export function createSystemDecisionForAddBranchTestModel(): IProcess {
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 20, 2, 0);
+    let sd = shapesFactory.createModelSystemDecisionShape(1, 0, 25, 3, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 30, 4, 0);
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 35, 4, 1);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 40, 6, 0);
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 45, 7, 0);
+    let end = createShapeModel(ProcessShapeType.End, 50, 8, 0);
+
+
+    model.shapes.push(start, pre, ut1, sd, st2, st3, ut4, st4, end);
+    /*
+        start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+                                  ->  ST3 -> END
+    */
+
+    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+
+    model.decisionBranchDestinationLinks.push(
+        { sourceId: sd.id, destinationId: end.id, orderindex: 1, label: "" }
+    );
+
+    return model;
+}
+
+
 function populatePropertyValues(shape: any, labelValue: string, x: number, y: number, clientType: ProcessShapeType) {
 
     var shapesFactory = createShapesFactoryService();

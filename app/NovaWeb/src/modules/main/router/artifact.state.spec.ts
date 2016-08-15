@@ -43,7 +43,7 @@ describe("Artifact state tests", () => {
     })));
 
     it("respond to url", () => {
-        expect($state.href("main.artifact", { id: 1 })).toEqual('#/main/1');
+        expect($state.href("main.artifact", { id: 1 })).toEqual("#/main/1");
     });
 
     describe("state changes", () => {
@@ -60,7 +60,7 @@ describe("Artifact state tests", () => {
             spyOn(projectManager, "getArtifact").and.returnValue(artifact);
             spyOn(projectManager, "getArtifactType").and.returnValue(null);
             $state.params["context"] = editorContext;
-            let stateSpy = spyOn($state, 'go');
+            let stateSpy = spyOn($state, "go");
 
             // act
             let artifactStateCtrl = new ArtifactStateController(
@@ -80,48 +80,48 @@ describe("Artifact state tests", () => {
         });
 
         it("Glossary state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.Glossary, 'main.artifact.glossary');
+            runStateChangeTest(Enums.ItemTypePredefined.Glossary, "main.artifact.glossary");
         });
 
         it("Project state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.Project, 'main.artifact.general');
+            runStateChangeTest(Enums.ItemTypePredefined.Project, "main.artifact.general");
         });
 
         it("CollectionFolder state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.CollectionFolder, 'main.artifact.general');
+            runStateChangeTest(Enums.ItemTypePredefined.CollectionFolder, "main.artifact.general");
         });
 
         describe("diagram state changes", () => {
             it("GenericDiagram state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.GenericDiagram, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.GenericDiagram, "main.artifact.diagram");
             });
 
             it("BusinessProcess state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.BusinessProcess, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.BusinessProcess, "main.artifact.diagram");
             });
 
             it("DomainDiagram state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.DomainDiagram, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.DomainDiagram, "main.artifact.diagram");
             });
 
             it("Storyboard state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.Storyboard, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.Storyboard, "main.artifact.diagram");
             });
 
             it("UseCaseDiagram state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.UseCaseDiagram, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.UseCaseDiagram, "main.artifact.diagram");
             });
             it("UseCase state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.UseCase, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.UseCase, "main.artifact.diagram");
             });
 
             it("UIMockup state change", () => {
-                runStateChangeTest(Enums.ItemTypePredefined.UIMockup, 'main.artifact.diagram');
+                runStateChangeTest(Enums.ItemTypePredefined.UIMockup, "main.artifact.diagram");
             });
         });
 
         it("TextualRequirement state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.TextualRequirement, 'main.artifact.details');
+            runStateChangeTest(Enums.ItemTypePredefined.TextualRequirement, "main.artifact.details");
         });
     });
 });

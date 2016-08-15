@@ -285,7 +285,7 @@ namespace ArtifactStore.Repositories
 
         private void MockGetOpenArtifactPermissions(IEnumerable<OpenArtifactPermission> mockOpenArtifactPermissionsResult, SqlConnectionWrapperMock cxn, IEnumerable<int> projectArtifactIds, int? revisionId = null)
         {
-            var artifactIds = DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds);
+            var artifactIds = SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetOpenArtifactPermissions",
                 new Dictionary<string, object>
                 {
@@ -305,7 +305,7 @@ namespace ArtifactStore.Repositories
             int? revisionId = null
             )
         {
-            var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
+            var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
 
             var result = Tuple.Create(mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
             cxn.SetupQueryMultipleAsync("GetArtifactsProjects",

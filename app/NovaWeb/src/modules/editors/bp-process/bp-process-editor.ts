@@ -4,7 +4,7 @@ import {ILocalizationService, IMessageService, IWindowResize, IStateManager} fro
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
-import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
+import {IWindowManager, IProjectManager, ToggleAction} from "../../main";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -39,7 +39,7 @@ export class BpProcessEditorController {
         "messageService", 
         "stateManager", 
         "windowResize", 
-        "sidebarToggle", 
+        "windowManager",
         "$timeout", 
         "projectManager"
     ];
@@ -58,11 +58,11 @@ export class BpProcessEditorController {
         private messageService: IMessageService,
         private stateManager: IStateManager,
         private windowResize: IWindowResize,
-        private sidebarToggle: ISidebarToggle,
+        private windowManager: IWindowManager,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-       // super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+       // super(localization, messageService, stateManager, windowResize, windowManager, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
@@ -72,7 +72,7 @@ export class BpProcessEditorController {
     public $onInit() {
         //super.$onInit();
         this._subscribers = [
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
         ];
         
     }

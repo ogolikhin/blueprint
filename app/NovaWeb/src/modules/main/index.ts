@@ -21,7 +21,7 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    ISidebarToggle, SidebarToggle, ToggleAction } from "./services/";
+    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction } from "./services/";
 import { ISelectionManager, SelectionManager, ISelection } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -53,7 +53,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection,
-    ISidebarToggle, SidebarToggle, ToggleAction
+    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
@@ -102,7 +102,7 @@ angular.module("app.main", [
     .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
-    .service("sidebarToggle", SidebarToggle)
+    .service("windowManager", WindowManager)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbar())

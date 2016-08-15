@@ -1,6 +1,6 @@
-import { IProjectManager, Models, ISidebarToggle } from "../..";
+import { IProjectManager, Models, IWindowManager } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
-import { IMessageService, IWindowResize } from "../../../core";
+import { IMessageService, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -16,14 +16,21 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["$state", "messageService", "projectManager", "diagramService", "selectionManager", "windowResize", "sidebarToggle"];
+    public static $inject: [string] = [
+        "$state",
+        "messageService",
+        "projectManager",
+        "diagramService",
+        "selectionManager",
+        "stateManager",
+        "windowManager"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager,
-                private windowResize: IWindowResize,
-                private sidebarToggle: ISidebarToggle) {
+                private stateManager: IStateManager,
+                private windowManager: IWindowManager) {
     }
     public context: IEditorContext = null;
 
@@ -40,8 +47,7 @@ class PageContentCtrl {
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
-            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.getAvailableArea.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -60,6 +66,7 @@ class PageContentCtrl {
 
             _context.artifact = artifact;
             _context.type = this.projectManager.getArtifactType(_context.artifact);
+            this.stateManager.addChange(artifact);
             this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
@@ -85,10 +92,12 @@ class PageContentCtrl {
         }
     }
 
-    private onWidthResized() {
+    private onAvailableAreaResized() {
         let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
         if (scrollableElem) {
-            (<any>window).PerfectScrollbar.update(scrollableElem);
+            setTimeout(() => {
+                (<any>window).PerfectScrollbar.update(scrollableElem);
+            }, 500);
         }
     }
 }

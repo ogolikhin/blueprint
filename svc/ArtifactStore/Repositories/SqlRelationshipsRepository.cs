@@ -34,7 +34,7 @@ namespace ArtifactStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
-            parameters.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
             return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
@@ -53,7 +53,7 @@ namespace ArtifactStore.Repositories
         private async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);

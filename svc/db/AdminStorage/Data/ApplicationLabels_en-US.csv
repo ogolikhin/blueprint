@@ -5,10 +5,12 @@ App_Button_No,"No"
 App_Button_Ok,"OK"
 App_Button_Cancel,"Cancel"
 App_Button_Open,"Open"
+App_Button_PublishAndContinue,"Publish and Continue"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
 App_LoadingMsg,"Loading ..."
+App_PublishBeforeGeneratingUserStoriesMsg,"The Process must be published before user stories are generated."
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
 
 App_Header_Name,"Blueprint"

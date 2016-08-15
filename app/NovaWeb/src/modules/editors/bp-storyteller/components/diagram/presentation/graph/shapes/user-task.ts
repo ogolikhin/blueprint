@@ -12,6 +12,7 @@ import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
+import {SystemDecision} from "./";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -265,17 +266,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     private getSystemDecisionFirstTasks(graph: IProcessGraph, node: IDiagramNode, resultSystemTasks: ISystemTask[]) {
         //#TODO fix reference to SystemDecision 
-        //let decisionTargets = (<SystemDecision>node).getTargets(graph);
-        //if (decisionTargets) {
-        //    for (var i = 0; i < decisionTargets.length; i++) {
-        //        let decisionTarget = decisionTargets[i];
-        //        if (decisionTarget.getNodeType() === NodeType.SystemTask) {
-        //            resultSystemTasks.push(<ISystemTask>decisionTarget);
-        //        } else {
-        //            this.getSystemDecisionFirstTasks(graph, decisionTarget, resultSystemTasks);
-        //        }
-        //    }
-        //}
+        let decisionTargets = (<SystemDecision>node).getTargets(graph.getMxGraphModel());
+        if (decisionTargets) {
+            for (var i = 0; i < decisionTargets.length; i++) {
+                let decisionTarget = decisionTargets[i];
+                if (decisionTarget.getNodeType() === NodeType.SystemTask) {
+                    resultSystemTasks.push(<ISystemTask>decisionTarget);
+                } else {
+                    this.getSystemDecisionFirstTasks(graph, decisionTarget, resultSystemTasks);
+                }
+            }
+        }
     }
 
     public addNode(graph: IProcessGraph): IDiagramNode {

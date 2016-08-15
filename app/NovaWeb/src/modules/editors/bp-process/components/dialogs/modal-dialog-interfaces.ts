@@ -9,7 +9,7 @@ export interface ICommand {
     execute(data: ICommandData): ng.IPromise<boolean>;
 }
 
-export interface IStorytellerCommands {
+export interface IProcessCommands {
     getNavigateToProcessCommand(): any;
     getLogoutCommand(): any;
     getChangeStateCommand(): any;

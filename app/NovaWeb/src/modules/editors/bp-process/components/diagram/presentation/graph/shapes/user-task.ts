@@ -394,9 +394,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-        // #TODO fix up reference to StorytellerCommands 
+        // #TODO fix up reference to ProcessCommands 
         // var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
-        // StorytellerCommands.getStorytellerCommands().getNavigateToProcessCommand().execute(data);
+        // ProcessCommands.getProcessCommands().getNavigateToProcessCommand().execute(data);
     }
 
     private openDialog(dialogType: ModalDialogType) {

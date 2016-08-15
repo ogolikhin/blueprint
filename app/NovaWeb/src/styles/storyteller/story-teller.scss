@@ -9,16 +9,8 @@
 @import "partials/button";
 @import "partials/dialog";*/
 
-bp-storyteller-editor{
-    .storyteller-view-min-width {
-         min-width: 768px;
-    }
-
-    #storytellerEditorSection {
-        padding: 5px 25px;
-        background-color: #f4f6fa;
-    }
-
+bp-process-editor{
+  
     .toolbar-clearfix {
         background-color: #f4f6fa;
     }
@@ -735,15 +727,15 @@ bp-storyteller-editor{
     .storyteller-gwt-tabset * .nav-tabs > li > a {
         font-size: $font-size-root;
     }
-
-    .storyteller-graph-wrapper {
+    /*
+    .process-graph-wrapper {
         background-color: #f4f6fa;
     }
 
-    .storyteller-graph-container {
+    .process-graph-container {
         background-color: #f4f6fa;
     }
-
+    */
     .storyteller-gt_text-container-grayed-text {
         color: $gray-light;
     }

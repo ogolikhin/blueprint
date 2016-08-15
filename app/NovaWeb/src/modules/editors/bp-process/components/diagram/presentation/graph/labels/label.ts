@@ -284,7 +284,7 @@ export class Label implements ILabel {
 
         this.div = document.createElement("div");
         this.div.id = this.id;
-        this.div.className = "storytellerEditorCustomLabel";
+        this.div.className = "processEditorCustomLabel";
         this.div.style.overflow = "hidden";
         this.div.style.fontFamily = this.style.fontFamily;
         this.div.style.fontSize = this.numberToPx(this.style.fontSize);

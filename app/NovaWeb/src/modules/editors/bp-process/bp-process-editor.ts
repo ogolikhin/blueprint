@@ -1,7 +1,7 @@
 ﻿import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
-import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
+import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 import {ISidebarToggle, IProjectManager, ToggleAction} from "../../main";
@@ -20,7 +20,7 @@ export class BpProcessEditorController {
 
     private _context: number;
 
-    public storytellerDiagram: StorytellerDiagram;
+    public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
     private _subscribers: Rx.IDisposable[];
@@ -94,7 +94,7 @@ export class BpProcessEditorController {
     }
     
     private load(artifactId: number) {
-        this.storytellerDiagram = new StorytellerDiagram(
+        this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
             this.$state,
@@ -108,7 +108,7 @@ export class BpProcessEditorController {
        
         let htmlElement = this.getHtmlElement();
          
-        this.storytellerDiagram.createDiagram(artifactId, htmlElement);
+        this.processDiagram.createDiagram(artifactId, htmlElement);
         
     }
 
@@ -121,7 +121,7 @@ export class BpProcessEditorController {
          
         let childElements = this.$element.find("div");
         for (let i = 0; i < childElements.length; i++) {
-            if (childElements[i].className.match(/storyteller-graph-container/)) {
+            if (childElements[i].className.match(/process-graph-container/)) {
                 htmlElement = childElements[i];
                 break;
             }
@@ -132,7 +132,7 @@ export class BpProcessEditorController {
     }
 
     public onWidthResized(toggleAction: ToggleAction) {
-        if (!!this.storytellerDiagram) {
+        if (!!this.processDiagram) {
             //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
             let deltaX: number;
             switch (toggleAction) {
@@ -147,7 +147,7 @@ export class BpProcessEditorController {
                 default:
                     deltaX = 0;
             }
-            this.storytellerDiagram.resize(deltaX);
+            this.processDiagram.resize(deltaX);
         }
     }
     

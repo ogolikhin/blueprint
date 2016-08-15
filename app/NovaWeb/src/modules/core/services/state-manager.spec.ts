@@ -3,7 +3,7 @@ import "angular-mocks";
 import "Rx";
 
 import { ItemState, StateManager } from "./state-manager";
-import { Models} from "../../main/models";
+import { Models, Enums} from "../../main/models";
 
 describe("State Manager:", () => {
     let subscriber;
@@ -21,7 +21,7 @@ describe("State Manager:", () => {
 
     it("artifact changed", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1 , name: ""} as Models.IArtifact;
+        const artifact = { id: 1 , name: "", projectId: 1} as Models.IArtifact;
         let isChanged: boolean;
 
         subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
@@ -30,7 +30,7 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "artifact" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "artifact" }); 
             
         //Assert
         expect(isChanged).toBeTruthy();
@@ -38,7 +38,7 @@ describe("State Manager:", () => {
     }));
     it("artifact not changed: null changeset", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "" } as Models.IArtifact;
+        const artifact = { id: 1, name: "", projectId: 1 } as Models.IArtifact;
         let isChanged: boolean;
 
         subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
@@ -47,7 +47,7 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, null); 
+        stateManager.addChange(artifact, null); 
             
         //Assert
         expect(isChanged).toBeFalsy();
@@ -57,7 +57,7 @@ describe("State Manager:", () => {
 
     it("system property", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
         let changedItem: Models.IArtifact;
         let isChanged: boolean;
 
@@ -68,7 +68,7 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" }); 
             
         //Assert
         expect(changedItem).toBeDefined();
@@ -78,7 +78,8 @@ describe("State Manager:", () => {
     it("missing system property", inject((stateManager: StateManager) => {
         //Arrange
         const artifact = {
-            id: 1
+            id: 1,
+            projectId: 1
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
         let isChanged: boolean;
@@ -89,10 +90,10 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "artifact" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "artifact" }); 
             
         //Assert
-        expect(changedItem).toBeDefined();
+        expect(changedItem).toBeUndefined();
         expect(isChanged).toBeFalsy();
 
     }));
@@ -101,6 +102,7 @@ describe("State Manager:", () => {
         //Arrange
         const artifact = {
             id: 1,
+            projectId: 1,
             customPropertyValues: [
                 {
                     propertyTypeId: 1,
@@ -118,7 +120,7 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "custom", id: 1, value: "value" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.Custom, id: 1, value: "value" }); 
             
         //Assert
         expect(changedItem).toBeDefined();
@@ -133,6 +135,7 @@ describe("State Manager:", () => {
         const artifact = {
             id: 1,
             name: "",
+            projectId: 1,
             customPropertyValues: [
                 {
                     propertyTypeId: 1,
@@ -150,8 +153,8 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "artifact" }); 
-        stateManager.addChangeSet(artifact, { lookup: "custom", id: 2, value: 500 }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "artifact" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.Custom, id: 2, value: 500 }); 
             
         //Assert
         expect(changedItem).toBeDefined();
@@ -163,6 +166,7 @@ describe("State Manager:", () => {
         //Arrange
         const artifact = {
             id: 1,
+            projectId: 1,
             customPropertyValues: [
                 {
                     propertyTypeId: 1,
@@ -186,8 +190,8 @@ describe("State Manager:", () => {
 
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "custom", id: 1, value: "value" }); 
-        stateManager.addChangeSet(artifact, { lookup: "custom", id: 2, value: 300 }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.Custom, id: 1, value: "value" }); 
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.Custom, id: 2, value: 300 }); 
             
         //Assert
         expect(changedItem).toBeDefined();
@@ -200,10 +204,10 @@ describe("State Manager:", () => {
 
     it("get artifact state by id", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
 
         let state = stateManager.getState(1);
 
@@ -216,10 +220,10 @@ describe("State Manager:", () => {
 
     it("get artifact state by artifact ", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
 
         let state = stateManager.getState(artifact);
 
@@ -231,10 +235,10 @@ describe("State Manager:", () => {
     }));
     it("get artifact state: missing artifact", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
 
         let state = stateManager.getState(2);
 
@@ -244,10 +248,10 @@ describe("State Manager:", () => {
 
     it("delete artifact state", inject((stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old" } as Models.IArtifact;
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
             
         //Act
-        stateManager.addChangeSet(artifact, { lookup: "system", id: "name", value: "new" });
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
         let state1 = stateManager.getState(1);
 
         stateManager.deleteState(1);

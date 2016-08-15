@@ -66,10 +66,10 @@ export interface IArtifact extends IItem {
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
 
-    lockedByUserId?: number;
+    lockedByUser?: IUserGroup;
+    lockedDateTime?: Date;
 
     permissions?: RolePermissions;
-
 
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
@@ -164,8 +164,13 @@ export class Project implements IProject {
         return this.id;
     }
 
-    public get parentId() {
+    public get parentId(): number {
         return -1;
+    }
+    public lockedByUserId: number;
+
+    public get permissions(): RolePermissions {
+        return 4095;
     }
 
     public get predefinedType(): ItemTypePredefined {

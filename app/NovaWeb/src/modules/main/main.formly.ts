@@ -1,18 +1,19 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType} from "./models/enums";
+import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
 import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
 
 formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 /* tslint:disable */
-export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyConfig, formlyValidationMessages: AngularFormly.IValidationMessages, localization: ILocalizationService
+export function formlyConfigExtendedFields(
+    formlyConfig: AngularFormly.IFormlyConfig,
+    formlyValidationMessages: AngularFormly.IValidationMessages,
+    localization: ILocalizationService
 ): void {
 /* tslint:enable */
-    //const systemProperty: number = 1;
-    const customProperty: number = 2;
 
     let datepickerAttributes: string[] = [
         "date-disabled",
@@ -125,9 +126,11 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                         let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
                         if (date) {
                             newvalue = localization.current.formatDate(date,
-                                $scope.options.data.lookup === customProperty ?
+                                $scope.options.data.lookup === PropertyLookupEnum.Custom ?
                                     localization.current.shortDateFormat :
                                     localization.current.longDateFormat);
+                        } else {
+                            newvalue = $scope.options.data.stringDefaultValue;
                         }
                         break;
                     case PrimitiveType.Number:
@@ -304,7 +307,6 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
-                    ng-model-options="{allowInvalid: true}"
                     ng-keyup="bpFieldNumber.keyup($event)"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
@@ -315,37 +317,21 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             validators: {
-                decimalPlaces: {
-                    expression: function($viewValue, $modelValue, scope) {
-                        if (!(<any> scope.options).data.isValidated) {
-                            return true;
-                        }
-                        let value = String($modelValue || $viewValue);
-                        let decimalPlaces = localization.current.toNumber(scope.to["decimalPlaces"]);
-                        if (value && decimalPlaces) {
-                            let digits = String($modelValue || $viewValue).split(localization.current.decimalSeparator)[1] || "";
-                            return digits.length <= decimalPlaces;
-                        }
-                        return true;
-                    }
-                },
                 wrongFormat: {
-                    expression: function($viewValue, $modelValue, scope) {
+                    expression: function($viewValue, $modelValue, $scope) {
                         let value = $modelValue || $viewValue;
-                        return value && localization.current.toNumber(value);
+                        return !value || angular.isNumber(localization.current.toNumber(value, $scope.to["decimalPlaces"]));
                     }
                 },
                 max: {
-                    expression: function($viewValue, $modelValue, scope) {
-                        if (!(<any> scope.options).data.isValidated) {
+                    expression: function($viewValue, $modelValue, $scope) {
+                        if (!(<any> $scope.options).data.isValidated) {
                             return true;
                         }
-
-                        let value = localization.current.toNumber($modelValue || $viewValue);
-                        if (angular.isNumber(value)) {
-                            let max = localization.current.toNumber(scope.to.max);
-
-                            if (angular.isNumber(max)) {
+                        let max = localization.current.toNumber($scope.to.max);
+                        if (angular.isNumber(max)) {
+                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            if (angular.isNumber(value)) {
                                 return value <= max;
                             }
                         }
@@ -353,13 +339,13 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
                     }
                 },
                 min: {
-                    expression: function($viewValue, $modelValue, scope) {
-                        if (!(<any> scope.options).data.isValidated) {
+                    expression: function($viewValue, $modelValue, $scope) {
+                        if (!(<any> $scope.options).data.isValidated) {
                             return true;
                         }
                         let value = localization.current.toNumber($modelValue || $viewValue);
                         if (angular.isNumber(value)) {
-                            let min = localization.current.toNumber(scope.to.min);
+                            let min = localization.current.toNumber($scope.to.min);
 
                             if (angular.isNumber(min)) {
                                 return value >= min;
@@ -372,11 +358,12 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {};
+             
+            //let currentModelVal = $scope.model[$scope.options.key];
+            //if (angular.isNumber(currentModelVal)) {
 
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (currentModelVal) {
-                $scope.model[$scope.options.key] = localization.current.formatNumber(currentModelVal);
-            }
+            //    $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
+            //}
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
@@ -579,7 +566,7 @@ export function formlyConfigExtendedFields(formlyConfig: AngularFormly.IFormlyCo
 
     /* tslint:disable */
     formlyValidationMessages.addTemplateOptionValueMessage("wrongFormat", "", localization.get("Property_Wrong_Format"), "", localization.get("Property_Wrong_Format"));
-    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
+//    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Less"), "Number too big");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");

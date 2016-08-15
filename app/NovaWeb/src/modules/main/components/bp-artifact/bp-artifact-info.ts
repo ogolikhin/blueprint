@@ -1,5 +1,5 @@
-﻿import { Models, Enums, IProjectManager, ISidebarToggle } from "../..";
-import { ILocalizationService, IStateManager, IWindowResize } from "../../../core";
+﻿import { Models, Enums, IProjectManager, IWindowManager } from "../..";
+import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -20,7 +20,7 @@ interface IArtifactInfoContext {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowResize", "sidebarToggle"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager"];
     private _subscribers: Rx.IDisposable[];
     private _artifact: Models.IArtifact;
     private _artifactType: Models.IItemType;
@@ -34,15 +34,13 @@ export class BpArtifactInfoController {
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowResize: IWindowResize,
-        private sidebarToggle: ISidebarToggle
+        private windowManager: IWindowManager
     ) {
     }
 
     public $onInit() {
         this._subscribers = [
-            this.windowResize.width.subscribeOnNext(this.onWidthResized, this),
-            this.sidebarToggle.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.isWidthChanged.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -67,7 +65,6 @@ export class BpArtifactInfoController {
 
     private onWidthResized() {
         this.setArtifactHeadingMaxWidth();
-        this.setArtifactEditorLabelsWidth();
     }
 
     private onLoad = (context: IArtifactInfoContext) => {
@@ -97,19 +94,6 @@ export class BpArtifactInfoController {
             }
         }
     }
-
-    private setArtifactEditorLabelsWidth() {
-        let artifactOverview: Element = document.querySelector(".artifact-overview");
-        if (artifactOverview) {
-            const propertyWidth: number = 392; // MUST match $property-width in styles/partials/_properties.scss
-            let actualWidth: number = artifactOverview.querySelector(".formly") ? artifactOverview.querySelector(".formly").clientWidth : propertyWidth;
-            if (actualWidth < propertyWidth) {
-                artifactOverview.classList.add("single-column");
-            } else {
-                artifactOverview.classList.remove("single-column");
-            }
-        }
-    };
 
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;
@@ -161,6 +145,10 @@ export class BpArtifactInfoController {
     }
 
     public get isReadonly(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isReadOnly;
+        }
         return false;
     }
 
@@ -173,6 +161,10 @@ export class BpArtifactInfoController {
     }
 
     public get isLocked(): boolean {
+        let state = this.stateManager.getState(this._artifact);
+        if (state) {
+            return state.isLocked;
+        }
         return false;
     }
 

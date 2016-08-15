@@ -58,7 +58,7 @@ namespace ArtifactStore.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
-            prm.Add("@artifactIds", DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds));
+            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value"));
             prm.Add("@revisionId", revisionId);
             prm.Add("@addDrafts", addDrafts);
             var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
@@ -77,7 +77,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<bool> IsInstanceAdmin(IEnumerable<int> itemIds, bool contextUser, int sessionUserId)
         {
-            var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
+            var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
@@ -89,7 +89,7 @@ namespace ArtifactStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
-            prm.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
             prm.Add("@revisionId", revisionId);
             prm.Add("@addDrafts", addDrafts);
            return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));

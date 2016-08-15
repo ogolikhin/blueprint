@@ -1,14 +1,14 @@
 ﻿import {
     BpBaseEditor,
     PropertyContext,
-    LookupEnum,
     ILocalizationService,
     IProjectManager,
     IMessageService,
     IStateManager,
-    IWindowResize,
-    ISidebarToggle,
-    Models  } from "./bp-base-editor";
+    IWindowManager,
+    Models,
+    Enums
+} from "./bp-base-editor";
 
 export class BpGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -20,18 +20,16 @@ export class BpGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowResize", "sidebarToggle", "$timeout", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowManager", "projectManager"];
 
     constructor(
         localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowResize: IWindowResize,
-        sidebarToggle: ISidebarToggle,
-        $timeout: ng.ITimeoutService,
+        windowManager: IWindowManager,
         projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, windowResize, sidebarToggle, $timeout, projectManager);
+        super(localization, messageService, stateManager, windowManager, projectManager);
     }
 
     public activeTab: number;
@@ -70,7 +68,7 @@ export class BpGeneralEditorController extends BpBaseEditor {
             field.type = "bpFieldReadOnly";
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
-            } else if (LookupEnum.System === propertyContext.lookup) {
+            } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

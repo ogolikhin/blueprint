@@ -3,8 +3,11 @@ $modal-tour-height: 703px;
   text-align: center;
 
   .modal-dialog {
-    min-height: $modal-tour-height;
-    min-width: #{1000px + (2 * $modal-side-clearance)};
+    height: $modal-tour-height;
+    max-height: 90%;
+    max-width: 90%;
+    width: #{1000px + (2 * $modal-side-clearance)};
+    padding: 0px 0px 0px 0px;
 
     .modal-content {
       border: none;

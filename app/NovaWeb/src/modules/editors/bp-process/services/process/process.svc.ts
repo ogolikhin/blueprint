@@ -1,4 +1,5 @@
 ﻿import {ProcessModels} from "../../";
+import { IMessageService, Message } from "../../../../core";
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
@@ -9,18 +10,21 @@ export class ProcessService implements IProcessService {
     public static $inject = [
         "$http",
         "$q",
+        "messageService",
         "$rootScope"
     ];
     
     constructor(
         private $http: ng.IHttpService,
         private $q: ng.IQService,
+        private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService) {
         
     }
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
-        let deferred = this.$q.defer<ProcessModels.IProcess>();
+        let deferred = this.$q.defer<ProcessModels.IProcess>();        
+        this.messageService.dispose();
         let queryParamData = {
             versionId: isNaN(versionId) ? null : versionId,
             revisionId: isNaN(revisionId) ? null : revisionId,

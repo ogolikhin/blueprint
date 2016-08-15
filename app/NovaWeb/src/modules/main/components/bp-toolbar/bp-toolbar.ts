@@ -48,7 +48,16 @@ class BPToolbarController implements IBPToolbarController {
                 this.projectManager.closeProject(true);
                 break;
             case `deleteartifact`:
-                this.deleteArtifact();
+                this.dialogService.open(<IDialogSettings>{
+                    okButton: this.localization.get("App_Button_Ok"),
+                    template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
+                    header: this.localization.get("App_DialogTitle_Alert"),
+                    message: "Are you sure you would like to delete the artifact"
+                }).then((confirm: boolean) => {
+                    if (confirm) {
+                        this.dialogService.alert("you clicked confirm!");
+                    }
+                })
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

@@ -1,4 +1,4 @@
-import { IProjectManager, Models, ISidebarToggle } from "../..";
+import { IProjectManager, Models, IWindowManager } from "../..";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 import { IMessageService, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
@@ -23,14 +23,14 @@ class PageContentCtrl {
         "diagramService",
         "selectionManager",
         "stateManager",
-        "sidebarToggle"];
+        "windowManager"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private diagramService: IDiagramService,
                 private selectionManager: ISelectionManager,
                 private stateManager: IStateManager,
-                private sidebarToggle: ISidebarToggle) {
+                private windowManager: IWindowManager) {
     }
     public context: IEditorContext = null;
 
@@ -47,7 +47,7 @@ class PageContentCtrl {
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
-            this.sidebarToggle.getAvailableArea.subscribeOnNext(this.onAvailableAreaResized, this)
+            this.windowManager.getAvailableArea.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 

@@ -13,7 +13,7 @@ export interface IAvailableContentArea {
     height: number;
 }
 
-export interface ISidebarToggle {
+export interface IWindowManager {
     areBothSidebarsVisible: Rx.Observable<boolean>;
     isLeftSidebarVisible: Rx.Observable<boolean>;
     isRightSidebarVisible: Rx.Observable<boolean>;
@@ -26,7 +26,7 @@ export interface ISidebarToggle {
     isConfigurationChanged: Rx.Observable<ToggleAction>;
 }
 
-export class SidebarToggle implements ISidebarToggle {
+export class WindowManager implements IWindowManager {
     public static $inject: [string] = ["windowResize"];
 
     private _areBothSidebarsVisible: Rx.BehaviorSubject<boolean>;

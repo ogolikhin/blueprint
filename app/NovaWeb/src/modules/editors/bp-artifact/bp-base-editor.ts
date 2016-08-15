@@ -1,14 +1,14 @@
 import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale, ItemState } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, ISidebarToggle, IAvailableContentArea } from "../../main";
+import { Enums, Models, IWindowManager, IAvailableContentArea } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
-export { ILocalizationService, IProjectManager, IMessageService, IStateManager, ISidebarToggle, Models, Enums }
+export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, Models, Enums }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "projectManager"];
+    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowManager", "projectManager"];
 
     private _subscribers: Rx.IDisposable[];
     public form: angular.IFormController;
@@ -25,7 +25,7 @@ export class BpBaseEditor {
         public localization: ILocalizationService,
         public messageService: IMessageService,
         public stateManager: IStateManager,
-        public sidebarToggle: ISidebarToggle,
+        public windowManager: IWindowManager,
         private projectManager: IProjectManager
     ) {
         this.editor = new PropertyEditor(this.localization.current);
@@ -33,7 +33,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.sidebarToggle.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
+            this.windowManager.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
         ];
     }
 

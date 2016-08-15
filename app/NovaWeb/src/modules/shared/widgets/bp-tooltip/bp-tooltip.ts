@@ -69,8 +69,15 @@ export class BPTooltip implements ng.IDirective {
                 const elem = element[0];
                 // the "- 1" allows some wiggle room in IE, as scrollWidth/Height round to the biggest integer
                 // while offsetWidth/Height to the smallest
+                let compensateWidth: boolean = false;
+                if (Math.abs(elem.offsetWidth - elem.scrollWidth) <= 1) {
+                    let realWidth = window.getComputedStyle(elem).width;
+                    if (Math.abs(parseFloat(realWidth) - parseInt(realWidth, 10)) < 0.5) {
+                        compensateWidth = true;
+                    }
+                }
                 return (elem && (
-                    elem.offsetWidth < elem.scrollWidth - 1 ||
+                    elem.offsetWidth < elem.scrollWidth - (compensateWidth ? 1 : 0) ||
                     elem.offsetHeight < elem.scrollHeight - 1)
                 );
             }

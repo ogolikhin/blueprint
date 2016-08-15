@@ -1,4 +1,4 @@
-﻿import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale } from "../../core";
+import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale, ItemState } from "../../core";
 import { Helper } from "../../shared";
 import { Enums, Models, ISidebarToggle } from "../../main";
 import { IProjectManager} from "../../main";
@@ -7,12 +7,6 @@ import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: a
 
 export { ILocalizationService, IProjectManager, IMessageService, IStateManager, ISidebarToggle, Models, Enums }
 
-export enum LookupEnum {
-    None = 0,
-    System = 1,
-    Custom = 2,
-    Special = 3,
-}
 export class BpBaseEditor {
     public static $inject: [string] = ["localization", "messageService", "stateManager", "sidebarToggle", "projectManager"];
 
@@ -23,6 +17,7 @@ export class BpBaseEditor {
 
     public editor: IPropertyEditor;
     public context: Models.IEditorContext;
+    public artifactState: ItemState;
 
     public isLoading: boolean = true;
 
@@ -62,6 +57,7 @@ export class BpBaseEditor {
         }
         delete this.editor;
         delete this.context;
+        delete this.artifactState;
         delete this.fields;
         delete this.model;
     }
@@ -70,26 +66,10 @@ export class BpBaseEditor {
         this.setArtifactEditorLabelsWidth();
     }
 
-    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        //here we need to update original model
-        let context = $field.data as PropertyContext;
-        if (!context) {
-            return;
-        }
-        if (($scope.fc as angular.IFormController).$valid) {
-            let value = this.editor.convertToModelValue($field, $value);
-            let changeSet: IPropertyChangeSet = {
-                lookup: LookupEnum[context.lookup],
-                id: context.modelPropertyName,
-                value: value
-            };
-            this.stateManager.addChangeSet(this.context.artifact, changeSet);
-        }
-    };
-
     public onLoading(obj: any): boolean  {
         this.fields = [];
-        return !!(this.context && angular.isDefined(this.context.artifact));
+        let result = !!(this.context && angular.isDefined(this.context.artifact));
+        return result;
     }
 
 
@@ -108,10 +88,10 @@ export class BpBaseEditor {
                 return;
             }
             let artifact: Models.IArtifact;
-            let state = this.stateManager.getState(context.artifact.id);
+            this.artifactState = this.stateManager.getState(context.artifact.id);
 
-            if (state) {
-                artifact = state.changedItem;
+            if (this.artifactState) {
+                artifact = this.artifactState.changedItem || this.artifactState.originItem;
             } else {
                 artifact = this.context.artifact;
             }
@@ -129,11 +109,15 @@ export class BpBaseEditor {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                if ((artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
-                    field.type = "bpFieldReadOnly";
-                }               
-
                 this.onFieldUpdate(field);
+
+                if (this.artifactState && this.artifactState.isReadOnly) {
+                    field.type = "bpFieldReadOnly";
+                }
+                if (this.artifactState && this.artifactState.isLocked) {
+                    field.type = "bpFieldReadOnly";
+                }
+
 
 
             });
@@ -143,6 +127,25 @@ export class BpBaseEditor {
 
         this.setArtifactEditorLabelsWidth();
     }
+
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
+        //here we need to update original model
+        let context = $field.data as PropertyContext;
+        if (!context) {
+            return;
+        }
+        if (($scope.fc as angular.IFormController).$valid) {
+            let value = this.editor.convertToModelValue($field, $value);
+            let changeSet: IPropertyChangeSet = {
+                lookup: context.lookup,
+                id: context.modelPropertyName,
+                value: value
+            };
+            this.stateManager.addChange(this.context.artifact, changeSet);
+        }
+    };
+
+
 
     public setArtifactEditorLabelsWidth() {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
@@ -199,19 +202,19 @@ export class PropertyContext implements Models.IPropertyType {
     //extension
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
-    public lookup: LookupEnum;
+    public lookup: Enums.PropertyLookupEnum;
 
 
     constructor(type: Models.IPropertyType) {
         angular.extend(this, type);
         let propertyTypeName: string = Helper.toCamelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
         if (this.isSystem(this.propertyTypePredefined)) {
-            this.lookup = LookupEnum.System;
+            this.lookup = Enums.PropertyLookupEnum.System;
             this.fieldPropertyName = propertyTypeName;
             this.modelPropertyName = propertyTypeName;
         } else if (angular.isUndefined(this.propertyTypePredefined) && angular.isNumber(this.id)) {
-            this.lookup = LookupEnum.Custom;
-            this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
+            this.lookup = Enums.PropertyLookupEnum.Custom;
+            this.fieldPropertyName = `${Enums.PropertyLookupEnum[this.lookup]}_${this.id.toString()}`;
             this.modelPropertyName = this.id;
         }
         //} else {
@@ -238,57 +241,39 @@ export class PropertyEditor implements IPropertyEditor {
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
 
-    constructor(private locale: BPLocale) {
-
-    }
+    constructor(private locale: BPLocale) { }
 
     public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
         if (!field) {
             return null;
         }
         let context = field.data as PropertyContext;
-        if (!context) {
+        if (!context || angular.isUndefined($value)) {
             return null;
         }
 
-        if (angular.isDefined($value)) {
-            switch (context.primitiveType) {
-                case Models.PrimitiveType.Number:
+        switch (context.primitiveType) {
+            case Models.PrimitiveType.Number:
+                return this.locale.toNumber($value);
 
-                    if (!angular.isNumber($value)) {
-                        if (!$value) {
-                            return undefined;
-                        }
-                        return context.decimalPlaces ? parseFloat($value.toString()) : parseInt($value.toString(), 10);
-                    }
-                    break;
-                case Models.PrimitiveType.Date:
-                    if (!angular.isDate($value)) {
-                        if (!$value) {
-                            return undefined;
-                        }
-                        return new Date($value);
-                    }
-                    break;
-                case Models.PrimitiveType.Choice:
-                    if (angular.isArray($value) && $value.length > 0) {
-                        let values = $value.toString().split(",").map((it: string) => {
-                            return parseInt(it, 10);
-                        });
-                        if (values.length >= 1) {
-                            return {
-                                validValueIds: values
-                            };
-                        }
-                    }
+            case Models.PrimitiveType.Date:
+                return this.locale.toDate($value);
+
+            case Models.PrimitiveType.Choice:
+                if (angular.isArray($value)) {
                     return {
-                        validValueIds: []
-                    };
-                default:
-                    break;
-            }
+                        validValueIds : $value.map((it) => { return this.locale.toNumber(it); })
+                    }
+                }
+                return this.locale.toNumber($value);
+
+            case Models.PrimitiveType.User:
+                //TODO: please implement on time of user editor field implementation
+                return $value;
+
+            default:
+                return $value;
         }
-        return $value;
     }
 
     public convertToFieldValue(field: AngularFormly.IFieldConfigurationObject, $value: any): string | number | Date { 
@@ -340,22 +325,21 @@ export class PropertyEditor implements IPropertyEditor {
             properties.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any;
-                    let found: boolean = false;
 
                     //Get property value 
-                    if (propertyContext.lookup === LookupEnum.System) {
+                    if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         if (angular.isDefined(artifact[propertyContext.modelPropertyName])) {
                             modelValue = artifact[propertyContext.modelPropertyName] || null;
                         }
 
-                    } else if (propertyContext.lookup === LookupEnum.Custom && angular.isArray(artifact.customPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifact.customPropertyValues)) {
                         modelValue = artifact.customPropertyValues.filter((value) => {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (modelValue) {
                             modelValue = modelValue.value || null;
                         } 
-                    } else if (propertyContext.lookup === LookupEnum.Special && angular.isArray(artifact.specificPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifact.specificPropertyValues)) {
                         modelValue = artifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
@@ -439,7 +423,7 @@ export class PropertyEditor implements IPropertyEditor {
                     break;
                 case Models.PrimitiveType.Number:
                     field.type = "bpFieldNumber";
-                    field.defaultValue = context.decimalDefaultValue;
+                    field.defaultValue = this.locale.toNumber(context.decimalDefaultValue);
                     if (angular.isNumber(context.minNumber)) {
                         field.templateOptions.min = context.minNumber;
                     }

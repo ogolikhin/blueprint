@@ -57,14 +57,17 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         var modelId = this.model.id.toString();
 
         // initialize origin
-        var originGeometry = new mxGeometry(this.SYSTEM_TASK_WIDTH / 2 - this.ORIGIN_DIAMETER / 2, this.SYSTEM_TASK_HEIGHT, this.ORIGIN_DIAMETER, this.ORIGIN_DIAMETER);
+        var originGeometry = new mxGeometry(this.SYSTEM_TASK_WIDTH / 2 - this.ORIGIN_DIAMETER / 2, 
+                                            this.SYSTEM_TASK_HEIGHT, this.ORIGIN_DIAMETER, this.ORIGIN_DIAMETER);
         originGeometry.relative = false;
-        this.origin = new DiagramNodeElement("O" + modelId, ElementType.SystemTaskOrigin, null, originGeometry, "shape=ellipse;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
+        this.origin = new DiagramNodeElement("O" + modelId, ElementType.SystemTaskOrigin, null, originGeometry, 
+                                             "shape=ellipse;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
         this.origin.setVertex(true);
 
         //initialize call-out
         var calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
-        this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry, "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+        this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry, 
+        "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
         this.callout.setVertex(true);
 
         //initialize header
@@ -74,7 +77,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         }
 
         var headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
-        this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry, "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
+        this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry, 
+        "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
         this.header.setVertex(true);
 
         //initialize body
@@ -84,7 +88,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         }
 
         var bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
-        this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry, "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+        this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry, 
+        "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
         this.bodyCell.setVertex(true);
     }
 
@@ -320,7 +325,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         // shape
         var shapeWidth = this.SYSTEM_TASK_WIDTH;
         var shapeHeight = this.SYSTEM_TASK_HEIGHT + this.ORIGIN_DIAMETER;
-        this.insertVertex(mxGraph, modelId, null, x - shift, y - (shapeHeight / 2) + this.ORIGIN_DIAMETER / 2, shapeWidth, shapeHeight, "shape=systemTask;strokeColor=none;fillColor=none;foldable=0;editable=0");
+        this.insertVertex(mxGraph, modelId, null, x - shift, y - (shapeHeight / 2) + this.ORIGIN_DIAMETER / 2, shapeWidth, shapeHeight, 
+                          "shape=systemTask;strokeColor=none;fillColor=none;foldable=0;editable=0");
 
         // origin
         mxGraph.addCell(this.origin, this);
@@ -383,15 +389,19 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         this.addOverlays(mxGraph);
 
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4, 
+                                   "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4, 
+                                       "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 68, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         // #TODO get license info fron Nova shell
         //if (graph.viewModel.isReadonly && graph.viewModel.licenseType === Shell.LicenseTypeEnum.Viewer) {
         //    this.linkButton.disable();
         //}
-        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 44, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 20, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 44, 4, 
+                                 "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 20, 4, 
+                                  "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
 
         return this;
     }
@@ -416,7 +426,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         }
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(graph, this, null, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_TASK_WIDTH / 2, this.SYSTEM_TASK_HEIGHT / 2);
+        this.addOverlay(graph, this, null, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT, null, 
+                        mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_TASK_WIDTH / 2, this.SYSTEM_TASK_HEIGHT / 2);
     }
 
     public setCellVisible(graph: MxGraph, value: boolean) {

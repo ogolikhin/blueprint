@@ -2,12 +2,12 @@
 import { IArtifactService, ArtifactService } from "./artifact.svc";
 import { IProjectManager, ProjectManager } from "./project-manager";
 import { ISelectionManager, SelectionManager } from "./selection-manager";
-import { ISidebarToggle, SidebarToggle, IAvailableContentArea } from "./sidebar-toggle";
+import { ISidebarToggle, SidebarToggle, IAvailableContentArea, ToggleAction } from "./sidebar-toggle";
 
 export {
     IProjectRepository, ProjectRepository,
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager,
-    ISidebarToggle, SidebarToggle, IAvailableContentArea
+    ISidebarToggle, SidebarToggle, IAvailableContentArea, ToggleAction
 }

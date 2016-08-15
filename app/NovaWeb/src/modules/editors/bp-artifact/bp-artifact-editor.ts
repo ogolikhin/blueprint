@@ -1,13 +1,13 @@
 ﻿import {
     BpBaseEditor,
     PropertyContext,
-    LookupEnum,
     ILocalizationService,
     IProjectManager,
     IMessageService,
     IStateManager,
     ISidebarToggle,
-    Models
+    Models,
+    Enums
 } from "./bp-base-editor";
 import { IArtifactService } from "../../main";
 
@@ -68,6 +68,7 @@ export class BpArtifactEditorController extends BpBaseEditor {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             angular.extend(context.artifact, it);
+            this.stateManager.addChange(context.artifact);
             this.onUpdate(context);
         }).catch((error: any) => {
             //ignore authentication errors here
@@ -88,11 +89,11 @@ export class BpArtifactEditorController extends BpBaseEditor {
         //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);
-        } else if (LookupEnum.System === propertyContext.lookup) {
+        } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {
             this.systemFields.push(field);
-        } else if (LookupEnum.Custom === propertyContext.lookup) {
+        } else if (Enums.PropertyLookupEnum.Custom === propertyContext.lookup) {
             this.customFields.push(field);
-        } else if (LookupEnum.Special === propertyContext.lookup) {
+        } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             
         }
 

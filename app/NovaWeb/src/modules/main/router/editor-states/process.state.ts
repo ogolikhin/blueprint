@@ -1,13 +1,13 @@
 ﻿import {IEditorParameters} from "../artifact.state";
 
-export class StorytellerState implements ng.ui.IState {
-    public template = "<bp-storyteller-editor context='$content.context.artifact.id'></bp-storyteller-editor>";
+export class ProcessState implements ng.ui.IState {
+    public template = "<bp-process-editor context='$content.context.artifact.id'></bp-process-editor>";
     public params: IEditorParameters = { context: null };
-    public controller = "storytellerStateController";
+    public controller = "processStateController";
     public controllerAs = "$content";
 }
 
-export class StorytellerStateController {
+export class ProcessStateController {
     public static $inject = ["$state"];
     public context;
     constructor(private $state: angular.ui.IStateService) {

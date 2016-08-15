@@ -1,5 +1,4 @@
-﻿// References to StorytellerDiagram
-import {IMessageService, Message, MessageType} from "../../../../core";
+﻿import {IMessageService, Message, MessageType} from "../../../../core";
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -8,7 +7,7 @@ import {ProcessGraph} from "./presentation/graph/process-graph";
 import {IDialogManager} from "../dialogs/dialog-manager";
 
 
-export class StorytellerDiagram {
+export class ProcessDiagram {
     public processModel: IProcess;
     public processViewModel: IProcessViewModel = null;
     private graph: IProcessGraph = null;
@@ -38,13 +37,13 @@ export class StorytellerDiagram {
         this.htmlElement = htmlElement;
         let id: string = processId.toString();
 
-        //const storytellerParams = this.bpUrlParsingService.getStateParams();   
+        //const processParams = this.bpUrlParsingService.getStateParams();   
 
         this.processService.load(id //,
-            //storytellerParams.versionId,
-            //storytellerParams.revisionId,
-            //storytellerParams.baselineId,
-            //storytellerParams.readOnly
+            //processParams.versionId,
+            //processParams.revisionId,
+            //processParams.baselineId,
+            //processParams.readOnly
         ).then((process: IProcess) => {
             this.onLoad(process);
             //if (!this.processViewModel.isReadonly) {
@@ -85,7 +84,7 @@ export class StorytellerDiagram {
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
 
-        //if (processViewModel.isReadonly) this.disableStorytellerToolbar();
+        //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 

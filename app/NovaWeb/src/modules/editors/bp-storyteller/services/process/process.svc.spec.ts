@@ -1,6 +1,7 @@
 ﻿import {ProcessService} from "./process.svc";
 import {IProcessService} from "../../";
 import {Models, IArtifactService, ArtifactService} from "../../../../main/";
+import { MessageServiceMock } from "../../../../core/messages/message.mock";
 
 describe("Get process data model from the process model service", () => {
 
@@ -11,6 +12,7 @@ describe("Get process data model from the process model service", () => {
     // Set up the module
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processService", ProcessService);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(inject((

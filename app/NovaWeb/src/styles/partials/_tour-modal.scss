@@ -7,7 +7,7 @@ $modal-tour-height: 703px;
     max-height: 90%;
     max-width: 90%;
     width: #{1000px + (2 * $modal-side-clearance)};
-    padding: 0px 0px 0px 0px;
+    padding: 0;
 
     .modal-content {
       border: none;

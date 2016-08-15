@@ -6,12 +6,13 @@ import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
+formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$timeout"];
 /* tslint:disable */
 export function formlyConfigExtendedFields(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
-    localization: ILocalizationService
+    localization: ILocalizationService,
+    $timeout: ng.ITimeoutService
 ): void {
 /* tslint:enable */
 
@@ -292,6 +293,12 @@ export function formlyConfigExtendedFields(
                     }
                 }
             }
+        },
+        link: function($scope, $element, $attrs) {
+            $timeout(() => {
+                primeValidation($element[0]);
+                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            }, 0);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelectMulti = {};

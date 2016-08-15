@@ -1,11 +1,11 @@
 ﻿import "./bp-glossary";
 import "./bp-artifact";
 import "./bp-diagram";
-import "./bp-storyteller";
+import "./bp-process";
 
 angular.module("bp.editors", [
     "bp.editors.glossary",
     "bp.editors.details",
     "bp.editors.diagram",
-    "bp.editors.storyteller"
+    "bp.editors.process"
 ]);

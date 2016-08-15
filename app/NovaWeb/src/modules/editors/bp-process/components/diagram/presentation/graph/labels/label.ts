@@ -248,7 +248,7 @@ export class Label implements ILabel {
    
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
-            this.div.style.background = "url('/novaweb/static/bp-storyteller/images/pencil.png') no-repeat top right";
+            this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
             this.div.style.borderStyle = "dashed";
             this.div.style.borderWidth = "thin";
             this.div.style.borderColor = "#666";
@@ -284,7 +284,7 @@ export class Label implements ILabel {
 
         this.div = document.createElement("div");
         this.div.id = this.id;
-        this.div.className = "storytellerEditorCustomLabel";
+        this.div.className = "processEditorCustomLabel";
         this.div.style.overflow = "hidden";
         this.div.style.fontFamily = this.style.fontFamily;
         this.div.style.fontSize = this.numberToPx(this.style.fontSize);

@@ -27,7 +27,7 @@ export class BaseModalDialogController<T extends IDialogModel> {
         protected dialogModel: T) {
         this.$scope.dialogModel = dialogModel;
 
-        $rootScope.$on("storytellerUnloadingEvent", (() => {
+        $rootScope.$on("processUnloadingEvent", (() => {
             this.cancel();
         }));
     }

@@ -1,16 +1,14 @@
-﻿// References to StorytellerDiagramDirective
-import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
-import {IProcessService} from "./";
+﻿import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
-import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
+import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 import {IWindowManager, IProjectManager, ToggleAction} from "../../main";
 
-export class BpStorytellerEditor implements ng.IComponentOptions {
-    public template: string = require("./bp-storyteller-editor.html");
-    public controller: Function = BpStorytellerEditorController;
+export class BpProcessEditor implements ng.IComponentOptions {
+    public template: string = require("./bp-process-editor.html");
+    public controller: Function = BpProcessEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         context: "<"
@@ -18,11 +16,11 @@ export class BpStorytellerEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpStorytellerEditorController { //extends BpBaseEditor {
+export class BpProcessEditorController {
 
     private _context: number;
 
-    public storytellerDiagram: StorytellerDiagram;
+    public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
     private _subscribers: Rx.IDisposable[];
@@ -96,7 +94,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
     }
     
     private load(artifactId: number) {
-        this.storytellerDiagram = new StorytellerDiagram(
+        this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
             this.$state,
@@ -110,7 +108,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
        
         let htmlElement = this.getHtmlElement();
          
-        this.storytellerDiagram.createDiagram(artifactId, htmlElement);
+        this.processDiagram.createDiagram(artifactId, htmlElement);
         
     }
 
@@ -123,7 +121,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
          
         let childElements = this.$element.find("div");
         for (let i = 0; i < childElements.length; i++) {
-            if (childElements[i].className.match(/storyteller-graph-container/)) {
+            if (childElements[i].className.match(/process-graph-container/)) {
                 htmlElement = childElements[i];
                 break;
             }
@@ -134,7 +132,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
     }
 
     public onWidthResized(toggleAction: ToggleAction) {
-        if (!!this.storytellerDiagram) {
+        if (!!this.processDiagram) {
             //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
             let deltaX: number;
             switch (toggleAction) {
@@ -149,7 +147,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
                 default:
                     deltaX = 0;
             }
-            this.storytellerDiagram.resize(deltaX);
+            this.processDiagram.resize(deltaX);
         }
     }
     

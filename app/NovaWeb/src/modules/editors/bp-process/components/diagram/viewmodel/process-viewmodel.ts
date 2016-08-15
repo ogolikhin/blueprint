@@ -80,7 +80,7 @@ export class ProcessViewModel implements IProcessViewModel {
         //}
     }
 
-    //public get header(): IStorytellerHeader {
+    //public get header(): IProcessHeader {
     //    return this._header;
     //}
 
@@ -484,7 +484,7 @@ export class ProcessViewModel implements IProcessViewModel {
             this.isSpa = this._scope["isSpa"];
 
             if (this._rootScope) {
-                let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
+                let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
                 } else {

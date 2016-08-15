@@ -75,8 +75,8 @@ describe("Artifact state tests", () => {
             expect(stateSpy).toHaveBeenCalled();
             expect(stateSpy).toHaveBeenCalledWith(expectedRoute, editorParams);
         }
-        it("Storyteller state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.Process, "main.artifact.storyteller");
+        it("Process state change", () => {
+            runStateChangeTest(Enums.ItemTypePredefined.Process, 'main.artifact.process');
         });
 
         it("Glossary state change", () => {

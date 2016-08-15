@@ -153,7 +153,7 @@ export class ShapesFactory {
         var nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
-        // replace "Storyteller_DefaultUserTask_Name" in StringTokens.resx
+        // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
         var tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
@@ -175,7 +175,7 @@ export class ShapesFactory {
         var nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
-        // replace "Storyteller_DefaultSystemTask_Name" in StringTokens.resx
+        // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
         var tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
         var obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape);

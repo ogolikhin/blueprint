@@ -37,12 +37,12 @@ export class SubArtifactEditorModalOpener {
 
             // get read-only status from viewmodel's isReadonly property 
 
-            let viewModel = graph.viewModel; //<IStorytellerViewModel>($scope.$parent["vm"].storytellerDiagram.storytellerViewModel);
+            let viewModel = graph.viewModel; //<IProcessViewModel>($scope.$parent["vm"].processDiagram.processViewModel);
             if (viewModel) {
                 this.isReadonly = viewModel.isReadonly;
                 this.isHistorical = viewModel.isHistorical;
             } else {
-                throw new Error("StorytellerViewModel is null in SubArtifactEditorModalOpener");
+                throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
             }
 
             if (dialogType === ModalDialogType.UserSystemTaskDetailsDialogType) {
@@ -242,7 +242,7 @@ export class SubArtifactEditorModalOpener {
     public cloneArray = (arr: any[]): any[] => {
         return jQuery.extend(true, [], arr);
     }
-
+    // #TODO: templateUrl must be changed
     public open = (size, htmlFileName: string, controllerClassName: string, dialogModel: any, windowClass: string) => {
         this.$uibModal.open(<ModalSettings>{
             animation: this.animationsEnabled,

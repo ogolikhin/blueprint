@@ -6,6 +6,9 @@ import {MergingPoint} from "./merging-point";
 import {ProcessStart} from "./process-start";
 import {ProcessEnd} from "./process-end";
 import {Condition} from "./condition";
+import {DiagramNode} from "./diagram-node";
+import {DiagramNodeElement} from "./diagram-element";
+import {DiagramLink} from "./diagram-link";
 
 export {
     UserTask,
@@ -15,7 +18,10 @@ export {
     MergingPoint,
     ProcessStart,
     ProcessEnd,
-    Condition
+    Condition,
+    DiagramNode,
+    DiagramNodeElement,
+    DiagramLink
 }
 
 

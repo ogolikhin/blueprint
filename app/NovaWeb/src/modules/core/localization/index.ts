@@ -76,7 +76,7 @@ export class BPLocale  {
 
         if (angular.isNumber(fraction)) {
             if (fraction > 0) {
-                expression += "(" + ds + "\\d{1," + fraction.toString() + "})";
+                expression += "(" + ds + "\\d{1," + fraction.toString() + "})?";
             }
         } else {
             expression += "(" + ds + "\\d+)?";

@@ -69,6 +69,19 @@ export function formlyConfigExtendedFields(
         }
     };
 
+    let primeValidation = function(formControl) {
+        let input = formControl.querySelector("input.ng-untouched") as HTMLElement;
+        if (input) {
+            let previousFocusedElement = document.activeElement as HTMLElement;
+            input.focus();
+            if (previousFocusedElement) {
+                previousFocusedElement.focus();
+            } else {
+                input.blur();
+            }
+        }
+    };
+
     formlyConfig.setType({
         name: "bpFieldReadOnly",
         /* tslint:disable */
@@ -169,7 +182,10 @@ export function formlyConfigExtendedFields(
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
+        /*defaultOptions: {
+         },*/
+        link: function($scope, $element, $attrs) {
+            primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {};
@@ -194,7 +210,10 @@ export function formlyConfigExtendedFields(
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
+        /*defaultOptions: {
+         },*/
+        link: function($scope, $element, $attrs) {
+            primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -217,7 +236,10 @@ export function formlyConfigExtendedFields(
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
+        /*defaultOptions: {
+        },*/
+        link: function($scope, $element, $attrs) {
+            primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
@@ -229,7 +251,13 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple ng-model="model[options.key]" ng-disabled="{{to.disabled}}" remove-selected="false" ng-click="bpFieldSelectMulti.scrollIntoView($event)" ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
+                <ui-select
+                    multiple ng-model="model[options.key]"
+                    ng-disabled="{{to.disabled}}"
+                    remove-selected="false"
+                    on-remove="bpFieldSelectMulti.onRemove(fc, options)"
+                    ng-click="bpFieldSelectMulti.scrollIntoView($event)"
+                    ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -295,6 +323,10 @@ export function formlyConfigExtendedFields(
                     target.focus();
                 }
             };
+
+            $scope.bpFieldSelectMulti.onRemove = function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
+                options.validation.show = formControl.$invalid;
+            };
         }]
     });
 
@@ -355,6 +387,9 @@ export function formlyConfigExtendedFields(
                     }
                 }
             }
+        },
+        link: function($scope, $element, $attrs) {
+            primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {};
@@ -494,6 +529,9 @@ export function formlyConfigExtendedFields(
                     }
                 }
             }
+        },
+        link: function($scope, $element, $attrs) {
+            primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldDatepicker = {};

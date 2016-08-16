@@ -1,4 +1,4 @@
-export interface IDialogObservable<T> {
+export interface IModalDialogObservable<T> {
     registerObserver(observer: any): void;
     removeObserver(observer: any): void;
     notifyObservers(...arg: any[]): void;
@@ -6,7 +6,7 @@ export interface IDialogObservable<T> {
 }
 
 
-export class DialogObservable<T> implements IDialogObservable<T> {
+export class ModalDialogObservable<T> implements IModalDialogObservable<T> {
     private _observers: any[];
 
     constructor() {

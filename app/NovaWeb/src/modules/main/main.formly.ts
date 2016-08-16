@@ -226,24 +226,60 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <select
-                    id="{{::id}}"
-                    name="{{::id}}"
+                <ui-select
                     ng-model="model[options.key]"
-                    class="form-control"></select>
+                    ng-disabled="{{to.disabled}}"
+                    remove-selected="false">
+                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
+                    <ui-select-choices
+                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search"
+                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh-delay="0">
+                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        /*defaultOptions: {
-        },*/
+        defaultOptions: {
+            templateOptions: {
+                placeholder: localization.get("Property_Placeholder_Select_Option"),
+                valueProp: "value",
+                labelProp: "name"
+            },
+        },
         link: function($scope, $element, $attrs) {
             primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
+
+            $scope.bpFieldSelect.refreshResults = function ($select) {
+                var search = $select.search,
+                    list = angular.copy($select.items),
+                    FLAG = -1;
+                //remove last user input
+                list = list.filter(function(item) {
+                    return item.value !== FLAG;
+                });
+
+                if (!search) {
+                    //use the predefined list
+                    $select.items = list;
+                }
+                else {
+                    //manually add user input and set selection
+                    var userInputItem = {
+                        value: FLAG,
+                        name: search
+                    };
+                    $select.items = [userInputItem].concat(list);
+                    $select.selected = userInputItem;
+                }
+            };
         }]
     });
 
@@ -252,8 +288,8 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select
-                    multiple ng-model="model[options.key]"
+                <ui-select multiple
+                    ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"

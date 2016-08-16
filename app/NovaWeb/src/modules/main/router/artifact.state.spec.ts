@@ -63,7 +63,7 @@ describe("Artifact state tests", () => {
             let stateSpy = spyOn($state, "go");
 
             // act
-            let artifactStateCtrl = new ArtifactStateController(
+            new ArtifactStateController(
                 $rootScope,
                 $state,
                 projectManager,
@@ -76,7 +76,7 @@ describe("Artifact state tests", () => {
             expect(stateSpy).toHaveBeenCalledWith(expectedRoute, editorParams);
         }
         it("Process state change", () => {
-            runStateChangeTest(Enums.ItemTypePredefined.Process, 'main.artifact.process');
+            runStateChangeTest(Enums.ItemTypePredefined.Process, "main.artifact.process");
         });
 
         it("Glossary state change", () => {

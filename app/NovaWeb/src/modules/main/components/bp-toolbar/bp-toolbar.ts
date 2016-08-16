@@ -56,8 +56,9 @@ class BPToolbarController implements IBPToolbarController {
                 }).then((confirm: boolean) => {
                     if (confirm) {
                         this.dialogService.alert("you clicked confirm!");
-                    }
-                })
+                        this.deleteArtifact();
+                    };
+                });
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

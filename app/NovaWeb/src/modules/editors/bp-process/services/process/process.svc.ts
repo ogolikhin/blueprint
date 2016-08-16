@@ -1,5 +1,5 @@
 ﻿import {ProcessModels} from "../../";
-import { IMessageService, Message } from "../../../../core";
+import { IMessageService } from "../../../../core";
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;

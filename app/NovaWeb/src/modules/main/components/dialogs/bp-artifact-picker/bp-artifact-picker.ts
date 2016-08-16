@@ -22,7 +22,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectName: string;
 
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "selectionManager", "projectRepository", "dialogService", "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "selectionManager", "projectRepository", "dialogService", "settings"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
@@ -31,10 +31,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private selectionManager: ISelectionManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
-        params: IDialogSettings
+        settings: IDialogSettings
     ) {
-        super($uibModalInstance, params);
-        dialogService.params.okButton = "OK";
+        super($uibModalInstance, settings);
+        dialogService.settings.okButton = "OK";
         let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
         if (_project) {
             this.projectId = _project.id;

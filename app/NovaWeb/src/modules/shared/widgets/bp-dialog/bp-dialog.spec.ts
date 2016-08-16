@@ -87,9 +87,9 @@ describe("DialogService", () => {
             dialogService.open(settings);
 
             // Assert
-            expect(dialogService.params.type).toEqual(DialogTypeEnum.Base, "invalid type [" + dialogService.params.type + "]");
-            expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
-            expect(dialogService.params.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.params.cancelButton + "]");
+            expect(dialogService.settings.type).toEqual(DialogTypeEnum.Base, "invalid type [" + dialogService.settings.type + "]");
+            expect(dialogService.settings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.settings.okButton + "]");
+            expect(dialogService.settings.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.settings.cancelButton + "]");
         }));
 
         it("open dialog with settings", inject((dialogService: IDialogService) => {
@@ -106,10 +106,10 @@ describe("DialogService", () => {
             dialogService.open(settings);
 
             // Assert
-            expect(dialogService.params.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
-            expect(dialogService.params.okButton).toEqual("OKAY", "invalid ok button [" + dialogService.params.okButton + "]");
-            expect(dialogService.params.cancelButton).toEqual("CANCEL", "invalid cancel button [" + dialogService.params.cancelButton + "]");
-            expect(dialogService.params.template).toEqual("template", "invalid template [" + dialogService.params.template + "]");
+            expect(dialogService.settings.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.settings.type + "]");
+            expect(dialogService.settings.okButton).toEqual("OKAY", "invalid ok button [" + dialogService.settings.okButton + "]");
+            expect(dialogService.settings.cancelButton).toEqual("CANCEL", "invalid cancel button [" + dialogService.settings.cancelButton + "]");
+            expect(dialogService.settings.template).toEqual("template", "invalid template [" + dialogService.settings.template + "]");
         }));
         it("alert dialog", inject((dialogService: IDialogService) => {
             // Arrange
@@ -119,10 +119,10 @@ describe("DialogService", () => {
             dialogService.alert("MESSAGE");
 
             // Assert
-            expect(dialogService.params.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.params.type + "]");
-            expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
-            expect(dialogService.params.cancelButton).toEqual(null, "invalid cancel button [" + dialogService.params.cancelButton + "]");
-            expect(dialogService.params.message).toEqual("MESSAGE", "invalid message [" + dialogService.params.message + "]");
+            expect(dialogService.settings.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.settings.type + "]");
+            expect(dialogService.settings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.settings.okButton + "]");
+            expect(dialogService.settings.cancelButton).toEqual(null, "invalid cancel button [" + dialogService.settings.cancelButton + "]");
+            expect(dialogService.settings.message).toEqual("MESSAGE", "invalid message [" + dialogService.settings.message + "]");
         }));
         it("alert dialog with header", inject((dialogService: IDialogService) => {
             // Arrange
@@ -132,8 +132,8 @@ describe("DialogService", () => {
             dialogService.alert("MESSAGE", "HEADER");
 
             // Assert
-            expect(dialogService.params.message).toEqual("MESSAGE", "invalid message [" + dialogService.params.message + "]");
-            expect(dialogService.params.header).toEqual("HEADER", "invalid header [" + dialogService.params.header + "]");
+            expect(dialogService.settings.message).toEqual("MESSAGE", "invalid message [" + dialogService.settings.message + "]");
+            expect(dialogService.settings.header).toEqual("HEADER", "invalid header [" + dialogService.settings.header + "]");
         }));
         it("confirm dialog", inject((dialogService: IDialogService) => {
             // Arrange
@@ -143,10 +143,10 @@ describe("DialogService", () => {
             dialogService.confirm("CONFIRM");
 
             // Assert
-            expect(dialogService.params.type).toEqual(DialogTypeEnum.Confirm, "invalid type [" + dialogService.params.type + "]");
-            expect(dialogService.params.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.params.okButton + "]");
-            expect(dialogService.params.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.params.cancelButton + "]");
-            expect(dialogService.params.message).toEqual("CONFIRM", "invalid message [" + dialogService.params.message + "]");
+            expect(dialogService.settings.type).toEqual(DialogTypeEnum.Confirm, "invalid type [" + dialogService.settings.type + "]");
+            expect(dialogService.settings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.settings.okButton + "]");
+            expect(dialogService.settings.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.settings.cancelButton + "]");
+            expect(dialogService.settings.message).toEqual("CONFIRM", "invalid message [" + dialogService.settings.message + "]");
         }));
 
         it("confirm dialog", inject((dialogService: IDialogService) => {
@@ -157,8 +157,8 @@ describe("DialogService", () => {
             dialogService.confirm("CONFIRM", "HEADER");
 
             // Assert
-            expect(dialogService.params.message).toEqual("CONFIRM", "invalid message [" + dialogService.params.message + "]");
-            expect(dialogService.params.header).toEqual("HEADER", "invalid header [" + dialogService.params.header + "]");
+            expect(dialogService.settings.message).toEqual("CONFIRM", "invalid message [" + dialogService.settings.message + "]");
+            expect(dialogService.settings.header).toEqual("HEADER", "invalid header [" + dialogService.settings.header + "]");
         }));
     });
 });

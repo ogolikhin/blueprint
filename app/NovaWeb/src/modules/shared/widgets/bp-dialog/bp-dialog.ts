@@ -20,10 +20,10 @@ export interface IDialogSettings {
 }
 
 export interface IDialogService {
-    open(params: IDialogSettings): ng.IPromise<any>;
+    open(settings: IDialogSettings): ng.IPromise<any>;
     alert(message: string, header?: string): ng.IPromise<any>;
     confirm(message: string, header?: string): ng.IPromise<any>;
-    params: IDialogSettings;
+    settings: IDialogSettings;
 }
 
 export class DialogService implements IDialogService {
@@ -32,9 +32,9 @@ export class DialogService implements IDialogService {
 
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) { }
 
-    public params: IDialogSettings = {};
+    public settings: IDialogSettings = {};
 
-    private defaultParams: IDialogSettings = {
+    private defaultSettings: IDialogSettings = {
         type: DialogTypeEnum.Base,
         cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
         okButton: this.localization.get("App_Button_Ok", "Ok"),
@@ -42,20 +42,20 @@ export class DialogService implements IDialogService {
         controller: BaseDialogController
     };
 
-    private initialize(params: IDialogSettings) {
-        params = this.params = angular.extend({}, this.defaultParams, params);
+    private initialize(settings: IDialogSettings) {
+        this.settings = angular.extend({}, this.defaultSettings, settings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
         var settings = <ng.ui.bootstrap.IModalSettings>{
-            template: this.params.template,
-            controller: this.params.controller,
+            template: this.settings.template,
+            controller: this.settings.controller,
             controllerAs: "$ctrl",
-            windowClass: this.params.css || "nova-messaging",
-            backdrop: this.params.backdrop || false,
+            windowClass: this.settings.css || "nova-messaging",
+            backdrop: this.settings.backdrop || false,
             resolve: {
-                params: () => {
-                    return this.params;
+                settings: () => {
+                    return this.settings;
                 }
             }
         };
@@ -64,11 +64,11 @@ export class DialogService implements IDialogService {
     };
 
     public get type(): DialogTypeEnum {
-        return this.params.type;
+        return this.settings.type;
     }
 
-    public open(params?: IDialogSettings): ng.IPromise<any> {
-        this.initialize(params || this.params);
+    public open(settings?: IDialogSettings): ng.IPromise<any> {
+        this.initialize(settings || this.settings);
         return this.openInternal().result;
     }
 
@@ -110,8 +110,8 @@ export class BaseDialogController implements IDialogController {
 
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 
-    static $inject = ["$uibModalInstance", "params"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogSettings) {
+    static $inject = ["$uibModalInstance", "settings"];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private settings: IDialogSettings) {
         this.$instance = $uibModalInstance;
     }
 
@@ -128,7 +128,7 @@ export class DialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
 
-    public open(params: IDialogSettings): ng.IPromise<any> {
+    public open(settings: IDialogSettings): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
@@ -143,7 +143,7 @@ export class DialogServiceMock implements IDialogService {
         deferred.resolve(true);
         return deferred.promise;
     }
-    public params: IDialogSettings = {
+    public settings: IDialogSettings = {
         type: DialogTypeEnum.Base,
         header: "test",
         message: "test",

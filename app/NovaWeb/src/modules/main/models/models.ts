@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, TraceType, TraceDirection } from "./enums";
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -70,6 +70,7 @@ export interface IArtifact extends IItem {
     lockedDateTime?: Date;
 
     permissions?: RolePermissions;
+    readOnlyReuseSettings?: ReuseSettings;
 
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
@@ -124,6 +125,7 @@ export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;
+    isReuseReadOnly?: boolean;
     value: any;
 }
 
@@ -164,6 +166,9 @@ export class Project implements IProject {
         return this.id;
     }
 
+    public get prefix(): string {
+        return "PR";
+    }
     public get parentId(): number {
         return -1;
     }

@@ -7,7 +7,6 @@ import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../process-graph-constants";
-import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("ProcessStart test", () => {
     var shapesFactory: ShapesFactory;

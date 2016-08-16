@@ -1,9 +1,7 @@
 ﻿import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
-import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
-import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
+import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
 import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";

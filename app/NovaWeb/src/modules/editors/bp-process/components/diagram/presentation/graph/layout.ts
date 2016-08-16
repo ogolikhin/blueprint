@@ -51,21 +51,21 @@ export class Layout implements ILayout {
  
 
     // TODO: Find a better way of recording the debug information
-    private dumpDebugInformation(): void {
-        if (window.console && console.log) {
-            for (let s of this.viewmodel.shapes) {
-                console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-            }
+    //private dumpDebugInformation(): void {
+    //    if (window.console && console.log) {
+    //        for (let s of this.viewmodel.shapes) {
+    //            console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
+    //        }
 
-            for (let l of this.viewmodel.links) {
-                console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-            }
+    //        for (let l of this.viewmodel.links) {
+    //            console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
+    //        }
 
-            for (let b of this.viewmodel.decisionBranchDestinationLinks) {
-                console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-            }
-        }
-    }
+    //        for (let b of this.viewmodel.decisionBranchDestinationLinks) {
+    //            console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
+    //        }
+    //    }
+    //}
 
     public render(useAutolayout: boolean, selectedNodeId: number) {
         var graphModel: MxGraphModel = this.mxgraph.getModel();
@@ -91,7 +91,7 @@ export class Layout implements ILayout {
                 }
             }
 
-            this.dumpDebugInformation();
+            //this.dumpDebugInformation();
         }
 
         // collect links with same destinations
@@ -168,29 +168,29 @@ export class Layout implements ILayout {
             this.logError(e);
         }
         finally {
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("Before endUpdate: " + (Date.now() - tS));
-                tS = Date.now();
-            }
+            //if (window.console != null) {
+            //    ////// profiling
+            //    window.console.log("Before endUpdate: " + (Date.now() - tS));
+            //    tS = Date.now();
+            //}
             graphModel.endUpdate();
 
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("endUpdate: " + (Date.now() - tS));
-                tS = Date.now();
-            }
+            //if (window.console != null) {
+            //    ////// profiling
+            //    window.console.log("endUpdate: " + (Date.now() - tS));
+            //    tS = Date.now();
+            //}
             for (i in this.viewmodel.shapes) {
                 var thisShape: IProcessShape = this.viewmodel.shapes[i];
                 var thisNode = this.processGraph.getNodeById(thisShape.id.toString());
                 thisNode.renderLabels();
             }
 
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("renderLabels: " + (Date.now() - tS));
-                tS = Date.now();
-            }
+            //if (window.console != null) {
+            //    ////// profiling
+            //    window.console.log("renderLabels: " + (Date.now() - tS));
+            //    tS = Date.now();
+            //}
 
             let edges: DiagramLink[] = this.mxgraph.getChildEdges(this.mxgraph.getDefaultParent());
             for (let thisEdge of edges) {
@@ -216,10 +216,10 @@ export class Layout implements ILayout {
 
             setTimeout(() => this.processGraph.updateAfterRender(), 100);
 
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("The rest: " + (Date.now() - tS));
-            }
+            //if (window.console != null) {
+            //    ////// profiling
+            //    window.console.log("The rest: " + (Date.now() - tS));
+            //}
         }
 
         if (selectedNodeId) {

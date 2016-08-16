@@ -40,7 +40,7 @@ export interface ISelectionListener {
 }
 
 export interface INotifyModelChanged {
-    (nodeChange: NodeChange, selectedId: number): void
+    (nodeChange: NodeChange, selectedId: number): void;
 }
 
 export interface ILinkFilter {

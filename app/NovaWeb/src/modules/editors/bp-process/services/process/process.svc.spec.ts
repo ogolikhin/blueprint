@@ -1,5 +1,4 @@
 ﻿import {ProcessService, IProcessService} from "./process.svc";
-import {Models, IArtifactService, ArtifactService} from "../../../../main/";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
 
 describe("Get process data model from the process model service", () => {

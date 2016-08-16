@@ -1,0 +1,36 @@
+﻿.collapsed {
+    .show-less {
+        display: none;
+    }
+
+    .show-more {
+        display: block;
+    }
+
+    height: 50px;
+    overflow: hidden !important;
+    margin-bottom: 25px;
+}
+
+.show-more {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    padding-bottom: 20px;
+    color: $blue-light;
+
+    span {
+        /*padding-top:30px;
+            background-image: linear-gradient(to top, rgba(255,255,255,1), rgba(255,0,0,0));*/
+        cursor: pointer;
+    }
+}
+
+.show-less {
+    display: block;
+    color: $blue-light;
+
+    span {
+        cursor: pointer;
+    }
+}

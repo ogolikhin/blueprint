@@ -69,7 +69,7 @@ angular.module("app.shell",
     .component("error", new ErrorComponent())    
     .config(Logger)
     .config(Routes)
-    .config(initializeInterceptors);
+    .config(initializeInterceptors)
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("sessionTokenInterceptor");

@@ -1,6 +1,0 @@
-﻿<ul class="nova-breadcrumbs" ng-show="vm.breadcrumbService.artifactPathLinks && vm.breadcrumbService.artifactPathLinks.length > 1">
-    <li ng-repeat="artRef in vm.breadcrumbService.artifactPathLinks">
-        <a ng-if="!!artRef.link" ng-click="vm.navigateToBreadcrumb(artRef.link)">{{artRef.name}}</a>
-        <a ng-if="!artRef.link" class="nova-breadcrumbs-inaccessible">{{artRef.name}}</a>
-    </li>
-</ul>

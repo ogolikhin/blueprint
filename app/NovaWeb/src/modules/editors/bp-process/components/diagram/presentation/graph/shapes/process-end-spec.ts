@@ -1,4 +1,4 @@
-﻿import {ProcessStart} from "./";
+﻿import {ProcessEnd} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessModel, ProcessShapeModel} from "../../../../../models/processModels";
@@ -8,7 +8,7 @@ import {ProcessServiceMock} from "../../../../../services/process/process.svc.mo
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../process-graph-constants";
 
-describe("ProcessStart test", () => {
+describe("ProcessEnd test", () => {
     var shapesFactory: ShapesFactory;
     var localScope, rootScope, wrapper, container;
 
@@ -31,11 +31,11 @@ describe("ProcessStart test", () => {
     }));
 
 
-    it("Test ProcessStart class", () => {
+    it("Test ProcessEnd class", () => {
         // Arrange
         var testModel = new ProcessShapeModel(30);
         testModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
-        testModel.propertyValues["clientType"].value = ProcessShapeType.Start;
+        testModel.propertyValues["clientType"].value = ProcessShapeType.End;
         testModel.propertyValues["x"].value = 0;
 
         let processModel = new ProcessModel();
@@ -45,10 +45,10 @@ describe("ProcessStart test", () => {
         // Act
         var graph = new ProcessGraph(rootScope, localScope, container, this.processModelService, viewModel);
 
-        var node = new ProcessStart(testModel);
+        var node = new ProcessEnd(testModel);
         node.render(graph, 30, 30, false);
 
         //Assert
-        expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessStart);
+        expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessEnd);
     });
 });

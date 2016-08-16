@@ -1,4 +1,4 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../../../core/";
+﻿import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/processModels";
 import {SourcesAndDestinations} from "../../../../models/processModels";
 import {ProcessShapeType} from "../../../../models/enums";
@@ -353,7 +353,7 @@ export class ProcessGraph implements IProcessGraph {
         }
     };
 
-    private subscribeToToolbarEvents() {
+    /*private subscribeToToolbarEvents() {
         // subscribe to toolbar commands using the event bus 
 
         // Note:the event bus is implemented as a decorator to the 
@@ -400,7 +400,7 @@ export class ProcessGraph implements IProcessGraph {
                 })
             );
         }
-    }
+    }*/
 
     private removeToolbarEventListeners() {
 

@@ -108,7 +108,11 @@ export class Connector {
             hasOverlay = false;
         }
 
-        if ((source.getNodeType() === NodeType.UserDecision || source.getNodeType() === NodeType.SystemDecision) && source.getX() < target.getX() && source.getY() < target.getY()) {
+        if ((source.getNodeType() === NodeType.UserDecision ||
+            source.getNodeType() === NodeType.SystemDecision) &&
+            source.getX() < target.getX() &&
+            source.getY() < target.getY()
+        ) {
             style += ";edgeStyle=" + CS_VERTICAL;
         } else if (source.getX() < target.getX()) {
             style += ";edgeStyle=" + CS_RIGHT;

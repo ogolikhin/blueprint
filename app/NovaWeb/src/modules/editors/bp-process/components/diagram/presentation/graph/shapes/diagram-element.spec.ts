@@ -5,14 +5,6 @@ import {ProcessShapeModel} from "../../../../../models/processModels";
 import {ShapesFactory} from "./shapes-factory";
 
 describe("DiagramElement", () => {
-    let root = {
-        config: {
-            labels: {
-                "ST_Settings_Label": "Settings",
-                "ST_Userstory_Label": "User Story"
-            }
-        }
-    };
     it("should return type passed in the constructor", () => {
         // Arrange
         let id = "123";

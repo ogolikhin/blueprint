@@ -67,7 +67,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         //initialize call-out
         var calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
         this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry, 
-        "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+            "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
+            " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
         this.callout.setVertex(true);
 
         //initialize header
@@ -89,7 +90,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         var bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
         this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry, 
-        "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+            "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
+            "foldable=0;shadow=0;editable=0;selectable=0");
         this.bodyCell.setVertex(true);
     }
 
@@ -385,7 +387,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         cell = mxGraph.addCell(this.bodyCell, this.callout);
 
         // footer
-        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 0.5, this.SYSTEM_TASK_HEIGHT - 34.5, this.SYSTEM_TASK_WIDTH - 1, 24, "shape=rectangle;foldable=0;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;selectable=0");
+        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 0.5, this.SYSTEM_TASK_HEIGHT - 34.5, this.SYSTEM_TASK_WIDTH - 1, 24,
+            "shape=rectangle;foldable=0;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;selectable=0");
 
         this.addOverlays(mxGraph);
 

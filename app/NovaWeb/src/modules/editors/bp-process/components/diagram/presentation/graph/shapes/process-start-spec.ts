@@ -32,7 +32,7 @@ describe("ProcessStart test", () => {
     }));
 
 
-    fit("Test ProcessStart class", () => {
+    it("Test ProcessStart class", () => {
         // Arrange
         var testModel = new ProcessShapeModel(30);
         testModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();

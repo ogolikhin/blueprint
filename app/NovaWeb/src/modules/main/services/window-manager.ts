@@ -52,7 +52,7 @@ export class WindowManager implements IWindowManager {
             this._toggleObserver = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.attributeName === "class") {
-                        if(
+                        if (
                             this._isLeftSidebarOpen !== sidebarWrapper.classList.contains("left-panel-visible") ||
                             this._isRightSidebarOpen !== sidebarWrapper.classList.contains("right-panel-visible")
                         ) {
@@ -129,7 +129,7 @@ export class WindowManager implements IWindowManager {
 
     private onBrowserResize() {
         this._causeOfChange = ResizeCause.browserResize;
-        this.onWindowResize()
+        this.onWindowResize();
     }
 
     private onWindowResize() {

@@ -2,7 +2,7 @@
 import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
+import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {StorytellerDiagram} from "./components/diagram/storyteller-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
@@ -31,7 +31,7 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
     public static $inject: [string] = [
         "$rootScope",
         "$scope",
-        "$element", 
+        "$element",
         "$state",
         "$q",
         "$log",
@@ -39,11 +39,10 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         "selectionManager",
         "$uibModal",
         "localization",
-        "messageService", 
-        "stateManager", 
-        "windowResize", 
+        "messageService",
+        "stateManager",
         "windowManager",
-        "$timeout", 
+        "$timeout",
         "projectManager"
     ];
 
@@ -60,12 +59,11 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private stateManager: IStateManager,
-        private windowResize: IWindowResize,
         private windowManager: IWindowManager,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-       // super(localization, messageService, stateManager, windowResize, windowManager, $timeout, projectManager);
+       // super(localization, messageService, stateManager, windowManager, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
@@ -143,8 +141,10 @@ export class BpStorytellerEditorController { //extends BpBaseEditor {
         ) {
             //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
             let deltaX: number = mainWindow.contentWidth - this.contentAreaWidth;
+            this.contentAreaWidth = mainWindow.contentWidth;
             this.storytellerDiagram.resize(deltaX);
         }
+
     }
-    
+
 }

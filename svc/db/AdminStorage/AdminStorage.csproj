@@ -87,7 +87,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
-	<Content Include="Migration\7.2.0.0\7.2.0.0.sql">
+    <Content Include="Migration\7.2.0.0\7.2.0.0.sql">
       <DependentUpon>7.2.0.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -105,6 +105,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.3.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\7.3.0.0\ModifyAutogrowth.sql" />
     <Content Include="Procedures.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

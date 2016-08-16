@@ -86,7 +86,7 @@ describe("DialogManager test", () => {
         dm.registerSetGraphObserver(observer1.setGraph);
         dm.registerSetGraphObserver(observer2.setGraph);
 
-        dm.removeSetGraphObserver(observer1.setGraph)
+        dm.removeSetGraphObserver(observer1.setGraph);
 
         // Act
         dm.setGraph(1);

@@ -65,11 +65,11 @@ angular.module("app.shell",
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
-    .component("bpCommentEdit", new BPCommentEdit())   
-    .component("error", new ErrorComponent())    
+    .component("bpCommentEdit", new BPCommentEdit())
+    .component("error", new ErrorComponent())
     .config(Logger)
     .config(Routes)
-    .config(initializeInterceptors)
+    .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("sessionTokenInterceptor");

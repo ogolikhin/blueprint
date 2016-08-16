@@ -37,6 +37,8 @@
         });
 
         $scope.$on("$destroy", () => {
+            showMore[0].removeEventListener("click", showMoreClick);
+            showLess[0].removeEventListener("click", showLessClick);
             showMore = null;
             showLess = null;
             showLessClick = null;

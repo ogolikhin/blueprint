@@ -6,7 +6,7 @@ import {IProcessGraph, ILayout} from "./process-graph-interfaces";
 import {INotifyModelChanged, IConditionContext} from "./process-graph-interfaces";
 import {ICondition, IScopeContext, IStopTraversalCondition} from "./process-graph-interfaces";
 import {ISelectionListener, INextIdsProvider} from "./process-graph-interfaces";
-import {IIconRackSelectionListener, IIconRackListener} from "./process-graph-interfaces";
+import {IIconRackListener} from "./process-graph-interfaces";
 import {IOverlayHandler, IShapeInformation} from "./process-graph-interfaces";
 import {IDiagramNode, IDiagramNodeElement} from "./process-graph-interfaces";
 import {NodeType, NodeChange} from "./process-graph-constants";

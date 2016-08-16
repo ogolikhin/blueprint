@@ -146,7 +146,7 @@ export class ShapeModelMock {
         return angular.copy(this.sampleUserTask);
     }
     public SystemTaskMock(): ISystemTaskShape {
-        return angular.copy(this.sampleSystemTask)
+        return angular.copy(this.sampleSystemTask);
     }
 
     public SystemDecisionmock(): IProcessShape {

@@ -9,7 +9,7 @@ import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../process-graph-constants";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 
-fdescribe("ProcessEnd test", () => {
+describe("ProcessEnd test", () => {
     var shapesFactory: ShapesFactory;
     var localScope, rootScope, wrapper, container;
 

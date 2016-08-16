@@ -1,29 +1,48 @@
 .spin {
-  -webkit-animation: spin 1.5s infinite linear;
   -moz-animation: spin 1.5s infinite linear;
   -o-animation: spin 1.5s infinite linear;
+  -webkit-animation: spin 1.5s infinite linear;
   animation: spin 1.5s infinite linear;
+  animation-delay: .5s;
+  -ms-transform-origin: 50% 50%; // IE 9
   -webkit-transform-origin: 50% 50%;
-  transform-origin:50% 50%;
-  -ms-transform-origin:50% 50%; /* IE 9 */
+  transform-origin: 50% 50%;
+  visibility: hidden;
 }
 
 @-moz-keyframes spin {
-  from { -moz-transform: rotate(0deg); }
+  from {
+    -moz-transform: rotate(0deg);
+    visibility: visible;
+  }
 
-  to { -moz-transform: rotate(360deg); }
+  to {
+    -moz-transform: rotate(360deg);
+    visibility: visible;
+  }
 }
 
 @-webkit-keyframes spin {
-  from { -webkit-transform: rotate(0deg); }
+  from {
+    -webkit-transform: rotate(0deg);
+    visibility: visible;
+  }
 
-  to { -webkit-transform: rotate(360deg); }
+  to { -webkit-transform: rotate(360deg);
+    visibility: visible;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+    visibility: visible;
+  }
 
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+    visibility: visible;
+  }
 }
 
 @-moz-keyframes fadeIn {

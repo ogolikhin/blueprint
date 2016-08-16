@@ -1,5 +1,5 @@
 ﻿// References to StorytellerDiagramDirective
-import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
+//import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";

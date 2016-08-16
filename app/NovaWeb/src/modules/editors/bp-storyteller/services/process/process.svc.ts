@@ -1,4 +1,5 @@
-﻿import {ProcessModels} from "../../";
+﻿import * as ProcessModels from "../../models/processModels";
+export {ProcessModels}
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;

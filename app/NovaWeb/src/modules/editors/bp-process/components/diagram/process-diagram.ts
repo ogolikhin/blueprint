@@ -26,9 +26,7 @@ export class ProcessDiagram {
 
         this.processModel = null;
     }
-
-    public debugInformation: string;
-
+ 
     public createDiagram(processId: number, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
@@ -77,9 +75,7 @@ export class ProcessDiagram {
         this.resetBeforeLoad();
         
         this.processModel = process;
-
-        this.debugInformation = "PROCESS LOADED";
-        this.dumpDebugInformation(this.processModel);
+        
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
@@ -141,33 +137,6 @@ export class ProcessDiagram {
         if (this.processViewModel != null) {
             this.processViewModel.destroy();
             this.processViewModel = null;
-        }
-    }
-
-    private dumpDebugInformation(model: IProcess): void {
-        if (window.console && console.log) {
-            //let output:string[] = [];
-            if (model.shapes) {
-                for (let s of model.shapes) {
-                    console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                    //output.push(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                }
-            }
-
-            if (model.links) {
-                for (let l of model.links) {
-                    console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                    //output.push(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                }
-            }
-
-            if (model.decisionBranchDestinationLinks) {
-                for (let b of model.decisionBranchDestinationLinks) {
-                    console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                    //output.push(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                }
-            }
-            //this.debugInformation = output;//.join("<br>");
         }
     }
 

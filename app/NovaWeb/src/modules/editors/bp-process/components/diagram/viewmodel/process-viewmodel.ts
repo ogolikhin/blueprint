@@ -212,13 +212,13 @@ export class ProcessViewModel implements IProcessViewModel {
         //}
     }
 
-    private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
-        if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
-            return null;
-        }
+    //private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
+    //    if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
+    //        return null;
+    //    }
 
-        return process.propertyValues[propertyName].value;
-    }
+    //    return process.propertyValues[propertyName].value;
+    //}
 
     public get isUserToSystemProcess(): boolean {
         return this.propertyValues["clientType"].value === ProcessEnums.ProcessType.UserToSystemProcess;

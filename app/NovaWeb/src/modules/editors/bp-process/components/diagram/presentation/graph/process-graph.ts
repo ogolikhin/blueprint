@@ -16,10 +16,7 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 import {Layout} from "./layout";
 import {ConnectorStyles} from "./shapes/connector-styles";
 import {NodeShapes} from "./shapes/node-shapes";
-import {DiagramNode} from "./shapes/diagram-node";
-import {DiagramLink} from "./shapes/diagram-link";
-import {SystemTask} from "./shapes/system-task";
-import {SystemDecision} from "./shapes/system-decision";
+import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 
 

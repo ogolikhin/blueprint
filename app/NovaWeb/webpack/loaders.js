@@ -4,7 +4,7 @@ module.exports = [
     {
         test: /\.ts(x?)$/,
         exclude: [
-           path.resolve(__dirname, '../src/modules/storyteller')
+           
         ],
         loader: 'ts-loader'
     },     {

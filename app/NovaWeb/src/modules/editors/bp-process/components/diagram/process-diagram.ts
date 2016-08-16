@@ -144,33 +144,6 @@ export class ProcessDiagram {
         }
     }
 
-    private dumpDebugInformation(model: IProcess): void {
-        if (window.console && console.log) {
-            //let output:string[] = [];
-            if (model.shapes) {
-                for (let s of model.shapes) {
-                    console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                    //output.push(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                }
-            }
-
-            if (model.links) {
-                for (let l of model.links) {
-                    console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                    //output.push(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                }
-            }
-
-            if (model.decisionBranchDestinationLinks) {
-                for (let b of model.decisionBranchDestinationLinks) {
-                    console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                    //output.push(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                }
-            }
-            //this.debugInformation = output;//.join("<br>");
-        }
-    }
-
     private handleInitProcessGraphFailed(processId: number, err: any) {
         this.messageService.addMessage(new Message(
             MessageType.Error, "There was an error initializing the process graph."));

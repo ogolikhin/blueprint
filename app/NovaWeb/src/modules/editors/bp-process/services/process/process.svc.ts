@@ -1,4 +1,4 @@
-﻿import * as ProcessModels from "../../models/processModels";
+import * as ProcessModels from "../../models/processModels";
 import { IMessageService } from "../../../../core";
 export { ProcessModels }
 

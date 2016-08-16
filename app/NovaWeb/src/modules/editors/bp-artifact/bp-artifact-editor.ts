@@ -1,5 +1,5 @@
 import { ILocalizationService, IMessageService, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
-import { IProjectManager, IAvailableContentArea, IWindowManager, Enums, Models} from "../../main";
+import { IProjectManager, IWindowManager, Enums, Models} from "../../main";
 
 import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";
@@ -31,10 +31,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.editor = new PropertyEditor(this.localization.current);
     }
 
-    public $onInit() {
-        super.$onInit();
-        this._subscribers.push(this.windowManager.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
-    }
 
     public $onChanges(obj: any) {
         try {
@@ -132,21 +128,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         }
     };
 
-    public setArtifactEditorLabelsWidth(contentArea?: IAvailableContentArea) {
-        // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
-
-        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
-        if (pageBodyWrapper) {
-            let avaliableWidth: number = contentArea ? contentArea.width : pageBodyWrapper.offsetWidth;
-
-            if (avaliableWidth < minimumWidth) {
-                pageBodyWrapper.classList.add("single-column-property");
-            } else {
-                pageBodyWrapper.classList.remove("single-column-property");
-            }
-        }
-    };
 }
 
 

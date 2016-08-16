@@ -21,7 +21,7 @@ bp-sidebar-layout {
       margin-left: 0;
 
       .sidebar-toggle {
-        color: $white;
+        //color: $white;
         right: -4px;
         transition-duration: .01s;
       }
@@ -33,7 +33,7 @@ bp-sidebar-layout {
       margin-right: 0;
 
       .sidebar-toggle {
-        color: $white;
+        //color: $white;
         left: -3px;
         transition-duration: .01s;
       }
@@ -62,16 +62,21 @@ bp-sidebar-layout {
     }
 
     .sidebar-toggle {
-      color: $brand-secondary;
-      cursor: pointer;
+      //color: $brand-secondary;
+      //cursor: pointer;
+      outline: none;
       position: absolute;
       top: 12px;
       transition-duration: .4s;
       transition-property: color, left, right;
       transition-timing-function: steps(1, end);
 
-      &:hover {
-        text-decoration: none;
+      &.is-active {
+        .hamburger-inner,
+        .hamburger-inner::before,
+        .hamburger-inner::after {
+          background-color: $white;
+        }
       }
     }
 

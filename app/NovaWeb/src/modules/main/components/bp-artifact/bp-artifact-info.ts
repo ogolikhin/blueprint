@@ -1,4 +1,4 @@
-﻿import { Models, Enums, IProjectManager, IWindowManager } from "../..";
+﻿import { Models, Enums, IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../..";
 import { ILocalizationService, IStateManager } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -40,7 +40,7 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         this._subscribers = [
-            this.windowManager.isWidthChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
         ];
     }
 
@@ -63,37 +63,35 @@ export class BpArtifactInfoController {
     //    this._isArtifactChanged = item.isChanged;
     //}
 
-    private onWidthResized() {
-        this.setArtifactHeadingMaxWidth();
+    private onWidthResized(mainWindow: IMainWindow) {
+        if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
+            let sidebarWrapper: Element;
+            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            let sidebarsWidth: number = 20 * 2; // main content area padding
+            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+            if (sidebarWrapper) {
+                for (let c = 0; c < sidebarWrapper.classList.length; c++) {
+                    if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
+                        sidebarsWidth += sidebarSize;
+                    }
+                }
+            }
+            if (this.$element.length) {
+                let container: HTMLElement = this.$element[0];
+                let toolbar: Element = container.querySelector(".page-top-toolbar");
+                let heading: Element = container.querySelector(".artifact-heading");
+                if (heading && toolbar) {
+                    angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
+                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
+                }
+            }
+        }
     }
 
     private onLoad = (context: IArtifactInfoContext) => {
         this._artifact = context ? context.artifact : null;
         this._artifactType = context ? context.type : null;
     };
-
-    private setArtifactHeadingMaxWidth() {
-        let sidebarWrapper: Element;
-        const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
-        let sidebarsWidth: number = 20 * 2; // main content area padding
-        sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-        if (sidebarWrapper) {
-            for (let c = 0; c < sidebarWrapper.classList.length; c++) {
-                if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
-                    sidebarsWidth += sidebarSize;
-                }
-            }
-        }
-        if (this.$element.length) {
-            let container: HTMLElement = this.$element[0];
-            let toolbar: Element = container.querySelector(".page-top-toolbar");
-            let heading: Element = container.querySelector(".artifact-heading");
-            if (heading && toolbar) {
-                angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
-                    "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
-            }
-        }
-    }
 
     public get artifactName(): string {
         return this._artifact ? this._artifact.name : null;

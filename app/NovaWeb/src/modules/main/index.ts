@@ -21,7 +21,7 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction } from "./services/";
+    IWindowManager, WindowManager, IMainWindow, ResizeCause } from "./services/";
 import { ISelectionManager, SelectionManager, ISelection } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -40,7 +40,7 @@ import {DetailsStateController} from "./router/editor-states/details.state";
 import {DiagramStateController} from "./router/editor-states/diagram.state";
 import {GeneralStateController} from "./router/editor-states/general.state";
 import {GlossaryStateController} from "./router/editor-states/glossary.state";
-import {StorytellerStateController} from "./router/editor-states/storyteller.state"; 
+import {ProcessStateController} from "./router/editor-states/process.state"; 
 
 import {Routes} from "./router/router.config";
 
@@ -53,7 +53,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection,
-    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction
+    IWindowManager, WindowManager, IMainWindow, ResizeCause
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
@@ -116,6 +116,6 @@ angular.module("app.main", [
     .controller("detailsStateController", DetailsStateController)
     .controller("diagramStateController", DiagramStateController)
     .controller("glossaryStateController", GlossaryStateController)
-    .controller("storytellerStateController", StorytellerStateController)
+    .controller("processStateController", ProcessStateController)
     .config(Routes)
     .run(formlyConfigExtendedFields);

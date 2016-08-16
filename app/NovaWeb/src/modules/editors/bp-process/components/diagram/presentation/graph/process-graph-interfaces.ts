@@ -4,7 +4,6 @@ import {Direction, NodeType, NodeChange, ElementType} from "./process-graph-cons
 import {IDialogParams} from "../../../messages/message-dialog";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../dialogs/modal-dialog-constants";
-import {IconRackHelper} from "./shapes/icon-rack-helper";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -25,14 +24,6 @@ export interface IMouseEventHandler {
 
 export interface IOverlayHandler {
     updateOverlay(graph: MxGraph);
-}
-
-export interface IIconRackListener {
-    (element: IProcessShape): void;
-}
-
-export interface IIconRackSelectionListener {
-    (elements: Array<IProcessShape>): void;
 }
 
 export interface ISelectionListener {
@@ -101,7 +92,6 @@ export interface IProcessGraph {
     layout: ILayout;
     startNode: IDiagramNode;
     endNode: IDiagramNode;
-    iconRackHelper: IconRackHelper;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;

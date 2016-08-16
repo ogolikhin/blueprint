@@ -1,5 +1,5 @@
 ﻿import {
-    BpBaseEditor,
+    BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
     IProjectManager,
@@ -8,28 +8,28 @@
     IWindowManager,
     Models,
     Enums
-} from "./bp-base-editor";
+} from "./bp-artifact-editor";
 
-export class BpGeneralEditor implements ng.IComponentOptions {
+export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
-    public controller: Function = BpGeneralEditorController;
+    public controller: Function = BpGeneralArtifactEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         context: "<",
     };
 }
 
-export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["localization", "messageService", "stateManager", "windowManager", "projectManager"];
+export class BpGeneralArtifactEditorController extends BpArtifactEditor {
+    public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
 
     constructor(
-        localization: ILocalizationService,
         messageService: IMessageService,
         stateManager: IStateManager,
         windowManager: IWindowManager,
+        localization: ILocalizationService,
         projectManager: IProjectManager
     ) {
-        super(localization, messageService, stateManager, windowManager, projectManager);
+        super(messageService, stateManager, windowManager, localization, projectManager);
     }
 
     public activeTab: number;

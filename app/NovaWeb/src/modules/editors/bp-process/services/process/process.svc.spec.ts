@@ -1,5 +1,4 @@
-﻿import {ProcessService} from "./process.svc";
-import {IProcessService} from "../../";
+﻿import {ProcessService, IProcessService} from "./process.svc";
 import {Models, IArtifactService, ArtifactService} from "../../../../main/";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
 

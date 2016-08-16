@@ -1,4 +1,6 @@
-﻿import {IProcessService} from "./";
+﻿// References to StorytellerDiagramDirective
+//import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
+import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
@@ -29,7 +31,7 @@ export class BpProcessEditorController {
     public static $inject: [string] = [
         "$rootScope",
         "$scope",
-        "$element",
+        "$element", 
         "$state",
         "$q",
         "$log",
@@ -37,10 +39,10 @@ export class BpProcessEditorController {
         "selectionManager",
         "$uibModal",
         "localization",
-        "messageService",
-        "stateManager",
+        "messageService", 
+        "stateManager", 
         "windowManager",
-        "$timeout",
+        "$timeout", 
         "projectManager"
     ];
 
@@ -143,5 +145,5 @@ export class BpProcessEditorController {
             this.processDiagram.resize(deltaX);
         }
     }
-
+    
 }

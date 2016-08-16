@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 ﻿import {ProcessModels} from "../../";
 import { IMessageService } from "../../../../core";
+=======
+﻿import * as ProcessModels from "../../models/processModels";
+import { IMessageService } from "../../../../core";
+export { ProcessModels }
+>>>>>>> 74e61f9e8c779d361fb605652c116998da9b9dc7
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
@@ -23,7 +29,7 @@ export class ProcessService implements IProcessService {
     }
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
-        let deferred = this.$q.defer<ProcessModels.IProcess>();        
+        let deferred = this.$q.defer<ProcessModels.IProcess>();
         this.messageService.dispose();
         let queryParamData = {
             versionId: isNaN(versionId) ? null : versionId,

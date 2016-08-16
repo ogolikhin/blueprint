@@ -26,9 +26,7 @@ export class ProcessDiagram {
 
         this.processModel = null;
     }
-
-    public debugInformation: string;
-
+ 
     public createDiagram(processId: number, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
@@ -77,9 +75,7 @@ export class ProcessDiagram {
         this.resetBeforeLoad();
         
         this.processModel = process;
-
-        this.debugInformation = "PROCESS LOADED";
-        this.dumpDebugInformation(this.processModel);
+        
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;

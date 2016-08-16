@@ -83,6 +83,15 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.3.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\7.4.0.0\7.4.0.0.sql">
+      <DependentUpon>7.4.0.0.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Migration\7.4.0.0\7.4.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>7.4.0.0.sql</LastGenOutput>
+    </Content>
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\MigrationLog.sql" />

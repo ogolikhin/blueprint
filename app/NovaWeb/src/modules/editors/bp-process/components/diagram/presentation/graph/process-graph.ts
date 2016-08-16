@@ -702,7 +702,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public getNodeById(id: string): IDiagramNode {
-        return this.mxgraph.getModel().getCell(id);
+        return this.getMxGraphModel().getCell(id);
     }
 
     public getNodeAt(x: number, y: number): IDiagramNode {

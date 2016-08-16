@@ -117,15 +117,13 @@ export class BpArtifactEditor extends BpBaseEditor {
         if (!context) {
             return;
         }
-        if (($scope.fc as angular.IFormController).$valid) {
-            let value = this.editor.convertToModelValue($field, $value);
-            let changeSet: IPropertyChangeSet = {
-                lookup: context.lookup,
-                id: context.modelPropertyName,
-                value: value
-            };
-            this.stateManager.addChange(this.context.artifact, changeSet);
-        }
+        let value = this.editor.convertToModelValue($field, $value);
+        let changeSet: IPropertyChangeSet = {
+            lookup: context.lookup,
+            id: context.modelPropertyName,
+            value: value
+        };
+        this.stateManager.addChange(this.context.artifact, changeSet);
     };
 
 }

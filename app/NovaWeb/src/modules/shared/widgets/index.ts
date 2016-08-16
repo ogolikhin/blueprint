@@ -9,6 +9,7 @@ import "./bp-select";
 import "./bp-item-icon";
 import "./bp-speciallink";
 import "./bp-compile-html";
+import "./bp-collapsible";
 
 angular.module("bp.widjets", [
     "bp.widjets.dialog",
@@ -21,7 +22,8 @@ angular.module("bp.widjets", [
     "bp.widjets.select",
     "bp.widjets.itemicon",
     "bp.widjets.speciallink",
-    "bp.widjets.compilehtml"
+    "bp.widjets.compilehtml",
+    "bp.widjets.collapsible"
 ]);
     
 export { IBPTreeController, ITreeNode } from "./bp-tree"

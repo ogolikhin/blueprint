@@ -238,7 +238,7 @@ export class ProcessViewModel implements IProcessViewModel {
             result = true;
         } else if (shapeCount > this.shapeLimit) {
             let message: string;
-            let messageType = null; //: Shell.MessageType = Shell.MessageType.Error;
+            let messageType: MessageType = MessageType.Error;
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
                 // replace {0} placeholder with number of shapes added 

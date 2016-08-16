@@ -1,89 +1,67 @@
 ﻿import { IWindowResize } from "../../core";
 
-export enum ToggleAction {
-    none,
-    leftOpen,
-    leftClose,
-    rightOpen,
-    rightClose
+export enum ResizeCause {
+    unknown,
+    browserResize,
+    sidebarToggle,
+    errorMessage
 }
 
-export interface IAvailableContentArea {
+export interface IMainWindow {
     width: number;
     height: number;
+    contentWidth: number;
+    contentHeight: number;
+    isLeftSidebarOpen: boolean;
+    isRightSidebarOpen: boolean;
+    causeOfChange: ResizeCause;
 }
 
 export interface IWindowManager {
-    areBothSidebarsVisible: Rx.Observable<boolean>;
-    isLeftSidebarVisible: Rx.Observable<boolean>;
-    isRightSidebarVisible: Rx.Observable<boolean>;
-    isWindowChanged: Rx.Observable<boolean>;
-    isWidthChanged: Rx.Observable<boolean>;
-    isHeightChanged: Rx.Observable<boolean>;
-    getAvailableArea: Rx.Observable<IAvailableContentArea>;
-
-    //@mtalis
-    isConfigurationChanged: Rx.Observable<ToggleAction>;
+    mainWindow: Rx.Observable<IMainWindow>;
 }
 
 export class WindowManager implements IWindowManager {
     public static $inject: [string] = ["windowResize"];
 
-    private _areBothSidebarsVisible: Rx.BehaviorSubject<boolean>;
-    private _isLeftSidebarVisible: Rx.BehaviorSubject<boolean>;
-    private _isRightSidebarVisible: Rx.BehaviorSubject<boolean>;
-    private _isWindowChanged: Rx.BehaviorSubject<boolean>;
-    private _isWidthChanged: Rx.BehaviorSubject<boolean>;
-    private _isHeightChanged: Rx.BehaviorSubject<boolean>;
-    private _getAvailableArea: Rx.BehaviorSubject<IAvailableContentArea>;
+    private _mainWindow: Rx.BehaviorSubject<IMainWindow>;
 
-    //@mtalis
-    private _isConfigurationChanged: Rx.BehaviorSubject<ToggleAction>;
-
-    private isLeftVisible: boolean;
-    private isRightVisible: boolean;
-
-    private sidebarSize: number = 270;
     private _width: number;
     private _height: number;
+    private _contentWidth: number;
+    private _contentHeight: number;
+    private _isLeftSidebarOpen: boolean;
+    private _isRightSidebarOpen: boolean;
+    private _causeOfChange: ResizeCause;
+
+    private sidebarSize: number = 270;
 
     private _toggleObserver: MutationObserver;
     private _messageObserver: MutationObserver;
+
     private _subscribers: Rx.IDisposable[];
 
     constructor(public windowResize: IWindowResize) {
+        this._causeOfChange = ResizeCause.unknown;
+
         let sidebarWrapper = document.querySelector(".bp-sidebar-wrapper") as HTMLElement;
         if (sidebarWrapper) {
-            this.isLeftVisible = sidebarWrapper.classList.contains("left-panel-visible");
-            this.isRightVisible = sidebarWrapper.classList.contains("right-panel-visible");
-
-            this._areBothSidebarsVisible = new Rx.BehaviorSubject<boolean>(this.isLeftVisible || this.isRightVisible);
-            this._isLeftSidebarVisible = new Rx.BehaviorSubject<boolean>(this.isLeftVisible);
-            this._isRightSidebarVisible = new Rx.BehaviorSubject<boolean>(this.isRightVisible);
-            this._isWidthChanged = new Rx.BehaviorSubject<boolean>(true);
-
-            //@mtalis
-            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
+            this._isLeftSidebarOpen = sidebarWrapper.classList.contains("left-panel-visible");
+            this._isRightSidebarOpen = sidebarWrapper.classList.contains("right-panel-visible");
 
             this._toggleObserver = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.attributeName === "class") {
-                        this.isLeftVisible = sidebarWrapper.classList.contains("left-panel-visible");
-                        this.isRightVisible = sidebarWrapper.classList.contains("right-panel-visible");
+                        if (
+                            this._isLeftSidebarOpen !== sidebarWrapper.classList.contains("left-panel-visible") ||
+                            this._isRightSidebarOpen !== sidebarWrapper.classList.contains("right-panel-visible")
+                        ) {
+                            this._causeOfChange = ResizeCause.sidebarToggle;
+                            this._isLeftSidebarOpen = sidebarWrapper.classList.contains("left-panel-visible");
+                            this._isRightSidebarOpen = sidebarWrapper.classList.contains("right-panel-visible");
 
-                        if (this._isLeftSidebarVisible.getValue() !== this.isLeftVisible || this._isRightSidebarVisible.getValue() !== this.isRightVisible) {
-                            this.onAvailableAreaResized();
-
-                            //@mtalis
-                            let toggleAction: ToggleAction = (this.isLeftVisible && !this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftClose +
-                                (!this.isLeftVisible && this._isLeftSidebarVisible.getValue() ? 1 : 0) * ToggleAction.leftOpen +
-                                (this.isRightVisible && !this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightClose +
-                                (!this.isRightVisible && this._isRightSidebarVisible.getValue() ? 1 : 0) * ToggleAction.rightOpen;
-                            this._isConfigurationChanged.onNext(toggleAction);
+                            this.onWindowResize();
                         }
-                        this._areBothSidebarsVisible.onNext(this.isLeftVisible || this.isRightVisible);
-                        this._isLeftSidebarVisible.onNext(this.isLeftVisible);
-                        this._isRightSidebarVisible.onNext(this.isRightVisible);
                     }
                 });
             });
@@ -93,25 +71,17 @@ export class WindowManager implements IWindowManager {
                 //this.messageService.addError(ex.message);
             }
         } else {
-            this._areBothSidebarsVisible = new Rx.BehaviorSubject<boolean>(false);
-            this._isLeftSidebarVisible = new Rx.BehaviorSubject<boolean>(false);
-            this._isRightSidebarVisible = new Rx.BehaviorSubject<boolean>(false);
-            this._isWidthChanged = new Rx.BehaviorSubject<boolean>(false);
-
-            this.isLeftVisible = false;
-            this.isRightVisible = false;
-
-            //@mtalis
-            this._isConfigurationChanged = new Rx.BehaviorSubject<ToggleAction>(ToggleAction.none);
+            this._isLeftSidebarOpen = false;
+            this._isRightSidebarOpen = false;
         }
 
         let messageContainer: Element = document.querySelector(".message-container");
         if (messageContainer) {
-            this._isHeightChanged = new Rx.BehaviorSubject<boolean>(true);
-
             this._messageObserver = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
-                    this.onAvailableAreaResized();
+                    this._causeOfChange = ResizeCause.errorMessage;
+
+                    this.onWindowResize();
                 });
             });
             try {
@@ -119,63 +89,71 @@ export class WindowManager implements IWindowManager {
             } catch (ex) {
                 //this.messageService.addError(ex.message);
             }
-        } else {
-            this._isHeightChanged = new Rx.BehaviorSubject<boolean>(false);
         }
 
-        this._isWindowChanged = new Rx.BehaviorSubject<boolean>(true);
+        this._width = window.innerWidth;
+        this._contentWidth = this.getContentWidth();
 
-        this._getAvailableArea = new Rx.BehaviorSubject<IAvailableContentArea>({
-            width: window.innerWidth,
-            height: window.innerHeight
+        this._height = window.innerHeight;
+        this._contentHeight = this.getContentHeight();
+
+        this._mainWindow = new Rx.BehaviorSubject<IMainWindow>({
+            width: this._width,
+            height: this._height,
+            contentWidth: this._contentWidth,
+            contentHeight: this._contentHeight,
+            isLeftSidebarOpen: this._isLeftSidebarOpen,
+            isRightSidebarOpen: this._isRightSidebarOpen,
+            causeOfChange: this._causeOfChange
         });
 
         this._subscribers = [
-            this.windowResize.width.subscribeOnNext(this.onAvailableAreaResized, this),
-            this.windowResize.height.subscribeOnNext(this.onAvailableAreaResized, this)
+            this.windowResize.width.subscribeOnNext(this.onBrowserResize, this),
+            this.windowResize.height.subscribeOnNext(this.onBrowserResize, this)
         ];
     };
 
-    private onAvailableAreaResized() {
-        let width: number = this._width;
-        this._width = window.innerWidth - (this.isLeftVisible ? this.sidebarSize : 0) - (this.isRightVisible ? this.sidebarSize : 0);
+    private getContentWidth(): number {
+        return this._width - (this._isLeftSidebarOpen ? this.sidebarSize : 0) - (this._isRightSidebarOpen ? this.sidebarSize : 0);
+    }
 
+    private getContentHeight(): number {
         let height: number = this._height;
         let pageContent = document.querySelector(".page-content") as HTMLElement;
         let pageHeading = document.querySelector(".page-heading") as HTMLElement;
         if (pageContent && pageHeading) {
-            this._height = (pageContent.offsetHeight || 0) - (pageHeading.offsetHeight || 0);
+            height = (pageContent.offsetHeight || 0) - (pageHeading.offsetHeight || 0);
         }
+        return height;
+    }
 
-        if (this._width !== width || this._height !== height) {
-            this._isWindowChanged.onNext(true);
-            this._getAvailableArea.onNext({
-                width: this._width,
-                height: this._height
-            });
+    private onBrowserResize() {
+        this._causeOfChange = ResizeCause.browserResize;
+        this.onWindowResize();
+    }
 
-            if (this._width !== width) {
-                this._isWidthChanged.onNext(true);
-            }
+    private onWindowResize() {
+        this._width = window.innerWidth;
+        this._contentWidth = this.getContentWidth();
 
-            if (this._height !== height) {
-                this._isHeightChanged.onNext(true);
-            }
-        }
+        this._height = window.innerHeight;
+        this._contentHeight = this.getContentHeight();
+
+        this._mainWindow.onNext({
+            width: this._width,
+            height: this._height,
+            contentWidth: this._contentWidth,
+            contentHeight: this._contentHeight,
+            isLeftSidebarOpen: this._isLeftSidebarOpen,
+            isRightSidebarOpen: this._isRightSidebarOpen,
+            causeOfChange: this._causeOfChange
+        });
     }
 
     public dispose() {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
 
-        this._areBothSidebarsVisible.dispose();
-        this._isLeftSidebarVisible.dispose();
-        this._isRightSidebarVisible.dispose();
-        this._isWindowChanged.dispose();
-        this._isWidthChanged.dispose();
-        this._isHeightChanged.dispose();
-
-        //@mtalis
-        this._isConfigurationChanged.dispose();
+        this._mainWindow.dispose();
 
         try {
             this._toggleObserver.disconnect();
@@ -185,36 +163,7 @@ export class WindowManager implements IWindowManager {
         }
     };
 
-    public get areBothSidebarsVisible(): Rx.Observable<boolean> {
-        return this._areBothSidebarsVisible.distinctUntilChanged().asObservable();
-    };
-
-    public get isLeftSidebarVisible(): Rx.Observable<boolean> {
-        return this._isLeftSidebarVisible.distinctUntilChanged().asObservable();
-    };
-
-    public get isRightSidebarVisible(): Rx.Observable<boolean> {
-        return this._isRightSidebarVisible.distinctUntilChanged().asObservable();
-    };
-
-    public get isWindowChanged(): Rx.Observable<boolean> {
-        return this._isWindowChanged.asObservable();
-    };
-
-    public get isWidthChanged(): Rx.Observable<boolean> {
-        return this._isWidthChanged.asObservable();
-    };
-
-    public get isHeightChanged(): Rx.Observable<boolean> {
-        return this._isHeightChanged.asObservable();
-    };
-
-    public get getAvailableArea(): Rx.Observable<IAvailableContentArea> {
-        return this._getAvailableArea.asObservable();
-    };
-
-    //@mtalis
-    public get isConfigurationChanged(): Rx.Observable<ToggleAction> {
-        return this._isConfigurationChanged.asObservable();
+    public get mainWindow(): Rx.Observable<IMainWindow> {
+        return this._mainWindow.asObservable();
     };
 }

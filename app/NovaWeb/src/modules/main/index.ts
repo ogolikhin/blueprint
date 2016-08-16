@@ -21,7 +21,7 @@ import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
-    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction } from "./services/";
+    IWindowManager, WindowManager, IMainWindow, ResizeCause } from "./services/";
 import { ISelectionManager, SelectionManager, ISelection } from "./services/selection-manager";
 import * as Relationships from "./models/relationshipModels";
 import { PageContent } from "./components/content/pagecontent";
@@ -53,7 +53,7 @@ export {
     IArtifactService, ArtifactService,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection,
-    IWindowManager, WindowManager, IAvailableContentArea, ToggleAction
+    IWindowManager, WindowManager, IMainWindow, ResizeCause
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin

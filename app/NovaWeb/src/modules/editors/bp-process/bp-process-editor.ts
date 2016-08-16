@@ -1,10 +1,10 @@
 ﻿import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
-import {ILocalizationService, IMessageService, IWindowResize, IStateManager} from "../../core";
+import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
 import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
-import {IWindowManager, IProjectManager, ToggleAction} from "../../main";
+import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -24,11 +24,12 @@ export class BpProcessEditorController {
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IDialogManager;
     private _subscribers: Rx.IDisposable[];
+    private contentAreaWidth: number;
 
     public static $inject: [string] = [
         "$rootScope",
         "$scope",
-        "$element", 
+        "$element",
         "$state",
         "$q",
         "$log",
@@ -36,11 +37,10 @@ export class BpProcessEditorController {
         "selectionManager",
         "$uibModal",
         "localization",
-        "messageService", 
-        "stateManager", 
-        "windowResize", 
+        "messageService",
+        "stateManager",
         "windowManager",
-        "$timeout", 
+        "$timeout",
         "projectManager"
     ];
 
@@ -57,22 +57,21 @@ export class BpProcessEditorController {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private stateManager: IStateManager,
-        private windowResize: IWindowResize,
         private windowManager: IWindowManager,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-       // super(localization, messageService, stateManager, windowResize, windowManager, $timeout, projectManager);
+       // super(localization, messageService, stateManager, windowManager, $timeout, projectManager);
 
         this.dialogManager = new DialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
-
+        this.contentAreaWidth = null;
     }
 
     public $onInit() {
         //super.$onInit();
         this._subscribers = [
-            this.windowManager.isConfigurationChanged.subscribeOnNext(this.onWidthResized, this)
+            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
         ];
         
     }
@@ -87,6 +86,8 @@ export class BpProcessEditorController {
         if (this._context) {
             this.load(this._context);
         }
+
+        this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
     }
 
     public $onDestroy() {
@@ -131,24 +132,16 @@ export class BpProcessEditorController {
 
     }
 
-    public onWidthResized(toggleAction: ToggleAction) {
-        if (!!this.processDiagram) {
+    public onWidthResized(mainWindow: IMainWindow) {
+        if (
+            (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle)
+            && !!this.processDiagram
+        ) {
             //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
-            let deltaX: number;
-            switch (toggleAction) {
-                case ToggleAction.leftClose:
-                case ToggleAction.rightClose:
-                    deltaX = -270;
-                    break;
-                case ToggleAction.leftOpen:
-                case ToggleAction.rightOpen:
-                    deltaX = 270;
-                    break;
-                default:
-                    deltaX = 0;
-            }
+            let deltaX: number = mainWindow.contentWidth - this.contentAreaWidth;
+            this.contentAreaWidth = mainWindow.contentWidth;
             this.processDiagram.resize(deltaX);
         }
     }
-    
+
 }

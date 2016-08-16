@@ -1,6 +1,6 @@
 import { IMessageService, IStateManager, IPropertyChangeSet, ILocalizationService, BPLocale, ItemState } from "../../core";
 import { Helper } from "../../shared";
-import { Enums, Models, IWindowManager, IAvailableContentArea } from "../../main";
+import { Enums, Models, IWindowManager, IMainWindow } from "../../main";
 import { IProjectManager} from "../../main";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
@@ -33,7 +33,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this._subscribers = [
-            this.windowManager.getAvailableArea.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
+            this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this)
         ];
     }
 
@@ -139,13 +139,13 @@ export class BpBaseEditor {
         this.stateManager.addChange(this.context.artifact, changeSet);
     };
 
-    public setArtifactEditorLabelsWidth(contentArea?: IAvailableContentArea) {
+    public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
         const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
-            let avaliableWidth: number = contentArea ? contentArea.width : pageBodyWrapper.offsetWidth;
+            let avaliableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
 
             if (avaliableWidth < minimumWidth) {
                 pageBodyWrapper.classList.add("single-column-property");

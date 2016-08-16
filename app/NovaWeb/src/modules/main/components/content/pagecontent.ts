@@ -47,7 +47,7 @@ class PageContentCtrl {
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
-            this.windowManager.getAvailableArea.subscribeOnNext(this.onAvailableAreaResized, this)
+            this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 

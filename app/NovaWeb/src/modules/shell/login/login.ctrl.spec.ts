@@ -3,7 +3,7 @@ import "angular-mocks";
 import { SessionSvc } from "./session.svc";
 import { LoginCtrl, LoginState } from "./login.ctrl";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {ConfigValueHelperMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
+import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
 
 
 describe("LoginCtrl", () => {
@@ -13,7 +13,7 @@ describe("LoginCtrl", () => {
         $provide.service("session", SessionSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("configValueHelper", ConfigValueHelperMock);
+        $provide.service("settings", SettingsMock);
     }));
 
     describe("login", () => {
@@ -620,7 +620,8 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeEmpty");
         }));
 
-        it("respond with new password same as old error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password same as old error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -645,7 +646,8 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordSameAsOld");
         }));
 
-        it("respond with new password invalid error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password invalid error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";

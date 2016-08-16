@@ -1,21 +1,28 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {IConfigValueHelper} from "../../core";
+import {ISettingsService} from "../../core";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
 
 
-export class ConfigValueHelperMock implements IConfigValueHelper {
-    getBooleanValue(setting: string, fallBack?: boolean) {
-        if (setting === "DisableWindowsIntegratedSignIn") {
-            return false;
-        } else {
-            return undefined;
-        }
+export class SettingsMock implements ISettingsService {
+    get(key: string, defaultValue?: string): string {
+        return undefined;
     }
 
-    getStringValue(setting: string, fallBack?: string) {
+    getNumber(key: string, defaultValue?: number, minValue?: number, maxValue?: number): number {
+        return undefined;
+    }
+
+    getBoolean(key: string, defaultValue?: boolean): boolean {
+        if (key === "DisableWindowsIntegratedSignIn") {
+            return false;
+        }
+        return undefined;
+    }
+
+    getObject(key: string, defaultValue?: any): any {
         return undefined;
     }
 }
@@ -140,7 +147,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
             this.instanceMock,
             new SessionSvcMock(this.$q),
             this.$timeout,
-            new ConfigValueHelperMock()
+            new SettingsMock()
         );
         return this.instanceMock;
         /* tslint:enable:no-unused-variable */

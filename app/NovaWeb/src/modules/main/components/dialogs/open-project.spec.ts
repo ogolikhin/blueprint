@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import { OpenProjectController } from "./open-project";
-import { ConfigValueHelper } from "../../../core";
+import { SettingsService } from "../../../core";
 import { MessageService } from "../../../shell/";
 import { ProjectManager } from "../../services/project-manager";
 import { SelectionManager } from "../../services/selection-manager";
@@ -150,7 +150,7 @@ describe("Embedded ag-grid events", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("settings", SettingsService);
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("manager", ProjectManager);

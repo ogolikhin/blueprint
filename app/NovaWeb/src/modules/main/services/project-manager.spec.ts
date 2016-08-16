@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-import { ConfigValueHelper } from "../../core";
+import { SettingsService } from "../../core";
 import { MessageService } from "../../shell/";
 import { ProjectRepositoryMock } from "./project-repository.mock";
 import { SelectionManager } from "./selection-manager";
@@ -12,7 +12,7 @@ describe("Project Manager Test", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("settings", SettingsService);
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("selectionManager", SelectionManager);

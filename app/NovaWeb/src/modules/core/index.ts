@@ -5,7 +5,7 @@ import "./services";
 import "./messages";
 import { AppConstants, IAppConstants } from "./constants/";
 import { LocalizationService, localeConfig } from "./localization/";
-import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
+import { SettingsService, ISettingsService } from "./configuration";
 
 
 angular.module("app.core", [
@@ -13,14 +13,14 @@ angular.module("app.core", [
     "bp.core.messages"])
     .constant("appConstants", new AppConstants())
     .service("localization", LocalizationService)
-    .service("configValueHelper", ConfigValueHelper)
+    .service("settings", SettingsService)
     .config(localeConfig);
 
 
 export {
     IAppConstants,
-    IConfigValueHelper,
-    ConfigValueHelper,
+    ISettingsService,
+    SettingsService,
 };
 export {
     ILocalizationService,

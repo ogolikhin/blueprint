@@ -7,6 +7,7 @@ import {ProcessStart} from "./process-start";
 import {ProcessEnd} from "./process-end";
 import {Condition} from "./condition";
 import {DiagramNode} from "./diagram-node";
+import {DiagramElement} from "./diagram-element";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramLink} from "./diagram-link";
 
@@ -20,6 +21,7 @@ export {
     ProcessEnd,
     Condition,
     DiagramNode,
+    DiagramElement,
     DiagramNodeElement,
     DiagramLink
 }

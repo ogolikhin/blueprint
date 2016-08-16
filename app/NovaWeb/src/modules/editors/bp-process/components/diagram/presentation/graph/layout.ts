@@ -44,7 +44,8 @@ export class Layout implements ILayout {
 
         this.mxgraph.cellRenderer = new ProcessCellRenderer();
         // #TODO: add back the popup menu afterwards
-        //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
+        //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, 
+                //this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
         this.tempId = 0;
 
     }
@@ -144,7 +145,8 @@ export class Layout implements ILayout {
                     var destinationNode: IDiagramNode = graphModel.getCell(linkArray[0].destinationId.toString());
 
                     // Add merging point for links with the same destination
-                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
+                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id,
+                        this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
 
                     var mergingPoint = new MergingPoint(mergingPointShape);
                     mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
@@ -470,7 +472,8 @@ export class Layout implements ILayout {
         this.updateDestinationsIfDestinationIsDraggedShape(newSourcesAndDestinations, originalSourcesWithNewDestinations,
             userTaskShapeId, oldAfterShapeId, newUserTask);
 
-        // if edge source ids contains system task id of the user task you're dragging, need to add the before system task id of selected dragging user task as part of list of source ids.
+        // if edge source ids contains system task id of the user task you're dragging, 
+        // need to add the before system task id of selected dragging user task as part of list of source ids.
         this.addAdditionaSourcesAndDestinations(newSourcesAndDestinations, systemTaskShapeId, oldAfterShapeId, oldBeforeShapeIds, newUserTask);
 
         // update source links of the edge to point to the dropped user task, ignoring system task id associated with dragged user task
@@ -745,7 +748,6 @@ export class Layout implements ILayout {
         if (node) {
             var evt = { consume() { } };
             this.mxgraph.selectCellForEvent(node, evt);
-            this.processGraph.iconRackHelper.iconRackClickBehaviour(evt);
         }
     }
 

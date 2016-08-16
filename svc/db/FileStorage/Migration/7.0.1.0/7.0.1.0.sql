@@ -283,11 +283,8 @@ GO
 /******************************************************************************************************************************
 Name:			GetStatus
 
-Description: 
+Description:    Returns the version of the database.
 			
-Change History:
-Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
@@ -297,7 +294,7 @@ GO
 CREATE PROCEDURE [dbo].[GetStatus]
 AS
 BEGIN
-       SELECT TOP 1 COUNT(*) FROM [dbo].[Files];       
+       SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;       
 END
 
 GO

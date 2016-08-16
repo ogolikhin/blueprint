@@ -193,10 +193,7 @@ GO
 /******************************************************************************************************************************
 Name:			GetStatus
 
-Description: //TODO: 
-			
-Change History:
-Date			Name					Change
+Description:	Returns the version of the database.
 
 ******************************************************************************************************************************/
 
@@ -207,7 +204,7 @@ GO
 CREATE PROCEDURE [dbo].[GetStatus] 
 AS
 BEGIN
-	SELECT COUNT(*) from [dbo].[Sessions];
+	SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;
 END
 GO 
 
@@ -584,6 +581,7 @@ Description:	Returns last @limit records from Logs table
 Change History:
 Date			Name					Change
 Feb 25 2016		Dmitry Lopyrev			Initial Version
+Jun 7 2016		Dmitry Lopyrev			Updated
 ******************************************************************************************************************************/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLogs]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetLogs]
@@ -592,22 +590,23 @@ GO
 
 CREATE PROCEDURE [dbo].[GetLogs]  
 (
-  @limit int = 0
+  @recordlimit int,
+  @recordid int = null
 )
 AS
 BEGIN
-	DECLARE @total Int
-	SELECT @total = COUNT(*) FROM [Logs]	
-	
-	IF @limit > 0 AND @limit <= @total
-	BEGIN
-		SELECT * FROM [Logs] ORDER BY id 
-			OFFSET @total - @limit ROWS
-			FETCH NEXT @limit ROWS ONLY;
-	END
-	ELSE
-		SELECT * FROM [Logs] ORDER BY id 
-	
+	DECLARE @total int
+	DECLARE @fetch int
+	DECLARE @id int
+
+	SET @id = IsNULL(@recordid, 0);
+
+	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+
+	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
+
+	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+
 END
 
 

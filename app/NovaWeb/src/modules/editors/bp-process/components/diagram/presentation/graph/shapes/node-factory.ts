@@ -22,7 +22,11 @@ export class NodeFactorySettings {
 
 export class NodeFactory {
 
-    public static createNode(model: IProcessShape, rootScope: any, shapesFactoryService: ShapesFactory, nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+    public static createNode(
+        model: IProcessShape, rootScope: any,
+        shapesFactoryService: ShapesFactory,
+        nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+
         var type = <ProcessShapeType>model.propertyValues["clientType"].value;
         switch (type) {
             case ProcessShapeType.Start:

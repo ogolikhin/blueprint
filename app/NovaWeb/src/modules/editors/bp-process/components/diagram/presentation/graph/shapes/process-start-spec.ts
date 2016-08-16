@@ -20,8 +20,8 @@ describe("ProcessStart test", () => {
     beforeEach(inject((_$window_: ng.IWindowService, $rootScope: ng.IRootScopeService, processModelService: IProcessService) => {
         rootScope = $rootScope;
         processModelService = processModelService;
-        wrapper = document.createElement('DIV');
-        container = document.createElement('DIV');
+        wrapper = document.createElement("DIV");
+        container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
 

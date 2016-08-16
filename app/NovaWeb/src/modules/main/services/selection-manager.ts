@@ -4,9 +4,11 @@ export interface ISelectionManager {
     selectedArtifactObservable: Rx.Observable<IArtifact>;
     selectedSubArtifactObservable: Rx.Observable<ISubArtifact>;
     selectedItemObservable: Rx.Observable<IItem>;
-
     selectionObservable: Rx.Observable<ISelection>;
+
     selection: ISelection;
+    getExplorerSelectedArtifact();
+
     clearSelection();
     clearSubArtifactSelection();
 }
@@ -30,6 +32,8 @@ export interface ISelection {
 export class SelectionManager implements ISelectionManager {
 
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
+
+    private explorerSelectedArtifact: IArtifact;
 
     constructor() {
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(null);
@@ -78,11 +82,18 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public set selection(value: ISelection) {
+        if (value && value.source === SelectionSource.Explorer) {
+            this.explorerSelectedArtifact = value.artifact;
+        }
         this.selectionSubject.onNext(value);
     }
 
     public get selectionObservable() {
         return this.selectionSubject.asObservable();
+    }
+
+    public getExplorerSelectedArtifact() {
+        return this.explorerSelectedArtifact;
     }
 
     public clearSelection() {

@@ -49,7 +49,7 @@ namespace ArtifactStore.Repositories
         private async Task<IEnumerable<LinkedArtifactInfo>> GetDocumentArtifactInfos(IEnumerable<int> artifactIds, int userId, bool addDrafts = true)
         {
             var parameters = new DynamicParameters();            
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(artifactIds);
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value");
             parameters.Add("@artifactIds", artifactIdsTable);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);

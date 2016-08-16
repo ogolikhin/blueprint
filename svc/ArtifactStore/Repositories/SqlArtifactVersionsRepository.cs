@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories
             if (!userId.HasValue || userId.Value == sessionUserId)
             {
                 var artifactWithDraftPrm = new DynamicParameters();
-                var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+                var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
                 artifactWithDraftPrm.Add("@userId", sessionUserId);
                 artifactWithDraftPrm.Add("@artifactIds", artifactIdsTable);
                 return (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", artifactWithDraftPrm, commandType: CommandType.StoredProcedure)).Count() == 1;
@@ -84,7 +84,7 @@ namespace ArtifactStore.Repositories
         private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
             var userInfosPrm = new DynamicParameters();
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(userIds);
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             userInfosPrm.Add("@userIds", userIdsTable);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }

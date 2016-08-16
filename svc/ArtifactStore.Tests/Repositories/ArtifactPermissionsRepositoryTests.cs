@@ -127,7 +127,7 @@ namespace ArtifactStore.Repositories
         public async Task GetArtifactPermissions_WithRevisionId_ReturnsEditPermissions()
         {
             // Arrange
-            int? revisionId = 1;
+            int revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
@@ -172,7 +172,7 @@ namespace ArtifactStore.Repositories
         public async Task GetArtifactPermissions_MultipleProjectsArtifactsItems_ReturnsDeletePermissions()
         {
             // Arrange
-            int? revisionId = 1;
+            int revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
@@ -223,7 +223,7 @@ namespace ArtifactStore.Repositories
         public async Task GetArtifactPermissions_MultipleProjectsWithNullPermission_ReturnsReadPermissions()
         {
             // Arrange
-            int? revisionId = 1;
+            int revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
@@ -283,16 +283,16 @@ namespace ArtifactStore.Repositories
                 new Dictionary<string, object> { { "contextUser", false }, { "userId", 0 } }, result);
         }
 
-        private void MockGetOpenArtifactPermissions(IEnumerable<OpenArtifactPermission> mockOpenArtifactPermissionsResult, SqlConnectionWrapperMock cxn, IEnumerable<int> projectArtifactIds, int? revisionId = null)
+        private void MockGetOpenArtifactPermissions(IEnumerable<OpenArtifactPermission> mockOpenArtifactPermissionsResult, SqlConnectionWrapperMock cxn, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue, bool addDrafts = true)
         {
-            var artifactIds = DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds);
+            var artifactIds = SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetOpenArtifactPermissions",
                 new Dictionary<string, object>
                 {
                     {"userId", 0},
                     {"artifactIds", artifactIds},
-                    {"revisionId", revisionId ?? int.MaxValue},
-                    {"addDrafts", revisionId == null}
+                    {"revisionId", revisionId},
+                    {"addDrafts", addDrafts}
                 }, mockOpenArtifactPermissionsResult);
         }
 
@@ -302,10 +302,11 @@ namespace ArtifactStore.Repositories
             IEnumerable<bool> mockBoolResult,
             IEnumerable<ProjectsArtifactsItem> mockProjectsArtifactsItemsResult,
             IEnumerable<VersionProjectInfo> mockVersionProjectInfoResult,
-            int? revisionId = null
+            int revisionId = int.MaxValue,
+            bool addDrafts = true
             )
         {
-            var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
+            var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
 
             var result = Tuple.Create(mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
             cxn.SetupQueryMultipleAsync("GetArtifactsProjects",
@@ -314,8 +315,8 @@ namespace ArtifactStore.Repositories
                     {"contextUser", false},
                     {"userId", 0},
                     {"itemIds", tvp},
-                    {"revisionId", revisionId ?? int.MaxValue},
-                    {"addDrafts", revisionId == null}
+                    {"revisionId", revisionId},
+                    {"addDrafts", addDrafts}
                 }, result);
         }
 

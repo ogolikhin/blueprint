@@ -745,7 +745,6 @@ export class Layout implements ILayout {
         if (node) {
             var evt = { consume() { } };
             this.mxgraph.selectCellForEvent(node, evt);
-            this.processGraph.iconRackHelper.iconRackClickBehaviour(evt);
         }
     }
 

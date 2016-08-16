@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import { ConfigValueHelper } from "../../../../core";
+import { SettingsService } from "../../../../core";
 import { MessageService } from "../../../../shell/";
 import { ProjectManager, Models } from "../../../";
 import { ArtifactPickerController } from "./bp-artifact-picker";
@@ -20,7 +20,7 @@ describe("Artifact Picker", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("settings", SettingsService);
         $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);

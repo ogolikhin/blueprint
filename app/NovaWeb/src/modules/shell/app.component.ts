@@ -1,6 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-import {IConfigValueHelper} from "../core";
+import {ISettingsService} from "../core";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -17,10 +17,10 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["$state", "session", "configValueHelper", "$window"];
+    static $inject: [string] = ["$state", "session", "settings", "$window"];
 
     constructor(private $state: ng.ui.IStateService, private session: ISession,
-        private configValueHelper: IConfigValueHelper, private $window: ng.IWindowService) {
+        private settings: ISettingsService, private $window: ng.IWindowService) {
     }
 
     public get currentUser(): IUser {
@@ -37,7 +37,7 @@ export class AppController {
         evt.preventDefault();
 
         //We want to open a new window, not a tab, to match old Silverlight behaviour.
-        this.popUpWindowInCenterOfParent(this.configValueHelper.getStringValue("HelpURL"), "_blank", 1300, 800, this.$window);
+        this.popUpWindowInCenterOfParent(this.settings.get("HelpURL"), "_blank", 1300, 800, this.$window);
     }
 
     private popUpWindowInCenterOfParent(url: string, title: string, width: number, height: number, $window: ng.IWindowService) {

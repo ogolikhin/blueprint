@@ -1,4 +1,4 @@
-import {IDialogManager} from "../dialogs/dialog-manager";
+import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./sub-artifact-dialog-model";
@@ -18,7 +18,7 @@ export class SubArtifactEditorModalOpener {
     constructor(private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
         private $rootScope: ng.IRootScopeService,
-        private dialogManager: IDialogManager
+        private dialogManager: IModalDialogManager
     ) {
         dialogManager.registerSetGraphObserver(this.setGraph);
         dialogManager.registerOpenDialogObserver(this.openDialog);

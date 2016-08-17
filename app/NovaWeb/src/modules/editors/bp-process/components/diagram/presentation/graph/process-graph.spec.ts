@@ -8,9 +8,9 @@ import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
-import {IProcessGraph, IDiagramNode} from "./process-graph-interfaces";
+import {IProcessGraph, IDiagramNode} from "./models/";
 import {UserTask, UserDecision, Condition} from "./shapes/";
-import {NodeChange, NodeType} from "./process-graph-constants";
+import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
 
 

@@ -1,8 +1,8 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../process-graph-interfaces";
-import {IDecision, ISystemTask} from "../process-graph-interfaces";
-import {NodeType, NodeChange} from "../process-graph-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
+import {IDecision, ISystemTask} from "../models/";
+import {NodeType, NodeChange} from "../models/";
 import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory";

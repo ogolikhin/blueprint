@@ -2,9 +2,9 @@
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
+import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {IDialogManager} from "../dialogs/dialog-manager";
+import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
 
 
 export class ProcessDiagram {
@@ -22,7 +22,7 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private dialogManager: IDialogManager) {
+        private dialogManager: IModalDialogManager) {
 
         this.processModel = null;
     }

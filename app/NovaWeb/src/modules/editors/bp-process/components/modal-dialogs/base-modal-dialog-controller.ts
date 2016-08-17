@@ -1,7 +1,7 @@
-import {IDialogModel} from "./dialog-model";
+import {IModalDialogModel} from "./modal-dialog-model";
 
 export interface IModalScope extends ng.IScope {
-    dialogModel: IDialogModel;
+    dialogModel: IModalDialogModel;
 }
 
 export enum ModalDialogType {
@@ -10,7 +10,7 @@ export enum ModalDialogType {
     UserSystemDecisionDetailsDialogType
 }
 
-export class BaseModalDialogController<T extends IDialogModel> {
+export class BaseModalDialogController<T extends IModalDialogModel> {
 
     public static dialogOpenEventName: string = "openDetailsModal";
 

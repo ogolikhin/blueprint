@@ -1,14 +1,15 @@
 ﻿import {IMessageService} from "../../../../../../core/";
-import {IProcessShape, IProcessLink} from "../../../../models/processModels";
-import {SourcesAndDestinations} from "../../../../models/processModels";
-import {ProcessShapeType} from "../../../../models/enums";
-import {IProcessGraph, ILayout} from "./process-graph-interfaces";
-import {INotifyModelChanged, IConditionContext} from "./process-graph-interfaces";
-import {ICondition, IScopeContext, IStopTraversalCondition} from "./process-graph-interfaces";
-import {ISelectionListener, INextIdsProvider} from "./process-graph-interfaces";
-import {IOverlayHandler, IShapeInformation} from "./process-graph-interfaces";
-import {IDiagramNode, IDiagramNodeElement} from "./process-graph-interfaces";
-import {NodeType, NodeChange} from "./process-graph-constants";
+import {
+    IProcessGraph, ILayout,
+    INotifyModelChanged, IConditionContext,
+    ICondition, IScopeContext, IStopTraversalCondition,
+    ISelectionListener, INextIdsProvider,
+    IOverlayHandler, IShapeInformation,
+    IDiagramNode, IDiagramNodeElement,
+    IProcessShape, IProcessLink,
+    SourcesAndDestinations, ProcessShapeType,
+    NodeType, NodeChange
+} from "./models/";
 import {IProcessService} from "../../../../services/process/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
@@ -432,7 +433,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         var shift = this.getPosition(this.htmlElement).y;
-        var height = window.innerHeight - shift;
+        var height = window.innerHeight - shift - 6;
         return "" + height + "px";
     }
     private getMinWidth(delta: number): string {

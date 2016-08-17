@@ -7,6 +7,9 @@ export enum DialogTypeEnum {
     Confirm
 }
 
+export interface IDialogData {
+}
+
 export interface IDialogSettings {
     type?: DialogTypeEnum;
     header?: string;
@@ -20,7 +23,7 @@ export interface IDialogSettings {
 }
 
 export interface IDialogService {
-    open(dialogSettings: IDialogSettings, data?: any): ng.IPromise<any>;
+    open(dialogSettings: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any>;
     alert(message: string, header?: string): ng.IPromise<any>;
     confirm(message: string, header?: string): ng.IPromise<any>;
     dialogSettings: IDialogSettings;
@@ -66,9 +69,9 @@ export class DialogService implements IDialogService {
         return this.dialogSettings.type;
     }
 
-    public open(dialogSettings?: IDialogSettings, data?: any): ng.IPromise<any> {
+    public open(dialogSettings?: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any> {
         this.initialize(dialogSettings || this.dialogSettings);
-        this.dialogData = data || null;
+        this.dialogData = dialogData || {};
         return this.openInternal().result;
     }
 

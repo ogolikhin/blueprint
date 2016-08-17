@@ -221,11 +221,9 @@ export class PropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
+                    field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (context.isMultipleAllowed) {
-                        field.type = "bpFieldSelectMulti";
-                        field.templateOptions["optionsAttr"] = "bs-options";
-                    } else {
-                        field.type = "bpFieldSelect";
+                    field.templateOptions["optionsAttr"] = "bs-options";
                     }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {

@@ -1,5 +1,5 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDecision} from "../models/";
 import {NodeType, NodeChange} from "../models/";

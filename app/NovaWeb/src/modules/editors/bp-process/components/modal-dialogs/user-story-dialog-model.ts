@@ -1,6 +1,6 @@
-import {IDialogModel} from "./dialog-model";
+import {IModalDialogModel} from "./modal-dialog-model";
 
-export class UserStoryDialogModel implements IDialogModel {
+export class UserStoryDialogModel implements IModalDialogModel {
     // TODO: replace definitions:
     // public clonedUserTask: UserTask;
     // public originalUserTask: UserTask;

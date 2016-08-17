@@ -63,6 +63,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
+            } else if (angular.isString($value.customValue)) {
+                return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }
@@ -221,7 +223,7 @@ export class PropertyEditor {
                 case Models.PrimitiveType.Choice:
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     if (context.isMultipleAllowed) {
-                        field.templateOptions["optionsAttr"] = "bs-options";
+                    field.templateOptions["optionsAttr"] = "bs-options";
                     }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {

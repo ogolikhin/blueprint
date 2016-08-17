@@ -11,6 +11,7 @@ import { WindowManager } from "../../main/services/window-manager";
 import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
 import { ProjectManager } from "../../main/services/project-manager";
 import { SelectionManager } from "../../main/services/selection-manager";
+import { SessionSvcMock } from "../../shell/login/mocks.spec";
 
 
 
@@ -29,6 +30,7 @@ describe("Component BpGeneralEditorInfo", () => {
         
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("session", SessionSvcMock);
         $provide.service("stateManager", StateManager);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);

@@ -1,5 +1,6 @@
 ﻿import "angular";
 import { Enums, Models } from "../../main/models";
+import { ISession } from "../../shell/login/session.svc";
 
 export interface IStateManager {
     dispose(): void;
@@ -17,12 +18,13 @@ export interface IPropertyChangeSet {
 }
 
 export class ItemState {
-    constructor(item: Models.IItem) {
+    constructor(userId: number, item: Models.IItem) {
+        this._userId = userId;
         this.originItem = item;
     }
 
+    private _userId: number;
     private _readonly: boolean;
-    private _locked: boolean;
     private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IArtifact;
     
@@ -36,8 +38,15 @@ export class ItemState {
         this._readonly = value;
     }
 
-    public get isLocked(): boolean {
-        return this._locked || !!this.originItem.lockedByUser;
+    public get lockedBy(): Enums.LockedByEnum {
+        if (this.originItem && this.originItem.lockedByUser) {
+            if (this.originItem.lockedByUser.id === this._userId) {
+                return Enums.LockedByEnum.CurrentUser;
+            }
+            return Enums.LockedByEnum.OtherUser;
+        }
+        return Enums.LockedByEnum.None;
+
     }
 
     public get isChanged(): boolean {
@@ -137,12 +146,12 @@ export class ItemState {
 }
 
 export class StateManager implements IStateManager {
-
+    static $inject: [string] = ["session"];
     private _itemStateCollection: ItemState[];
 
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor() { }
+    constructor(private session: ISession) { }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
         return this._itemChanged || (this._itemChanged = new Rx.BehaviorSubject<ItemState>(null));
@@ -189,7 +198,7 @@ export class StateManager implements IStateManager {
         let state = this.getState(originItem);
         if (!state) {
             if (artifact) {
-                this.itemStateCollection.push(state = new ItemState(artifact));
+                this.itemStateCollection.push(state = new ItemState(this.session.currentUser.id, artifact));
             } else {
                 throw new Error("Artifact_Not_Found");
             }

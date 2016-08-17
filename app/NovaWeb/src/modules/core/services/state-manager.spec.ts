@@ -4,12 +4,16 @@ import "Rx";
 
 import { ItemState, StateManager } from "./state-manager";
 import { Models, Enums} from "../../main/models";
+import { SessionSvcMock } from "../../shell/login/mocks.spec";
+
 
 describe("State Manager:", () => {
     let subscriber;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("session", SessionSvcMock);
         $provide.service("stateManager", StateManager);
+        
     }));
 
     afterEach(() => {
@@ -19,9 +23,9 @@ describe("State Manager:", () => {
 
     });
 
-    it("artifact changed", inject((stateManager: StateManager) => {
+    it("artifact changed", inject((stateManager: StateManager, session: SessionSvcMock) => {
         //Arrange
-        const artifact = { id: 1 , name: "", projectId: 1} as Models.IArtifact;
+        const artifact = { id: 1, name: "", projectId: 1 } as Models.IArtifact;
         let isChanged: boolean;
 
         subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {

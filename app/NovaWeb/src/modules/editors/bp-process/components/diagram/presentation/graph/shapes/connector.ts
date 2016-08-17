@@ -1,6 +1,6 @@
 ﻿import {IProcessLinkModel} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {NodeType} from "../models/";
 import {CS_VERTICAL, CS_RIGHT, CS_LEFT} from "./connector-styles";
 import {DiagramLink} from "./diagram-link";
 import {SystemTask} from "./system-task";

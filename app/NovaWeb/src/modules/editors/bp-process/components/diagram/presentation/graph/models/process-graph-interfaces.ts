@@ -1,9 +1,11 @@
-﻿import {IProcessShape, IProcessLink, IProcessLinkModel, IArtifactProperty} from "../../../../models/processModels";
-import {ItemIndicatorFlags} from "../../../../models/enums";
-import {Direction, NodeType, NodeChange, ElementType} from "./process-graph-constants";
-import {IDialogParams} from "../../../messages/message-dialog";
-import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
-import {ModalDialogType} from "../../../dialogs/modal-dialog-constants";
+﻿import {IProcessShape, IProcessLink, IProcessLinkModel, IArtifactProperty,
+    ItemIndicatorFlags,
+    Direction, NodeType, NodeChange, ElementType,
+
+} from "./";
+import {IDialogParams} from "../../../../messages/message-dialog";
+import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
 
 export interface IDeletable {
     canDelete(): boolean;

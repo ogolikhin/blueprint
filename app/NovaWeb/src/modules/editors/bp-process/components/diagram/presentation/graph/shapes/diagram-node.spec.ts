@@ -7,7 +7,7 @@ import {ProcessModel, ProcessShapeModel, IPropertyValueInformation, IHashMapOfPr
 import {ProcessType} from "../../../../../models/enums";
 import {DiagramNode} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
-import {NodeChange} from "../process-graph-constants";
+import {NodeChange} from "../models/";
 
 
 

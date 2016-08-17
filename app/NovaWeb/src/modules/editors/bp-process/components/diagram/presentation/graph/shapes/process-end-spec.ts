@@ -6,7 +6,7 @@ import {ProcessShapeType} from "../../../../../models/enums";
 import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {NodeType} from "../process-graph-constants";
+import {NodeType} from "../models/";
 
 describe("ProcessEnd test", () => {
     var shapesFactory: ShapesFactory;

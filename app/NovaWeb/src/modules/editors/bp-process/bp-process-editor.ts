@@ -100,7 +100,6 @@ export class BpProcessEditorController extends BpBaseEditor{
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
-            this.$state,
             this.$timeout,
             this.$q,
             this.$log,

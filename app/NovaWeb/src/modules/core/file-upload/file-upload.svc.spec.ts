@@ -12,9 +12,9 @@ describe("File Upload", () => {
         it("calls server and returns result when expirationDate is specified",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
             // Arrange
-            var file = { name: "empty.txt" };
-            var expirationDate = new Date();
-            var data = { guid: Helper.UID, uriToFile: "http://example.com/" };
+            const file = { name: "empty.txt" };
+            const expirationDate = new Date();
+            const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
             $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
                 .respond(data);
 
@@ -33,8 +33,8 @@ describe("File Upload", () => {
         it("calls server and returns result when expirationDate is not specified",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
             // Arrange
-            var file = { name: "empty.txt" };
-            var data = { guid: Helper.UID, uriToFile: "http://example.com/" };
+            const file = { name: "empty.txt" };
+            const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
             $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}`)
                 .respond(data);
 
@@ -53,10 +53,10 @@ describe("File Upload", () => {
         it("calls server and returns error when the server returns an error",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
             // Arrange
-            var file = { name: "empty.txt" };
-            var status = 500;
-            var data = { message: "Internal Server Error" };
-            var expirationDate = new Date();
+            const file = { name: "empty.txt" };
+            const status = 500;
+            const data = { message: "Internal Server Error" };
+            const expirationDate = new Date();
             $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
                 .respond(status, data);
 

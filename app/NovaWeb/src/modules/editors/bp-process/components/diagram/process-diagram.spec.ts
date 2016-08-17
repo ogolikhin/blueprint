@@ -126,6 +126,8 @@ describe("ProcessDiagram Tests", () => {
         catch (err) {
             error = err;
         }
+
+        // assert 
         expect(error.message).toBe("Process id '-1' is invalid.");
     });
     it("creatediagram - Null element", () => {
@@ -142,6 +144,7 @@ describe("ProcessDiagram Tests", () => {
 
 
         let error: Error;
+
         // act
         try {
             diagram.createDiagram(1, null);
@@ -149,6 +152,8 @@ describe("ProcessDiagram Tests", () => {
         catch (err) {
             error = err;
         }
+
+        // assert 
         expect(error.message).toBe("There is no html element for the diagram");
     });
 });

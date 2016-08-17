@@ -1,4 +1,5 @@
 import "angular";
+import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
@@ -6,12 +7,13 @@ import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$timeout"];
+formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
 /* tslint:disable */
 export function formlyConfigExtendedFields(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
+    $sce: ng.ISCEService,
     $timeout: ng.ITimeoutService
 ): void {
 /* tslint:enable */
@@ -123,14 +125,6 @@ export function formlyConfigExtendedFields(
                 minScrollbarLength: 20
             };
 
-            $scope.getSingleChoiceLabel = function(item: number): string {
-                if (angular.isNumber(item)) {
-                    console.log($scope.options.data.validValueIds)
-                    return item.toString();
-                }
-                return "";
-            };
-
             $scope.filterMultiChoice = function(item): boolean {
                 if (angular.isArray(currentModelVal)) {
                     return currentModelVal.indexOf(item.value) >= 0;
@@ -146,6 +140,9 @@ export function formlyConfigExtendedFields(
                         newValue = $scope.options.data.stringDefaultValue;
                     }
                     $scope.tooltip = newValue;
+                    if ($scope.options.data.isRichText) {
+                        newValue = $sce.trustAsHtml(newValue);
+                    }
                     break;
                 case PrimitiveType.Date:
                     let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
@@ -254,7 +251,27 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select
+                <select
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key]"
+                    class="form-control"></select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /*template: `<div class="input-group has-messages">
+                <div ng-if="options.data.isValidated"><ui-select
+                    ng-model="model[options.key]"
+                    ng-disabled="{{to.disabled}}"
+                    remove-selected="false">
+                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
+                    <ui-select-choices
+                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select></div>
+                <div ng-if="!options.data.isValidated"><ui-select
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false">
@@ -265,11 +282,11 @@ export function formlyConfigExtendedFields(
                         refresh-delay="0">
                         <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
                     </ui-select-choices>
-                </ui-select>
+                </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
-            </div>`,
+            </div>`,*/
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {

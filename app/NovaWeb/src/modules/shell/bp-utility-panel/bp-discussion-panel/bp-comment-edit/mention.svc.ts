@@ -1,5 +1,6 @@
 ﻿import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
 import { ILocalizationService } from "../../../../core";
+import { Helper } from "../../../../shared/utils/helper";
 
 // TinyMCE mention plugin interface - https://github.com/CogniStreamer/tinyMCE-mention
 export interface ITinyMceMentionOptions<T> {
@@ -38,12 +39,6 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (!MentionService.emailDiscussionDisabledMessage) {
             MentionService.emailDiscussionDisabledMessage = "Email disucssions have been disabled"//this.localization.get("RR_Email_Discussions_Disabled_Message");
         }
-    }
-
-    private escapeHtml = function (rawText: string) {
-        var dummy = document.createElement("div");
-        dummy.appendChild(document.createTextNode(rawText));
-        return dummy.innerHTML;
     }
 
     public create(areEmailDiscussionsEnabled: boolean): ITinyMceMentionOptions<IUserOrGroupInfo> {
@@ -122,7 +117,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id) {
             // this.query is defined in the caller context (mention plugin)
             const query = MentionService.escapeRegExp((<any>this).query);
-            var nameString: string = this.escapeHtml(person.name);
+            var nameString: string = Helper.escapeHTMLText(person.name);
             if (boldName) {
                 nameString = `<strong>${MentionService.highlight(query, nameString)}</strong>`;
             } else {
@@ -149,7 +144,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id === "PlaceHolderEntry") {
             return "";
         }
-        return `<a class="mceNonEditable" linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" text="${person.name}" canclick="True" isvalid="True" ${this.prepareMentionIdAttributes(person)} ${this.prepareMentionEmailAttribute(person)}><span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">${this.escapeHtml(person.name)}</span></a> `;
+        return `<a class="mceNonEditable" linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" text="${person.name}" canclick="True" isvalid="True" ${this.prepareMentionIdAttributes(person)} ${this.prepareMentionEmailAttribute(person)}><span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">${Helper.escapeHTMLText(person.name)}</span></a> `;
     }
 
     private prepareMentionIdAttributes(person: IUserOrGroupInfo): string {

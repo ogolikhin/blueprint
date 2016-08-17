@@ -119,7 +119,7 @@ describe("Settings", () => {
 
             // Assert
             expect(action).toThrowError("Value '0x5' for key 'invalidNumber' is not a valid number");
-        })
+        });
     });
 
     describe("getBoolean", () => {
@@ -169,7 +169,7 @@ describe("Settings", () => {
 
             // Assert
             expect(action).toThrowError("Value 'NaN' for key 'invalidBoolean' is not a valid boolean");
-        })
+        });
     });
 
     describe("getObject", () => {
@@ -220,6 +220,6 @@ describe("Settings", () => {
             // Assert
             expect(action)
                 .toThrowError("Value '{ 'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true }' for key 'invalidObject' is not a valid object");
-        })
+        });
     });
 });

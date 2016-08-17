@@ -158,6 +158,9 @@ export class WindowManager implements IWindowManager {
         try {
             this._toggleObserver.disconnect();
             this._messageObserver.disconnect();
+
+            this._toggleObserver = null;
+            this._messageObserver = null;
         } catch (ex) {
             //this.messageService.addError(ex.message);
         }

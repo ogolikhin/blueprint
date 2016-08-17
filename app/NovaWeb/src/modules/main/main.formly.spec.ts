@@ -69,7 +69,7 @@ describe("Formly", () => {
             expect(fieldInput.innerHTML).toContain("2016");
         });
 
-        it("should display read only multichoice", function () {
+        xit("should display read only multichoice", function () {
             compileAndSetupStuff({model: {readonlySelectMulti: [1, 2]}});
 
             let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[2];

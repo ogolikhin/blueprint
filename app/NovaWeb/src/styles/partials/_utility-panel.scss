@@ -159,6 +159,8 @@ bp-utility-panel {
         cursor: pointer;
 
         .icon:before {
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
             color: $gray-darker;
             font-size: $font-size-bigger;
             margin: 0;

@@ -30,7 +30,7 @@
         showMore[0].addEventListener("click", showMoreClick);
         showLess[0].addEventListener("click", showLessClick);
 
-        $element.ready(function () {
+        $element.ready(() => {
             //displays the 'show more' and 'show less' part if comment height is more than desired size + (%30 of desired size)
             if ($element[0].offsetHeight > 1.3 * $scope.bpCollapsible) {
                 $element.addClass("collapsed");

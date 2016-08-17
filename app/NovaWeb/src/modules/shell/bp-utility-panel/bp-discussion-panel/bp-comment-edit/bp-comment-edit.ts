@@ -1,4 +1,6 @@
 ﻿import "angular-ui-tinymce";
+import { IMentionService } from "./mention.svc";
+
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
@@ -9,12 +11,16 @@ export class BPCommentEdit implements ng.IComponentOptions {
         commentPlaceHolderText: "@",
         cancelComment: "&",
         postComment: "&",
-        commentText: "@"
+        commentText: "@",
+        emailDiscussionsEnabled: "="
     };
 }
 
 export class BPCommentEditController {
-    static $inject: [string] = ["$q"];
+    static $inject: [string] = ["$q", "mentionService"];
+
+    constructor(private $q: ng.IQService, private mentionService: IMentionService) {
+    }
 
     public cancelComment: Function;
     public postComment: Function;
@@ -23,8 +29,9 @@ export class BPCommentEditController {
     public commentPlaceHolderText: string;
     public commentText: string;
     public isWaiting: boolean = false;
+    public emailDiscussionsEnabled: boolean;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link autoresize",
+        plugins: "textcolor table noneditable autolink link autoresize mention",
         autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,
@@ -32,6 +39,7 @@ export class BPCommentEditController {
         remove_script_host: false,
         statusbar: false,
         menubar: false,
+        mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             editor.focus();
             editor.formatter.register("font8px", {
@@ -105,8 +113,6 @@ export class BPCommentEditController {
         }
     };
 
-    constructor(private $q: ng.IQService) {
-    }
 
     public callPostComment() {
         if (!this.isWaiting) {

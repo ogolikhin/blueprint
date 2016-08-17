@@ -7,19 +7,25 @@ export class BPCommentEdit implements ng.IComponentOptions {
         addButtonText: "@",
         cancelButtonText: "@",
         commentPlaceHolderText: "@",
-        cancelComment: "&"
+        cancelComment: "&",
+        postComment: "&",
+        commentText: "@"
     };
 }
 
 export class BPCommentEditController {
+    static $inject: [string] = ["$q"];
+
     public cancelComment: Function;
+    public postComment: Function;
     public addButtonText: string;
     public cancelButtonText: string;
     public commentPlaceHolderText: string;
     public commentText: string;
+    public isWaiting: boolean = false;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link",
-        //toolbar: "fontsize | bold italic underline strikethrough | forecolor format | link",
+        plugins: "textcolor table noneditable autolink link autoresize",
+        autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,
         relative_urls: false,
@@ -27,6 +33,7 @@ export class BPCommentEditController {
         statusbar: false,
         menubar: false,
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
+            editor.focus();
             editor.formatter.register("font8px", {
                 inline: "span",
                 styles: { "font-size": "8px" }
@@ -95,13 +102,31 @@ export class BPCommentEditController {
                         }
                     }]
             });
-            editor.on("init", function () {
-                //this.getDoc().body.style.fontFamily = 'Lucida';
-                //this.getDoc().body.style.fontSize = '20';
-            });
-        },
+        }
+    };
+
+    constructor(private $q: ng.IQService) {
     }
 
-    constructor() {
+    public callPostComment() {
+        if (!this.isWaiting) {
+            this.isWaiting = true;
+            this.postCommentInternal()
+                .finally(() => {
+                    this.isWaiting = false;
+                });
+        }
+    }
+
+    public postCommentInternal(): ng.IPromise<void> {
+        const defer = this.$q.defer<any>();
+        this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
+        return defer.promise;
+    }
+
+    public $onDestroy() {
+        this.tinymceOptions.setup = null;
+        this.tinymceOptions.init_instance_callback = null;
+        this.tinymceOptions = null;
     }
 }

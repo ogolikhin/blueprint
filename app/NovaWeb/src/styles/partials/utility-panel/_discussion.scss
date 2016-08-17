@@ -13,8 +13,7 @@ bp-discussion-panel {
     bp-comment-edit {
         .edit-container {
             text-align: center;
-            margin-top: $padding-smaller;
-            padding: $padding-smaller;
+            padding: $padding-smallest;
         }
 
         textarea {
@@ -24,7 +23,15 @@ bp-discussion-panel {
 
         .comment-edit-button-bar {
             margin-top: $padding-smallest;
-            clear: both;
+        }
+
+        &.reply {
+            margin-bottom: 10px;
+        }
+
+        .comment-edit-waiting {
+            margin-top: 5px;
+            padding: 0;
         }
     }
 
@@ -36,7 +43,7 @@ bp-discussion-panel {
 
     .comment {
         word-wrap: break-word;
-        line-height: initial;
+        line-height: normal;
         overflow: auto;
 
         ul, ol {
@@ -56,6 +63,7 @@ bp-discussion-panel {
 
     .info {
         line-height: $font-size-bigger;
+        position: relative;
     }
 
     .discussion-status {
@@ -82,6 +90,11 @@ bp-discussion-panel {
         &.active {
             color: $gray-darker;
         }
+
+        &.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
     }
 
     .reply-link {
@@ -100,8 +113,10 @@ bp-discussion-panel {
     }
 
     bp-discussion-reply-item {
-        margin-left: $padding-smaller !important;
-        background-color: $blue-lightest;
+        .reply-item {
+            margin-left: $padding-smaller !important;
+            background-color: $blue-lightest;
+        }
 
         .reply-separator {
             width: 2px;
@@ -115,6 +130,20 @@ bp-discussion-panel {
         .author {
             @include text-ellipsis-flex-width(160px);
         }
+
+        .show-more {
+            background-image: linear-gradient(to bottom, transparent, $blue-lightest);
+        }
+    }
+
+    bp-artifact-discussion-item, bp-discussion-reply-item {
+        .comment-editing {
+            padding: 0;
+        }
+
+        .button-bar i {
+            font-style: normal;
+        }
     }
 
     .mce-btn button {
@@ -124,7 +153,7 @@ bp-discussion-panel {
 
     .mce-ico {
         font-size: 13px;
-        width:15px;
+        width: 14px;
     }
 
     i.mce-ico.mce-i-font-size::before {

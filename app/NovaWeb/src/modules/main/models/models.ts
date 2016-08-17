@@ -1,5 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection } from "./enums";
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -8,9 +7,14 @@ export enum ArtifactStateEnum {
     Deleted = 2
 }
 
+export enum ProjectNodeType {
+    Folder = 0,
+    Project = 1
+}
+
 export interface IProjectNode {
     id: number;
-    type: number;
+    type: ProjectNodeType;
     name: string;
     parentFolderId: number;
     description?: string;
@@ -30,6 +34,7 @@ export interface IItem {
     id: number;
     name?: string;
     description?: string;
+    prefix?: string;
     parentId?: number;
     itemTypeId?: number;
     itemTypeVersionId?: number;
@@ -37,6 +42,8 @@ export interface IItem {
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
+
+    predefinedType?: ItemTypePredefined;
 }
 
 export interface IUserGroup {
@@ -51,23 +58,26 @@ export interface ISubArtifact extends IItem {
 
 export interface IArtifact extends IItem {
     projectId?: number;
-    prefix?: string;
     orderIndex?: number;
     version?: number;
+
     createdOn?: Date; 
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
-    permissions?: number;
-    lockedByUserId?: number;
+
+    lockedByUser?: IUserGroup;
+    lockedDateTime?: Date;
+
+    permissions?: RolePermissions;
+    readOnlyReuseSettings?: ReuseSettings;
+
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 
     //for client use
     artifacts?: IArtifact[];
-    predefinedType?: ItemTypePredefined;
     loaded?: boolean;
-
 }
 export interface IOption {
     id: number;
@@ -115,6 +125,7 @@ export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;
+    isReuseReadOnly?: boolean;
     value: any;
 }
 
@@ -128,6 +139,7 @@ export interface IProjectMeta {
 export interface IProject extends IArtifact {
     description?: string;
     meta?: IProjectMeta;
+    
 }
 
 export class Project implements IProject { 
@@ -154,8 +166,16 @@ export class Project implements IProject {
         return this.id;
     }
 
-    public get parentId() {
+    public get prefix(): string {
+        return "PR";
+    }
+    public get parentId(): number {
         return -1;
+    }
+    public lockedByUserId: number;
+
+    public get permissions(): RolePermissions {
+        return 4095;
     }
 
     public get predefinedType(): ItemTypePredefined {
@@ -215,4 +235,10 @@ export interface IHashMap<T> {
     [key: string]: T;
 }
 
+
+export interface IEditorContext {
+    artifact?: IArtifact;
+    type?: IItemType;
+}
   
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };

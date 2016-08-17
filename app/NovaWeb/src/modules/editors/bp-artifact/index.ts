@@ -1,14 +1,11 @@
 ﻿import "angular";
-import { ILocalizationService, IMessageService, IStateManager } from "../../core";
-import { Helper } from "../../shared";
-import { Models, IArtifactService } from "../../main";
-import { BpGeneralEditor } from "./bp-general-editor";
-import { BpArtifactEditor } from "./bp-artifact-editor";
 
 
-angular.module("bp.editors.details", []) 
-    .component("bpGeneralEditor", new BpGeneralEditor())
-    .component("bpArtifactEditor", new BpArtifactEditor());
+import { BpArtifactGeneralEditor } from "./bp-general-editor";
+import { BpArtifactDetailsEditor } from "./bp-details-editor";
+
+angular.module("bp.editors.details", [])
+    .component("bpArtifactGeneralEditor", new BpArtifactGeneralEditor())
+    .component("bpArtifactDetailsEditor", new BpArtifactDetailsEditor());
 
 
-export {IArtifactService, IMessageService, IStateManager, Models, Helper, ILocalizationService}

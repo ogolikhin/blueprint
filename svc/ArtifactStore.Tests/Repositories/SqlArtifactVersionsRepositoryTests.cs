@@ -126,10 +126,10 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("DoesArtifactHavePublishedOrDraftVersion", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { true });
             cxn.SetupQueryAsync("IsArtifactDeleted", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { false });
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new List<int>());
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId }, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
@@ -164,8 +164,8 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("IsArtifactDeleted", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { true });
             cxn.SetupQueryAsync("GetDeletedVersionInfo", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<ArtifactHistoryVersion> { new ArtifactHistoryVersion { VersionId = int.MaxValue, UserId = 1, Timestamp = null, ArtifactState = ArtifactState.Deleted } });
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId }, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
@@ -198,11 +198,11 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("IsArtifactDeleted", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { false });
             var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new int[] { artifactId });
 
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId }, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
@@ -237,11 +237,11 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("IsArtifactDeleted", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<bool> { false });
             var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value");
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new int[] { artifactId });
 
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(new List<int> { sessionUserId }, "Int32Collection", "Int32Value");
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act

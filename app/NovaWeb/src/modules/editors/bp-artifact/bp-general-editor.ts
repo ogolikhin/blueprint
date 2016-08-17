@@ -1,26 +1,35 @@
-﻿import { IMessageService, IStateManager, Models } from "./";
-import { BpBaseEditor, PropertyContext, LookupEnum } from "./bp-base-editor";
+﻿import {
+    BpArtifactEditor,
+    PropertyContext,
+    ILocalizationService,
+    IProjectManager,
+    IMessageService,
+    IStateManager,
+    IWindowManager,
+    Models,
+    Enums
+} from "./bp-artifact-editor";
 
-export class BpGeneralEditor implements ng.IComponentOptions {
+export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
-    public controller: Function = BpGeneralEditorController;
+    public controller: Function = BpGeneralArtifactEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         context: "<",
     };
 }
 
-export class BpGeneralEditorController extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager"];
+export class BpGeneralArtifactEditorController extends BpArtifactEditor {
+    public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        scrollXMarginOffset: 4,
-        scrollYMarginOffset: 4
-    };
-
-    constructor(messageService: IMessageService, stateManager: IStateManager) {
-        super(messageService, stateManager);
+    constructor(
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        windowManager: IWindowManager,
+        localization: ILocalizationService,
+        projectManager: IProjectManager
+    ) {
+        super(messageService, stateManager, windowManager, localization, projectManager);
     }
 
     public activeTab: number;
@@ -59,7 +68,7 @@ export class BpGeneralEditorController extends BpBaseEditor {
             field.type = "bpFieldReadOnly";
             if (true === propertyContext.isRichText) {
                 this.noteFields.push(field);
-            } else if (LookupEnum.System === propertyContext.lookup) {
+            } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {
                 this.systemFields.push(field);
             } else {
                 field.hide = true;

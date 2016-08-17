@@ -1,5 +1,6 @@
-﻿import { Message, MessageType, IMessage} from "./message";
-import { IConfigValueHelper } from "../configuration";
+﻿import { ILocalizationService } from "../localization";
+import { Message, MessageType, IMessage} from "./message";
+import { ISettingsService } from "../configuration";
 
 export interface IMessageService {
     addMessage(msg: Message): void;
@@ -13,8 +14,8 @@ export class MessageService implements IMessageService {
     private timers: { [id: number]: ng.IPromise<any>; } = {};
     private id: number = 0;
 
-    public static $inject = ["$timeout", "configValueHelper"];
-    constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+    public static $inject = ["$timeout", "settings", "localization"];
+    constructor(private $timeout: ng.ITimeoutService, private settings: ISettingsService, private localization: ILocalizationService) {
         this.initialize();
     }
 
@@ -51,14 +52,7 @@ export class MessageService implements IMessageService {
          * {"Warning": 0,"Info": 70000,"Error": 0}
          */
         let result = 0;
-        let timeout = this.configValueHelper.getStringValue("StorytellerMessageTimeout");  //TODO to change name?
-
-        if (timeout) {
-            timeout = JSON.parse(timeout);
-        } else {
-            // use defaults if timeout values not configured
-            timeout = JSON.parse(`{ "Warning": 0, "Info": 7000, "Error": 0 }`);
-        }
+        let timeout = this.settings.getObject("StorytellerMessageTimeout", { "Warning": 0, "Info": 7000, "Error": 0 });  //TODO to change name?
 
         switch (messageType) {
             case MessageType.Error:
@@ -95,9 +89,9 @@ export class MessageService implements IMessageService {
 
     public addError(text: string | Error): void {
         if (text instanceof Error) {
-            this.addMessage(new Message(MessageType.Error, (text as Error).message));
+            this.addMessage(new Message(MessageType.Error, this.localization.get((text as Error).message)));
         } else {
-            this.addMessage(new Message(MessageType.Error, text as string));
+            this.addMessage(new Message(MessageType.Error, this.localization.get(text as string)));
         }
     }
 

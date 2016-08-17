@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {
     ILocalizationService,
-    IConfigValueHelper } from "../../core";
+    ISettingsService } from "../../core";
 import { ISession } from "./session.svc";
 
 export class ILoginInfo {
@@ -66,9 +66,9 @@ export class LoginCtrl {
 
     public isLoginInProgress: boolean;
 
-    static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
+    static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "settings"];
     /* tslint:disable */
-    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private settings: ISettingsService) {
         /* tslint:enable */
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
@@ -138,11 +138,11 @@ export class LoginCtrl {
     }
 
     public get isFederatedAuthenticationEnabled(): boolean {
-        return this.configValueHelper.getBooleanValue("IsFederatedAuthenticationEnabled") === true;
+        return this.settings.getBoolean("IsFederatedAuthenticationEnabled") === true;
     }
 
     public get samlPrompt(): string {
-        let prompt: string = this.configValueHelper.getStringValue("FederatedAuthenticationPrompt");
+        let prompt: string = this.settings.get("FederatedAuthenticationPrompt");
         if (!prompt || prompt === "") {
             prompt = this.localization.get("Login_SamlLink");
         }

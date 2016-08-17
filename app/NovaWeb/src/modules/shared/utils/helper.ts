@@ -1,6 +1,5 @@
-﻿import * as moment from "moment";
+﻿export class Helper {
 
-export class Helper {
     static get UID(): string {        
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             /* tslint:disable:no-bitwise */ 
@@ -79,109 +78,47 @@ export class Helper {
     };
     /* tslint:enable */
 
-    static getFirstBrowserLanguage(): string {
-        // The most reliable way of getting the user's preferred langauge would be to read the Accept-Languages request
-        // header on the server. In Chrome 32+ and Firefox 32+ that header's value is available in navigator.languages
-        // In the returned array the languages are ordered by preference with the most preferred language first (see:
-        // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/languages
-        // For other browsers:
-        // - Internet Explorer:
-        //   navigator.userLanguage is the language set in Windows Control Panel / Regional Options
-        //   navigator.browserLanguage returns the language of the UI of the browser and it is decided by the version of
-        //   the executable installed
-        //   navigator.systemLanguage gives the locale used by Windows itself
-        // - Safari: uses the language set at the system level (similar to navigator.systemLanguage of IE above)
-        // The order of elements in browserLanguagePropertyKeys has been set based on the above information.
-        let nav = window.navigator,
-            browserLanguagePropertyKeys = ["userLanguage", "systemLanguage", "language", "browserLanguage"],
-            language;
 
-        // support for HTML 5.1 "navigator.languages"
-        if (Array.isArray((<any> nav).languages)) {
-            for (let i = 0; i < (<any> nav).languages.length; i++) {
-                language = (<any >nav).languages[i];
-                if (language && language.length) {
-                    return language;
+    static autoLinkURLText(node: Node) {
+        /* tslint:disable */
+        const urlPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
+        const protocolPattern: RegExp = /((?:ht|f)tp(?:s?)\:\/\/)/;
+        /* tslint:enable */
+
+        // if it's already an A tag we exit
+        if (node.nodeType === 1 && node.nodeName.toUpperCase() === "A") {
+            return;
+        }
+
+        // if it doesn't contain a URL in the text, we exit
+        if (!urlPattern.test(node.textContent)) {
+            return;
+        }
+
+        // if it has children, we go deeper
+        if (node.hasChildNodes()) {
+            [].forEach.call(node.childNodes, function(child) {
+                if (child.nodeType === 1) { // we dig into HTML children only
+                    Helper.autoLinkURLText(child);
+                } else if (child.nodeType === 3) {
+                    let nodeText: string = child.textContent;
+                    let urls = nodeText.match(urlPattern);
+                    if (urls) {
+                        urls.forEach((url) => {
+                            let defaultProtocol = "";
+                            if (!protocolPattern.test(url)) {
+                                defaultProtocol = "http://";
+                            }
+
+                            nodeText = nodeText.replace(url, `<a href="${defaultProtocol + url}" target="_blank">${url}</a>`);
+                        });
+                        let span = document.createElement("span");
+                        span.innerHTML = nodeText;
+                        child.parentNode.replaceChild(span, child);
+                    }
                 }
-            }
+            });
         }
-
-        // support for other well known properties in browsers
-        for (let i = 0; i < browserLanguagePropertyKeys.length; i++) {
-            language = nav[browserLanguagePropertyKeys[i]];
-            if (language && language.length) {
-                return language;
-            }
-        }
-
-        return null;
-    };
-
-    static toLocaleNumber(number: number, locale?: string): string {
-        if (number === null || typeof number === "undefined" || isNaN(number)) {
-            return null;
-        }
-        
-        let numberAsString: string = number.toString();
-
-        if (number - Math.round(number) !== 0) {
-            let decimalSeparator = this.getDecimalSeparator(locale);
-
-            if (decimalSeparator !== ".") {
-                numberAsString = numberAsString.replace(".", decimalSeparator);
-            }
-        }
-
-        return numberAsString;
-    };
-
-    static parseLocaleNumber(numberAsAny: any, locale?: string): number {
-        let number: string;
-        let decimalSeparator = this.getDecimalSeparator(locale);
-        let thousandSeparator = decimalSeparator === "." ? "," : ".";
-
-        number = (numberAsAny || "").toString();
-        number = number.replace(thousandSeparator, "");
-        if (decimalSeparator !== ".") {
-            number = number.replace(decimalSeparator, ".");
-        }
-
-        return parseFloat(number);
-    };
-
-    static getDecimalSeparator(locale?: string): string {
-        let separator = ".";
-        let locale_ = locale || this.getFirstBrowserLanguage();
-        if (Number.toLocaleString) {
-            separator = (1.1).toLocaleString(locale_).replace(/\d/g, "");
-        }
-
-        return separator;
-    };
-
-    static uiDatePickerFormatAdaptor(format: string): string  {
-        let adapted = format;
-        //adapted = adapted.replace(/[^DMY/.-]/gi, "");
-        adapted = adapted.replace(/[\u200F]/g, ""); //special case for RTL languages
-        adapted = adapted.replace(/D/g, "d").replace(/Y/g, "y");
-
-        if (adapted.length === adapted.replace(/[^dMy]/g, "").length) {
-            adapted = adapted.match(/(d{1,4}|M{1,4}|y{1,4})/g).join(" ");
-        }
-
-        return adapted;
-    };
-
-    static toStartOfTZDay(date: Date): Date  {
-        let momentDate = moment(date);
-
-        if (!momentDate.isValid()) {
-            return null;
-        }
-
-        let momentString = momentDate.utc().startOf("day").format("YYYY-MM-DD");
-
-        return moment(momentString).toDate();
     };
 
     public static toFlat(root: any): any[] {

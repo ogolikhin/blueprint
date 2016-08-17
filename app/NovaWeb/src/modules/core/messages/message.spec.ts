@@ -2,7 +2,7 @@
 import "angular-mocks";
 import { MessageService } from "./message.svc";
 import { MessageComponent } from "./message";
-import { ConfigValueHelper } from "../configuration";
+import { SettingsService } from "../configuration";
 
 describe("message directive", () => {
     var element: JQuery;
@@ -10,7 +10,7 @@ describe("message directive", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $compileProvider.component("message", <any>new MessageComponent());
         $provide.service("messageService", MessageService);
-        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("settings", SettingsService);
     }));
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
         $rootScope["config"] = {

@@ -1,38 +1,45 @@
 ﻿<div ng-if="$ctrl.artifactId && !$ctrl.artifactDiscussionList.length && !$ctrl.isLoading && !$ctrl.showAddComment" class="empty-state">
     <p>{{ $ctrl.localization.get('App_UP_Discussions_Introduction_Message') }}</p>
-    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_Start_Discussion') }}</button>
+    <button ng-disabled="!$ctrl.canCreate" class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_Start_Discussion') }}</button>
 </div>
 <div ng-if="!$ctrl.artifactId" class="empty-state">{{ $ctrl.localization.get('App_UP_Discussions_No_Artifact') }}</div>
 <div class="filter-bar" ng-if="$ctrl.artifactDiscussionList.length">
-    <button class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
+    <button ng-disabled="!$ctrl.canCreate" class="btn btn-new-comment" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
 </div>
 <bp-comment-edit ng-if="$ctrl.showAddComment"
                  add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Post_Button_Text')}}"
                  cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Cancel_Button_Text')}}"
                  comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Comment_Place_Holder')}}"
-                 cancel-comment="$ctrl.cancelCommentClick()">
+                 cancel-comment="$ctrl.cancelCommentClick()"
+                 post-comment="$ctrl.addArtifactDiscussion(comment)">
 </bp-comment-edit>
 <div class="scrollable-content"
      ng-if="$ctrl.artifactDiscussionList.length"
      perfect-scrollbar>
     <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
-        <bp-artifact-discussion-item class="utility-panel-artifact-item"
-                                     discussion-info="discussion"
+        <bp-artifact-discussion-item discussion-info="discussion"
                                      get-replies="$ctrl.expandCollapseDiscussion(discussion)"
                                      new-reply-click="$ctrl.newReplyClick()"
                                      can-create="$ctrl.canCreate"
-                                     cancel-comment="$ctrl.cancelCommentClick()">
+                                     cancel-comment="$ctrl.cancelCommentClick()"
+                                     artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
+                                     delete-comment-thread="$ctrl.deleteCommentThread(discussion)"
+                                     discussion-edited="$ctrl.discussionEdited(discussion)">
         </bp-artifact-discussion-item>
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
-            <bp-discussion-reply-item class="utility-panel-artifact-item"
-                                      reply-info="reply">
+            <bp-discussion-reply-item reply-info="reply"
+                                      artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
+                                      can-create="$ctrl.canCreate"
+                                      discussion-closed="discussion.isClosed"
+                                      delete-reply="$ctrl.deleteReply(discussion, reply)">
             </bp-discussion-reply-item>
         </div>
         <bp-comment-edit ng-if="discussion.showAddReply"
                          add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Post_Button_Text')}}"
                          cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Cancel_Button_Text')}}"
                          comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Comment_Place_Holder')}}"
-                         cancel-comment="$ctrl.cancelReplyClick(discussion)">
+                         cancel-comment="$ctrl.cancelReplyClick(discussion)"
+                         post-comment="$ctrl.addDiscussionReply(discussion, comment)">
         </bp-comment-edit>
     </div>
 </div>

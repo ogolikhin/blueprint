@@ -1,5 +1,4 @@
 ﻿import { ILocalizationService } from "../../../core";
-// import { Models } from "../../../main";
 
 export interface IArtifactAttachments {
     getArtifactAttachments(artifactId: number, subArtifactId?: number, addDrafts?: boolean): ng.IPromise<IArtifactAttachmentsResultSet>;

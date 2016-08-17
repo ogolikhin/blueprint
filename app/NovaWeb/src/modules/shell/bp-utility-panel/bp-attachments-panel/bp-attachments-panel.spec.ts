@@ -15,7 +15,7 @@ describe("Component BP Attachments Panel", () => {
     let template = `<bp-attachments-panel></bp-attachments-panel>`;
     let vm: BPAttachmentsPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));
@@ -44,11 +44,10 @@ describe("Component BP Attachments Panel", () => {
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
             
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
             const selectedArtifact = selectionManager.selection.artifact;
 

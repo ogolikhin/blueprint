@@ -3,12 +3,11 @@ import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
-import { IProjectManager, Models, IProjectRepository } from "../../../";
-
+import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
+import { HttpHandledErrorStatusCodes } from "../../../../shell/error/http-error-interceptor";
 
 export interface IArtifactPickerController {
-    propertyMap: any;
-    isItemSelected: boolean;
+    propertyMap: any;  
     selectedItem?: any;
     getProjects: any;
 }
@@ -23,19 +22,33 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectName: string;
 
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "projectRepository", "dialogService", "params"];
+    static $inject = [
+        "$scope", 
+        "localization", 
+        "$uibModalInstance", 
+        "projectManager", 
+        "selectionManager", 
+        "projectRepository", 
+        "dialogService", 
+        "dialogSettings"];
+        
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private manager: IProjectManager,
+        private selectionManager: ISelectionManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
-        params: IDialogSettings
+        dialogSettings: IDialogSettings
     ) {
-        super($uibModalInstance, params);
-        this.projectId = this.manager.currentProject.getValue().id;
-        this.projectName = this.manager.currentProject.getValue().name;
+        super($uibModalInstance, dialogSettings);
+        dialogService.dialogSettings.okButton = "OK";
+        let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        if (_project) {
+            this.projectId = _project.id;
+            this.projectName = _project.name;
+        }
     };
 
     public propertyMap = {
@@ -50,10 +63,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         return this.selectedItem || null;
     };
 
-    public get isItemSelected(): boolean {
-        return this.returnValue;
-    }
-
     public get selectedItem() {
         return this._selectedItem;
     }
@@ -63,7 +72,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     private onEnterKeyPressed = (e: any) => {
-        var key = e.which || e.keyCode;
+        const key = e.which || e.keyCode;
         if (key === 13) {
             this.ok();
         }
@@ -79,18 +88,18 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 css.push("has-children");
             }
 
-            if(params.data.predefinedType){
-            if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
-                css.push("is-folder");
-            } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
-                css.push("is-project");
-            } else {               
-                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));              
-            }
-            }else{
-               if(params.data.type === 0){
+            if (params.data.predefinedType) {
+                if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                     css.push("is-folder");
-               }else if(params.data.type === 1){
+                } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
+                    css.push("is-project");
+                } else {               
+                    css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
+                }
+            } else {
+               if (params.data.type === 0) {
+                    css.push("is-folder");
+               } else if (params.data.type === 1) {
                   css.push("is-project");
                }
             }
@@ -100,10 +109,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = Helper.escapeHTMLText(params.data.name);
+                const sanitizedName = Helper.escapeHTMLText(params.data.name);
 
                 if (params.data.type === 1) {
-                    var cell = params.eGridCell;
+                    const cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
                 return sanitizedName;
@@ -123,21 +132,23 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {                    
-                    self.tree.reload(nodes, artifactId);
+                .then((nodes: Models.IArtifact[]) => {   
+                     const filtered = nodes.filter(this.filterCollections);
+                      self.tree.reload(filtered, artifactId);
                 }, (error) => {
-
+                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
+                        this.cancel();
+                    } 
                 });
-
             return null;
         } else {
             this.projectName = this.localization.get("App_Header_Name");
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
             this.projectRepository.getFolders(id)
-                .then((nodes: Models.IProjectNode[]) => { 
+                .then((nodes: Models.IProjectNode[]) => {                  
                     self.tree.reload(nodes, id);
                 }, (error) => {
-                    if (error.statusCode === 1401) {
+                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
                         this.cancel();
                     }
                 });
@@ -146,29 +157,35 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
-    public doSelect = (item: any) => {
+    public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
         let self = this;
         if (!this.projectView) {
             this.$scope.$applyAsync((s) => {
                 self.setSelectedItem(item);
             });
         } else {
-            if (item) {
+            if (item && item.type === Models.ProjectNodeType.Project) {
                 this.projectId = item.id;
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
                         this.projectName = project.name;
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
+                                const filtered = nodes.filter(this.filterCollections);   
                                 this.projectView = false;
-                                self.tree.reload(nodes);
+                                self.tree.reload(filtered);
                             }, (error) => {
 
                             });
                     }
                 );
-
             }
+        }
+    }
+
+    private filterCollections(node: Models.IItem) {       
+        if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
+            return true;
         }
     }
 
@@ -184,9 +201,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             return artifact;
         }
     };
+
     public getProjects() {
         this.projectView = true;
         this.doLoad(null);
     }
 }
-

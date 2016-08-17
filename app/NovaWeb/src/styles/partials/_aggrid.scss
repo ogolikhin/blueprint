@@ -341,9 +341,11 @@ $has-children-padding-before-arrow: 3px;
             -moz-animation: spin 1.5s infinite linear;
             -o-animation: spin 1.5s infinite linear;
             animation: spin 1.5s infinite linear;
+            animation-delay: .5s;
             background: transparent !important;
             content: '\e031';
             font-family: 'Glyphicons Halflings';
+            visibility: hidden;
         }
     }
 
@@ -471,6 +473,14 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .artifact-picker {
+    .project-name{        
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 560px;
+    display: inline-block;
+    vertical-align: bottom;   
+    }
     .fonticon2-search {
         margin-left: 10px;
 

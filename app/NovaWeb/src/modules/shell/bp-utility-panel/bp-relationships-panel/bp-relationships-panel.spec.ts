@@ -5,8 +5,7 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPRelationshipsPanelController } from "./bp-relationships-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactRelationshipsMock } from "./artifact-relationships.mock";
-import { Models } from "../../../main/services/project-manager";
-import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { SelectionManager } from "../../../main/services/selection-manager";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -14,7 +13,7 @@ describe("Component BPRelationshipsPanel", () => {
     let template = `<bp-relationships-panel></bp-relationships-panel>`;
     let vm: BPRelationshipsPanelController;
     let bpAccordionPanelController = {
-        isOpenObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
 
     beforeEach(angular.mock.module("app.shell"));

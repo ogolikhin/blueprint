@@ -9,12 +9,10 @@
         <form novalidate name="$ctrl.form">
             <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" >
                 <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
-                <perfect-scrollbar opts="$ctrl.scrollOptions">
-                    <div class="content" uib-collapse="isSystemPropertiesCollapsed">
-                        <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
-                        </formly-form>
-                    </div>
-                </perfect-scrollbar>
+                <div class="content" uib-collapse="isSystemPropertiesCollapsed">
+                    <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
+                    </formly-form>
+                </div>
             </div>
             <uib-tabset ng-if="$ctrl.isNoteFieldsAvailable">
                 <uib-tab ng-repeat="field in $ctrl.noteFields" heading="{{field.data.name}}">

@@ -66,10 +66,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected setArtifactId = (artifact: Models.IArtifact) => {
-        this.artifactHistoryList = [];
-
-        if (artifact !== null) {
+    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+        if (artifact == null) {
+            this.artifactHistoryList = [];
+            return;
+        }
+        if (this.artifactId !== artifact.id) {
+            this.artifactHistoryList = [];
             this.artifactId = artifact.id;
             this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)
                 .then( (list: IArtifactHistoryVersion[]) => {

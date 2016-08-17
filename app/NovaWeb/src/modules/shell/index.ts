@@ -26,8 +26,9 @@ import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/
 import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
 import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
-import {config as errorStateRouteConfig} from "./error/error.state";
 import {ErrorComponent} from "./error/error.component";
+import {Routes} from "./router/router.config";
+
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -64,10 +65,10 @@ angular.module("app.shell",
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
-    .component("bpCommentEdit", new BPCommentEdit())   
-    .component("error", new ErrorComponent())    
+    .component("bpCommentEdit", new BPCommentEdit())
+    .component("error", new ErrorComponent())
     .config(Logger)
-    .config(errorStateRouteConfig)
+    .config(Routes)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

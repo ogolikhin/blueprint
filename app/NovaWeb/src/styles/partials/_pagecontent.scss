@@ -1,3 +1,5 @@
+$page-body-min-width: 386px;
+
 pagecontent {
   box-sizing: border-box;
   display: flex;
@@ -5,20 +7,21 @@ pagecontent {
   height: 100%;
   margin: 0;
   padding: 0;
-  transition: all .4s ease;
+  //transition: all .4s ease;
   width: 100%;
 
-  .page-content-wrapper {
-    height: calc(100% - #{$breadcrumbs-height});
-    overflow: auto;
-  }
-
   .page-content {
-    margin: 15px 20px 10px;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
   }
 
   .page-heading {
+    flex-grow: 0;
+    flex-shrink: 0;
     font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+    min-width: $page-body-min-width;
+    padding: 15px 20px 0;
     white-space: nowrap;
 
     &::after {
@@ -26,6 +29,13 @@ pagecontent {
       content: '';
       display: table;
     }
+  }
+
+  .page-body-wrapper {
+    min-width: $page-body-min-width;
+    overflow: hidden !important;
+    padding: 0 20px 10px;
+    z-index: 0;
   }
 
   bp-artifact-info {
@@ -103,25 +113,19 @@ pagecontent {
         color: $gray;
         display: inline-block;
         font-style: normal;
-        height: 16px;
-        overflow: hidden;
         text-align: center;
         vertical-align: bottom;
-        width: 22px;
+        height: 20px;
+        width: 20px;
 
         &::before {
           font-size: 16px;
-          line-height: 16px;
+          line-height: normal;
         }
       }
 
       .readonly-indicator {
         width: 24px;
-
-        &::before {
-          font-size: 22px;
-          margin-top: 1px;
-        }
       }
 
       .lock-indicator::before {
@@ -130,11 +134,6 @@ pagecontent {
 
       .legacy-indicator {
         width: 24px;
-
-        &::before {
-          font-size: 15px;
-          margin-top: 8px;
-        }
       }
     }
 
@@ -150,7 +149,7 @@ pagecontent {
     position: relative;
 
     > .heading {
-      background: #cbcbcb;
+      background: $gray-lighter;
       color: $gray-dark;
       font-size: $font-size-big;
       font-weight: 600;
@@ -164,7 +163,7 @@ pagecontent {
     }
 
     > .content {
-      border: solid 1px #d9d9d9;
+      border: solid 1px $gray-lighter;
       padding: 18px 15px;
     }
 
@@ -192,14 +191,11 @@ pagecontent {
       display: inline-block;
       font-size: $font-size-small;
       font-weight: 600;
-      line-height: 92%;
-      margin-top: -2px;
-      max-height: 29px;
-      min-height: 12px;
       overflow: hidden;
       padding: 0 10px 0 26px;
-      position: relative;
-      vertical-align: middle;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
     }
 
     .icon {

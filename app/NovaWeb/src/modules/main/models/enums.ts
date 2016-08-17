@@ -12,6 +12,12 @@ export enum PrimitiveType {
     Image = 5
 }
 
+export enum PropertyLookupEnum {
+    None = 0,
+    System = 1,
+    Custom = 2,
+    Special = 3,
+}
 
 export enum ItemTypePredefined {
     Project = -1,       // for client use only 
@@ -148,6 +154,69 @@ export enum TraceType {
     Reuse = 8
 }
 
+
+export enum RolePermissions {
+    // No privileges
+    None = 0,  //0
+
+    // Allows the viewing of an artifact
+    Read = 1 << 0, // = 1
+
+    // Allows the editing of an artifact. This includes deleting & adding children.
+    Edit = 1 << 1, // = 2
+
+    // Allows deleting an artifact.
+    Delete = 1 << 2, // = 4
+
+    // Allow tracing from/To an artifact project.
+    Trace = 1 << 3, // = 8
+
+    // Allow the user to comment on an artifact.
+    Comment = 1 << 4, // 16
+
+    // Allows a user to steal a lock on artifacts.
+    StealLock = 1 << 5, //= 32
+
+    // Allows a user to report on the project.
+    CanReport = 1 << 6, // = 64
+
+    // Allows a user to share an artifact.
+    Share = 1 << 7, // = 128
+
+    // Allow reuse traces from/To an artifact project.
+    Reuse = 1 << 8, // = 256
+
+    // Allows a user to perform Excel Update.
+    ExcelUpdate = 1 << 9, // = 512
+
+    // Allow the user to delete someone else's comment on an artifact.
+    DeleteAnyComment = 1 << 10, // = 1024
+
+    // Allow the user to create/edit/save rapid review
+    CreateRapidReview = 1 << 11 // = 2048
+}
+
+
+export enum ReuseSettings {
+    None = 0,
+    Name = 1 << 0, //1
+    Description =  1 << 1, //2
+    ActorImage =  1 << 2, //4 
+    BaseActor = 1 << 3, //6 
+    DocumentFile = 1 << 4, //16
+    DiagramHeight = 1 << 5, //32
+    DiagramWidth = 1 << 6, //64
+    UseCaseLevel = 1 << 7, //128
+    UIMockupTheme = 1 << 8, //256
+    UseCaseDiagramShowConditions = 1 << 9, //512
+    Attachments = 1 << 10, //1024
+    DocumentReferences = 1 << 11, //2048
+    Relationships = 1 << 12, //4096
+    Subartifacts = 1 << 13, //8193
+}
+
+
+
 export enum TraceDirection {
     /// <summary>
     /// Child link always has direction To
@@ -167,7 +236,11 @@ export enum LicenseTypeEnum {
     Author = 3
 }
 
-
+export enum LockedByEnum {
+    None = 0,
+    CurrentUser = 1,
+    OtherUser = 2 
+}
 
 
 

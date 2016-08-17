@@ -6,8 +6,6 @@ export class Diagrams {
     public static get DOMAIN_DIAGRAM(): string { return "domaindiagram"; }
     public static get USECASE_DIAGRAM(): string { return "usecasediagram"; }
     public static get USECASE(): string { return "usecase"; }
-
-    public static get STYLE_SELECTABLE(): string { return "selectable"; }
 }
 
 export class ArrowHeads {

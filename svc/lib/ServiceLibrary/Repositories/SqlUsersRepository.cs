@@ -25,7 +25,7 @@ namespace ServiceLibrary.Repositories
         public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
             var userInfosPrm = new DynamicParameters();
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(userIds);
+            var userIdsTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             userInfosPrm.Add("@userIds", userIdsTable);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }

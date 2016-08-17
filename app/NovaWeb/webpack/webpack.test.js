@@ -5,9 +5,19 @@ var path = require('path');
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
       {
-          test: /^((?!\.spec\.ts).)*.ts$/,
+          test: /^((?!\.(spec)|(mock)\.ts).)*.ts$/,
           exclude: [/node_modules/, /bower_components/, /storyteller/],
           loader: 'istanbul-instrumenter'
+      }
+];
+var preLoaders = [
+      // Tslint loader support for *.ts files
+      //
+      // See: https://github.com/wbuchwalter/tslint-loader
+      {
+          test: /\.ts$/,
+          loader: 'tslint-loader',
+          exclude: [/node_modules/, /storyteller/]
       }
 ];
 function isDebug(argument) {
@@ -15,6 +25,8 @@ function isDebug(argument) {
 }
 if (process.argv.some(isDebug)) {   
     postLoaders = [];
+    preLoaders = [];
+    console.log("Is Debug");
 }
 
 module.exports = {
@@ -50,17 +62,8 @@ module.exports = {
   module: {
     loaders: loaders,
     postLoaders: postLoaders,
-    preLoaders: [
-      // Tslint loader support for *.ts files
-      //
-      // See: https://github.com/wbuchwalter/tslint-loader
-        {
-            test: /\.ts$/,
-            loader: 'tslint-loader',
-            exclude: [/node_modules/, /storyteller/]
-        }
-    ],
-    noParse: [/angular-perfect-scrollbar-2/]
+    preLoaders: preLoaders,
+    noParse: [/angular-perfect-scrollbar-2/, /tinymce/]
   }
 };
 

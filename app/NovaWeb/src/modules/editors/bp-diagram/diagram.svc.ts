@@ -29,48 +29,53 @@ export class DiagramService implements IDiagramService {
             cancelationToken.then(() => {
                 deferred.reject(CancelationTokenConstant.cancelationToken);
             });
-            const path = this.getPath(id, itemType);
-            let diagaram: IDiagram = null;
-            this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
-                .then(result => {
-                    try {
-                        if (itemType === ItemTypePredefined.UseCase) {
-                            diagaram = new UsecaseToDiagram().convert(<IUseCase>result.data);
-                        } else {
-                            diagaram = (<IDiagram>result.data);
-                            if (diagaram.shapes) {
-                                for (let i = 0; i < diagaram.shapes.length; i++) {
-                                    const shape = diagaram.shapes[i];
-                                    shape.label = shape.label && FontNormalizer.normalize(shape.label);
-                                    const fontFamily = shape.labelStyle && shape.labelStyle.fontFamily;
-                                    if (fontFamily) {
-                                        const newFontFamily = FontNormalizer.subsitution[fontFamily];
-                                        if (newFontFamily) {
-                                            shape.labelStyle.fontFamily = newFontFamily;
-                                        }
+            this.loadDiagram(id, itemType, cancelationToken, deferred);
+            promise = this.promises[String(id)] = deferred.promise;
+        }
+        return promise;
+    }
+
+    private loadDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>, deferred: ng.IDeferred<IDiagram>) {
+        const path = this.getPath(id, itemType);
+        let diagaram: IDiagram = null;
+        this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
+            .then(result => {
+                try {
+                    if (itemType === ItemTypePredefined.UseCase) {
+                        diagaram = new UsecaseToDiagram().convert(<IUseCase>result.data);
+                    } else {
+                        diagaram = (<IDiagram>result.data);
+                        if (diagaram.shapes) {
+                            for (let i = 0; i < diagaram.shapes.length; i++) {
+                                const shape = diagaram.shapes[i];
+                                shape.label = shape.label && FontNormalizer.normalize(shape.label);
+                                const fontFamily = shape.labelStyle && shape.labelStyle.fontFamily;
+                                if (fontFamily) {
+                                    const newFontFamily = FontNormalizer.subsitution[fontFamily];
+                                    if (newFontFamily) {
+                                        shape.labelStyle.fontFamily = newFontFamily;
                                     }
                                 }
                             }
                         }
-                        delete this.promises[id];
-                        deferred.resolve(diagaram);
-                    } catch (error) {
-                        delete this.promises[id];
-                        deferred.reject(error);
                     }
-                }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                     delete this.promises[id];
-                    if (result.status <= 0) {
-                        deferred.reject(CancelationTokenConstant.cancelationToken);
-                    } else {
-                        result.data.statusCode = result.status;
-                        deferred.reject(result.data);
-                    }
-                });
-
-            promise = this.promises[String(id)] = deferred.promise;
-        }
-        return promise;
+                    deferred.resolve(diagaram);
+                } catch (error) {
+                    delete this.promises[id];
+                    deferred.reject(error);
+                }
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+                delete this.promises[id];
+                if (result.status <= 0) {
+                    deferred.reject(CancelationTokenConstant.cancelationToken);
+                } else if (result.status === 1401) {
+                    this.loadDiagram(id, itemType, cancelationToken, deferred);
+                } else {
+                    result.data.statusCode = result.status;
+                    deferred.reject(result.data);
+                }
+            });
     }
 
     public isDiagram(itemType: ItemTypePredefined) {
@@ -90,8 +95,8 @@ export class DiagramService implements IDiagramService {
 
     private getPath(id: number, itemType: ItemTypePredefined): string {
         if (itemType === ItemTypePredefined.UseCase) {
-            return `/svc/components/RapidReview/usecase/${id}`;
+            return `/svc/bpartifactstore/usecase/${id}`;
         }
-        return `/svc/components/RapidReview/diagram/${id}?addDraft=true`;
+        return `/svc/bpartifactstore/diagram/${id}?addDraft=true`;
     }
 }

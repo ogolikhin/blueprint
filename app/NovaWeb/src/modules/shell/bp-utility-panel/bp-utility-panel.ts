@@ -1,6 +1,17 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { ISelectionManager, Models } from "../../main";
+import { ISelectionManager, Models, ISelection } from "../../main";
+import { ItemTypePredefined } from "../../main/models/enums";
+import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
+
+// TODO: change order after Properites US: 872
+enum PanelType {
+    History,
+    Discussions,
+    Files,
+    Properties,
+    Relationships
+}
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -10,34 +21,41 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "selectionManager"
+        "selectionManager",
+        "$element"
     ];
 
     private _subscribers: Rx.IDisposable[];
-    private _currentArtifact: string;
-    private _currentArtifactClass: string;
+    private _currentItem: string;
+    private _currentItemClass: string;
 
-    public get currentArtifact() { 
-        return this._currentArtifact;
+    public get currentItem() { 
+        return this._currentItem;
     }
 
-    public get currentArtifactClass() {
-        return this._currentArtifactClass;
+    public get currentItemClass() {
+        return this._currentItemClass;
     }
 
     constructor(
         private localization: ILocalizationService,
-        private selectionManager: ISelectionManager) {
+        private selectionManager: ISelectionManager,
+        private $element: ng.IAugmentedJQuery) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        let selectedArtifactSubscriber: Rx.IDisposable = this.selectionManager.selectedArtifactObservable
+        const selectionObservable = this.selectionManager.selectionObservable
             .distinctUntilChanged()
-            .subscribe(this.displayArtifact);
+            .subscribe(this.onSelectionChanged);
+
+        const selectedItemSubscriber: Rx.IDisposable = this.selectionManager.selectedItemObservable
+            .distinctUntilChanged()
+            .subscribe(this.onItemChanged);
 
         this._subscribers = [
-            selectedArtifactSubscriber
+            selectionObservable,
+            selectedItemSubscriber
         ];
     }
 
@@ -46,10 +64,61 @@ export class BPUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = artifact ? `${(artifact.prefix || "")}${artifact.id}: ${artifact.name}` : null;
-        this._currentArtifactClass = artifact ?
-        "icon-" + Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document") :
-            "icon-document";
+    private hidePanel(panelType: PanelType) {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
+    }
+
+    private showPanel(panelType: PanelType) {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
+    }
+
+    private getAccordionController(): IBpAccordionController {
+        return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
+    }
+
+    private onItemChanged = (item: Models.IItem) => {
+        if (item != null) {
+            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
+            this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
+        } else {
+            this._currentItem = null;
+            this._currentItemClass = null;
+        }
+    }
+
+    private onSelectionChanged = (selection: ISelection) => {
+        if (selection) {
+            this.toggleHistoryPanel(selection);
+            this.togglePropertiesPanel(selection);
+        }
+    }
+
+    private toggleHistoryPanel(selection: ISelection) {
+        if (selection.subArtifact) {
+            this.hidePanel(PanelType.History);
+        } else {
+            this.showPanel(PanelType.History);
+        }
+    }
+    
+    private togglePropertiesPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (artifact && (selection.subArtifact 
+            || artifact.predefinedType === ItemTypePredefined.Glossary
+            || artifact.predefinedType === ItemTypePredefined.GenericDiagram
+            || artifact.predefinedType === ItemTypePredefined.BusinessProcess
+            || artifact.predefinedType === ItemTypePredefined.DomainDiagram
+            || artifact.predefinedType === ItemTypePredefined.Storyboard
+            || artifact.predefinedType === ItemTypePredefined.UseCaseDiagram
+            || artifact.predefinedType === ItemTypePredefined.UseCase
+            || artifact.predefinedType === ItemTypePredefined.UIMockup)) {
+
+            this.showPanel(PanelType.Properties);
+        } else {
+            this.hidePanel(PanelType.Properties);
+        }
     }
 }

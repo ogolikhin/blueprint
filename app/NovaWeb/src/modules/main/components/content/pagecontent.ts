@@ -1,8 +1,8 @@
-﻿import {IProjectManager, Models} from "../..";
-import {IMessageService} from "../../../core";
-import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-import {ItemTypePredefined} from "../../models/enums";
-
+import { IProjectManager, Models, IWindowManager } from "../..";
+import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
+import { IMessageService, IStateManager } from "../../../core";
+import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
+import { IEditorContext } from "../../models/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./pagecontent.html");
@@ -10,34 +10,44 @@ export class PageContent implements ng.IComponentOptions {
     public controller: Function = PageContentCtrl;
     public controllerAs = "$content";
     public bindings: any = {
-        viewState: "<",
+        viewState: "<"
     };
-
 } 
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
-    public static $inject: [string] = ["messageService", "projectManager", "diagramService"];
-    constructor(private messageService: IMessageService,
+    public static $inject: [string] = [
+        "$state",
+        "messageService",
+        "projectManager",
+        "diagramService",
+        "selectionManager",
+        "stateManager",
+        "windowManager"];
+    constructor(private $state: ng.ui.IStateService,
+                private messageService: IMessageService,
                 private projectManager: IProjectManager,
-                private diagramService: IDiagramService) {
+                private diagramService: IDiagramService,
+                private selectionManager: ISelectionManager,
+                private stateManager: IStateManager,
+                private windowManager: IWindowManager) {
     }
-    //TODO remove after testing
-    public addMsg() {
-        //temporary removed to toolbar component under "Refresh" button
-    }
+    public context: IEditorContext = null;
 
-    public context: any = null;
-
-    public contentType: string = "details";
-    
     public viewState: boolean;
+
+    public scrollOptions = {
+        minScrollbarLength: 20,
+        scrollXMarginOffset: 4,
+        scrollYMarginOffset: 4
+    };
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.subscribeOnNext(this.selectContext, this),
+            this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
+            this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -47,17 +57,17 @@ class PageContentCtrl {
     }
 
     private selectContext(artifact: Models.IArtifact) {
-        let _context: any = {};
+        let _context: IEditorContext = {};
         try {
             if (!artifact) {
+                this.$state.go("main");
                 return;
             }
 
             _context.artifact = artifact;
-            _context.project = this.projectManager.currentProject.getValue();
-            _context.type = this.projectManager.getArtifactType(_context.artifact, _context.project);
-            _context.propertyTypes = this.projectManager.getArtifactPropertyTypes(_context.artifact);
-            this.contentType = this.getContentType(artifact);
+            _context.type = this.projectManager.getArtifactType(_context.artifact);
+            this.stateManager.addChange(artifact);
+            this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -65,16 +75,29 @@ class PageContentCtrl {
         this.context = _context;
     }
 
-    private getContentType(artifact: Models.IArtifact): string {
-        if (this.diagramService.isDiagram(artifact.predefinedType)) {
-            return "diagram";
-        } else if (artifact.predefinedType === ItemTypePredefined.Glossary) {
-            return "glossary";
-        } else if (Models.ItemTypePredefined.Project === artifact.predefinedType) {
-            return "general";
-        } else if (Models.ItemTypePredefined.CollectionFolder === artifact.predefinedType) {
-            return "general";
+    private getSelectedArtifactObservable() {
+        return this.selectionManager.selectionObservable
+            .filter(s => s != null && s.source === SelectionSource.Explorer)
+            .map(s => s.artifact)
+            .distinctUntilChanged(a => a ? a.id : -1).asObservable();
+    }
+
+    public onContentSelected($event: MouseEvent) {
+        if ($event.target && $event.target["tagName"] !== "BUTTON") {
+            if (this.context) {
+                this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
+            } else {
+                this.selectionManager.clearSelection();
+            }
         }
-        return "details";
+    }
+
+    private onAvailableAreaResized() {
+        let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
+        if (scrollableElem) {
+            setTimeout(() => {
+                (<any>window).PerfectScrollbar.update(scrollableElem);
+            }, 500);
+        }
     }
 }

@@ -22,11 +22,6 @@ export interface IDiagramView {
 export interface ISelectionListener {
     (elements: Array<IDiagramElement>): void;
 }
-
-export interface IIconRackListener {
-    (element: IDiagramElement): void;
-}
-
 export class DiagramView implements IDiagramView {
 
     private graph: MxGraph;
@@ -188,13 +183,17 @@ export class DiagramView implements IDiagramView {
         this.graph.graphHandler.getInitialCellForEvent = this.getInitialCellForEvent;
 
         this.graph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            let cell = this.getLastSelectedCell();
+            const cell = this.getLastSelectedCell();
+            const selectedElements: IDiagramElement[] = [];
             if (cell != null) {
-                let element = this.getDiagramElement(cell);
-                this.selectionListeners.forEach((listener: ISelectionListener) => {
-                    listener([element]);
-                });
+                const element = this.getDiagramElement(cell);
+                if (element) {
+                    selectedElements.push(element);
+                }
             }
+            this.selectionListeners.forEach((listener: ISelectionListener) => {
+                    listener(selectedElements);
+                });
             evt.consume();
         });
     }

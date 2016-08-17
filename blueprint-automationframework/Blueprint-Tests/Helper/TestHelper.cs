@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Common;
 using Model;
 using Model.ArtifactModel;
@@ -11,7 +10,6 @@ using Model.Impl;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Factories;
 
 namespace Helper
 {
@@ -115,10 +113,11 @@ namespace Helper
         /// <param name="project">The target project.</param>
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <returns>The new artifact object.</returns>
-        public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType, parent: parent);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -146,11 +145,12 @@ namespace Helper
         /// <param name="project">The project where the artifact is to be created.</param>
         /// <param name="user">The user who will create the artifact.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
-        public IArtifact CreateAndPublishArtifact(IProject project, IUser user, BaseArtifactType artifactType, int numberOfVersions = 1)
+        public IArtifact CreateAndPublishArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null, int numberOfVersions = 1)
         {
-            IArtifact artifact = CreateArtifact(project, user, artifactType);
+            IArtifact artifact = CreateArtifact(project, user, artifactType, parent);
 
             for (int i = 0; i < numberOfVersions; ++i)
             {

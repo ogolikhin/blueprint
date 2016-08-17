@@ -99,16 +99,18 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
+    private onExpiredDefer: ng.IDeferred<any>;
     public onExpired(): ng.IPromise<any> {
-        var defer = this.$q.defer();
+        
         if (!this._isExpired) {
             this._isExpired = true;
+            this.onExpiredDefer = this.$q.defer();
             this._loginMsg = this.localization.get("Login_Session_Timeout");
             this._isForceSameUsername = true;
-            this.showLogin(defer);
+            this.showLogin(this.onExpiredDefer);
         }
-        defer.resolve();
-        return defer.promise;
+
+        return this.onExpiredDefer.promise;
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {

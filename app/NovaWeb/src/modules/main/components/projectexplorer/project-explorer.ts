@@ -1,6 +1,6 @@
 ﻿import { IProjectManager, Models} from "../..";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, ISelection, SelectionSource } from "./../../services/selection-manager";
+import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -24,7 +24,11 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this),
+            this.selectionManager.selectionObservable
+                .filter(s => s != null && s.source === SelectionSource.Explorer)
+                .map(s => s.artifact)
+                .distinctUntilChanged()
+                .subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -32,7 +36,6 @@ export class ProjectExplorerController {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
-
 
     // the object defines how data will map to ITreeNode
     // key: data property names, value: ITreeNode property names
@@ -64,17 +67,11 @@ export class ProjectExplorerController {
             return css;
         },
         
-        //cellClassRules: {
-        //    "has-children": function (params) { return params.data.hasChildren; },
-        //    "is-folder": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder; },
-        //    "is-project": function (params) { return params.data.predefinedType === Models.ItemTypePredefined.Project; }
-        //},
         cellRenderer: "group",
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true
     }];
-
 
     private onLoadProject = (projects: Models.IProject[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
@@ -85,13 +82,9 @@ export class ProjectExplorerController {
             if (angular.isDefined(this._selectedArtifactId)) {
                 this.tree.selectNode(this._selectedArtifactId);
             }
-            if (projects && projects.length > 0) {
-                this.selectionManager.selection = this.createSelection(projects[0]);
-            } else {
-                this.selectionManager.clearSelection();
-            }
         }
     }
+
     private onSelectArtifact = (artifact: Models.IArtifact) => {
         // so, just need to do an extra check if the component has created
         if (this.tree && artifact) {
@@ -110,20 +103,14 @@ export class ProjectExplorerController {
         return null;
     };
 
-
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        const artifact = this.doSync(node);
-        this.projectManager.setCurrentArtifact(artifact);
 
-        this.selectionManager.selection = this.createSelection(artifact);
-
+        this.selectionManager.selection = {
+            source: SelectionSource.Explorer,
+            artifact: this.doSync(node)
+        };
     };
-
-    private createSelection(artifact: Models.IArtifact): ISelection {
-        const project = artifact.id === artifact.projectId ? artifact : this.projectManager.getArtifact(artifact.projectId);
-        return { source: SelectionSource.Explorer, project: project, artifact: artifact, subArtifact: null};
-    }
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter
@@ -136,6 +123,4 @@ export class ProjectExplorerController {
         };
         return artifact;
     };
-
-
 }

@@ -1,21 +1,28 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {IConfigValueHelper} from "../../core";
+import {ISettingsService} from "../../core";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
 
 
-export class ConfigValueHelperMock implements IConfigValueHelper {
-    getBooleanValue(setting: string, fallBack?: boolean) {
-        if (setting === "DisableWindowsIntegratedSignIn") {
-            return false;
-        } else {
-            return undefined;
-        }
+export class SettingsMock implements ISettingsService {
+    get(key: string, defaultValue?: string): string {
+        return undefined;
     }
 
-    getStringValue(setting: string, fallBack?: string) {
+    getNumber(key: string, defaultValue?: number, minValue?: number, maxValue?: number): number {
+        return undefined;
+    }
+
+    getBoolean(key: string, defaultValue?: boolean): boolean {
+        if (key === "DisableWindowsIntegratedSignIn") {
+            return false;
+        }
+        return undefined;
+    }
+
+    getObject(key: string, defaultValue?: any): any {
         return undefined;
     }
 }
@@ -28,7 +35,7 @@ export class WindowMock {
 export class SessionSvcMock implements ISession {
 
     public static $inject = ["$q"];
-    public currentUser: IUser;
+    public currentUser: IUser = <IUser>{id:1, displayName: "Default Instance Admin", login: "admin" };
 
     constructor(private $q: ng.IQService) {
     }
@@ -122,8 +129,8 @@ export class AuthSvcMock implements IAuth {
 }
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
-    public static $inject = ["$q", "$timeout"];
-    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService) {
+    public static $inject = ["$q", "$timeout", "$rootScope"];
+    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService, private $rootScope: ng.IRootScopeService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
 
@@ -136,11 +143,11 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
         
         /* tslint:disable:no-unused-variable */
         var ctrl = new controller(
-            new LocalizationServiceMock(),
+            new LocalizationServiceMock(this.$rootScope),
             this.instanceMock,
             new SessionSvcMock(this.$q),
             this.$timeout,
-            new ConfigValueHelperMock()
+            new SettingsMock()
         );
         return this.instanceMock;
         /* tslint:enable:no-unused-variable */

@@ -47,17 +47,16 @@ describe("Component BPUtilityPanel", () => {
     it("should load data for a selected artifact", 
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             //Arrange
-            const project = { id: 2, name: "Project 2" } as Models.IProject;
             const artifact = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;
             
             //Act
-            selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
+            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
             $rootScope.$digest();
             const selectedArtifact = selectionManager.selection.artifact;
 
             // Assert
             expect(selectedArtifact).toBeDefined();
             expect(selectedArtifact.id).toBe(22);
-            expect(vm.currentArtifact).toBe("My22: Artifact");
+            expect(vm.currentItem).toBe("My22: Artifact");
     }));
 });

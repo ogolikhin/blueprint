@@ -3,16 +3,11 @@ export class BPTooltip implements ng.IDirective {
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
         let observer;
-        let observerConfig = {
-            attributes: true,
-            //attributeOldValue: true,
-            attributeFilter: ["bp-tooltip"]
-        };
 
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
 
-        function updateTooltip(e) {
+        function updateTooltip(e: MouseEvent) {
             if (e.clientX > document.body.clientWidth / 2) {
                 tooltip.style.left = "";
                 tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
@@ -33,7 +28,7 @@ export class BPTooltip implements ng.IDirective {
             }
         }
 
-        function createTooltip(e) {
+        function createTooltip(e?: MouseEvent) {
             if (window["MutationObserver"]) {
                 observer = new MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
@@ -42,7 +37,11 @@ export class BPTooltip implements ng.IDirective {
                         angular.element(tooltip).addClass("show");
                     });
                 });
-                observer.observe(this, observerConfig);
+                observer.observe(this, {
+                    attributes: true,
+                    //attributeOldValue: true,
+                    attributeFilter: ["bp-tooltip"]
+                });
             }
 
             let tooltipText = angular.element(this).attr("bp-tooltip");
@@ -52,7 +51,7 @@ export class BPTooltip implements ng.IDirective {
             if (tooltipText !== "" && shouldDisplayTooltipForTruncated(angular.element(this))) {
                 let tooltipContent = document.createElement("DIV");
                 tooltipContent.className = "bp-tooltip-content";
-                tooltipContent.innerHTML = tooltipText;
+                tooltipContent.textContent = tooltipText;
 
                 angular.element(tooltip).empty();
                 tooltip.appendChild(tooltipContent);
@@ -67,21 +66,34 @@ export class BPTooltip implements ng.IDirective {
         function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
             if (element.attr("bp-tooltip-truncated") === "true") {
                 const elem = element[0];
-                return (elem && elem.offsetWidth < elem.scrollWidth);
+                // the "- 1" allows some wiggle room in IE, as scrollWidth/Height round to the biggest integer
+                // while offsetWidth/Height to the smallest
+                let compensateWidth: boolean = false;
+                if (Math.abs(elem.offsetWidth - elem.scrollWidth) <= 1) {
+                    let realWidth = window.getComputedStyle(elem).width;
+                    if (Math.abs(parseFloat(realWidth) - parseInt(realWidth, 10)) < 0.5) {
+                        compensateWidth = true;
+                    }
+                }
+                return (elem && (
+                    elem.offsetWidth < elem.scrollWidth - (compensateWidth ? 1 : 0) ||
+                    elem.offsetHeight < elem.scrollHeight - 1)
+                );
             }
             return true;
         }
 
-        function hideTooltip(e) {
+        function hideTooltip(e?: MouseEvent) {
             angular.element(tooltip).removeClass("show");
         }
 
-        function removeTooltip(e) {
+        function removeTooltip(e?: MouseEvent) {
             angular.element(this).removeClass("bp-tooltip-trigger");
             angular.element(tooltip).remove();
 
-            if (window["MutationObserver"]) {
+            if (window["MutationObserver"] && observer) {
                 observer.disconnect();
+                observer = null;
             }
         }
 
@@ -98,12 +110,13 @@ export class BPTooltip implements ng.IDirective {
                 //elem.addEventListener("transitionend", hideTooltip);
 
                 $scope.$on("$destroy", function () {
+                    removeTooltip();
+
                     elem.removeEventListener("mousemove", updateTooltip);
                     elem.removeEventListener("mouseover", createTooltip);
                     elem.removeEventListener("mousedown", hideTooltip);
                     elem.removeEventListener("mouseout", removeTooltip);
                     //elem.removeEventListener("transitionend", hideTooltip);
-                    angular.element(tooltip).remove();
                 });
             }
         }

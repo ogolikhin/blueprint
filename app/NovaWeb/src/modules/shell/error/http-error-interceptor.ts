@@ -1,5 +1,6 @@
 ﻿import "angular";
 import { ISession } from "../login/session.svc";
+import { SessionTokenHelper } from "../login/session.token.helper";
 
 export class HttpHandledErrorStatusCodes {
     public static get handledUnauthorizedStatus() {
@@ -9,6 +10,7 @@ export class HttpHandledErrorStatusCodes {
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
     ignoreInterceptor: boolean;
+    dontRetry: boolean;
 }
 
 export class HttpErrorInterceptor {
@@ -25,13 +27,22 @@ export class HttpErrorInterceptor {
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && config.ignoreInterceptor) {
+        if (config && (config.ignoreInterceptor || config.dontRetry)) {
             deferred.reject(response);
-        } else if (response.status === 401) {
+        } else if (response.status === 401) {            
             session.onExpired().then(
                 () => {
-                    response.status = HttpHandledErrorStatusCodes.handledUnauthorizedStatus;
-                    deferred.reject(response);
+                    if (config) {
+                        var $http = <ng.IHttpService>this.$injector.get("$http");
+                        HttpErrorInterceptor.applyNewSessionToken(config);                    
+
+                        config.dontRetry = true;
+
+                        $http(config).then(retryResponse => deferred.resolve(retryResponse), retryResponse => deferred.reject(retryResponse));
+                    } else {
+                        response.status = HttpHandledErrorStatusCodes.handledUnauthorizedStatus;
+                        deferred.reject(response);
+                    }
                 },
                 () => deferred.reject(response)
             );
@@ -41,4 +52,14 @@ export class HttpErrorInterceptor {
 
         return deferred.promise;
     };
+
+    private static applyNewSessionToken(config: ng.IRequestConfig) {
+        var token = SessionTokenHelper.getSessionToken();
+        if (token) {
+            if (!config.headers) {
+                config.headers = {};
+            }
+            config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
+        }
+    }
 }

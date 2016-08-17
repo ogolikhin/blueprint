@@ -3,12 +3,21 @@
     <!--<div>
         <input type="text" ng-model="$ctrl.commentText" />
     </div>-->
-    <div class="comment-edit-button-bar">
+    <div ng-if="!$ctrl.isWaiting" class="comment-edit-button-bar clearfix">
         <div class="pull-left">
-            <button class="btn btn-new-comment" type="button" ng-click="">{{$ctrl.addButtonText}}</button>
+            <button class="btn btn-new-comment" 
+                    type="button" 
+                    ng-click="$ctrl.callPostComment()"
+                    ng-disabled="$ctrl.isWaiting">{{$ctrl.addButtonText}}</button>
         </div>
         <div class="pull-right">
-            <button class="btn btn-new-comment" type="button" ng-click="$ctrl.cancelComment()">{{$ctrl.cancelButtonText}}</button>
+            <button class="btn btn-new-comment" 
+                    type="button" 
+                    ng-click="$ctrl.cancelComment()"
+                    ng-disabled="$ctrl.isWaiting">{{$ctrl.cancelButtonText}}</button>
         </div>
+    </div>
+    <div ng-if="$ctrl.isWaiting" class="app-loading comment-edit-waiting">
+        <span class="glyphicon glyphicon-refresh spin"></span>
     </div>
 </div>

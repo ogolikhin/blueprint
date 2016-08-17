@@ -130,6 +130,10 @@ bp-discussion-panel {
         .author {
             @include text-ellipsis-flex-width(160px);
         }
+
+        .show-more {
+            background-image: linear-gradient(to bottom, transparent, $blue-lightest);
+        }
     }
 
     bp-artifact-discussion-item, bp-discussion-reply-item {

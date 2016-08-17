@@ -1,6 +1,6 @@
 import "angular";
 import "angular-mocks";
-import { IFileUploadService, FileUploadService, IFileResult } from "../../main/";
+import { IFileUploadService, FileUploadService, IFileResult } from "./";
 import { Helper } from "../../shared";
 
 describe("File Upload", () => {

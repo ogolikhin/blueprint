@@ -19,7 +19,6 @@ import "tinymce";
 import * as Enums from "./models/enums";
 import * as Models from "./models/models";
 import { IArtifactService, ArtifactService,
-    IFileUploadService, FileUploadService, IFileResult,
     ProjectRepository, IProjectRepository,
     IProjectManager, ProjectManager,
     IWindowManager, WindowManager, IMainWindow, ResizeCause } from "./services/";
@@ -52,7 +51,6 @@ export {
     Relationships,
     IProjectRepository, ProjectRepository,
     IArtifactService, ArtifactService,
-    IFileUploadService, FileUploadService, IFileResult,
     IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection,
     IWindowManager, WindowManager, IMainWindow, ResizeCause
@@ -104,7 +102,6 @@ angular.module("app.main", [
     .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
-    .service("fileUploadService", FileUploadService)
     .service("windowManager", WindowManager)
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())

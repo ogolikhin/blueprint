@@ -1,4 +1,4 @@
-import {IDialogManager, DialogManager} from "./dialog-manager";
+import {IModalDialogManager, ModalDialogManager} from "./modal-dialog-manager";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 
 class Observer1 {
@@ -33,10 +33,10 @@ class Observer2 {
 
 describe("DialogManager test", () => {
 
-    let dm: IDialogManager;
+    let dm: IModalDialogManager;
 
     beforeEach(() => {
-        dm = new DialogManager();
+        dm = new ModalDialogManager();
     });
 
     afterEach(() => {

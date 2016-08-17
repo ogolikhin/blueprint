@@ -1,6 +1,6 @@
 ﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/processModels";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramNodeElement, ISystemTask} from "../models/";
 import {IUserTask, IUserStoryProperties, ILabel} from "../models/";

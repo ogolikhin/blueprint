@@ -433,7 +433,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         var shift = this.getPosition(this.htmlElement).y;
-        var height = window.innerHeight - shift;
+        var height = window.innerHeight - shift - 6;
         return "" + height + "px";
     }
     private getMinWidth(delta: number): string {

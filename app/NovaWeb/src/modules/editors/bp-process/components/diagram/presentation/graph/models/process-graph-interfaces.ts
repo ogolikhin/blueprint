@@ -5,7 +5,7 @@
 } from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 
 export interface IDeletable {
     canDelete(): boolean;

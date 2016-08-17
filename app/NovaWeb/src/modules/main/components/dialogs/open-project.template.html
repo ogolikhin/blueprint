@@ -30,10 +30,10 @@
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
         <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
-            <span ng-bind="$ctrl.params.cancelButton"></span>
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
         <button class="btn btn-primary" ng-disabled="!$ctrl.isProjectSelected" ng-click="$ctrl.ok()">
-            <span ng-bind="$ctrl.params.okButton"></span>
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>
 </div>

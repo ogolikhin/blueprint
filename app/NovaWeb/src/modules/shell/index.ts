@@ -28,7 +28,8 @@ import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-d
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
 import {Routes} from "./router/router.config";
-
+import {UsersAndGroupsService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
+import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -54,6 +55,8 @@ angular.module("app.shell",
     .service("artifactRelationships", ArtifactRelationships)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("artifactAttachments", ArtifactAttachments)
+    .service("mentionService", MentionService)
+    .service("usersAndGroupsService", UsersAndGroupsService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())

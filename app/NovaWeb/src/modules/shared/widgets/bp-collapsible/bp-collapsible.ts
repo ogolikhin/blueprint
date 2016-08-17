@@ -19,18 +19,22 @@
 
         let showMoreClick = () => {
             $element.removeClass("collapsed");
+            $element[0].style.height = "";
         };
 
         let showLessClick = () => {
             $element.addClass("collapsed");
+            $element[0].style.height = $scope.bpCollapsible + "px";
         };
 
         showMore[0].addEventListener("click", showMoreClick);
         showLess[0].addEventListener("click", showLessClick);
 
         $element.ready(function () {
-            if ($element[0].offsetHeight > $scope.bpCollapsible) {
+            //displays the 'show more' and 'show less' part if comment height is more than desired size + (%30 of desired size)
+            if ($element[0].offsetHeight > 1.3 * $scope.bpCollapsible) {
                 $element.addClass("collapsed");
+                $element[0].style.height = $scope.bpCollapsible + "px";
                 $element.append(showMore[0]);
                 $element.append(showLess[0]);
             }

@@ -31,7 +31,7 @@ import { BpAccordion } from "./components/bp-accordion/bp-accordion";
 import { BpAccordionPanel } from "./components/bp-accordion/bp-accordion";
 import { ProjectExplorer } from "./components/projectexplorer/project-explorer";
 import { MainViewComponent } from "./main.view";
-import { BpArtifactInfo } from "./components/bp-artifact/bp-artifact-info";
+import { BpArtifactInfo } from "./components/bp-artifact-info/bp-artifact-info";
 import { formlyConfigExtendedFields } from "./main.formly";
 import "../editors/";
 import {ArtifactStateController} from "./router/artifact.state";

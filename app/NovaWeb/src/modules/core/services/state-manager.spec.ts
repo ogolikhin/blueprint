@@ -4,12 +4,15 @@ import "Rx";
 
 import { ItemState, StateManager } from "./state-manager";
 import { Models, Enums} from "../../main/models";
+import { SessionSvcMock } from "../../shell/login/mocks.spec";
+
 
 describe("State Manager:", () => {
     let subscriber;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("stateManager", StateManager);
+        $provide.service("session", SessionSvcMock);
     }));
 
     afterEach(() => {

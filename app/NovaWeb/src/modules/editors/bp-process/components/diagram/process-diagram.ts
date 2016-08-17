@@ -2,7 +2,7 @@
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
+import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
 

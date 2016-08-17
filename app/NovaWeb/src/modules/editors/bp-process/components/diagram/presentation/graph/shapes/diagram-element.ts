@@ -1,6 +1,6 @@
-﻿import {IDiagramElement, IDiagramNode} from "./../process-graph-interfaces";
-import {IDiagramNodeElement, ILabel} from "./../process-graph-interfaces";
-import {ElementType, NodeChange} from "./../process-graph-constants";
+﻿import {IDiagramElement, IDiagramNode} from "./../models/";
+import {IDiagramNodeElement, ILabel} from "./../models/";
+import {ElementType, NodeChange} from "./../models/";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;

@@ -1,7 +1,7 @@
 ﻿import {IHashMap} from "../../../../../../main/models/models";
 import {IProcessShape, TreeShapeRef} from "../../../../models/processModels";
 import {IProcessGraphModel} from "../../viewmodel/process-graph-model";
-import {IGraphLayoutPreprocessor} from "./process-graph-interfaces";
+import {IGraphLayoutPreprocessor} from "./models/";
 
 export class GraphLayoutPreprocessor implements IGraphLayoutPreprocessor {
     private boundaryCurve: number[];

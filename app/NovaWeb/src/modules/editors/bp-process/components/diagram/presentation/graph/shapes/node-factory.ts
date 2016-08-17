@@ -1,7 +1,7 @@
 ﻿import {ProcessShapeType} from "../../../../../models/enums";
 import {IProcessShape} from "../../../../../models/processModels";
 import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/processModels";
-import {IDiagramNode} from "../process-graph-interfaces";
+import {IDiagramNode} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessStart} from "./process-start";
 import {ProcessEnd} from "./process-end";

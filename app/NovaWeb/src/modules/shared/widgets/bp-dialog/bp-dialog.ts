@@ -43,8 +43,8 @@ export class DialogService implements IDialogService {
         controller: BaseDialogController
     };
 
-    private initialize(settings: IDialogSettings) {
-        this.dialogSettings = angular.extend({}, this.defaultSettings, settings);
+    private initialize(dialogSettings: IDialogSettings) {
+        this.dialogSettings = angular.extend({}, this.defaultSettings, dialogSettings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {

@@ -60,7 +60,6 @@ module.exports = function (config) {
         proxies: {
             '/novaweb/static/unsupported-browser.html': '/base/src/unsupported-browser/unsupported-browser.html',
             '/novaweb/static/unsupported-nofont.html': '/base/src/unsupported-browser/unsupported-nofont.html',
-            '/imageUrl/': '/base/lib/mxClient/images/',
             '/novaweb/libs/mxClient/images/': '/base/libs/mxClient/images/',
             '/novaweb/static/bp-process/images/': '/base/src/modules/editors/bp-process/styles/images/'
         },

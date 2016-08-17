@@ -5,6 +5,7 @@ import { Helper } from "../../shared";
 import { IHttpInterceptorConfig } from "../error/http-error-interceptor";
 
 export interface IUser {
+    id: number;
     displayName: string;
     login: string;
     isFallbackAllowed: boolean;

@@ -1,6 +1,6 @@
-﻿import {IOverlayHandler, IMouseEventHandler} from "../process-graph-interfaces";
+﻿import {IOverlayHandler, IMouseEventHandler} from "../models/";
 import {DiagramElement} from "../shapes/diagram-element";
-import {ElementType} from "./../process-graph-constants";
+import {ElementType} from "../models/";
 
 
 export class Button extends DiagramElement implements IOverlayHandler, IMouseEventHandler {

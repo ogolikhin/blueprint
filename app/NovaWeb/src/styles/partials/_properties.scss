@@ -1,4 +1,4 @@
-$properties-min-width: $page-body-min-width - 30px - 2px;
+$properties-min-width: $page-body-min-width - 40px - 30px - 2px;
 $property-min-height: 28px;
 $property-multiple-height: 98px;
 $property-horiz-spacing: 10px;
@@ -230,6 +230,134 @@ $property-multichoice-height: 24px;
       }
     }
 
+    .ui-select-single {
+      .ui-select-toggle {
+        background: $white;
+        border: solid 1px $gray-lightest;
+        border-radius: 0;
+        box-shadow: none !important;
+        box-sizing: border-box;
+        color: $gray-dark;
+        display: block;
+        font-size: $font-size-normal;
+        font-weight: 400;
+        height: $property-min-height;
+        line-height: $property-min-height;
+        max-width: $property-input-width;
+        min-height: $property-min-height;
+        overflow: hidden;
+        padding: 0 $property-padding-default;
+        text-align: left;
+        width: $property-input-width;
+
+        &:hover,
+        &:focus {
+          background-color: $yellow-pale;
+        }
+      }
+
+      .caret.pull-right {
+        background: url('images/typeahead-arrow.png') no-repeat;
+        border: 0;
+        display: block;
+        height: 26px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 23px;
+      }
+
+      .ui-select-match-item-chosen {
+        overflow: hidden;
+        padding: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: #{$property-input-width - 30px};
+      }
+
+      .ui-select-choices {
+        border-color: $gray-lighter;
+        border-radius: 0;
+        border-width: 1px;
+        max-height: #{$property-multichoice-height * 10};
+        overflow: auto;
+        -ms-overflow-style: auto;
+        padding: 0;
+        top: $property-min-height;
+        width: $property-input-width;
+
+        .ui-select-choices-row {
+          height: $property-multichoice-height;
+
+          .ui-select-choices-row-inner {
+            color: $gray-darker;
+            cursor: pointer;
+            text-decoration: none;
+
+            .ui-select-choice-item {
+              font-size: 1.2rem;
+              line-height: $property-multichoice-height;
+              overflow: hidden;
+              padding: 0 8px;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              width: 100%;
+
+              &::before {
+                content: '';
+                display: inline-block;
+                width: 12px;
+              }
+
+              .ui-select-highlight {
+                text-decoration: underline;
+              }
+            }
+
+            &:hover .ui-select-choice-item {
+              background: $blue-lightest;
+
+              &::before {
+                content: '\2713';
+              }
+            }
+          }
+        }
+
+        .ui-select-choices-row.disabled {
+          .ui-select-choices-row-inner {
+            color: $gray;
+            cursor: not-allowed;
+
+            .ui-select-choice-item {
+              background: transparent;
+
+              &::before {
+                content: '\2713';
+              }
+
+              .ui-select-highlight {
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
+
+      .ui-select-offscreen {
+        clip: rect(0 0 0 0) !important;
+        width: 1px !important;
+        height: 1px !important;
+        border: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        outline: 0 !important;
+        left: 0px !important;
+        top: 0px !important;
+      }
+    }
     $ui-select-input-height: $property-min-height - 4px;
     .ui-select-multiple {
       border: 0;
@@ -312,7 +440,7 @@ $property-multichoice-height: 24px;
         max-height: $ui-select-input-height;
         min-height: $ui-select-input-height;
         outline: none;
-        padding: 0 0 0 2px;
+        padding: 0 0 0 6px;
       }
 
       .ui-select-choices {
@@ -548,7 +676,8 @@ $property-multichoice-height: 24px;
     .has-error {
       textarea,
       input,
-      .ui-select-container > div {
+      .ui-select-container > div,
+      .ui-select-single .ui-select-toggle {
         border-color: $gray-lightest;
         border-bottom-color: $brand-error;
       }

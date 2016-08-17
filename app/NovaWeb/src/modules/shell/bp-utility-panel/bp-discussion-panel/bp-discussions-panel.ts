@@ -70,7 +70,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
-        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL") {
+        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.prefix !== "PR") {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
             if (artifact.version) {

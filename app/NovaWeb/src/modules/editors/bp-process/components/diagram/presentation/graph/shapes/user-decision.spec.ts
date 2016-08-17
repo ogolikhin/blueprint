@@ -5,7 +5,7 @@ import {ProcessServiceMock} from "../../../../../services/process/process.svc.mo
 import {IProcessService} from "../../../../../services/process/process.svc";
 import * as ProcessModels from "../../../../../models/processModels";
 import {UserDecision} from "./";
-import {NodeChange} from "../process-graph-constants";
+import {NodeChange} from "../models/";
 
 describe("UserDecision", () => {
 

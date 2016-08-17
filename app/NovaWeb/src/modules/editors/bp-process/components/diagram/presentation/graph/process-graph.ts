@@ -1,27 +1,23 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../../../core/";
-import {IProcessShape, IProcessLink} from "../../../../models/processModels";
-import {SourcesAndDestinations} from "../../../../models/processModels";
-import {ProcessShapeType} from "../../../../models/enums";
-import {IProcessGraph, ILayout} from "./process-graph-interfaces";
-import {INotifyModelChanged, IConditionContext} from "./process-graph-interfaces";
-import {ICondition, IScopeContext, IStopTraversalCondition} from "./process-graph-interfaces";
-import {ISelectionListener, INextIdsProvider} from "./process-graph-interfaces";
-import {IIconRackListener} from "./process-graph-interfaces";
-import {IOverlayHandler, IShapeInformation} from "./process-graph-interfaces";
-import {IDiagramNode, IDiagramNodeElement} from "./process-graph-interfaces";
-import {NodeType, NodeChange} from "./process-graph-constants";
+﻿import {IMessageService} from "../../../../../../core/";
+import {
+    IProcessGraph, ILayout,
+    INotifyModelChanged, IConditionContext,
+    ICondition, IScopeContext, IStopTraversalCondition,
+    ISelectionListener, INextIdsProvider,
+    IOverlayHandler, IShapeInformation,
+    IDiagramNode, IDiagramNodeElement,
+    IProcessShape, IProcessLink,
+    SourcesAndDestinations, ProcessShapeType,
+    NodeType, NodeChange
+} from "./models/";
 import {IProcessService} from "../../../../services/process/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {Layout} from "./layout";
-import {IconRackHelper} from "./shapes/icon-rack-helper";
 import {ConnectorStyles} from "./shapes/connector-styles";
 import {NodeShapes} from "./shapes/node-shapes";
-import {DiagramNode} from "./shapes/diagram-node";
-import {DiagramLink} from "./shapes/diagram-link";
-import {SystemTask} from "./shapes/system-task";
-import {SystemDecision} from "./shapes/system-decision";
+import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 
 
@@ -29,7 +25,6 @@ export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
-    public iconRackHelper: IconRackHelper;
     //#TODO fix up references later 
     //public nodeLabelEditor: NodeLabelEditor;
     //public dragDropHandler: IDragDropHandler;
@@ -69,9 +64,7 @@ export class ProcessGraph implements IProcessGraph {
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
         this.shapesFactory = new ShapesFactory(this.rootScope);
         
-        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
-        
-        this.iconRackHelper = new IconRackHelper(this.mxgraph, this.viewModel.isHistorical, this.viewModel.isSMB);
+        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);        
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
         this.init();
     }
@@ -98,7 +91,6 @@ export class ProcessGraph implements IProcessGraph {
         //this.graph.setTooltips(true);
 
         //Selection logic
-        this.iconRackHelper.initSelection();
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
         this.initSelection();
@@ -353,7 +345,7 @@ export class ProcessGraph implements IProcessGraph {
         }
     };
 
-    private subscribeToToolbarEvents() {
+    /*private subscribeToToolbarEvents() {
         // subscribe to toolbar commands using the event bus 
 
         // Note:the event bus is implemented as a decorator to the 
@@ -400,7 +392,7 @@ export class ProcessGraph implements IProcessGraph {
                 })
             );
         }
-    }
+    }*/
 
     private removeToolbarEventListeners() {
 
@@ -441,7 +433,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         var shift = this.getPosition(this.htmlElement).y;
-        var height = window.innerHeight - shift;
+        var height = window.innerHeight - shift - 6;
         return "" + height + "px";
     }
     private getMinWidth(delta: number): string {
@@ -524,13 +516,7 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
-
-    public addIconRackListener(listener: IIconRackListener) {
-        if (listener != null && !this.viewModel.isSMB) {
-            this.iconRackHelper.iconRackListeners.push(listener);
-        }
-    }
-
+    
     public addSelectionListener(listener: ISelectionListener) {
         if (listener != null) {
             this.selectionListeners.push(listener);
@@ -546,9 +532,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         window.removeEventListener("buttonUpdated", this.buttonUpdated);
 
-        this.removeToolbarEventListeners();
-
-        this.iconRackHelper.destroy();
+        this.removeToolbarEventListeners();        
 
         // remove graph
         this.mxgraph.getModel().clear();
@@ -1003,11 +987,6 @@ export class ProcessGraph implements IProcessGraph {
         var graphModel: MxGraphModel = this.mxgraph.getModel();
 
         this.logInfo("Enter setSystemTasksVisible, value = " + value);
-
-        if (!value &&
-            this.mxgraph.getSelectionCells().filter(e => e instanceof SystemTask).length > 0) {
-            this.iconRackHelper.disposeIconRack();
-        }
 
         this.layout.hideInsertNodePopupMenu();
 

@@ -1,4 +1,5 @@
 import "angular";
+import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
@@ -6,12 +7,13 @@ import {ILocalizationService} from "../core";
 import {Helper} from "../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$timeout"];
+formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
 /* tslint:disable */
 export function formlyConfigExtendedFields(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
+    $sce: ng.ISCEService,
     $timeout: ng.ITimeoutService
 ): void {
 /* tslint:enable */
@@ -102,17 +104,20 @@ export function formlyConfigExtendedFields(
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.User">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice">
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && options.data.isMultipleAllowed">
                 <div id="{{::id}}" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">
                     <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
                 </div>
                 <div class="overflow-fade"></div>
+            </div>
+            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
+                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
-            let newvalue: any;
+            let newValue: any;
 
             $scope.primitiveType = PrimitiveType;
             $scope.tooltip = "";
@@ -127,42 +132,62 @@ export function formlyConfigExtendedFields(
                 return false;
             };
             
-                switch ($scope.options.data.primitiveType) {
-                    case PrimitiveType.Text:
-                        if (currentModelVal) {
-                            $scope.tooltip = currentModelVal;
-                            newvalue = currentModelVal;
-                        } else if ($scope.options.data) {
-                            newvalue = $scope.options.data.stringDefaultValue;
+            switch ($scope.options.data.primitiveType) {
+                case PrimitiveType.Text:
+                    if (currentModelVal) {
+                        newValue = currentModelVal;
+                    } else if ($scope.options.data) {
+                        newValue = $scope.options.data.stringDefaultValue;
+                    }
+                    $scope.tooltip = newValue;
+                    if ($scope.options.data.isRichText) {
+                        newValue = $sce.trustAsHtml(newValue);
+                    }
+                    break;
+                case PrimitiveType.Date:
+                    let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
+                    if (date) {
+                        newValue = localization.current.formatDate(date,
+                            $scope.options.data.lookup === PropertyLookupEnum.Custom ?
+                                localization.current.shortDateFormat :
+                                localization.current.longDateFormat);
+                    } else {
+                        newValue = $scope.options.data.stringDefaultValue;
+                    }
+                    $scope.tooltip = newValue;
+                    break;
+                case PrimitiveType.Number:
+                    let decimal = localization.current.toNumber($scope.options.data.decimalPlaces);
+                    newValue = localization.current.formatNumber(
+                        currentModelVal || ($scope.options.data ? $scope.options.data.decimalDefaultValue : null), decimal);
+                    $scope.tooltip = newValue;
+                    break;
+                case PrimitiveType.Choice:
+                    newValue = currentModelVal || ($scope.options.data ? $scope.options.data.defaultValidValueId : null);
+                    if (!$scope.options.data.isMultipleAllowed && $scope.options.data.validValues) {
+                        if (angular.isNumber(newValue)) {
+                            let values = $scope.options.data.validValues;
+                            for (let key in values) {
+                                if (values[key].id === newValue) {
+                                    newValue = values[key].value;
+                                    $scope.tooltip = newValue;
+                                    break;
+                                }
+                            }
+                        } else if (angular.isObject(newValue) && newValue.customValue) {
+                            newValue = newValue.customValue;
+                            $scope.tooltip = newValue;
                         }
-                        break;
-                    case PrimitiveType.Date:
-                        let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
-                        if (date) {
-                            newvalue = localization.current.formatDate(date,
-                                $scope.options.data.lookup === PropertyLookupEnum.Custom ?
-                                    localization.current.shortDateFormat :
-                                    localization.current.longDateFormat);
-                        } else {
-                            newvalue = $scope.options.data.stringDefaultValue;
-                        }
-                        break;
-                    case PrimitiveType.Number:
-                        let decimal = localization.current.toNumber($scope.options.data.decimalPlaces);
-                        newvalue = localization.current.formatNumber(
-                            currentModelVal || ($scope.options.data ? $scope.options.data.decimalDefaultValue : null), decimal);
-                        break;
-                    case PrimitiveType.Choice:
-                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.defaultValidValueId : null);
-                        break;
-                    case PrimitiveType.User:
-                        newvalue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
-                        break;
-                    default:
-                        break;
+                    }
+                    break;
+                case PrimitiveType.User:
+                    newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                    break;
+                default:
+                    break;
 
-                }
-                $scope.model[$scope.options.key] = newvalue;
+            }
+            $scope.model[$scope.options.key] = newValue;
         }]
     });
 
@@ -225,7 +250,7 @@ export function formlyConfigExtendedFields(
         name: "bpFieldSelect",
         extends: "select",
         /* tslint:disable */
-        template: `<div class="input-group has-messages">
+        /*template: `<div class="input-group has-messages">
                 <select
                     id="{{::id}}"
                     name="{{::id}}"
@@ -234,16 +259,84 @@ export function formlyConfigExtendedFields(
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
+            </div>`,*/
+        template: `<div class="input-group has-messages">
+                <div class="ui-select-single"><ui-select
+                    ng-model="model[options.key]"
+                    ng-disabled="{{to.disabled}}"
+                    remove-selected="false">
+                    <ui-select-match placeholder="{{to.placeholder}}">
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
+                    </ui-select-match>
+                    <ui-select-choices
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
+                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh-delay="0">
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    </ui-select-choices>
+                </ui-select></div>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        /*defaultOptions: {
-        },*/
+        defaultOptions: {
+            templateOptions: {
+                placeholder: localization.get("Property_Placeholder_Select_Option"),
+                valueProp: "value",
+                labelProp: "name"
+            },
+            validators: {
+                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
+                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
+                requiredCustom: {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
+                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $timeout(() => {
+                primeValidation($element[0]);
+                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            }, 0);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
+
+            $scope.bpFieldSelect.refreshResults = function ($select) {
+                var search = $select.search,
+                    list = angular.copy($select.items),
+                    FLAG = -1;
+                //remove last user input
+                list = list.filter(function(item) {
+                    return item.value !== FLAG;
+                });
+
+                if (!search) {
+                    //use the predefined list
+                    $select.items = list;
+                } else {
+                    //manually add user input and set selection
+                    var userInputItem = {
+                        value: FLAG,
+                        name: search
+                    };
+                    $select.items = [userInputItem].concat(list);
+                    $select.selected = userInputItem;
+                }
+            };
+
+            $scope.bpFieldSelect.escapeHTMLText = function (str: string): string {
+                return Helper.escapeHTMLText(str);
+            };
         }]
     });
 
@@ -252,8 +345,8 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select
-                    multiple ng-model="model[options.key]"
+                <ui-select multiple
+                    ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"
@@ -262,7 +355,7 @@ export function formlyConfigExtendedFields(
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
@@ -400,12 +493,6 @@ export function formlyConfigExtendedFields(
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {};
-             
-            //let currentModelVal = $scope.model[$scope.options.key];
-            //if (angular.isNumber(currentModelVal)) {
-
-            //    $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
-            //}
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
@@ -512,9 +599,10 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
+                        scope.to["minDate"] = localization.current.formatDate(minDate, localization.current.shortDateFormat);
 
                         if (date && minDate) {
-                            return date.getTime() > minDate.getTime();
+                            return date.getTime() >= minDate.getTime();
                         }
                         return true;
                     }
@@ -527,9 +615,10 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
+                        scope.to["maxDate"] = localization.current.formatDate(maxDate, localization.current.shortDateFormat);
 
                         if (date && maxDate) {
-                            return date.getTime() < maxDate.getTime();
+                            return date.getTime() <= maxDate.getTime();
                         }
 
                         return true;

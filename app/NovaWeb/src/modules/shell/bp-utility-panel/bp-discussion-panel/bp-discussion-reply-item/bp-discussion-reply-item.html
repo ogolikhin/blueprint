@@ -1,34 +1,35 @@
 ﻿<div class="utility-panel-artifact-item reply-item" ng-class="{'comment-editing': $ctrl.editing}">
-<div class="reply-separator"></div>
-<div ng-if="$ctrl.editing === false">
-    <div>
-        <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
-                   name="{{ $ctrl.replyInfo.userName }}"
-                   color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
-        </bp-avatar>
-        <div class="author" bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
-    </div>
-    <div class="info">
-        <div class="comment" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
-        <div class="version">v{{$ctrl.replyInfo.version}}</div>
-        <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
-    </div>
-    <div class="button-bar">
-            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}" 
-               class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteReply()" 
-               ng-show="$ctrl.replyInfo.canDelete"
-               ng-class="{ 'disabled' : $ctrl.discussionClosed }"></i>
-            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}" 
-               class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()" 
+    <div class="reply-separator"></div>
+    <div ng-if="$ctrl.editing === false">
+        <div>
+            <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
+                       name="{{ $ctrl.replyInfo.userName }}"
+                       color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
+            </bp-avatar>
+            <div class="author"
+                 bp-tooltip-truncated="true"
+                 bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
+        </div>
+        <div class="info">
+            <div class="comment" bp-collapsible="80" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="version">v{{$ctrl.replyInfo.version}}</div>
+            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
+        </div>
+        <div class="button-bar">
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}"
+               class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()"
                ng-class="{ 'disabled' : !$ctrl.canEdit() }"></i>
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Reply_Tooltip')}}"
+               class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteReply()"
+               ng-class="{ 'disabled' : $ctrl.discussionClosed || !$ctrl.replyInfo.canDelete }"></i>
+        </div>
     </div>
-</div>
-<bp-comment-edit ng-if="$ctrl.editing"
-                 add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Post_Button_Text')}}"
-                 cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Cancel_Button_Text')}}"
-                 comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Comment_Place_Holder')}}"
-                 cancel-comment="$ctrl.cancelCommentClick()"
-                 comment-text="{{$ctrl.replyInfo.comment}}"
-                 post-comment="$ctrl.editReply(comment)">
-</bp-comment-edit>
+    <bp-comment-edit ng-if="$ctrl.editing"
+                     add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Post_Button_Text')}}"
+                     cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Cancel_Button_Text')}}"
+                     comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Comment_Place_Holder')}}"
+                     cancel-comment="$ctrl.cancelCommentClick()"
+                     comment-text="{{$ctrl.replyInfo.comment}}"
+                     post-comment="$ctrl.editReply(comment)">
+    </bp-comment-edit>
 </div>

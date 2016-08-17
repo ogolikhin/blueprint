@@ -18,6 +18,7 @@ module.exports = function (config) {
         browsers: ['PhantomJS'],
         singleRun: true,
         autoWatchBatchDelay: 300,
+        browserNoActivityTimeout: 30000,
         files: [
             './node_modules/phantomjs-polyfill/bind-polyfill.js',
             './src/test.ts',

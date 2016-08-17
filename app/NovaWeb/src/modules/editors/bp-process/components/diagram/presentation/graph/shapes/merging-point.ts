@@ -1,6 +1,6 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 
 export class MergingPoint extends DiagramNode<IProcessShape> {
@@ -28,7 +28,8 @@ export class MergingPoint extends DiagramNode<IProcessShape> {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), null, x, y, this.MERGING_POINT_WIDTH, this.MERGING_POINT_WIDTH, "shape=rhombus;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
+        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), null, x, y, this.MERGING_POINT_WIDTH,
+            this.MERGING_POINT_WIDTH, "shape=rhombus;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
         return this;
     }
 }

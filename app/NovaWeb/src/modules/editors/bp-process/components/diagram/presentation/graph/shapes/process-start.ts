@@ -1,6 +1,6 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
 
@@ -39,7 +39,9 @@ export class ProcessStart extends DiagramNode<IProcessShape> {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), this.name, x + this.PROCESS_START_SHIFT, y, this.PROCESS_START_WIDTH, this.PROCESS_START_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;labelWidth=45;verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;editable=0");
+        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), this.name, x + this.PROCESS_START_SHIFT, y,
+            this.PROCESS_START_WIDTH, this.PROCESS_START_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;" +
+            "labelWidth=45;verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;editable=0");
         graph.startNode = this;
         return this;
     }

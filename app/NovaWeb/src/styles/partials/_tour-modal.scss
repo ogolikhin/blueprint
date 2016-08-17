@@ -4,6 +4,7 @@ $modal-tour-height: 703px;
 
   .modal-dialog {
     height: $modal-tour-height;
+    min-width: 0px;
     max-height: 90%;
     max-width: 90%;
     width: #{1000px + (2 * $modal-side-clearance)};

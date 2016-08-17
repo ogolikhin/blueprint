@@ -22,11 +22,6 @@ export interface IDiagramView {
 export interface ISelectionListener {
     (elements: Array<IDiagramElement>): void;
 }
-
-export interface IIconRackListener {
-    (element: IDiagramElement): void;
-}
-
 export class DiagramView implements IDiagramView {
 
     private graph: MxGraph;

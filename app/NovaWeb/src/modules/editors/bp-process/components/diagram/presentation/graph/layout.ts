@@ -3,11 +3,11 @@ import {IProcessShape, IProcessLink} from "../../../../models/processModels";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/processModels";
 import {ProcessType, ProcessShapeType} from "../../../../models/enums";
-import {NodeType, NodeChange} from "./process-graph-constants";
-import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./process-graph-constants";
-import {IProcessGraph, IDiagramNode} from "./process-graph-interfaces";
-import {IDiagramNodeElement} from "./process-graph-interfaces";
-import {ILayout, IGraphLayoutPreprocessor, IScopeContext} from "./process-graph-interfaces";
+import {NodeType, NodeChange} from "./models/";
+import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";
+import {IProcessGraph, IDiagramNode} from "./models/";
+import {IDiagramNodeElement} from "./models/";
+import {ILayout, IGraphLayoutPreprocessor, IScopeContext} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {GraphLayoutPreprocessor} from "./graph-layout-preprocessor";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -44,29 +44,12 @@ export class Layout implements ILayout {
 
         this.mxgraph.cellRenderer = new ProcessCellRenderer();
         // #TODO: add back the popup menu afterwards
-        //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
+        //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, 
+                //this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
         this.tempId = 0;
 
     }
  
-
-    // TODO: Find a better way of recording the debug information
-    private dumpDebugInformation(): void {
-        if (window.console && console.log) {
-            for (let s of this.viewmodel.shapes) {
-                console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-            }
-
-            for (let l of this.viewmodel.links) {
-                console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-            }
-
-            for (let b of this.viewmodel.decisionBranchDestinationLinks) {
-                console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-            }
-        }
-    }
-
     public render(useAutolayout: boolean, selectedNodeId: number) {
         var graphModel: MxGraphModel = this.mxgraph.getModel();
         var i, j;
@@ -91,7 +74,6 @@ export class Layout implements ILayout {
                 }
             }
 
-            this.dumpDebugInformation();
         }
 
         // collect links with same destinations
@@ -144,7 +126,8 @@ export class Layout implements ILayout {
                     var destinationNode: IDiagramNode = graphModel.getCell(linkArray[0].destinationId.toString());
 
                     // Add merging point for links with the same destination
-                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
+                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id,
+                        this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
 
                     var mergingPoint = new MergingPoint(mergingPointShape);
                     mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
@@ -168,28 +151,13 @@ export class Layout implements ILayout {
             this.logError(e);
         }
         finally {
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("Before endUpdate: " + (Date.now() - tS));
-                tS = Date.now();
-            }
-            graphModel.endUpdate();
 
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("endUpdate: " + (Date.now() - tS));
-                tS = Date.now();
-            }
+            graphModel.endUpdate();
+            
             for (i in this.viewmodel.shapes) {
                 var thisShape: IProcessShape = this.viewmodel.shapes[i];
                 var thisNode = this.processGraph.getNodeById(thisShape.id.toString());
                 thisNode.renderLabels();
-            }
-
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("renderLabels: " + (Date.now() - tS));
-                tS = Date.now();
             }
 
             let edges: DiagramLink[] = this.mxgraph.getChildEdges(this.mxgraph.getDefaultParent());
@@ -215,11 +183,7 @@ export class Layout implements ILayout {
             this.viewmodel.resetJustCreatedShapeIds();
 
             setTimeout(() => this.processGraph.updateAfterRender(), 100);
-
-            if (window.console != null) {
-                ////// profiling
-                window.console.log("The rest: " + (Date.now() - tS));
-            }
+            
         }
 
         if (selectedNodeId) {
@@ -470,7 +434,8 @@ export class Layout implements ILayout {
         this.updateDestinationsIfDestinationIsDraggedShape(newSourcesAndDestinations, originalSourcesWithNewDestinations,
             userTaskShapeId, oldAfterShapeId, newUserTask);
 
-        // if edge source ids contains system task id of the user task you're dragging, need to add the before system task id of selected dragging user task as part of list of source ids.
+        // if edge source ids contains system task id of the user task you're dragging, 
+        // need to add the before system task id of selected dragging user task as part of list of source ids.
         this.addAdditionaSourcesAndDestinations(newSourcesAndDestinations, systemTaskShapeId, oldAfterShapeId, oldBeforeShapeIds, newUserTask);
 
         // update source links of the edge to point to the dropped user task, ignoring system task id associated with dragged user task
@@ -745,7 +710,6 @@ export class Layout implements ILayout {
         if (node) {
             var evt = { consume() { } };
             this.mxgraph.selectCellForEvent(node, evt);
-            this.processGraph.iconRackHelper.iconRackClickBehaviour(evt);
         }
     }
 

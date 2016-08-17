@@ -1,7 +1,7 @@
-﻿import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {IDiagramElement, IMenuContainer} from "../process-graph-interfaces";
+﻿import {IProcessGraph, IDiagramNode} from "../models/";
+import {IDiagramElement, IMenuContainer} from "../models/";
 import {IProcessLinkModel} from "../../../../../models/processModels";
-import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
+import {NodeType, NodeChange, ElementType} from "../models/";
 import {Label, LabelStyle} from "../labels/label";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";

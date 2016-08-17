@@ -1,8 +1,8 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {IDecision} from "../process-graph-interfaces";
-import {NodeType, NodeChange} from "../process-graph-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {IDecision} from "../models/";
+import {NodeType, NodeChange} from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";

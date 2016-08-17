@@ -9,6 +9,7 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.3.0') <> 0)
 Print 'Migrating 7.3.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"ModifyAutogrowth.sql" ) ) #>
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block

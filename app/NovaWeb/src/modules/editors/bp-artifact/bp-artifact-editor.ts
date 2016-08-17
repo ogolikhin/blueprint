@@ -97,11 +97,9 @@ export class BpArtifactEditor extends BpBaseEditor {
                 if (this.artifactState && this.artifactState.isReadOnly) {
                     field.type = "bpFieldReadOnly";
                 }
-                if (this.artifactState && this.artifactState.isLocked) {
+                if (this.artifactState && this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
                     field.type = "bpFieldReadOnly";
                 }
-
-
 
             });
         } catch (ex) {

@@ -1,5 +1,5 @@
-﻿import {IDiagramNode} from "./process-graph-interfaces";
-import {NodeType} from "./process-graph-constants";
+﻿import {IDiagramNode} from "./models/";
+import {NodeType} from "./models/";
 
 
 export class ProcessCellRenderer extends mxCellRenderer {

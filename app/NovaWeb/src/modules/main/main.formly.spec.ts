@@ -561,7 +561,8 @@ function createModule() {
                             type: "bpFieldReadOnly",
                             key: "readonlySelectMulti",
                             data: {
-                                primitiveType: PrimitiveType.Choice
+                                primitiveType: PrimitiveType.Choice,
+                                isMultipleAllowed: true
                             },
                             templateOptions: {
                                 options: [

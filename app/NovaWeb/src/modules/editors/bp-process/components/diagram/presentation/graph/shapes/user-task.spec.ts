@@ -9,8 +9,8 @@ import {ProcessServiceMock} from "../../../../../services/process/process.svc.mo
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
 import {DiagramNodeElement} from "./diagram-element";
-import {NodeType, ElementType} from "../process-graph-constants";
-import {ISystemTask, IUserTask, IDiagramNode} from "../process-graph-interfaces";
+import {NodeType, ElementType} from "../models/";
+import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
 
 describe("UserTask test", () => {
 

@@ -20,6 +20,21 @@ loginProxyOptions.route = '/Login/WinLogin.aspx';
 var del = require('del');
 del(['dist/*']);
 
+var preLoaders = [
+    // Tslint loader support for *.ts files
+    //
+    // See: https://github.com/wbuchwalter/tslint-loader
+    { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
+];
+
+function isDebug(argument) {
+    return argument === '--debug';
+}
+if (process.argv.some(isDebug)) {   
+    preLoaders = [];
+    console.log("Is Debug");
+}
+
 module.exports = {
     entry: {
         app: './index.ts',
@@ -120,12 +135,7 @@ module.exports = {
     ],
     module:{
         loaders: loaders,
-        preLoaders: [
-          // Tslint loader support for *.ts files
-          //
-          // See: https://github.com/wbuchwalter/tslint-loader
-            { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
-        ],
+        preLoaders: preLoaders,
         noParse:  [/angular-perfect-scrollbar-2/] 
     }
 };

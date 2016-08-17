@@ -63,9 +63,11 @@ bp-discussion-panel {
 
     .info {
         line-height: $font-size-bigger;
+        position: relative;
     }
 
     .discussion-status {
+        @include text-ellipsis-flex-width(90px);
         font-size: $font-size-normal;
         color: $gray-darker;
         font-style: normal;
@@ -81,6 +83,7 @@ bp-discussion-panel {
 
     .version {
         padding-right: $padding-smaller;
+        font-size: $font-size-small;
     }
 
     .reply-count, .delete-comment, .edit-comment {
@@ -128,6 +131,10 @@ bp-discussion-panel {
 
         .author {
             @include text-ellipsis-flex-width(160px);
+        }
+
+        .show-more {
+            background-image: linear-gradient(to bottom, transparent, $blue-lightest);
         }
     }
 

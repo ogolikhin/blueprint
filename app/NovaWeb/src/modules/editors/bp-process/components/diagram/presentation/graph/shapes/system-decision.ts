@@ -1,8 +1,8 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../process-graph-interfaces";
-import {IDecision, ISystemTask} from "../process-graph-interfaces";
-import {NodeType, NodeChange} from "../process-graph-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
+import {IDecision, ISystemTask} from "../models/";
+import {NodeType, NodeChange} from "../models/";
 import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory";
@@ -56,7 +56,8 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public showMenu(mxGraph: MxGraph) {
         // #TODO change the URL to load svg
-        this.addOverlay(mxGraph, this, "/novaweb/static/bp-process/images/add-neutral.svg", this.MENU_SIZE, this.MENU_SIZE, "Add Branch", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
+        this.addOverlay(mxGraph, this, "/novaweb/static/bp-process/images/add-neutral.svg",
+            this.MENU_SIZE, this.MENU_SIZE, "Add Branch", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
         this.detailsButton.setVisible(true);
     }
 
@@ -78,7 +79,9 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             fillColor = justCreated ? this.newShapeColor : this.NEW_FILL_COLOR;
         }
 
-        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
+        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, 
+            "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor +
+            ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
 
         var textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
@@ -106,10 +109,12 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             this.showMenu(mxGraph);
         }
 
-        this.detailsButton.render(mxGraph, this, this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2, this.SYSTEM_DECISION_HEIGHT - this.BUTTON_SIZE - 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.detailsButton.render(mxGraph, this, this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2, this.SYSTEM_DECISION_HEIGHT - this.BUTTON_SIZE - 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        var overlay = this.addOverlay(mxGraph, this.detailsButton, null, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_DECISION_WIDTH / 2, this.SYSTEM_DECISION_HEIGHT / 2);
+        this.addOverlay(mxGraph, this.detailsButton, null, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, null,
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_DECISION_WIDTH / 2, this.SYSTEM_DECISION_HEIGHT / 2);
 
         return this;
     }

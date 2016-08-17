@@ -7,8 +7,8 @@ import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SystemTask, DiagramNodeElement} from "./";
-import {NodeChange, NodeType, ElementType} from "../process-graph-constants";
-import {ISystemTask} from "../process-graph-interfaces";
+import {NodeChange, NodeType, ElementType} from "../models/";
+import {ISystemTask} from "../models/";
 
 describe("SystemTask", () => {
 

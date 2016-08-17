@@ -2,9 +2,9 @@
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph} from "./presentation/graph/process-graph-interfaces";
+import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {IDialogManager} from "../dialogs/dialog-manager";
+import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
 
 
 export class ProcessDiagram {
@@ -16,19 +16,16 @@ export class ProcessDiagram {
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
-        private $state: ng.ui.IState,
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private dialogManager: IDialogManager) {
+        private dialogManager: IModalDialogManager) {
 
         this.processModel = null;
     }
-
-    public debugInformation: string;
-
+ 
     public createDiagram(processId: number, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
@@ -77,9 +74,7 @@ export class ProcessDiagram {
         this.resetBeforeLoad();
         
         this.processModel = process;
-
-        this.debugInformation = "PROCESS LOADED";
-        this.dumpDebugInformation(this.processModel);
+        
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
@@ -141,33 +136,6 @@ export class ProcessDiagram {
         if (this.processViewModel != null) {
             this.processViewModel.destroy();
             this.processViewModel = null;
-        }
-    }
-
-    private dumpDebugInformation(model: IProcess): void {
-        if (window.console && console.log) {
-            //let output:string[] = [];
-            if (model.shapes) {
-                for (let s of model.shapes) {
-                    console.log(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                    //output.push(`shape: id: ${s.id}, type: ${s.propertyValues["clientType"].value} at (x: ${s.propertyValues["x"].value}, y: ${s.propertyValues["y"].value})`);
-                }
-            }
-
-            if (model.links) {
-                for (let l of model.links) {
-                    console.log(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                    //output.push(`link: sourceId: ${l.sourceId}, destinationId: ${l.destinationId}, orderIndex: ${l.orderindex}`);
-                }
-            }
-
-            if (model.decisionBranchDestinationLinks) {
-                for (let b of model.decisionBranchDestinationLinks) {
-                    console.log(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                    //output.push(`condition destinations: sourceId: ${b.sourceId}, destinationId: ${b.destinationId}, orderIndex: ${b.orderindex}`);
-                }
-            }
-            //this.debugInformation = output;//.join("<br>");
         }
     }
 

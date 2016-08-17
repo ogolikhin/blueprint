@@ -236,7 +236,11 @@ export enum LicenseTypeEnum {
     Author = 3
 }
 
-
+export enum LockedByEnum {
+    None = 0,
+    CurrentUser = 1,
+    OtherUser = 2 
+}
 
 
 

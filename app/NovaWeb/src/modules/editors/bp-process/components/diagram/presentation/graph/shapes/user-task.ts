@@ -1,10 +1,10 @@
 ﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/processModels";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {IDiagramNodeElement, ISystemTask} from "../process-graph-interfaces";
-import {IUserTask, IUserStoryProperties, ILabel} from "../process-graph-interfaces";
-import {NodeType, NodeChange, ElementType} from "../process-graph-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {IDiagramNodeElement, ISystemTask} from "../models/";
+import {IUserTask, IUserStoryProperties, ILabel} from "../models/";
+import {NodeType, NodeChange, ElementType} from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -158,7 +158,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         //initialize header
         var headerGeometry = new mxGeometry(0.5, 1, this.USER_TASK_WIDTH - 1, 38);
         headerGeometry.relative = false;
-        this.header = new DiagramNodeElement("H" + this.model.id.toString(), ElementType.UserTaskHeader, "", headerGeometry, "shape=label;strokeColor=none;fillColor=#b1b1b1;fontColor=#FFFFFF;fontFamily=Open Sans, sans-serif;fontSize=11;selectable=0;editable=0");
+        this.header = new DiagramNodeElement("H" + this.model.id.toString(), ElementType.UserTaskHeader, "", headerGeometry,
+            "shape=label;strokeColor=none;fillColor=#b1b1b1;fontColor=#FFFFFF;fontFamily=Open Sans, sans-serif;fontSize=11;selectable=0;editable=0");
         this.header.setVertex(true);
     }
 
@@ -298,7 +299,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
 
-        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
+        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT,
+            " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;" +
+            "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
         var textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
@@ -345,22 +348,29 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.PERSONA_VIEW_MAXLENGTH,
             graph.viewModel.isReadonly);
 
-        mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3, "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
+        mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
+            "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
 
         //footer
-        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 0, this.USER_TASK_HEIGHT - 33, this.USER_TASK_WIDTH, 33, "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
+        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 0, this.USER_TASK_HEIGHT - 33, this.USER_TASK_WIDTH, 33,
+            "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
 
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 70, 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 70, 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         // #TODO: get license type information from Nova shell
         //if (graph.viewModel.isReadonly && graph.viewModel.licenseType === LicenseTypeEnum.Viewer) {
         //    this.linkButton.disable();
         //}
-        this.previewButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 46, 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 22, 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.previewButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 46, 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 22, 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         return this;
     }
 
@@ -381,14 +391,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // header overlays
        
         // var personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
-        // var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+        // var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], 
+        // mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.USER_TASK_WIDTH / 2, this.USER_TASK_HEIGHT / 2);
+        this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,
+            mxConstants.ALIGN_TOP, this.USER_TASK_WIDTH / 2, this.USER_TASK_HEIGHT / 2);
 
         // TODO: re-add for later sprints, when there's functionality attached to it (color coding nodes)
         //var colorsIcon = "/novaweb/static/bp-process/images/colors-on.png";
-        //var overlayColors = this.addOverlay(graph, this, colorsIcon, 20, 20, this.rootScope.config.labels["ST_Colors_Label"], mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
+        //var overlayColors = this.addOverlay(graph, this, colorsIcon, 20, 20, this.rootScope.config.labels["ST_Colors_Label"], 
+        // mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 
     private navigateToProcess() {

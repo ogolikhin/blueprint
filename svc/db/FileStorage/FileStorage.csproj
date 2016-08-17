@@ -47,6 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Functions\ValidateExpiryTime.sql" />
     <Content Include="Jobs\Blueprint_FileStorage_Maintenance.sql" />
+    <Content Include="Migration\7.3.0.0\ModifyAutogrowth.sql" />
     <Content Include="Procedures.sql">
       <DependentUpon>Procedures.tt</DependentUpon>
       <AutoGen>True</AutoGen>

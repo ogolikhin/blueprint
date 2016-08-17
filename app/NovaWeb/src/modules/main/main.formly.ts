@@ -250,7 +250,7 @@ export function formlyConfigExtendedFields(
         name: "bpFieldSelect",
         extends: "select",
         /* tslint:disable */
-        template: `<div class="input-group has-messages">
+        /*template: `<div class="input-group has-messages">
                 <select
                     id="{{::id}}"
                     name="{{::id}}"
@@ -259,34 +259,26 @@ export function formlyConfigExtendedFields(
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
-            </div>`,
-        /*template: `<div class="input-group has-messages">
-                <div ng-if="options.data.isValidated"><ui-select
+            </div>`,*/
+        template: `<div class="input-group has-messages">
+                <div class="ui-select-single"><ui-select
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false">
-                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
+                    <ui-select-match placeholder="{{to.placeholder}}">
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
+                    </ui-select-match>
                     <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select></div>
-                <div ng-if="!options.data.isValidated"><ui-select
-                    ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    remove-selected="false">
-                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
-                    <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search"
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
                         refresh="bpFieldSelect.refreshResults($select)" 
                         refresh-delay="0">
-                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                 </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
-            </div>`,*/
+            </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
@@ -295,9 +287,26 @@ export function formlyConfigExtendedFields(
                 valueProp: "value",
                 labelProp: "name"
             },
+            validators: {
+                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
+                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
+                requiredCustom: {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
+                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $timeout(() => {
+                primeValidation($element[0]);
+                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            }, 0);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldSelect = {};
@@ -324,6 +333,10 @@ export function formlyConfigExtendedFields(
                     $select.selected = userInputItem;
                 }
             };
+
+            $scope.bpFieldSelect.escapeHTMLText = function (str: string): string {
+                return Helper.escapeHTMLText(str);
+            };
         }]
     });
 
@@ -342,7 +355,7 @@ export function formlyConfigExtendedFields(
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
+                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
@@ -480,12 +493,6 @@ export function formlyConfigExtendedFields(
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {};
-             
-            //let currentModelVal = $scope.model[$scope.options.key];
-            //if (angular.isNumber(currentModelVal)) {
-
-            //    $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
-            //}
 
             $scope.bpFieldNumber.keyup = blurOnEnterKey;
         }]
@@ -592,9 +599,10 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
+                        scope.to["minDate"] = localization.current.formatDate(minDate, localization.current.shortDateFormat);
 
                         if (date && minDate) {
-                            return date.getTime() > minDate.getTime();
+                            return date.getTime() >= minDate.getTime();
                         }
                         return true;
                     }
@@ -607,9 +615,10 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
+                        scope.to["maxDate"] = localization.current.formatDate(maxDate, localization.current.shortDateFormat);
 
                         if (date && maxDate) {
-                            return date.getTime() < maxDate.getTime();
+                            return date.getTime() <= maxDate.getTime();
                         }
 
                         return true;

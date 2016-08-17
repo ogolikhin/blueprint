@@ -121,7 +121,7 @@ export class BPLocale  {
             let d = moment(value);
             if (d.isValid()) {
                 if (reset === true) {
-                    d.utc().startOf("day");
+                    d.startOf("day");
                 }
                 return d.toDate();
             }

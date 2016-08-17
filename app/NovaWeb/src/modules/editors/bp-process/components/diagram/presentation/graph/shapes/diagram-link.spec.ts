@@ -3,7 +3,7 @@ import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "../process-graph";
 import {DiagramLink} from "./";
-import {IDiagramNode} from "../process-graph-interfaces";
+import {IDiagramNode} from "../models/";
 import * as layout from "../layout";
 import {Connector} from "./connector";
 import {Label} from "../labels/label";

@@ -1,8 +1,8 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "./../process-graph-interfaces";
-import {IDiagramLink, IDiagramNodeElement} from "./../process-graph-interfaces";
+import {IProcessGraph, IDiagramNode} from "./../models/";
+import {IDiagramLink, IDiagramNodeElement} from "./../models/";
 import {DiagramNodeElement} from "./diagram-element";
-import {ElementType, Direction, NodeType, NodeChange} from "./../process-graph-constants";
+import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 
 

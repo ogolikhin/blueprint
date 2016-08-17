@@ -1,4 +1,4 @@
-﻿import {ElementType} from "../process-graph-constants";
+﻿import {ElementType} from "../models/";
 import {DiagramElement, DiagramNodeElement, DiagramNode, UserTask} from "./";
 import {ShapeModelMock} from "./shape-model.mock";
 import {ProcessShapeModel} from "../../../../../models/processModels";

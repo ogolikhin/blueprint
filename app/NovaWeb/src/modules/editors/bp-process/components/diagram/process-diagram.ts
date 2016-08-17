@@ -16,7 +16,6 @@ export class ProcessDiagram {
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
-        private $state: ng.ui.IState,
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,

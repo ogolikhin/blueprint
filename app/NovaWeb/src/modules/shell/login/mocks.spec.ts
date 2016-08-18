@@ -35,7 +35,7 @@ export class WindowMock {
 export class SessionSvcMock implements ISession {
 
     public static $inject = ["$q"];
-    public currentUser: IUser = <IUser>{id:1, displayName: "Default Instance Admin", login: "admin" };
+    public currentUser: IUser = <IUser>{ id: 1, displayName: "Default Instance Admin", login: "admin" };
 
     constructor(private $q: ng.IQService) {
     }

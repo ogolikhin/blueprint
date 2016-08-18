@@ -121,11 +121,11 @@ export class BaseDialogController implements IDialogController {
         this.$instance = $uibModalInstance;
     }
 
-    public ok = () => {
+    public ok() {
         this.$instance.close(this.returnValue);
     };
 
-    public cancel = () => {
+    public cancel() {
         this.$instance.close(false);
     };
 }

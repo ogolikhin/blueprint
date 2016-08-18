@@ -1,5 +1,9 @@
 export interface IFileUploadService {
-    uploadToFileStore(file: any, expirationDate?: Date, progress?: (ev: ProgressEvent) => any): ng.IPromise<IFileResult>;
+    uploadToFileStore(
+        file: any, 
+        expirationDate?: Date, 
+        progress?: (ev: ProgressEvent) => any,
+        cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult>;
 }
 
 export interface IFileResult {
@@ -20,14 +24,20 @@ export class FileUploadService implements IFileUploadService {
         private $log: ng.ILogService) {
     }
 
-    public uploadToFileStore(file: File, expirationDate?: Date, progress?: (ev: ProgressEvent) => any): ng.IPromise<IFileResult> {
+    public uploadToFileStore(
+        file: File,
+        expirationDate?: Date, 
+        progress?: (ev: ProgressEvent) => any, 
+        cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
+
         const deferred = this.$q.defer<IFileResult>();
         const request: ng.IRequestConfig | any = {
             method: "POST",
             url: `/svc/components/filestore/files/${file.name}`,
             params: expirationDate ? { expired: expirationDate.toISOString() } : undefined,
             data: file,
-            uploadEventHandlers: progress ? { progress: progress } : undefined
+            uploadEventHandlers: progress ? { progress: progress } : undefined,
+            timeout: cancelPromise
         };
 
         this.$http(request).then((result: ng.IHttpPromiseCallbackArg<IFileResult>) => {

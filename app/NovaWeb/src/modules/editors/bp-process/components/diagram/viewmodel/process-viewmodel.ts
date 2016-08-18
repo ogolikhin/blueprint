@@ -483,7 +483,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (this._scope) {
             this.isSpa = this._scope["isSpa"];
 
-            if (this._rootScope) {
+            if (this.isRootScopeConfigValid) {
                 let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
@@ -504,10 +504,14 @@ export class ProcessViewModel implements IProcessViewModel {
     public getMessageText(message_id: string) {
         // get message text from rootscope settings  
         let text = null;
-        if (this._rootScope) {
+        if (this.isRootScopeConfigValid) {
             text = this._rootScope.config.labels[message_id];
         }
         return text;
+    }
+
+    public get isRootScopeConfigValid(): boolean {
+        return this._rootScope && this._rootScope.config;
     }
 
     public destroy() {

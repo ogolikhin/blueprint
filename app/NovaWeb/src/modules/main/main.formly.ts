@@ -458,6 +458,9 @@ export function formlyConfigExtendedFields(
             validators: {
                 decimalPlaces: {
                     expression: function($viewValue, $modelValue, $scope) {
+                        if (!(<any> $scope.options).data.isValidated) {
+                            return true;
+                        }
                         let value = $modelValue || $viewValue;
                         if (value) {
                             let decimal = value.toString().split(localization.current.decimalSeparator);
@@ -471,7 +474,10 @@ export function formlyConfigExtendedFields(
                 wrongFormat: {
                     expression: function($viewValue, $modelValue, $scope) {
                         let value = $modelValue || $viewValue;
-                        return !value || angular.isNumber(localization.current.toNumber(value, $scope.to["decimalPlaces"]));
+                        return !value ||
+                            angular.isNumber(localization.current.toNumber(value, (
+                                <any> $scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null
+                            ));
                     }
                 },
                 max: {
@@ -494,11 +500,10 @@ export function formlyConfigExtendedFields(
                         if (!(<any> $scope.options).data.isValidated) {
                             return true;
                         }
-                        let value = localization.current.toNumber($modelValue || $viewValue);
-                        if (angular.isNumber(value)) {
-                            let min = localization.current.toNumber($scope.to.min);
-
-                            if (angular.isNumber(min)) {
+                        let min = localization.current.toNumber($scope.to.min);
+                        if (angular.isNumber(min)) {
+                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            if (angular.isNumber(value)) {
                                 return value >= min;
                             }
                         }

@@ -59,11 +59,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
         super(selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization.current);
-    }
-
-    public $onInit() {
-        super.$onInit();
-    }
+    }    
 
     public $onDestroy() {
         delete this.itemState;
@@ -90,7 +86,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.systemFields = [];
             this.customFields = [];
             this.richTextFields = [];         
-            if (this.onLoading(artifact, subArtifact)) {
+            if (artifact) {
                 this.onLoad(artifact, subArtifact);
             }
         } catch (ex) {
@@ -106,40 +102,39 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     private onLoad(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
         this.isLoading = true;
-
-        let subArtifactId: number = undefined;
+        
         if (subArtifact) {
-            subArtifactId = subArtifact.id;
-        }
-
-        this.artifactService.getArtifactOrSubArtifact(artifact.id, subArtifactId).then((it: Models.IItem) => {
-            if (subArtifact) {
+            this.artifactService.getSubArtifact(artifact.id, subArtifact.id).then((it: Models.ISubArtifact) => {
                 angular.extend(subArtifact, it);
-                this.addSubArtifactChangeset(artifact, subArtifact, undefined);                
-            } else {
+                this.addSubArtifactChangeset(artifact, subArtifact, undefined);
+                this.selectedArtifact = artifact;
+                this.selectedSubArtifact = subArtifact;
+                this.onUpdate(artifact, subArtifact);
+            }).catch((error: any) => {
+                //ignore authentication errors here
+                if (error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || "SubArtifact_NotFound");
+                }
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        } else {
+            this.artifactService.getArtifact(artifact.id).then((it: Models.IArtifact) => {
                 angular.extend(artifact, it);
-                this.stateManager.addChange(artifact);
-            }
-            this.selectedArtifact = artifact;
-            this.selectedSubArtifact = subArtifact;
-            this.onUpdate(artifact, subArtifact);
-        }).catch((error: any) => {
-            //ignore authentication errors here
-            if (error.statusCode !== 1401) {
-                this.messageService.addError(error["message"] || "Artifact_NotFound");
-            }
-        }).finally(() => {
-            this.isLoading = false;
-        });
-    }
-
-    public onLoading(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): boolean {
-        this.isLoading = true;
-        if (artifact) {
-            return true;
-        }
-        return false;
-    }
+                this.stateManager.addChange(artifact);                
+                this.selectedArtifact = artifact;
+                this.selectedSubArtifact = undefined;
+                this.onUpdate(artifact, subArtifact);
+            }).catch((error: any) => {
+                //ignore authentication errors here
+                if (error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || "Artifact_NotFound");
+                }
+            }).finally(() => {
+                this.isLoading = false;
+            });   
+        }        
+    }   
 
     private getChangedArtifact(item: Models.IArtifact): Models.IArtifact {        
         if (!item) {
@@ -238,7 +233,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } else if (PropertyLookupEnum.Custom === propertyContext.lookup) {
             this.customFields.push(field);
         } else if (PropertyLookupEnum.Special === propertyContext.lookup) {
-
+            this.systemFields.push(field);
         }
 
     }

@@ -322,26 +322,24 @@ export class ProjectManager implements IProjectManager {
         }
 
         let properties: Models.IPropertyType[] = [];
-        let artifactOrSubArtifactType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
+        let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
 
-        if (!artifactOrSubArtifactType) {
+        if (!itemType) {
             throw new Error("ArtifactType_NotFound");
         }
-        
-        //create list of system properties
-        
+                
         
         //create list of system properties
         if (subArtifact) {
             properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
         } else {
-            properties = this.getArtifactSystemPropertyTypes(artifact, artifactOrSubArtifactType, _project.meta);
+            properties = this.getArtifactSystemPropertyTypes(artifact, itemType, _project.meta);
         }
 
         
         //add custom property types
         _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (artifactOrSubArtifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+            if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
                 properties.push(it);
             }
         });

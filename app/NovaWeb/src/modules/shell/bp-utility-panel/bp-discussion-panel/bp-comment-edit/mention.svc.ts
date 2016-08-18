@@ -29,20 +29,20 @@ export interface IMentionService {
 
 export class MentionService implements IMentionService, ITinyMceMentionOptions<IUserOrGroupInfo> {
     public areEmailDiscussionsEnabled: boolean;
-    public static $inject = ["usersAndGroupsService", "$rootScope", "localization"];
+    public static $inject = ["usersAndGroupsService", "$rootScope", "localization", "$compile"];
 
     public static emailDiscussionDisabledMessage: string;
 
     private static emailValidator = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
 
-    constructor(private usersAndGroupsService: IUsersAndGroupsService, private $rootScope: ng.IRootScopeService, private localization: ILocalizationService) {
+    constructor(private usersAndGroupsService: IUsersAndGroupsService, private $rootScope: ng.IRootScopeService, private localization: ILocalizationService, private $compile: ng.ICompileService) {
         if (!MentionService.emailDiscussionDisabledMessage) {
             MentionService.emailDiscussionDisabledMessage = "Email disucssions have been disabled"//this.localization.get("RR_Email_Discussions_Disabled_Message");
         }
     }
 
     public create(areEmailDiscussionsEnabled: boolean): ITinyMceMentionOptions<IUserOrGroupInfo> {
-        let options = new MentionService(this.usersAndGroupsService, this.$rootScope, this.localization);
+        let options = new MentionService(this.usersAndGroupsService, this.$rootScope, this.localization, this.$compile);
 
         options.areEmailDiscussionsEnabled = areEmailDiscussionsEnabled;
 
@@ -81,6 +81,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
     }
 
     public highlighter(text: string): string {
+
         //do nothing - highlight implemented in the render function
         return text;
     }
@@ -111,9 +112,12 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             iconToRender = `<img src="/novaweb/static/images/icons/user-email.svg" height="25" width="25"/>`;
             boldName = true;
         } else {
-            iconToRender = `<img src="/novaweb/static/images/icons/user.svg" height="25" width="25"/>`;
+            iconToRender = `<bp-avatar icon="" name="${person.name}" color-base="${person.id}${person.name}"></bp-avatar>`;
             boldName = true;
         }
+
+        //iconToRender = this.$compile("<div>"+iconToRender+"</div>")(this.$rootScope)[0].innerHTML;
+
         if (person.id) {
             // this.query is defined in the caller context (mention plugin)
             const query = MentionService.escapeRegExp((<any>this).query);

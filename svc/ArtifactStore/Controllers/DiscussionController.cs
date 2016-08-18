@@ -1,4 +1,5 @@
-﻿using ArtifactStore.Models;
+﻿using ArtifactStore.Helpers;
+using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Filters;
@@ -85,12 +86,13 @@ namespace ArtifactStore.Controllers
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
                 discussion.CanEdit = permissions.TryGetValue(discussion.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
             }
-
+            var mentionHelper = new MentionHelper();
             var result = new DiscussionResultSet
             {
                 CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
                 CanCreate = permission.HasFlag(RolePermissions.Comment) && revisionId == int.MaxValue,
-                Discussions = discussions
+                Discussions = discussions,
+                EmailDiscussionsEnabled = await mentionHelper.AreEmailDiscussionsEnabled(itemInfo.ProjectId)
             };
             return result;
         }

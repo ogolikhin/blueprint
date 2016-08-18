@@ -37,6 +37,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public canDelete: boolean = false;
     public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
+    public emailDiscussionsEnabled: boolean = false;
 
     constructor(
         private localization: ILocalizationService,
@@ -96,6 +97,13 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         }
     }
 
+    private setControllerFieldsAndFlags(discussionResultSet: IDiscussionResultSet) {
+        this.artifactDiscussionList = discussionResultSet.discussions;
+        this.canCreate = discussionResultSet.canCreate && this.artifactEverPublished;
+        this.canDelete = discussionResultSet.canDelete;
+        this.emailDiscussionsEnabled = discussionResultSet.emailDiscussionsEnabled;
+    }
+
     private setEverPublishedAndDiscussions(artifactVersion) {
         //We should not check the subartifact version to make sure it's published
         this.artifactEverPublished = artifactVersion > 0;
@@ -105,9 +113,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     private setDiscussions() {
         this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
             .then((discussionResultSet: IDiscussionResultSet) => {
-                this.artifactDiscussionList = discussionResultSet.discussions;
-                this.canCreate = discussionResultSet.canCreate && this.artifactEverPublished;
-                this.canDelete = discussionResultSet.canDelete;
+                this.setControllerFieldsAndFlags(discussionResultSet);
             });
     }
 
@@ -232,9 +238,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             if (confirmed) {
                 this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
-                        this.artifactDiscussionList = discussionsResultSet.discussions;
-                        this.canDelete = discussionsResultSet.canDelete;
-                        this.canCreate = discussionsResultSet.canCreate && this.artifactEverPublished;
+                        this.setControllerFieldsAndFlags(discussionsResultSet);
                     });
                 }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
             }

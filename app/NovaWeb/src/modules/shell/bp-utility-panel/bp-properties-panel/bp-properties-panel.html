@@ -1,0 +1,41 @@
+﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+    <span class="glyphicon glyphicon-refresh spin"></span>
+    <span>Loading...</span>
+</div>
+
+
+<div class="artifact-overview" ng-if="!$ctrl.isLoading" perfect-scrollbar>
+    <!--<div class="heading">Overview</div>-->
+    <div class="content">
+        <form novalidate name="$ctrl.form">
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" ng-if="$ctrl.isSystemPropertyAvailable">
+                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
+                <perfect-scrollbar opts="$ctrl.scrollOptions">
+                    <div class="content" uib-collapse="isSystemPropertiesCollapsed">
+                        <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
+                        </formly-form>
+                    </div>
+                </perfect-scrollbar>
+            </div>
+            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}" ng-if="$ctrl.isCustomPropertyAvailable">
+                <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
+                <perfect-scrollbar opts="$ctrl.scrollOptions">
+                    <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
+                        <formly-form model="$ctrl.model" fields="$ctrl.customFields">
+                        </formly-form>
+                    </div>
+                </perfect-scrollbar>
+            </div>
+
+            <uib-tabset ng-if="$ctrl.isRichTextPropertyAvailable">
+                <uib-tab ng-repeat="field in $ctrl.richTextFields"
+                         heading="{{field.data.name}}">
+                    <formly-form model="$ctrl.model" fields="[field]">
+                    </formly-form>
+                </uib-tab>
+            </uib-tabset>
+
+        </form>
+    </div>
+</div>
+

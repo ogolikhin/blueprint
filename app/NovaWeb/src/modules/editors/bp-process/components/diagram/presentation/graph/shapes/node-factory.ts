@@ -39,10 +39,14 @@ export class NodeFactory {
                 return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService);
 
             case ProcessShapeType.PreconditionSystemTask:
-                return new SystemTask(<ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService);
+                return new SystemTask(
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService
+                );
 
             case ProcessShapeType.SystemTask:
-                return new SystemTask(<ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService);
+                return new SystemTask(
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService
+                );
 
             case ProcessShapeType.UserDecision:
                 return new UserDecision(model, rootScope, nodeFactorySettings);

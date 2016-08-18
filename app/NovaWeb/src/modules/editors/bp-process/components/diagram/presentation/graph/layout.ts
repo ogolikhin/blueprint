@@ -57,7 +57,7 @@ export class Layout implements ILayout {
         var linksMap = [];
         var processValidator = new ProcessValidator();
         ////// profiling
-        let tS = Date.now();
+        //let tS = Date.now();
 
         this.viewmodel.updateTreeAndFlows();
 

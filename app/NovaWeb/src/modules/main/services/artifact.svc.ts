@@ -3,6 +3,7 @@
 
 export interface IArtifactService {
     getArtifact(id: number): ng.IPromise<Models.IArtifact>;
+    getArtifactOrSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.IItem>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -35,4 +36,31 @@ export class ArtifactService implements IArtifactService {
         );
         return defer.promise;
     }
+
+    public getArtifactOrSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.IItem> {
+        var defer = this.$q.defer<any>();
+
+        let rest = `/svc/bpartifactstore/artifacts/${artifactId}`;
+        if (subArtifactId) {
+            rest = rest + `/subartifacts/${subArtifactId}`;
+        }
+
+        const request: ng.IRequestConfig = {
+            url: rest,
+            method: "GET",            
+        };
+
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }    
+
 }

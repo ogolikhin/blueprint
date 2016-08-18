@@ -87,4 +87,10 @@ export class ArtifactServiceMock implements IArtifactService {
         deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
         return deferred.promise;
     }
+
+    public getArtifactOrSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.IItem> {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
+        return deferred.promise;
+    }
     }

@@ -128,7 +128,7 @@ pagecontent, bp-properties-panel {
         width: 24px;
       }
 
-      .lock-indicator::before {
+      .lock-indicator.self-locked::before {
         color: $brand-secondary;
       }
 

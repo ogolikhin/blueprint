@@ -37,7 +37,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
 
     constructor(private usersAndGroupsService: IUsersAndGroupsService, private $rootScope: ng.IRootScopeService, private localization: ILocalizationService, private $compile: ng.ICompileService) {
         if (!MentionService.emailDiscussionDisabledMessage) {
-            MentionService.emailDiscussionDisabledMessage = "Email disucssions have been disabled"//this.localization.get("RR_Email_Discussions_Disabled_Message");
+            MentionService.emailDiscussionDisabledMessage = this.localization.get("Email_Discussions_Disabled_Message");
         }
     }
 

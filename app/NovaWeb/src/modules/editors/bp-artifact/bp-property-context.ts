@@ -42,12 +42,11 @@ export class PropertyContext implements Models.IPropertyType {
             this.lookup = Enums.PropertyLookupEnum.Custom;
             this.fieldPropertyName = `${Enums.PropertyLookupEnum[this.lookup]}_${this.id.toString()}`;
             this.modelPropertyName = this.id;
+        } else {
+            this.lookup = Enums.PropertyLookupEnum.Special;
+            this.fieldPropertyName = propertyTypeName;
+            this.modelPropertyName = this.propertyTypePredefined;
         }
-        //} else {
-        //    this.lookup = LookupEnum.Special;
-        //    this.fieldPropertyName = `${LookupEnum[this.lookup]}_${this.id.toString()}`;
-        //    this.modelPropertyName = this.id;
-        //}
     }
 
     private isSystem(type: Models.PropertyTypePredefined): boolean {
@@ -57,11 +56,7 @@ export class PropertyContext implements Models.IPropertyType {
             Models.PropertyTypePredefined.CreatedOn,
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn,
-            Models.PropertyTypePredefined.Description,
-            Models.PropertyTypePredefined.X,
-            Models.PropertyTypePredefined.Y,
-            Models.PropertyTypePredefined.Width,
-            Models.PropertyTypePredefined.Height].indexOf(type) >= 0;
+            Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
     }
 
 }

@@ -113,15 +113,6 @@ export class PropertyEditor {
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                                 propertyContext.disabled = true;
                             }
-                        } else if (angular.isArray(artifactOrSubArtifact.systemPropertyValues)) {
-                            //System property
-                            let systempropertyvalue = artifactOrSubArtifact.systemPropertyValues.filter((value) => {
-                                return value.propertyTypePredefined === propertyContext.propertyTypePredefined;
-                            })[0];
-                            if (systempropertyvalue) {
-                                modelValue = systempropertyvalue.value || null;
-                                propertyContext.disabled = systempropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
-                            }
                         } 
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifactOrSubArtifact.customPropertyValues)) {
                         //Custom property
@@ -134,8 +125,8 @@ export class PropertyEditor {
                         } 
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
                         //Specific property
-                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypeId === propertyContext.modelPropertyName as number;
+                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {                            
+                            return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
                         if (specificpropertyvalue) {
                             modelValue = specificpropertyvalue.value || null;

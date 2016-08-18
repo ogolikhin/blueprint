@@ -80,7 +80,7 @@ export class BpArtifactEditor extends BpBaseEditor {
             }
             
 
-            let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
+            let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact, undefined).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 

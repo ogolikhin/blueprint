@@ -212,15 +212,9 @@ export class PropertyEditor {
                 case Models.PrimitiveType.Number:
                     field.type = "bpFieldNumber";
                     field.defaultValue = this.locale.toNumber(context.decimalDefaultValue);
-                    if (angular.isNumber(context.minNumber)) {
-                        field.templateOptions.min = context.minNumber;
-                    }
-                    if (angular.isNumber(context.maxNumber)) {
-                        field.templateOptions.max = context.maxNumber;
-                    }
-                    if (angular.isNumber(context.decimalPlaces)) {
-                        field.templateOptions["decimalPlaces"] = context.decimalPlaces;
-                    }
+                    field.templateOptions.min = this.locale.toNumber(context.minNumber);
+                    field.templateOptions.max = this.locale.toNumber(context.maxNumber);
+                    field.templateOptions["decimalPlaces"] = this.locale.toNumber(context.decimalPlaces);
                     break;
                 case Models.PrimitiveType.Choice:
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";

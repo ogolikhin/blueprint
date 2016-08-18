@@ -122,8 +122,7 @@ describe("ProcessDiagram Tests", () => {
         // act
         try {
             diagram.createDiagram(-1, container);
-        }
-        catch (err) {
+        } catch (err) {
             error = err;
         }
 
@@ -148,8 +147,7 @@ describe("ProcessDiagram Tests", () => {
         // act
         try {
             diagram.createDiagram(1, null);
-        }
-        catch (err) {
+        } catch (err) {
             error = err;
         }
 

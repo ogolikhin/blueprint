@@ -480,13 +480,14 @@ $property-multichoice-height: 24px;
                 text-decoration: underline;
               }
             }
+          }
 
-            &:hover .ui-select-choice-item {
-              background: $blue-lightest;
+          &.active .ui-select-choice-item,
+          .ui-select-choices-row-inner:hover .ui-select-choice-item {
+            background: $blue-lightest;
 
-              &::before {
-                content: '\2713';
-              }
+            &::before {
+              content: '\2713';
             }
           }
         }

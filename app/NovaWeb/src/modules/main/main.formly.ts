@@ -59,13 +59,42 @@ export function formlyConfigExtendedFields(
         datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
-    let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
-        if (!keyCode) {
-            keyCode = 13;
+    let scrollIntoView = function (event) {
+        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
+
+        if (target) {
+            target.scrollTop = 0;
+            target.focus();
+            angular.element(target).triggerHandler("click");
         }
+    };
+
+    let closeDropdownOnTab = function(event) {
+        let key = event.keyCode || event.which;
+        if (key === 9) { // 9 = Tab
+            let escKey = document.createEvent("Events");
+            escKey.initEvent("keydown", true, true);
+            escKey["which"] = 27; // 27 = Escape
+            escKey["keyCode"] = 27;
+            event.target.dispatchEvent(escKey);
+
+            blurOnKey(event, 9);
+        }
+    };
+
+    let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
+        let _keyCode: number[];
+        if (!keyCode) {
+            _keyCode = [13]; // 13 = Enter
+        } else if (angular.isNumber(keyCode)) {
+            _keyCode = [keyCode];
+        } else if (angular.isArray(keyCode)) {
+            _keyCode = keyCode;
+        }
+
         let inputField = event.target as HTMLElement;
         let key = event.keyCode || event.which;
-        if (inputField && (key === keyCode)) {
+        if (_keyCode && inputField && _keyCode.indexOf(key) !== -1) {
             let inputFieldButton = inputField.parentElement.querySelector("span button") as HTMLElement;
             if (inputFieldButton) {
                 inputFieldButton.focus();
@@ -75,10 +104,6 @@ export function formlyConfigExtendedFields(
             event.stopPropagation();
             event.stopImmediatePropagation();
         }
-    };
-
-    let captureTab = function(event: KeyboardEvent) {
-        blurOnKey(event, 9);
     };
 
     let primeValidation = function(formControl) {
@@ -348,7 +373,6 @@ export function formlyConfigExtendedFields(
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"
-                    ng-click="bpFieldSelectMulti.scrollIntoView($event)"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
@@ -393,14 +417,16 @@ export function formlyConfigExtendedFields(
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
                 if (uiSelectContainer) {
                     $scope["uiSelectContainer"] = uiSelectContainer;
-                    uiSelectContainer.addEventListener("keydown", captureTab, true);
+                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
+                    uiSelectContainer.addEventListener("click", scrollIntoView, true);
                 }
             }, 0);
         },
         controller: ["$scope", function ($scope) {
             $scope.$on("$destroy", function() {
                 if ($scope["uiSelectContainer"]) {
-                    $scope["uiSelectContainer"].removeEventListener("keydown", captureTab, true);
+                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
+                    $scope["uiSelectContainer"].removeEventListener("keydown", scrollIntoView, true);
                 }
             });
 
@@ -421,14 +447,6 @@ export function formlyConfigExtendedFields(
                 },
                 escapeHTMLText: function (str: string): string {
                     return Helper.escapeHTMLText(str);
-                },
-                scrollIntoView: function ($event) {
-                    let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
-
-                    if (target) {
-                        target.scrollTop = 0;
-                        target.focus();
-                    }
                 },
                 onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     options.validation.show = formControl.$invalid;

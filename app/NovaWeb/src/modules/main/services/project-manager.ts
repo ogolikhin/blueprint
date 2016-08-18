@@ -389,6 +389,7 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
+            stringDefaultValue: "Never published", 
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
@@ -401,6 +402,7 @@ export class ProjectManager implements IProjectManager {
             name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
             primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "",
             disabled: true
         });
 

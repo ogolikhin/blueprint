@@ -57,7 +57,11 @@ export class PropertyContext implements Models.IPropertyType {
             Models.PropertyTypePredefined.CreatedOn,
             Models.PropertyTypePredefined.LastEditedBy,
             Models.PropertyTypePredefined.LastEditedOn,
-            Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+            Models.PropertyTypePredefined.Description,
+            Models.PropertyTypePredefined.X,
+            Models.PropertyTypePredefined.Y,
+            Models.PropertyTypePredefined.Width,
+            Models.PropertyTypePredefined.Height].indexOf(type) >= 0;
     }
 
 }

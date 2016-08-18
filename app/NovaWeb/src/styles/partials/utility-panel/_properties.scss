@@ -1,0 +1,89 @@
+bp-properties-panel  {
+
+  $page-body-min-width: 300px;
+    
+  .tab-content { 
+         display: block; 
+     } 
+  
+
+  .artifact-overview {      
+
+    > .content {
+      border: none;
+      padding: 0px 0px;
+    }
+   
+  }     
+
+  // .single-column .formly .formly-field label {  
+  //   width: 200px;
+  // }
+
+  // .formly {
+
+  //  min-width: 200px;
+
+  // .formly-field {
+     
+  //     display: block;
+  //     width: 200px;
+
+  //     input,
+  //     textarea,
+  //     select {
+     
+  //     width: 200px;
+  //   }
+
+  //     label {     
+  //     width: 200px;
+  //   }
+
+  //     .form-tinymce {      
+  //     min-width: 200px;
+  //     height: auto;
+  //   }
+
+  //   .read-only-input {
+      
+  //     &.simple,
+  //     &.multiple {
+  //       border: solid 1px transparent;
+  //       max-width: $property-input-width;
+  //       overflow: hidden;
+  //       padding: 0 $property-padding-default;
+  //       width: $property-input-width;
+  //     }
+
+  //     &.simple {
+  //       height: $property-min-height;
+  //       line-height: $property-min-height;
+  //       text-overflow: ellipsis;
+  //       white-space: nowrap;
+  //     }
+
+  //     &.multiple {
+  //       margin-top: 5px;
+  //       max-height: #{2.5 * $property-min-height};
+  //       min-height: #{$property-min-height - 5px};
+  //       padding-bottom: 4px;
+
+  //       .choice {
+  //         overflow: hidden;
+  //         text-overflow: ellipsis;
+  //         white-space: nowrap;
+  //       }
+  //     }
+
+  //     &.richtext {
+  //       height: #{3 * $property-min-height};
+  //       min-width: $property-input-width;
+  //       padding: 0;
+  //     }
+  //   }
+  // }
+  // }
+
+
+}

@@ -25,11 +25,9 @@ export interface IProjectManager {
 
     getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
-    getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;
+    getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;    
 
-    getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[];
-
-    getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[];
+    getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[];
 
     getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
@@ -253,8 +251,59 @@ export class ProjectManager implements IProjectManager {
         return foundArtifact;
     };
 
+    public getSubArtifactSystemPropertyTypes(subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
 
-    public getArtifactPropertyTypes(artifact: number | Models.IArtifact): Models.IPropertyType[] {
+        if (!subArtifact)
+            return properties;
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Name"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Name,
+            primitiveType: Models.PrimitiveType.Text,
+            isRequired: true
+        });
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Description"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            primitiveType: Models.PrimitiveType.Text,
+            isRichText: true
+        });
+
+        if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape) {
+            properties.push(<Models.IPropertyType>{
+                name: "X",
+                propertyTypePredefined: Models.PropertyTypePredefined.X,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Y",
+                propertyTypePredefined: Models.PropertyTypePredefined.Y,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Width",
+                propertyTypePredefined: Models.PropertyTypePredefined.Width,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Height",
+                propertyTypePredefined: Models.PropertyTypePredefined.Height,
+                primitiveType: Models.PrimitiveType.Number
+            });
+        }
+        return properties;
+    }
+
+
+
+    public getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
         let _artifact: Models.IArtifact;
         if (typeof artifact === "number") {
             _artifact = this.getArtifact(artifact as number);
@@ -273,15 +322,38 @@ export class ProjectManager implements IProjectManager {
         }
 
         let properties: Models.IPropertyType[] = [];
-        let _artifactType: Models.IItemType = this.getArtifactType(_artifact, _project);
+        let artifactOrSubArtifactType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
 
-        if (!_artifactType) {
+        if (!artifactOrSubArtifactType) {
             throw new Error("ArtifactType_NotFound");
         }
         
         //create list of system properties
         
         
+        //create list of system properties
+        if (subArtifact) {
+            properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
+        } else {
+            properties = this.getArtifactSystemPropertyTypes(artifact, artifactOrSubArtifactType, _project.meta);
+        }
+
+        
+        //add custom property types
+        _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (artifactOrSubArtifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(it);
+            }
+        });
+        return properties;
+
+    }
+
+    private getArtifactSystemPropertyTypes(artifact: number | Models.IArtifact,
+        artifactType: Models.IItemType,
+        projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+
         //add system properties  
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Name"),
@@ -290,15 +362,16 @@ export class ProjectManager implements IProjectManager {
             isRequired: true
         });
 
+
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Type"),
             propertyTypePredefined: Models.PropertyTypePredefined.ItemTypeId,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (meta: Models.IProjectMeta) {
                 return meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return (_artifactType && (_artifactType.predefinedType === it.predefinedType));
+                    return (artifactType && (artifactType.predefinedType === it.predefinedType));
                 });
-            } (_project.meta).map(function (it) {
+            } (projectMeta).map(function (it) {
                 return <Models.IOption>{
                     id: it.id,
                     value: it.name
@@ -309,14 +382,14 @@ export class ProjectManager implements IProjectManager {
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_CreatedBy"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-            primitiveType: Models.PrimitiveType.User, 
+            primitiveType: Models.PrimitiveType.User,
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            stringDefaultValue: "Never published",
+            stringDefaultValue: "Never published", 
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
@@ -332,24 +405,18 @@ export class ProjectManager implements IProjectManager {
             dateDefaultValue: "",
             disabled: true
         });
+
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: Models.PropertyTypePredefined.Description,
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
         });
-        
-        //add custom property types
-        _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (_artifactType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
         return properties;
-
     }
 
-    public getArtifactType(artifact: Models.IArtifact, project?: Models.IProject): Models.IItemType {
+
+    public getArtifactType(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, project?: Models.IProject): Models.IItemType {
         if (!artifact) {
             throw new Error("Artifact_NotFound");
         }
@@ -362,18 +429,21 @@ export class ProjectManager implements IProjectManager {
         if (!project.meta) {
             throw new Error("Project_MetaDataNotFound");
         }
+        if (subArtifact) {
+            let _subArtifactType: Models.IItemType = project.meta.subArtifactTypes.filter((it: Models.IItemType) => {
+                return it.id === subArtifact.itemTypeId;
+            })[0];
+
+            return _subArtifactType;
+        }
+
         let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
             return it.id === artifact.itemTypeId;
         })[0];
-        
-        return _artifactType;
-    }
 
-    public getSubArtifactPropertyTypes(subArtifact: number | Models.IArtifact): Models.IPropertyType[] {
-        let properties: Models.IPropertyType[] = [];
-        //TODO: Needs to be implemented
-        return properties;
-    }
+        return _artifactType;
+
+    }    
 
     public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {
         let _project: Models.IProject;

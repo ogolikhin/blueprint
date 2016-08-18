@@ -122,5 +122,11 @@ namespace ArtifactStore.Repositories
         {
             return (val1 >= val2) ? val1 : val2;
         }
+
+        public Task<bool> AreEmailDiscussionsEnabled(int projectId)
+        {
+            return _mentionHelper.AreEmailDiscussionsEnabled(projectId);
+        }
+
     }
 }

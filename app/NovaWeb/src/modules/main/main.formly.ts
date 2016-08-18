@@ -225,7 +225,7 @@ export function formlyConfigExtendedFields(
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {
                 keyup: blurOnKey
-            }
+            };
         }]
     });
 

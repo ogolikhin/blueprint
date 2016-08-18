@@ -1,11 +1,10 @@
 ﻿import {ProcessService, IProcessService} from "./process.svc";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
+import {createDefaultProcessModel} from "../../models/test-model-factory";
 
 describe("Get process data model from the process model service", () => {
 
-    let service: IProcessService, httpBackend;
-
-    let testData = "{\"description\":\"< html > <head></head><body style=\'padding: 1px 0px 0px\'><div style=\'padding: 0px\'><p style=\'margin: 0px\'>This is a test process</p> </div></body> </html>\",\"type\":0,\"shapes\":null,\"links\":null,\"rawData\":null,\"thumbnail\":null,\"artifactInfoParentId\":null,\"typeId\":281,\"lockedByUserId\":null,\"versionId\":1,\"permissions\":0,\"artifactDisplayId\":0,\"typePrefix\":\"PRO\",\"id\":772,\"name\":\"Test Process\",\"parentId\":772,\"orderIndex\":35.0,\"connectionsAndStates\":0}";
+    let service: IProcessService, httpBackend;      
    
     // Set up the module
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -28,12 +27,13 @@ describe("Get process data model from the process model service", () => {
 
     describe("load", () => {
         describe("When process model is returned from the server", () => {
+            let testData = createDefaultProcessModel();
             it("should return data successfully through a promise", () => {
                 // Arrange
                 var successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.expectGET("/svc/components/storyteller/processes/772")
-                    .respond(JSON.parse(testData));
+                    .respond(testData);
 
                 // Act
                 service.load("772").then(successSpy, failureSpy);
@@ -53,7 +53,7 @@ describe("Get process data model from the process model service", () => {
                 let successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/" + mockArtifactId + "?versionId=" + mockVersionId)
-                    .respond(JSON.parse(testData));
+                    .respond(testData);
 
                 // Act
                 service.load(mockArtifactId, mockVersionId).then(successSpy, failureSpy);
@@ -72,7 +72,7 @@ describe("Get process data model from the process model service", () => {
                 let successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/" + mockArtifactId + "?revisionId=" + mockRevisionId)
-                    .respond(JSON.parse(testData));
+                    .respond(testData);
 
                 // Act
                 service.load(mockArtifactId, null, mockRevisionId).then(successSpy, failureSpy);
@@ -91,7 +91,7 @@ describe("Get process data model from the process model service", () => {
                 let successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/" + mockArtifactId + "?baselineId=" + mockBaselineId)
-                    .respond(JSON.parse(testData));
+                    .respond(testData);
 
                 // Act
                 service.load(mockArtifactId, null, null, mockBaselineId).then(successSpy, failureSpy);
@@ -110,7 +110,7 @@ describe("Get process data model from the process model service", () => {
                 let successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/" + mockArtifactId + "?readOnly=" + isReadOnly)
-                    .respond(JSON.parse(testData));
+                    .respond(testData);
 
                 // Act
                 service.load(mockArtifactId, null, null, null, isReadOnly).then(successSpy, failureSpy);

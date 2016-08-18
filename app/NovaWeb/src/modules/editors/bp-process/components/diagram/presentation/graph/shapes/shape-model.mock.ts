@@ -82,7 +82,9 @@ export class ShapeModelMock {
         this.sampleUserTask.propertyValues["label"] = this.shapesFactory.createLabelValue("test label");
         this.sampleUserTask.propertyValues["itemLabel"] = this.shapesFactory.createObjectiveValue("");
         this.sampleUserTask.propertyValues["storyLinks"] = this.shapesFactory.createStoryLinksValue(new ArtifactReferenceLinkMock(1));
-        this.sampleUserTask.propertyValues["associatedArtifact"] = { propertyName: "associatedArtifact", value: new ArtifactReferenceLinkMock(2), typeId: 5, typePredefined: 0 };
+        this.sampleUserTask.propertyValues["associatedArtifact"] = {
+            propertyName: "associatedArtifact", value: new ArtifactReferenceLinkMock(2), typeId: 5, typePredefined: 0
+        };
         this.sampleUserTask.propertyValues["userStoryId"] = { propertyName: "userStoryId", value: 0, typeId: 6, typePredefined: 0 };
 
         this.sampleUserTask.associatedArtifact = {
@@ -122,7 +124,9 @@ export class ShapeModelMock {
         this.sampleSystemTask.propertyValues["objective"] = this.shapesFactory.createObjectiveValue("");
         this.sampleSystemTask.propertyValues["associatedImageUrl"] = this.shapesFactory.createAssociatedImageUrlValue("");
         this.sampleSystemTask.propertyValues["imageId"] = this.shapesFactory.createImageIdValue("1");
-        this.sampleSystemTask.propertyValues["associatedArtifact"] = { propertyName: "associatedArtifact", value: testArtifactReferenceLink1, typeId: -1, typePredefined: 0 };
+        this.sampleSystemTask.propertyValues["associatedArtifact"] = {
+            propertyName: "associatedArtifact", value: testArtifactReferenceLink1, typeId: -1, typePredefined: 0
+        };
 
         this.sampleSystemTask.propertyValues["storyLinks"] = this.shapesFactory.createStoryLinksValue(null);
         this.sampleSystemTask.associatedArtifact = {

@@ -1,6 +1,7 @@
 import "angular";
 import "angular-mocks";
 import "angular-messages";
+import "angular-sanitize";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
 import "ui-select";
@@ -84,13 +85,13 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti");
             let fieldScope = angular.element(fieldNode[0]).isolateScope();
-            let fieldInput = fieldNode[0].querySelector("input");
-            (<any>fieldScope).bpFieldSelectMulti.scrollIntoView({target: fieldInput});
+            //let fieldInput = fieldNode[0].querySelector("input");
+            angular.element(fieldNode[0]).triggerHandler("click");
 
             expect(fieldNode.length).toBe(2);
             expect(fieldNode[0]).toBeDefined();
             expect(fieldScope).toBeDefined();
-            expect(fieldInput).toBe(document.activeElement);
+            expect(document.activeElement.tagName.toUpperCase()).toBe("INPUT");
         });
 
         it("should fail if empty", function () {
@@ -522,6 +523,7 @@ describe("Formly", () => {
 function createModule() {
     let app = angular.module("formlyModule", [
         //"ui.bootstrap",
+        "ngSanitize",
         "ui.select",
         "ui.tinymce",
         "formly",

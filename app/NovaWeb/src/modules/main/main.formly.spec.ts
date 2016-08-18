@@ -244,7 +244,7 @@ describe("Formly", () => {
 
     describe("Number", () => {
         it("should be initialized properly", function () {
-            compileAndSetupStuff({model: {number: 10}});
+            compileAndSetupStuff({model: {number: "10"}});
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber");
             let fieldScope = angular.element(fieldNode[0]).isolateScope();
@@ -254,6 +254,28 @@ describe("Formly", () => {
             expect(fieldScope).toBeDefined();
             expect((<any>fieldScope).fc.$valid).toBeTruthy();
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        });
+
+        it("should fail if the number is in a wrong format (literal)", function () {
+            compileAndSetupStuff({model: {number: "a"}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
+        });
+
+        it("should fail if the number is in a wrong format (invalid)", function () {
+            compileAndSetupStuff({model: {number: "2."}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
         });
 
         it("should fail if the number is less than min", function () {
@@ -299,7 +321,7 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         });
 
-        xit("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
+        it("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
             compileAndSetupStuff({model: {numberNotVal: 1000.1234}});
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[1];
@@ -310,6 +332,18 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$error.max).toBeUndefined();
             expect((<any>fieldScope).fc.$error.min).toBeUndefined();
             expect((<any>fieldScope).fc.$error.decimalPlaces).toBeUndefined();
+            expect((<any>fieldScope).fc.$error.wrongFormat).toBeUndefined();
+        });
+
+        it("should fail when format is wrong, even if validation is not required", function () {
+            compileAndSetupStuff({model: {numberNotVal: "2."}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[1];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
         });
 
         it("should allow changing the value", function () {

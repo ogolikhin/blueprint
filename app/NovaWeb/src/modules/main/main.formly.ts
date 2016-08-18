@@ -351,7 +351,7 @@ export function formlyConfigExtendedFields(
                     ng-click="bpFieldSelectMulti.scrollIntoView($event)"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
-                        <div tabindex="-1" class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
@@ -456,6 +456,18 @@ export function formlyConfigExtendedFields(
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             validators: {
+                decimalPlaces: {
+                    expression: function($viewValue, $modelValue, $scope) {
+                        let value = $modelValue || $viewValue;
+                        if (value) {
+                            let decimal = value.toString().split(localization.current.decimalSeparator);
+                            if (decimal.length === 2) {
+                                return decimal[1].length <= $scope.to["decimalPlaces"];
+                            }
+                        }
+                        return true;
+                    }
+                },
                 wrongFormat: {
                     expression: function($viewValue, $modelValue, $scope) {
                         let value = $modelValue || $viewValue;
@@ -606,7 +618,6 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
-                        scope.to["minDate"] = localization.current.formatDate(minDate, localization.current.shortDateFormat);
 
                         if (date && minDate) {
                             return date.getTime() >= minDate.getTime();
@@ -622,7 +633,6 @@ export function formlyConfigExtendedFields(
 
                         let date = localization.current.toDate($modelValue || $viewValue, true);
                         let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
-                        scope.to["maxDate"] = localization.current.formatDate(maxDate, localization.current.shortDateFormat);
 
                         if (date && maxDate) {
                             return date.getTime() <= maxDate.getTime();
@@ -703,8 +713,9 @@ export function formlyConfigExtendedFields(
     /* tslint:enable */
 
     /* tslint:disable */
+    // the order in which the messages are defined is important!
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
     formlyValidationMessages.addTemplateOptionValueMessage("wrongFormat", "", localization.get("Property_Wrong_Format"), "", localization.get("Property_Wrong_Format"));
-//    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Less"), "Number too big");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");

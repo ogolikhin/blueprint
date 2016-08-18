@@ -278,19 +278,19 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$error.max).toBeTruthy();
         });
 
-        //it("should fail if the decimals are more than allowed", function () {
-        //    compileAndSetupStuff({model: {number: 10.1234}});
+        it("should fail if the decimals are more than allowed", function () {
+            compileAndSetupStuff({model: {number: 10.1234}});
 
-        //    let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
-        //    let fieldScope = angular.element(fieldNode).isolateScope();
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
+            let fieldScope = angular.element(fieldNode).isolateScope();
 
-        //    expect((<any>fieldScope).fc.$valid).toBeFalsy();
-        //    expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-        //    expect((<any>fieldScope).fc.$error.decimalPlaces).toBeTruthy();
-        //});
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.decimalPlaces).toBeTruthy();
+        });
 
         it("should succeed if the decimals are within the allowed count", function () {
-            compileAndSetupStuff({model: {number: 10.125}});
+            compileAndSetupStuff({model: {number: 10.12}});
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
             let fieldScope = angular.element(fieldNode).isolateScope();
@@ -299,7 +299,7 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         });
 
-        it("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
+        xit("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
             compileAndSetupStuff({model: {numberNotVal: 1000.1234}});
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[1];

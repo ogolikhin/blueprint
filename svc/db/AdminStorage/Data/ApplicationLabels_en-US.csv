@@ -205,6 +205,8 @@ Error_Page_Message2,"Please try again."
 Error_Page_Message3,"If the problem persists, contact your Blueprint administrator."
 Error_Page_Label,"Error"
 
+Email_Discussions_Disabled_Message, "Note: Email Discussions have been disabled."
+
 # storyteller
 ST_Shape_Limit_Exceeded_Initial_Load,"The Process has {0} shapes. It exceeds the maximum of {1} shapes and cannot be edited. Please refactor it and move more detailed user tasks to included Processes."
 ST_Shape_Limit_Exceeded,"The shape cannot be added. The Process will exceed the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes."

@@ -211,10 +211,7 @@ GO
 /******************************************************************************************************************************
 Name:			GetStatus
 
-Description: //TODO: 
-			
-Change History:
-Date			Name					Change
+Description:	Returns the version of the database.
 
 ******************************************************************************************************************************/
 
@@ -225,7 +222,7 @@ GO
 CREATE PROCEDURE [dbo].[GetStatus] 
 AS
 BEGIN
-	SELECT COUNT(*) from [dbo].[Sessions];
+	SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;
 END
 GO 
 
@@ -602,6 +599,7 @@ Description:	Returns last @limit records from Logs table
 Change History:
 Date			Name					Change
 Feb 25 2016		Dmitry Lopyrev			Initial Version
+Jun 7 2016		Dmitry Lopyrev			Updated
 ******************************************************************************************************************************/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLogs]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetLogs]
@@ -610,22 +608,23 @@ GO
 
 CREATE PROCEDURE [dbo].[GetLogs]  
 (
-  @limit int = 0
+  @recordlimit int,
+  @recordid int = null
 )
 AS
 BEGIN
-	DECLARE @total Int
-	SELECT @total = COUNT(*) FROM [Logs]	
-	
-	IF @limit > 0 AND @limit <= @total
-	BEGIN
-		SELECT * FROM [Logs] ORDER BY id 
-			OFFSET @total - @limit ROWS
-			FETCH NEXT @limit ROWS ONLY;
-	END
-	ELSE
-		SELECT * FROM [Logs] ORDER BY id 
-	
+	DECLARE @total int
+	DECLARE @fetch int
+	DECLARE @id int
+
+	SET @id = IsNULL(@recordid, 0);
+
+	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+
+	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
+
+	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+
 END
 
 
@@ -1051,6 +1050,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message2', 'en-US', N'Please try again.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message3', 'en-US', N'If the problem persists, contact your Blueprint administrator.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label', 'en-US', N'Error')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Email_Discussions_Disabled_Message', 'en-US', N'Note: Email Discussions have been disabled.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shape_Limit_Exceeded_Initial_Load', 'en-US', N'The Process has {0} shapes. It exceeds the maximum of {1} shapes and cannot be edited. Please refactor it and move more detailed user tasks to included Processes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shape_Limit_Exceeded', 'en-US', N'The shape cannot be added. The Process will exceed the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Eighty_Percent_of_Shape_Limit_Reached', 'en-US', N'The Process now has {0} of the maximum {1} shapes. Please consider refactoring it to move more detailed user tasks to included Processes.')

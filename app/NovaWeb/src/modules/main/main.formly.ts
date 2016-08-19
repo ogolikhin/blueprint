@@ -313,20 +313,6 @@ export function formlyConfigExtendedFields(
                 placeholder: localization.get("Property_Placeholder_Select_Option"),
                 valueProp: "value",
                 labelProp: "name"
-            },
-            validators: {
-                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
-                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
-                requiredCustom: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
-                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }
             }
         },
         link: function($scope, $element, $attrs) {

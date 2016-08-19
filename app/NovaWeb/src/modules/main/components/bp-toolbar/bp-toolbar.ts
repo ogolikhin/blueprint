@@ -60,6 +60,26 @@ class BPToolbarController implements IBPToolbarController {
                     };
                 });
                 break;
+            case `openproject`:
+                this.dialogService.open(<IDialogSettings>{
+                    okButton: this.localization.get("App_Button_Open"),
+                    template: require("../dialogs/open-project.template.html"),
+                    controller: OpenProjectController,
+                    css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+                }).then((project: Models.IProject) => {
+                    if (project) {
+                        this.projectManager.loadProject(project);
+                    }
+                });
+                break;
+            case `tour`:
+                this.dialogService.open(<IDialogSettings>{
+                    template: require("../dialogs/bp-tour/bp-tour.html"),
+                    controller: BPTourController,
+                    backdrop: true,
+                    css: "nova-tour"
+                });
+                break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
@@ -75,19 +95,6 @@ class BPToolbarController implements IBPToolbarController {
         evt.stopImmediatePropagation();
     }
 
-    public openProject() {
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
-            template: require("../dialogs/open-project.template.html"),
-            controller: OpenProjectController,
-            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((project: Models.IProject) => {
-            if (project) {
-                this.projectManager.loadProject(project);
-            }
-        });
-    }
-
     //temporary
     private deleteArtifact() {
     }
@@ -95,15 +102,6 @@ class BPToolbarController implements IBPToolbarController {
     public goToImpactAnalysis() {
         let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
         window.open(url);
-    }
-
-    public openTour() {
-        this.dialogService.open(<IDialogSettings>{
-            template: require("../dialogs/bp-tour/bp-tour.html"),
-            controller: BPTourController,
-            backdrop: true,
-            css: "nova-tour"
-        });
     }
 
     public $onInit(o) {

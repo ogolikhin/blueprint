@@ -119,7 +119,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                     }
                 } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                     this.onUpdate(this.context);
-                    this.messageService.addMessage(new Message(3,"Artifact locked by another user"));
+                    this.messageService.addMessage(new Message(3, "Artifact locked by another user"));
                 } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
                     this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
                 } else {

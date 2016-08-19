@@ -4,7 +4,7 @@ import "angular";
 import "angular-mocks";
 import "angular-sanitize";
 
-import { ItemState, StateManager } from "../../../core/services/state-manager";
+import { StateManager } from "../../../core/services/state-manager";
 import { Models, Enums} from "../../../main/models";
 import { SessionSvcMock } from "../../../shell/login/mocks.spec";
 

@@ -443,6 +443,16 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
           float: left;
           max-width: calc(100% - 20px);
         }
+
+        &.btn-primary {
+          background: $brand-secondary;
+          border-color: $brand-secondary;
+
+          span.close,
+          .ui-select-match-item-chosen {
+            color: $white;
+          }
+        }
       }
 
       .ui-select-match-item-chosen {

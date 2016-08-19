@@ -69,20 +69,7 @@ export function formlyConfigExtendedFields(
         }
     };
 
-    let closeDropdownOnTab = function(event) {
-        let key = event.keyCode || event.which;
-        if (key === 9) { // 9 = Tab
-            let escKey = document.createEvent("Events");
-            escKey.initEvent("keydown", true, true);
-            escKey["which"] = 27; // 27 = Escape
-            escKey["keyCode"] = 27;
-            event.target.dispatchEvent(escKey);
-
-            blurOnKey(event, 9);
-        }
-    };
-
-    let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
+        let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
         let _keyCode: number[];
         if (!keyCode) {
             _keyCode = [13]; // 13 = Enter
@@ -103,6 +90,19 @@ export function formlyConfigExtendedFields(
             }
             event.stopPropagation();
             event.stopImmediatePropagation();
+        }
+    };
+
+    let closeDropdownOnTab = function(event) {
+        let key = event.keyCode || event.which;
+        if (key === 9) { // 9 = Tab
+            let escKey = document.createEvent("Events");
+            escKey.initEvent("keydown", true, true);
+            escKey["which"] = 27; // 27 = Escape
+            escKey["keyCode"] = 27;
+            event.target.dispatchEvent(escKey);
+
+            blurOnKey(event, 9);
         }
     };
 

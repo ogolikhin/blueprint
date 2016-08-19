@@ -254,8 +254,9 @@ export class ProjectManager implements IProjectManager {
     public getSubArtifactSystemPropertyTypes(subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
         let properties: Models.IPropertyType[] = [];
 
-        if (!subArtifact)
+        if (!subArtifact) {
             return properties;
+        }
 
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Name"),

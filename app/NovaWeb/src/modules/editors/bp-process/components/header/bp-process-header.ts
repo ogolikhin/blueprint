@@ -1,5 +1,6 @@
 import {IArtifact, IItemType, ItemTypePredefined, IEditorContext} from "../../../../main/models/models";
-import {Helper} from "../../../../shared";
+import {Helper} from "../../../../shared/utils/helper";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../../../main/services/window-manager";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -19,29 +20,42 @@ interface IArtifactHeader {
 
 export class BpProcessHeaderController implements ng.IComponentController, IArtifactHeader {
     static $inject: [string] = [
-        "$element"
+        "$element",
+        "windowManager"
     ];
 
+    private _subscribers: Rx.IDisposable[];
     private _artifact: IArtifact;
     private _type: IItemType;
 
     constructor(
-        private $element: ng.IAugmentedJQuery
+        private $element: ng.IAugmentedJQuery,
+        private windowManager: IWindowManager
     ) {
     }
 
     public $onInit(): void {
+        this._subscribers = [
+            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
+        ];
     }
 
     public $onChanges(changesObj: any): void {
         if (changesObj.context) {
-            let editorContext = changesObj.context.currentValue as IEditorContext;
+            let editorContext = <IEditorContext>changesObj.context.currentValue;
             this._artifact = editorContext.artifact;
             this._type = editorContext.type;
         }
     }
 
     public $onDestroy(): void {
+        this._subscribers = this._subscribers.filter(
+            (it: Rx.IDisposable) => { 
+                it.dispose(); 
+                return false; 
+            }
+        );
+
         delete this._artifact;
         delete this._type;
     }
@@ -108,5 +122,30 @@ export class BpProcessHeaderController implements ng.IComponentController, IArti
         }
 
         return style;
+    }
+
+    private onWidthResized(mainWindow: IMainWindow) {
+        if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
+            let sidebarWrapper: Element;
+            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            let sidebarsWidth: number = 20 * 2; // main content area padding
+            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+            if (sidebarWrapper) {
+                for (let c = 0; c < sidebarWrapper.classList.length; c++) {
+                    if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
+                        sidebarsWidth += sidebarSize;
+                    }
+                }
+            }
+            if (this.$element.length) {
+                let container: HTMLElement = this.$element[0];
+                let toolbar: Element = container.querySelector(".page-top-toolbar");
+                let heading: Element = container.querySelector(".artifact-heading");
+                if (heading && toolbar) {
+                    angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
+                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
+                }
+            }
+        }
     }
 }

@@ -66,7 +66,8 @@ export class BPDiagramController {
 
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            this.artifact = changesObj.context.currentValue as Models.IArtifact;
+            let editorContext = <Models.IEditorContext>changesObj.context.currentValue;
+            this.artifact = editorContext.artifact as Models.IArtifact;
             if (this.artifact) {
                 this.onArtifactChanged();
             }
@@ -98,7 +99,7 @@ export class BPDiagramController {
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
-                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");                 
+                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
                     this.isBrokenOrOld = false;
@@ -107,13 +108,14 @@ export class BPDiagramController {
                         this.$element.css("width", "");
                         this.$element.css("overflow", "");
                     }
-                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                    let viewContainer = this.getViewContainer(this.$element);
+                    this.diagramView = new DiagramView(viewContainer, this.stencilService);
                     this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }
 
-            }).catch((error: any) => {              
+            }).catch((error: any) => {
                 if (error !== CancelationTokenConstant.cancelationToken) {
                     this.isBrokenOrOld = true;
                     this.errorMsg = error.message;
@@ -124,6 +126,20 @@ export class BPDiagramController {
                 this.isLoading = false;
             });
         }
+    }
+
+    private getViewContainer($element: ng.IAugmentedJQuery): HTMLElement {
+        let htmlElement = null;
+        let childElements = this.$element.find("div");
+
+        for (let i = 0; i < childElements.length; i++) {
+            if (childElements[i].className.match(/diagram-container/)) {
+                htmlElement = childElements[i];
+                break;
+            }
+        }
+
+        return htmlElement;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

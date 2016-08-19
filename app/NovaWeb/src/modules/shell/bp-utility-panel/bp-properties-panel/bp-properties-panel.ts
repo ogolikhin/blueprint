@@ -1,5 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../main/models/enums";
-import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
+﻿import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
 import {ISelectionManager, Models, IProjectManager, IWindowManager, IArtifactService} from "../../../main";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -159,10 +158,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.itemState = this.stateManager.getState(item.id);
 
         if (this.itemState) {
-            if (this.itemState.changedItem) {                
-                changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);;
-            } else {                               
-                changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);;
+            if (this.itemState.changedItem) {
+                changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);
+            } else {
+                changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);
             }
         } else {
             changedItem = item;

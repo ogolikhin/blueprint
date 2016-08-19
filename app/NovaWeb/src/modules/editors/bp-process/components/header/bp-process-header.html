@@ -13,7 +13,11 @@
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>
-        <div class="process-breadcrumbs">Breadcrumb Placeholder</div>
+        <ul class="breadcrumbs process-breadcrumbs" >
+            <li>Placeholder 1</li>
+            <li>Placeholder 2</li>
+            <li><a href="#">{{ $ctrl.name }}</a></li>
+        </ul>
         <div class="type-id">{{ $ctrl.typeDescription }}</div>
     </div>
 </div>

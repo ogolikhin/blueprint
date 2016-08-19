@@ -184,7 +184,7 @@ export class BpArtifactInfoController {
     }
     
     public lockTooltip: string; 
-    public selfLocked: boolean;; 
+    public selfLocked: boolean;
 
     public get isLegacy(): boolean {
         return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||

@@ -78,7 +78,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            this.context = changesObj.context.currentValue as IEditorContext;
+            this.context = <IEditorContext>changesObj.context.currentValue;
         }
     }
 

@@ -34,8 +34,10 @@ export class ItemState {
         return this._originItem;
     }
     public set originItem(value: Models.IArtifact) {
-        if (!value)
+        if (!value) {
             return;
+        }
+        
         this._originItem = value;
     }
 

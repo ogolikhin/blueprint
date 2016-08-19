@@ -1,4 +1,7 @@
-bp-diagram {
+.diagram-container {
     display: block;
-    background-color: $white;
+    background-color: #f4f6fa;
+    height: 769px;
+    min-height: 216px;
+    max-height: 769px;
 }

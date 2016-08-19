@@ -147,7 +147,7 @@ export interface ILayout {
     createAutoInsertTaskMessage();
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
-    hideInsertNodePopupMenu();
+    hidePopupMenu();
 }
 
 export interface ISourcesAndDestinations {

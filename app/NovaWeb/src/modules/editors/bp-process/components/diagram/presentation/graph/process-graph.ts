@@ -987,7 +987,7 @@ export class ProcessGraph implements IProcessGraph {
 
         this.logInfo("Enter setSystemTasksVisible, value = " + value);
 
-        this.layout.hideInsertNodePopupMenu();
+        this.layout.hidePopupMenu();
 
         graphModel.beginUpdate();
 

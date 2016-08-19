@@ -427,16 +427,16 @@
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
 
-                var div = document.createElement("div");
-                div.innerHTML = this.render(item);
-                var li = div.firstChild;
+                //var div = document.createElement("div");
+                //div.innerHTML = this.render(item);
+                //var li = div.firstChild;
 
-                li.innerHTML = li.innerHTML.replace(li.innerText, this.highlighter(li.innerText));
+                //li.innerHTML = li.innerHTML.replace(li.innerText, this.highlighter(li.innerText));
 
-                this.jsH.each(item, function (key, val) {
-                    li.setAttribute('data-' + key, val);
-                });
-
+                //this.jsH.each(item, function (key, val) {
+                //    li.setAttribute('data-' + key, val);
+                //});
+                var li = this.render(item);
                 this.dropdown.appendChild(li);
             }
 

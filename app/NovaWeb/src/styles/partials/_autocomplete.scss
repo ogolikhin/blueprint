@@ -28,6 +28,27 @@
     background-clip: padding-box;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
+
+    bp-avatar {
+        $avatar-size: 25px;
+
+        display: inline-block;
+        vertical-align: middle;
+        height: $avatar-size;
+
+        .avatar-placeholder {
+            display: inline-block;
+            width: $avatar-size;
+            height: $avatar-size;
+            line-height: $avatar-size - 8;
+
+            .initials {
+                width: $avatar-size - 8;
+                height: $avatar-size - 8;
+                font-size: 1rem;
+            }
+        }
+    }
 }
 
 .rte-autocomplete:before {
@@ -72,8 +93,8 @@
     .rte-autocomplete > .error {
     color: #fff;
     background-color: #888;
-    margin-left: -10px;
-    margin-right: -10px;
+    margin-left: 0px;
+    margin-right: 0px;
     margin-bottom: -10px;
     padding: 10px 15px;
     -webkit-border-bottom-right-radius: 5px;
@@ -87,8 +108,11 @@
     .rte-autocomplete > .error > img {
         padding-right: 5px;
     }
-    .rte-autocomplete > .error > .error-msg {
+    .rte-autocomplete > .error > .message {
         vertical-align: middle;
+        max-width: 150px;
+        display: inline-block;
+        font-size: 1.2rem;
     }
 
 .rte-autocomplete >li > a:hover, .rte-autocomplete > li > a:focus, .rte-autocomplete:hover > a, .rte-autocomplete:focus > a {

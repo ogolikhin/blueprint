@@ -287,12 +287,15 @@ export function formlyConfigExtendedFields(
         template: `<div class="input-group has-messages">
                 <div class="ui-select-single" ng-class="!options.data.isValidated && options.data.lookup === PropertyLookupEnum.Custom ? 'allow-custom' : 'no-custom'"><ui-select
                     ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}">
+                    ng-disabled="{{to.disabled}}"
+                    uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
+                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh-delay="0">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                 </ui-select></div>
@@ -372,21 +375,48 @@ export function formlyConfigExtendedFields(
                             optionList = optionList.filter(function (item) {
                                 return !item.isCustom;
                             });
-                            customValueId = newCustomValueId();
 
-                            //manually add user input and set selection
-                            let userInputItem = {
-                                value: {customValue: search},
-                                name: search,
-                                isCustom: true
-                            };
-                            $select.items = [userInputItem].concat(optionList);
-                            $select.selected = userInputItem;
+                            let isDuplicate = false;
+                            $select.items.forEach(function(item) {
+                                if (item[$scope.to.labelProp] === search) {
+                                    isDuplicate = true;
+                                    return;
+                                }
+                            });
+
+                            if (!isDuplicate) {
+                                //manually add user input and set selection
+                                customValueId = newCustomValueId();
+                                let userInputItem = {
+                                    value: {customValue: search},
+                                    name: search,
+                                    isCustom: true
+                                };
+                                $select.items = [userInputItem].concat(optionList);
+                                $select.selected = userInputItem;
+                            }
                         }
                     }
                 },
                 escapeHTMLText: function (str: string): string {
                     return Helper.escapeHTMLText(str);
+                },
+                onOpenClose: function (isOpen) {
+                    if (isOpen && $scope["uiSelectContainer"]) {
+                        let currentVal = $scope.model[$scope.options.key];
+                        if (angular.isObject(currentVal)) {
+                            $scope["uiSelectContainer"].querySelector(".ui-select-choices-row").classList.add("active");
+                        } else if (angular.isNumber(currentVal)) {
+                            let options = $scope["uiSelectContainer"].querySelectorAll(".ui-select-choices-row");
+                            [].forEach.call(options, function (option) {
+                                option.classList.remove("active");
+                            });
+                            if (localization.current.toNumber(currentVal) === customValueId) {
+                                $scope["uiSelectContainer"].querySelector(".ui-select-choices-row:last-child").classList.add("active");
+                            } else {
+                            }
+                        }
+                    }
                 }
             };
         }]
@@ -407,7 +437,7 @@ export function formlyConfigExtendedFields(
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
-                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="trufe"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>

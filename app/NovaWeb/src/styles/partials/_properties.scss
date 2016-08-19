@@ -357,6 +357,18 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
             }
           }
         }
+
+        .ui-select-choices-row.active {
+          .ui-select-choices-row-inner {
+            .ui-select-choice-item {
+              background: $blue-lightest;
+
+              &::before {
+                content: '\2713';
+              }
+            }
+          }
+        }
       }
 
       .ui-select-offscreen {

@@ -2,5 +2,5 @@
 
 
 angular.module("bp.widjets.collapsible", [])
-    .directive("bpCollapsible", BPCollapsible.directive);
+    .directive("bpCollapsible", BPCollapsible.factory());
 

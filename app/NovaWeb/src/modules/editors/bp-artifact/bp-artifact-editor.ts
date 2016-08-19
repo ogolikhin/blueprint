@@ -1,11 +1,11 @@
-import { ILocalizationService, IMessageService, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
+import { ILocalizationService, IMessageService, Message, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
 import { IProjectManager, IWindowManager, Enums, Models} from "../../main";
 
 import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
 
-export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, PropertyContext, Models, Enums }
+export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, PropertyContext, Models, Enums, ItemState, Message }
 
 export class BpArtifactEditor extends BpBaseEditor {
     public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
@@ -15,7 +15,6 @@ export class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
-    public context: Models.IEditorContext;
     public artifactState: ItemState;
 
     public isLoading: boolean = true;
@@ -34,7 +33,6 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public $onChanges(obj: any) {
         try {
-            this.fields = [];
             this.model = {};
             super.$onChanges(obj);
         } catch (ex) {
@@ -54,52 +52,57 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     public onLoading(obj: any): boolean  {
-        this.fields = [];
         return super.onLoading(obj);
     }
 
+    public onLoad(context: Models.IEditorContext) {
+         this.onUpdate(context);
+    }
+
+    public clearFields() {
+        this.fields = [];
+    }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
+        if (!angular.isArray(this.fields)) { }
         this.fields.push(field);
     }
+
 
     public onUpdate(context: Models.IEditorContext) {
         try {
             super.onUpdate(context);
-
             if (!context || !this.editor) {
                 return;
             }
+            this.clearFields();
+
             let artifact: Models.IArtifact;
             this.artifactState = this.stateManager.getState(context.artifact.id);
 
             if (this.artifactState) {
                 artifact = this.artifactState.changedItem || this.artifactState.originItem;
             } else {
-                artifact = this.context.artifact;
+                throw Error("Artifact_Not_Found");
             }
-            
-
-            let fieldContexts = this.projectManager.getArtifactPropertyTypes(artifact).map((it: Models.IPropertyType) => {
+            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
-            this.editor.load(artifact, fieldContexts);
-            this.model = this.editor.getModel();
+ 
+            this.model = this.editor.load(artifact);
+            this.editor.load(artifact)
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                this.onFieldUpdate(field);
+                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
+                    field.type = "bpFieldReadOnly";
+                }
 
-                if (this.artifactState && this.artifactState.isReadOnly) {
-                    field.type = "bpFieldReadOnly";
-                }
-                if (this.artifactState && this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    field.type = "bpFieldReadOnly";
-                }
+                this.onFieldUpdate(field);
 
             });
         } catch (ex) {
@@ -108,6 +111,8 @@ export class BpArtifactEditor extends BpBaseEditor {
 
         this.setArtifactEditorLabelsWidth();
     }
+
+    public doLock(state: ItemState): void { }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         //here we need to update original model
@@ -121,7 +126,8 @@ export class BpArtifactEditor extends BpBaseEditor {
             id: context.modelPropertyName,
             value: value
         };
-        this.stateManager.addChange(this.context.artifact, changeSet);
+        let state = this.stateManager.addChange(this.context.artifact, changeSet);
+        this.doLock(state);
     };
 
 }

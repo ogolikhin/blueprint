@@ -128,9 +128,9 @@ pagecontent {
         width: 24px;
       }
 
-      .lock-indicator::before {
-        color: $brand-secondary;
-      }
+      .lock-indicator.self-locked::before {
+          color: $brand-secondary;	
+       }		        
 
       .legacy-indicator {
         width: 24px;

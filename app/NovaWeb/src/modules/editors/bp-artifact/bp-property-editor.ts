@@ -8,7 +8,7 @@ export class PropertyEditor {
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
-
+    public  propertyContexts: PropertyContext[];
     constructor(private locale: BPLocale) { }
 
     public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
@@ -85,14 +85,13 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, properties: PropertyContext[]) {
+    public load(artifact: Models.IArtifact): any {
 
         this._model = {};
         this._fields = [];
 
-        if (artifact && angular.isArray(properties)) {
-
-            properties.forEach((propertyContext: PropertyContext) => {
+        if (artifact && angular.isArray(this.propertyContexts)) {
+            this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
 
@@ -139,6 +138,7 @@ export class PropertyEditor {
                 }
             });
         }
+        return this._model;
     }
 
     public destroy() {

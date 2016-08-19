@@ -25,7 +25,7 @@ export class BpGlossaryController {
     private subscribers: Rx.IDisposable[];
 
     public glossary: IGlossaryDetails;
-    public isLoading: boolean = true;
+    public isLoading: boolean = true; 
 
     constructor(
         private $element: ng.IAugmentedJQuery,

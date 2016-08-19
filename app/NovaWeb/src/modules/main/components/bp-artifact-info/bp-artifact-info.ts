@@ -145,7 +145,7 @@ export class BpArtifactInfoController {
     public get isReadonly(): boolean {
         let state = this.stateManager.getState(this._artifact);
         if (state) {
-            return state.isReadOnly;
+            return state.isReadonly;
         }
         return false;
     }
@@ -159,12 +159,32 @@ export class BpArtifactInfoController {
     }
 
     public get isLocked(): boolean {
+        this.lockTooltip = null;
+        this.selfLocked = false;
         let state = this.stateManager.getState(this._artifact);
-        if (state) {
-            return state.lockedBy === Enums.LockedByEnum.OtherUser;
+        if (!state) {
+            return false;
         }
-        return false;
+        switch (state.lockedBy) {
+            case Enums.LockedByEnum.CurrentUser:
+                this.selfLocked = true;
+                this.lockTooltip = "Locked";
+                break;
+            case Enums.LockedByEnum.OtherUser:
+                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+                if (date) {
+                    this.lockTooltip = `Locked by user ${state.originItem.lockedByUser.displayName} on ${this.localization.current.formatDate(date)}`;
+                }
+                break;
+            default:
+                return false;
+
+        }
+        return true;
     }
+    
+    public lockTooltip: string; 
+    public selfLocked: boolean;; 
 
     public get isLegacy(): boolean {
         return this._artifact && (this._artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||

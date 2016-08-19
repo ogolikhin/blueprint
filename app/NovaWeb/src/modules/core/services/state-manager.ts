@@ -5,7 +5,7 @@ import { ISession } from "../../shell/login/session.svc";
 export interface IStateManager {
     dispose(): void;
     onChanged: Rx.Observable<ItemState>;
-    addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): void;
+    addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
     deleteState(artifact: number | Models.IItem);
 }
@@ -20,31 +20,49 @@ export interface IPropertyChangeSet {
 export class ItemState {
     constructor(userId: number, item: Models.IItem) {
         this._userId = userId;
-        this.originItem = item;
+        this._originItem = item;
     }
 
     private _userId: number;
+    private _originItem: Models.IArtifact;
     private _readonly: boolean;
     private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IArtifact;
-    
-    public originItem: Models.IArtifact;
+    private _lock: Models.ILockResult;
 
-    public get isReadOnly(): boolean {
-        return this._readonly ||
-            (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+    public get originItem(): Models.IArtifact {
+        return this._originItem;
     }
-    public set isReadOnly(value: boolean) {
+    public set originItem(value: Models.IArtifact) {
+        if (!value)
+            return;
+        this._originItem = value;
+    }
+
+    public get isReadonly(): boolean {
+        return this._readonly || (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+    }
+    public set isReadonly(value: boolean) {
         this._readonly = value;
     }
 
     public get lockedBy(): Enums.LockedByEnum {
-        if (this.originItem && this.originItem.lockedByUser) {
+        if (this.originItem.lockedByUser) {
             if (this.originItem.lockedByUser.id === this._userId) {
                 return Enums.LockedByEnum.CurrentUser;
             }
             return Enums.LockedByEnum.OtherUser;
-        }
+        } else if (this._lock) {
+            switch (this._lock.result) {
+                case Enums.LockResultEnum.Success:
+                    return Enums.LockedByEnum.CurrentUser;
+                case Enums.LockResultEnum.AlreadyLocked:
+                    return Enums.LockedByEnum.OtherUser;
+                default:
+                    return Enums.LockedByEnum.None;
+            }
+        } 
+
         return Enums.LockedByEnum.None;
 
     }
@@ -57,11 +75,37 @@ export class ItemState {
         return this._changedItem;
     }
 
+    public get lock(): Models.ILockResult {
+        return this._lock;
+    }
+
+    public setLock(value: Models.ILockResult): Models.ILockResult {
+        if (!value) {
+            return null;
+        }
+        this._lock = value;
+        if (value.result === Enums.LockResultEnum.Success) {
+            this.originItem.lockedByUser = {
+                id: this._userId
+            };
+        } else {
+            if (value.result === Enums.LockResultEnum.AlreadyLocked) {
+                this.originItem.lockedByUser = {
+                    id: -1,
+                    displayName: value.info.lockOwnerLogin
+                };
+            }
+            this.revertChanges();
+            this._readonly = true;
+        }
+        return this._lock;
+    }
+
     public clear() {
-        this.originItem = null;
-        this._changedItem = null;
-        this._changesets = null;
         this._readonly = false;
+        delete this._changedItem;
+        delete this._changesets;
+        this.originItem = null;
     }
 
     private add(changeSet: IPropertyChangeSet) {
@@ -143,6 +187,10 @@ export class ItemState {
 
     }
 
+    public revertChanges() {
+        delete this._changesets;
+        delete this._changedItem;
+    }
 }
 
 export class StateManager implements IStateManager {
@@ -182,9 +230,9 @@ export class StateManager implements IStateManager {
             .asObservable();
     }
 
-    public addChange(originItem: Models.IItem, changeSet?: IPropertyChangeSet) {
+    public addChange(originItem: Models.IItem, changeSet?: IPropertyChangeSet): ItemState {
         if (!originItem) {
-            return;
+            return null;
         }
         let artifact: Models.IArtifact;
         let subartifact: Models.ISubArtifact;
@@ -222,8 +270,10 @@ export class StateManager implements IStateManager {
             
             if (state.saveChange(artifact || subartifact, changeSet)) {
                 this.itemChanged.onNext(state);
+                return state;
             }
         }
+        return null;
     }
 
     public clearStates(exceptState?: ItemState) {
@@ -231,6 +281,7 @@ export class StateManager implements IStateManager {
             return it.isChanged || (it === exceptState);
         });
     }
+
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
         let state: ItemState = this.itemStateCollection.filter((it: ItemState) => {

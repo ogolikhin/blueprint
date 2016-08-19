@@ -81,7 +81,7 @@ export class BpArtifactEditor extends BpBaseEditor {
             this.artifactState = this.stateManager.getState(context.artifact.id);
 
             if (this.artifactState) {
-                artifact = this.artifactState.changedItem || this.artifactState.originItem;
+                artifact = this.artifactState.getArtifact();
             } else {
                 throw Error("Artifact_Not_Found");
             }

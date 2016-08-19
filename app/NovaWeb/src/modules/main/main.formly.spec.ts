@@ -101,6 +101,8 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect");
             let fieldScope = angular.element(fieldNode[0]).isolateScope();
+            let fieldSearch = fieldNode[0].querySelector(".ui-select-search");
+            angular.element(fieldSearch).triggerHandler("click");
 
             expect(fieldNode.length).toBe(2);
             expect(fieldNode[0]).toBeDefined();
@@ -598,6 +600,15 @@ describe("Formly", () => {
         angular.element(targetElement).trigger(e);
     }
 });
+
+function simulateTyping(key: string | number, element: HTMLElement, eventType?: string): void {
+    let keyEvent = document.createEvent("Events");
+    let keyCode = angular.isNumber(key) ? key : key.charCodeAt(0);
+    keyEvent.initEvent(eventType ? eventType : "keydown", true, true);
+    keyEvent["which"] = keyCode;
+    keyEvent["keyCode"] = keyCode;
+    element.dispatchEvent(keyEvent);
+}
 
 function createModule() {
     let app = angular.module("formlyModule", [

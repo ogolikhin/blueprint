@@ -354,7 +354,7 @@ export function formlyConfigExtendedFields(
 
             $scope.bpFieldSelect = {
                 refreshResults: function ($select) {
-                    if(!$scope.options.data.isValidated && $scope.options.data.lookup === PropertyLookupEnum.Custom) {
+                    if (!$scope.options.data.isValidated && $scope.options.data.lookup === PropertyLookupEnum.Custom) {
                         let search = $select.search;
 
                         if (search) {
@@ -768,9 +768,8 @@ export function formlyConfigExtendedFields(
         name: "bpFieldLabel",
         template: `<div>
               <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
-                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}"
-                bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">
-                {{to.label}}
+                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}">
+                <div bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">{{to.label}}</div><div>:</div>
               </label>
               <formly-transclude></formly-transclude>
             </div>`

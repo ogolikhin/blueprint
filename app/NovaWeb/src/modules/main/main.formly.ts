@@ -285,17 +285,14 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div class="ui-select-single" ng-class="{'allow-custom': !options.data.isValidated, 'no-custom': options.data.isValidated}"><ui-select
+                <div class="ui-select-single" ng-class="!options.data.isValidated && options.data.lookup === PropertyLookupEnum.Custom ? 'allow-custom' : 'no-custom'"><ui-select
                     ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    remove-selected="false">
+                    ng-disabled="{{to.disabled}}">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
-                        refresh="bpFieldSelect.refreshResults($select)" 
-                        refresh-delay="0">
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                 </ui-select></div>
@@ -365,22 +362,20 @@ export function formlyConfigExtendedFields(
 
             $scope.bpFieldSelect = {
                 refreshResults: function ($select) {
-                    if(!$scope.options.data.isValidated) {
+                    if(!$scope.options.data.isValidated && $scope.options.data.lookup === PropertyLookupEnum.Custom) {
                         let search = $select.search;
-                        let optionList = angular.copy($select.items);
 
-                        //remove last user input
-                        optionList = optionList.filter(function (item) {
-                            return !item.isCustom;
-                        });
+                        if (search) {
+                            let optionList = angular.copy($select.items);
 
-                        if (!search) {
-                            //use the predefined list
-                            $select.items = optionList;
-                        } else {
+                            //remove last user input
+                            optionList = optionList.filter(function (item) {
+                                return !item.isCustom;
+                            });
                             customValueId = newCustomValueId();
+
                             //manually add user input and set selection
-                            var userInputItem = {
+                            let userInputItem = {
                                 value: {customValue: search},
                                 name: search,
                                 isCustom: true
@@ -412,7 +407,7 @@ export function formlyConfigExtendedFields(
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
                     <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
-                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>

@@ -85,7 +85,7 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): any {
 
         this._model = {};
         this._fields = [];

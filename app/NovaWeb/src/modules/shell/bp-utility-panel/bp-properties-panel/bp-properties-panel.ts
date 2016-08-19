@@ -144,7 +144,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.itemState = this.stateManager.getState(item.id);
 
         if (this.itemState) {
-            changedItem = this.itemState.changedItem || this.itemState.originItem;
+            changedItem = this.itemState.getArtifact();
         } else {
             changedItem = item;
         }

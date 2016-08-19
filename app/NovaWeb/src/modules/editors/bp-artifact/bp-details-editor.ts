@@ -112,7 +112,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 return;
             }
             this.artifactService.lock(state.originItem.id).then((response: Models.ILockResult[]) => {
-                response[0].result = Enums.LockResultEnum.AlreadyLocked;
                 let lock = state.setLock(response[0]);
                 if (lock.result === Enums.LockResultEnum.Success) {
                     if (lock.info.versionId !== state.originItem.version) {

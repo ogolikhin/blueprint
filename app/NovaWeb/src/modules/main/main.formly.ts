@@ -500,7 +500,8 @@ export function formlyConfigExtendedFields(
                     }
                 },
                 escapeHTMLText: function (str: string): string {
-                    return Helper.escapeHTMLText(str);
+                    let escaped = Helper.escapeHTMLText(str);
+                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>")
                 },
                 onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     options.validation.show = formControl.$invalid;

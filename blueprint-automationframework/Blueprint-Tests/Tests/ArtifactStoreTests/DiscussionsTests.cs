@@ -101,6 +101,10 @@ namespace ArtifactStoreTests
                 discussions.Comments.Count);
             Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
                 "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            Assert.AreEqual(-1, postedRaptorComment.Version,
+                "Comment for draft should have version -1, but it has version {0}", postedRaptorComment.Version);
+            Assert.AreEqual(-1, discussions.Comments[0].Version,
+                "Comment for draft should have version -1, but it has version {0}", discussions.Comments[0].Version);
         }
 
         [TestCase]
@@ -167,6 +171,10 @@ namespace ArtifactStoreTests
                 discussions.Comments.Count);
             Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
                 "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            Assert.AreEqual(-1, postedRaptorComment.Version,
+                "Comment for draft should have version -1, but it has version {0}", postedRaptorComment.Version);
+            Assert.AreEqual(-1, discussions.Comments[0].Version,
+                "Comment for draft should have version -1, but it has version {0}", discussions.Comments[0].Version);
         }
 
         [TestCase]

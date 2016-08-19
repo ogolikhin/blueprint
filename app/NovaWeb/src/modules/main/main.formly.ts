@@ -69,19 +69,6 @@ export function formlyConfigExtendedFields(
         }
     };
 
-    let closeDropdownOnTab = function(event) {
-        let key = event.keyCode || event.which;
-        if (key === 9) { // 9 = Tab
-            let escKey = document.createEvent("Events");
-            escKey.initEvent("keydown", true, true);
-            escKey["which"] = 27; // 27 = Escape
-            escKey["keyCode"] = 27;
-            event.target.dispatchEvent(escKey);
-
-            blurOnKey(event, 9);
-        }
-    };
-
     let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
         let _keyCode: number[];
         if (!keyCode) {
@@ -103,6 +90,19 @@ export function formlyConfigExtendedFields(
             }
             event.stopPropagation();
             event.stopImmediatePropagation();
+        }
+    };
+
+    let closeDropdownOnTab = function(event) {
+        let key = event.keyCode || event.which;
+        if (key === 9) { // 9 = Tab
+            let escKey = document.createEvent("Events");
+            escKey.initEvent("keydown", true, true);
+            escKey["which"] = 27; // 27 = Escape
+            escKey["keyCode"] = 27;
+            event.target.dispatchEvent(escKey);
+
+            blurOnKey(event, 9);
         }
     };
 
@@ -285,7 +285,7 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <div class="ui-select-single"><ui-select
+                <div class="ui-select-single" ng-class="{'allow-custom': !options.data.isValidated, 'no-custom': options.data.isValidated}"><ui-select
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false">
@@ -330,30 +330,64 @@ export function formlyConfigExtendedFields(
             $timeout(() => {
                 primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+
+                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
+                if (uiSelectContainer) {
+                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
+                }
             }, 0);
         },
         controller: ["$scope", function ($scope) {
+            let newCustomValueId = function(): number {
+                return -1 * (Math.random() * 100 + 100); // not to conflict with special IDs like project (-1) or collections (-2)
+            };
+
+            $scope.$on("$destroy", function() {
+                if ($scope["uiSelectContainer"]) {
+                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
+                }
+            });
+
+            let customValueId = -1;
+            // we need to generate a custom id everytime, otherwise the select won't be able to recognize two different custom values
+
+            let currentModelVal = $scope.model[$scope.options.key];
+            if (angular.isObject(currentModelVal) && currentModelVal.customValue) {
+                let newVal = currentModelVal.customValue;
+                $scope.to.options.push({
+                    value: customValueId,
+                    name: newVal,
+                    isCustom: true
+                });
+                $scope.model[$scope.options.key] = customValueId;
+            }
+
             $scope.bpFieldSelect = {
                 refreshResults: function ($select) {
-                    var search = $select.search,
-                        list = angular.copy($select.items),
-                        FLAG = -1;
-                    //remove last user input
-                    list = list.filter(function(item) {
-                        return item.value !== FLAG;
-                    });
+                    if(!$scope.options.data.isValidated) {
+                        let search = $select.search;
+                        let optionList = angular.copy($select.items);
 
-                    if (!search) {
-                        //use the predefined list
-                        $select.items = list;
-                    } else {
-                        //manually add user input and set selection
-                        var userInputItem = {
-                            value: FLAG,
-                            name: search
-                        };
-                        $select.items = [userInputItem].concat(list);
-                        $select.selected = userInputItem;
+                        //remove last user input
+                        optionList = optionList.filter(function (item) {
+                            return !item.isCustom;
+                        });
+
+                        if (!search) {
+                            //use the predefined list
+                            $select.items = optionList;
+                        } else {
+                            customValueId = newCustomValueId();
+                            //manually add user input and set selection
+                            var userInputItem = {
+                                value: {customValue: search},
+                                name: search,
+                                isCustom: true
+                            };
+                            $select.items = [userInputItem].concat(optionList);
+                            $select.selected = userInputItem;
+                        }
                     }
                 },
                 escapeHTMLText: function (str: string): string {

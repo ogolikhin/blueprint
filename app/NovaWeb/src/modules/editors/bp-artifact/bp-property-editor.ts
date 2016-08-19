@@ -32,6 +32,8 @@ export class PropertyEditor {
                     return {
                         validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
                     };
+                } else if (angular.isObject(($value))) {
+                    return { customValue: $value.customValue };
                 }
                 return this.locale.toNumber($value);
 
@@ -63,8 +65,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
-            } else if (angular.isString($value.customValue)) {
-                return $value.customValue;
+            //} else if (angular.isString($value.customValue)) {
+            //    return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }

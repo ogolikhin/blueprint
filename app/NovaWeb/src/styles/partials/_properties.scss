@@ -235,6 +235,17 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
     }
 
     .ui-select-single {
+      &.no-custom {
+        .ui-select-search {
+          background: url('images/typeahead-arrow.png') no-repeat right top;
+
+          &:hover,
+          &:focus {
+            background-color: $yellow-pale;
+          }
+        }
+      }
+
       .ui-select-toggle {
         background: $white;
         border: solid 1px $gray-lightest;

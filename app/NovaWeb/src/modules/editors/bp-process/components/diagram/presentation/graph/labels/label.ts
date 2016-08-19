@@ -85,7 +85,7 @@ export class Label implements ILabel {
     // #UNUSED
     //private shortContent: string;
     private visibility: string;
-    // private executionEnvironmentDetector: ExecutionEnvironmentDetector;
+    private executionEnvironmentDetector: any;
 
     public get text() {
         return this._text;
@@ -104,10 +104,8 @@ export class Label implements ILabel {
     }
 
     private isIe11(): boolean {
-        // #DEBUG
-        //let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        //return (myBrowser.msie && (myBrowser.version == 11));
-        return true;
+        let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
+        return (myBrowser.msie && (myBrowser.version == 11));
     }
 
     constructor(private callback: any,
@@ -124,7 +122,10 @@ export class Label implements ILabel {
             this._text = "";
         }
 
-        //this.executionEnvironmentDetector = new ExecutionEnvironmentDetector();
+        // This is temporary code. It will be replaced with 
+        // a class that wraps this global functionality.   
+        let w: any = window; 
+        this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
         this.mode = divMode.VIEW;
     }
 

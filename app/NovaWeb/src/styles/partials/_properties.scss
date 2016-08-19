@@ -156,15 +156,26 @@ pagecontent, bp-properties-panel {
 
       label {
         color: $gray-dark;
-        display: inline-block;
+        display: inline-flex;
         font-size: $font-size-normal;
         font-weight: 400;
         margin: 6px 4px 0 0;
-        overflow: hidden;
         padding: 0;
-        text-overflow: ellipsis;
-        white-space: nowrap;
         width: #{$property-label-width - 4px};
+
+        div:first-child {
+          flex-grow: 1;
+          flex-shrink: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        div:last-child {
+          flex-grow: 100;
+          flex-shrink: 0;
+          width: 3.5px;
+        }
       }
 
       input,

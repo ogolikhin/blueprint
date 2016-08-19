@@ -25,6 +25,7 @@ export interface IArtifactSelectedArtifactMap {
 
 export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
+        "$q",
         "localization",
         "selectionManager",
         "artifactRelationships"
@@ -41,12 +42,13 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
 
     constructor(
+        $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(selectionManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           
@@ -66,10 +68,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {     
+    protected onSelectionChanged (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {     
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null)
+            return this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null, timeout)
                 .then((list: any) => {
                     this.artifactList = list;
                     this.selectedTraces = {};
@@ -77,11 +79,12 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                     this.populateOtherTraceLists();
                 });
         }
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private getRelationships(artifactId, subArtifactId: number = null): ng.IPromise<IArtifactRelationshipsResultSet> {
+    private getRelationships(artifactId, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactRelationshipsResultSet> {
         this.isLoading = true;
-        return this.artifactRelationships.getRelationships(artifactId, subArtifactId)
+        return this.artifactRelationships.getRelationships(artifactId, subArtifactId, timeout)
             .then((list: IArtifactRelationshipsResultSet) => {
                 return list;
             })

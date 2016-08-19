@@ -85,13 +85,13 @@ export class BpArtifactEditor extends BpBaseEditor {
             } else {
                 throw Error("Artifact_Not_Found");
             }
-            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact).map((it: Models.IPropertyType) => {
+            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact, undefined).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
- 
-            this.model = this.editor.load(artifact);
-            this.editor.load(artifact)
+
+            this.model = this.editor.load(artifact, undefined);
+
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {

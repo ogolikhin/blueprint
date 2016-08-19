@@ -14,7 +14,7 @@ namespace ArtifactStore.Models
 
         public bool CanDelete { get; set; }
 
-        //public bool AreEmailDiscussionsEnabled { get; set; }
+        public bool EmailDiscussionsEnabled { get; set; }
 
         public IEnumerable<Discussion> Discussions { get; set; }
     }

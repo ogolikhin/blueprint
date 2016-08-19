@@ -3,6 +3,7 @@
 
 export interface IArtifactService {
     getArtifact(id: number): ng.IPromise<Models.IArtifact>;
+    getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
 }
 
@@ -36,6 +37,29 @@ export class ArtifactService implements IArtifactService {
         );
         return defer.promise;
     }
+
+    public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {        
+        var defer = this.$q.defer<any>();
+        let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
+        
+        const request: ng.IRequestConfig = {
+            url: rest,
+            method: "GET",            
+        };
+
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }    
+
 
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
         var defer = this.$q.defer<any>();

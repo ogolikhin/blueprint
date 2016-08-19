@@ -108,9 +108,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public doLock(state: ItemState): void {
         try {
 
-            //if (state.lock || state.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            //    return;
-            //}
+            if (state.lock || state.lockedBy === Enums.LockedByEnum.CurrentUser) {
+                return;
+            }
             this.artifactService.lock(state.originItem.id).then((response: Models.ILockResult[]) => {
                 response[0].result = Enums.LockResultEnum.AlreadyLocked;
                 let lock = state.setLock(response[0]);

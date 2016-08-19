@@ -41,6 +41,7 @@ export interface IItem {
     version?: number;
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
+    systemPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
     predefinedType?: ItemTypePredefined;

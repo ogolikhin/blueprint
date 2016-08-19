@@ -14,6 +14,7 @@ import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-hist
 import {ArtifactRelationships} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
+import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";
 import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
 import {BPArtifactRelationshipItem} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/bp-artifact-relationship-item";
@@ -59,6 +60,7 @@ angular.module("app.shell",
     .service("usersAndGroupsService", UsersAndGroupsService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
+    .component("bpPropertiesPanel", new BPPropertiesPanel()) 
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())

@@ -8,6 +8,15 @@ bp-utility-panel {
     .app-loading {
         margin-top: 30px;
     }
+    
+    .btn {
+        background-color: #fff;
+        color: $blue-light;
+        border: solid 1px $gray-lighter;
+        border-radius: 3px;
+        padding: 2px $padding-smallest;
+        min-width: 0;
+    }
 
     .bp-accordion-panel-content {
         bp-attachments-panel, bp-history-panel, bp-discussion-panel, bp-relationships-panel {
@@ -176,3 +185,4 @@ bp-utility-panel {
 @import './utility-panel/attachments';
 @import './utility-panel/discussion';
 @import './utility-panel/relationships';
+@import './utility-panel/properties'; 

@@ -12,7 +12,7 @@
                  comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Comment_Place_Holder')}}"
                  cancel-comment="$ctrl.cancelCommentClick()"
                  post-comment="$ctrl.addArtifactDiscussion(comment)"
-                 email-discussions-enabled="true">
+                 email-discussions-enabled="$ctrl.emailDiscussionsEnabled">
 </bp-comment-edit>
 <div class="scrollable-content"
      ng-if="$ctrl.artifactDiscussionList.length"
@@ -41,7 +41,7 @@
                          comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Reply_Comment_Place_Holder')}}"
                          cancel-comment="$ctrl.cancelReplyClick(discussion)"
                          post-comment="$ctrl.addDiscussionReply(discussion, comment)"
-                         email-discussions-enabled="true">
+                         email-discussions-enabled="$ctrl.emailDiscussionsEnabled">
         </bp-comment-edit>
     </div>
 </div>

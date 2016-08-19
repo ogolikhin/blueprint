@@ -11,5 +11,7 @@ namespace ArtifactStore.Repositories
         Task<IEnumerable<Reply>> GetReplies(int discussionId, int projectId);
 
         Task<bool> IsDiscussionDeleted(int discussionId);
+
+        Task<bool> AreEmailDiscussionsEnabled(int projectId);
     }
 }

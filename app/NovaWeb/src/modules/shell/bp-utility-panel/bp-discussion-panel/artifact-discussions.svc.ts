@@ -38,6 +38,7 @@ export interface IDiscussionResultSet {
     canCreate: boolean;
     canDelete: boolean;
     discussions: IDiscussion[];
+    emailDiscussionsEnabled: boolean;
 }
 
 export interface IReply extends ICommentBase {

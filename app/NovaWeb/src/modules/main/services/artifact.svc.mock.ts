@@ -1,4 +1,4 @@
-﻿import {Models, IArtifactService} from "../";
+﻿import {Models, Enums, IArtifactService} from "../";
 
 export class ArtifactServiceMock implements IArtifactService {
 
@@ -52,6 +52,14 @@ export class ArtifactServiceMock implements IArtifactService {
     
     }
 
+    public static createLockResult(id: number): Models.ILockResult[] {
+        let data = {
+            result : Enums.LockResultEnum.Success
+
+        } as Models.ILockResult
+        return [data];
+    }
+
 
     public static createPropertyValues(id: number, count?: number): any[] {
 
@@ -88,9 +96,17 @@ export class ArtifactServiceMock implements IArtifactService {
         return deferred.promise;
     }
 
+
     public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {
         var deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
         return deferred.promise;
+    }  
+    public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createLockResult(artifactId));
+        return deferred.promise;
     }
+
+
     }

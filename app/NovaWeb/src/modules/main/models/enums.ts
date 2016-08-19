@@ -242,10 +242,13 @@ export enum LockedByEnum {
     OtherUser = 2 
 }
 
-
-
-
-
+export enum LockResultEnum {
+    Success,
+    AlreadyLocked,
+    DoesNotExist,
+    AccessDenied,
+    Failure
+}
 
 
 

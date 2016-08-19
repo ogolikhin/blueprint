@@ -8,7 +8,7 @@ export class PropertyEditor {
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
-
+    public  propertyContexts: PropertyContext[];
     constructor(private locale: BPLocale) { }
 
     public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
@@ -85,17 +85,17 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, properties: PropertyContext[]) {
+    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
 
         this._model = {};
         this._fields = [];
 
-        if (artifact && angular.isArray(properties)) {
+        if (artifact && angular.isArray(this.propertyContexts)) {
             var artifactOrSubArtifact = artifact;
             if (subArtifact) {
                 artifactOrSubArtifact = subArtifact;
             }
-            properties.forEach((propertyContext: PropertyContext) => {
+            this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
 
@@ -113,7 +113,7 @@ export class PropertyEditor {
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                                 propertyContext.disabled = true;
                             }
-                        } 
+                        }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifactOrSubArtifact.customPropertyValues)) {
                         //Custom property
                         let custompropertyvalue = artifactOrSubArtifact.customPropertyValues.filter((value: Models.IPropertyValue) => {
@@ -141,6 +141,7 @@ export class PropertyEditor {
                 }
             });
         }
+        return this._model;
     }
 
     public destroy() {

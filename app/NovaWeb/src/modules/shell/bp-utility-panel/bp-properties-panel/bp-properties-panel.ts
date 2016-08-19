@@ -190,12 +190,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             let changedArtifact = this.getChangedArtifact(artifact);           
             let changedSubArtifact = this.getChangedSubArtifact(subArtifact);            
 
-            let fieldContexts = this.projectManager.getArtifactPropertyTypes(changedArtifact, changedSubArtifact).map((it: Models.IPropertyType) => {
+            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(changedArtifact, changedSubArtifact).map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
-            this.editor.load(changedArtifact, changedSubArtifact, fieldContexts);
-            this.model = this.editor.getModel();
+            
+            this.model = this.editor.load(changedArtifact, changedSubArtifact);
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {

@@ -1,4 +1,4 @@
-﻿import {Enums} from "../..";
+﻿import {Enums} from "../../models";
 
 export interface ISidebarController {
     isLeftToggled: boolean;

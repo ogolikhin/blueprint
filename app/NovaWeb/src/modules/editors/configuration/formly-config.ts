@@ -2,14 +2,14 @@ import "angular";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
-import {ILocalizationService} from "../core";
-import {Helper} from "../shared";
+import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
+import {ILocalizationService} from "../../core";
+import {Helper} from "../../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
 /* tslint:disable */
-export function formlyConfigExtendedFields(
+export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,

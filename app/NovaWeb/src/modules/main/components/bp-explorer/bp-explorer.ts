@@ -1,9 +1,11 @@
-﻿import { IProjectManager, Models} from "../..";
+﻿import { Models} from "../../models";
+import { IProjectManager} from "../../services";
+
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
-    public template: string = require("./project-explorer.html");
+    public template: string = require("./bp-explorer.html");
     public controller: Function = ProjectExplorerController;
     public transclude: boolean = true;
 }

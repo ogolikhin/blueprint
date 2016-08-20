@@ -1,4 +1,6 @@
-﻿import { Models, Enums, IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../..";
+﻿import { Models, Enums } from "../../models";
+
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -6,10 +8,7 @@ import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artif
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: Function = BpArtifactInfoController;
-//    public controllerAs = "$ctrl";
-    //public bindings: any = {
-    //    context: "<",
-    //};
+
     public transclude: boolean = true;
 }
 

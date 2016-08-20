@@ -1,11 +1,12 @@
-import { IProjectManager, Models, IWindowManager } from "../..";
-import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
+import { Models} from "../../models";
+import { IProjectManager, IWindowManager, ISelectionManager, SelectionSource} from "../../services";
+
 import { IMessageService, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
 export class PageContent implements ng.IComponentOptions {
-    public template: string = require("./pagecontent.html");
+    public template: string = require("./bp-page-content.html");
 
     public controller: Function = PageContentCtrl;
     public controllerAs = "$content";

@@ -1,5 +1,6 @@
 import { ILocalizationService, IMessageService, Message, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
-import { IProjectManager, IWindowManager, Enums, Models} from "../../main";
+import { IProjectManager, IWindowManager} from "../../main/services";
+import { Enums, Models} from "../../main/models";
 
 import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";

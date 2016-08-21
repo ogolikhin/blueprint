@@ -426,6 +426,7 @@ export function formlyConfig(
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"
+                    on-select="bpFieldSelectMulti.onSelect()"
                     close-on-select="false"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
@@ -488,12 +489,8 @@ export function formlyConfig(
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
                 onMouseOver: function ($event) {
-                    let elem = $event.target as HTMLElement;
-                    while (elem && !elem.classList.contains("ui-select-container")) {
-                        elem = elem.parentElement;
-                    }
-                    if (elem) {
-                        elem = elem.querySelector("div") as HTMLElement;
+                    if ($scope["uiSelectContainer"]) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
                         if (elem && !elem.classList.contains("ps-child")) {
                             elem.classList.add("ps-child");
                         }
@@ -505,6 +502,20 @@ export function formlyConfig(
                 },
                 onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     options.validation.show = formControl.$invalid;
+                    if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        if (elem && elem.scrollHeight <= elem.clientHeight) {
+                            $scope["uiSelectContainer"].classList.remove("has-scrollbar");
+                        }
+                    }
+                },
+                onSelect: function () {
+                    if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        if (elem && elem.scrollHeight > elem.clientHeight) {
+                            $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                        }
+                    }
                 }
             };
         }]

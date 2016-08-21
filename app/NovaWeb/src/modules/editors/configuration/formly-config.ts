@@ -432,7 +432,9 @@ export function formlyConfig(
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
+                    <ui-select-choices class="ps-child"
+                        on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
@@ -478,6 +480,8 @@ export function formlyConfig(
             }, 0);
         },
         controller: ["$scope", function ($scope) {
+            let activeIndex = -1;
+
             $scope.$on("$destroy", function() {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
@@ -498,7 +502,16 @@ export function formlyConfig(
                 },
                 escapeHTMLText: function (str: string): string {
                     let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>")
+                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
+                },
+                onHighlight: function (option, $select) {
+                    if ($select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]) !== -1) {
+                        if (activeIndex < $select.activeIndex) {
+                            activeIndex = $select.activeIndex++;
+                        } else {
+                            activeIndex = --$select.activeIndex;
+                        }
+                    }
                 },
                 onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     options.validation.show = formControl.$invalid;

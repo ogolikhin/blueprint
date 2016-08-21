@@ -22,7 +22,7 @@ export class NodeLabelEditor {
         // Start editing if a label was double-clicked
         container.addEventListener("dblclick", this.containerDblClick, true);
 
-        container.parentElement.addEventListener("mousemove", this.onMouseOver, true);
+        container.addEventListener("mousemove", this.onMouseOver, true);
     }
 
     private onMouseOver = (e) => {

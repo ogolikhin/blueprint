@@ -391,7 +391,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // header overlays
        
         var personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
-        var overlayPersona = this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], 
+        this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], 
         mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
 
         // DO NOT DELETE!!! this is needed for the labels functionality

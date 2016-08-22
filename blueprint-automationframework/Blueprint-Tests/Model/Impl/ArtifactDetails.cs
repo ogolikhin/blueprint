@@ -63,6 +63,7 @@ namespace Model.Impl
         /// <param name="shouldWrapWithHtmlTags">(optional) Specifies whether certain properties should be wrapped with HTML tags before comparing them.</param>
         /// <param name="shouldCompareVersions">(optional) Specifies whether the version property should be compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public void AssertEquals(IArtifactBase artifact, bool shouldWrapWithHtmlTags = true, bool shouldCompareVersions = true)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -93,21 +94,115 @@ namespace Model.Impl
             }
 
             property = artifact.Properties.Find(p => p.Name == "Created On");
-            Assert.AreEqual(CreatedOn.Value.ToUniversalTime(), DateTime.Parse(property?.DateValue, CultureInfo.InvariantCulture).ToUniversalTime(),
-                "Artifact Details CreatedOn doesn't match artifact CreatedOn.");
+            const string createdOnMismatch = "Artifact Details CreatedOn doesn't match artifact CreatedOn.";
+
+            if (property?.DateValue == null)
+            {
+                Assert.AreEqual(CreatedOn, property?.DateValue, createdOnMismatch);
+            }
+            else
+            {
+                Assert.AreEqual(CreatedOn.Value.ToUniversalTime(), DateTime.Parse(property?.DateValue, CultureInfo.InvariantCulture).ToUniversalTime(),
+                    createdOnMismatch);
+            }
 
             property = artifact.Properties.Find(p => p.Name == "Last Edited On");
-            Assert.AreEqual(LastEditedOn.Value.ToUniversalTime(), DateTime.Parse(property?.DateValue, CultureInfo.InvariantCulture).ToUniversalTime(),
-                "Artifact Details LastEditedOn doesn't match artifact LastEditedOn.");
+            const string lastEditedOnMistatch = "Artifact Details LastEditedOn doesn't match artifact LastEditedOn.";
+
+            if (property?.DateValue == null)
+            {
+                Assert.AreEqual(LastEditedOn, property?.DateValue, lastEditedOnMistatch);
+            }
+            else
+            {
+                Assert.AreEqual(LastEditedOn.Value.ToUniversalTime(), DateTime.Parse(property?.DateValue, CultureInfo.InvariantCulture).ToUniversalTime(),
+                    lastEditedOnMistatch);
+            }
 
             property = artifact.Properties.Find(p => p.Name == "Created By");
-            CreatedBy.AssertEquals(property.UsersAndGroups.Find(p => p.Id == CreatedBy?.Id));
+            CreatedBy.AssertEquals(property?.UsersAndGroups?.Find(p => p.Id == CreatedBy?.Id));
 
             property = artifact.Properties.Find(p => p.Name == "Last Edited By");
-            LastEditedBy.AssertEquals(property?.UsersAndGroups.Find(p => p.Id == LastEditedBy?.Id));
+            LastEditedBy.AssertEquals(property?.UsersAndGroups?.Find(p => p.Id == LastEditedBy?.Id));
 
             // NOTE: OpenApi doesn't return these properties, so we can't compare them:
             //     OrderIndex, ArtifactTypeVersionId, LockedByUser.
+        }
+
+        /// <summary>
+        /// Asserts that this ArtifactDetails object is equal to the specified ArtifactDetails.
+        /// </summary>
+        /// <param name="artifact">The ArtifactDetails to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(ArtifactDetails artifact)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Assert.AreEqual(Id, artifact.Id, "The Id parameters don't match!");
+            Assert.AreEqual(Name, artifact.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(Description, artifact.Description, "The Description  parameters don't match!");
+            Assert.AreEqual(ParentId, artifact.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(ItemTypeId, artifact.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(ItemTypeVersionId, artifact.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
+            Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime  parameters don't match!");
+            Assert.AreEqual(ProjectId, artifact.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(Version, artifact.Version, "The Version  parameters don't match!");
+            Assert.AreEqual(CreatedOn, artifact.CreatedOn, "The CreatedOn  parameters don't match!");
+            Assert.AreEqual(LastEditedOn, artifact.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+            Identification.AssertEquals(CreatedBy, artifact.CreatedBy);
+            Identification.AssertEquals(LastEditedBy, artifact.LastEditedBy);
+            Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
+
+            Assert.AreEqual(CustomProperties.Count, artifact.CustomProperties.Count, "The number of Custom Properties is different!");
+            Assert.AreEqual(SpecificPropertyValues.Count, artifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+
+            // Now compare each property in CustomProperties & SpecificPropertyValues.
+            foreach (CustomProperty property in CustomProperties)
+            {
+                Assert.That(artifact.CustomProperties.Exists(p => p.Name == property.Name),
+                    "Couldn't find a CustomProperty named '{0}'!", property.Name);
+            }
+
+            foreach (CustomProperty property in SpecificPropertyValues)
+            {
+                Assert.That(artifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
+                    "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+            }
+        }
+
+        /// <summary>
+        /// Copies all properties from the source artifact into this object.
+        /// </summary>
+        /// <param name="sourceArtifact">The artifact that contains the properties to copy from.</param>
+        public void DeepCopy(ArtifactDetails sourceArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+
+            Id = sourceArtifact.Id;
+            Name = sourceArtifact.Name;
+            Description = sourceArtifact.Description;
+            ParentId = sourceArtifact.ParentId;
+            Permissions = sourceArtifact.Permissions;
+            OrderIndex = sourceArtifact.OrderIndex;
+            ItemTypeId = sourceArtifact.ItemTypeId;
+            ItemTypeVersionId = sourceArtifact.ItemTypeVersionId;
+            LockedDateTime = sourceArtifact.LockedDateTime;
+            ProjectId = sourceArtifact.ProjectId;
+            Version = sourceArtifact.Version;
+            CreatedOn = sourceArtifact.CreatedOn;
+            LastEditedOn = sourceArtifact.LastEditedOn;
+            CreatedBy = sourceArtifact.CreatedBy;
+            LastEditedBy = sourceArtifact.LastEditedBy;
+            LockedByUser = sourceArtifact.LockedByUser;
+
+            CustomProperties.Clear();
+            SpecificPropertyValues.Clear();
+
+            CustomProperties.AddRange(sourceArtifact.CustomProperties);
+            SpecificPropertyValues.AddRange(sourceArtifact.SpecificPropertyValues);
         }
     }
 
@@ -127,8 +222,26 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(userOrGroup, nameof(userOrGroup));
 
-            Assert.AreEqual(Id, userOrGroup.Id, "The Id properties don't match!");
-            Assert.AreEqual(DisplayName, userOrGroup.DisplayName, "The DisplayName properties don't match!");
+            Assert.AreEqual(Id, userOrGroup?.Id, "The Id properties of the user or group don't match!");
+            Assert.AreEqual(DisplayName, userOrGroup?.DisplayName, "The DisplayName properties of the user or group don't match!");
+        }
+
+        /// <summary>
+        /// Asserts that both Identification objects are equal.
+        /// </summary>
+        /// <param name="identification1">The first Identification to compare.</param>
+        /// <param name="identification2">The second Identification to compare.</param>
+        public static void AssertEquals(Identification identification1, Identification identification2)
+        {
+            if ((identification1 == null) || (identification2 == null))
+            {
+                Assert.AreEqual(identification1, identification2, "One Identification is null but the other isn't!");
+            }
+            else
+            {
+                Assert.AreEqual(identification1.Id, identification2.Id, "The Id properties don't match!");
+                Assert.AreEqual(identification1.DisplayName, identification2.DisplayName, "The DisplayName don't match!");
+            }
         }
     }
 

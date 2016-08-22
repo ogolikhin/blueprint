@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
 using System.Diagnostics.CodeAnalysis;
+using Model.Impl;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -20,24 +21,24 @@ namespace Model.ArtifactModel.Impl
         Failure
     }
 
-    /// <summary>
-    /// Artifact Result Class
-    /// </summary>
-    ///<remarks>Not all of these properties will be used by REST calls that return it as a response</remarks>
-    public class ArtifactResult
+    public class UpdateArtifactResult
     {
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
-        public IArtifactBase Artifact { get; set; }
-        public int ArtifactId { get; set; }
-        public string Message { get; set; }
-        public HttpStatusCode ResultCode { get; set; }
-        public int ProjectId { get; set; }
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<string> Messages { get; set; }
+        public ArtifactDetails Result { get; set; }
     }
 
-    public class OpenApiArtifactResult
+    public class OpenApiAddArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
         public IOpenApiArtifact Artifact { get; set; }
+        public string Message { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
+    }
+
+    public class OpenApiUpdateArtifactResult
+    {
+        public int ArtifactId { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }
     }
@@ -80,7 +81,7 @@ namespace Model.ArtifactModel.Impl
             None = 0, //CA1008
             Success = 200,
             ArtifactAlreadyPublished = 113,
-            Failure = 1 ///TODO: check code for fail
+            Failure = 1 // TODO: check code for fail
         }
 
         public int ArtifactId { get; set; }

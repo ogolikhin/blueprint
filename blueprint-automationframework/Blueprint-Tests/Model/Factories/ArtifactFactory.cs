@@ -70,6 +70,7 @@ namespace Model.Factories
             IArtifact artifact = new Artifact(address);
             artifact.BaseArtifactType = artifactType;
 
+            artifact.Project = project;
             artifact.ProjectId = project.Id;
             if (parent == null)
             {

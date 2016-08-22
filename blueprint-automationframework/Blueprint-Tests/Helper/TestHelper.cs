@@ -92,6 +92,68 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and save an artifact object using the Blueprint application server address from the TestConfiguration file.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <returns>The new artifact object.</returns>
+        public IArtifact CreateAndSaveOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
+            artifact.Save();
+            return artifact;
+        }
+
+        /// <summary>
+        /// Creates a new OpenApi artifact, then saves and publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
+        /// <returns>The OpenApi artifact.</returns>
+        public IOpenApiArtifact CreateAndPublishOpenApiArtifact(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfVersions = 1)
+        {
+            IOpenApiArtifact artifact = CreateOpenApiArtifact(project, user, artifactType);
+
+            for (int i = 0; i < numberOfVersions; ++i)
+            {
+                artifact.Save();
+                artifact.Publish();
+            }
+
+            return artifact;
+        }
+
+        /// <summary>
+        /// Creates a list of new published OpenApi artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactType">The type of artifacts to create.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <returns>The list of OpenApi artifacts.</returns>
+        public List<IArtifactBase> CreateAndPublishMultipleOpenApiArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IOpenApiArtifact artifact = CreateAndPublishOpenApiArtifact(project, user, artifactType);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
+
+        /// <summary>
         /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
         /// </summary>
         /// <param name="address">address for Blueprint application server</param>

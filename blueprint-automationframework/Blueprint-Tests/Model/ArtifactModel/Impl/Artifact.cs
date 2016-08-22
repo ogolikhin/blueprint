@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
 using Common;
+using Model.Factories;
 using Model.Impl;
 using Utilities.Factories;
 
@@ -46,6 +47,7 @@ namespace Model.ArtifactModel.Impl
         #region Methods
 
         public void Save(IUser user = null,
+            bool shouldGetLockForUpdate = true,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -63,7 +65,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            SaveArtifact(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
         public List<DiscardArtifactResult> Discard(IUser user = null,
@@ -148,27 +150,7 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to lock the artifact.");
-                user = CreatedBy;
-            }
-
-            var artifactToLock = new List<IArtifactBase> { this };
-
-            var artifactLockResults = LockArtifacts(
-                artifactToLock,
-                Address,
-                user,
-                new List<LockResult> { expectedLockResult },
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-
-            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
-
-            var artifactLockResult = artifactLockResults.First();
-
-            return artifactLockResult;
+            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,
@@ -413,31 +395,20 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactToSave">The artifact to save.</param>
         /// <param name="user">The user saving the artifact.</param>
+        /// <param name="shouldGetLockForUpdate">(optional) Pass false if you don't want to get a lock before trying to update the artifact.  Default is true.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         public static void SaveArtifact(IArtifactBase artifactToSave,
             IUser user,
+            bool shouldGetLockForUpdate = true,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-//            OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
-            
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
 
             // Use POST only if this is creating the artifact, otherwise use PATCH
             var restRequestMethod = artifactToSave.Id == 0 ? RestRequestMethod.POST : RestRequestMethod.PATCH;
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)  // TODO: Remove this if the new call doesn't support cookies.
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToSave.ProjectId);  // TODO: Update REST path to include projectID.
 
             if (expectedStatusCodes == null)
             {
@@ -446,41 +417,16 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
-
-                var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
-                    path,
-                    restRequestMethod,
-                    artifactToSave as ArtifactBase,
-                    expectedStatusCodes: expectedStatusCodes);
-
-                ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
-
-                // Artifact was successfully created so IsSaved is set to true
-                if (artifactResult.ResultCode == HttpStatusCode.Created)
-                {
-                    artifactToSave.IsSaved = true;
-                }
-
-                Logger.WriteDebug("{0} {1} returned the following: Message: {2}, ResultCode: {3}",
-                    restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
-                Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-                if (expectedStatusCodes.Contains(HttpStatusCode.OK) || expectedStatusCodes.Contains(HttpStatusCode.Created))
-                {
-                    Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
-                        "The returned ResultCode was '{0}' but '{1}' was expected",
-                        artifactResult.ResultCode,
-                        ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
-
-                    Assert.That(artifactResult.Message == "Success",
-                        "The returned Message was '{0}' but 'Success' was expected",
-                        artifactResult.Message);
-                }
+                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
-                UpdateArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                if (shouldGetLockForUpdate)
+                {
+                    Lock(artifactToSave, artifactToSave.Address, user);
+                }
+
+                UpdateArtifact(artifactToSave, user, expectedStatusCodes: expectedStatusCodes);
             }
             else
             {
@@ -493,12 +439,16 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactToUpdate">The artifact to be updated.</param>
         /// <param name="user">The user updating the artifact.</param>
+        /// <param name="artifactChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
+        ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
+        /// <param name="address">The address of the ArtifactStore service.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
-        public static void UpdateArtifact(IArtifactBase artifactToUpdate,
+        /// <returns>The UpdateArtifactResult object returned by the call.</returns>
+        public static UpdateArtifactResult UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            ArtifactDetails artifactChanges = null,
+            string address = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
@@ -506,58 +456,43 @@ namespace Model.ArtifactModel.Impl
             Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
 
             string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactToUpdate.Id);
 
-            if (sendAuthorizationAsCookie)      // TODO: Remove this if the new call doesn't support cookies.
+            if (artifactChanges == null)
             {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
+                artifactChanges = new ArtifactDetails
+                {
+                    Id = artifactToUpdate.Id,
+                    ProjectId = artifactToUpdate.ProjectId,
+                    Version = artifactToUpdate.Version,
+                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                };
             }
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToUpdate.ProjectId);    // TODO: Update REST path to include projectID.
-
-            //TODO: Remove this when solution to have the property to update configurable
-            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
-
-            // TODO: Expand this to have the properties to update configurable
-            // Create a copy of the artifact to update that only includes the properties to be updated
-            var artifactWithPropertyToUpdate = new ArtifactForUpdate
-            {
-                Id = artifactToUpdate.Id,
-                Properties = new List<PropertyForUpdate>
-                {
-                    new PropertyForUpdate
-                    {
-                        PropertyTypeId = propertyToUpdate.PropertyTypeId,
-                        TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
-                    }
-                }
-            };
-
-            var artifactsToUpdate = new List<ArtifactForUpdate> { artifactWithPropertyToUpdate };
-
-            RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
-            var updateResultList = restApi.SendRequestAndDeserializeObject<List<ArtifactResult>, List<ArtifactForUpdate>>(
+            RestApiFacade restApi = new RestApiFacade(address ?? artifactToUpdate.Address, tokenValue);
+            var updateResult = restApi.SendRequestAndDeserializeObject<UpdateArtifactResult, ArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
-                artifactsToUpdate,
+                artifactChanges,
                 expectedStatusCodes: expectedStatusCodes);
 
-            Assert.IsNotEmpty(updateResultList, "No artifact results were returned");
-            Assert.That(updateResultList.Count == 1, "Only a single artifact was updated, but multiple artifact results were returned");
+            Assert.NotNull(updateResult, "No artifact result was returned!");
+            Logger.WriteDebug("Result Messages for the Updated Artifact {0}: '{1}'.",
+                artifactToUpdate.Id, string.Join("', '", updateResult.Messages ?? new List<string>()));
 
-            // Get the updated artifact from the result list
-            var updateResult = updateResultList.Find(a => a.ArtifactId == artifactToUpdate.Id);
-
-            if (updateResult.ResultCode == HttpStatusCode.OK)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
-                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}", updateResult.ArtifactId, updateResult.ResultCode);
-
-                // Copy updated property into original artifact
-                propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
-
                 artifactToUpdate.IsSaved = true;
+
+                Assert.NotNull(updateResult.Result, "'PATCH {0}' returned a null 'Result'!", path);
+
+                IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId);
+
+                // Copy updated properties into original artifact.
+                ((ArtifactBase)artifactToUpdate).ReplacePropertiesWithPropertiesFromSourceArtifactDetails(updateResult.Result, project, user);
             }
+
+            return updateResult;
         }
 
         /// <summary>
@@ -718,7 +653,49 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Lock Artifact(s).
-        /// (Runs:  /svc/shared/artifacts/lock  with artifact IDs in the request body)
+        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="artifact">The artifact to lock.</param>
+        /// <param name="address">The base url of the API.</param>
+        /// <param name="user">(optional) The user locking the artifact.  If null, it will use the user that created the artifact.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
+        /// <returns>The artifact lock result information</returns>
+        public static LockResultInfo Lock(IArtifactBase artifact,
+            string address,
+            IUser user = null,
+            LockResult expectedLockResult = LockResult.Success,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(artifact?.CreatedBy, "No user is available to lock the artifact.");
+                user = artifact?.CreatedBy;
+            }
+
+            var artifactToLock = new List<IArtifactBase> { artifact };
+
+            var artifactLockResults = LockArtifacts(
+                artifactToLock,
+                address,
+                user,
+                new List<LockResult> { expectedLockResult },
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
+
+            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+
+            var artifactLockResult = artifactLockResults.First();
+
+            return artifactLockResult;
+        }
+
+        /// <summary>
+        /// Lock Artifact(s).
+        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact IDs in the request body)
         /// </summary>
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="address">The base url of the API</param>
@@ -862,11 +839,11 @@ namespace Model.ArtifactModel.Impl
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorComment UpdateRaptorDiscussion(string address,
             int itemId, IRaptorComment commentToUpdate,
-            string discussionsText,
+            string discussionText,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, commentToUpdate, discussionsText,
+            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, commentToUpdate, discussionText,
                 user, expectedStatusCodes);
         }
 
@@ -983,5 +960,25 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Static Methods
+    }
+
+    public class ArtifactForUpdate
+    {
+        public int Id { get; set; }
+        public int ProjectId { get; set; }
+        public int Version { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<PropertyForUpdate> CustomPropertyValues { get; set; }
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<PropertyForUpdate> SpecificPropertyValues { get; set; }
+    }
+
+    public class PropertyForUpdate
+    {
+        public int PropertyTypeId { get; set; }
+        public int PropertyTypeVersionId { get; set; }
+        public int PropertyTypePredefined { get; set; }
+        public object Value { get; set; }
     }
 }

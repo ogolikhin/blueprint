@@ -12,6 +12,7 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -159,14 +160,61 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_ValidArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
+            IOpenApiArtifact openApiArtifact1 = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
+            UpdateArtifactResult updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => artifact.Save(),
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(openApiArtifact1, _user, address: Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
 
             // Verify:
             IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
+            updateResult.Result.AssertEquals(openApiArtifact);
+
+            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.Document)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestRail(156656)]
+        [Description("Create & save an artifact.  Update the artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we updated.")]
+        public void UpdateArtifact_ValidUnpublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            ArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            // Update the Id of the artifact with the value after the save.
+            artifact.Id = artifactDetails.Id;
+
+            // Change the Description so it can be updated.
+            artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+
+            UpdateArtifactResult updateResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
+
+            // Verify:
+            Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.Result.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
+
+            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
+            updateResult.Result.AssertEquals(artifactDetails);
+
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
@@ -330,7 +378,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user saving the artifact.</param>
         /// <returns>The ArtifactResult returned from ArtifactStore.</returns>
-        public ArtifactResult SaveInvalidArtifact(string requestBody,
+        public UpdateArtifactResult SaveInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {
@@ -346,7 +394,7 @@ namespace ArtifactStoreTests
                 RestRequestMethod.POST,
                 requestBody);
 
-            var artifactResult = JsonConvert.DeserializeObject<ArtifactResult>(response.Content);
+            var artifactResult = JsonConvert.DeserializeObject<UpdateArtifactResult>(response.Content);
 
             return artifactResult;
         }
@@ -358,7 +406,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user updating the artifact.</param>
         /// <returns>The list of ArtifactResults returned from ArtifactStore.</returns>
-        public List<ArtifactResult> UpdateInvalidArtifact(string requestBody,
+        public List<UpdateArtifactResult> UpdateInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {
@@ -374,7 +422,7 @@ namespace ArtifactStoreTests
                 RestRequestMethod.PATCH,
                 requestBody);
 
-            var updateResultList = JsonConvert.DeserializeObject<List<ArtifactResult>>(response.Content);
+            var updateResultList = JsonConvert.DeserializeObject<List<UpdateArtifactResult>>(response.Content);
 
             return updateResultList;
         }

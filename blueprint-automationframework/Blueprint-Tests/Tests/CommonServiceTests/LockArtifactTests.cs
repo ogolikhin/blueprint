@@ -106,10 +106,10 @@ namespace CommonServiceTests
         {
             // Setup:
             // Publish artifact to ensure no lock remains on the newly created artifact
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, baseArtifactType);
 
             // Execute:
-            artifact.Lock(_user);
+            Artifact.Lock(artifact, artifact.Address, _user);
 
             // Verify:
             // Assert that the second user cannot save the artifact
@@ -320,7 +320,7 @@ namespace CommonServiceTests
         public void Lock_ArtifactIsAlreadyLockedBySameUser_VerifyLockObtained(BaseArtifactType baseArtifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, baseArtifactType);
 
             // Saves the artifact (which gets a lock).
             artifact.Save();
@@ -331,7 +331,7 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 // Attempt to lock artifact that already has been locked due to the save
-                lockResultInfo = artifact.Lock();
+                lockResultInfo = Artifact.Lock(artifact, artifact.Address, _user);
             }, "Failed to lock an already locked artifact!");
 
             // Verify:

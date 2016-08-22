@@ -122,7 +122,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 this.isLoading = false;
             });
         } else {
-            return this.artifactService.getArtifact(artifact.id).then((it: Models.IArtifact) => {
+            return this.artifactService.getArtifact(artifact.id, timeout).then((it: Models.IArtifact) => {
                 angular.extend(artifact, it);
                 this.stateManager.addChange(artifact);                
                 this.selectedArtifact = artifact;

@@ -18,7 +18,7 @@ interface IFileUploadStatus {
     isComplete: boolean;
     isFailed: boolean;
     isUploading: boolean;
-    cancelDeferred: ng.IDeferred<any>;
+    timeout: ng.IDeferred<any>;
     progress: number;
     guid: string;
     filepath: string;
@@ -68,7 +68,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                     isComplete: false,
                     isFailed: false,
                     isUploading: false,
-                    cancelDeferred: this.$q.defer(),
+                    timeout: this.$q.defer(),
                     progress: 0,
                     guid: null,
                     filepath: null,
@@ -109,7 +109,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
         this.fileUploadService.uploadToFileStore(f.file, new Date(), (event: ProgressEvent) => {
             f.progress = Math.floor((event.loaded / event.total) * 100);
-        }, f.cancelDeferred.promise).then(
+        }, f.timeout.promise).then(
             (result: IFileResult) => {
                 f.guid = result.guid;
                 f.filepath = result.uriToFile;
@@ -140,7 +140,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     public cancelUpload(file: IFileUploadStatus) {
         const index = this.files.indexOf(file);
         if (index > -1) {
-            this.files[index].cancelDeferred.resolve();
+            this.files[index].timeout.resolve();
             this.files.splice(index, 1);
         }
     }
@@ -149,7 +149,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         this.files
             .filter((file: IFileUploadStatus) => file.isUploading)
             .map((file: IFileUploadStatus) => {
-                file.cancelDeferred.resolve();
+                file.timeout.resolve();
             });
     }
 

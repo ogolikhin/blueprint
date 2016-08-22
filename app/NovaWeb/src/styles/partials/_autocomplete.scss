@@ -51,27 +51,59 @@
     }
 }
 
-.rte-autocomplete:before {
-    content: '';
-    display: inline-block;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid #ccc;
-    border-bottom-color: rgba(0, 0, 0, 0.2);
-    position: absolute;
-    top: -7px;
-    left: 9px;
-}
+.rte-autocomplete {
+    &::before,
+    &::after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+    }
 
-.rte-autocomplete:after {
-    content: '';
-    display: inline-block;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid white;
-    position: absolute;
-    top: -6px;
-    left: 10px;
+    &.arrow-top::before {
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 7px solid #ccc;
+        border-bottom-color: rgba(0, 0, 0, 0.2);
+        top: -7px;
+    }
+
+    &.arrow-bottom::before {
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 7px solid #ccc;
+        border-top-color: rgba(0, 0, 0, 0.2);
+        bottom: -7px;
+    }
+
+    &.arrow-left::before {
+        left: 9px;
+    }
+
+    &.arrow-right::before {
+        right: 9px;
+    }
+
+    &.arrow-top::after {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 6px solid white;
+        top: -6px;
+    }
+
+    &.arrow-bottom::after {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid white;
+        bottom: -6px;
+    }
+
+    &.arrow-left::after {
+        left: 10px;
+    }
+
+    &.arrow-right::after {
+        right: 10px;
+    }
 }
 
 .rte-autocomplete > li.loading {
@@ -85,17 +117,17 @@
     clear: both;
     font-weight: normal;
     line-height: 20px;
-    color: #333;
+    color: $gray-darker;
     white-space: nowrap;
     text-decoration: none;
 }
 
     .rte-autocomplete > .error {
-    color: #fff;
-    background-color: #888;
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-bottom: -10px;
+    color: $white;
+    background-color: $gray;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: -5px;
     padding: 10px 15px;
     -webkit-border-bottom-right-radius: 5px;
     -webkit-border-bottom-left-radius: 5px;

@@ -10,15 +10,13 @@ export class ProcessService implements IProcessService {
     public static $inject = [
         "$http",
         "$q",
-        "messageService",
-        "$rootScope"
+        "messageService"
     ];
     
     constructor(
         private $http: ng.IHttpService,
         private $q: ng.IQService,
-        private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService) {
+        private messageService: IMessageService) {
         
     }
 

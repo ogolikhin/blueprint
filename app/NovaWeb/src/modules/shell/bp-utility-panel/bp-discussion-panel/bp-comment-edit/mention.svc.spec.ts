@@ -1,9 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
-import { IUsersAndGroupsService, IUserOrGroupInfo, UserOrGroupInfo } from "./users-and-groups.svc";
+import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
 import { ILocalizationService } from "../../../../core";
 import { ITinyMceMentionOptions, MentionService } from "./mention.svc";
-import { UsersAndGroupsServiceMock } from "./users-and-groups.svc.mock";
+import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "./users-and-groups.svc.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
 describe("Mention Service Test", () => {

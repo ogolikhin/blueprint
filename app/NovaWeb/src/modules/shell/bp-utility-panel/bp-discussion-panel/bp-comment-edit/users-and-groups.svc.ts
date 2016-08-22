@@ -1,11 +1,4 @@
-﻿export class HttpError implements IHttpError {
-    constructor(public message: string,
-        public statusCode?: number,
-        public errorCode?: number) {
-    }
-}
-
-export interface IHttpError {
+﻿export interface IHttpError {
     message: string;
     statusCode: number; // client side only
     errorCode: number;
@@ -20,16 +13,6 @@ export interface IUserOrGroupInfo {
     isBlocked: boolean;
 }
 
-export class UserOrGroupInfo implements IUserOrGroupInfo {
-    constructor(public name: string,
-        public email: string,
-        public isGroup: boolean = false,
-        public guest: boolean = false,
-        public isBlocked: boolean = false) {
-    }
-
-    public id: string;
-}
 export interface IUsersAndGroupsService {
     search(value: string): ng.IPromise<IUserOrGroupInfo[]>;
     search(value: string, emailDiscussions: boolean): ng.IPromise<IUserOrGroupInfo[]>;

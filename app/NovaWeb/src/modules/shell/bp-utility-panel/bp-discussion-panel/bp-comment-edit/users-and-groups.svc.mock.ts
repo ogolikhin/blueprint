@@ -1,4 +1,15 @@
-﻿import { HttpError, IUsersAndGroupsService, IUserOrGroupInfo, UserOrGroupInfo } from "./users-and-groups.svc";
+﻿import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
+
+export class UserOrGroupInfo implements IUserOrGroupInfo {
+    constructor(public name: string,
+        public email: string,
+        public isGroup: boolean = false,
+        public guest: boolean = false,
+        public isBlocked: boolean = false) {
+    }
+
+    public id: string;
+}
 
 export class UsersAndGroupsServiceMock implements IUsersAndGroupsService {
     public static result: IUserOrGroupInfo[];
@@ -11,7 +22,7 @@ export class UsersAndGroupsServiceMock implements IUsersAndGroupsService {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
 
         if (search === "error") {
-            deferred.reject(new HttpError("Server Error", 500));
+            deferred.reject({ message: "Server Error", statusCode: 500 });
         } else if (search === "return@user.com") {
             var user = new UserOrGroupInfo("test name", "a@a.com", true, false, false);
             user.id = "id";

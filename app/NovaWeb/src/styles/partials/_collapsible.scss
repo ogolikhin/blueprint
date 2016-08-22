@@ -19,7 +19,7 @@
     margin-bottom: 20px;
     color: $blue-light;
     padding-top: 50px;
-    background-image: linear-gradient(to bottom, transparent, white);
+    background-image: linear-gradient(to bottom, rgba(255,255,255, 0) 0%, white 70%);
 
     span {
         cursor: pointer;

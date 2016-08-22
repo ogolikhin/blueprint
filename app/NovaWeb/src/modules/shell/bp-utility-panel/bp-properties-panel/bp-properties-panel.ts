@@ -225,6 +225,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             return;
         }
 
+        if (true === propertyContext.isRichText && PropertyLookupEnum.Special === propertyContext.lookup) {
+            this.systemFields.push(field);
+            return;
+        }
+
         //re-group fields
         if (true === propertyContext.isRichText) {
             this.richTextFields.push(field);

@@ -1,28 +1,32 @@
-﻿export class BPCollapsible implements ng.IDirective {
+﻿import { ILocalizationService } from "../../../core";
+export class BPCollapsible implements ng.IDirective {
     public restrict = "A";
     public scope = {
         bpCollapsible: "="
     };
 
-    public static $inject = [
-        "$timeout"
-    ];
-
-    constructor(private $timeout: ng.ITimeoutService) {
+    constructor(
+        private $timeout: ng.ITimeoutService,
+        private localization: ILocalizationService) {
     }
 
     public static factory() {
-        const directive = ($timeout: ng.ITimeoutService) => new BPCollapsible($timeout);
+        const directive = (
+            $timeout: ng.ITimeoutService,
+            localization: ILocalizationService) => new BPCollapsible($timeout, localization);
 
-        directive["$inject"] = ["$timeout"];
+        directive["$inject"] = [
+            "$timeout",
+            "localization"
+        ];
 
         return directive;
     }
 
     public link: ng.IDirectiveLinkFn = ($scope: any, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
 
-        let showMore = angular.element("<div class='show-more'><span>Show more</span></div>");
-        let showLess = angular.element("<div class='show-less'><span>Show less</span></div>");
+        let showMore = angular.element(`<div class='show-more'><span>${this.localization.get("App_Collapsible_ShowMore")}</span></div>`);
+        let showLess = angular.element(`<div class='show-less'><span>${this.localization.get("App_Collapsible_ShowLess")}</span></div>`);
 
         let showMoreClick = () => {
             $element.removeClass("collapsed");

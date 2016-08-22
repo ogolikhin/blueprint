@@ -42,15 +42,15 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     constructor(
         private localization: ILocalizationService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions,
+        private artifactDiscussions: IArtifactDiscussions,
         protected selectionManager: ISelectionManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
-        private $q: ng.IQService,
+        $q: ng.IQService,
         private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(selectionManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -69,18 +69,18 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.artifactDiscussionList = null;
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
             if (artifact.version) {
-                this.setEverPublishedAndDiscussions(artifact.version);
+                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
             } else {
-                this.artifactService.getArtifact(artifact.id).then((result: Models.IArtifact) => {
+                return this.artifactService.getArtifact(artifact.id, timeout).then((result: Models.IArtifact) => {
                     artifact = result;
-                    this.setEverPublishedAndDiscussions(artifact.version);
+                    this.setEverPublishedAndDiscussions(artifact.version, timeout);
                 }).catch((error: any) => {
                     if (error.statusCode && error.statusCode !== 1401) {
                         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
@@ -96,6 +96,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             this.canDelete = false;
             this.artifactEverPublished = false;
         }
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
     private setControllerFieldsAndFlags(discussionResultSet: IDiscussionResultSet) {
@@ -105,14 +106,14 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.emailDiscussionsEnabled = discussionResultSet.emailDiscussionsEnabled;
     }
 
-    private setEverPublishedAndDiscussions(artifactVersion) {
+    private setEverPublishedAndDiscussions(artifactVersion, timeout: ng.IPromise<void>): ng.IPromise<void> {
         //We should not check the subartifact version to make sure it's published
         this.artifactEverPublished = artifactVersion > 0;
-        this.setDiscussions();
+        return this.setDiscussions(timeout);
     }
 
-    private setDiscussions() {
-        this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
+    private setDiscussions(timeout?: ng.IPromise<void>): ng.IPromise<void> {
+        return this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null, timeout)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 this.setControllerFieldsAndFlags(discussionResultSet);
             });
@@ -138,7 +139,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     /* tslint:disable:no-unused-variable */
     public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
-        return this._artifactDiscussionsRepository.addDiscussion(artifactId, comment)
+        return this.artifactDiscussions.addDiscussion(artifactId, comment)
             .then((discussion: IDiscussion) => {
                 this.cancelCommentClick();
                 this.setDiscussions();
@@ -155,7 +156,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     /* tslint:disable:no-unused-variable */
     public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
-        return this._artifactDiscussionsRepository.addDiscussionReply(artifactId, discussion.discussionId, comment)
+        return this.artifactDiscussions.addDiscussionReply(artifactId, discussion.discussionId, comment)
             .then((reply: IReply) => {
                 this.setReplies(discussion);
                 discussion.showAddReply = false;
@@ -192,9 +193,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         discussion.showAddReply = false;
     }
 
-    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null): ng.IPromise<IDiscussionResultSet> {
+    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getArtifactDiscussions(artifactId, subArtifactId)
+        return this.artifactDiscussions.getArtifactDiscussions(artifactId, subArtifactId, timeout)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })
@@ -205,7 +206,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     private getDiscussionReplies(discussionId: number): ng.IPromise<IReply[]> {
         this.isLoading = true;
-        return this._artifactDiscussionsRepository.getReplies(this.artifactId, discussionId)
+        return this.artifactDiscussions.getReplies(this.artifactId, discussionId)
             .then((replies: IReply[]) => {
                 return replies;
             }).catch((error: any) => {
@@ -222,7 +223,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public deleteReply(discussion: IDiscussion, reply: IReply) {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment")).then((confirmed: boolean) => {
             if (confirmed) {
-                this._artifactDiscussionsRepository.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                this.artifactDiscussions.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
                     this.getDiscussionReplies(discussion.discussionId)
                         .then((updatedReplies: IReply[]) => {
                             discussion.replies = updatedReplies;
@@ -237,7 +238,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public deleteCommentThread(discussion: IDiscussion) {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread")).then((confirmed: boolean) => {
             if (confirmed) {
-                this._artifactDiscussionsRepository.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.setControllerFieldsAndFlags(discussionsResultSet);
                     });

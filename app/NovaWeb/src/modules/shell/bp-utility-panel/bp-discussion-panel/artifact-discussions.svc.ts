@@ -2,7 +2,7 @@
 
 export interface IArtifactDiscussions {
     artifactDiscussions: ng.IPromise<IDiscussion[]>;
-    getArtifactDiscussions(artifactId: number, subArtifactId?: number): ng.IPromise<IDiscussionResultSet>;
+    getArtifactDiscussions(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet>;
     getReplies(artifactId: number, discussionId: number, subArtifactId?: number): ng.IPromise<IReply[]>;
     addDiscussion(artifactId: number, comment: string): ng.IPromise<IDiscussion>;
     addDiscussionReply(artifactId: number, discussionId: number, comment: string): ng.IPromise<IReply>;
@@ -63,7 +63,8 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
     public getArtifactDiscussions(
         artifactId: number,
-        subArtifactId?: number): ng.IPromise<IDiscussionResultSet> {
+        subArtifactId?: number,
+        timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
@@ -71,7 +72,8 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             method: "GET",
             params: {
                 subArtifactId: subArtifactId
-            }
+            },
+            timeout: timeout
         };
 
         this.$http(requestObj)

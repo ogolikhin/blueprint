@@ -88,6 +88,7 @@ describe("Mention Service Test", () => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);
         var scope = $rootScope.$new();
         var hasRan = false;
+        var resultItems: IUserOrGroupInfo[];
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
         }
@@ -95,12 +96,14 @@ describe("Mention Service Test", () => {
         var result = mentions.source("a", process);
         scope.$digest();
 
-        expect(result).toEqual(undefined);
+        expect(hasRan).toEqual(true);
+        expect(resultItems).toBeUndefined;
     }));
     it("Mentions Service Test Source Query Returns User", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);
         var scope = $rootScope.$new();
         var hasRan = false;
+        var resultItems: IUserOrGroupInfo[];
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
         }
@@ -108,7 +111,8 @@ describe("Mention Service Test", () => {
         var result = mentions.source("return@user.com", process);
         scope.$digest();
 
-        expect(result).toEqual(undefined);
+        expect(hasRan).toEqual(true);
+        expect(resultItems).toBeUndefined;
     }));
     it("Mentions Service Test Source Query Returns No User But Query is a valid email", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);

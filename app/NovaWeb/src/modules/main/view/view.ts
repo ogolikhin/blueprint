@@ -7,7 +7,7 @@ import { IProjectManager } from "../services";
 
 
 export class MainView implements ng.IComponentOptions {
-    public template: string = require("./main.view.html");
+    public template: string = require("./view.html");
     public controller: Function = MainViewController;
     public transclude: boolean = true;
     public controllerAs = "$main";
@@ -43,6 +43,7 @@ export class MainViewController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.messageService.dispose();
         this.projectManager.dispose();
+        this.projectManager.dispose();
     }
 
     private onVisibilityChanged = (isHidden: boolean) => {
@@ -54,9 +55,6 @@ export class MainViewController {
         this.isActive = Boolean(projects.length);
         this.toggle(Enums.ILayoutPanel.Left, Boolean(projects.length));
         this.toggle(Enums.ILayoutPanel.Right, Boolean(projects.length));
-        if (!this.isActive) {
-            this.stateManager.dispose();
-        }
     };
 
     public isLeftToggled: boolean;

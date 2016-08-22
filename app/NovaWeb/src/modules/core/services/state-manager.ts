@@ -246,7 +246,7 @@ export class StateManager implements IStateManager {
 
     public get stateChange(): Rx.Observable<ItemState> {
         return this.itemChanged
-            .filter(it => it != null)
+//            .filter(it => it != null)
             .asObservable();
     }
 
@@ -307,7 +307,7 @@ export class StateManager implements IStateManager {
             }
         }
         this.clearStates(state);
-        this.itemChanged.onNext(state);
+        this.changeState(state);
         return state;
     }
 

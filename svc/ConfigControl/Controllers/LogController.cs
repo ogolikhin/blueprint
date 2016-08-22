@@ -16,17 +16,6 @@ namespace ConfigControl.Controllers
     [RoutePrefix("log")]
     public class LogController : ApiController
     {
-        internal readonly IHttpClientProvider _httpClientProvider;
-
-        public LogController() : this(new HttpClientProvider())
-        {
-        }
-
-        internal LogController(IHttpClientProvider httpClientProvider)
-        {
-            _httpClientProvider = httpClientProvider;
-        }
-
         /// <summary>
         /// Log
         /// </summary>

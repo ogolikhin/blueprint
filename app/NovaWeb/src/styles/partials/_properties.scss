@@ -292,6 +292,10 @@ pagecontent, bp-properties-panel {
           width: 23px;
         }
 
+        .ui-select-placeholder {
+          color: $gray-lighter;
+        }
+
         .ui-select-match-item-chosen {
           overflow: hidden;
           padding: 0;

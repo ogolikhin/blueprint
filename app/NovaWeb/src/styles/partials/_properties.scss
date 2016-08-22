@@ -429,6 +429,10 @@ pagecontent, bp-properties-panel {
           }
         }
 
+        &.has-scrollbar > div::before {
+          content: none;
+        }
+
         .ui-select-match-item {
           background: $gray-lightest;
           border-color: $gray-lighter;
@@ -782,6 +786,7 @@ pagecontent, bp-properties-panel {
     }
   }
 }
+
 .single-column-property .formly .formly-field label {
   margin-right: 0;
   padding: 0;

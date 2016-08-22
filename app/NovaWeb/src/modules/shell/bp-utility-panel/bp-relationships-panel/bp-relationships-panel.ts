@@ -68,7 +68,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {     
-        if (Helper.canUseSelectedArtifact(artifact)) {
+        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((list: any) => {

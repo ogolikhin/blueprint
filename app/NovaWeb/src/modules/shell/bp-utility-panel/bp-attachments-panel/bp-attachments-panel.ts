@@ -55,7 +55,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactAttachmentsList = null;
 
-        if (Helper.canUseSelectedArtifact(artifact)) {
+        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((result: IArtifactAttachmentsResultSet) => {
                     this.artifactAttachmentsList = result;

@@ -139,7 +139,7 @@ export class Helper {
         return array;
     }
 
-    public static canUseSelectedArtifact(artifact: Models.IArtifact): boolean {
+    public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
         return artifact &&
             artifact.prefix &&
             ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;

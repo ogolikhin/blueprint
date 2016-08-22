@@ -3,6 +3,7 @@ import { ISelectionManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Helper } from "../../../shared/utils/helper";
 
 interface IAddOptions {
     value: string;
@@ -54,11 +55,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactAttachmentsList = null;
 
-        if (artifact !== null) {
+        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null)
-                .then( (result: IArtifactAttachmentsResultSet) => {
+                .then((result: IArtifactAttachmentsResultSet) => {
                     this.artifactAttachmentsList = result;
                 });
+        } else {
+            this.artifactAttachmentsList = null;
         }
     }
 

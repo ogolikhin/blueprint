@@ -1,4 +1,5 @@
-﻿export class Helper {
+﻿import { Models} from "../../main";
+export class Helper {
 
     static get UID(): string {        
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -138,5 +139,10 @@
         return array;
     }
 
+    public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
+        return artifact &&
+            artifact.prefix &&
+            ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
+    }
 }
 

@@ -575,25 +575,30 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             UsersAndGroupsType userType = UsersAndGroupsType.User)
         {
-            OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
-
-            UsersAndGroups userOrGroup = new UsersAndGroups
+            // Only add/replace if the source artifact had a value for this property.
+            if (propertyValue != null)
             {
-                Type = userType,
-                DisplayName = propertyValue.DisplayName,
-                Id = propertyValue.Id
-            };
+                OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
 
-            var usersAndGroups = new List<UsersAndGroups> { userOrGroup };
+                UsersAndGroups userOrGroup = new UsersAndGroups
+                {
+                    Type = userType,
+                    DisplayName = propertyValue.DisplayName,
+                    Id = propertyValue.Id
+                };
 
-            if (property == null)
-            {
-                property = OpenApiProperty.SetPropertyAttribute(Address, project, user, this.BaseArtifactType, propertyName, usersAndGroups: usersAndGroups);
-                Properties.Add(property);
+                var usersAndGroups = new List<UsersAndGroups> {userOrGroup};
+
+                if (property == null)
+                {
+                    property = OpenApiProperty.SetPropertyAttribute(Address, project, user, this.BaseArtifactType, propertyName,
+                        usersAndGroups: usersAndGroups);
+                    Properties.Add(property);
+                }
+
+                property.UsersAndGroups?.Clear();
+                property.UsersAndGroups?.Add(userOrGroup);
             }
-
-            property.UsersAndGroups?.Clear();
-            property.UsersAndGroups?.Add(userOrGroup);
         }
 
         /// <summary>

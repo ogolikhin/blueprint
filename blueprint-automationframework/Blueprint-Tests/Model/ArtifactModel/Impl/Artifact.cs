@@ -441,7 +441,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact.</param>
         /// <param name="artifactChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
-        /// <param name="address">The address of the ArtifactStore service.</param>
+        /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The UpdateArtifactResult object returned by the call.</returns>
         public static UpdateArtifactResult UpdateArtifact(IArtifactBase artifactToUpdate,
@@ -469,7 +469,12 @@ namespace Model.ArtifactModel.Impl
                 };
             }
 
-            RestApiFacade restApi = new RestApiFacade(address ?? artifactToUpdate.Address, tokenValue);
+            if (address == null)
+            {
+                address = artifactToUpdate.Address;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
             var updateResult = restApi.SendRequestAndDeserializeObject<UpdateArtifactResult, ArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
@@ -486,7 +491,7 @@ namespace Model.ArtifactModel.Impl
 
                 Assert.NotNull(updateResult.Result, "'PATCH {0}' returned a null 'Result'!", path);
 
-                IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId);
+                IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
 
                 // Copy updated properties into original artifact.
                 ((ArtifactBase)artifactToUpdate).ReplacePropertiesWithPropertiesFromSourceArtifactDetails(updateResult.Result, project, user);

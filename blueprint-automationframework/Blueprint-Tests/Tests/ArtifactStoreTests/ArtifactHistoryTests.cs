@@ -175,7 +175,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
@@ -220,7 +220,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith12PublishedVersions_VerifyOnly10LatestVersionsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -244,7 +244,7 @@ namespace ArtifactStoreTests
         private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -285,7 +285,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith5PublishedVersions_VerifyDefaultAscIsFalse()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -310,7 +310,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrue_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInAscendingOrder()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -335,7 +335,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscFalse_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInDescendingOrder()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -360,7 +360,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithOffset2_ArtifactWith5PublishedVersions_VerifyOnly3LatestVersionsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -385,7 +385,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrueAndOffset3AndLimit1_ArtifactWith5PublishedVersions_VerifyOnlyVersion4Returned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 

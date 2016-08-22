@@ -426,8 +426,8 @@ export function formlyConfig(
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
-                    on-remove="bpFieldSelectMulti.onRemove(fc, options, $select)"
-                    on-select="bpFieldSelectMulti.toggleScrollbar()"
+                    on-remove="bpFieldSelectMulti.onRemove($item, $select, fc, options)"
+                    on-select="bpFieldSelectMulti.onSelect($item, $select)"
                     close-on-select="false"
                     uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen)"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
@@ -481,12 +481,17 @@ export function formlyConfig(
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
-                    $scope["bpFieldSelectMulti"].toggleScrollbar();
+                    $scope["bpFieldSelectMulti"].toggleScrollbar(false);
                 }
             }, 0);
         },
         controller: ["$scope", function ($scope) {
-            let activeIndex = -1;
+            let direction = Object.freeze({
+                UP: -1,
+                SAME: 0,
+                DOWN: 1
+            });
+            let lastHighlighted = -1;
 
             $scope.$on("$destroy", function() {
                 if ($scope["uiSelectContainer"]) {
@@ -497,17 +502,31 @@ export function formlyConfig(
 
             $scope.bpFieldSelectMulti = {
                 isOpen: false,
-                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
-                // Not needed for textareas
-                onMouseOver: function ($event) {
-                    if ($scope["uiSelectContainer"]) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                        if (elem && !elem.classList.contains("ps-child")) {
-                            elem.classList.add("ps-child");
+                isChoiceSelected: function (item, $select): boolean {
+                    return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
+                },
+                nextFocusableChoice: function ($item, $select, dir): number {
+                    let itemIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                    if (itemIndex !== -1 && dir === direction.SAME) {
+                        return itemIndex;
+                    } else if (dir === direction.DOWN) {
+                        for (let i = itemIndex + 1; i < $select.items.length; i++) {
+                            let isSelected = this.isChoiceSelected($select.items[i], $select);
+                            if (!isSelected) {
+                                return i;
+                            }
+                        }
+                    } else if (dir === direction.UP) {
+                        for (let i = itemIndex - 1; i >= 0; i--) {
+                            let isSelected = this.isChoiceSelected($select.items[i], $select);
+                            if (!isSelected) {
+                                return i;
+                            }
                         }
                     }
+                    return -1;
                 },
-                toggleScrollbar: function (removeScrollbar?: boolean) {
+                toggleScrollbar: function (removeScrollbar: boolean) {
                     if (removeScrollbar) {
                         if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
                             let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
@@ -529,22 +548,57 @@ export function formlyConfig(
                     return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
                 },
                 onOpenClose: function (isOpen: boolean) {
-                    $scope.bpFieldSelectMulti.isOpen = isOpen;
-                    console.log(isOpen)
+                    this.isOpen = isOpen;
                 },
                 onHighlight: function (option, $select) {
-                    if ($select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]) !== -1) {
-                        if (activeIndex < $select.activeIndex) {
-                            activeIndex = $select.activeIndex++;
+                    let nextIndex = -1;
+                    let highlightIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]);
+                    if (this.isChoiceSelected(option, $select)) {
+                        nextIndex = this.nextFocusableChoice(option, $select, lastHighlighted < highlightIndex ? direction.DOWN : direction.UP);
+                        if (nextIndex !== -1) {
+                            $select.activeIndex = nextIndex;
+                            lastHighlighted = nextIndex;
                         } else {
-                            activeIndex = --$select.activeIndex;
+                            $select.activeIndex = lastHighlighted;
                         }
+                    } else {
+                        lastHighlighted = highlightIndex;
                     }
                 },
-                onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject, $select) {
-                    $select.open = $scope.bpFieldSelectMulti.isOpen; // force the dropdown open on remove
+                onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
+                    $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
+                    $select.open = this.isOpen; // force the dropdown open on remove
                     options.validation.show = formControl.$invalid;
-                    $scope.bpFieldSelectMulti.toggleScrollbar(true);
+                    this.toggleScrollbar(true);
+                },
+                onSelect: function ($item, $select) {
+                    // On ENTER the ui-select reset the activeIndex to the first item of the list.
+                    // We need to hide the highlight until we select the proper entry
+                    if ($scope["uiSelectContainer"]) {
+                        $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
+                    }
+                    let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
+                    if (nextItem === -1) {
+                        nextItem = this.nextFocusableChoice($item, $select, direction.UP);
+                    }
+                    $timeout(() => {
+                        $select.activeIndex = nextItem;
+                        if ($scope["uiSelectContainer"]) {
+                            $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                            $scope["uiSelectContainer"].querySelector("input").focus();
+                        }
+                    }, 100);
+                    this.toggleScrollbar(false);
+                },
+                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
+                // Not needed for textareas
+                onMouseOver: function ($event) {
+                    if ($scope["uiSelectContainer"]) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        if (elem && !elem.classList.contains("ps-child")) {
+                            elem.classList.add("ps-child");
+                        }
+                    }
                 }
             };
         }]
@@ -787,18 +841,18 @@ export function formlyConfig(
                 opened: false,
                 selected: false,
                 open: function ($event) {
-                    $scope.bpFieldDatepicker.opened = !$scope.bpFieldDatepicker.opened;
+                    this.opened = !this.opened;
                 },
                 select: function ($event) {
                     let inputField = $event.target;
                     inputField.focus();
-                    if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
+                    if (!this.selected  && inputField.selectionStart === inputField.selectionEnd) {
                         inputField.setSelectionRange(0, inputField.value.length);
                     }
-                    $scope.bpFieldDatepicker.selected = !$scope.bpFieldDatepicker.selected;
+                    this.selected = !this.selected;
                 },
                 blur: function ($event) {
-                    $scope.bpFieldDatepicker.selected = false;
+                    this.selected = false;
                 },
                 keyup: blurOnKey
             };

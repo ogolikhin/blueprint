@@ -3,8 +3,10 @@ import { IBpAccordionPanelController } from "../../main/components/bp-accordion/
 
 export class BPBaseUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
+    private timeout: ng.IDeferred<void>;
 
     constructor(
+        protected $q: ng.IQService,
         protected selectionManager: ISelectionManager, 
         public bpAccordionPanel: IBpAccordionPanelController) {
     }
@@ -24,7 +26,7 @@ export class BPBaseUtilityPanelController {
                     return { artifact: o.selection.artifact, subArtifact: o.selection.subArtifact };
                 })
                 .distinctUntilChanged()
-                .subscribe(s => this.onSelectionChanged(s.artifact, s.subArtifact));
+                .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
         
         this._subscribers = [ artifactOrVisibilityChange ];
     }
@@ -34,7 +36,18 @@ export class BPBaseUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+    private selectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+        if (this.timeout) {
+            this.timeout.resolve();
+        }
 
+        this.timeout = this.$q.defer<any>();
+        this.onSelectionChanged(artifact, subArtifact, this.timeout.promise).then(() => 
+            this.timeout = undefined
+        );
+    }
+
+    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        return this.$q.resolve();
     }
 }

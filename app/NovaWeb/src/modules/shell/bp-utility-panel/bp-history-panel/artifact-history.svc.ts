@@ -3,7 +3,7 @@ import { Models } from "../../../main";
 
 export interface IArtifactHistory {
     artifactHistory: ng.IPromise<IArtifactHistoryVersion[]>;
-    getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean): ng.IPromise<IArtifactHistoryVersion[]>;
+    getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 
 export interface IArtifactHistoryVersion {
@@ -41,7 +41,8 @@ export class ArtifactHistory implements IArtifactHistory {
         limit: number = 10, 
         offset: number = 0, 
         userId: string = null, 
-        asc: boolean = false): ng.IPromise<IArtifactHistoryVersion[]> {
+        asc: boolean = false,
+        timeout: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
@@ -52,7 +53,8 @@ export class ArtifactHistory implements IArtifactHistory {
                 offset: offset,
                 userId: userId,
                 asc: asc
-            }
+            },
+            timeout: timeout
         };
 
         this.$http(requestObj).then(

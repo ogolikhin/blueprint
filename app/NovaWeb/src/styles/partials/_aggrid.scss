@@ -341,9 +341,11 @@ $has-children-padding-before-arrow: 3px;
             -moz-animation: spin 1.5s infinite linear;
             -o-animation: spin 1.5s infinite linear;
             animation: spin 1.5s infinite linear;
+            animation-delay: .5s;
             background: transparent !important;
             content: '\e031';
             font-family: 'Glyphicons Halflings';
+            visibility: hidden;
         }
     }
 

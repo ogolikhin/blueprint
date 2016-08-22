@@ -1,4 +1,4 @@
-﻿import {IShapeInformation, IConditionContext} from "../process-graph-interfaces";
+﻿import {IShapeInformation, IConditionContext} from "../models/";
 
 export class ShapeInformation implements IShapeInformation {
     constructor(public id, public parentConditions: IConditionContext[]) {

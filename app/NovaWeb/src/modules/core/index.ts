@@ -4,24 +4,30 @@ import "angular-ui-bootstrap";
 import "./services";
 import "./messages";
 import { AppConstants, IAppConstants } from "./constants/";
+import { IFileUploadService, FileUploadService, IFileResult } from "./file-upload/";
 import { LocalizationService, localeConfig } from "./localization/";
-import { ConfigValueHelper, IConfigValueHelper } from "./configuration";
+import { SettingsService, ISettingsService } from "./configuration";
 
 
 angular.module("app.core", [
     "bp.core.services",
     "bp.core.messages"])
     .constant("appConstants", new AppConstants())
+    .service("fileUploadService", FileUploadService)
     .service("localization", LocalizationService)
-    .service("configValueHelper", ConfigValueHelper)
+    .service("settings", SettingsService)
     .config(localeConfig);
 
 
 export {
     IAppConstants,
-    IConfigValueHelper,
-    ConfigValueHelper,
+    ISettingsService,
+    SettingsService,
 };
+export {
+    IFileUploadService,
+    IFileResult
+}
 export {
     ILocalizationService,
     BPLocale} from "./localization/";

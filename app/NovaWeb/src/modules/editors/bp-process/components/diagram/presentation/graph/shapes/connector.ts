@@ -1,6 +1,6 @@
 ﻿import {IProcessLinkModel} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {NodeType} from "../models/";
 import {CS_VERTICAL, CS_RIGHT, CS_LEFT} from "./connector-styles";
 import {DiagramLink} from "./diagram-link";
 import {SystemTask} from "./system-task";
@@ -108,7 +108,11 @@ export class Connector {
             hasOverlay = false;
         }
 
-        if ((source.getNodeType() === NodeType.UserDecision || source.getNodeType() === NodeType.SystemDecision) && source.getX() < target.getX() && source.getY() < target.getY()) {
+        if ((source.getNodeType() === NodeType.UserDecision ||
+            source.getNodeType() === NodeType.SystemDecision) &&
+            source.getX() < target.getX() &&
+            source.getY() < target.getY()
+        ) {
             style += ";edgeStyle=" + CS_VERTICAL;
         } else if (source.getX() < target.getX()) {
             style += ";edgeStyle=" + CS_RIGHT;

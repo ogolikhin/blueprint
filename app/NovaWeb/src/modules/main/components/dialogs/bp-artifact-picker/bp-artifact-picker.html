@@ -1,5 +1,5 @@
 ﻿<div class="modal-header">
-    <h3 class="modal-title">{{::$ctrl.params.header}}</h3>
+    <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
 </div>
 <div class="modal-body artifact-picker">
     <div ng-click="$ctrl.getProjects()">
@@ -28,10 +28,10 @@
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
         <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
-            <span ng-bind="$ctrl.params.cancelButton"></span>
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
         <button class="btn btn-primary" ng-click="$ctrl.ok()">
-            <span ng-bind="$ctrl.params.okButton"></span>
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>
 </div>

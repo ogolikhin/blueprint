@@ -1,7 +1,7 @@
 ﻿import {ProcessShapeType} from "../../../../../models/enums";
 import {IProcessShape} from "../../../../../models/processModels";
 import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/processModels";
-import {IDiagramNode} from "../process-graph-interfaces";
+import {IDiagramNode} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessStart} from "./process-start";
 import {ProcessEnd} from "./process-end";
@@ -22,7 +22,11 @@ export class NodeFactorySettings {
 
 export class NodeFactory {
 
-    public static createNode(model: IProcessShape, rootScope: any, shapesFactoryService: ShapesFactory, nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+    public static createNode(
+        model: IProcessShape, rootScope: any,
+        shapesFactoryService: ShapesFactory,
+        nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+
         var type = <ProcessShapeType>model.propertyValues["clientType"].value;
         switch (type) {
             case ProcessShapeType.Start:
@@ -35,10 +39,14 @@ export class NodeFactory {
                 return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService);
 
             case ProcessShapeType.PreconditionSystemTask:
-                return new SystemTask(<ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService);
+                return new SystemTask(
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService
+                );
 
             case ProcessShapeType.SystemTask:
-                return new SystemTask(<ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService);
+                return new SystemTask(
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_LABEL, nodeFactorySettings, shapesFactoryService
+                );
 
             case ProcessShapeType.UserDecision:
                 return new UserDecision(model, rootScope, nodeFactorySettings);

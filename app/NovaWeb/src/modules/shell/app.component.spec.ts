@@ -10,7 +10,7 @@ describe("Component AppComponent", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
-        $provide.service("configValueHelper", ConfigValueHelperMock);
+        $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
     }));
 
@@ -89,9 +89,9 @@ class WindowMock {
     public open(url: string, title: string, windowFeatures: string) { }
 }
 
-class ConfigValueHelperMock {
-    getStringValue(setting: string, fallBack?: string) {
-        return "http://" + setting;
+class SettingsMock {
+    get(key: string, defaultValue?: string): string {
+        return "http://" + key;
     }
 }
 

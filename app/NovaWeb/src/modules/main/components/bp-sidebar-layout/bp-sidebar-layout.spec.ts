@@ -2,7 +2,7 @@
 import "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import {Enums} from "../..";
+import {Enums} from "../../models";
 import {ComponentTest} from "../../../util/component.test";
 import {BpSidebarLayoutCtrl} from "./bp-sidebar-layout";
 

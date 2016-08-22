@@ -1,7 +1,7 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph} from "../process-graph-interfaces";
-import {IUserTaskChildElement, IUserTask} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph} from "../models/";
+import {IUserTaskChildElement, IUserTask} from "../models/";
+import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 
 export class UserTaskChildElement<T extends IProcessShape> extends DiagramNode<T> implements IUserTaskChildElement {

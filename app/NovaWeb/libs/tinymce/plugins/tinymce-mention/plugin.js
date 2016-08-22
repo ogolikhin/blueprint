@@ -190,6 +190,7 @@
         this.render = this.options.render || this.render;
         this.insert = this.options.insert || this.insert;
         this.highlighter = this.options.highlighter || this.highlighter;
+        this.areEmailDiscussionsEnabled = this.options.areEmailDiscussionsEnabled;
 
         this.query = '';
         this.hasFocus = true;
@@ -418,22 +419,19 @@
             items = _this.sorter(items);
 
             items = items.slice(0, this.options.items);
-
+            if (!_this.areEmailDiscussionsEnabled) { //this is needed for the warning message we display in the dropdown when email discussions are disabled.
+                items.push({ id: "PlaceHolderEntry", name: "EmailDiscussionDisabled", email: "EmailDiscussionDisabled" });
+            }
             this.dropdown.innerHTML = '';
 
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
 
-                var div = document.createElement("div");
-                div.innerHTML = this.render(item);
-                var li = div.firstChild;
-
-                li.innerHTML = li.innerHTML.replace(li.innerText, this.highlighter(li.innerText));
+                var li = this.render(item);
 
                 this.jsH.each(item, function (key, val) {
                     li.setAttribute('data-' + key, val);
                 });
-
                 this.dropdown.appendChild(li);
             }
 

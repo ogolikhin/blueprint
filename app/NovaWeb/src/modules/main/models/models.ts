@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, TraceType, TraceDirection } from "./enums";
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -41,6 +41,7 @@ export interface IItem {
     version?: number;
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
+    systemPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
     predefinedType?: ItemTypePredefined;
@@ -70,6 +71,7 @@ export interface IArtifact extends IItem {
     lockedDateTime?: Date;
 
     permissions?: RolePermissions;
+    readOnlyReuseSettings?: ReuseSettings;
 
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
@@ -124,6 +126,7 @@ export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;
+    isReuseReadOnly?: boolean;
     value: any;
 }
 
@@ -164,6 +167,9 @@ export class Project implements IProject {
         return this.id;
     }
 
+    public get prefix(): string {
+        return "PR";
+    }
     public get parentId(): number {
         return -1;
     }
@@ -235,5 +241,26 @@ export interface IEditorContext {
     artifact?: IArtifact;
     type?: IItemType;
 }
-  
+ 
+
+export interface ILockResult {
+    result: LockResultEnum;
+    info: IVersionInfo;
+}
+
+export interface IVersionInfo {
+    artifactId?: number;
+    utcLockedDateTime?: Date;
+    lockOwnerLogin?: string;
+    projectId?: number;
+    versionId?: number;
+    revisionId?: number;
+    baselineId?: number;
+    isVersionInformationProvided?: boolean;
+    isHeadOrSavedDraftVersion?: boolean;
+}
+
+
+
+ 
 export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };

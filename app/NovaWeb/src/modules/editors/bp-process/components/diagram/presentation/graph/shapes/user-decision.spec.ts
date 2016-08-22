@@ -1,30 +1,30 @@
 ﻿import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
-import {ArtifactReferenceLinkMock} from "./shape-model.mock";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
 import {IProcessService} from "../../../../../services/process/process.svc";
 import * as ProcessModels from "../../../../../models/processModels";
 import {UserDecision} from "./";
-import {NodeChange} from "../process-graph-constants";
+import {NodeChange} from "../models/";
 
 describe("UserDecision", () => {
 
-    var shapesFactory: ShapesFactory;
-    var graph: ProcessGraph;
-    var localScope, rootScope, processModelService, artifactVersionControlService, wrapper, container;
-
-    var testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
-
+    let shapesFactory: ShapesFactory;
+    let localScope, rootScope, processModelService,  wrapper, container;
+    
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
     }));
 
-    beforeEach(inject((_$window_: ng.IWindowService, $rootScope: ng.IRootScopeService, processModelService: IProcessService) => {
+    beforeEach(inject((
+        _$window_: ng.IWindowService,
+        $rootScope: ng.IRootScopeService,
+        _processModelService_: IProcessService
+    ) => {
         rootScope = $rootScope;
-        processModelService = processModelService;
-        wrapper = document.createElement('DIV');
-        container = document.createElement('DIV');
+        processModelService = _processModelService_;
+        wrapper = document.createElement("DIV");
+        container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
 
@@ -37,13 +37,13 @@ describe("UserDecision", () => {
     it("initializes details button", () => {
         // Arrange
 
-        var id = 3;
+        let id = 3;
 
-        var testModel = new ProcessModels.ProcessModel();
-        var model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
+        let testModel = new ProcessModels.ProcessModel();
+        let model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
         testModel.shapes.push(model);
-        var processViewModel = new ProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processViewModel);
+        let processViewModel = new ProcessViewModel(testModel);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processViewModel);
 
         // Act
         graph.render(false, null);
@@ -54,11 +54,11 @@ describe("UserDecision", () => {
 
     it("doesn't call notify when label doesn't change", () => {
         // Arrange
-        var model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
+        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
         model.propertyValues["label"].value = "Test";
-        var userDecision = new UserDecision(model, rootScope);
+        let userDecision = new UserDecision(model, rootScope);
 
-        var notifySpy = spyOn(userDecision, "notify");
+        let notifySpy = spyOn(userDecision, "notify");
 
         // Act
         userDecision.action = "Test";
@@ -69,10 +69,10 @@ describe("UserDecision", () => {
 
     it("notifies of changes when label changes", () => {
         // Arrange
-        var model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        var userDecision = new UserDecision(model, rootScope);
+        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
+        let userDecision = new UserDecision(model, rootScope);
 
-        var notifySpy = spyOn(userDecision, "notify");
+        let notifySpy = spyOn(userDecision, "notify");
 
         // Act
         userDecision.label = "Test";
@@ -83,8 +83,8 @@ describe("UserDecision", () => {
 
     it("notifies of changes when label changes and UI redraw", () => {
         // Arrange
-        var model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        var userDecision = new UserDecision(model, rootScope);
+        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
+        let userDecision = new UserDecision(model, rootScope);
         userDecision.textLabel = {
             render: () => { },
             text: "",
@@ -92,7 +92,7 @@ describe("UserDecision", () => {
             onDispose: () => { }
         };
 
-        var notifySpy = spyOn(userDecision, "notify");
+        let notifySpy = spyOn(userDecision, "notify");
 
         // Act
         userDecision.setLabelWithRedrawUi("Test");

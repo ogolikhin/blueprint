@@ -1,12 +1,9 @@
-﻿import "angular";
-
-
-import { BpGeneralEditor } from "./bp-general-editor";
-import { BpArtifactEditor } from "./bp-artifact-editor";
+﻿
+import { BpArtifactGeneralEditor } from "./bp-general-editor";
+import { BpArtifactDetailsEditor } from "./bp-details-editor";
 
 angular.module("bp.editors.details", [])
-    .component("bpGeneralEditor", new BpGeneralEditor())
-    .component("bpArtifactEditor", new BpArtifactEditor());
+    .component("bpArtifactGeneralEditor", new BpArtifactGeneralEditor())
+    .component("bpArtifactDetailsEditor", new BpArtifactDetailsEditor());
 
 
-export { ILocalizationService, IMessageService, IStateManager, IPropertyChangeSet } from "../../core";

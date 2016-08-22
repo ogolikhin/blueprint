@@ -1,5 +1,5 @@
 ﻿import {IProcessLink} from "../../../../../models/processModels";
-import {ICondition, IDiagramNode} from "../process-graph-interfaces";
+import {ICondition, IDiagramNode} from "../models/";
 
 
 export class Condition implements ICondition {

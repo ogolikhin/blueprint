@@ -197,6 +197,25 @@ export enum RolePermissions {
 }
 
 
+export enum ReuseSettings {
+    None = 0,
+    Name = 1 << 0, //1
+    Description =  1 << 1, //2
+    ActorImage =  1 << 2, //4 
+    BaseActor = 1 << 3, //6 
+    DocumentFile = 1 << 4, //16
+    DiagramHeight = 1 << 5, //32
+    DiagramWidth = 1 << 6, //64
+    UseCaseLevel = 1 << 7, //128
+    UIMockupTheme = 1 << 8, //256
+    UseCaseDiagramShowConditions = 1 << 9, //512
+    Attachments = 1 << 10, //1024
+    DocumentReferences = 1 << 11, //2048
+    Relationships = 1 << 12, //4096
+    Subartifacts = 1 << 13, //8193
+}
+
+
 
 export enum TraceDirection {
     /// <summary>
@@ -217,12 +236,19 @@ export enum LicenseTypeEnum {
     Author = 3
 }
 
+export enum LockedByEnum {
+    None = 0,
+    CurrentUser = 1,
+    OtherUser = 2 
+}
 
-
-
-
-
-
+export enum LockResultEnum {
+    Success,
+    AlreadyLocked,
+    DoesNotExist,
+    AccessDenied,
+    Failure
+}
 
 
 

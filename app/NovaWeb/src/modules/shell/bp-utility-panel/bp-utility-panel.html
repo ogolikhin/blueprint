@@ -5,36 +5,31 @@
 </div>
 <div class="utility-panel-content">
     <bp-accordion accordion-heading-height="31">
+        <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}"
+                            accordion-panel-class="utility-panel-properties">
+
+            <bp-properties-panel></bp-properties-panel>
+        </bp-accordion-panel>
+        <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Relationships']}}"
+                            accordion-panel-class="utility-panel-relationships">
+
+            <bp-relationships-panel></bp-relationships-panel>
+        </bp-accordion-panel>
+        <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Discussions']}}"
+                            accordion-panel-class="utility-panel-discussions">
+
+            <bp-discussion-panel></bp-discussion-panel>
+        </bp-accordion-panel>
+        <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}"
+                            accordion-panel-class="utility-panel-attachments">
+
+            <bp-attachments-panel></bp-attachments-panel>
+        </bp-accordion-panel>   
         <bp-accordion-panel
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_History']}}"
             accordion-panel-class="utility-panel-history">
 
             <bp-history-panel></bp-history-panel>
-        </bp-accordion-panel>
-        
-        <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Discussions']}}" 
-            accordion-panel-class="utility-panel-discussions">
-
-            <bp-discussion-panel></bp-discussion-panel>
-        </bp-accordion-panel>
-        <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}" 
-            accordion-panel-class="utility-panel-attachments">
-            
-            <bp-attachments-panel></bp-attachments-panel>
-        </bp-accordion-panel>
-        <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}" 
-            accordion-panel-class="utility-panel-properties">
-            
-            Mauris aliquet feugiat vulputate. Duis sollicitudin leo gravida, tristique elit sed, imperdiet libero. Proin mattis blandit malesuada. Ut quis risus congue, tristique massa eu, ultrices velit. Aenean et risus turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut vitae ante urna. Praesent ultrices neque est, nec hendrerit mi vulputate id. Fusce ut quam volutpat ipsum eleifend porta. Curabitur in mi in ligula convallis dapibus. Cras ac pharetra massa, vel malesuada orci. Nunc vel ligula maximus arcu auctor pulvinar.
-        </bp-accordion-panel>
-        <bp-accordion-panel 
-            accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Relationships']}}"
-            accordion-panel-class="utility-panel-relationships">
-            
-            <bp-relationships-panel></bp-relationships-panel>
-        </bp-accordion-panel>
+        </bp-accordion-panel>                     
     </bp-accordion>
 </div>

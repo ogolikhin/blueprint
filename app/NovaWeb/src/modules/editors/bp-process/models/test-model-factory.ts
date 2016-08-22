@@ -185,8 +185,7 @@ export function createTwoNestedUserTasksWithSystemTaskModel(): IProcess {
 
 export function createTwoUserTaskModel(): IProcess {
     let process: IProcess = createDefaultProcessModel();
-
-    let st1 = process.shapes[3];
+    
     let end = process.shapes[4];
     let ut2 = createShapeModel(ProcessShapeType.UserTask, 35, 0, 0);
     let st2 = createShapeModel(ProcessShapeType.SystemTask, 40, 0, 0);
@@ -2195,7 +2194,7 @@ export function createTwoUserDecisionsBackToBackModel(): IProcess {
     process.shapes[7].propertyValues["x"].value = 6; // UD2
     process.shapes[8].propertyValues["x"].value = 7; // UT3
     process.shapes[9].propertyValues["x"].value = 8; // ST3
-    process.shapes[10].propertyValues["x"].value = 7;// UT4
+    process.shapes[10].propertyValues["x"].value = 7; // UT4
     process.shapes[10].propertyValues["y"].value = 1;
     process.shapes[11].propertyValues["x"].value = 8; // ST4
     process.shapes[11].propertyValues["y"].value = 1;
@@ -2267,7 +2266,7 @@ export function createMergingUserDecisionModel(): IProcess {
     process.shapes[7].propertyValues["x"].value = 5; // UD2
     process.shapes[8].propertyValues["x"].value = 6; // UT3
     process.shapes[9].propertyValues["x"].value = 7; // ST3
-    process.shapes[10].propertyValues["x"].value = 7;// UT4
+    process.shapes[10].propertyValues["x"].value = 7; // UT4
     process.shapes[10].propertyValues["y"].value = 1;
     process.shapes[11].propertyValues["x"].value = 8; // ST4
     process.shapes[11].propertyValues["y"].value = 1;
@@ -2338,7 +2337,7 @@ export function createContainedUserDecisionModel(): IProcess {
     process.shapes[7].propertyValues["x"].value = 5; // UD2
     process.shapes[8].propertyValues["x"].value = 6; // UT3
     process.shapes[9].propertyValues["x"].value = 7; // ST3
-    process.shapes[10].propertyValues["x"].value = 6;// UT4
+    process.shapes[10].propertyValues["x"].value = 6; // UT4
     process.shapes[10].propertyValues["y"].value = 1;
     process.shapes[11].propertyValues["x"].value = 7; // ST4
     process.shapes[11].propertyValues["y"].value = 1;
@@ -2410,7 +2409,7 @@ export function createTwoUserDecisionsWithNonOverlappingLoopModel(): IProcess {
     process.shapes[7].propertyValues["x"].value = 6; // UD2
     process.shapes[8].propertyValues["x"].value = 7; // UT3
     process.shapes[9].propertyValues["x"].value = 8; // ST3
-    process.shapes[10].propertyValues["x"].value = 7;// UT4
+    process.shapes[10].propertyValues["x"].value = 7; // UT4
     process.shapes[10].propertyValues["y"].value = 1;
     process.shapes[11].propertyValues["x"].value = 8; // ST4
     process.shapes[11].propertyValues["y"].value = 1;
@@ -2495,7 +2494,7 @@ export function createTwoUserDecisionsWithOverlappingLoopModel(): IProcess {
     process.shapes[12].propertyValues["y"].value = 1;
     process.shapes[13].propertyValues["x"].value = 8; // ST5
     process.shapes[13].propertyValues["y"].value = 1;
-    process.shapes[14].propertyValues["x"].value = 10;// End
+    process.shapes[14].propertyValues["x"].value = 10; // End
 
     return process;
 }
@@ -2834,36 +2833,9387 @@ export function createThreeNestedUserTasksModel(): IProcess {
     return process;
 }
 
+
+export function createModelWithoutSystemTask(): IProcess {
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.BusinessProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 1, 20, 0, 0);
+    let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
+
+    model.shapes.push(start);
+    model.shapes.push(ut1);
+    model.shapes.push(end);
+
+    model.links.push({ sourceId: 10, destinationId: 20, orderindex: 0, label: null });
+    model.links.push({ sourceId: 20, destinationId: 30, orderindex: 0, label: null });
+
+    populatePropertyValues(model.shapes[0], "Start", 0, 0, ProcessShapeType.Start);
+    populatePropertyValues(model.shapes[1], "User Task 1", 0, 0, ProcessShapeType.UserTask);
+    populatePropertyValues(model.shapes[2], "End", 0, 0, ProcessShapeType.End);
+
+    return model;
+
+}
+
+
+export function createLargeTestModel() {
+    var testModel = {
+        status: { isLocked: true, isLockedByMe: true },
+        description: "test",
+        type: 1,
+        shapes: [
+            {
+                id: 10, name: "start", shapeType: 1,
+                propertyValues: []
+            },
+            {
+                id: 15, name: "Precondition", shapeType: ProcessShapeType.PreconditionSystemTask, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 20, name: "UT1", shapeType: 2, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 25, name: "ST1", shapeType: 4, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 35, name: "UD", shapeType: 6, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 26, name: "UT2", shapeType: 2, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 27, name: "ST2", shapeType: 4, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 36, name: "UT3", shapeType: 2, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 37, name: "ST3", shapeType: 4, flags: {},
+                propertyValues: []
+            },
+            {
+                id: 30, name: "End", shapeType: 3,
+                propertyValues: []
+            }
+        ],
+        links: [
+            { sourceId: 10, destinationId: 15, orderindex: 0 },
+            { sourceId: 15, destinationId: 20, orderindex: 0 },
+            { sourceId: 20, destinationId: 25, orderindex: 0 },
+            { sourceId: 25, destinationId: 35, orderindex: 0 },
+            { sourceId: 35, destinationId: 26, orderindex: 0 },
+            { sourceId: 26, destinationId: 27, orderindex: 0 },
+            { sourceId: 35, destinationId: 36, orderindex: 1 },
+            { sourceId: 36, destinationId: 37, orderindex: 0 },
+            { sourceId: 27, destinationId: 30, orderindex: 0 },
+            { sourceId: 37, destinationId: 30, orderindex: 0 }
+        ],
+        decisionBranchDestinationLinks: [
+            { sourceId: 35, destinationId: 30, orderindex: 1 }
+        ],
+        rawData: "",
+        propertyValues: []
+    };
+
+    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+
+    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "10" };
+    testModel.shapes[0].propertyValues["x"] = { key: "x", value: 0 };
+    testModel.shapes[0].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+
+
+    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "15" };
+    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[1].propertyValues["x"] = { key: "x", value: 1 };
+    testModel.shapes[1].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+
+    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "20" };
+    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[2].propertyValues["x"] = { key: "x", value: 2 };
+    testModel.shapes[2].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+
+    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "25" };
+    testModel.shapes[3].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[3].propertyValues["x"] = { key: "x", value: 3 };
+    testModel.shapes[3].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+
+    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "35" };
+    testModel.shapes[4].propertyValues["x"] = { key: "x", value: 4 };
+    testModel.shapes[4].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+
+    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "26" };
+    testModel.shapes[5].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[5].propertyValues["x"] = { key: "x", value: 5 };
+    testModel.shapes[5].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+
+    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "27" };
+    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[6].propertyValues["x"] = { key: "x", value: 6 };
+    testModel.shapes[6].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+
+    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "36" };
+    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[7].propertyValues["x"] = { key: "x", value: 5 };
+    testModel.shapes[7].propertyValues["y"] = { key: "y", value: 1 };
+    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+
+    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "37" };
+    testModel.shapes[8].propertyValues["persona"] = { key: "persona", value: "test" };
+    testModel.shapes[8].propertyValues["x"] = { key: "x", value: 6 };
+    testModel.shapes[8].propertyValues["y"] = { key: "y", value: 1 };
+    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+
+    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "30" };
+    testModel.shapes[9].propertyValues["x"] = { key: "x", value: 8 };
+    testModel.shapes[9].propertyValues["y"] = { key: "y", value: 0 };
+    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+
+    return testModel;
+}
+
+
+export function createSystemDecisionForDnDTestModel(): IProcess {
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 20, 2, 0);
+    let sd = shapesFactory.createModelSystemDecisionShape(1, 0, 25, 3, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 30, 4, 0);
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 35, 4, 1);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 40, 6, 0);
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 45, 7, 0);
+    let end = createShapeModel(ProcessShapeType.End, 50, 8, 0);
+
+
+    model.shapes.push(start, pre, ut1, sd, st2, st3, ut4, st4, end);
+    /*
+        start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+                                  ->  ST3 -> UT4
+    */
+
+    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null });
+    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: st3.id, destinationId: ut4.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null });
+    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null });
+
+    model.decisionBranchDestinationLinks.push(
+        { sourceId: sd.id, destinationId: ut4.id, orderindex: 1, label: null }
+    );
+
+    return model;
+}
+
+export function createDnDComplicatedModel() {
+
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 0, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 20, 0, 0);
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 25, 0, 0);
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 30, 0, 0);
+    let sd2 = shapesFactory.createModelSystemDecisionShape(1, 0, 35, 0, 0);
+    let st2A = shapesFactory.createModelSystemTaskShape(1, 0, 40, 0, 0);
+    let st2B = shapesFactory.createModelSystemTaskShape(1, 0, 45, 0, 0);
+    let ud3 = shapesFactory.createModelUserDecisionShape(1, 0, 50, 0, 0);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 55, 0, 0);
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 60, 0, 0);
+    let ut5 = shapesFactory.createModelUserTaskShape(1, 0, 65, 0, 0);
+    let st5 = shapesFactory.createModelSystemTaskShape(1, 0, 70, 0, 0);
+    let ut6 = shapesFactory.createModelUserTaskShape(1, 0, 75, 0, 0);
+    let st6 = shapesFactory.createModelSystemTaskShape(1, 0, 80, 0, 0);
+    let end = createShapeModel(ProcessShapeType.End, 85);
+
+    model.shapes.push(start, pre, ut1, st1, ut2, sd2, st2A, st2B, ud3, ut4, st4, ut5, st5, ut6, st6, end);
+    /*
+        start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
+                                                 -> st2B -> ut1         -> ut5 -> st5 -> ut1
+    */
+
+    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: "" });
+
+    model.links.push({ sourceId: sd2.id, destinationId: st2A.id, orderindex: 0, label: "" });
+
+    model.links.push({ sourceId: sd2.id, destinationId: st2B.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: st2B.id, destinationId: ut1.id, orderindex: 0, label: "" });
+
+    model.links.push({ sourceId: st2A.id, destinationId: ud3.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ud3.id, destinationId: ut4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ud3.id, destinationId: ut5.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st4.id, destinationId: ut6.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st5.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st6.id, destinationId: end.id, orderindex: 0, label: "" });
+
+    model.decisionBranchDestinationLinks.push(
+        { sourceId: sd2.id, destinationId: ut1.id, orderindex: 1, label: "" },
+        { sourceId: ud3.id, destinationId: ut1.id, orderindex: 1, label: "" }
+    );
+
+    return model;
+}
+
+export function createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily(): IProcess {
+
+    /*
+    start->pre->ud1->ut1->st1-> ut2->sd2->st2a -> end
+                                        ->st2b -> end
+                    -> ut3 -> st3 -> end
+    */
+    let process: IProcess = createProcessModel(0);
+    let start = createShapeModel(ProcessShapeType.Start, 10);
+    let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
+    let ud1 = createShapeModel(ProcessShapeType.UserDecision, 30);
+    let ut1 = createShapeModel(ProcessShapeType.UserTask, 40);
+    let st1 = createShapeModel(ProcessShapeType.SystemTask, 50);
+    let ut2 = createShapeModel(ProcessShapeType.UserTask, 60);
+    let sd2 = createShapeModel(ProcessShapeType.SystemDecision, 70);
+    let st2a = createShapeModel(ProcessShapeType.SystemTask, 80);
+    let st2b = createShapeModel(ProcessShapeType.SystemTask, 90);
+    let ut3 = createShapeModel(ProcessShapeType.UserTask, 100);
+    let st3 = createShapeModel(ProcessShapeType.SystemTask, 110);
+
+    let end = createShapeModel(ProcessShapeType.End, 120);
+
+    process.shapes.push(start, pre, ud1, ut1, st1, ut2, sd2, st2a,
+        st2b, ut3, st3, end);
+
+    process.links.push(
+        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
+        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
+        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
+        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
+        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
+        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
+        { sourceId: sd2.id, destinationId: st2a.id, orderindex: 0, label: null },
+        { sourceId: sd2.id, destinationId: st2b.id, orderindex: 1, label: null },
+        { sourceId: st2a.id, destinationId: end.id, orderindex: 0, label: null },
+        { sourceId: st2b.id, destinationId: end.id, orderindex: 0, label: null },
+        { sourceId: ud1.id, destinationId: ut3.id, orderindex: 1, label: null },
+        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
+        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null }
+    );
+
+    process.decisionBranchDestinationLinks.push(
+        { sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null },
+        { sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: null }
+    );
+
+    return process;
+}
+
+export function createUserDecisionForAddBranchTestModel(): IProcess {
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 20, 2, 0);
+    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 25, 3, 0);
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 30, 2, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 35, 4, 0);
+    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 40, 2, 0);
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 45, 4, 1);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 50, 6, 0);
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 55, 7, 0);
+    let end = createShapeModel(ProcessShapeType.End, 60, 8, 0);
+
+
+    model.shapes.push(start, pre, ut1, ud, ut2, st2, ut3, st3, ut4, st4, end);
+    /*
+        start -> PRE -> UT1 -> UD -> UT2 -> ST2 -> UT4 -> ST4 -> END
+                                  -> UT3 -> ST3 -> END
+    */
+
+    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut1.id, destinationId: ud.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ud.id, destinationId: ut2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+
+    model.decisionBranchDestinationLinks.push(
+        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: "" }
+    );
+
+    return model;
+}
+
+export function createBackToBackSystemDecisionWithLoopTestModel(): IProcess {
+    var shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 0, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 20, 0, 0);
+    let sd1 = shapesFactory.createModelSystemDecisionShape(1, 0, 25, 0, 0);
+    let st1 = shapesFactory.createModelSystemDecisionShape(1, 0, 30, 0, 0);
+    let sd2 = shapesFactory.createModelSystemDecisionShape(1, 0, 35, 0, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 40, 0, 0);
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 45, 0, 1);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 50, 0, 0);
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 55, 0, 0);
+    let end = createShapeModel(ProcessShapeType.End, 60, 0, 0);
+
+
+    model.shapes.push(start, pre, ut1, sd1, st1, sd2, st2, st3, ut4, st4, end);
+    /*
+        start -> PRE -> UT1 -> SD1 -> SD2 ->  ST2 -> UT4 -> ST4 -> END
+                                      SD2 ->  ST3 -> END
+                               SD1 -> ST1 -> UT1
+    */
+
+    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd1.id, destinationId: sd2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd1.id, destinationId: st1.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: st1.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: "" });
+    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
+    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+
+    model.decisionBranchDestinationLinks.push(
+        { sourceId: sd1.id, destinationId: ut1.id, orderindex: 1, label: "" },
+        { sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: "" }
+    );
+
+    return model;
+}
+
 export function createMultiDecisionBranchModelWithoutXAndY() {
-    var testModel = { "id": 603978, "name": "1 merge point multiple branches", "typePrefix": "SP", "projectId": 592762, "baseItemTypePredefined": 4114, "shapes": [{ "id": 604628, "name": "Start", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604629, "name": "Precondition", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604630, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604631, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604638, "name": "End", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604687, "name": "UD1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604688, "name": "UT1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604689, "name": "ST1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604690, "name": "UT2", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604691, "name": "ST2", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604692, "name": "UT3", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604693, "name": "ST3", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 604628, "destinationId": 604629, "orderindex": 1.0, "label": null }, { "sourceId": 604629, "destinationId": 604687, "orderindex": 1.0, "label": null }, { "sourceId": 604630, "destinationId": 604631, "orderindex": 1.0, "label": null }, { "sourceId": 604631, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604687, "destinationId": 604630, "orderindex": 1.0, "label": null }, { "sourceId": 604687, "destinationId": 604688, "orderindex": 2.0, "label": null }, { "sourceId": 604687, "destinationId": 604690, "orderindex": 3.0, "label": null }, { "sourceId": 604687, "destinationId": 604692, "orderindex": 4.0, "label": null }, { "sourceId": 604688, "destinationId": 604689, "orderindex": 1.0, "label": null }, { "sourceId": 604689, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604690, "destinationId": 604691, "orderindex": 1.0, "label": null }, { "sourceId": 604691, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604692, "destinationId": 604693, "orderindex": 1.0, "label": null }, { "sourceId": 604693, "destinationId": 604638, "orderindex": 1.0, "label": null }], "artifactPathLinks": [{ "id": 603978, "projectId": 592762, "name": "1 merge point multiple branches", "typePrefix": "SP", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 } }, "decisionBranchDestinationLinks": [{ "sourceId": 604687, "destinationId": 604638, "orderindex": 2 }, { "sourceId": 604687, "destinationId": 604638, "orderindex": 3 }, { "sourceId": 604687, "destinationId": 604638, "orderindex": 4 }], "status": { "isLocked": true, "isLockedByMe": true } };
+    var testModel = {
+        "id": 603978,
+        "name": "1 merge point multiple branches",
+        "typePrefix": "SP",
+        "projectId": 592762,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 604628,
+            "name": "Start",
+            "projectId": 592762,
+            "typePrefix": "PROS",
+            "parentId": 603978,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 21003,
+                    "value": "<div>&nbsp;</div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 21019,
+                    "value": ""
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 21022,
+                    "value": 126.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 21023,
+                    "value": 150.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 21020,
+                    "value": -1
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 21021,
+                    "value": -1
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 21018,
+                    "value": 1
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 21007,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 604629,
+                "name": "Precondition",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604630,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604631,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604638,
+                "name": "End",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604687,
+                "name": "UD1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604688,
+                "name": "UT1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604689,
+                "name": "ST1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604690,
+                "name": "UT2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604691,
+                "name": "ST2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604692,
+                "name": "UT3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604693,
+                "name": "ST3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 604628,
+            "destinationId": 604629,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 604629,
+                "destinationId": 604687,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604630,
+                "destinationId": 604631,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604631,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604630,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604688,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604690,
+                "orderindex": 3.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604692,
+                "orderindex": 4.0,
+                "label": null
+            },
+            {
+                "sourceId": 604688,
+                "destinationId": 604689,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604689,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604690,
+                "destinationId": 604691,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604691,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604692,
+                "destinationId": 604693,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604693,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 603978,
+            "projectId": 592762,
+            "name": "1 merge point multiple branches",
+            "typePrefix": "SP",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 21003,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 21018,
+                "value": 1
+            }
+        },
+        "decisionBranchDestinationLinks": [{
+            "sourceId": 604687,
+            "destinationId": 604638,
+            "orderindex": 2
+        },
+            {
+                "sourceId": 604687,
+                "destinationId": 604638,
+                "orderindex": 3
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604638,
+                "orderindex": 4
+            }],
+        "status": {
+            "isLocked": true,
+            "isLockedByMe": true
+        }
+    };
 
     return testModel;
 }
 export function createMultiDecisionBranchModel() {
-    var testModel = { "id": 603978, "name": "1 merge point multiple branches", "typePrefix": "SP", "projectId": 592762, "baseItemTypePredefined": 4114, "shapes": [{ "id": 604628, "name": "Start", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 0.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604629, "name": "Precondition", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 1.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604630, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604631, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604638, "name": "End", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604687, "name": "UD1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 2.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604688, "name": "UT1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604689, "name": "ST1", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604690, "name": "UT2", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604691, "name": "ST2", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604692, "name": "UT3", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604693, "name": "ST3", "projectId": 592762, "typePrefix": "PROS", "parentId": 603978, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 604628, "destinationId": 604629, "orderindex": 1.0, "label": null }, { "sourceId": 604629, "destinationId": 604687, "orderindex": 1.0, "label": null }, { "sourceId": 604630, "destinationId": 604631, "orderindex": 1.0, "label": null }, { "sourceId": 604631, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604687, "destinationId": 604630, "orderindex": 1.0, "label": null }, { "sourceId": 604687, "destinationId": 604688, "orderindex": 2.0, "label": null }, { "sourceId": 604687, "destinationId": 604690, "orderindex": 3.0, "label": null }, { "sourceId": 604687, "destinationId": 604692, "orderindex": 4.0, "label": null }, { "sourceId": 604688, "destinationId": 604689, "orderindex": 1.0, "label": null }, { "sourceId": 604689, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604690, "destinationId": 604691, "orderindex": 1.0, "label": null }, { "sourceId": 604691, "destinationId": 604638, "orderindex": 1.0, "label": null }, { "sourceId": 604692, "destinationId": 604693, "orderindex": 1.0, "label": null }, { "sourceId": 604693, "destinationId": 604638, "orderindex": 1.0, "label": null }], "artifactPathLinks": [{ "id": 603978, "projectId": 592762, "name": "1 merge point multiple branches", "typePrefix": "SP", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 } } };
+    var testModel = {
+        "id": 603978,
+        "name": "1 merge point multiple branches",
+        "typePrefix": "SP",
+        "projectId": 592762,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 604628,
+            "name": "Start",
+            "projectId": 592762,
+            "typePrefix": "PROS",
+            "parentId": 603978,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 21003,
+                    "value": "<div>&nbsp;</div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 21019,
+                    "value": ""
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 21022,
+                    "value": 126.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 21023,
+                    "value": 150.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 21020,
+                    "value": 0.0
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 21021,
+                    "value": 0.0
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 21018,
+                    "value": 1
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 21007,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 604629,
+                "name": "Precondition",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 1.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604630,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604631,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604638,
+                "name": "End",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604687,
+                "name": "UD1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 2.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604688,
+                "name": "UT1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604689,
+                "name": "ST1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604690,
+                "name": "UT2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604691,
+                "name": "ST2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604692,
+                "name": "UT3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604693,
+                "name": "ST3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 603978,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 604628,
+            "destinationId": 604629,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 604629,
+                "destinationId": 604687,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604630,
+                "destinationId": 604631,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604631,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604630,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604688,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604690,
+                "orderindex": 3.0,
+                "label": null
+            },
+            {
+                "sourceId": 604687,
+                "destinationId": 604692,
+                "orderindex": 4.0,
+                "label": null
+            },
+            {
+                "sourceId": 604688,
+                "destinationId": 604689,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604689,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604690,
+                "destinationId": 604691,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604691,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604692,
+                "destinationId": 604693,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604693,
+                "destinationId": 604638,
+                "orderindex": 1.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 603978,
+            "projectId": 592762,
+            "name": "1 merge point multiple branches",
+            "typePrefix": "SP",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 21003,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 21018,
+                "value": 1
+            }
+        }
+    };
 
     return testModel;
 }
 
 export function createTwoMergePointsModel() {
-    var testModel = { "id": 604714, "name": "2 merge point", "typePrefix": "SP", "projectId": 592762, "baseItemTypePredefined": 4114, "shapes": [{ "id": 604715, "name": "Start", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 0.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604722, "name": "Precondition", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 1.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604723, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604724, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604725, "name": "End", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 10.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604747, "name": "UD1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 2.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604750, "name": "UD2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604748, "name": "UT1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604749, "name": "ST1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604751, "name": "UT2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604752, "name": "ST2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 8.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604753, "name": "UT3", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604754, "name": "ST3", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": 8.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 604715, "destinationId": 604722, "orderindex": 1.0, "label": null }, { "sourceId": 604722, "destinationId": 604747, "orderindex": 1.0, "label": null }, { "sourceId": 604723, "destinationId": 604724, "orderindex": 1.0, "label": null }, { "sourceId": 604724, "destinationId": 604750, "orderindex": 1.0, "label": null }, { "sourceId": 604747, "destinationId": 604723, "orderindex": 1.0, "label": null }, { "sourceId": 604747, "destinationId": 604748, "orderindex": 2.0, "label": null }, { "sourceId": 604750, "destinationId": 604751, "orderindex": 1.0, "label": null }, { "sourceId": 604750, "destinationId": 604753, "orderindex": 2.0, "label": null }, { "sourceId": 604748, "destinationId": 604749, "orderindex": 1.0, "label": null }, { "sourceId": 604749, "destinationId": 604750, "orderindex": 1.0, "label": null }, { "sourceId": 604751, "destinationId": 604752, "orderindex": 1.0, "label": null }, { "sourceId": 604752, "destinationId": 604725, "orderindex": 1.0, "label": null }, { "sourceId": 604753, "destinationId": 604754, "orderindex": 1.0, "label": null }, { "sourceId": 604754, "destinationId": 604725, "orderindex": 1.0, "label": null }], "artifactPathLinks": [{ "id": 604714, "projectId": 592762, "name": "2 merge point", "typePrefix": "SP", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 } }, "status": { "isLocked": true, "isLockedByMe": true } }
+    var testModel = {
+        "id": 604714,
+        "name": "2 merge point",
+        "typePrefix": "SP",
+        "projectId": 592762,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 604715,
+            "name": "Start",
+            "projectId": 592762,
+            "typePrefix": "PROS",
+            "parentId": 604714,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 21003,
+                    "value": "<div>&nbsp;</div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 21019,
+                    "value": ""
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 21022,
+                    "value": 126.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 21023,
+                    "value": 150.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 21020,
+                    "value": 0.0
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 21021,
+                    "value": 0.0
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 21018,
+                    "value": 1
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 21007,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 604722,
+                "name": "Precondition",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 1.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604723,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604724,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604725,
+                "name": "End",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 10.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604747,
+                "name": "UD1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 2.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604750,
+                "name": "UD2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604748,
+                "name": "UT1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604749,
+                "name": "ST1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604751,
+                "name": "UT2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604752,
+                "name": "ST2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 8.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604753,
+                "name": "UT3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604754,
+                "name": "ST3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": 8.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 604715,
+            "destinationId": 604722,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 604722,
+                "destinationId": 604747,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604723,
+                "destinationId": 604724,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604724,
+                "destinationId": 604750,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604747,
+                "destinationId": 604723,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604747,
+                "destinationId": 604748,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604750,
+                "destinationId": 604751,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604750,
+                "destinationId": 604753,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604748,
+                "destinationId": 604749,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604749,
+                "destinationId": 604750,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604751,
+                "destinationId": 604752,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604752,
+                "destinationId": 604725,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604753,
+                "destinationId": 604754,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604754,
+                "destinationId": 604725,
+                "orderindex": 1.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 604714,
+            "projectId": 592762,
+            "name": "2 merge point",
+            "typePrefix": "SP",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 21003,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 21018,
+                "value": 1
+            }
+        },
+        "status": {
+            "isLocked": true,
+            "isLockedByMe": true
+        }
+    };
 
     return testModel;
 }
 
 export function createTwoMergePointsModelWithoutXAndY() {
-    var testModel = { "id": 604714, "name": "2 merge point", "typePrefix": "SP", "projectId": 592762, "baseItemTypePredefined": 4114, "shapes": [{ "id": 604715, "name": "Start", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604722, "name": "Precondition", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604723, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604724, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604725, "name": "End", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604747, "name": "UD1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604750, "name": "UD2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UD2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604748, "name": "UT1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604749, "name": "ST1", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604751, "name": "UT2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604752, "name": "ST2", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }, { "id": 604753, "name": "UT3", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 604754, "name": "ST3", "projectId": 592762, "typePrefix": "PROS", "parentId": 604714, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 21019, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 21022, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 21023, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 21020, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 21021, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 21007, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 604715, "destinationId": 604722, "orderindex": 1.0, "label": null }, { "sourceId": 604722, "destinationId": 604747, "orderindex": 1.0, "label": null }, { "sourceId": 604723, "destinationId": 604724, "orderindex": 1.0, "label": null }, { "sourceId": 604724, "destinationId": 604750, "orderindex": 1.0, "label": null }, { "sourceId": 604747, "destinationId": 604723, "orderindex": 1.0, "label": null }, { "sourceId": 604747, "destinationId": 604748, "orderindex": 2.0, "label": null }, { "sourceId": 604750, "destinationId": 604751, "orderindex": 1.0, "label": null }, { "sourceId": 604750, "destinationId": 604753, "orderindex": 2.0, "label": null }, { "sourceId": 604748, "destinationId": 604749, "orderindex": 1.0, "label": null }, { "sourceId": 604749, "destinationId": 604750, "orderindex": 1.0, "label": null }, { "sourceId": 604751, "destinationId": 604752, "orderindex": 1.0, "label": null }, { "sourceId": 604752, "destinationId": 604725, "orderindex": 1.0, "label": null }, { "sourceId": 604753, "destinationId": 604754, "orderindex": 1.0, "label": null }, { "sourceId": 604754, "destinationId": 604725, "orderindex": 1.0, "label": null }], "artifactPathLinks": [{ "id": 604714, "projectId": 592762, "name": "2 merge point", "typePrefix": "SP", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 21003, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 21018, "value": 1 } }, "decisionBranchDestinationLinks": [{ "sourceId": 604750, "destinationId": 604725, "orderindex": 2 }, { "sourceId": 604747, "destinationId": 604750, "orderindex": 2 }], "status": { "isLocked": true, "isLockedByMe": true } };
+    var testModel = {
+        "id": 604714,
+        "name": "2 merge point",
+        "typePrefix": "SP",
+        "projectId": 592762,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 604715,
+            "name": "Start",
+            "projectId": 592762,
+            "typePrefix": "PROS",
+            "parentId": 604714,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 21003,
+                    "value": "<div>&nbsp;</div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 21019,
+                    "value": ""
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 21022,
+                    "value": 126.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 21023,
+                    "value": 150.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 21020,
+                    "value": -1
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 21021,
+                    "value": -1
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 21018,
+                    "value": 1
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 21007,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 604722,
+                "name": "Precondition",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604723,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604724,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604725,
+                "name": "End",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604747,
+                "name": "UD1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604750,
+                "name": "UD2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UD2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604748,
+                "name": "UT1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604749,
+                "name": "ST1",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604751,
+                "name": "UT2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604752,
+                "name": "ST2",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604753,
+                "name": "UT3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 604754,
+                "name": "ST3",
+                "projectId": 592762,
+                "typePrefix": "PROS",
+                "parentId": 604714,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 21003,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 21019,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 21022,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 21023,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 21020,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 21021,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 21018,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 21007,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 604715,
+            "destinationId": 604722,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 604722,
+                "destinationId": 604747,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604723,
+                "destinationId": 604724,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604724,
+                "destinationId": 604750,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604747,
+                "destinationId": 604723,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604747,
+                "destinationId": 604748,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604750,
+                "destinationId": 604751,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604750,
+                "destinationId": 604753,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 604748,
+                "destinationId": 604749,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604749,
+                "destinationId": 604750,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604751,
+                "destinationId": 604752,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604752,
+                "destinationId": 604725,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604753,
+                "destinationId": 604754,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 604754,
+                "destinationId": 604725,
+                "orderindex": 1.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 604714,
+            "projectId": 592762,
+            "name": "2 merge point",
+            "typePrefix": "SP",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 21003,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 21018,
+                "value": 1
+            }
+        },
+        "decisionBranchDestinationLinks": [{
+            "sourceId": 604750,
+            "destinationId": 604725,
+            "orderindex": 2
+        },
+            {
+                "sourceId": 604747,
+                "destinationId": 604750,
+                "orderindex": 2
+            }],
+        "status": {
+            "isLocked": true,
+            "isLockedByMe": true
+        }
+    };
 
     return testModel;
 }
 
 export function createMultipleMergePointsWithMultipleBranchesModel() {
-    var testModel = { "id": 195, "name": "New Process 1", "typePrefix": "St", "projectId": 1, "baseItemTypePredefined": 4114, "shapes": [{ "id": 246, "name": "UD3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 2.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 236, "name": "UD1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 5.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 237, "name": "UT1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 238, "name": "ST1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 243, "name": "UD2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 12.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 239, "name": "UT2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 240, "name": "ST2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 241, "name": "UT3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 13.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 242, "name": "ST3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 14.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 244, "name": "UT4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 13.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 245, "name": "ST4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 14.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 1.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 247, "name": "UT5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 248, "name": "ST5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 249, "name": "UD4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 5.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 250, "name": "UT6", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT6" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 251, "name": "ST6", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST6" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 2.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 252, "name": "UT7", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT7" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 6.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 253, "name": "ST7", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST7" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 7.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 254, "name": "UD5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 8.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 255, "name": "UT8", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT8" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 9.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 256, "name": "ST8", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST8" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 10.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 3.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 257, "name": "UT9", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT9" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 9.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 4.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 258, "name": "ST9", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST9" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 10.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 4.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 196, "name": "Start", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 0.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 197, "name": "Precondition", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 1.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 200, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 3.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 201, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 4.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 202, "name": "End", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 16.0 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0.0 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 246, "destinationId": 200, "orderindex": 1.0, "label": null }, { "sourceId": 236, "destinationId": 237, "orderindex": 1.0, "label": null }, { "sourceId": 237, "destinationId": 238, "orderindex": 1.0, "label": null }, { "sourceId": 238, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 243, "destinationId": 241, "orderindex": 1.0, "label": null }, { "sourceId": 239, "destinationId": 240, "orderindex": 1.0, "label": null }, { "sourceId": 240, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 241, "destinationId": 242, "orderindex": 1.0, "label": null }, { "sourceId": 242, "destinationId": 202, "orderindex": 1.0, "label": null }, { "sourceId": 244, "destinationId": 245, "orderindex": 1.0, "label": null }, { "sourceId": 245, "destinationId": 202, "orderindex": 1.0, "label": null }, { "sourceId": 247, "destinationId": 248, "orderindex": 1.0, "label": null }, { "sourceId": 248, "destinationId": 249, "orderindex": 1.0, "label": null }, { "sourceId": 249, "destinationId": 250, "orderindex": 1.0, "label": null }, { "sourceId": 250, "destinationId": 251, "orderindex": 1.0, "label": null }, { "sourceId": 251, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 252, "destinationId": 253, "orderindex": 1.0, "label": null }, { "sourceId": 253, "destinationId": 254, "orderindex": 1.0, "label": null }, { "sourceId": 254, "destinationId": 255, "orderindex": 1.0, "label": null }, { "sourceId": 255, "destinationId": 256, "orderindex": 1.0, "label": null }, { "sourceId": 256, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 257, "destinationId": 258, "orderindex": 1.0, "label": null }, { "sourceId": 258, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 196, "destinationId": 197, "orderindex": 1.0, "label": null }, { "sourceId": 197, "destinationId": 246, "orderindex": 1.0, "label": null }, { "sourceId": 200, "destinationId": 201, "orderindex": 1.0, "label": null }, { "sourceId": 201, "destinationId": 236, "orderindex": 1.0, "label": null }, { "sourceId": 246, "destinationId": 247, "orderindex": 2.0, "label": null }, { "sourceId": 236, "destinationId": 239, "orderindex": 2.0, "label": null }, { "sourceId": 243, "destinationId": 244, "orderindex": 2.0, "label": null }, { "sourceId": 249, "destinationId": 252, "orderindex": 2.0, "label": null }, { "sourceId": 254, "destinationId": 257, "orderindex": 2.0, "label": null }], "artifactPathLinks": [{ "id": 195, "projectId": 1, "name": "New Process 1", "typePrefix": "St", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 1 } }, "status": { "isLocked": true, "isLockedByMe": true } }
+    var testModel = {
+        "id": 195,
+        "name": "New Process 1",
+        "typePrefix": "St",
+        "projectId": 1,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 246,
+            "name": "UD3",
+            "projectId": 1,
+            "typePrefix": "PROS",
+            "parentId": 195,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "linkLabels": {
+                    "propertyName": "LinkLabels",
+                    "typePredefined": 0,
+                    "typeId": null,
+                    "value": []
+                },
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 47,
+                    "value": "<div></div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 63,
+                    "value": "UD3"
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 66,
+                    "value": -1.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 67,
+                    "value": -1.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 64,
+                    "value": 2.0
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 65,
+                    "value": 0.0
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 62,
+                    "value": 6
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 51,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 236,
+                "name": "UD1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 5.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 237,
+                "name": "UT1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 238,
+                "name": "ST1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 243,
+                "name": "UD2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 12.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 239,
+                "name": "UT2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 240,
+                "name": "ST2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 241,
+                "name": "UT3",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 13.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 242,
+                "name": "ST3",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 14.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 244,
+                "name": "UT4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 13.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 245,
+                "name": "ST4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 14.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 1.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 247,
+                "name": "UT5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 248,
+                "name": "ST5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 249,
+                "name": "UD4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 5.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 250,
+                "name": "UT6",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT6"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 251,
+                "name": "ST6",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST6"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 2.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 252,
+                "name": "UT7",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT7"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 6.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 253,
+                "name": "ST7",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST7"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 7.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 254,
+                "name": "UD5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 8.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 255,
+                "name": "UT8",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT8"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 9.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 256,
+                "name": "ST8",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST8"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 10.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 3.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 257,
+                "name": "UT9",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT9"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 9.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 4.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 258,
+                "name": "ST9",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST9"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 10.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 4.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 196,
+                "name": "Start",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 0.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 1
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 197,
+                "name": "Precondition",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 1.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 200,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 3.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 201,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 4.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 202,
+                "name": "End",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": 16.0
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": 0.0
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 246,
+            "destinationId": 200,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 236,
+                "destinationId": 237,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 237,
+                "destinationId": 238,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 238,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 243,
+                "destinationId": 241,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 239,
+                "destinationId": 240,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 240,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 241,
+                "destinationId": 242,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 242,
+                "destinationId": 202,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 244,
+                "destinationId": 245,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 245,
+                "destinationId": 202,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 247,
+                "destinationId": 248,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 248,
+                "destinationId": 249,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 249,
+                "destinationId": 250,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 250,
+                "destinationId": 251,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 251,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 252,
+                "destinationId": 253,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 253,
+                "destinationId": 254,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 254,
+                "destinationId": 255,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 255,
+                "destinationId": 256,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 256,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 257,
+                "destinationId": 258,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 258,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 196,
+                "destinationId": 197,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 197,
+                "destinationId": 246,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 200,
+                "destinationId": 201,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 201,
+                "destinationId": 236,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 246,
+                "destinationId": 247,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 236,
+                "destinationId": 239,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 243,
+                "destinationId": 244,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 249,
+                "destinationId": 252,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 254,
+                "destinationId": 257,
+                "orderindex": 2.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 195,
+            "projectId": 1,
+            "name": "New Process 1",
+            "typePrefix": "St",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 47,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 62,
+                "value": 1
+            }
+        },
+        "status": {
+            "isLocked": true,
+            "isLockedByMe": true
+        }
+    };
+
     return testModel;
 }
 
 export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY() {
-    var testModel = { "id": 195, "name": "New Process 1", "typePrefix": "St", "projectId": 1, "baseItemTypePredefined": 4114, "shapes": [{ "id": 246, "name": "UD3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 236, "name": "UD1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 237, "name": "UT1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 238, "name": "ST1", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST1" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 243, "name": "UD2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 239, "name": "UT2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 240, "name": "ST2", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST2" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 241, "name": "UT3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 242, "name": "ST3", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST3" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 244, "name": "UT4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 245, "name": "ST4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 247, "name": "UT5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 248, "name": "ST5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 249, "name": "UD4", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD4" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 250, "name": "UT6", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT6" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 251, "name": "ST6", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST6" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 252, "name": "UT7", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT7" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 253, "name": "ST7", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST7" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 254, "name": "UD5", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "linkLabels": { "propertyName": "LinkLabels", "typePredefined": 0, "typeId": null, "value": [] }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UD5" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 6 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 255, "name": "UT8", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT8" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 256, "name": "ST8", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST8" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 257, "name": "UT9", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT9" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 258, "name": "ST9", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div></div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST9" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 196, "name": "Start", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 1 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 197, "name": "Precondition", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "Precondition" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 5 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 200, "name": "<Start with a verb, i.e. select, run, view>", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "User" }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "UT" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null } }, "associatedArtifact": null }, { "id": 201, "name": "<Start with a verb, i.e. display, print, calculate>", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "persona": { "propertyName": "Persona", "typePredefined": 0, "typeId": null, "value": "System" }, "associatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "imageId": { "propertyName": "ImageId", "typePredefined": 0, "typeId": null, "value": null }, "storyLinks": { "propertyName": "StoryLinks", "typePredefined": 0, "typeId": null, "value": null }, "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "ST" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }, { "id": 202, "name": "End", "projectId": 1, "typePrefix": "PROS", "parentId": 195, "baseItemTypePredefined": 8228, "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "<div>&nbsp;</div>" }, "label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126.0 }, "height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150.0 }, "x": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": -1 }, "y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": -1 }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 3 }, "itemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } }, "associatedArtifact": null }], "links": [{ "sourceId": 246, "destinationId": 200, "orderindex": 1.0, "label": null }, { "sourceId": 236, "destinationId": 237, "orderindex": 1.0, "label": null }, { "sourceId": 237, "destinationId": 238, "orderindex": 1.0, "label": null }, { "sourceId": 238, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 243, "destinationId": 241, "orderindex": 1.0, "label": null }, { "sourceId": 239, "destinationId": 240, "orderindex": 1.0, "label": null }, { "sourceId": 240, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 241, "destinationId": 242, "orderindex": 1.0, "label": null }, { "sourceId": 242, "destinationId": 202, "orderindex": 1.0, "label": null }, { "sourceId": 244, "destinationId": 245, "orderindex": 1.0, "label": null }, { "sourceId": 245, "destinationId": 202, "orderindex": 1.0, "label": null }, { "sourceId": 247, "destinationId": 248, "orderindex": 1.0, "label": null }, { "sourceId": 248, "destinationId": 249, "orderindex": 1.0, "label": null }, { "sourceId": 249, "destinationId": 250, "orderindex": 1.0, "label": null }, { "sourceId": 250, "destinationId": 251, "orderindex": 1.0, "label": null }, { "sourceId": 251, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 252, "destinationId": 253, "orderindex": 1.0, "label": null }, { "sourceId": 253, "destinationId": 254, "orderindex": 1.0, "label": null }, { "sourceId": 254, "destinationId": 255, "orderindex": 1.0, "label": null }, { "sourceId": 255, "destinationId": 256, "orderindex": 1.0, "label": null }, { "sourceId": 256, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 257, "destinationId": 258, "orderindex": 1.0, "label": null }, { "sourceId": 258, "destinationId": 243, "orderindex": 1.0, "label": null }, { "sourceId": 196, "destinationId": 197, "orderindex": 1.0, "label": null }, { "sourceId": 197, "destinationId": 246, "orderindex": 1.0, "label": null }, { "sourceId": 200, "destinationId": 201, "orderindex": 1.0, "label": null }, { "sourceId": 201, "destinationId": 236, "orderindex": 1.0, "label": null }, { "sourceId": 246, "destinationId": 247, "orderindex": 2.0, "label": null }, { "sourceId": 236, "destinationId": 239, "orderindex": 2.0, "label": null }, { "sourceId": 243, "destinationId": 244, "orderindex": 2.0, "label": null }, { "sourceId": 249, "destinationId": 252, "orderindex": 2.0, "label": null }, { "sourceId": 254, "destinationId": 257, "orderindex": 2.0, "label": null }], "artifactPathLinks": [{ "id": 195, "projectId": 1, "name": "New Process 1", "typePrefix": "St", "baseItemTypePredefined": 4114, "link": null }], "propertyValues": { "description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "clientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 1 } }, "decisionBranchDestinationLinks": [{ "sourceId": 243, "destinationId": 202, "orderindex": 2 }, { "sourceId": 236, "destinationId": 243, "orderindex": 2 }, { "sourceId": 246, "destinationId": 243, "orderindex": 2 }, { "sourceId": 249, "destinationId": 243, "orderindex": 2 }, { "sourceId": 254, "destinationId": 243, "orderindex": 2 }], "status": { "isLocked": true, "isLockedByMe": true } }
+    var testModel = {
+        "id": 195,
+        "name": "New Process 1",
+        "typePrefix": "St",
+        "projectId": 1,
+        "baseItemTypePredefined": 4114,
+        "shapes": [{
+            "id": 246,
+            "name": "UD3",
+            "projectId": 1,
+            "typePrefix": "PROS",
+            "parentId": 195,
+            "baseItemTypePredefined": 8228,
+            "propertyValues": {
+                "linkLabels": {
+                    "propertyName": "LinkLabels",
+                    "typePredefined": 0,
+                    "typeId": null,
+                    "value": []
+                },
+                "description": {
+                    "propertyName": "Description",
+                    "typePredefined": 4099,
+                    "typeId": 47,
+                    "value": "<div></div>"
+                },
+                "label": {
+                    "propertyName": "Label",
+                    "typePredefined": 4115,
+                    "typeId": 63,
+                    "value": "UD3"
+                },
+                "width": {
+                    "propertyName": "Width",
+                    "typePredefined": 8195,
+                    "typeId": 66,
+                    "value": -1.0
+                },
+                "height": {
+                    "propertyName": "Height",
+                    "typePredefined": 8196,
+                    "typeId": 67,
+                    "value": -1.0
+                },
+                "x": {
+                    "propertyName": "X",
+                    "typePredefined": 8193,
+                    "typeId": 64,
+                    "value": -1
+                },
+                "y": {
+                    "propertyName": "Y",
+                    "typePredefined": 8194,
+                    "typeId": 65,
+                    "value": -1
+                },
+                "clientType": {
+                    "propertyName": "ClientType",
+                    "typePredefined": 4114,
+                    "typeId": 62,
+                    "value": 6
+                },
+                "itemLabel": {
+                    "propertyName": "ItemLabel",
+                    "typePredefined": 4102,
+                    "typeId": 51,
+                    "value": ""
+                }
+            },
+            "associatedArtifact": null
+        },
+            {
+                "id": 236,
+                "name": "UD1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 237,
+                "name": "UT1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 238,
+                "name": "ST1",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST1"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 243,
+                "name": "UD2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 239,
+                "name": "UT2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 240,
+                "name": "ST2",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST2"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 241,
+                "name": "UT3",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 242,
+                "name": "ST3",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST3"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 244,
+                "name": "UT4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 245,
+                "name": "ST4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 247,
+                "name": "UT5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 248,
+                "name": "ST5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 249,
+                "name": "UD4",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD4"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 250,
+                "name": "UT6",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT6"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 251,
+                "name": "ST6",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST6"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 252,
+                "name": "UT7",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT7"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 253,
+                "name": "ST7",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST7"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 254,
+                "name": "UD5",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "linkLabels": {
+                        "propertyName": "LinkLabels",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": []
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UD5"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 6
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 255,
+                "name": "UT8",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT8"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 256,
+                "name": "ST8",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST8"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 257,
+                "name": "UT9",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT9"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 258,
+                "name": "ST9",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div></div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST9"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": -1.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": -1.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 196,
+                "name": "Start",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 1
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 197,
+                "name": "Precondition",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "Precondition"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 5
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 200,
+                "name": "<Start with a verb, i.e. select, run, view>",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "User"
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "UT"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 2
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 201,
+                "name": "<Start with a verb, i.e. display, print, calculate>",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "persona": {
+                        "propertyName": "Persona",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": "System"
+                    },
+                    "associatedImageUrl": {
+                        "propertyName": "AssociatedImageUrl",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "imageId": {
+                        "propertyName": "ImageId",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "storyLinks": {
+                        "propertyName": "StoryLinks",
+                        "typePredefined": 0,
+                        "typeId": null,
+                        "value": null
+                    },
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": "ST"
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 4
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            },
+            {
+                "id": 202,
+                "name": "End",
+                "projectId": 1,
+                "typePrefix": "PROS",
+                "parentId": 195,
+                "baseItemTypePredefined": 8228,
+                "propertyValues": {
+                    "description": {
+                        "propertyName": "Description",
+                        "typePredefined": 4099,
+                        "typeId": 47,
+                        "value": "<div>&nbsp;</div>"
+                    },
+                    "label": {
+                        "propertyName": "Label",
+                        "typePredefined": 4115,
+                        "typeId": 63,
+                        "value": ""
+                    },
+                    "width": {
+                        "propertyName": "Width",
+                        "typePredefined": 8195,
+                        "typeId": 66,
+                        "value": 126.0
+                    },
+                    "height": {
+                        "propertyName": "Height",
+                        "typePredefined": 8196,
+                        "typeId": 67,
+                        "value": 150.0
+                    },
+                    "x": {
+                        "propertyName": "X",
+                        "typePredefined": 8193,
+                        "typeId": 64,
+                        "value": -1
+                    },
+                    "y": {
+                        "propertyName": "Y",
+                        "typePredefined": 8194,
+                        "typeId": 65,
+                        "value": -1
+                    },
+                    "clientType": {
+                        "propertyName": "ClientType",
+                        "typePredefined": 4114,
+                        "typeId": 62,
+                        "value": 3
+                    },
+                    "itemLabel": {
+                        "propertyName": "ItemLabel",
+                        "typePredefined": 4102,
+                        "typeId": 51,
+                        "value": ""
+                    }
+                },
+                "associatedArtifact": null
+            }],
+        "links": [{
+            "sourceId": 246,
+            "destinationId": 200,
+            "orderindex": 1.0,
+            "label": null
+        },
+            {
+                "sourceId": 236,
+                "destinationId": 237,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 237,
+                "destinationId": 238,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 238,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 243,
+                "destinationId": 241,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 239,
+                "destinationId": 240,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 240,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 241,
+                "destinationId": 242,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 242,
+                "destinationId": 202,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 244,
+                "destinationId": 245,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 245,
+                "destinationId": 202,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 247,
+                "destinationId": 248,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 248,
+                "destinationId": 249,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 249,
+                "destinationId": 250,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 250,
+                "destinationId": 251,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 251,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 252,
+                "destinationId": 253,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 253,
+                "destinationId": 254,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 254,
+                "destinationId": 255,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 255,
+                "destinationId": 256,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 256,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 257,
+                "destinationId": 258,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 258,
+                "destinationId": 243,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 196,
+                "destinationId": 197,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 197,
+                "destinationId": 246,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 200,
+                "destinationId": 201,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 201,
+                "destinationId": 236,
+                "orderindex": 1.0,
+                "label": null
+            },
+            {
+                "sourceId": 246,
+                "destinationId": 247,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 236,
+                "destinationId": 239,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 243,
+                "destinationId": 244,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 249,
+                "destinationId": 252,
+                "orderindex": 2.0,
+                "label": null
+            },
+            {
+                "sourceId": 254,
+                "destinationId": 257,
+                "orderindex": 2.0,
+                "label": null
+            }],
+        "artifactPathLinks": [{
+            "id": 195,
+            "projectId": 1,
+            "name": "New Process 1",
+            "typePrefix": "St",
+            "baseItemTypePredefined": 4114,
+            "link": null
+        }],
+        "propertyValues": {
+            "description": {
+                "propertyName": "Description",
+                "typePredefined": 4099,
+                "typeId": 47,
+                "value": ""
+            },
+            "clientType": {
+                "propertyName": "ClientType",
+                "typePredefined": 4114,
+                "typeId": 62,
+                "value": 1
+            }
+        },
+        "decisionBranchDestinationLinks": [{
+            "sourceId": 243,
+            "destinationId": 202,
+            "orderindex": 2
+        },
+            {
+                "sourceId": 236,
+                "destinationId": 243,
+                "orderindex": 2
+            },
+            {
+                "sourceId": 246,
+                "destinationId": 243,
+                "orderindex": 2
+            },
+            {
+                "sourceId": 249,
+                "destinationId": 243,
+                "orderindex": 2
+            },
+            {
+                "sourceId": 254,
+                "destinationId": 243,
+                "orderindex": 2
+            }],
+        "status": {
+            "isLocked": true,
+            "isLockedByMe": true
+        }
+    };
     return testModel;
 }
 

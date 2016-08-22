@@ -1,9 +1,10 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { IMessageService } from "../../../core";
-import { IProjectManager, Models, ISelectionManager } from "../../";
+import { Models} from "../../models";
+import { IProjectManager, ISelectionManager } from "../../services";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
+import { Helper } from "../../../shared/utils/helper";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -56,8 +57,9 @@ class BPToolbarController implements IBPToolbarController {
                 }).then((confirm: boolean) => {
                     if (confirm) {
                         this.dialogService.alert("you clicked confirm!");
-                    }
-                })
+                        this.deleteArtifact();
+                    };
+                });
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -117,8 +119,8 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = 
-            artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && 
+        this._currentArtifact =
+            Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
             artifact.version !== 0 ? artifact.id : null;
     }
 

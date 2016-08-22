@@ -20,6 +20,21 @@ loginProxyOptions.route = '/Login/WinLogin.aspx';
 var del = require('del');
 del(['dist/*']);
 
+var preLoaders = [
+    // Tslint loader support for *.ts files
+    //
+    // See: https://github.com/wbuchwalter/tslint-loader
+    { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
+];
+
+function isDebug(argument) {
+    return argument === '--debug';
+}
+if (process.argv.some(isDebug)) {   
+    preLoaders = [];
+    console.log("Is Debug");
+}
+
 module.exports = {
     entry: {
         app: './index.ts',
@@ -110,7 +125,8 @@ module.exports = {
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
              { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' },
              { from: '../assets', to: './static'},
-             { from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images' }
+             { from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images' },
+             { from: '../src/styles/images/icons', to: './static/images/icons' }
          ]),
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),
@@ -119,12 +135,7 @@ module.exports = {
     ],
     module:{
         loaders: loaders,
-        preLoaders: [
-          // Tslint loader support for *.ts files
-          //
-          // See: https://github.com/wbuchwalter/tslint-loader
-            { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
-        ],
+        preLoaders: preLoaders,
         noParse:  [/angular-perfect-scrollbar-2/] 
     }
 };

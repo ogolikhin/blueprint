@@ -1,54 +1,59 @@
 ﻿<div class="utility-panel-artifact-item" ng-class="{'comment-editing': $ctrl.editing}">
-<div ng-if="$ctrl.editing === false">
-    <div class="status"
-         bp-tooltip="{{$ctrl.discussionInfo.expanded ? $ctrl.localization.get('App_UP_Discussions_Hide_Replis') : $ctrl.localization.get('App_UP_Discussions_Show_Replies')}}"
-         ng-click="$ctrl.getReplies()"
-         ng-class="{'expanded': $ctrl.discussionInfo.expanded}">
-        <i class="icon fonticon-circle-up"></i>
-    </div>
+    <div ng-if="$ctrl.editing === false">
+        <!--<div class="status"
+             bp-tooltip="{{$ctrl.discussionInfo.expanded ? $ctrl.localization.get('App_UP_Discussions_Hide_Replis') : $ctrl.localization.get('App_UP_Discussions_Show_Replies')}}"
+             ng-click="$ctrl.getReplies()"
+             ng-class="{'expanded': $ctrl.discussionInfo.expanded}">
+            <i class="icon fonticon-circle-up"></i>
+        </div>-->
 
-    <div>
-        <bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
-                   name="{{ $ctrl.discussionInfo.userName }}"
-                   color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
-        </bp-avatar>
-        <div class="author" bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
-    </div>
+        <div>
+            <bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
+                       name="{{ $ctrl.discussionInfo.userName }}"
+                       color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+            </bp-avatar>
+            <div class="author" 
+                 bp-tooltip-truncated="true"
+                 bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+        </div>
 
-    <div class="info">
-        <div class="comment" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
-        <div class="version">v{{$ctrl.discussionInfo.version}}</div>
-        <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
-    </div>
+        <div class="info">
+            <div class="comment" bp-collapsible="80" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="version">v{{$ctrl.discussionInfo.version}}</div>
+            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+        </div>
 
-    <div class="button-bar">
-        <i class="discussion-status pull-left"
-           bp-tooltip="{{ $ctrl.discussionInfo.status }}"
-           ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">{{ $ctrl.discussionInfo.status }}</i>
+        <div class="button-bar">
+            <i class="discussion-status pull-left"
+               bp-tooltip-truncated="true"
+               bp-tooltip="{{ $ctrl.discussionInfo.status }}"
+               ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">{{ $ctrl.discussionInfo.status }}</i>
 
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_View_Comments_Tooltip')}}"
-           class="reply-count icon fonticon-comment"
-           ng-class="{'active' : $ctrl.discussionInfo.repliesCount}">{{$ctrl.discussionInfo.repliesCount}}</i>
+            <i bp-tooltip="{{$ctrl.discussionInfo.expanded ? $ctrl.localization.get('App_UP_Discussions_Hide_Replis') : $ctrl.localization.get('App_UP_Discussions_Show_Replies')}}"
+               ng-click="$ctrl.getReplies()"
+               class="reply-count icon fonticon-comment"
+               ng-class="{'active' : $ctrl.discussionInfo.repliesCount}">{{$ctrl.discussionInfo.repliesCount}}</i>
 
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Comment_Tooltip')}}"
-           class="delete-comment icon fonticon-delete-filled" ng-click="$ctrl.deleteCommentThread()" ng-show="$ctrl.discussionInfo.canDelete"></i>
-
-        <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Comment_Tooltip')}}"
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Comment_Tooltip')}}"
                class="edit-comment icon fonticon-edit-alt" ng-click="$ctrl.editCommentClick()"
                ng-class="{ 'disabled' : !$ctrl.canEdit() }"></i>
 
-        <a class="reply-link"
-           bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Reply_Tooltip')}}"
-           ng-click="$ctrl.newReplyClick()"
-           ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed || !$ctrl.canCreate }">{{$ctrl.localization.get('App_UP_Discussions_Reply_Link')}}</a>
+            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Delete_Comment_Tooltip')}}"
+               class="delete-comment icon fonticon-delete-filled"
+               ng-click="$ctrl.deleteCommentThread()"
+               ng-class="{ 'disabled' : !$ctrl.discussionInfo.canDelete }"></i>
+
+            <a class="reply-link"
+               ng-click="$ctrl.newReplyClick()"
+               ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed || !$ctrl.canCreate }">{{$ctrl.localization.get('App_UP_Discussions_Reply_Link')}}</a>
+        </div>
     </div>
-</div>
-<bp-comment-edit ng-if="$ctrl.editing"
-                 add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Post_Button_Text')}}"
-                 cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Cancel_Button_Text')}}"
-                 comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Comment_Place_Holder')}}"
-                 cancel-comment="$ctrl.cancelCommentClick()"
-                 comment-text="{{$ctrl.discussionInfo.comment}}"
-                 post-comment="$ctrl.editDiscussion(comment)">
-</bp-comment-edit>
+    <bp-comment-edit ng-if="$ctrl.editing"
+                     add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Post_Button_Text')}}"
+                     cancel-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Cancel_Button_Text')}}"
+                     comment-place-holder-text="{{$ctrl.localization.get('App_UP_Discussions_New_Comment_Place_Holder')}}"
+                     cancel-comment="$ctrl.cancelCommentClick()"
+                     comment-text="{{$ctrl.discussionInfo.comment}}"
+                     post-comment="$ctrl.editDiscussion(comment)">
+    </bp-comment-edit>
 </div>

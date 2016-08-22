@@ -1,5 +1,5 @@
-﻿import {IDiagramNode} from "./process-graph-interfaces";
-import {NodeType} from "./process-graph-constants";
+﻿import {IDiagramNode} from "./models/";
+import {NodeType} from "./models/";
 
 
 export class ProcessCellRenderer extends mxCellRenderer {
@@ -15,7 +15,10 @@ export class ProcessCellRenderer extends mxCellRenderer {
 
             var diagramNode = <IDiagramNode>state.cell;
             if (state.cell.edge === true ||
-                (diagramNode && diagramNode.getNodeType && (diagramNode.getNodeType() === NodeType.UserDecision || diagramNode.getNodeType() === NodeType.SystemDecision))) {
+                (diagramNode &&
+                    diagramNode.getNodeType &&
+                    (diagramNode.getNodeType() === NodeType.UserDecision ||
+                        diagramNode.getNodeType() === NodeType.SystemDecision))) {
                 evt["InsertNodeIcon"] = true;
             }
 

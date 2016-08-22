@@ -1,10 +1,13 @@
-﻿import {IProcessService} from "./";
+﻿// References to StorytellerDiagramDirective
+//import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
+import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
-import {SubArtifactEditorModalOpener} from "./components/dialogs/sub-artifact-editor-modal-opener";
-import {IDialogManager, DialogManager} from "./components/dialogs/dialog-manager";
+import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
+import {IModalDialogManager, ModalDialogManager} from "./components/modal-dialogs/modal-dialog-manager";
 import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
+import {BpBaseEditor} from "../bp-base-editor";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -16,54 +19,51 @@ export class BpProcessEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpProcessEditorController {
+export class BpProcessEditorController extends BpBaseEditor {
 
     private _context: number;
 
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
-    public dialogManager: IDialogManager;
-    private _subscribers: Rx.IDisposable[];
+    public dialogManager: IModalDialogManager;
     private contentAreaWidth: number;
 
     public static $inject: [string] = [
+        "messageService", 
+        "stateManager", 
+        "windowManager",
         "$rootScope",
         "$scope",
-        "$element",
-        "$state",
+        "$element", 
         "$q",
         "$log",
         "processService",
         "selectionManager",
         "$uibModal",
         "localization",
-        "messageService",
-        "stateManager",
-        "windowManager",
-        "$timeout",
+        "$timeout", 
         "projectManager"
     ];
 
     constructor(
+        messageService: IMessageService,
+        stateManager: IStateManager,
+        windowManager: IWindowManager,
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
-        private $state: ng.ui.IState,
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
         private selectionManager: ISelectionManager,
         private $uibModal: ng.ui.bootstrap.IModalService,
         private localization: ILocalizationService,
-        private messageService: IMessageService,
-        private stateManager: IStateManager,
-        private windowManager: IWindowManager,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager
     ) {
-       // super(localization, messageService, stateManager, windowManager, $timeout, projectManager);
+       super(messageService, stateManager, windowManager);
 
-        this.dialogManager = new DialogManager();
+        this.dialogManager = new ModalDialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
         this.contentAreaWidth = null;
     }
@@ -87,7 +87,9 @@ export class BpProcessEditorController {
             this.load(this._context);
         }
 
-        this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
+        if (this.$element[0].parentElement) {
+            this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
+        }
     }
 
     public $onDestroy() {
@@ -98,7 +100,6 @@ export class BpProcessEditorController {
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
-            this.$state,
             this.$timeout,
             this.$q,
             this.$log,
@@ -143,5 +144,5 @@ export class BpProcessEditorController {
             this.processDiagram.resize(deltaX);
         }
     }
-
+    
 }

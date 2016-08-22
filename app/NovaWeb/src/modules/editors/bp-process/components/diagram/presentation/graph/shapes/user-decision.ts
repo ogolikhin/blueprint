@@ -1,8 +1,8 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {ModalDialogType} from "../../../../dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {IDecision} from "../process-graph-interfaces";
-import {NodeType, NodeChange} from "../process-graph-constants";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {IDecision} from "../models/";
+import {NodeType, NodeChange} from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
@@ -74,7 +74,18 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public showMenu(mxGraph: MxGraph) {
         // #TODO change URL for svg 
-        this.addOverlay(mxGraph, this, "/novaweb/static/bp-process/images/add-neutral.svg", 16, 16, "Add Task/Decision", mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, 0, 7, "hand");
+        this.addOverlay(mxGraph,
+            this,
+            "/novaweb/static/bp-process/images/add-neutral.svg",
+            16,
+            16,
+            "Add Task/Decision",
+            mxConstants.ALIGN_CENTER,
+            mxConstants.ALIGN_BOTTOM,
+            0,
+            7,
+            "hand"
+        );
     }
 
     public renderLabels() {
@@ -89,9 +100,18 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
-
-        //this.insertVertex(graph, this.model.id.toString(), this.label, x - this.USER_DECISION_SHIFT, y, this.USER_DECISION_WIDTH, this.USER_DECISION_HEIGHT, "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
-        this.insertVertex(mxGraph, this.model.id.toString(), null, x - this.USER_DECISION_SHIFT, y, this.USER_DECISION_WIDTH, this.USER_DECISION_HEIGHT, "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
+                
+        this.insertVertex(
+            mxGraph,
+            this.model.id.toString(),
+            null,
+            x - this.USER_DECISION_SHIFT,
+            y,
+            this.USER_DECISION_WIDTH,
+            this.USER_DECISION_HEIGHT,
+            "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor +
+            ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;"
+        );
         var textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
@@ -118,10 +138,27 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             this.showMenu(mxGraph);
         }
 
-        this.detailsButton.render(mxGraph, this, this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2, this.USER_DECISION_HEIGHT - this.BUTTON_SIZE - 10, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.detailsButton.render(
+            mxGraph,
+            this,
+            this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
+            this.USER_DECISION_HEIGHT - this.BUTTON_SIZE - 10,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
+        );
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(mxGraph, this.detailsButton, null, this.USER_DECISION_WIDTH, this.USER_DECISION_HEIGHT, null, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.USER_DECISION_WIDTH / 2, this.USER_DECISION_HEIGHT / 2);
+        this.addOverlay(
+            mxGraph,
+            this.detailsButton,
+            null,
+            this.USER_DECISION_WIDTH,
+            this.USER_DECISION_HEIGHT,
+            null,
+            mxConstants.ALIGN_LEFT,
+            mxConstants.ALIGN_TOP,
+            this.USER_DECISION_WIDTH / 2,
+            this.USER_DECISION_HEIGHT / 2
+        );
 
         return this;
     }

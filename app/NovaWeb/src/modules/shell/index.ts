@@ -14,6 +14,7 @@ import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-hist
 import {ArtifactRelationships} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
+import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";
 import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
 import {BPArtifactRelationshipItem} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/bp-artifact-relationship-item";
@@ -28,7 +29,8 @@ import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-d
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
 import {Routes} from "./router/router.config";
-
+import {UsersAndGroupsService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
+import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -54,8 +56,11 @@ angular.module("app.shell",
     .service("artifactRelationships", ArtifactRelationships)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("artifactAttachments", ArtifactAttachments)
+    .service("mentionService", MentionService)
+    .service("usersAndGroupsService", UsersAndGroupsService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
+    .component("bpPropertiesPanel", new BPPropertiesPanel()) 
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())
@@ -65,8 +70,8 @@ angular.module("app.shell",
     .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
     .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
-    .component("bpCommentEdit", new BPCommentEdit())   
-    .component("error", new ErrorComponent())    
+    .component("bpCommentEdit", new BPCommentEdit())
+    .component("error", new ErrorComponent())
     .config(Logger)
     .config(Routes)
     .config(initializeInterceptors);

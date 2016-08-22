@@ -1,5 +1,4 @@
-﻿import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
+﻿import {ProcessGraphModel} from "../../viewmodel/process-graph-model";
 import {GraphLayoutPreprocessor} from "./graph-layout-preprocessor";
 import * as TestModels from "../../../../models/test-model-factory";
 

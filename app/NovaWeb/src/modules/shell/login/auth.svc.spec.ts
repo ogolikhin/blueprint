@@ -2,14 +2,14 @@
 import "angular-mocks";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {ConfigValueHelperMock, WindowMock} from "./mocks.spec";
+import {SettingsMock, WindowMock} from "./mocks.spec";
 
 describe("AuthSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("auth", AuthSvc);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("$window", WindowMock);
-        $provide.service("configValueHelper", ConfigValueHelperMock);
+        $provide.service("settings", SettingsMock);
     }));
 
     describe("getCurrentUser", () => {

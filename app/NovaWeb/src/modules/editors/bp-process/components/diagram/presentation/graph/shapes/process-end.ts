@@ -1,6 +1,6 @@
 ﻿import {IProcessShape} from "../../../../../models/processModels";
-import {IProcessGraph, IDiagramNode} from "../process-graph-interfaces";
-import {NodeType} from "../process-graph-constants";
+import {IProcessGraph, IDiagramNode} from "../models/";
+import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory";
 
@@ -40,10 +40,14 @@ export class ProcessEnd extends DiagramNode<IProcessShape> {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), this.name, x - this.PROCESS_END_SHIFT, y, this.PROCESS_END_WIDTH, this.PROCESS_END_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;labelWidth=35;verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;foldable=0;editable=0");
+        this.insertVertex(graph.getMxGraph(), this.model.id.toString(), this.name, x - this.PROCESS_END_SHIFT, y, this.PROCESS_END_WIDTH,
+            this.PROCESS_END_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;labelWidth=35;" +
+            "verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans - serif;fontStyle = 1; fontSize = 11;" +
+            " foldable = 0; editable = 0");
         graph.endNode = this;
 
-        graph.getMxGraph().insertVertex(this, "C" + this.model.id.toString(), null, (this.PROCESS_END_WIDTH / 2) - 5, (this.PROCESS_END_HEIGHT / 2) - 5, 10, 10, "shape=ellipse;strokeColor=none;fillColor=#d4d5da;editable=0;selectable=0");
+        graph.getMxGraph().insertVertex(this, "C" + this.model.id.toString(), null, (this.PROCESS_END_WIDTH / 2) - 5,
+            (this.PROCESS_END_HEIGHT / 2) - 5, 10, 10, "shape=ellipse;strokeColor=none;fillColor=#d4d5da;editable=0;selectable=0");
 
         return this;
     }

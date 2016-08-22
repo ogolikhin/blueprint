@@ -3,13 +3,13 @@ import "angular-mocks";
 import { LocalizationServiceMock } from "../localization/localization.mock";
 import { IMessageService, MessageService } from "./message.svc";
 import { Message, MessageType} from "./message";
-import { ConfigValueHelper } from "../configuration";
+import { SettingsService } from "../configuration";
 
 describe("messageService", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageService);
-        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("settings", SettingsService);
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {

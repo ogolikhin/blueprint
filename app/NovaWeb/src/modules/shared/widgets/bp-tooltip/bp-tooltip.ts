@@ -3,11 +3,6 @@ export class BPTooltip implements ng.IDirective {
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
         let observer;
-        let observerConfig = {
-            attributes: true,
-            //attributeOldValue: true,
-            attributeFilter: ["bp-tooltip"]
-        };
 
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
@@ -42,7 +37,11 @@ export class BPTooltip implements ng.IDirective {
                         angular.element(tooltip).addClass("show");
                     });
                 });
-                observer.observe(this, observerConfig);
+                observer.observe(this, {
+                    attributes: true,
+                    //attributeOldValue: true,
+                    attributeFilter: ["bp-tooltip"]
+                });
             }
 
             let tooltipText = angular.element(this).attr("bp-tooltip");
@@ -78,7 +77,7 @@ export class BPTooltip implements ng.IDirective {
                 }
                 return (elem && (
                     elem.offsetWidth < elem.scrollWidth - (compensateWidth ? 1 : 0) ||
-                    elem.offsetHeight < elem.scrollHeight - 1)
+                    elem.offsetHeight < elem.scrollHeight - 3)
                 );
             }
             return true;
@@ -94,6 +93,7 @@ export class BPTooltip implements ng.IDirective {
 
             if (window["MutationObserver"] && observer) {
                 observer.disconnect();
+                observer = null;
             }
         }
 

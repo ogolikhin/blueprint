@@ -3,7 +3,7 @@ import * as Enums from "../../../../../main/models/enums";
 import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
-import {IDialogManager} from "../../dialogs/dialog-manager";
+import {IModalDialogManager} from "../../modal-dialogs/modal-dialog-manager";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -20,7 +20,7 @@ export interface IProcessViewModel extends IProcessGraphModel {
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
-    dialogManager: IDialogManager;
+    dialogManager: IModalDialogManager;
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
@@ -46,7 +46,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private _isSpa: boolean;
     private _isSMB: boolean;
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
-    private _dialogManager: IDialogManager;
+    private _dialogManager: IModalDialogManager;
     private _justCreatedShapeIds: number[] = [];
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
@@ -158,11 +158,11 @@ export class ProcessViewModel implements IProcessViewModel {
         this._shapeLimit = value;
     }
 
-    public get dialogManager(): IDialogManager {
+    public get dialogManager(): IModalDialogManager {
         return this._dialogManager;
     }
 
-    public set dialogManager(value: IDialogManager) {
+    public set dialogManager(value: IModalDialogManager) {
         this._dialogManager = value;
     }
 
@@ -212,13 +212,13 @@ export class ProcessViewModel implements IProcessViewModel {
         //}
     }
 
-    private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
-        if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
-            return null;
-        }
+    //private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
+    //    if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
+    //        return null;
+    //    }
 
-        return process.propertyValues[propertyName].value;
-    }
+    //    return process.propertyValues[propertyName].value;
+    //}
 
     public get isUserToSystemProcess(): boolean {
         return this.propertyValues["clientType"].value === ProcessEnums.ProcessType.UserToSystemProcess;
@@ -238,7 +238,7 @@ export class ProcessViewModel implements IProcessViewModel {
             result = true;
         } else if (shapeCount > this.shapeLimit) {
             let message: string;
-            let messageType = null; //: Shell.MessageType = Shell.MessageType.Error;
+            let messageType: MessageType = MessageType.Error;
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
                 // replace {0} placeholder with number of shapes added 
@@ -483,7 +483,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (this._scope) {
             this.isSpa = this._scope["isSpa"];
 
-            if (this._rootScope) {
+            if (this.isRootScopeConfigValid) {
                 let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
                 if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                     this.shapeLimit = Number(shapeLimitVal);
@@ -504,10 +504,14 @@ export class ProcessViewModel implements IProcessViewModel {
     public getMessageText(message_id: string) {
         // get message text from rootscope settings  
         let text = null;
-        if (this._rootScope) {
+        if (this.isRootScopeConfigValid) {
             text = this._rootScope.config.labels[message_id];
         }
         return text;
+    }
+
+    public get isRootScopeConfigValid(): boolean {
+        return this._rootScope && this._rootScope.config;
     }
 
     public destroy() {

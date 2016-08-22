@@ -1,10 +1,11 @@
 ﻿import "angular";
 import { SessionTokenHelper } from "./session.token.helper";
-import { ILocalizationService, IConfigValueHelper } from "../../core";
+import { ILocalizationService, ISettingsService } from "../../core";
 import { Helper } from "../../shared";
 import { IHttpInterceptorConfig } from "../error/http-error-interceptor";
 
 export interface IUser {
+    id: number;
     displayName: string;
     login: string;
     isFallbackAllowed: boolean;
@@ -29,7 +30,7 @@ export class AuthSvc implements IAuth {
     private _loggedOut: boolean = false;
 
 
-    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "configValueHelper"];
+    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "settings"];
     
     constructor(
         private $q: ng.IQService,
@@ -37,7 +38,7 @@ export class AuthSvc implements IAuth {
         private $http: ng.IHttpService,
         private $window: ng.IWindowService,
         private localization: ILocalizationService,
-        private configValueHelper: IConfigValueHelper) {
+        private settings: ISettingsService) {
         // Nothing
     }    
 
@@ -53,7 +54,7 @@ export class AuthSvc implements IAuth {
                     statusCode: result.status,
                     message: result.data ? result.data.message : this.localization.get("Login_Auth_CannotGetUser")
                 };
-                if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
+                if (this.settings.getBoolean("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .then((winLoginResult: ng.IHttpPromiseCallbackArg<string>) => {
                             this.onTokenSuccess(winLoginResult.data, defer, false, "");

@@ -41,7 +41,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     }
     
     public addDocRef(): void {
-        alert("Add Doc Ref");
+        alert("Add Doc Ref: US781");
     }
 
     public onFileSelect(files: File[]) {
@@ -56,8 +56,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: this.settingsService.getNumber("maxAttachmentFilesize", 0.5 * 1024 * 1024),
-                maxNumberFiles: this.settingsService.getNumber("maxNumberFiles", 3) - this.artifactAttachmentsList.attachments.length
+                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", 2 * 1024 * 1024),
+                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - this.artifactAttachmentsList.attachments.length
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {

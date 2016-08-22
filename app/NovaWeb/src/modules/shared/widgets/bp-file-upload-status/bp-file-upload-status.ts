@@ -10,7 +10,7 @@ export interface IBpFileUploadStatusController {
 
 export interface IUploadStatusDialogData {
     files: File[];
-    maxNumberFiles: number;
+    maxNumberAttachments: number;
     maxAttachmentFilesize: number;
 }
 
@@ -81,9 +81,9 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     private queueFilesToUpload() {
         this.files.map((file: IFileUploadStatus, index: number) => {
-            if (index > this.dialogData.maxNumberFiles - 1) {
+            if (index > this.dialogData.maxNumberAttachments - 1) {
                 file.isFailed = true;
-                file.errorMessage = "You cannot attach more than " + this.dialogData.maxNumberFiles + " files";
+                file.errorMessage = "You have exceeded the maximum allowed number of attachments";
             
             } else if (this.isFileValid(file)) {
                 this.uploadFile(file);

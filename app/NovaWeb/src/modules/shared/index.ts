@@ -2,14 +2,13 @@
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "./widgets";
-import { BpFilesizeFilter } from "./utils/bp-filesize.filter";
+import "./filters";
 
 angular.module("app.shared", [
     "ui.router",
     "ui.bootstrap",
-    "bp.widjets"])
-
-    .filter("BpFilesize", BpFilesizeFilter);
+    "bp.widjets",
+    "bp.filters"]);
     
 export {
     IBPTreeController,
@@ -22,5 +21,3 @@ export {
 export {
     Helper,
 } from "./utils/helper";
-
-export { BpFilesizeFilter } from "./utils/bp-filesize.filter";

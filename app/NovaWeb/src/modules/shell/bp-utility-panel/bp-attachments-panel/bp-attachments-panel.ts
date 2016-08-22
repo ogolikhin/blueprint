@@ -1,9 +1,10 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { IDialogSettings, IDialogService } from "../../../shared";
+import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
@@ -19,6 +20,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "localization",
         "selectionManager",
         "artifactAttachments",
+        "settings",
         "dialogService"
     ];
 
@@ -31,6 +33,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
         private artifactAttachments: IArtifactAttachments,
+        private settingsService: ISettingsService,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
@@ -51,7 +54,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: "File Upload"
             };
 
-            this.dialogService.open(dialogSettings, files).then((artifact: any) => {
+            const dialogData: IUploadStatusDialogData = {
+                files: files,
+                maxAttachmentFilesize: this.settingsService.getNumber("maxAttachmentFilesize", 0.5 * 1024 * 1024),
+                maxNumberFiles: this.settingsService.getNumber("maxNumberFiles", 3) - this.artifactAttachmentsList.attachments.length
+            };
+
+            this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
                 console.log("returned values");
             });
         };

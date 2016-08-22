@@ -1,10 +1,17 @@
 import "angular";
 import { ILocalizationService, IFileUploadService, IFileResult } from "../../../core";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../shared/";
+import { BpFilesizeFilter } from "../../../shared/filters";
 
 export interface IBpFileUploadStatusController {
     // propertyMap: any;
     // selectedItem?: any;
+}
+
+export interface IUploadStatusDialogData {
+    files: File[];
+    maxNumberFiles: number;
+    maxAttachmentFilesize: number;
 }
 
 interface IFileUploadStatus {
@@ -22,11 +29,11 @@ interface IFileUploadStatus {
 export class BpFileUploadStatusController extends BaseDialogController implements IBpFileUploadStatusController {
     static $inject = [
         "$q",
-        "$scope", 
         "localization",
         "fileUploadService",
-        "$uibModalInstance", 
-        "dialogService", 
+        "$filter",
+        "$uibModalInstance",
+        "dialogService",
         "dialogSettings",
         "dialogData"
     ];
@@ -34,19 +41,21 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     public files: IFileUploadStatus[];
     public totalFailedFiles: number = 0;
 
+
+
     constructor(
         private $q: ng.IQService,
-        private $scope: ng.IScope,
         private localization: ILocalizationService,
         private fileUploadService: IFileUploadService,
+        private $filter: ng.IFilterService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private dialogService: IDialogService,
         dialogSettings: IDialogSettings,
-        dialogData: File[]) {
+        private dialogData: IUploadStatusDialogData) {
 
         super($uibModalInstance, dialogSettings);
         
-        this.initFilesList(dialogData);
+        this.initFilesList(dialogData.files);
         this.queueFilesToUpload();
         this.updateTotalFailedFiles();
     };
@@ -72,11 +81,9 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     private queueFilesToUpload() {
         this.files.map((file: IFileUploadStatus, index: number) => {
-
-            const maxNumAttachments = 3;
-            if (index > maxNumAttachments - 1) {
+            if (index > this.dialogData.maxNumberFiles - 1) {
                 file.isFailed = true;
-                file.errorMessage = "You cannot attach more than " + maxNumAttachments + " files";
+                file.errorMessage = "You cannot attach more than " + this.dialogData.maxNumberFiles + " files";
             
             } else if (this.isFileValid(file)) {
                 this.uploadFile(file);
@@ -87,10 +94,9 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     }
 
     private isFileValid(f: IFileUploadStatus) {
-        const maxFilesize = 0.5 * 1024 * 1024;
-        if (f.file.size > maxFilesize) {
+        if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;
-            f.errorMessage = "File exceeds 10 MB";
+            f.errorMessage = "File exceeds " + (this.$filter("BpFilesize") as any)(this.dialogData.maxAttachmentFilesize);
 
             return false;
         }
@@ -102,7 +108,6 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
         this.fileUploadService.uploadToFileStore(f.file, new Date(), (event: ProgressEvent) => {
             f.progress = Math.floor((event.loaded / event.total) * 100);
-            console.log("loaded so far: loaded " + event.loaded + ", total: " + event.total + ", progress: " + f.progress);
         }, f.cancelDeferred.promise).then(
             (result: IFileResult) => {
                 f.guid = result.guid;

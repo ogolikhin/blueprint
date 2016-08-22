@@ -28,5 +28,6 @@ angular.module("bp.widjets", [
     "bp.widjets.fileupload"
 ]);
     
+export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
 export { IBPTreeController, ITreeNode } from "./bp-tree"
 export { IDialogSettings, IDialogService, BaseDialogController} from "./bp-dialog";

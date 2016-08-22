@@ -50,7 +50,7 @@ export class NodeLabelEditor {
             let position = {
                 x: Number(div.getAttribute("stLabelX")),
                 y: Number(div.getAttribute("stLabelY"))
-            }
+            };
 
             if (position != null) {
                 this.addPoint(div, position.x, position.y);
@@ -97,10 +97,6 @@ export class NodeLabelEditor {
         return (myBrowser.msie && (myBrowser.version == 11));
     }
 
-    private isFF(): boolean {
-        return this.executionEnvironmentDetector.getBrowserInfo().firefox;
-    }
-
     private pointerDown = (e) => {
         if (e.target.className !== "processEditorCustomLabel") {
             let divs: any = Array.prototype.filter.call(this.divs, (elem) => {
@@ -133,19 +129,16 @@ export class NodeLabelEditor {
         if (!this.isIe11() && 
             (e.target.nodeName === "rect" || e.target.nodeName === "image" || e.target.nodeName === "text" || 
              e.target.nodeName === "path" || e.target.nodeName === "ellipse" || e.target.nodeName === "process-graph-container")) {
-            zoom = window.outerWidth/window.innerWidth; 
+            zoom = window.outerWidth / window.innerWidth; 
         }
         
         x = e.offsetX * zoom;
         y = e.offsetY * zoom;
         let index = this.getCellIndex(x, y);
-        //console.log("e.target.className = " + e.target.className + ", ZOOOOOM = " + zoom.toString() + ", Cell Index = " + index.toString() + ", x = " + x.toString() + ", y = " + y.toString());
         let cell = this.divIndex[index];
         if (cell != null) {
             for (let div of cell) {
-                if (this.hitTest(div, x, y))
-                {
-                    //console.log("div.x = " + div.getAttribute("stLabelX") + ", div.y = " + div.getAttribute("stLabelY"));
+                if (this.hitTest(div, x, y)) {
                     return div;
                 }
             }
@@ -157,7 +150,7 @@ export class NodeLabelEditor {
         let position = {
             x: Number(element.getAttribute("stLabelX")),
             y: Number(element.getAttribute("stLabelY"))
-        }
+        };
 
         if (position.x <= x && position.x + element.clientWidth >= x &&
             position.y <= y && position.y + element.clientHeight >= y) {
@@ -167,7 +160,7 @@ export class NodeLabelEditor {
     }
 
     public fireEvent(element, eventName: string) {
-        var evt: Event = document.createEvent('UIEvents');
+        var evt: Event = document.createEvent("UIEvents");
         evt.initEvent(eventName, true, true);
         element.dispatchEvent(evt);
     }
@@ -192,8 +185,12 @@ export class NodeLabelEditor {
 
     private cancelDefaultAction(e) {
         var evt = e ? e : window.event;
-        if (evt.preventDefault) evt.preventDefault();
-        if (evt.stopPropagation) evt.stopPropagation();
+        if (evt.preventDefault) {
+            evt.preventDefault();
+        }
+        if (evt.stopPropagation) {
+            evt.stopPropagation();
+        }
         evt.returnValue = false;
     }
 }

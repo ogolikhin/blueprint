@@ -272,14 +272,14 @@ export class ProjectManager implements IProjectManager {
             isRichText: true
         });
 
-        if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
-            properties.push(<Models.IPropertyType>{
-                name: "Label",
-                propertyTypePredefined: Models.PropertyTypePredefined.Label,
-                primitiveType: Models.PrimitiveType.Text,
-                isRichText: true
-            });
-        }
+        //if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
+        //    properties.push(<Models.IPropertyType>{
+        //        name: "Label",
+        //        propertyTypePredefined: Models.PropertyTypePredefined.Label,
+        //        primitiveType: Models.PrimitiveType.Text,
+        //        isRichText: true
+        //    });
+        //}
 
         if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
             subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
@@ -298,7 +298,8 @@ export class ProjectManager implements IProjectManager {
             properties.push(<Models.IPropertyType>{
                 name: "Label",
                 propertyTypePredefined: Models.PropertyTypePredefined.Label,
-                primitiveType: Models.PrimitiveType.Text
+                primitiveType: Models.PrimitiveType.Text,
+                isRichText: true
             });
 
             properties.push(<Models.IPropertyType>{

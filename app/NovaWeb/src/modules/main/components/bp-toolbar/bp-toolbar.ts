@@ -4,6 +4,7 @@ import { IMessageService } from "../../../core";
 import { IProjectManager, Models, ISelectionManager } from "../../";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
+import { Helper } from "../../../shared/utils/helper";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -118,8 +119,8 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {
-        this._currentArtifact = 
-            artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && 
+        this._currentArtifact =
+            Helper.shouldChangeSelectedArtifact(artifact) && 
             artifact.version !== 0 ? artifact.id : null;
     }
 

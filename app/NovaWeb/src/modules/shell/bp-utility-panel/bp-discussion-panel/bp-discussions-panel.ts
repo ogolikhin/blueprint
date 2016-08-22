@@ -5,6 +5,7 @@ import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { Message, MessageType} from "../../../core/messages/message";
+import { Helper } from "../../../shared/utils/helper";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -70,7 +71,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
-        if (artifact && artifact.prefix && artifact.prefix !== "ACO" && artifact.prefix !== "_CFL" && artifact.prefix !== "PR") {
+        if (Helper.canUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
             if (artifact.version) {

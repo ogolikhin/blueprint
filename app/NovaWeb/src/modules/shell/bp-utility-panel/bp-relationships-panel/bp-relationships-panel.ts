@@ -4,6 +4,7 @@ import { IRelationship, LinkType } from "../../../main/models/relationshipModels
 import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Helper } from "../../../shared/utils/helper";
 
 interface IOptions {
     value: string;
@@ -67,7 +68,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {     
-        if (artifact !== null) {
+        if (Helper.canUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null)
                 .then((list: any) => {
@@ -76,6 +77,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                     this.selectedTraces[this.artifactId] = [];
                     this.populateOtherTraceLists();
                 });
+        } else {
+            this.artifactId = null;
+            this.artifactList = null;
         }
     }
 

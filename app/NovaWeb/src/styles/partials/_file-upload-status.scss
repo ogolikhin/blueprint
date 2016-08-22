@@ -1,0 +1,96 @@
+.nova-file-upload-status {
+
+    .modal-body {
+        padding: 15px 30px;
+        background: #f0f0f0;
+        font-size: $font-size-normal;
+    }
+
+    .file-wrapper {
+        max-height: 225px;
+        overflow: auto;
+        padding-right: 15px;
+        margin-bottom: 20px;
+
+        .ps-scrollbar-x-rail .ps-scrollbar-x,
+        .ps-scrollbar-y-rail .ps-scrollbar-y,
+        &:hover > .ps-scrollbar-x-rail:hover,
+        &:hover > .ps-scrollbar-y-rail:hover,
+        &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
+        &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+            &::before {
+                background: transparent;
+            }
+        }
+    }
+
+    .file {
+        margin-bottom: 10px;
+
+        &.error {
+            color: #f00;
+
+            .size {
+                display: none;
+            }
+        }
+
+        .size, .error-message {
+            text-align: right;
+        }
+    }
+
+    // .empty-state {
+    //     font-size: 1.2rem;
+    // }
+
+    .upload-status {
+        position: relative;
+        background: $white;
+        border-radius: 4px;
+        padding: 5px 8px;
+        border: 1px solid $gray-lightest;
+
+        .name {
+            padding: 0 0 5px 0;
+            font-size: $font-size-normal;
+        }
+
+        .indicator {
+            position: absolute;
+            top: 9px;
+            right: 6px;
+
+            .fonticon-success {
+                color: $brand-secondary;
+            }
+
+            .fonticon::before {
+                line-height: 20px;
+                font-size: 20px;
+            }
+
+            .fonticon-close {
+                cursor: pointer;
+                color: $gray-light;
+            }
+        }
+    }
+
+    .total-failed {
+        color: #f00;
+    }
+
+    .progress {
+        width: 270px;
+        box-shadow: none;
+        background-color: $gray-lightest;
+        height: 10px;
+        margin-bottom: 0;
+
+        .progress-bar {
+            border-radius: 4px;
+            background-color: $brand-secondary;
+        }
+    }
+}

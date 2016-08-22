@@ -43,7 +43,7 @@ export class MainViewController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.messageService.dispose();
         this.projectManager.dispose();
-        this.projectManager.dispose();
+        this.stateManager.dispose();
     }
 
     private onVisibilityChanged = (isHidden: boolean) => {
@@ -64,6 +64,9 @@ export class MainViewController {
             this.isLeftToggled = angular.isDefined(state) ? state : !this.isLeftToggled;
         } else if (Enums.ILayoutPanel.Right === id) {
             this.isRightToggled = angular.isDefined(state) ? state : !this.isRightToggled;
+        }
+        if (!this.isActive) {
+            this.stateManager.reset();
         }
     };
 

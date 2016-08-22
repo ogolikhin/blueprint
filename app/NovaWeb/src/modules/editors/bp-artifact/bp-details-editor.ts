@@ -11,7 +11,7 @@
     Message,
     ItemState
 } from "./bp-artifact-editor";
-import { IArtifactService } from "../../main";
+import { IArtifactService } from "../../main/services";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {

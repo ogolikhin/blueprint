@@ -4,13 +4,12 @@ import { ISelectionManager, Models, ISelection } from "../../main";
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
-// TODO: change order after Properites US: 872
 enum PanelType {
-    History,
-    Discussions,
-    Files,
     Properties,
-    Relationships
+    Relationships,    
+    Discussions,
+    Files,    
+    History
 }
 
 export class BPUtilityPanel implements ng.IComponentOptions {

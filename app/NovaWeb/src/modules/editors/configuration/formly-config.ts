@@ -2,14 +2,14 @@ import "angular";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
-import {ILocalizationService} from "../core";
-import {Helper} from "../shared";
+import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
+import {ILocalizationService} from "../../core";
+import {Helper} from "../../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
 /* tslint:disable */
-export function formlyConfigExtendedFields(
+export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
@@ -298,7 +298,7 @@ export function formlyConfigExtendedFields(
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
-                            ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search"
+                            ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelect.escapeHTMLText($select.search)"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                 </ui-select></div>
@@ -388,7 +388,8 @@ export function formlyConfigExtendedFields(
                     }
                 },
                 escapeHTMLText: function (str: string): string {
-                    return Helper.escapeHTMLText(str);
+                    let escaped = Helper.escapeHTMLText(str);
+                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
                 },
                 onOpenClose: function (isOpen) {
                     if (isOpen && $scope["uiSelectContainer"]) {
@@ -426,13 +427,18 @@ export function formlyConfigExtendedFields(
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"
+                    on-select="bpFieldSelectMulti.onSelect()"
                     close-on-select="false"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
-                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
+                    <ui-select-choices class="ps-child"
+                        on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
+                        <div class="ui-select-choice-item"
+                            ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)"
+                            bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -477,6 +483,8 @@ export function formlyConfigExtendedFields(
             }, 0);
         },
         controller: ["$scope", function ($scope) {
+            let activeIndex = -1;
+
             $scope.$on("$destroy", function() {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
@@ -488,12 +496,8 @@ export function formlyConfigExtendedFields(
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
                 onMouseOver: function ($event) {
-                    let elem = $event.target as HTMLElement;
-                    while (elem && !elem.classList.contains("ui-select-container")) {
-                        elem = elem.parentElement;
-                    }
-                    if (elem) {
-                        elem = elem.querySelector("div") as HTMLElement;
+                    if ($scope["uiSelectContainer"]) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
                         if (elem && !elem.classList.contains("ps-child")) {
                             elem.classList.add("ps-child");
                         }
@@ -501,10 +505,33 @@ export function formlyConfigExtendedFields(
                 },
                 escapeHTMLText: function (str: string): string {
                     let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>")
+                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
+                },
+                onHighlight: function (option, $select) {
+                    if ($select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]) !== -1) {
+                        if (activeIndex < $select.activeIndex) {
+                            activeIndex = $select.activeIndex++;
+                        } else {
+                            activeIndex = --$select.activeIndex;
+                        }
+                    }
                 },
                 onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     options.validation.show = formControl.$invalid;
+                    if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        if (elem && elem.scrollHeight <= elem.clientHeight) {
+                            $scope["uiSelectContainer"].classList.remove("has-scrollbar");
+                        }
+                    }
+                },
+                onSelect: function () {
+                    if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        if (elem && elem.scrollHeight > elem.clientHeight) {
+                            $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                        }
+                    }
                 }
             };
         }]

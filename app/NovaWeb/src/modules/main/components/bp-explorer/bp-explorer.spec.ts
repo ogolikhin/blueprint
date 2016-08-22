@@ -2,8 +2,10 @@
 import "angular-mocks";
 import { SettingsService } from "../../../core";
 import { MessageService } from "../../../shell/";
-import { ProjectManager, IProjectManager, Models } from "../../";
-import { ProjectExplorerController } from "./project-explorer";
+import { Models} from "../../models";
+import { ProjectManager, IProjectManager} from "../../services";
+
+import { ProjectExplorerController } from "./bp-explorer";
 
 import { BPTreeControllerMock, ITreeNode } from "../../../shared/widgets/bp-tree/bp-tree.mock";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";

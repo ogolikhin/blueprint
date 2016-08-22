@@ -1,19 +1,21 @@
 ﻿import "angular";
-import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../core";
-import { IUser, ISession } from "../shell";
-import { IProjectManager, Models, Enums } from "./";
+import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../../core";
+import { IUser, ISession } from "../../shell";
+import { Models, Enums } from "../models";
+import { IProjectManager } from "../services";
 
-export class MainViewComponent implements ng.IComponentOptions {
+
+
+export class MainView implements ng.IComponentOptions {
     public template: string = require("./main.view.html");
     public controller: Function = MainViewController;
     public transclude: boolean = true;
     public controllerAs = "$main";
 }
 
-export interface IMainViewController {
-}
 
-export class MainViewController implements IMainViewController {
+
+export class MainViewController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$state", "session", "projectManager", "messageService", "stateManager", "localization", "windowVisibility"];
     constructor(

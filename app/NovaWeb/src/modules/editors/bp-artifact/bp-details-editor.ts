@@ -7,9 +7,11 @@
     IStateManager,
     IWindowManager,
     Models,
-    Enums
+    Enums,
+    Message,
+    ItemState
 } from "./bp-artifact-editor";
-import { IArtifactService } from "../../main";
+import { IArtifactService } from "../../main/services";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -57,10 +59,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         super.$onDestroy();
     }
 
-    public onLoading(obj: any): boolean {
+    public clearFields() {
         this.systemFields = [];
         this.customFields = [];
         this.richTextFields = [];
+    }
+
+
+    public onLoading(obj: any): boolean {
         return super.onLoading(obj);
     }
 
@@ -74,7 +80,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             //ignore authentication errors here
             if (error.statusCode !== 1401) {
                 this.messageService.addError(error["message"] || "Artifact_NotFound");
-                }
+            }
         }).finally(() => {
             this.isLoading = false;
         });
@@ -95,6 +101,38 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             this.customFields.push(field);
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             
+        }
+
+    }
+
+    public doLock(state: ItemState): void {
+        try {
+
+            if (state.lock || state.lockedBy === Enums.LockedByEnum.CurrentUser) {
+                return;
+            }
+            this.artifactService.lock(state.originItem.id).then((response: Models.ILockResult[]) => {
+                let lock = state.setLock(response[0]);
+                if (lock.result === Enums.LockResultEnum.Success) {
+                    if (lock.info.versionId !== state.originItem.version) {
+                        this.onLoad(this.context);
+                    }
+                } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+                    this.onUpdate(this.context);
+                    this.messageService.addMessage(new Message(3, "Artifact locked by another user"));
+                } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+                    this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+                } else {
+                    this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+                }
+            }).catch((error: any) => {
+                //ignore authentication errors here
+                if (error.statusCode !== 1401) {
+                    this.messageService.addError(error["message"] || "Artifact_NotFound");
+                }
+            });
+        } catch (e) {
+            this.messageService.addError(e["message"] || "Artifact_NotFound");
         }
 
     }

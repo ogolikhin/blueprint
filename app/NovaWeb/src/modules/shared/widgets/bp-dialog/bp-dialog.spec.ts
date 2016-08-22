@@ -87,9 +87,12 @@ describe("DialogService", () => {
             dialogService.open(dialogSettings);
 
             // Assert
-            expect(dialogService.dialogSettings.type).toEqual(DialogTypeEnum.Base, "invalid type [" + dialogService.dialogSettings.type + "]");
-            expect(dialogService.dialogSettings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.dialogSettings.okButton + "]");
-            expect(dialogService.dialogSettings.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
+            expect(dialogService.dialogSettings.type)
+                .toEqual(DialogTypeEnum.Base, "invalid type [" + dialogService.dialogSettings.type + "]");
+            expect(dialogService.dialogSettings.okButton)
+                .toEqual("App_Button_Ok", "invalid ok button [" + dialogService.dialogSettings.okButton + "]");
+            expect(dialogService.dialogSettings.cancelButton)
+                .toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
         }));
 
         it("open dialog with settings", inject((dialogService: IDialogService) => {
@@ -143,10 +146,14 @@ describe("DialogService", () => {
             dialogService.confirm("CONFIRM");
 
             // Assert
-            expect(dialogService.dialogSettings.type).toEqual(DialogTypeEnum.Confirm, "invalid type [" + dialogService.dialogSettings.type + "]");
-            expect(dialogService.dialogSettings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.dialogSettings.okButton + "]");
-            expect(dialogService.dialogSettings.cancelButton).toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
-            expect(dialogService.dialogSettings.message).toEqual("CONFIRM", "invalid message [" + dialogService.dialogSettings.message + "]");
+            expect(dialogService.dialogSettings.type)
+                .toEqual(DialogTypeEnum.Confirm, "invalid type [" + dialogService.dialogSettings.type + "]");
+            expect(dialogService.dialogSettings.okButton)
+                .toEqual("App_Button_Ok", "invalid ok button [" + dialogService.dialogSettings.okButton + "]");
+            expect(dialogService.dialogSettings.cancelButton)
+                .toEqual("App_Button_Cancel", "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
+            expect(dialogService.dialogSettings.message)
+                .toEqual("CONFIRM", "invalid message [" + dialogService.dialogSettings.message + "]");
         }));
 
         it("confirm dialog", inject((dialogService: IDialogService) => {

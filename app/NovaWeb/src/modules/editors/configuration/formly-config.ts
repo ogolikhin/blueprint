@@ -2,14 +2,14 @@ import "angular";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType, PropertyLookupEnum} from "./models/enums";
-import {ILocalizationService} from "../core";
-import {Helper} from "../shared";
+import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
+import {ILocalizationService} from "../../core";
+import {Helper} from "../../shared";
 
 
-formlyConfigExtendedFields.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
 /* tslint:disable */
-export function formlyConfigExtendedFields(
+export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
@@ -59,16 +59,50 @@ export function formlyConfigExtendedFields(
         datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
     });
 
-    let blurOnEnterKey = function(event) {
-        let inputField = event.target;
+    let scrollIntoView = function (event) {
+        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
+
+        if (target) {
+            target.scrollTop = 0;
+            target.focus();
+            angular.element(target).triggerHandler("click");
+        }
+    };
+
+    let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
+        let _keyCode: number[];
+        if (!keyCode) {
+            _keyCode = [13]; // 13 = Enter
+        } else if (angular.isNumber(keyCode)) {
+            _keyCode = [keyCode];
+        } else if (angular.isArray(keyCode)) {
+            _keyCode = keyCode;
+        }
+
+        let inputField = event.target as HTMLElement;
         let key = event.keyCode || event.which;
-        if (inputField && key === 13) {
+        if (_keyCode && inputField && _keyCode.indexOf(key) !== -1) {
             let inputFieldButton = inputField.parentElement.querySelector("span button") as HTMLElement;
             if (inputFieldButton) {
                 inputFieldButton.focus();
             } else {
                 inputField.blur();
             }
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+        }
+    };
+
+    let closeDropdownOnTab = function(event) {
+        let key = event.keyCode || event.which;
+        if (key === 9) { // 9 = Tab
+            let escKey = document.createEvent("Events");
+            escKey.initEvent("keydown", true, true);
+            escKey["which"] = 27; // 27 = Escape
+            escKey["keyCode"] = 27;
+            event.target.dispatchEvent(escKey);
+
+            blurOnKey(event, 9);
         }
     };
 
@@ -214,9 +248,9 @@ export function formlyConfigExtendedFields(
             primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
-            $scope.bpFieldText = {};
-
-            $scope.bpFieldText.keyup = blurOnEnterKey;
+            $scope.bpFieldText = {
+                keyup: blurOnKey
+            };
         }]
     });
 
@@ -251,42 +285,27 @@ export function formlyConfigExtendedFields(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <select
-                    id="{{::id}}"
-                    name="{{::id}}"
+                <div class="ui-select-single" ng-class="options.data.isValidated || options.data.lookup !== 2 ? 'no-custom' : 'allow-custom'"><ui-select
                     ng-model="model[options.key]"
-                    class="form-control"></select>
+                    ng-disabled="{{to.disabled}}"
+                    uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
+                    <ui-select-match placeholder="{{to.placeholder}}">
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
+                    </ui-select-match>
+                    <ui-select-choices class="ps-child"
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
+                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh-delay="0">
+                        <div class="ui-select-choice-item"
+                            ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
+                            ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: $select.search"
+                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    </ui-select-choices>
+                </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
                 </div>
             </div>`,
-        /*template: `<div class="input-group has-messages">
-                <div ng-if="options.data.isValidated"><ui-select
-                    ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    remove-selected="false">
-                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
-                    <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select></div>
-                <div ng-if="!options.data.isValidated"><ui-select
-                    ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    remove-selected="false">
-                    <ui-select-match placeholder="{{to.placeholder}}">{{$select.selected[to.labelProp]}}</ui-select-match>
-                    <ui-select-choices
-                        data-repeat="option[to.valueProp] as option in to.options | filter: $select.search"
-                        refresh="bpFieldSelect.refreshResults($select)" 
-                        refresh-delay="0">
-                        <div ng-bind-html="option[to.labelProp] | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select></div>
-                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-                </div>
-            </div>`,*/
         /* tslint:enable */
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
@@ -294,34 +313,104 @@ export function formlyConfigExtendedFields(
                 placeholder: localization.get("Property_Placeholder_Select_Option"),
                 valueProp: "value",
                 labelProp: "name"
-            },
+            }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $timeout(() => {
+                primeValidation($element[0]);
+                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+
+                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
+                if (uiSelectContainer) {
+                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
+                }
+            }, 0);
         },
         controller: ["$scope", function ($scope) {
-            $scope.bpFieldSelect = {};
+            let newCustomValueId = function(): number {
+                return -1 * (Math.random() * 100 + 100); // not to conflict with special IDs like project (-1) or collections (-2)
+            };
 
-            $scope.bpFieldSelect.refreshResults = function ($select) {
-                var search = $select.search,
-                    list = angular.copy($select.items),
-                    FLAG = -1;
-                //remove last user input
-                list = list.filter(function(item) {
-                    return item.value !== FLAG;
+            $scope.$on("$destroy", function() {
+                if ($scope["uiSelectContainer"]) {
+                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
+                }
+            });
+
+            let customValueId = -1;
+            // we need to generate a custom id everytime, otherwise the select won't be able to recognize two different custom values
+
+            let currentModelVal = $scope.model[$scope.options.key];
+            if (angular.isObject(currentModelVal) && currentModelVal.customValue) {
+                let newVal = currentModelVal.customValue;
+                $scope.to.options.push({
+                    value: customValueId,
+                    name: newVal,
+                    isCustom: true
                 });
+                $scope.model[$scope.options.key] = customValueId;
+            }
 
-                if (!search) {
-                    //use the predefined list
-                    $select.items = list;
-                } else {
-                    //manually add user input and set selection
-                    var userInputItem = {
-                        value: FLAG,
-                        name: search
-                    };
-                    $select.items = [userInputItem].concat(list);
-                    $select.selected = userInputItem;
+            $scope.bpFieldSelect = {
+                refreshResults: function ($select) {
+                    if (!$scope.options.data.isValidated && $scope.options.data.lookup === PropertyLookupEnum.Custom) {
+                        let search = $select.search;
+
+                        if (search) {
+                            let optionList = angular.copy($select.items);
+
+                            //remove last user input
+                            optionList = optionList.filter(function (item) {
+                                return !item.isCustom;
+                            });
+
+                            let isDuplicate = false;
+                            $select.items.forEach(function(item) {
+                                if (item[$scope.to.labelProp] === search) {
+                                    isDuplicate = true;
+                                    return;
+                                }
+                            });
+
+                            if (!isDuplicate) {
+                                //manually add user input and set selection
+                                customValueId = newCustomValueId();
+                                let userInputItem = {
+                                    value: {customValue: search},
+                                    name: search,
+                                    isCustom: true
+                                };
+                                $select.items = [userInputItem].concat(optionList);
+                                $select.selected = userInputItem;
+                            }
+                        }
+                    }
+                },
+                escapeHTMLText: function (str: string): string {
+                    return Helper.escapeHTMLText(str);
+                },
+                onOpenClose: function (isOpen) {
+                    if (isOpen && $scope["uiSelectContainer"]) {
+                        let currentVal = $scope.model[$scope.options.key];
+                        if (angular.isObject(currentVal)) {
+                            $scope["uiSelectContainer"].querySelector(".ui-select-choices-row").classList.add("active");
+                        } else if (angular.isNumber(currentVal)) {
+                            let options = $scope["uiSelectContainer"].querySelectorAll(".ui-select-choices-row");
+                            [].forEach.call(options, function (option) {
+                                option.classList.remove("active");
+                            });
+                            let elem = $scope["uiSelectContainer"].querySelector(".ui-select-choice-item-selected");
+                            if (elem) {
+                                while (elem && !elem.classList.contains("ui-select-choices-row")) {
+                                    elem = elem.parentElement;
+                                }
+                                if (elem) {
+                                    elem.classList.add("active");
+                                }
+                            }
+                        }
+                    }
                 }
             };
         }]
@@ -337,13 +426,13 @@ export function formlyConfigExtendedFields(
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
                     on-remove="bpFieldSelectMulti.onRemove(fc, options)"
-                    ng-click="bpFieldSelectMulti.scrollIntoView($event)"
+                    close-on-select="false"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
-                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: $select.search">
-                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: $select.search" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    <ui-select-choices class="ps-child" data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
+                        <div class="ui-select-choice-item" ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)" bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -378,41 +467,45 @@ export function formlyConfigExtendedFields(
             $timeout(() => {
                 primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+
+                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
+                if (uiSelectContainer) {
+                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
+                    uiSelectContainer.addEventListener("click", scrollIntoView, true);
+                }
             }, 0);
         },
         controller: ["$scope", function ($scope) {
-            $scope.bpFieldSelectMulti = {};
-
-            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
-            // Not needed for textareas
-            $scope.bpFieldSelectMulti.onMouseOver = function ($event) {
-                let elem = $event.target as HTMLElement;
-                while (elem && !elem.classList.contains("ui-select-container")) {
-                    elem = elem.parentElement;
+            $scope.$on("$destroy", function() {
+                if ($scope["uiSelectContainer"]) {
+                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
+                    $scope["uiSelectContainer"].removeEventListener("keydown", scrollIntoView, true);
                 }
-                if (elem) {
-                    elem = elem.querySelector("div") as HTMLElement;
-                    if (elem && !elem.classList.contains("ps-child")) {
-                        elem.classList.add("ps-child");
+            });
+
+            $scope.bpFieldSelectMulti = {
+                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
+                // Not needed for textareas
+                onMouseOver: function ($event) {
+                    let elem = $event.target as HTMLElement;
+                    while (elem && !elem.classList.contains("ui-select-container")) {
+                        elem = elem.parentElement;
                     }
+                    if (elem) {
+                        elem = elem.querySelector("div") as HTMLElement;
+                        if (elem && !elem.classList.contains("ps-child")) {
+                            elem.classList.add("ps-child");
+                        }
+                    }
+                },
+                escapeHTMLText: function (str: string): string {
+                    let escaped = Helper.escapeHTMLText(str);
+                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>")
+                },
+                onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
+                    options.validation.show = formControl.$invalid;
                 }
-            };
-
-            $scope.bpFieldSelectMulti.escapeHTMLText = function (str: string): string {
-                return Helper.escapeHTMLText(str);
-            };
-
-            $scope.bpFieldSelectMulti.scrollIntoView = function ($event) {
-                let target = $event.target.tagName.toUpperCase() !== "INPUT" ? $event.target.querySelector("INPUT") : $event.target;
-
-                if (target) {
-                    target.scrollTop = 0;
-                    target.focus();
-                }
-            };
-
-            $scope.bpFieldSelectMulti.onRemove = function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
-                options.validation.show = formControl.$invalid;
             };
         }]
     });
@@ -436,10 +529,28 @@ export function formlyConfigExtendedFields(
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         defaultOptions: {
             validators: {
+                decimalPlaces: {
+                    expression: function($viewValue, $modelValue, $scope) {
+                        if (!(<any> $scope.options).data.isValidated) {
+                            return true;
+                        }
+                        let value = $modelValue || $viewValue;
+                        if (value) {
+                            let decimal = value.toString().split(localization.current.decimalSeparator);
+                            if (decimal.length === 2) {
+                                return decimal[1].length <= $scope.to["decimalPlaces"];
+                            }
+                        }
+                        return true;
+                    }
+                },
                 wrongFormat: {
                     expression: function($viewValue, $modelValue, $scope) {
                         let value = $modelValue || $viewValue;
-                        return !value || angular.isNumber(localization.current.toNumber(value, $scope.to["decimalPlaces"]));
+                        return !value ||
+                            angular.isNumber(localization.current.toNumber(value, (
+                                <any> $scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null
+                            ));
                     }
                 },
                 max: {
@@ -462,11 +573,10 @@ export function formlyConfigExtendedFields(
                         if (!(<any> $scope.options).data.isValidated) {
                             return true;
                         }
-                        let value = localization.current.toNumber($modelValue || $viewValue);
-                        if (angular.isNumber(value)) {
-                            let min = localization.current.toNumber($scope.to.min);
-
-                            if (angular.isNumber(min)) {
+                        let min = localization.current.toNumber($scope.to.min);
+                        if (angular.isNumber(min)) {
+                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            if (angular.isNumber(value)) {
                                 return value >= min;
                             }
                         }
@@ -479,15 +589,9 @@ export function formlyConfigExtendedFields(
             primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
-            $scope.bpFieldNumber = {};
-             
-            //let currentModelVal = $scope.model[$scope.options.key];
-            //if (angular.isNumber(currentModelVal)) {
-
-            //    $scope.model[$scope.options.key] =localization.current.formatNumber(currentModelVal, $scope.to["decimalPlaces"]);
-            //}
-
-            $scope.bpFieldNumber.keyup = blurOnEnterKey;
+            $scope.bpFieldNumber = {
+                keyup: blurOnKey
+            };
         }]
     });
 
@@ -594,7 +698,7 @@ export function formlyConfigExtendedFields(
                         let minDate = localization.current.toDate(scope.to["datepickerOptions"].minDate, true);
 
                         if (date && minDate) {
-                            return date.getTime() > minDate.getTime();
+                            return date.getTime() >= minDate.getTime();
                         }
                         return true;
                     }
@@ -609,7 +713,7 @@ export function formlyConfigExtendedFields(
                         let maxDate = localization.current.toDate(scope.to["datepickerOptions"].maxDate, true);
 
                         if (date && maxDate) {
-                            return date.getTime() < maxDate.getTime();
+                            return date.getTime() <= maxDate.getTime();
                         }
 
                         return true;
@@ -621,8 +725,6 @@ export function formlyConfigExtendedFields(
             primeValidation($element[0]);
         },
         controller: ["$scope", function ($scope) {
-            $scope.bpFieldDatepicker = {};
-
             // make sure the values are of type Date!
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal) {
@@ -641,26 +743,25 @@ export function formlyConfigExtendedFields(
                 }
             }
 
-            $scope.bpFieldDatepicker.opened = false;
-            $scope.bpFieldDatepicker.open = function ($event) {
-                $scope.bpFieldDatepicker.opened = !$scope.bpFieldDatepicker.opened;
+            $scope.bpFieldDatepicker = {
+                opened: false,
+                selected: false,
+                open: function ($event) {
+                    $scope.bpFieldDatepicker.opened = !$scope.bpFieldDatepicker.opened;
+                },
+                select: function ($event) {
+                    let inputField = $event.target;
+                    inputField.focus();
+                    if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
+                        inputField.setSelectionRange(0, inputField.value.length);
+                    }
+                    $scope.bpFieldDatepicker.selected = !$scope.bpFieldDatepicker.selected;
+                },
+                blur: function ($event) {
+                    $scope.bpFieldDatepicker.selected = false;
+                },
+                keyup: blurOnKey
             };
-
-            $scope.bpFieldDatepicker.selected = false;
-            $scope.bpFieldDatepicker.select = function ($event) {
-                let inputField = $event.target;
-                inputField.focus();
-                if (!$scope.bpFieldDatepicker.selected  && inputField.selectionStart === inputField.selectionEnd) {
-                    inputField.setSelectionRange(0, inputField.value.length);
-                }
-                $scope.bpFieldDatepicker.selected = !$scope.bpFieldDatepicker.selected;
-            };
-
-            $scope.bpFieldDatepicker.blur = function ($event) {
-                $scope.bpFieldDatepicker.selected = false;
-            };
-
-            $scope.bpFieldDatepicker.keyup = blurOnEnterKey;
         }]
     });
 
@@ -668,9 +769,8 @@ export function formlyConfigExtendedFields(
         name: "bpFieldLabel",
         template: `<div>
               <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
-                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}"
-                bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">
-                {{to.label}}
+                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}">
+                <div bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">{{to.label}}</div><div>:</div>
               </label>
               <formly-transclude></formly-transclude>
             </div>`
@@ -690,8 +790,9 @@ export function formlyConfigExtendedFields(
     /* tslint:enable */
 
     /* tslint:disable */
+    // the order in which the messages are defined is important!
+    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
     formlyValidationMessages.addTemplateOptionValueMessage("wrongFormat", "", localization.get("Property_Wrong_Format"), "", localization.get("Property_Wrong_Format"));
-//    formlyValidationMessages.addTemplateOptionValueMessage("decimalPlaces", "decimalPlaces", localization.get("Property_Decimal_Places"), "", "Wrong decimal places");
     formlyValidationMessages.addTemplateOptionValueMessage("max", "max", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Less"), "Number too big");
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");

@@ -12,6 +12,8 @@ namespace Model.ArtifactModel.Impl
 
         public bool CanDelete { get; set; }
 
+        public bool EmailDiscussionsEnabled { get; set; }
+
         [JsonProperty("discussions")]
         public List<Comment> Comments { get; } = new List<Comment>();
 

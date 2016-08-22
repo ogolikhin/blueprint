@@ -8,7 +8,7 @@ export class PropertyEditor {
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
-
+    public  propertyContexts: PropertyContext[];
     constructor(private locale: BPLocale) { }
 
     public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
@@ -32,6 +32,8 @@ export class PropertyEditor {
                     return {
                         validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
                     };
+                } else if (angular.isObject(($value))) {
+                    return { customValue: $value.customValue };
                 }
                 return this.locale.toNumber($value);
 
@@ -63,8 +65,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
-            } else if (angular.isString($value.customValue)) {
-                return $value.customValue;
+            //} else if (angular.isString($value.customValue)) {
+            //    return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }
@@ -85,21 +87,24 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, properties: PropertyContext[]) {
+    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): any {
 
         this._model = {};
         this._fields = [];
 
-        if (artifact && angular.isArray(properties)) {
-
-            properties.forEach((propertyContext: PropertyContext) => {
+        if (artifact && angular.isArray(this.propertyContexts)) {
+            var artifactOrSubArtifact = artifact;
+            if (subArtifact) {
+                artifactOrSubArtifact = subArtifact;
+            }
+            this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
 
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
-                        if (angular.isDefined(artifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifact[propertyContext.modelPropertyName] || null;
+                        if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
+                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName] || null;
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
                                 artifact.readOnlyReuseSettings &&
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
@@ -111,20 +116,19 @@ export class PropertyEditor {
                                 propertyContext.disabled = true;
                             }
                         }
-
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifact.customPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifactOrSubArtifact.customPropertyValues)) {
                         //Custom property
-                        let custompropertyvalue = artifact.customPropertyValues.filter((value: Models.IPropertyValue) => {
+                        let custompropertyvalue = artifactOrSubArtifact.customPropertyValues.filter((value: Models.IPropertyValue) => {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (custompropertyvalue) {
                             modelValue = custompropertyvalue.value || null;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         } 
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifact.specificPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
                         //Specific property
-                        let specificpropertyvalue = artifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypeId === propertyContext.modelPropertyName as number;
+                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {                            
+                            return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
                         if (specificpropertyvalue) {
                             modelValue = specificpropertyvalue.value || null;
@@ -139,6 +143,7 @@ export class PropertyEditor {
                 }
             });
         }
+        return this._model;
     }
 
     public destroy() {
@@ -204,27 +209,21 @@ export class PropertyEditor {
                         maxDate: context.maxDate,
                         minDate: context.minDate
                     };
+                    field.templateOptions["maxDate"] = this.locale.formatDate(this.locale.toDate(context.maxDate), this.locale.shortDateFormat);
+                    field.templateOptions["minDate"] = this.locale.formatDate(this.locale.toDate(context.minDate), this.locale.shortDateFormat);
 
                     field.defaultValue = context.dateDefaultValue;
                     break;
                 case Models.PrimitiveType.Number:
                     field.type = "bpFieldNumber";
                     field.defaultValue = this.locale.toNumber(context.decimalDefaultValue);
-                    if (angular.isNumber(context.minNumber)) {
-                        field.templateOptions.min = context.minNumber;
-                    }
-                    if (angular.isNumber(context.maxNumber)) {
-                        field.templateOptions.max = context.maxNumber;
-                    }
-                    if (angular.isNumber(context.decimalPlaces)) {
-                        field.templateOptions["decimalPlaces"] = context.decimalPlaces;
-                    }
+                    field.templateOptions.min = this.locale.toNumber(context.minNumber);
+                    field.templateOptions.max = this.locale.toNumber(context.maxNumber);
+                    field.templateOptions["decimalPlaces"] = this.locale.toNumber(context.decimalPlaces);
                     break;
                 case Models.PrimitiveType.Choice:
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
-                    if (context.isMultipleAllowed) {
                     field.templateOptions["optionsAttr"] = "bs-options";
-                    }
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {

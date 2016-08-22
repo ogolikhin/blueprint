@@ -19,7 +19,7 @@ export class BpProcessEditor implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class BpProcessEditorController extends BpBaseEditor{
+export class BpProcessEditorController extends BpBaseEditor {
 
     private _context: number;
 
@@ -35,7 +35,6 @@ export class BpProcessEditorController extends BpBaseEditor{
         "$rootScope",
         "$scope",
         "$element", 
-        "$state",
         "$q",
         "$log",
         "processService",
@@ -53,7 +52,6 @@ export class BpProcessEditorController extends BpBaseEditor{
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
-        private $state: ng.ui.IState,
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
@@ -89,7 +87,9 @@ export class BpProcessEditorController extends BpBaseEditor{
             this.load(this._context);
         }
 
-        this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
+        if (this.$element[0].parentElement) {
+            this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
+        }
     }
 
     public $onDestroy() {
@@ -100,7 +100,6 @@ export class BpProcessEditorController extends BpBaseEditor{
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
-            this.$state,
             this.$timeout,
             this.$q,
             this.$log,

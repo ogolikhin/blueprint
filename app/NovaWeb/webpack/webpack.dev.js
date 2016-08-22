@@ -125,7 +125,8 @@ module.exports = {
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
              { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' },
              { from: '../assets', to: './static'},
-             { from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images' }
+             { from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images' },
+             { from: '../src/styles/images/icons', to: './static/images/icons' }
          ]),
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),

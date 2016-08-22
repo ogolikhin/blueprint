@@ -19,14 +19,14 @@ import {ConnectorStyles} from "./shapes/connector-styles";
 import {NodeShapes} from "./shapes/node-shapes";
 import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
-
+import {NodeLabelEditor} from "./node-label-editor";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     //#TODO fix up references later 
-    //public nodeLabelEditor: NodeLabelEditor;
+    public nodeLabelEditor: NodeLabelEditor;
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
@@ -98,7 +98,7 @@ export class ProcessGraph implements IProcessGraph {
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
-            // this.nodeLabelEditor = new NodeLabelEditor(this.container);
+             this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
         this.initializeGlobalScope();
     }
@@ -108,10 +108,9 @@ export class ProcessGraph implements IProcessGraph {
         try {
             // uses layout object to draw a new diagram for process model
             this.layout.render(useAutolayout, selectedNodeId);
-            // #TODO: fix up these references later 
-            //if (this.nodeLabelEditor != null) {
-            //    this.nodeLabelEditor.init();
-            //}
+            if (this.nodeLabelEditor != null) {
+                this.nodeLabelEditor.init();
+            }
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -548,9 +547,9 @@ export class ProcessGraph implements IProcessGraph {
         //    this.dragDropHandler.dispose();
         //}
 
-        //if (this.nodeLabelEditor != null) {
-        //    this.nodeLabelEditor.dispose();
-        //}
+        if (this.nodeLabelEditor != null) {
+            this.nodeLabelEditor.dispose();
+        }
     }
 
     private addMouseEventListener(graph: MxGraph) {

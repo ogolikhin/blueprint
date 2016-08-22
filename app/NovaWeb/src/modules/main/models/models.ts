@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection } from "./enums";
+﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
 
 
 export enum ArtifactStateEnum {
@@ -41,6 +41,7 @@ export interface IItem {
     version?: number;
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
+    systemPropertyValues?: IPropertyValue[];
     traces?: ITrace[];
 
     predefinedType?: ItemTypePredefined;
@@ -240,5 +241,26 @@ export interface IEditorContext {
     artifact?: IArtifact;
     type?: IItemType;
 }
-  
+ 
+
+export interface ILockResult {
+    result: LockResultEnum;
+    info: IVersionInfo;
+}
+
+export interface IVersionInfo {
+    artifactId?: number;
+    utcLockedDateTime?: Date;
+    lockOwnerLogin?: string;
+    projectId?: number;
+    versionId?: number;
+    revisionId?: number;
+    baselineId?: number;
+    isVersionInformationProvided?: boolean;
+    isHeadOrSavedDraftVersion?: boolean;
+}
+
+
+
+ 
 export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };

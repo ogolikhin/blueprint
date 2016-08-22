@@ -9,7 +9,6 @@ import { SessionSvcMock } from "../../shell/login/mocks.spec";
 
 describe("State Manager:", () => {
     let subscriber;
-
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
         $provide.service("stateManager", StateManager);
@@ -23,12 +22,13 @@ describe("State Manager:", () => {
 
     });
 
-    it("artifact changed", inject((stateManager: StateManager, session: SessionSvcMock) => {
+    it("artifact changed", inject((stateManager: StateManager) => {
         //Arrange
+
         const artifact = { id: 1, name: "", projectId: 1 } as Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
         });
 
@@ -45,7 +45,7 @@ describe("State Manager:", () => {
         const artifact = { id: 1, name: "", projectId: 1 } as Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
         });
 
@@ -65,7 +65,7 @@ describe("State Manager:", () => {
         let changedItem: Models.IArtifact;
         let isChanged: boolean;
 
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
             changedItem = change.changedItem;
         });
@@ -87,7 +87,7 @@ describe("State Manager:", () => {
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
         let isChanged: boolean;
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             isChanged = change.isChanged;
             changedItem = change.changedItem;
         });
@@ -118,7 +118,7 @@ describe("State Manager:", () => {
 
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             changedItem = change.changedItem;
         });
 
@@ -151,7 +151,7 @@ describe("State Manager:", () => {
 
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             changedItem = change.changedItem;
         });
 
@@ -188,7 +188,7 @@ describe("State Manager:", () => {
 
         } as Models.IArtifact;
         let changedItem: Models.IArtifact;
-        subscriber = stateManager.onChanged.subscribeOnNext((change: ItemState) => {
+        subscriber = stateManager.stateChange.subscribeOnNext((change: ItemState) => {
             changedItem = change.changedItem;
         });
 
@@ -249,24 +249,6 @@ describe("State Manager:", () => {
         //Assert
         expect(state).toBeUndefined();
     }));
-
-    it("delete artifact state", inject((stateManager: StateManager) => {
-        //Arrange
-        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
-            
-        //Act
-        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
-        let state1 = stateManager.getState(1);
-
-        stateManager.deleteState(1);
-        let state2 = stateManager.getState(1);
-
-
-        //Assert
-        expect(state1).toBeDefined();
-        expect(state2).toBeUndefined();
-    }));
-
 
 
 });

@@ -4,10 +4,10 @@ import { ISession } from "../../shell/login/session.svc";
 
 export interface IStateManager {
     dispose(): void;
-    onChanged: Rx.Observable<ItemState>;
-    addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): void;
+    stateChange: Rx.Observable<ItemState>;
+    addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
+    addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
-    deleteState(artifact: number | Models.IItem);
 }
 
 export interface IPropertyChangeSet {
@@ -18,33 +18,66 @@ export interface IPropertyChangeSet {
 }
 
 export class ItemState {
-    constructor(userId: number, item: Models.IItem) {
-        this._userId = userId;
-        this.originItem = item;
-    }
-
-    private _userId: number;
+    private manager: StateManager;
+    private _originItem: Models.IArtifact;
     private _readonly: boolean;
     private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IArtifact;
+    private _lock: Models.ILockResult;
     
-    public originItem: Models.IArtifact;
+    public itemType: Models.IItemType;
 
-    public get isReadOnly(): boolean {
-        return this._readonly ||
-            (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+    constructor(manager: StateManager, item: Models.IItem, itemtype?: Models.IItemType) {
+        this.manager = manager;
+        this._originItem = item;
+        this.itemType = itemtype;
     }
-    public set isReadOnly(value: boolean) {
+
+    public clear() {
+        delete this.originItem;
+        delete this.itemType;
+        delete this._readonly;
+        delete this._changedItem;
+        delete this._changesets;
+        delete this._lock;
+    }
+
+    public get originItem(): Models.IArtifact {
+        return this._originItem;
+    }
+    public set originItem(value: Models.IArtifact) {
+        if (!value) {
+            return;
+        }
+        this._originItem = value;
+    }
+
+    public get isReadonly(): boolean {
+        return this._readonly ||
+               this.lockedBy === Enums.LockedByEnum.OtherUser ||
+               (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+    }
+    public set isReadonly(value: boolean) {
         this._readonly = value;
     }
 
     public get lockedBy(): Enums.LockedByEnum {
-        if (this.originItem && this.originItem.lockedByUser) {
-            if (this.originItem.lockedByUser.id === this._userId) {
+        if (this.originItem.lockedByUser) {
+            if (this.originItem.lockedByUser.id === this.manager.currentUser.id) {
                 return Enums.LockedByEnum.CurrentUser;
             }
             return Enums.LockedByEnum.OtherUser;
-        }
+        } else if (this._lock) {
+            switch (this._lock.result) {
+                case Enums.LockResultEnum.Success:
+                    return Enums.LockedByEnum.CurrentUser;
+                case Enums.LockResultEnum.AlreadyLocked:
+                    return Enums.LockedByEnum.OtherUser;
+                default:
+                    return Enums.LockedByEnum.None;
+            }
+        } 
+
         return Enums.LockedByEnum.None;
 
     }
@@ -57,11 +90,31 @@ export class ItemState {
         return this._changedItem;
     }
 
-    public clear() {
-        this.originItem = null;
-        this._changedItem = null;
-        this._changesets = null;
-        this._readonly = false;
+    public get lock(): Models.ILockResult {
+        return this._lock;
+    }
+
+    public setLock(value: Models.ILockResult): Models.ILockResult {
+        if (!value) {
+            return null;
+        }
+        this._lock = value;
+        if (value.result === Enums.LockResultEnum.Success) {
+            this.originItem.lockedByUser = {
+                id: this.manager.currentUser.id
+            };
+        } else {
+            if (value.result === Enums.LockResultEnum.AlreadyLocked) {
+                this.originItem.lockedByUser = {
+                    id: -1,
+                    displayName: value.info.lockOwnerLogin
+                };
+            }
+            this.revertChanges();
+            this._readonly = true;
+        }
+        this.manager.changeState(this);
+        return this._lock;
     }
 
     private add(changeSet: IPropertyChangeSet) {
@@ -91,9 +144,15 @@ export class ItemState {
         if ("projectId" in item) {
             updateItem = this._changedItem;
         } else {
+            if (angular.isArray(this._changedItem.subArtifacts)) {
+                this._changedItem.subArtifacts = [];
+            }
             updateItem = this._changedItem.subArtifacts.filter((it: Models.ISubArtifact) => {
                 return it.id === item.id;
             })[0];
+            if (!updateItem) {
+                this._changedItem.subArtifacts.push(updateItem = item);
+            }
             
         }
 
@@ -139,19 +198,36 @@ export class ItemState {
                 return false;
         }
         this.add(changeSet);
+        this.manager.changeState(this);
         return true;
 
     }
 
+    public getArtifact(): Models.IArtifact {
+        return this.changedItem || this.originItem;
+    }
+
+    public getSubArtifact(id: number): Models.ISubArtifact {
+        let artifact = this.getArtifact();
+        return (artifact.subArtifacts || []).filter((it: Models.ISubArtifact) => {
+            return it.id === id;
+        })[0];
+    }
+
+    public revertChanges() {
+        delete this._changesets;
+        delete this._changedItem;
+    }
 }
 
 export class StateManager implements IStateManager {
     static $inject: [string] = ["session"];
     private _itemStateCollection: ItemState[];
-
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor(private session: ISession) { }
+    constructor(private session: ISession) {
+        
+    }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
         return this._itemChanged || (this._itemChanged = new Rx.BehaviorSubject<ItemState>(null));
@@ -160,6 +236,21 @@ export class StateManager implements IStateManager {
         return this._itemStateCollection || (this._itemStateCollection = []);
     }
 
+    public get currentUser(): Models.IUserGroup {
+        return this.session.currentUser;
+    }
+
+    public changeState(value: ItemState): void {
+        this.itemChanged.onNext(value);
+    }
+
+    public get stateChange(): Rx.Observable<ItemState> {
+        return this.itemChanged
+            .filter(it => it != null)
+            .asObservable();
+    }
+
+
     public dispose() {
         
         //clear all subjects
@@ -167,38 +258,33 @@ export class StateManager implements IStateManager {
             this._itemStateCollection.forEach((it: ItemState) => {
                 it.clear();
             });
-            this._itemStateCollection = null;
+            delete this._itemStateCollection;
         }
 
         if (this._itemChanged) {
             this._itemChanged.dispose();
-            this._itemChanged = null;
+            delete this._itemChanged;
         }
     }
 
-    public get onChanged(): Rx.Observable<ItemState> {
-        return this.itemChanged
-            .filter(it => it != null)
-            .asObservable();
-    }
-
-    public addChange(originItem: Models.IItem, changeSet?: IPropertyChangeSet) {
-        if (!originItem) {
-            return;
+    public addItem(item: Models.IItem, type?: Models.IItemType): ItemState {
+        if (!item) {
+            return null;
         }
         let artifact: Models.IArtifact;
         let subartifact: Models.ISubArtifact;
 
-        if ("projectId" in originItem) {
-            artifact = originItem as Models.IArtifact;
+        if ("projectId" in item) {
+            artifact = item as Models.IArtifact;
         } else {
-            subartifact = originItem as Models.ISubArtifact;
+            subartifact = item as Models.ISubArtifact;
         }
 
-        let state = this.getState(originItem);
+        let state = this.getState(item);
+
         if (!state) {
             if (artifact) {
-                this.itemStateCollection.push(state = new ItemState(this.session.currentUser.id, artifact));
+                this.itemStateCollection.push(state = new ItemState(this, artifact, type));
             } else {
                 throw new Error("Artifact_Not_Found");
             }
@@ -206,6 +292,10 @@ export class StateManager implements IStateManager {
             if (artifact) {
                 state.originItem = artifact;
             } else {
+                if (angular.isArray(state.originItem.subArtifacts)) {
+                    state.originItem.subArtifacts = [];
+                }
+
                 let _subartifact = state.originItem.subArtifacts.filter((it: Models.ISubArtifact) => {
                     return it.id === subartifact.id;
                 })[0];
@@ -217,13 +307,18 @@ export class StateManager implements IStateManager {
             }
         }
         this.clearStates(state);
+        this.itemChanged.onNext(state);
+        return state;
+    }
 
-        if (changeSet) {
-            
-            if (state.saveChange(artifact || subartifact, changeSet)) {
-                this.itemChanged.onNext(state);
-            }
+    public addChange(item: Models.IItem, changeSet?: IPropertyChangeSet): ItemState {
+        let state = this.addItem(item);
+
+        if (state.saveChange(item, changeSet)) {
+            this.itemChanged.onNext(state);
         }
+
+        return state;
     }
 
     public clearStates(exceptState?: ItemState) {
@@ -231,6 +326,7 @@ export class StateManager implements IStateManager {
             return it.isChanged || (it === exceptState);
         });
     }
+
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
         let state: ItemState = this.itemStateCollection.filter((it: ItemState) => {
@@ -248,14 +344,14 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    public deleteState(item: number | Models.IItem) {
-        let itemId = angular.isNumber(item) ? item as number : (item ? item.id : -1);
-        this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
-            if (it.originItem.id === itemId) {
-                it.clear();
-                return false;
-            }
-            return true;
-        });
-    }
+    //public deleteState(item: number | Models.IItem) {
+    //    let itemId = angular.isNumber(item) ? item as number : (item ? item.id : -1);
+    //    this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
+    //        if (it.originItem.id === itemId) {
+    //            it.clear();
+    //            return false;
+    //        }
+    //        return true;
+    //    });
+    //}
 }

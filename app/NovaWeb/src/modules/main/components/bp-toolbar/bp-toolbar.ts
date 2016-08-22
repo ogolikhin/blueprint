@@ -120,7 +120,7 @@ class BPToolbarController implements IBPToolbarController {
 
     private displayArtifact = (artifact: Models.IArtifact) => {
         this._currentArtifact =
-            Helper.shouldChangeSelectedArtifact(artifact) && 
+            Helper.canUseSelectedArtifact(artifact) && 
             artifact.version !== 0 ? artifact.id : null;
     }
 

@@ -426,9 +426,10 @@ export function formlyConfig(
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
-                    on-remove="bpFieldSelectMulti.onRemove(fc, options)"
-                    on-select="bpFieldSelectMulti.onSelect()"
+                    on-remove="bpFieldSelectMulti.onRemove(fc, options, $select)"
+                    on-select="bpFieldSelectMulti.toggleScrollbar()"
                     close-on-select="false"
+                    uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen)"
                     ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
@@ -479,6 +480,8 @@ export function formlyConfig(
                     $scope["uiSelectContainer"] = uiSelectContainer;
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
+
+                    $scope["bpFieldSelectMulti"].toggleScrollbar();
                 }
             }, 0);
         },
@@ -488,11 +491,12 @@ export function formlyConfig(
             $scope.$on("$destroy", function() {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
-                    $scope["uiSelectContainer"].removeEventListener("keydown", scrollIntoView, true);
+                    $scope["uiSelectContainer"].removeEventListener("click", scrollIntoView, true);
                 }
             });
 
             $scope.bpFieldSelectMulti = {
+                isOpen: false,
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
                 onMouseOver: function ($event) {
@@ -503,9 +507,30 @@ export function formlyConfig(
                         }
                     }
                 },
+                toggleScrollbar: function (removeScrollbar?: boolean) {
+                    if (removeScrollbar) {
+                        if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight <= elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.remove("has-scrollbar");
+                            }
+                        }
+                    } else {
+                        if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight > elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                            }
+                        }
+                    }
+                },
                 escapeHTMLText: function (str: string): string {
                     let escaped = Helper.escapeHTMLText(str);
                     return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
+                },
+                onOpenClose: function (isOpen: boolean) {
+                    $scope.bpFieldSelectMulti.isOpen = isOpen;
+                    console.log(isOpen)
                 },
                 onHighlight: function (option, $select) {
                     if ($select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]) !== -1) {
@@ -516,22 +541,10 @@ export function formlyConfig(
                         }
                     }
                 },
-                onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
+                onRemove: function (formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject, $select) {
+                    $select.open = $scope.bpFieldSelectMulti.isOpen; // force the dropdown open on remove
                     options.validation.show = formControl.$invalid;
-                    if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                        if (elem && elem.scrollHeight <= elem.clientHeight) {
-                            $scope["uiSelectContainer"].classList.remove("has-scrollbar");
-                        }
-                    }
-                },
-                onSelect: function () {
-                    if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                        if (elem && elem.scrollHeight > elem.clientHeight) {
-                            $scope["uiSelectContainer"].classList.add("has-scrollbar");
-                        }
-                    }
+                    $scope.bpFieldSelectMulti.toggleScrollbar(true);
                 }
             };
         }]

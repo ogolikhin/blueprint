@@ -6,6 +6,7 @@ import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { Helper } from "../../../shared/utils/helper";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -17,6 +18,7 @@ export class BPAttachmentsPanel implements ng.IComponentOptions {
 
 export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
+        "$q",
         "localization",
         "selectionManager",
         "artifactAttachments",
@@ -30,6 +32,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public filesToUpload: any;
     
     constructor(
+        $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
         private artifactAttachments: IArtifactAttachments,
@@ -37,7 +40,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(selectionManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
     }
     
     public addDocRef(): void {
@@ -68,20 +71,23 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         openUploadStatus();
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.artifactAttachmentsList = null;
 
-        if (artifact !== null) {
-            this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null)
+        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+            return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
                 .then( (result: IArtifactAttachmentsResultSet) => {
                     this.artifactAttachmentsList = result;
                 });
+        } else {
+            this.artifactAttachmentsList = null;
         }
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private getAttachments(artifactId: number, subArtifactId: number = null): ng.IPromise<IArtifactAttachmentsResultSet> {
+    private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
         this.isLoading = true;
-        return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId)
+        return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 return result;
             })

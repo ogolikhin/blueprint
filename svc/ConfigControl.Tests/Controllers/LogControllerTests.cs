@@ -1,17 +1,12 @@
-﻿using ServiceLibrary.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.LocalLog;
-using Moq;
-using ServiceLibrary.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Web.Http.Results;
 using ConfigControl.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ConfigControl.Controllers
@@ -19,31 +14,14 @@ namespace ConfigControl.Controllers
     [TestClass]
     public class LogControllerTests
     {
-        #region Constructor
-
-        [TestMethod]
-        public void Constructor_Always_CreatesDefaultDependencies()
-        {
-            // Arrange
-
-            // Act
-            var controller = new LogController();
-
-            // Assert
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
-        }
-
-        #endregion
-
         #region Log
 
         [TestMethod]
         public void Log_Error_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new ServiceLogModel()
+            var controller = new LogController();
+            var logEntry = new ServiceLogModel
             {
                 LogLevel = LogLevelEnum.Error,
                 Source = "Controller source",
@@ -62,9 +40,8 @@ namespace ConfigControl.Controllers
         public void Log_Warning_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new ServiceLogModel()
+            var controller = new LogController();
+            var logEntry = new ServiceLogModel
             {
                 LogLevel = LogLevelEnum.Warning,
                 Source = "Controller source",
@@ -83,9 +60,8 @@ namespace ConfigControl.Controllers
         public void Log_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new ServiceLogModel()
+            var controller = new LogController();
+            var logEntry = new ServiceLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -104,9 +80,8 @@ namespace ConfigControl.Controllers
         public void Log_Informational_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new ServiceLogModel()
+            var controller = new LogController();
+            var logEntry = new ServiceLogModel
             {
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
@@ -129,9 +104,8 @@ namespace ConfigControl.Controllers
         public void CLog_Error_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Error,
                 Source = "Controller source",
@@ -150,9 +124,8 @@ namespace ConfigControl.Controllers
         public void CLog_Warning_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Warning,
                 Source = "Controller source",
@@ -171,9 +144,8 @@ namespace ConfigControl.Controllers
         public void CLog_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -192,9 +164,8 @@ namespace ConfigControl.Controllers
         public void CLog_Informational_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
@@ -213,9 +184,8 @@ namespace ConfigControl.Controllers
         public void CLog_Critical_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Critical,
                 Source = "Controller source",
@@ -238,8 +208,7 @@ namespace ConfigControl.Controllers
         public void CLog_WithAction_Error_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
+            var controller = new LogController();
             var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Error,
@@ -261,9 +230,8 @@ namespace ConfigControl.Controllers
         public void CLog_WithAction_Warning_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Warning,
                 Source = "Controller source",
@@ -283,9 +251,8 @@ namespace ConfigControl.Controllers
         public void CLog_WithAction_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -305,9 +272,8 @@ namespace ConfigControl.Controllers
         public void CLog_WithAction_Informational_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
@@ -327,9 +293,8 @@ namespace ConfigControl.Controllers
         public void CLog_WithAction_Critical_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new CLogModel()
+            var controller = new LogController();
+            var logEntry = new CLogModel
             {
                 LogLevel = LogLevelEnum.Critical,
                 Source = "Controller source",
@@ -353,9 +318,8 @@ namespace ConfigControl.Controllers
         public void StandardLog_Error_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new StandardLogModel()
+            var controller = new LogController();
+            var logEntry = new StandardLogModel
             {
                 LogLevel = LogLevelEnum.Error,
                 Source = "Controller source",
@@ -374,9 +338,8 @@ namespace ConfigControl.Controllers
         public void StandardLog_Warning_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new StandardLogModel()
+            var controller = new LogController();
+            var logEntry = new StandardLogModel
             {
                 LogLevel = LogLevelEnum.Warning,
                 Source = "Controller source",
@@ -395,9 +358,8 @@ namespace ConfigControl.Controllers
         public void StandardLog_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new StandardLogModel()
+            var controller = new LogController();
+            var logEntry = new StandardLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -416,9 +378,8 @@ namespace ConfigControl.Controllers
         public void StandardLog_Informational_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new StandardLogModel()
+            var controller = new LogController();
+            var logEntry = new StandardLogModel
             {
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
@@ -437,9 +398,8 @@ namespace ConfigControl.Controllers
         public void StandardLog_Critical_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new StandardLogModel()
+            var controller = new LogController();
+            var logEntry = new StandardLogModel
             {
                 LogLevel = LogLevelEnum.Critical,
                 Source = "Controller source",
@@ -462,9 +422,8 @@ namespace ConfigControl.Controllers
         public void PerformanceLog_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new PerformanceLogModel()
+            var controller = new LogController();
+            var logEntry = new PerformanceLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -487,9 +446,8 @@ namespace ConfigControl.Controllers
         public void SqlTraceLog_Verbose_ReturnsOk()
         {
             // Arrange
-            var httpClientProvider = new Mock<IHttpClientProvider>().Object;
-            var controller = new LogController(httpClientProvider);
-            var logEntry = new SQLTraceLogModel()
+            var controller = new LogController();
+            var logEntry = new SQLTraceLogModel
             {
                 LogLevel = LogLevelEnum.Verbose,
                 Source = "Controller source",
@@ -506,8 +464,6 @@ namespace ConfigControl.Controllers
 
         #endregion
 
-
-
         private IEnumerable<LogRecord> GetTestLogEntries()
         {
             return new List<LogRecord> {
@@ -520,7 +476,6 @@ namespace ConfigControl.Controllers
         [TestMethod]
         public void GetLog_WithTitle_Succsess()
         {
-
             // Arrange
             var entries = GetTestLogEntries();
             var length = entries.Sum(it => it.Line.Length + Environment.NewLine.Length);
@@ -537,13 +492,11 @@ namespace ConfigControl.Controllers
             Assert.AreEqual(length, result.Headers.ContentLength);
             Assert.AreEqual("text/csv", result.Headers.ContentType.MediaType);
             Assert.AreEqual("AdminStore.csv", result.Headers.ContentDisposition.FileName);
-
         }
 
         [TestMethod]
         public void GetLog_NoTitle_Succsess()
         {
-
             // Arrange
             var entries = GetTestLogEntries().Skip(1);
             var length = entries.Sum(it => it.Line.Length + Environment.NewLine.Length);
@@ -560,8 +513,6 @@ namespace ConfigControl.Controllers
             Assert.AreEqual(length, result.Headers.ContentLength);
             Assert.AreEqual("text/csv", result.Headers.ContentType.MediaType);
             Assert.AreEqual("AdminStore.csv", result.Headers.ContentDisposition.FileName);
-
         }
-
     }
 }

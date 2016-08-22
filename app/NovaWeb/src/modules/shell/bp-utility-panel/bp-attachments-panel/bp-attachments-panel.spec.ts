@@ -46,7 +46,7 @@ describe("Component BP Attachments Panel", () => {
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
             
             //Act
             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
@@ -61,5 +61,21 @@ describe("Component BP Attachments Panel", () => {
             expect(componentTest.element.find("bp-artifact-attachment-item").length).toBe(7);
             expect(componentTest.element.find("bp-artifact-document-item").length).toBe(3);
             expect(componentTest.element.find(".empty-state").length).toBe(0);
-    }));
+        }));
+
+    it("should not load data for artifact without Prefix",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+
+            //Arrange
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
+
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactAttachmentsList).toBe(null);
+        }));
 });

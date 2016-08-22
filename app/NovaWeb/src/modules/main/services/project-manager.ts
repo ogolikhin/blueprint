@@ -272,9 +272,36 @@ export class ProjectManager implements IProjectManager {
             isRichText: true
         });
 
+        //if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
+        //    properties.push(<Models.IPropertyType>{
+        //        name: "Label",
+        //        propertyTypePredefined: Models.PropertyTypePredefined.Label,
+        //        primitiveType: Models.PrimitiveType.Text,
+        //        isRichText: true
+        //    });
+        //}
+
         if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
             subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape) {
+            subArtifact.predefinedType === Models.ItemTypePredefined.SBShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UIShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UCDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.PROShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.GDConnector ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.DDConnector ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.SBConnector ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UIConnector ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.BPConnector ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UCDConnector) {
+
+            properties.push(<Models.IPropertyType>{
+                name: "Label",
+                propertyTypePredefined: Models.PropertyTypePredefined.Label,
+                primitiveType: Models.PrimitiveType.Text,
+                isRichText: true
+            });
+
             properties.push(<Models.IPropertyType>{
                 name: "X",
                 propertyTypePredefined: Models.PropertyTypePredefined.X,

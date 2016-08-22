@@ -1,11 +1,11 @@
 ﻿<div class="utility-panel-artifact-item" ng-class="{'comment-editing': $ctrl.editing}">
     <div ng-if="$ctrl.editing === false">
-        <div class="status"
+        <!--<div class="status"
              bp-tooltip="{{$ctrl.discussionInfo.expanded ? $ctrl.localization.get('App_UP_Discussions_Hide_Replis') : $ctrl.localization.get('App_UP_Discussions_Show_Replies')}}"
              ng-click="$ctrl.getReplies()"
              ng-class="{'expanded': $ctrl.discussionInfo.expanded}">
             <i class="icon fonticon-circle-up"></i>
-        </div>
+        </div>-->
 
         <div>
             <bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
@@ -29,7 +29,8 @@
                bp-tooltip="{{ $ctrl.discussionInfo.status }}"
                ng-class="{ 'inactive' : $ctrl.discussionInfo.isClosed }">{{ $ctrl.discussionInfo.status }}</i>
 
-            <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_View_Comments_Tooltip')}}"
+            <i bp-tooltip="{{$ctrl.discussionInfo.expanded ? $ctrl.localization.get('App_UP_Discussions_Hide_Replis') : $ctrl.localization.get('App_UP_Discussions_Show_Replies')}}"
+               ng-click="$ctrl.getReplies()"
                class="reply-count icon fonticon-comment"
                ng-class="{'active' : $ctrl.discussionInfo.repliesCount}">{{$ctrl.discussionInfo.repliesCount}}</i>
 

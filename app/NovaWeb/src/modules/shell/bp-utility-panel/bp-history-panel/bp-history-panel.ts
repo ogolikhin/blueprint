@@ -19,6 +19,7 @@ export class BPHistoryPanel implements ng.IComponentOptions {
 
 export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
+        "$q",
         "localization",
         "artifactHistory",
         "selectionManager"
@@ -34,12 +35,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public isLoading: boolean = false;
     
     constructor(
+        $q: ng.IQService,
         private localization: ILocalizationService,
-        private _artifactHistoryRepository: IArtifactHistory,
+        private artifactHistory: IArtifactHistory,
         protected selectionManager: ISelectionManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(selectionManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -66,15 +68,15 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         if (artifact == null) {
             this.artifactHistoryList = [];
-            return;
+            return super.onSelectionChanged(artifact, subArtifact, timeout);
         }
         if (this.artifactId !== artifact.id) {
             this.artifactHistoryList = [];
             this.artifactId = artifact.id;
-            this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)
+            return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
                 .then( (list: IArtifactHistoryVersion[]) => {
                     this.artifactHistoryList = list;
                 });
@@ -110,9 +112,14 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         this.selectedArtifactVersion = artifactHistoryItem;
     }
 
-    private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<IArtifactHistoryVersion[]> {
+    private getHistoricalVersions(
+        limit: number,
+        offset: number, userId:
+        string, asc: boolean,
+        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
+
         this.isLoading = true;
-        return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc)
+        return this.artifactHistory.getArtifactHistory(this.artifactId, limit, offset, userId, asc, timeout)
             .then( (list: IArtifactHistoryVersion[]) => {
                 return list;
             })

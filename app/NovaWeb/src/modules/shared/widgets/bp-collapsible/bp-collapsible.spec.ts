@@ -1,12 +1,14 @@
-﻿import { BPCollapsible } from "./bp-collapsible";
-import "angular";
+﻿import "angular";
 import "angular-mocks";
+import { BPCollapsible } from "./bp-collapsible";
+import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 
 describe("BPCollapsible Directive", () => {
     var longElement: JQuery;
 
-    beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider) => {
+    beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider, $provide: ng.auto.IProvideService) => {
         $compileProvider.directive("bpCollapsible", BPCollapsible.factory());
+        $provide.service("localization", LocalizationServiceMock);
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {

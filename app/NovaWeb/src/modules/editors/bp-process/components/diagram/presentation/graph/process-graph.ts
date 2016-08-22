@@ -463,14 +463,8 @@ export class ProcessGraph implements IProcessGraph {
             this.htmlElement.style.transition = "width 400ms, height 400ms";
         }
 
-        if (this.isIe11) {
-            this.htmlElement.style.height = minHeight;
-            this.htmlElement.style.width = minWidth;
-        }
-        else {
-            this.htmlElement.style.minHeight = minHeight;
-            this.htmlElement.style.minWidth = minWidth;
-        }
+        this.htmlElement.style.height = minHeight;
+        this.htmlElement.style.width = minWidth;
     }
 
     public updateSizeChanges(width: number = 0) {

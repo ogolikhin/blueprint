@@ -6,6 +6,7 @@
 @import 'modules/fonticons';
 @import 'modules/fonticons2';
 @import 'modules/icons';
+@import 'storyteller/story-teller';
 
 $hamburger-padding-x: 14px;
 $hamburger-padding-y: 5px;
@@ -79,4 +80,3 @@ body {
 @import 'partials/tour-modal';
 @import 'partials/collapsible';
 @import 'partials/autocomplete';
-@import 'storyteller/story-teller.scss';

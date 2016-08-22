@@ -1,7 +1,6 @@
 import "angular";
 import { ILocalizationService, IFileUploadService, IFileResult } from "../../../core";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../shared/";
-import { BpFilesizeFilter } from "../../../shared/filters";
 
 export interface IBpFileUploadStatusController {
     // propertyMap: any;
@@ -94,9 +93,11 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     }
 
     private isFileValid(f: IFileUploadStatus) {
+        const filesizeFilter: Function = this.$filter("BpFilesize") as Function;
+
         if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;
-            f.errorMessage = "File exceeds " + (this.$filter("BpFilesize") as any)(this.dialogData.maxAttachmentFilesize);
+            f.errorMessage = "File exceeds " + filesizeFilter(this.dialogData.maxAttachmentFilesize);
 
             return false;
         }

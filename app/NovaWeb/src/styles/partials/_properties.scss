@@ -536,8 +536,10 @@ pagecontent, bp-properties-panel {
                 }
               }
             }
+          }
 
-            &.active .ui-select-choice-item,
+          &:not(.disable-highlight) {
+            .ui-select-choices-row.active .ui-select-choice-item,
             .ui-select-choices-row-inner:hover .ui-select-choice-item {
               background: $blue-lightest;
 

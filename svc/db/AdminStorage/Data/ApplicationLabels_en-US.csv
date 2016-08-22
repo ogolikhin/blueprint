@@ -40,6 +40,9 @@ App_Toolbar_Refresh_All,"Refresh All"
 App_Toolbar_Delete,"Delete"
 App_Toolbar_Tour,"Tour"
 
+App_Collapsible_ShowMore, "Show more"
+App_Collapsible_ShowLess, "Show less"
+
 App_UtilityPanel_Discussions,"Discussions"
 App_UtilityPanel_Properties,"Properties"
 App_UtilityPanel_Attachments,"Files"

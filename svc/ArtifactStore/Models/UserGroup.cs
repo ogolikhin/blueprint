@@ -4,9 +4,9 @@ namespace ArtifactStore.Models
 {
     public class UserGroup
     {
-        [JsonProperty]
-        public int Id { get; set; }
-        [JsonProperty]
-        public bool IsGroup { get; set; }
-}
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsGroup { get; set; }
+    }
 }

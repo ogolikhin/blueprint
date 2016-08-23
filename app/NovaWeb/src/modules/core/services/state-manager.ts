@@ -4,6 +4,7 @@ import { ISession } from "../../shell/login/session.svc";
 
 export interface IStateManager {
     dispose(): void;
+    reset(): void;
     stateChange: Rx.Observable<ItemState>;
     addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
     addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
@@ -132,6 +133,46 @@ export class ItemState {
         
     }
 
+    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet) {
+        let propertyTypeId: number;
+        let propertyValue: Models.IPropertyValue;
+        switch (changeSet.lookup) {
+            case Enums.PropertyLookupEnum.System:
+                if (changeSet.id in this.originItem) {
+                    item[changeSet.id] = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Custom:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (item.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    propertyValue.value = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (item.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    propertyValue.value = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+
     public saveChange(item: Models.IItem, changeSet: IPropertyChangeSet): boolean {
         if (!item || !changeSet ) {
             return false;
@@ -164,43 +205,16 @@ export class ItemState {
         }
         changeSet.itemId = updateItem.id;
 
-        switch (changeSet.lookup) {
-            case Enums.PropertyLookupEnum.System:
-                if (changeSet.id in this.originItem) {
-                    updateItem[changeSet.id] = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            case Enums.PropertyLookupEnum.Custom:
-                propertyTypeId = changeSet.id as number;
-                propertyValue = (updateItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
-                    return it.propertyTypeId === propertyTypeId;
-                })[0];
-                if (propertyValue) {
-                    propertyValue.value = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            case Enums.PropertyLookupEnum.Special:
-                propertyTypeId = changeSet.id as number;
-                propertyValue = (updateItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
-                    return it.propertyTypeId === propertyTypeId;
-                })[0];
-                if (propertyValue) {
-                    propertyValue.value = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            default:
-                return false;
-        }
-        this.add(changeSet);
-        this.manager.changeState(this);
-        return true;
+        if (this.applyChange(updateItem, changeSet)) {
 
+            this.add(changeSet);
+            this.manager.changeState(this);
+            return true;
+        } else if (!this.isChanged && this._changedItem) {
+            //removes changed item if not changed
+            delete this._changedItem;
+        }
+        return false;
     }
 
     public getArtifact(): Models.IArtifact {
@@ -250,9 +264,7 @@ export class StateManager implements IStateManager {
             .asObservable();
     }
 
-
-    public dispose() {
-        
+    public reset() {
         //clear all subjects
         if (this._itemStateCollection) {
             this._itemStateCollection.forEach((it: ItemState) => {
@@ -260,7 +272,11 @@ export class StateManager implements IStateManager {
             });
             delete this._itemStateCollection;
         }
+    }
 
+    public dispose() {
+
+        this.reset();
         if (this._itemChanged) {
             this._itemChanged.dispose();
             delete this._itemChanged;
@@ -273,7 +289,7 @@ export class StateManager implements IStateManager {
         }
         let artifact: Models.IArtifact;
         let subartifact: Models.ISubArtifact;
-
+        let changed: boolean = false;
         if ("projectId" in item) {
             artifact = item as Models.IArtifact;
         } else {
@@ -285,12 +301,16 @@ export class StateManager implements IStateManager {
         if (!state) {
             if (artifact) {
                 this.itemStateCollection.push(state = new ItemState(this, artifact, type));
+                changed = true;
             } else {
                 throw new Error("Artifact_Not_Found");
             }
         } else {
             if (artifact) {
-                state.originItem = artifact;
+                if (state.originItem === artifact) {
+                    state.originItem = artifact;
+                    changed = true;
+                }
             } else {
                 if (angular.isArray(state.originItem.subArtifacts)) {
                     state.originItem.subArtifacts = [];
@@ -300,14 +320,26 @@ export class StateManager implements IStateManager {
                     return it.id === subartifact.id;
                 })[0];
                 if (_subartifact) {
-                    angular.extend(_subartifact, subartifact);
+                    if (_subartifact !== artifact) {
+                        angular.extend(_subartifact, subartifact);
+                        changed = true;
+                    }
                 } else {
                     state.originItem.subArtifacts.push(subartifact);
+                    changed = true;
                 }
             }
         }
-        this.clearStates(state);
-        this.itemChanged.onNext(state);
+        // removes all unchanged item states excluding current
+        this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
+            return it.isChanged || (it === state);
+        });
+
+
+        if (changed) {
+            this.changeState(state);
+        }
+
         return state;
     }
 
@@ -321,11 +353,7 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    public clearStates(exceptState?: ItemState) {
-        this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
-            return it.isChanged || (it === exceptState);
-        });
-    }
+    
 
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
@@ -344,14 +372,4 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    //public deleteState(item: number | Models.IItem) {
-    //    let itemId = angular.isNumber(item) ? item as number : (item ? item.id : -1);
-    //    this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
-    //        if (it.originItem.id === itemId) {
-    //            it.clear();
-    //            return false;
-    //        }
-    //        return true;
-    //    });
-    //}
 }

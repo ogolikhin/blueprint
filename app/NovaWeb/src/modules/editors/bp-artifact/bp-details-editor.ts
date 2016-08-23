@@ -73,7 +73,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public onLoad(context: Models.IEditorContext) {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            angular.extend(context.artifact, it);
+            context.artifact = it;
             this.stateManager.addChange(context.artifact);
             this.onUpdate(context);
         }).catch((error: any) => {

@@ -66,7 +66,9 @@ export class BpArtifactInfoController {
 
     private onStateChange(state: ItemState) {
         this.initProperties();
-
+        if (!state) {
+            return;
+        }
         let artifact = state.getArtifact(); 
 
         this.artifactName = artifact.name || "";

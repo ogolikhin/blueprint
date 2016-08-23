@@ -48,14 +48,14 @@ export class Layout implements ILayout {
         // initialize a popup menu for the graph
         // #TODO: activate handlers when the code is ready
 
-        this.popupMenu = new NodePopupMenu(
+        this.popupMenu = new NodePopupMenu (
                         processGraph, 
                         this.rootScope,
-                        null, //this.insertTaskWithUpdate,
-                        null, //this.insertUserDecision, 
-                        null, //this.insertUserDecisionConditionWithUpdate,
-                        null, //this.insertSystemDecision,
-                        null);//this.insertSystemDecisionConditionWithUpdate
+                        null,   //this.insertTaskWithUpdate,
+                        null,   //this.insertUserDecision, 
+                        null,   //this.insertUserDecisionConditionWithUpdate,
+                        null,   //this.insertSystemDecision,
+                        null ); //this.insertSystemDecisionConditionWithUpdate
 
         this.tempId = 0;
 

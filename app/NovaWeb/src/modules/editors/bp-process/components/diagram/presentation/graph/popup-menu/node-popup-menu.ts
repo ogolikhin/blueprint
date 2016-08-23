@@ -55,7 +55,7 @@ export class NodePopupMenu {
             }
             this.menu = menu;
             this.createPopupMenu(this.mxgraph, menu, cell, evt);
-        }
+        };
     }
 
     private updatePositionOfPopupMenu = (x: number, y: number) => {
@@ -147,8 +147,7 @@ export class NodePopupMenu {
 
         if (mxEvent.isRightMouseButton(me.evt)) {
             isPopupTrigger = false;
-        }
-        else if (mxEvent.isLeftMouseButton(me.evt)) {
+        } else if (mxEvent.isLeftMouseButton(me.evt)) {
             if (me.sourceState && me.sourceState.cell &&
                 me.evt["InsertNodeIcon"] === true) {
                 
@@ -160,8 +159,7 @@ export class NodePopupMenu {
 
                 // clear the flag on the event object
                 me.evt["InsertNodeIcon"] = false;
-            }
-            else {
+            } else {
                 isPopupTrigger = false;
             }
         }
@@ -177,31 +175,29 @@ export class NodePopupMenu {
             
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
-                menu.addItem('Add User Task', null, () => {
+                menu.addItem("Add User Task", null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
                     }
                 });
-            }
-            else if (this.canAddSystemDecision(this.insertionPoint)) {
+            } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
-                menu.addItem('Add System Decision Point', null, () => {
+                menu.addItem("Add System Decision Point", null, () => {
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
                     }
                 });
-            }
-            else {
-                menu.addItem('Add User Task', null, () => {
+            } else {
+                menu.addItem("Add User Task", null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
                     }
                 });
 
-                menu.addItem('Add User Decision Point', null, () => {
+                menu.addItem("Add User Decision Point", null, () => {
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -215,8 +211,7 @@ export class NodePopupMenu {
                     this.insertionPoint = null;
                 }
             });
-        }
-        else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
+        } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
@@ -256,16 +251,15 @@ export class NodePopupMenu {
          */
         var regex = new RegExp("[0-9/.]+"); // strip off the 'px'
         var res = regex.exec(menu.div.style.left);
-        var x: number = parseInt(res[0]);
+        var x: number = parseInt(res[0], 10);
         res = regex.exec(menu.div.style.top);
-        var y: number = parseInt(res[0]);
+        var y: number = parseInt(res[0], 10);
 
-        menu.div.style.left = (x - 62) + 'px';
+        menu.div.style.left = (x - 62) + "px";
         if (menu.itemCount === 1) {
-            menu.div.style.top = (y - 55) + 'px';
-        }
-        else if (menu.itemCount === 2) {
-            menu.div.style.top = (y - 90) + 'px';
+            menu.div.style.top = (y - 55) + "px";
+        } else if (menu.itemCount === 2) {
+            menu.div.style.top = (y - 90) + "px";
         }
     }
     private canAddSystemDecision(edge: MxCell): boolean {

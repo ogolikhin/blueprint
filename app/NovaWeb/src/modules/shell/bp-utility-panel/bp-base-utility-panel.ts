@@ -1,18 +1,22 @@
 import { ISelectionManager, Models} from "../../main";
+import { IStateManager, ItemState } from "../../core";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
 
 export class BPBaseUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
     private timeout: ng.IDeferred<void>;
+    protected itemState: ItemState;
 
     constructor(
         protected $q: ng.IQService,
         protected selectionManager: ISelectionManager, 
+        protected stateManager: IStateManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
+        const stateObservable = this.stateManager.stateChange.asObservable().subscribeOnNext(this.stateChanged, this);
         const selectionObservable = this.selectionManager.selectionObservable;
         const panelActiveObservable = this.bpAccordionPanel.isActiveObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
@@ -28,12 +32,16 @@ export class BPBaseUtilityPanelController {
                 .distinctUntilChanged()
                 .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
         
-        this._subscribers = [ artifactOrVisibilityChange ];
+        this._subscribers = [ artifactOrVisibilityChange, stateObservable ];
     }
 
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+    }
+
+    protected stateChanged(state: ItemState) {
+        this.itemState = state;
     }
 
     private selectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {

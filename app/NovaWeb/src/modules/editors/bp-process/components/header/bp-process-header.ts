@@ -71,6 +71,31 @@ export class BpProcessHeaderController implements ng.IComponentController, IArti
         return this._artifact.name;
     }
 
+    public get isChanged(): boolean {
+        if (!this._artifact) {
+            return true;
+        }
+
+        return true;
+    }
+
+    public get isLocked(): boolean {
+        if (!this._artifact) {
+            return true;
+        }
+
+        return true;
+    }
+
+    public get selfLocked(): boolean {
+        if (!this._artifact) {
+            return true;
+        }
+
+        return true;
+    }
+
+
     public get iconClass(): string {
         if (!this._artifact) {
             return null;

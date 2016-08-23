@@ -11,10 +11,14 @@ import { ISelectionManager, SelectionManager } from "./../../main/services/selec
 describe("Component BP Glossary", () => {
 
     let componentTest: ComponentTest<BpGlossaryController>;
-    let template = `<bp-glossary context="glossaryId"></bp-glossary>`;
+    let template = `<bp-glossary context="context"></bp-glossary>`;
     let vm: BpGlossaryController;
     let bindings = {
-        glossaryId: 263
+        context: {
+            artifact: {
+                id: 263
+            }
+        }
     };
 
     beforeEach(angular.mock.module("bp.editors.glossary"));

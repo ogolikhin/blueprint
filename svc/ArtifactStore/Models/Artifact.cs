@@ -41,7 +41,7 @@ namespace ArtifactStore.Models
         public RolePermissions? Permissions { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? LockedByUserId { get; set; }
+        public UserGroup LockedByUser { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? LockedDateTime { get; set; }

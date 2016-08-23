@@ -62,7 +62,7 @@ describe("Mention Service Test", () => {
         //Assert
         expect(result).toEqual(`<a href="javascript:;"><small>Add new: </small>test name</a>`);
     }));
-    it("Mentions Service Test Insert Name No Id", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
+    xit("Mentions Service Test Insert Name No Id", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);
         // Arrange
         var person = new UserOrGroupInfo("test name", "a@a.com", true, false, false);
@@ -71,7 +71,7 @@ describe("Mention Service Test", () => {
         //Assert
         expect(result).toEqual(`<a class="mceNonEditable" linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" text="test name" canclick="True" isvalid="True"  email="a@a.com"><span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">test name</span></a> `);
     }));
-    it("Mentions Service Test Insert Name With Id", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
+    xit("Mentions Service Test Insert Name With Id", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);
         // Arrange
         var person = new UserOrGroupInfo("test name", "a@a.com", true, false, false);

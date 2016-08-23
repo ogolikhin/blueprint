@@ -11,6 +11,8 @@ import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
 import {DiagramNodeElement} from "./diagram-element";
 import {NodeType, ElementType} from "../models/";
 import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
+import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
+import {IMessageService} from "../../../../../../../core/messages/message.svc";
 
 describe("UserTask test", () => {
 
@@ -21,15 +23,18 @@ describe("UserTask test", () => {
     //let graph: ProcessGraph;
     let localScope, rootScope, processModelService, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;
+    let msgService: IMessageService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService
+        _processModelService_: IProcessService,
+        messageService: IMessageService
     ) => {
         rootScope = $rootScope;
         processModelService = _processModelService_;
@@ -37,6 +42,7 @@ describe("UserTask test", () => {
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
+        msgService = messageService;
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {
@@ -395,7 +401,7 @@ describe("UserTask test", () => {
 
             let testModel = createSystemDecisionForAddBranchTestModel();
             let processModel = new ProcessViewModel(testModel);
-            processGraph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, shapesFactory);
+            processGraph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, msgService);
 
         });
         afterEach(() => {

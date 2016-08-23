@@ -250,5 +250,26 @@ describe("State Manager:", () => {
         expect(state).toBeUndefined();
     }));
 
+    it("lock artifact state", inject((stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
+            
+        //Act
+        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
+
+        let state = stateManager.getState(1);
+        state.lock = {
+            result: Enums.LockResultEnum.Success,
+                info: {
+                lockOwnerLogin: "user"
+            }
+        } as Models.ILockResult
+        //Assert
+        expect(state).toBeDefined();
+        expect(state.lock).toBeDefined();
+    }));
+
+
+
 
 });

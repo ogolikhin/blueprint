@@ -124,8 +124,8 @@ export function formlyConfig(
         /* tslint:disable */
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
+                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
                 <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
@@ -178,7 +178,7 @@ export function formlyConfig(
                     if ($scope.options.data.isRichText) {
                         newValue = $sce.trustAsHtml(newValue);
                     } else if ($scope.options.data.isMultipleAllowed) {
-                        newValue = $sce.trustAsHtml(newValue.replace(/(?:\r\n|\r|\n)/g, '<br />'));
+                        newValue = $sce.trustAsHtml((newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
                     break;
                 case PrimitiveType.Date:
@@ -320,7 +320,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                primeValidation($element[0]);
+                //primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -425,7 +425,8 @@ export function formlyConfig(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple
+                <ui-select class="has-scrollbar"
+                    multiple
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
@@ -475,7 +476,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                primeValidation($element[0]);
+                //primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -484,7 +485,8 @@ export function formlyConfig(
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
-                    $scope["bpFieldSelectMulti"].toggleScrollbar(false);
+                    $scope["bpFieldSelectMulti"].toggleScrollbar();
+                    $scope["uiSelectContainer"].firstChild.scrollTop = 0;
                 }
             }, 0);
         },
@@ -529,19 +531,22 @@ export function formlyConfig(
                     }
                     return -1;
                 },
-                toggleScrollbar: function (removeScrollbar: boolean) {
+                toggleScrollbar: function (removeScrollbar?: boolean) {
+                    if (!removeScrollbar) {
+                        if ($scope["uiSelectContainer"]) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight > elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                            } else {
+                                removeScrollbar = true;
+                            }
+                        }
+                    }
                     if (removeScrollbar) {
                         if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
                             let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
                             if (elem && elem.scrollHeight <= elem.clientHeight) {
                                 $scope["uiSelectContainer"].classList.remove("has-scrollbar");
-                            }
-                        }
-                    } else {
-                        if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                            if (elem && elem.scrollHeight > elem.clientHeight) {
-                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
                             }
                         }
                     }
@@ -591,7 +596,7 @@ export function formlyConfig(
                             $scope["uiSelectContainer"].querySelector("input").focus();
                         }
                     }, 100);
-                    this.toggleScrollbar(false);
+                    this.toggleScrollbar();
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas

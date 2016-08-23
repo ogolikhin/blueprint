@@ -99,12 +99,11 @@ export class NodeLabelEditor {
 
     private pointerDown = (e) => {
         if (e.target.className !== "processEditorCustomLabel") {
-            let divs: any = Array.prototype.filter.call(this.divs, (elem) => {
-                return elem.contenteditable === true;
-            });
-            let div = (divs != null) ? divs[0] : null;
-            if (div != null) {
-                this.fireEvent(div, "blur");
+            for(let div of this.divs) {
+                if (div.contentEditable === "true") {
+                    this.fireEvent(div, "blur");
+                    return;
+                }
             }
         }
     }

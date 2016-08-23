@@ -21,7 +21,7 @@ pagecontent, bp-properties-panel {
     flex-shrink: 0;
     font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
     min-width: $page-body-min-width;
-    padding: 15px 20px 0;
+    padding-top: 15px;
     white-space: nowrap;
 
     &::after {

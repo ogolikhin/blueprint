@@ -105,7 +105,7 @@ export class Label implements ILabel {
 
     private isIe11(): boolean {
         let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        return (myBrowser.msie && (myBrowser.version == 11));
+        return (myBrowser.msie && (myBrowser.version === 11));
     }
 
     constructor(private callback: any,

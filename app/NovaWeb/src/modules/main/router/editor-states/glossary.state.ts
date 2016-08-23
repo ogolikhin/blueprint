@@ -1,7 +1,7 @@
 ﻿import {IEditorParameters} from "../artifact.state";
 
 export class GlossaryState implements ng.ui.IState {
-    public template = "<bp-glossary context='$content.context.artifact.id'></bp-glossary>";
+    public template = "<bp-glossary context='$content.context'></bp-glossary>";
     public params: IEditorParameters = { context: null };
     public controller = "glossaryStateController";
     public controllerAs = "$content";

@@ -1,7 +1,7 @@
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
 import { ILocalizationService } from "../../core";
 import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
-import { ItemTypePredefined } from "./../../main/models/enums";
+import { IEditorContext, ItemTypePredefined } from "../../main/models/models";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -21,7 +21,7 @@ export class BpGlossaryController {
         "$sce"
     ];
 
-    private _context: number; // Models.IArtifact;
+    private _context: IEditorContext;
     private subscribers: Rx.IDisposable[];
 
     public glossary: IGlossaryDetails;
@@ -50,13 +50,13 @@ export class BpGlossaryController {
 
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            this._context = changesObj.context.currentValue;
+            this._context = <IEditorContext>changesObj.context.currentValue;
 
-            if (this._context) {
+            if (this._context && this._context.artifact) {
                 this.isLoading = true;
                 this.glossary = null;
 
-                this.glossaryService.getGlossary(this._context).then((result: IGlossaryDetails) => {
+                this.glossaryService.getGlossary(this._context.artifact.id).then((result: IGlossaryDetails) => {
                     result.terms = result.terms.map((term: IGlossaryTerm) => {
                         term.definition = this.$sce.trustAsHtml(term.definition); 
                         return term;

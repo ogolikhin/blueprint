@@ -115,7 +115,7 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                selection.source === SelectionSource.UtilityPanel))) {
+                selection.source === SelectionSource.Editor))) {
 
             this.showPanel(PanelType.Properties);
         } else {

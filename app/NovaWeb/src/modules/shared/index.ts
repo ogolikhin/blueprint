@@ -2,11 +2,13 @@
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "./widgets";
+import "./filters";
 
 angular.module("app.shared", [
     "ui.router",
     "ui.bootstrap",
-    "bp.widjets"]);
+    "bp.widjets",
+    "bp.filters"]);
     
 export {
     IBPTreeController,

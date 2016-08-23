@@ -1,14 +1,12 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { IDialogSettings, IDialogService } from "../../../shared";
+import { IUploadStatusDialogData } from "../../../shared/widgets";
+import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
-
-interface IAddOptions {
-    value: string;
-    label: string;
-}
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -23,35 +21,54 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "selectionManager",
-        "artifactAttachments"
+        "artifactAttachments",
+        "settings",
+        "dialogService"
     ];
 
     public artifactAttachmentsList: IArtifactAttachmentsResultSet;
-    public addOptions: IAddOptions[];
     public categoryFilter: number;
     public isLoading: boolean = false;
+    public filesToUpload: any;
     
     constructor(
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
         private artifactAttachments: IArtifactAttachments,
+        private settingsService: ISettingsService,
+        private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, selectionManager, bpAccordionPanel);
-
-        this.addOptions = [
-            { value: "attachment", label: this.localization.get("App_UP_Attachments_Add_Attachment") },
-            { value: "document", label: this.localization.get("App_UP_Attachments_Add_Ref_Doc") },
-        ];
+    }
+    
+    public addDocRef(): void {
+        alert("Add Doc Ref: US781");
     }
 
-    public $onInit() {
-        super.$onInit();
-    }
+    public onFileSelect(files: File[]) {
+        const openUploadStatus = () => {
+            const dialogSettings = <IDialogSettings>{
+                okButton: "Attach", //this.localization.get("App_Button_Open"),
+                template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+                controller: BpFileUploadStatusController,
+                css: "nova-file-upload-status",
+                header: "File Upload"
+            };
 
-    public $onDestroy() {
-        super.$onDestroy();
+            const dialogData: IUploadStatusDialogData = {
+                files: files,
+                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", 2 * 1024 * 1024),
+                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - this.artifactAttachmentsList.attachments.length
+            };
+
+            this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
+                console.log("returned values");
+            });
+        };
+
+        openUploadStatus();
     }
 
     protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

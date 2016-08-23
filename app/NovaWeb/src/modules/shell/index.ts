@@ -31,6 +31,7 @@ import {ErrorComponent} from "./error/error.component";
 import {Routes} from "./router/router.config";
 import {UsersAndGroupsService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
+import "../shared/filters";
 
 export { IUser, ISession}
 export { IServerLogger } from "./log/server-logger.svc";
@@ -44,7 +45,8 @@ angular.module("app.shell",
         "app.core",
         "ui.router",
         "ui.bootstrap",
-        "ngSanitize"
+        "ngSanitize",
+        "bp.filters"
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)

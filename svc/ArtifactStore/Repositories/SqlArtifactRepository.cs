@@ -145,7 +145,7 @@ namespace ArtifactStore.Repositories
                 OrderIndex = v.OrderIndex,
                 HasChildren = v.HasChildren,
                 Permissions = v.EffectivePermissions,
-                LockedByUserId = v.LockedByUserId,
+                LockedByUser = new UserGroup { Id = v.LockedByUserId },
                 LockedDateTime = v.LockedByUserTime
             })
             //NOTE:: Temporary filter Review and BaseLines ou from the list

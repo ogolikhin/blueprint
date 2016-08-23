@@ -113,21 +113,13 @@ export class BPCommentEditController {
         }
     };
 
-
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postCommentInternal()
-                .finally(() => {
-                    this.isWaiting = false;
-                });
+            this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" }).finally(() => {
+                this.isWaiting = false;
+            });
         }
-    }
-
-    public postCommentInternal(): ng.IPromise<void> {
-        const defer = this.$q.defer<any>();
-        this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
-        return defer.promise;
     }
 
     public $onDestroy() {

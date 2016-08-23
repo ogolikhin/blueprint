@@ -42,12 +42,11 @@ describe("Component BPCommentEdit", () => {
         expect(directiveTest.element.find("textarea").length).toBe(1);
     });
 
-    it("callPostComment should call postCommentInternal ",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+    it("callPostComment should finally make isWaiting false",
+        inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.postComment = () => { };
             vm.isWaiting = false;
-            spyOn(vm, "postCommentInternal").and.callThrough();
             let formatter = {};
             let editor = {
                 formatter: formatter
@@ -55,17 +54,23 @@ describe("Component BPCommentEdit", () => {
             formatter["register"] = (a, b) => { };
             editor["focus"] = () => { };
             vm.tinymceOptions.init_instance_callback(editor);
+            vm.postComment = (): ng.IPromise<any> => {
+                const defer = $q.defer();
+                let result = true;
+                defer.resolve(result);
+                return defer.promise;
+            };
 
             //Act
             vm.callPostComment();
             $timeout.flush();
 
             //Assert
-            expect(vm.postCommentInternal).toHaveBeenCalled();
+            expect(vm.isWaiting).toBe(false);
         }));
 
     it("tinymce init callback should call register",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             let formatter = {};
             let editor = {
@@ -80,10 +85,10 @@ describe("Component BPCommentEdit", () => {
 
             //Assert
             expect(formatter["register"]).toHaveBeenCalled();
-        }));
+        });
 
     it("tinymce setup should call addButton",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             let addButton = (a, b) => { };
             let editor = {
@@ -96,10 +101,10 @@ describe("Component BPCommentEdit", () => {
 
             //Assert
             expect(editor.addButton).toHaveBeenCalled();
-        }));
+        });
 
     it("tinymce setup should call apply after onclick call",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange 
             interface IMenuItem {
                 icon: string;
@@ -139,6 +144,6 @@ describe("Component BPCommentEdit", () => {
 
             //Assert
             expect(editor.formatter.apply).toHaveBeenCalled();
-        }));
+        });
             
 });

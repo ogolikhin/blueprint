@@ -171,6 +171,12 @@ Project_NotFound,"Couldn't find the project"
 Project_MetaDataNotFound,"Couldn't find the project meta data"
 Artifact_NotFound,"Couldn't find the artifact"
 ArtifactType_NotFound,"Couldn't find the artifact type"
+Artifact_Lock_AlreadyLocked, "Artifact locked by another user"
+Artifact_Lock_DoesNotExist, "Artifact doesn't exists aor moved to different location"
+Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
+Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
+
+
 
 Label_Name,"Name"
 Label_Type,"Type"

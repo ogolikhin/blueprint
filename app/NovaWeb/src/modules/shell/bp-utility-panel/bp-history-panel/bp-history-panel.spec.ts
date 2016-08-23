@@ -7,6 +7,8 @@ import { LocalizationServiceMock } from "../../../core/localization/localization
 import { ArtifactHistoryMock } from "./artifact-history.mock";
 import { Models } from "../../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { StateManager } from "../../../core/services/state-manager";
+import { DialogService } from "../../../shared/widgets/bp-dialog";
 
 describe("Component BPHistoryPanel", () => {
 
@@ -23,6 +25,8 @@ describe("Component BPHistoryPanel", () => {
         $provide.service("artifactHistory", ArtifactHistoryMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("stateManager", StateManager);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject((selectionManager: SelectionManager) => {

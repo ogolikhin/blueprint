@@ -52,7 +52,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 "",
                 XandY.y,
                 XandY.x,
-                0,
+                Connector.LABEL_SIZE,
                 width,
                 "#999999"
             );

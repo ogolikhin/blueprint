@@ -16,8 +16,7 @@ export interface ISelectionManager {
 export enum SelectionSource {
     None = 0,
     Explorer = 1,
-    Editor = 2,
-    UtilityPanel = 3
+    Editor = 2
 }
 
 export interface ISelection {

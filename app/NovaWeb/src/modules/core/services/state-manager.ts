@@ -9,6 +9,7 @@ export interface IStateManager {
     addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
     addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
+    lockArtifact(state: ItemState);//: ng.IPromise<Models.ILockResult>;
 }
 
 export interface IPropertyChangeSet {
@@ -95,12 +96,11 @@ export class ItemState {
         return this._lock;
     }
 
-    public setLock(value: Models.ILockResult): Models.ILockResult {
-        if (!value) {
-            return null;
-        }
+    public set lock(value: Models.ILockResult)  {
         this._lock = value;
-        if (value.result === Enums.LockResultEnum.Success) {
+        if (!value) {
+
+        } else if (value.result === Enums.LockResultEnum.Success) {
             this.originItem.lockedByUser = {
                 id: this.manager.currentUser.id
             };
@@ -115,7 +115,6 @@ export class ItemState {
             this._readonly = true;
         }
         this.manager.changeState(this);
-        return this._lock;
     }
 
     private add(changeSet: IPropertyChangeSet) {
@@ -235,12 +234,11 @@ export class ItemState {
 }
 
 export class StateManager implements IStateManager {
-    static $inject: [string] = ["session"];
+    static $inject: [string] = ["$http", "$q", "session"];
     private _itemStateCollection: ItemState[];
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor(private session: ISession) {
-        
+    constructor(private $http: ng.IHttpService, private $q: ng.IQService, private session: ISession) {
     }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
@@ -307,7 +305,7 @@ export class StateManager implements IStateManager {
             }
         } else {
             if (artifact) {
-                if (state.originItem === artifact) {
+                if (state.originItem !== artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }
@@ -353,7 +351,6 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    
 
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
@@ -371,5 +368,33 @@ export class StateManager implements IStateManager {
 
         return state;
     }
+
+    public lockArtifact(state: ItemState) {
+
+            if (state.lock || state.lockedBy !== Enums.LockedByEnum.None) {
+                return;
+            }
+
+            const request: ng.IRequestConfig = {
+                url: `/svc/shared/artifacts/lock`,
+                method: "post",
+                data: angular.toJson([state.originItem.id])
+            };
+
+             this.$http(request).then(
+                (result: ng.IHttpPromiseCallbackArg<Models.ILockResult[]>) => {
+                    state.lock = result.data[0];
+                },
+                (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                    var error = {
+                        statusCode: errResult.status,
+                        message: (errResult.data ? errResult.data.message : "")
+                    };
+                }
+            );
+
+    }
+
+
 
 }

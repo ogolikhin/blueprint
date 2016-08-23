@@ -60,7 +60,7 @@ describe("Component BPArtifactDiscussionItem", () => {
     });
 
     it("edit discussion should return default discussion",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService) => {
+        inject(($timeout: ng.ITimeoutService) => {
 
             //Arrange
             vm.artifactId = 1;
@@ -75,7 +75,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         }));
 
     it("edit discussion throws exception",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.artifactId = 1;
             vm.discussionEdited = () => { };
@@ -100,7 +100,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         }));
 
     it("new reply click shows add reply",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             vm.canCreate = true;
             vm.cancelComment = () => { };
@@ -110,10 +110,10 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Assert
             expect(vm.discussionInfo.showAddReply).toBe(true);
-        }));
+        });
 
     it("cancel comment click changes editing mode",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             vm.editing = true;
 
@@ -122,10 +122,10 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Assert
             expect(vm.editing).toBe(false);
-        }));
+        });
 
     it("edit comment click changes editing mode",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             vm.editing = false;
             vm.canCreate = true;
@@ -135,5 +135,5 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Assert
             expect(vm.editing).toBe(true);
-        }));
+        });
 });

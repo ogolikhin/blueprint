@@ -49,13 +49,15 @@ export class Layout implements ILayout {
         // #TODO: activate handlers when the code is ready
 
         this.popupMenu = new NodePopupMenu (
-                        processGraph, 
-                        this.rootScope,
-                        null,   //this.insertTaskWithUpdate,
-                        null,   //this.insertUserDecision, 
-                        null,   //this.insertUserDecisionConditionWithUpdate,
-                        null,   //this.insertSystemDecision,
-                        null ); //this.insertSystemDecisionConditionWithUpdate
+            this.rootScope,
+            this.processGraph.getHtmlElement(),
+            this.mxgraph, 
+
+            null,   //this.insertTaskWithUpdate,
+            null,   //this.insertUserDecision, 
+            null,   //this.insertUserDecisionConditionWithUpdate,
+            null,   //this.insertSystemDecision,
+            null ); //this.insertSystemDecisionConditionWithUpdate
 
         this.tempId = 0;
 

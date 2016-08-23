@@ -1,4 +1,4 @@
-﻿import {IProcessGraph, IDiagramNode} from "../models/";
+﻿import {IDiagramNode} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
 import {NodeType} from "../models/";
 
@@ -9,13 +9,13 @@ export class NodePopupMenu {
     private initialPopupPosition: number[] = null;
     private diagramAbsoluteCoordinates: number[] = null;
     private scrollTicking: boolean = false;
-
-    public mxgraph: MxGraph = null;
+    
     public insertionPoint: MxCell = null;
 
     constructor(
-        private processGraph: IProcessGraph,
         private rootScope,
+        private htmlElement: HTMLElement,
+        private mxgraph: MxGraph, 
         private insertTaskFn,
         private insertUserDecisionFn,
         private insertUserDecisionBranchFn,
@@ -26,8 +26,7 @@ export class NodePopupMenu {
     }
 
     private init() {
-        this.mxgraph = this.processGraph.getMxGraph(); 
-
+    
         this.installPopupMenuHandlers();
 
         this.mxgraph.popupMenuHandler["setEnabled"](true);
@@ -79,11 +78,10 @@ export class NodePopupMenu {
 
     private initScrollingPositionOfPopupMenu = () => {
         // set the properties to be used for calculating the popup position when scrolling
-        let htmlElement: HTMLElement = this.processGraph.getHtmlElement();
-
+         
         this.initialScrollPosition = [];
-        this.initialScrollPosition["x"] = htmlElement.scrollLeft;
-        this.initialScrollPosition["y"] = htmlElement.scrollTop;
+        this.initialScrollPosition["x"] = this.htmlElement.scrollLeft;
+        this.initialScrollPosition["y"] = this.htmlElement.scrollTop;
 
         if (this.menu && this.menu["div"]) {
             let menuDiv = <HTMLElement>this.menu["div"];
@@ -92,7 +90,7 @@ export class NodePopupMenu {
             this.initialPopupPosition["y"] = parseInt(menuDiv.style.top, 10);
         }
 
-        let containerBoundingClientRect = htmlElement.getBoundingClientRect();
+        let containerBoundingClientRect = this.htmlElement.getBoundingClientRect();
         this.diagramAbsoluteCoordinates = [];
         // StoryTeller main viewport doesn't have scrollbars, otherwise we may need to compensate the following values
         // ref: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -104,8 +102,7 @@ export class NodePopupMenu {
 
     private removeScrollHandler = () => {
         // unregister of the scroll handler
-        let htmlElement: HTMLElement = this.processGraph.getHtmlElement();
-        htmlElement.removeEventListener("scroll", this.scrollHandler);
+        this.htmlElement.removeEventListener("scroll", this.scrollHandler);
         // reset the properties used for calculating the popup position when scrolling
         this.initialScrollPosition = null;
         this.initialPopupPosition = null;
@@ -229,7 +226,7 @@ export class NodePopupMenu {
 
         this.initScrollingPositionOfPopupMenu();
         // register the scroll handler
-        this.processGraph.getHtmlElement().addEventListener("scroll", this.scrollHandler);
+        this.htmlElement.addEventListener("scroll", this.scrollHandler);
     };
 
     public hidePopupMenu = () => {
@@ -277,12 +274,11 @@ export class NodePopupMenu {
     }
     private isSourceNodeOfType(edge: MxCell, nodeType: NodeType) {
         let result: boolean = false;
-        let mxGraphModel: MxGraphModel = this.processGraph.getMxGraphModel();
-
+   
         if (edge && edge.source) {
             var node = (<IDiagramNodeElement>edge.source).getNode();
             if (node.getNodeType() === NodeType.MergingPoint) {
-                let incomingLinks: IDiagramLink[] = node.getIncomingLinks(mxGraphModel);
+                let incomingLinks: IDiagramLink[] = node.getIncomingLinks(this.mxgraph.getModel());
                 for (let link of incomingLinks) {
                     if (this.isSourceNodeOfType(link, nodeType)) {
                         return true;

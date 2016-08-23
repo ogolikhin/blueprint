@@ -1,14 +1,11 @@
 ﻿import {IProcess, ProcessModel} from "../../../../../models/processModels";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {IProcessGraph} from "../models/";
 import {NodeType} from "../models/";
-import {ProcessGraph} from "../process-graph";
-import {ShapesFactory} from "../shapes/shapes-factory";
 import {NodePopupMenu} from "./node-popup-menu";
+import {BpMxGraphModel} from "../bp-mxgraph-model";
 
 describe("Popup Menu test", () => {
-    var graph: IProcessGraph;
-    var shapesFactory: ShapesFactory;
+    var mxgraph: MxGraph;
     var localScope, rootScope;
     var htmlElement: HTMLElement;
     var processModel: IProcess;
@@ -19,29 +16,27 @@ describe("Popup Menu test", () => {
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService, $rootScope: ng.IRootScopeService) => {
+
         rootScope = $rootScope;
 
         rootScope["config"] = {};
         rootScope["config"].labels = {
-            "ST_Decision_Modal_Add_Condition_Button_Label": ""
+            "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition"
         };
 
-        shapesFactory = new ShapesFactory(rootScope);
+        localScope = {};
 
         var wrapper = document.createElement('DIV');
         htmlElement = document.createElement('DIV');
         wrapper.appendChild(htmlElement);
         document.body.appendChild(wrapper);
-
-        $rootScope["config"] = {};
-        $rootScope["config"].labels = {};
-        
-        localScope = {};
-
+  
         processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel);
         viewModel.isReadonly = false;
         viewModel.isSpa = true;
+
+        mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());  
 
     }));
 
@@ -70,9 +65,17 @@ describe("Popup Menu test", () => {
         // Arrange
 
         // Act
-        var graph = new ProcessGraph(rootScope, localScope, htmlElement, null, viewModel);
-
-        var popupMenu = new NodePopupMenu(graph, insertTask, insertUserDecision, insertUserDecisionBranch, insertSystemDecision, insertSystemDecisionBranch, null);
+     
+        var popupMenu = new NodePopupMenu(
+            rootScope,
+            htmlElement,
+            mxgraph,
+            insertTask,
+            insertUserDecision,
+            insertUserDecisionBranch,
+            insertSystemDecision,
+            insertSystemDecisionBranch
+        );
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
@@ -86,7 +89,7 @@ describe("Popup Menu test", () => {
 
         // Act
 
-        popupMenu.createPopupMenu(graph, menu, null, null);
+        popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         //Assert
 
@@ -102,9 +105,16 @@ describe("Popup Menu test", () => {
         // Arrange
 
         // Act
-        var graph = new ProcessGraph(rootScope, localScope, htmlElement, null, viewModel);
-
-        var popupMenu = new NodePopupMenu(graph, insertTask, insertUserDecision, insertUserDecisionBranch, insertSystemDecision, insertSystemDecisionBranch, null);
+        var popupMenu = new NodePopupMenu(
+            rootScope,
+            htmlElement,
+            mxgraph,
+            insertTask,
+            insertUserDecision,
+            insertUserDecisionBranch,
+            insertSystemDecision,
+            insertSystemDecisionBranch
+        );
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
@@ -122,7 +132,7 @@ describe("Popup Menu test", () => {
 
         // Act
 
-        popupMenu.createPopupMenu(graph, menu, null, null);
+        popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         //Assert
 
@@ -135,17 +145,19 @@ describe("Popup Menu test", () => {
 
     it("The menu should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
         // Arrange
-        let rootScope = {
-            config: {
-                labels: {
-                    ST_Decision_Modal_Add_Condition_Button_Label: "Add Condition"
-                }
-            }
-        };
+        
         // Act
-        var graph = new ProcessGraph(rootScope, localScope, htmlElement, null, viewModel);
-
-        var popupMenu = new NodePopupMenu(graph, insertTask, insertUserDecision, insertUserDecisionBranch, insertSystemDecision, insertSystemDecisionBranch, rootScope);
+      
+        var popupMenu = new NodePopupMenu(
+            rootScope,
+            htmlElement,
+            mxgraph,
+            insertTask,
+            insertUserDecision,
+            insertUserDecisionBranch,
+            insertSystemDecision,
+            insertSystemDecisionBranch
+        );
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
         popupMenu.insertionPoint["__proto__"]["vertex"] = true;
@@ -163,14 +175,13 @@ describe("Popup Menu test", () => {
 
         // Act
 
-        popupMenu.createPopupMenu(graph, menu, null, null);
+        popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         //Assert
 
         expect(menu.addItem["calls"].count()).toEqual(1);
         var args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add Condition");
-
 
     });
 });

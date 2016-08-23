@@ -443,8 +443,8 @@ namespace Model.ArtifactModel.Impl
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The UpdateArtifactResult object returned by the call.</returns>
-        public static UpdateArtifactResult UpdateArtifact(IArtifactBase artifactToUpdate,
+        /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>
+        public static ArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
             ArtifactDetails artifactChanges = null,
             string address = null,
@@ -452,8 +452,6 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
-
-            Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
 
             string tokenValue = user.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactToUpdate.Id);
@@ -475,29 +473,23 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            var updateResult = restApi.SendRequestAndDeserializeObject<UpdateArtifactResult, ArtifactDetails>(
+            restApi.SendRequestAndGetResponse<ArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
-                artifactChanges,
+                bodyObject: artifactChanges,
                 expectedStatusCodes: expectedStatusCodes);
-
-            Assert.NotNull(updateResult, "No artifact result was returned!");
-            Logger.WriteDebug("Result Messages for the Updated Artifact {0}: '{1}'.",
-                artifactToUpdate.Id, string.Join("', '", updateResult.Messages ?? new List<string>()));
 
             if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 artifactToUpdate.IsSaved = true;
 
-                Assert.NotNull(updateResult.Result, "'PATCH {0}' returned a null 'Result'!", path);
-
                 IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
 
                 // Copy updated properties into original artifact.
-                ((ArtifactBase)artifactToUpdate).ReplacePropertiesWithPropertiesFromSourceArtifactDetails(updateResult.Result, project, user);
+                ((ArtifactBase)artifactToUpdate).ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
             }
 
-            return updateResult;
+            return artifactChanges;
         }
 
         /// <summary>
@@ -657,8 +649,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Lock Artifact(s).
-        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact IDs in the request body)
+        /// Lock an Artifact.
+        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact ID in the request body)
         /// </summary>
         /// <param name="artifact">The artifact to lock.</param>
         /// <param name="address">The base url of the API.</param>

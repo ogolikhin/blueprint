@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
 using System.Diagnostics.CodeAnalysis;
-using Model.Impl;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -21,13 +20,6 @@ namespace Model.ArtifactModel.Impl
         Failure
     }
 
-    public class UpdateArtifactResult
-    {
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<string> Messages { get; set; }
-        public ArtifactDetails Result { get; set; }
-    }
-
     public class OpenApiAddArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
@@ -41,6 +33,12 @@ namespace Model.ArtifactModel.Impl
         public int ArtifactId { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }
+    }
+
+    public class SaveArtifactResult
+    {
+        public string Message { get; set; }
+        public int ErrorCode { get; set; }
     }
 
     public class PublishArtifactResult

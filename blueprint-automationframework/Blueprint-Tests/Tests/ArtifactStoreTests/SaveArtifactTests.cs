@@ -141,19 +141,7 @@ namespace ArtifactStoreTests
 
         #region UpdateArtifact tests
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(156656)]
         [Description("Create & publish an artifact.  Update the artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we updated.")]
         public void UpdateArtifact_PublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
@@ -161,82 +149,43 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
-            IOpenApiArtifact openApiArtifact1 = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
-            UpdateArtifactResult updateResult = null;
 
-            // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(openApiArtifact1, _user, address: Helper.BlueprintServer.Address),
-                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
-
-            // Verify:
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
-            updateResult.Result.AssertEquals(openApiArtifact);
-
-            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(156917)]
         [Description("Create & save an artifact.  Update the artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we updated.")]
         public void UpdateArtifact_UnpublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            ArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            // Update the Id of the artifact with the value after the save.
-            artifact.Id = artifactDetails.Id;
-
-            // Change the Description so it can be updated.
-            artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
-
-            UpdateArtifactResult updateResult = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
-                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
-
-            // Verify:
-            Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.Result.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
-
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
-            updateResult.Result.AssertEquals(artifactDetails);
-
-            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+            // Execute & Verify:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType);
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.TestBug)]   // This test is failing and needs more debugging.
         [TestRail(156662)]
         [Description("Try to update an artifact, but send an empty request body.  Verify 400 Bad Request is returned.")]
         public void UpdateArtifact_EmptyBody_400BadRequest()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
-            const string requestBody = null;
+            string requestBody = string.Empty;
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 UpdateInvalidArtifact(requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if an empty body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Artifact not provided.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.TestBug)]   // This test is failing and needs more debugging.
         [TestRail(156663)]
         [Description("Try to update an artifact, but send a corrupt JSON request body.  Verify 400 Bad Request is returned.")]
         public void UpdateArtifact_CorruptBody_400BadRequest()
@@ -244,18 +193,45 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             string requestBody = JsonConvert.SerializeObject(artifact);
-            requestBody = requestBody.Remove(0, 5);     // Remove first 5 characters to corrupt the JSON string.
+
+            // Remove first 5 characters to corrupt the JSON string, thereby corrupting the JSON structure.
+            requestBody = requestBody.Remove(0, 5);
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 UpdateInvalidArtifact(requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if a corrupt JSON body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Artifact not provided.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.TestBug)]   // This test is failing and needs more debugging.
+        [TestRail(157057)]
+        [Description("Try to update an artifact, but send a JSON request body without an 'Id' property.  Verify 400 Bad Request is returned.")]
+        public void UpdateArtifact_MissingIdInJsonBody_400BadRequest()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            string requestBody = JsonConvert.SerializeObject(artifact);
+
+            // Remove the 'Id' property by renaming it.
+            requestBody = requestBody.Replace("\"Id\"", "\"NotId\"");
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Artifact not provided.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+        }
+
+        [TestCase]
         [TestRail(156664)]
         [Description("Try to update an artifact, but send a different Artifact ID in the URL vs request body.  Verify 400 Bad Request is returned.")]
         public void UpdateArtifact_DifferentArtifactIdsInUrlAndBody_400BadRequest()
@@ -268,11 +244,14 @@ namespace ArtifactStoreTests
             int wrongArtifactId = artifact2.Id;
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 UpdateInvalidArtifact(requestBody, wrongArtifactId, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Artifact does not match Id of request.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -285,9 +264,12 @@ namespace ArtifactStoreTests
             IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
                 "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Unauthorized call.";
+            AssertStringMessaceIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -296,13 +278,17 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UnauthorizedToken_401Unauthorized()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            artifact.Lock();
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken, shouldGetLockForUpdate: false),
                 "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "Unauthorized call";
+            AssertStringMessaceIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -315,15 +301,19 @@ namespace ArtifactStoreTests
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
+            artifact.Lock();
+
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission, shouldGetLockForUpdate: false),
                 "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase(0)]
         [TestCase(int.MaxValue)]
-        [Explicit(IgnoreReasons.TestBug)]   // This test is failing and needs more debugging.
         [TestRail(156660)]
         [Description("Try to update an artifact with a non-existent Artifact ID.  Verify 404 Not Found is returned.")]
         public void UpdateArtifact_NonExistentArtifactId_404NotFound(int nonExistentArtifactId)
@@ -335,11 +325,19 @@ namespace ArtifactStoreTests
             artifact.Id = nonExistentArtifactId;
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => artifact.Save(),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
                 "'PATCH {0}' should return 404 Not Found if the Artifact ID doesn't exist!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify the message, but skip for Id == 0 because in that case IIS returns the generic HTML 404 response.
+            if (artifact.Id != 0)
+            {
+                const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+                AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            }
         }
 
+        [TestCase]
         [TestRail(156661)]
         [Description("Create & publish an artifact, then delete & publish it.  Try to update the deleted artifact.  Verify 404 Not Found is returned.")]
         public void UpdateArtifact_DeletedArtifact_404NotFound()
@@ -350,9 +348,12 @@ namespace ArtifactStoreTests
             artifact.Publish();
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => artifact.Save(),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
                 "'PATCH {0}' should return 404 Not Found if the artifact was deleted!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         // TODO: See if we can test any of the following 409 Conflict cases:
@@ -375,13 +376,45 @@ namespace ArtifactStoreTests
         #region Private functions
 
         /// <summary>
+        /// Common code for UpdateArtifact_PublishedArtifact_CanGetArtifact and UpdateArtifact_UnpublishedArtifact_CanGetArtifact tests.
+        /// </summary>
+        /// <param name="artifact">The artifact to update.</param>
+        /// <param name="artifactType">The type of artifact.</param>
+        private void UpdateArtifact_CanGetArtifact(IArtifact artifact, BaseArtifactType artifactType)
+        {
+            // Setup:
+            ArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            // Update the Id of the artifact with the value after the save.
+            artifact.Id = artifactDetails.Id;
+
+            // Change the Description so it can be updated.
+            artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+
+            ArtifactDetails updateResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
+
+            // Verify:
+            Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
+
+            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
+            updateResult.AssertEquals(artifactDetails);
+
+            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+        }
+
+        /*
+        /// <summary>
         /// Try to save a single invalid artifact to ArtifactStore.  Use this for testing cases where the save is expected to fail.
         /// </summary>
         /// <param name="requestBody">The request body (i.e. artifact to be saved).</param>
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user saving the artifact.</param>
-        /// <returns>The ArtifactResult returned from ArtifactStore.</returns>
-        public UpdateArtifactResult SaveInvalidArtifact(string requestBody,
+        /// <returns>The ArtifactDetails returned from ArtifactStore.</returns>
+        private ArtifactDetails SaveInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {
@@ -391,16 +424,19 @@ namespace ArtifactStoreTests
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
+            const string contentType = "application/json";
 
             var response = restApi.SendRequestBodyAndGetResponse(
                 path,
                 RestRequestMethod.POST,
-                requestBody);
+                requestBody,
+                contentType);
 
-            var artifactResult = JsonConvert.DeserializeObject<UpdateArtifactResult>(response.Content);
+            var artifactResult = JsonConvert.DeserializeObject<ArtifactDetails>(response.Content);
 
             return artifactResult;
         }
+        */
 
         /// <summary>
         /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
@@ -408,8 +444,8 @@ namespace ArtifactStoreTests
         /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user updating the artifact.</param>
-        /// <returns>The list of ArtifactResults returned from ArtifactStore.</returns>
-        public List<UpdateArtifactResult> UpdateInvalidArtifact(string requestBody,
+        /// <returns>The body content returned from ArtifactStore.</returns>
+        private string UpdateInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {
@@ -419,15 +455,43 @@ namespace ArtifactStoreTests
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
+            const string contentType = "application/json";
 
             var response = restApi.SendRequestBodyAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
-                requestBody);
+                requestBody,
+                contentType);
 
-            var updateResultList = JsonConvert.DeserializeObject<List<UpdateArtifactResult>>(response.Content);
+            return response.Content;
+        }
 
-            return updateResultList;
+        /// <summary>
+        /// Asserts that the specified RestResponse contains the expected error message.
+        /// </summary>
+        /// <param name="restReponse">The RestResponse that contains the message.</param>
+        /// <param name="expectedMessage">The expected error message.</param>
+        /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
+        private static void AssertRestResponseMessageIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
+        {
+            SaveArtifactResult result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
+
+            Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by '{0} {1}'.",
+                requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        /// <summary>
+        /// Asserts that the specified RestResponse contains the expected error message.
+        /// </summary>
+        /// <param name="restReponse">The RestResponse that contains the message.</param>
+        /// <param name="expectedMessage">The expected error message.</param>
+        /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
+        private static void AssertStringMessaceIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
+        {
+            string result = JsonConvert.DeserializeObject<string>(restReponse.Content);
+
+            Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
+                requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
         #endregion Private functions

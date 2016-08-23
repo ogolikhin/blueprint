@@ -33,18 +33,30 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
+        [JsonIgnore]
         public bool ShouldDeleteChildren { get; set; }
+        [JsonIgnore]
         public IUser LockOwner { get; set; }
+        [JsonIgnore]
         public string Address { get; set; }
+        [JsonIgnore]
         public IUser CreatedBy { get; set; }
+        [JsonIgnore]
         public bool IsPublished { get; set; }
+        [JsonIgnore]
         public bool IsSaved { get; set; }
+        [JsonIgnore]
         public bool IsMarkedForDeletion { get; set; }
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
+        [JsonIgnore]
         public IProject Project { get; set; }
 
+        [JsonIgnore]
         public bool AreTracesReadOnly { get; set; }
+        [JsonIgnore]
         public bool AreAttachmentsReadOnly { get; set; }
+        [JsonIgnore]
         public bool AreDocumentReferencesReadOnly { get; set; }
 
         #region Serialized JSON Properties

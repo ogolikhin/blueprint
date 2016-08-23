@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService } from "../../../core";
+﻿import { ILocalizationService, IMessageService, IStateManager } from "../../../core";
 import { ISelectionManager, Models, IArtifactService} from "../../../main";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IDialogService } from "../../../shared";
@@ -20,6 +20,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "localization",
         "artifactDiscussions",
         "selectionManager",
+        "stateManager",
         "messageService",
         "dialogService",
         "$q",
@@ -44,13 +45,14 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private localization: ILocalizationService,
         private artifactDiscussions: IArtifactDiscussions,
         protected selectionManager: ISelectionManager,
+        protected stateManager: IStateManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
         $q: ng.IQService,
         private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },

@@ -101,12 +101,17 @@ export class ProcessGraph implements IProcessGraph {
         this.applyReadOnlyStyles();
         this.initSelection();
 
+        // #TODO: temporarily disable edge selection until 
+        // the Selection Manager is restored 
+        this.disableEdgeSelection();
+
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
              this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
         this.initializeGlobalScope();
+  
     }
 
 
@@ -142,7 +147,7 @@ export class ProcessGraph implements IProcessGraph {
             model.endUpdate();
         }
     }
-
+    
     public getMxGraph(): MxGraph {
         return this.mxgraph;
     }
@@ -522,7 +527,16 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
-    
+
+    private disableEdgeSelection() {
+        mxGraph.prototype.isCellSelectable = (cell) => {
+            if (cell.isEdge()) {
+                return false;
+            }
+            return true;
+        };
+    }
+
     public addSelectionListener(listener: ISelectionListener) {
         if (listener != null) {
             this.selectionListeners.push(listener);

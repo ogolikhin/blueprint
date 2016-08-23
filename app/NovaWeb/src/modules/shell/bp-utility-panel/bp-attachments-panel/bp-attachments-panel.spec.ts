@@ -8,6 +8,7 @@ import { LocalizationServiceMock } from "../../../core/localization/localization
 import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
 import { Models } from "../../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { DialogService } from "../../../shared/widgets/bp-dialog";
 
 describe("Component BP Attachments Panel", () => {
 
@@ -24,6 +25,7 @@ describe("Component BP Attachments Panel", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject(() => {
@@ -44,7 +46,7 @@ describe("Component BP Attachments Panel", () => {
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+            const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
             
             //Act
             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
@@ -59,5 +61,21 @@ describe("Component BP Attachments Panel", () => {
             expect(componentTest.element.find("bp-artifact-attachment-item").length).toBe(7);
             expect(componentTest.element.find("bp-artifact-document-item").length).toBe(3);
             expect(componentTest.element.find(".empty-state").length).toBe(0);
-    }));
+        }));
+
+    it("should not load data for artifact without Prefix",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+
+            //Arrange
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
+
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactAttachmentsList).toBe(null);
+        }));
 });

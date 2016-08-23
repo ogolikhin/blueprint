@@ -1,11 +1,15 @@
 ﻿import "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "Rx";
+import "../../";
 import { ComponentTest } from "../../../util/component.test";
 import { BPRelationshipsPanelController } from "./bp-relationships-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactRelationshipsMock } from "./artifact-relationships.mock";
-import { SelectionManager } from "../../../main/services/selection-manager";
+import { Models, ProjectManager } from "../../../main/services/project-manager";
+import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
+import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -22,6 +26,8 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("projectManager", ProjectManager);
+        $provide.service("projectRepository", ProjectRepositoryMock);
     }));
 
     beforeEach(inject(() => {
@@ -39,21 +45,36 @@ describe("Component BPRelationshipsPanel", () => {
         expect(directiveTest.element.find(".empty-state").length).toBe(1);
     });
 
-    // it("should load data for a selected artifact",
-    //     inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+    it("should load data for a selected artifact",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
-    //        //Arrange
-    //         const project = { id: 2, name: "Project 2" } as Models.IProject;
-    //         const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            
-    //         //Act
-    //         selectionManager.selection = { project: project, artifact: artifact, source:  SelectionSource.Explorer };
-    //         $rootScope.$digest();
-    //         const selectedArtifact = selectionManager.selection.artifact;
+            //Arrange
+            const artifact = { id: 22, name: "Artifact", prefix: "AC" } as Models.IArtifact;
 
-    //         //Assert
-    //         expect(selectedArtifact).toBeDefined();
-    //         expect(vm.artifactList.manualTraces.length).toBe(2);
-    //         expect(vm.artifactList.otherTraces.length).toBe(3);
-    //     }));
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
+
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactList.manualTraces.length).toBe(2);
+            expect(vm.artifactList.otherTraces.length).toBe(3);
+        }));
+
+    it("should not load data for artifact without Prefix",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+
+            //Arrange
+            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.selection.artifact;
+
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactList).toBe(null);
+        }));
 });

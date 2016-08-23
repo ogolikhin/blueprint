@@ -1,89 +1,115 @@
-bp-properties-panel  {
+bp-properties-panel {
 
-  $page-body-min-width: 300px;
-    
-  .tab-content { 
-         display: block; 
-     } 
-  
-
-  .artifact-overview {      
-
-    > .content {
-      border: none;
-      padding: 0px 0px;
-    }
+    $page-body-min-width: 335px;
+    $properties-min-width: $page-body-min-width - 40px - 30px - 2px;
+    $property-horiz-spacing: 10px;
+    $property-label-width: 100px;
+    $property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px;
+    $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
    
-  }     
+    .properties {
+        min-width: $properties-min-width;
+    }
 
-  // .single-column .formly .formly-field label {  
-  //   width: 200px;
-  // }
-
-  // .formly {
-
-  //  min-width: 200px;
-
-  // .formly-field {
-     
-  //     display: block;
-  //     width: 200px;
-
-  //     input,
-  //     textarea,
-  //     select {
-     
-  //     width: 200px;
-  //   }
-
-  //     label {     
-  //     width: 200px;
-  //   }
-
-  //     .form-tinymce {      
-  //     min-width: 200px;
-  //     height: auto;
-  //   }
-
-  //   .read-only-input {
-      
-  //     &.simple,
-  //     &.multiple {
-  //       border: solid 1px transparent;
-  //       max-width: $property-input-width;
-  //       overflow: hidden;
-  //       padding: 0 $property-padding-default;
-  //       width: $property-input-width;
-  //     }
-
-  //     &.simple {
-  //       height: $property-min-height;
-  //       line-height: $property-min-height;
-  //       text-overflow: ellipsis;
-  //       white-space: nowrap;
-  //     }
-
-  //     &.multiple {
-  //       margin-top: 5px;
-  //       max-height: #{2.5 * $property-min-height};
-  //       min-height: #{$property-min-height - 5px};
-  //       padding-bottom: 4px;
-
-  //       .choice {
-  //         overflow: hidden;
-  //         text-overflow: ellipsis;
-  //         white-space: nowrap;
-  //       }
-  //     }
-
-  //     &.richtext {
-  //       height: #{3 * $property-min-height};
-  //       min-width: $property-input-width;
-  //       padding: 0;
-  //     }
-  //   }
-  // }
-  // }
+    .tab-content {
+        display: block;
+    }
 
 
-}
+    .artifact-overview {
+
+        > .content {
+            border: none;
+            padding: 0px 0px;
+        }
+    }
+
+    .formly {
+        min-width: $property-width - $property-label-width;
+
+        &::after,
+        &::before {
+            width: $property-width;
+        }
+
+        .formly-field {
+            width: $property-width;
+
+            input,
+            textarea,
+            select {
+                max-width: $property-input-width;
+                width: $property-input-width;
+            }
+
+            .ui-select-single {
+                .ui-select-toggle {
+                    max-width: $property-input-width;
+                    width: $property-input-width;
+                }
+
+                .ui-select-match-item-chosen {
+                    width: #{$property-input-width - 30px};
+                }
+
+                .ui-select-choices {
+                    width: $property-input-width;
+                }                
+            }
+
+            .ui-select-multiple {
+                    width: #{$property-input-width - 20px};
+                    max-width: #{$property-input-width - 20px};
+
+                    > div {
+                        width: $property-input-width;
+                    }
+
+                    .ui-select-choices {
+                        width: $property-input-width;
+                    }
+
+                    .ui-select-no-choice {
+                        width: $property-input-width;
+                    }
+                }
+
+            .read-only-input {
+
+
+                &.simple,
+                &.multiple {
+                    max-width: $property-input-width;
+                    width: $property-input-width;
+                }
+
+                &.richtext {      
+                      min-width: $property-input-width;      
+                }
+            }
+
+            .form-tinymce {      
+                min-width: $property-input-width;
+            }
+        }
+    }
+
+    .single-column-property .formly .formly-field label {  
+        width: $property-input-width;
+    }
+
+    .tab-pane {
+        .formly {            
+            min-width: $property-input-width;            
+        }
+    }
+
+    .uib-datepicker-popup {  
+
+        table.uib-daypicker,
+        table.uib-monthpicker,
+        table.uib-yearpicker {    
+            width: $property-input-width;
+        }
+    }
+}    

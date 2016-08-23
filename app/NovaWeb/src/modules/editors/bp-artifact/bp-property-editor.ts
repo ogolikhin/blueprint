@@ -32,6 +32,8 @@ export class PropertyEditor {
                     return {
                         validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
                     };
+                } else if (angular.isObject(($value))) {
+                    return { customValue: $value.customValue };
                 }
                 return this.locale.toNumber($value);
 
@@ -63,8 +65,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
-            } else if (angular.isString($value.customValue)) {
-                return $value.customValue;
+            //} else if (angular.isString($value.customValue)) {
+            //    return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }
@@ -85,7 +87,7 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): any {
 
         this._model = {};
         this._fields = [];
@@ -180,26 +182,26 @@ export class PropertyEditor {
 
         } else {
             switch (context.primitiveType) {
-                case Models.PrimitiveType.Text:
+                case Models.PrimitiveType.Text:                   
                     field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
-                    if (context.isRichText) {
-                        field.templateOptions["tinymceOption"] = {
-                            //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
-                        };
-                        //TODO: added just for testing
-                        if (true) { //here we need something to decide if the tinyMCE editor should have mentions
-                            field.templateOptions["tinymceOption"].mentions = {
-                                source: tinymceMentionsData,
-                                delay: 100,
-                                items: 5,
-                                queryBy: "fullname",
-                                insert: function (item) {
-                                    return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
-                                }
+                        if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
+                            field.templateOptions["tinymceOption"] = {
+                                //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
                             };
-                        }
-                    }
+                            //TODO: added just for testing
+                            if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                                field.templateOptions["tinymceOption"].mentions = {
+                                    source: tinymceMentionsData,
+                                    delay: 100,
+                                    items: 5,
+                                    queryBy: "fullname",
+                                    insert: function (item) {
+                                        return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
+                                    }
+                                };
+                            }
+                        }                                        
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";

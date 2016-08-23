@@ -1,5 +1,6 @@
 import { ILocalizationService, IMessageService, Message, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
-import { IProjectManager, IWindowManager, Enums, Models} from "../../main";
+import { IProjectManager, IWindowManager} from "../../main/services";
+import { Enums, Models} from "../../main/models";
 
 import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";
@@ -81,7 +82,7 @@ export class BpArtifactEditor extends BpBaseEditor {
             this.artifactState = this.stateManager.getState(context.artifact.id);
 
             if (this.artifactState) {
-                artifact = this.artifactState.changedItem || this.artifactState.originItem;
+                artifact = this.artifactState.getArtifact();
             } else {
                 throw Error("Artifact_Not_Found");
             }

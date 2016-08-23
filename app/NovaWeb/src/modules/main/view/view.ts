@@ -1,19 +1,21 @@
 ﻿import "angular";
-import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../core";
-import { IUser, ISession } from "../shell";
-import { IProjectManager, Models, Enums } from "./";
+import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../../core";
+import { IUser, ISession } from "../../shell";
+import { Models, Enums } from "../models";
+import { IProjectManager } from "../services";
 
-export class MainViewComponent implements ng.IComponentOptions {
-    public template: string = require("./main.view.html");
+
+
+export class MainView implements ng.IComponentOptions {
+    public template: string = require("./view.html");
     public controller: Function = MainViewController;
     public transclude: boolean = true;
     public controllerAs = "$main";
 }
 
-export interface IMainViewController {
-}
 
-export class MainViewController implements IMainViewController {
+
+export class MainViewController {
     private _subscribers: Rx.IDisposable[];
     static $inject: [string] = ["$state", "session", "projectManager", "messageService", "stateManager", "localization", "windowVisibility"];
     constructor(
@@ -41,6 +43,7 @@ export class MainViewController implements IMainViewController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.messageService.dispose();
         this.projectManager.dispose();
+        this.stateManager.dispose();
     }
 
     private onVisibilityChanged = (isHidden: boolean) => {
@@ -52,9 +55,6 @@ export class MainViewController implements IMainViewController {
         this.isActive = Boolean(projects.length);
         this.toggle(Enums.ILayoutPanel.Left, Boolean(projects.length));
         this.toggle(Enums.ILayoutPanel.Right, Boolean(projects.length));
-        if (!this.isActive) {
-            this.stateManager.dispose();
-        }
     };
 
     public isLeftToggled: boolean;
@@ -64,6 +64,9 @@ export class MainViewController implements IMainViewController {
             this.isLeftToggled = angular.isDefined(state) ? state : !this.isLeftToggled;
         } else if (Enums.ILayoutPanel.Right === id) {
             this.isRightToggled = angular.isDefined(state) ? state : !this.isRightToggled;
+        }
+        if (!this.isActive) {
+            this.stateManager.reset();
         }
     };
 

@@ -19,20 +19,21 @@ import {ConnectorStyles} from "./shapes/connector-styles";
 import {NodeShapes} from "./shapes/node-shapes";
 import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
-
+import {NodeLabelEditor} from "./node-label-editor";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     //#TODO fix up references later 
-    //public nodeLabelEditor: NodeLabelEditor;
+    public nodeLabelEditor: NodeLabelEditor;
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
     private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
+    private executionEnvironmentDetector: any;
     
     public globalScope: IScopeContext;
 
@@ -60,6 +61,11 @@ export class ProcessGraph implements IProcessGraph {
         private $log: ng.ILogService = null) {
 
         // Creates the graph inside the given container
+         
+        // This is temporary code. It will be replaced with 
+        // a class that wraps this global functionality.   
+        let w: any = window; 
+        this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
          
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
         this.shapesFactory = new ShapesFactory(this.rootScope);
@@ -98,7 +104,7 @@ export class ProcessGraph implements IProcessGraph {
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
-            // this.nodeLabelEditor = new NodeLabelEditor(this.container);
+             this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
         this.initializeGlobalScope();
     }
@@ -108,10 +114,9 @@ export class ProcessGraph implements IProcessGraph {
         try {
             // uses layout object to draw a new diagram for process model
             this.layout.render(useAutolayout, selectedNodeId);
-            // #TODO: fix up these references later 
-            //if (this.nodeLabelEditor != null) {
-            //    this.nodeLabelEditor.init();
-            //}
+            if (this.nodeLabelEditor != null) {
+                this.nodeLabelEditor.init();
+            }
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -413,6 +418,10 @@ export class ProcessGraph implements IProcessGraph {
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
             this.htmlElement.style.overflow = "auto";
+            if (this.isIe11) {
+                // fixed bug https://trello.com/c/lDdwGxZC
+                this.htmlElement.style.msOverflowStyle = "scrollbar"; // "-ms-autohiding-scrollbar";
+            }
         } else {
             this.htmlElement.style.overflowX = "auto";
             this.htmlElement.style.overflowY = "none";
@@ -456,9 +465,6 @@ export class ProcessGraph implements IProcessGraph {
 
         this.htmlElement.style.height = minHeight;
         this.htmlElement.style.width = minWidth;
-        //this.htmlElement.style.minHeight = minHeight;
-        //this.htmlElement.style.minWidth = minWidth;
-
     }
 
     public updateSizeChanges(width: number = 0) {
@@ -548,9 +554,9 @@ export class ProcessGraph implements IProcessGraph {
         //    this.dragDropHandler.dispose();
         //}
 
-        //if (this.nodeLabelEditor != null) {
-        //    this.nodeLabelEditor.dispose();
-        //}
+        if (this.nodeLabelEditor != null) {
+            this.nodeLabelEditor.dispose();
+        }
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -1038,13 +1044,8 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private setIsIe11() {
-        //#TODO: implement this function later 
-        /*
-        var executionEnvironmentDetector = new ExecutionEnvironmentDetector();
-        var myBrowser = executionEnvironmentDetector.getBrowserInfo();
+        var myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
         this.isIe11 = (myBrowser.msie && (myBrowser.version == 11));
-        */
-        this.isIe11 = false;
     }
 
     private initSelection() {

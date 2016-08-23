@@ -2,8 +2,8 @@
 
 
 export interface IArtifactService {
-    getArtifact(id: number): ng.IPromise<Models.IArtifact>;
-    getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact>;
+    getArtifact(id: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
+    getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
 }
 
@@ -14,15 +14,13 @@ export class ArtifactService implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService, private fontNormalizer: any) {
     }
 
-    public getArtifact(artifactId: number): ng.IPromise<Models.IArtifact> {
+    public getArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<any>();
 
         const request: ng.IRequestConfig = {
             url: `/svc/bpartifactstore/artifacts/${artifactId}`,
             method: "GET",
-            //params: {
-            //    types: true
-            //}
+            timeout: timeout
         };
 
         this.$http(request).then(
@@ -38,13 +36,14 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
-    public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {        
+    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {        
         var defer = this.$q.defer<any>();
         let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
         
         const request: ng.IRequestConfig = {
             url: rest,
-            method: "GET",            
+            method: "GET",
+            timeout: timeout
         };
 
         this.$http(request).then(

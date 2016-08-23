@@ -7,7 +7,7 @@ export interface IArtifactRelationshipsResultSet {
 }
 
 export interface IArtifactRelationships {
-    getRelationships(artifactId: number, subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactRelationshipsResultSet>;
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
 }
 
@@ -27,7 +27,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
     public getRelationships(
         artifactId: number,
-        subArtifactId?: number): ng.IPromise<IArtifactRelationshipsResultSet> {
+        subArtifactId?: number,
+        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,           

@@ -399,6 +399,8 @@
 		        this.dropdown.style.left = "auto";
 		        this.dropdown.style.right = offset.right + "px";
 	        }
+	        this.dropdown.classList.add("arrow-" + offset.arrow.horizontal);
+	        this.dropdown.classList.add("arrow-" + offset.arrow.vertical);
 
             document.body.appendChild(this.dropdown);
 
@@ -427,16 +429,11 @@
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
 
-                var div = document.createElement("div");
-                div.innerHTML = this.render(item);
-                var li = div.firstChild;
-
-                li.innerHTML = li.innerHTML.replace(li.innerText, this.highlighter(li.innerText));
+                var li = this.render(item);
 
                 this.jsH.each(item, function (key, val) {
                     li.setAttribute('data-' + key, val);
                 });
-
                 this.dropdown.appendChild(li);
             }
 
@@ -556,10 +553,14 @@
                 showRight = nodePositionLeft < window.innerWidth * .75;
 
             return {
-                top: showBelow ? nodePositionTop + 5 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
+                top: showBelow ? nodePositionTop + 8 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
                 bottom: showBelow ? null : window.innerHeight - nodePositionTop + 5,
                 left: showRight ? nodePositionLeft : null,
-                right: showRight ? null : window.innerWidth - nodePositionLeft - node.offsetWidth
+                right: showRight ? null : window.innerWidth - nodePositionLeft - node.offsetWidth - 13,
+                arrow: {
+                    vertical: (showBelow ? "top" : "bottom"),
+                    horizontal: (showRight ? "left" : "right")
+                }
             };
         },
 
@@ -571,10 +572,14 @@
                 showRight = nodePosition.left < window.innerWidth * .75;
 
             return {
-                top: showBelow ? nodePosition.top + 5 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
+                top: showBelow ? nodePosition.top + 8 + this.jsH.innerHeight(this.editor.selection.getNode()) : null,
                 bottom: showBelow ? null : window.innerHeight - nodePosition.top + 5,
                 left: showRight ? nodePosition.left : null,
-	            right: showRight ? null : window.innerWidth - nodePosition.left - node.offsetWidth
+	            right: showRight ? null : window.innerWidth - nodePosition.left - node.offsetWidth - 13,
+                arrow: {
+                    vertical: (showBelow ? "top" : "bottom"),
+                    horizontal: (showRight ? "left" : "right")
+                }
             };
         }
 

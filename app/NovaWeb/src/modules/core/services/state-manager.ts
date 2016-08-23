@@ -307,7 +307,7 @@ export class StateManager implements IStateManager {
             }
         } else {
             if (artifact) {
-                if (state.originItem === artifact) {
+                if (state.originItem !== artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }

@@ -1,9 +1,9 @@
 ﻿import {IProcess, ProcessModel} from "../../../../../models/processModels";
+import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {IProcessGraph} from "../models/";
 import {NodeType} from "../models/";
 import {ProcessGraph} from "../process-graph";
 import {ShapesFactory} from "../shapes/shapes-factory";
-import {IProcessViewModel, ProcessViewModel} from "../../../viewModel/process-viewmodel";
 import {NodePopupMenu} from "./node-popup-menu";
 
 describe("Popup Menu test", () => {
@@ -20,6 +20,12 @@ describe("Popup Menu test", () => {
 
     beforeEach(inject((_$window_: ng.IWindowService, $rootScope: ng.IRootScopeService) => {
         rootScope = $rootScope;
+
+        rootScope["config"] = {};
+        rootScope["config"].labels = {
+            "ST_Decision_Modal_Add_Condition_Button_Label": ""
+        };
+
         shapesFactory = new ShapesFactory(rootScope);
 
         var wrapper = document.createElement('DIV');

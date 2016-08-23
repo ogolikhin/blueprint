@@ -46,7 +46,6 @@ export class SelectionHelper {
                 case Diagrams.USECASE_DIAGRAM:
                     if (element.type === Shapes.USECASE || element.type === Shapes.ACTOR) {
                         const artifactId = ShapeExtensions.getPropertyByName(element, ShapeProps.ARTIFACT_ID);
-                        effectiveSelection.source = SelectionSource.UtilityPanel;
                         effectiveSelection.subArtifact = undefined;
                         if (artifactId != null) {
                             effectiveSelection.artifact = {

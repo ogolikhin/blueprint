@@ -1,4 +1,5 @@
 ﻿import { IMessageService } from "./message.svc";
+import { ILocalizationService } from "../localization";
 import { IMessage, MessageType } from "./message";
 
 export class MessageContainerComponent implements ng.IComponentOptions {
@@ -15,8 +16,8 @@ export interface IMessageContainerController {
 
 export class MessageContainerController implements IMessageContainerController {
     public messages: Array<IMessage>;   
-    public static $inject = ["messageService", "$sce"];
-    constructor(private messageService: IMessageService, private $sce: any) {
+    public static $inject = ["messageService", "localization",  "$sce"];
+    constructor(private messageService: IMessageService, private localization: ILocalizationService, private $sce: any) {
         this.messages = messageService.messages;
     }
    
@@ -33,6 +34,7 @@ export class MessageContainerController implements IMessageContainerController {
     }
 
     public getText(text: string) {
-        return this.$sce.trustAsHtml(text);
+
+        return this.$sce.trustAsHtml(this.localization.get(text));
     }
 }

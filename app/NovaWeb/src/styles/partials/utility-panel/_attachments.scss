@@ -6,6 +6,43 @@ bp-attachments-panel {
         border: 1px solid $gray;
     }
 
+    .bp-select .dropdown {
+        min-width: 115px;
+
+        .dropdown-menu {
+            left: inherit;
+            right: 0;
+        }
+
+        li > label {
+            font-weight: normal;
+            padding: 3px 20px;
+            white-space: nowrap;
+            clear: both;
+            display: block;
+
+            &:hover {
+                color: $white;
+                background-color: $brand-secondary;
+                cursor: pointer;
+            }
+
+        }
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .add-empty {
+        margin: 30px 0;
+
+        p {
+            font-size: 1.2rem;
+            color: $gray-darker;
+        }
+    }
+
     .ext-image { background: url('images/filetypes/image.svg') center center no-repeat; }
     .ext-video { background: url('images/filetypes/video.svg') center center no-repeat; }
     .ext-sound { background: url('images/filetypes/sound.svg') center center no-repeat; }

@@ -134,7 +134,7 @@ bp-discussion-panel {
         }
 
         .show-more {
-            background-image: linear-gradient(to bottom, transparent, $blue-lightest);
+            background-image: linear-gradient(to bottom, transparent 0%, $blue-lightest 70%);
         }
     }
 

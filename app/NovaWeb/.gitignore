@@ -9,3 +9,4 @@ typings
 /*.sln
 npm-debug.*
 *.njsproj
+vwd.webinfo

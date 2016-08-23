@@ -9,77 +9,106 @@ $property-input-icon-width: 40px;
 $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
 $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing; // should be 4 * ...
 $property-padding-default: 6px;
+$property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAABCAIAAAATs2rlAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4QzNENTgzNDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjg4QzNENTg0NDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODhDM0Q1ODE0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODhDM0Q1ODI0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz72Ya4LAAAAKUlEQVR42mJ88eIFLy8vAwPD////gSQjIyMDGAC5yGxcUsgKqAgAAgwAL9YR3iDzIXQAAAAASUVORK5CYII=');
 $property-multichoice-height: 24px;
 
-
 pagecontent, bp-properties-panel {
+  .properties {
+    border: solid 1px $gray-lighter;
+    min-width: $properties-min-width;
 
-$property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAABCAIAAAATs2rlAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4QzNENTgzNDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjg4QzNENTg0NDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODhDM0Q1ODE0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODhDM0Q1ODI0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz72Ya4LAAAAKUlEQVR42mJ88eIFLy8vAwPD////gSQjIyMDGAC5yGxcUsgKqAgAAgwAL9YR3iDzIXQAAAAASUVORK5CYII=');
+    + .properties {
+      margin-top: 15px;
+    }
 
-.properties {
-  border: solid 1px $gray-lighter;
-  min-width: $properties-min-width;
-
-  + .properties {
-    margin-top: 15px;
-  }
-
-  &::after {
-    clear: both;
-    content: '';
-    display: table;
-  }
-
-  > .heading {
-    color: $gray-dark;
-    cursor: pointer;
-    font-size: $font-size-big;
-    font-weight: 600;
-    line-height: 1em;
-    min-height: 36px;
-    padding: 11px 14px 11px 9px;
-
-    &::before {
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 5px dashed;
-      border-top: 5px solid \9;
+    &::after {
+      clear: both;
       content: '';
-      display: inline-block;
-      height: 0;
-      margin-right: 5px;
-      position: relative;
-      top: -2px;
-      width: 0;
+      display: table;
     }
+
+    > .heading {
+      color: $gray-dark;
+      cursor: pointer;
+      font-size: $font-size-big;
+      font-weight: 600;
+      line-height: 1em;
+      min-height: 36px;
+      padding: 11px 14px 11px 9px;
+
+      &::before {
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px dashed;
+        border-top: 5px solid \9
+      ;
+        content: '';
+        display: inline-block;
+        height: 0;
+        margin-right: 5px;
+        position: relative;
+        top: -2px;
+        width: 0;
+      }
+    }
+
+    &.collapsed {
+      > .heading::before {
+        border-bottom: 5px solid transparent;
+        border-left: 5px dashed;
+        border-left: 5px solid \9
+      ;
+        border-top: 5px solid transparent;
+        left: 3px;
+        top: 0;
+      }
+
+      .content {
+        display: none;
+      }
+    }
+
+    /* DO NOT DELETE. Commented out while testing Formly
+      .content {
+        align-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: $font-size-smallest;
+        justify-content: space-between;
+        margin: 0 10px;
+        min-width: $property-content-min-width;
+        //overflow: auto;
+        padding: 0 0 10px;
+
+        // create "padding" to align un-even numbers of property groups
+        &::after,
+        &::before {
+          content: '';
+          display: flex;
+          //flex: 392px;
+          flex-grow: 0;
+          flex-shrink: 1;
+          order: 0;
+          width: 392px;
+        }
+
+        &::before {
+          order: 1;
+        }
+      }
+    */
   }
 
-  &.collapsed {
-    > .heading::before {
-      border-bottom: 5px solid transparent;
-      border-left: 5px dashed;
-      border-left: 5px solid \9;
-      border-top: 5px solid transparent;
-      left: 3px;
-      top: 0;
-    }
-
-    .content {
-      display: none;
-    }
-  }
-
-/* DO NOT DELETE. Commented out while testing Formly
-  .content {
+  .formly {
     align-content: flex-start;
     align-items: flex-start;
     display: flex;
     flex-wrap: wrap;
-    font-size: $font-size-smallest;
+    font-size: .9rem;
     justify-content: space-between;
-    margin: 0 10px;
-    min-width: $property-content-min-width;
-    //overflow: auto;
+    margin: 0 $property-horiz-spacing;
+    min-width: $property-width - $property-label-width;
     padding: 0 0 10px;
 
     // create "padding" to align un-even numbers of property groups
@@ -91,234 +120,427 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       flex-grow: 0;
       flex-shrink: 1;
       order: 0;
-      width: 392px;
+      width: $property-width;
     }
 
     &::before {
       order: 1;
     }
-  }
-*/
-}
 
-.formly {
-  align-content: flex-start;
-  align-items: flex-start;
-  display: flex;
-  flex-wrap: wrap;
-  font-size: .9rem;
-  justify-content: space-between;
-  margin: 0 $property-horiz-spacing;
-  min-width: $property-width - $property-label-width;
-  padding: 0 0 10px;
-
-  // create "padding" to align un-even numbers of property groups
-  &::after,
-  &::before {
-    content: '';
-    display: flex;
-    //flex: 392px;
-    flex-grow: 0;
-    flex-shrink: 1;
-    order: 0;
-    width: $property-width;
-  }
-
-  &::before {
-    order: 1;
-  }
-
-  > div:last-child {
-    display: none;
-  }
-
-  .formly-field {
-    align-items: flex-start;
-    border-left: solid $property-horiz-spacing transparent;
-    border-right: solid $property-horiz-spacing transparent;
-    display: flex;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-wrap: wrap;
-    font-size: 0; // to eliminate empty space. Must redefine font-size in children!
-    margin: 0 0 12px;
-    min-height: $property-min-height;
-    order: 0;
-    width: $property-width;
-
-    .form-group {
-      margin: 0;
+    > div:last-child {
+      display: none;
     }
 
-    .form-control {
-      z-index: auto;
-    }
-
-    label {
-      color: $gray-dark;
-      display: inline-block;
-      font-size: $font-size-normal;
-      font-weight: 400;
-      margin: 6px 4px 0 0;
-      overflow: hidden;
-      padding: 0;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: #{$property-label-width - 4px};
-    }
-
-    input,
-    textarea,
-    select {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
-      box-shadow: none !important;
-      box-sizing: border-box;
-      color: $gray-dark;
-      display: inline-block;
-      font-size: $font-size-normal;
-      font-weight: 400;
-      height: $property-min-height;
-      max-width: $property-input-width;
+    .formly-field {
+      align-items: flex-start;
+      border-left: solid $property-horiz-spacing transparent;
+      border-right: solid $property-horiz-spacing transparent;
+      display: flex;
+      flex-basis: auto;
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-wrap: wrap;
+      font-size: 0; // to eliminate empty space. Must redefine font-size in children!
+      margin: 0 0 12px;
       min-height: $property-min-height;
-      padding: 0 $property-padding-default;
-      width: $property-input-width;
-    }
+      order: 0;
+      width: $property-width;
 
-    input,
-    textarea {
-      &[disabled] {
-        background: transparent;
-        border-color: transparent;
-        cursor: default;
+      .form-group {
+        margin: 0;
+      }
 
-        & + .input-group-btn {
-          display: none;
+      .form-control {
+        z-index: auto;
+      }
+
+      label {
+        color: $gray-dark;
+        display: inline-flex;
+        font-size: $font-size-normal;
+        font-weight: 400;
+        margin: 6px 4px 0 0;
+        padding: 0;
+        width: #{$property-label-width - 4px};
+
+        div:first-child {
+          flex-grow: 1;
+          flex-shrink: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        div:last-child {
+          flex-grow: 100;
+          flex-shrink: 0;
+          width: 3.5px;
         }
       }
 
-      &::-ms-clear {
-        display: none;
-      }
-    }
-
-    input {
-      &:not([disabled]):hover,
-      &:not([disabled]):focus {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-        padding-right: 20px;
-      }
-
-      &[type="date"]:hover,
-      &[type="date"]:focus {
-        background: $yellow-pale;
-        padding-right: $property-padding-default;
-      }
-    }
-
-    textarea {
-      min-height: $property-multiple-height;
-      //overflow: hidden;
-      overflow: auto;
-      -ms-overflow-style: auto;
-      padding: 5px 17px 0 $property-padding-default;
-
-      &:not([disabled]):hover,
-      &:not([disabled]):focus {
-        background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-        overflow: auto;
-        -ms-overflow-style: auto;
-        //padding-right: 0;
-
-      }
-    }
-
-    .ui-select-single {
-      .ui-select-toggle {
-        background: $white;
+      input,
+      textarea,
+      select {
         border: solid 1px $gray-lightest;
         border-radius: 0;
         box-shadow: none !important;
         box-sizing: border-box;
         color: $gray-dark;
-        display: block;
+        display: inline-block;
         font-size: $font-size-normal;
         font-weight: 400;
         height: $property-min-height;
-        line-height: $property-min-height;
         max-width: $property-input-width;
         min-height: $property-min-height;
-        overflow: hidden;
         padding: 0 $property-padding-default;
-        text-align: left;
         width: $property-input-width;
+      }
 
-        &:hover,
-        &:focus {
-          background-color: $yellow-pale;
+      input,
+      textarea {
+        &[disabled] {
+          background: transparent;
+          border-color: transparent;
+          cursor: default;
+
+          & + .input-group-btn {
+            display: none;
+          }
+        }
+
+        &::-ms-clear {
+          display: none;
         }
       }
 
-      .caret.pull-right {
-        background: url('images/typeahead-arrow.png') no-repeat;
-        border: 0;
-        display: block;
-        height: 26px;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 23px;
+      input {
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+          padding-right: 20px;
+        }
+
+        &[type="date"]:hover,
+        &[type="date"]:focus {
+          background: $yellow-pale;
+          padding-right: $property-padding-default;
+        }
       }
 
-      .ui-select-match-item-chosen {
-        overflow: hidden;
-        padding: 0;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: #{$property-input-width - 30px};
-      }
-
-      .ui-select-choices {
-        border-color: $gray-lighter;
-        border-radius: 0;
-        border-width: 1px;
-        max-height: #{$property-multichoice-height * 10};
+      textarea {
+        min-height: $property-multiple-height;
+        //overflow: hidden;
         overflow: auto;
         -ms-overflow-style: auto;
-        padding: 0;
-        top: $property-min-height;
-        width: $property-input-width;
+        padding: 5px 17px 0 $property-padding-default;
 
-        .ui-select-choices-row {
-          height: $property-multichoice-height;
+        &:not([disabled]):hover,
+        &:not([disabled]):focus {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+          overflow: auto;
+          -ms-overflow-style: auto;
+          //padding-right: 0;
 
-          .ui-select-choices-row-inner {
-            color: $gray-darker;
-            cursor: pointer;
-            text-decoration: none;
+        }
+      }
 
-            .ui-select-choice-item {
-              font-size: 1.2rem;
-              line-height: $property-multichoice-height;
-              overflow: hidden;
-              padding: 0 8px;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              width: 100%;
+      .ui-select-single {
+        &.no-custom {
+          .ui-select-search {
+            background: url('images/typeahead-arrow.png') no-repeat right top;
 
-              &::before {
-                content: '';
-                display: inline-block;
-                width: 12px;
+            &:hover,
+            &:focus {
+              background-color: $yellow-pale;
+            }
+          }
+        }
+
+        .ui-select-toggle {
+          background: $white;
+          border: solid 1px $gray-lightest;
+          border-radius: 0;
+          box-shadow: none !important;
+          box-sizing: border-box;
+          color: $gray-dark;
+          display: block;
+          font-size: $font-size-normal;
+          font-weight: 400;
+          height: $property-min-height;
+          line-height: $property-min-height;
+          max-width: $property-input-width;
+          min-height: $property-min-height;
+          overflow: hidden;
+          padding: 0 $property-padding-default;
+          text-align: left;
+          width: $property-input-width;
+
+          &:hover,
+          &:focus {
+            background-color: $yellow-pale;
+          }
+        }
+
+        .caret.pull-right {
+          background: url('images/typeahead-arrow.png') no-repeat;
+          border: 0;
+          display: block;
+          height: 26px;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 23px;
+        }
+
+        .ui-select-placeholder {
+          color: $gray-lighter;
+        }
+
+        .ui-select-match-item-chosen {
+          overflow: hidden;
+          padding: 0;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: #{$property-input-width - 30px};
+        }
+
+        .ui-select-choices {
+          border-color: $gray-lighter;
+          border-radius: 0;
+          border-width: 1px;
+          max-height: #{$property-multichoice-height * 10};
+          overflow: auto;
+          -ms-overflow-style: auto;
+          padding: 0;
+          top: $property-min-height;
+          width: $property-input-width;
+
+          .ui-select-choices-row {
+            height: $property-multichoice-height;
+
+            .ui-select-choices-row-inner {
+              color: $gray-darker;
+              cursor: pointer;
+              text-decoration: none;
+
+              .ui-select-choice-item {
+                font-size: 1.2rem;
+                line-height: $property-multichoice-height;
+                overflow: hidden;
+                padding: 0 8px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                width: 100%;
+
+                &::before {
+                  content: '';
+                  display: inline-block;
+                  width: 12px;
+                }
+
+                .ui-select-highlight {
+                  text-decoration: underline;
+                }
               }
 
-              .ui-select-highlight {
-                text-decoration: underline;
+              &:hover .ui-select-choice-item {
+                background: $blue-lightest;
+
+                &::before {
+                  content: '\2713';
+                }
               }
             }
+          }
 
-            &:hover .ui-select-choice-item {
+          .ui-select-choices-row.disabled {
+            .ui-select-choices-row-inner {
+              color: $gray;
+              cursor: not-allowed;
+
+              .ui-select-choice-item {
+                background: transparent;
+
+                &::before {
+                  content: '\2713';
+                }
+
+                .ui-select-highlight {
+                  text-decoration: none;
+                }
+              }
+            }
+          }
+
+          .ui-select-choices-row.active {
+            .ui-select-choices-row-inner {
+              .ui-select-choice-item {
+                background: $blue-lightest;
+
+                &::before {
+                  content: '\2713';
+                }
+              }
+            }
+          }
+        }
+
+        .ui-select-offscreen {
+          clip: rect(0 0 0 0) !important;
+          width: 1px !important;
+          height: 1px !important;
+          border: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+          position: absolute !important;
+          outline: 0 !important;
+          left: 0px !important;
+          top: 0px !important;
+        }
+      }
+      $ui-select-input-height: $property-min-height - 4px;
+      .ui-select-multiple {
+        border: 0;
+        box-shadow: none !important;
+        float: none;
+        height: $property-min-height;
+        max-width: #{$property-input-width - 20px};
+        overflow: visible;
+        padding: 0;
+        width: #{$property-input-width - 20px};
+
+        > div {
+          border: solid 1px $gray-lightest;
+          max-height: $property-multiple-height;
+          overflow: auto;
+          -ms-overflow-style: auto;
+          padding: 0;
+          width: $property-input-width;
+
+          &:hover,
+          &:focus {
+            background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+          }
+
+          &::before {
+            background: transparent;
+            content: ' ';
+            display: block;
+            float: right;
+            height: $ui-select-input-height;
+            width: 20px;
+          }
+        }
+
+        &.has-scrollbar > div::before {
+          content: none;
+        }
+
+        .ui-select-match-item {
+          background: $gray-lightest;
+          border-color: $gray-lighter;
+          border-width: 1px;
+          box-shadow: none;
+          margin: 2px;
+          max-width: calc(100% - 24px);
+          min-width: calc((100% - 32px) / 3);
+          outline: none;
+          padding: 0;
+
+          span.close {
+            color: $gray;
+            font-size: 16px;
+            line-height: 18px;
+            opacity: 1;
+            text-shadow: none;
+            width: 20px;
+          }
+
+          span:not(.close) {
+            float: left;
+            max-width: calc(100% - 20px);
+          }
+
+          &.btn-primary {
+            background: $brand-secondary;
+            border-color: $brand-secondary;
+
+            span.close,
+            .ui-select-match-item-chosen {
+              color: $white;
+            }
+          }
+        }
+
+        .ui-select-match-item-chosen {
+          color: $gray-darker;
+          font-size: 1.2rem;
+          line-height: 18px;
+          overflow: hidden;
+          padding-left: 4px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        input,
+        input:hover,
+        input:focus {
+          background: transparent;
+          border: 0;
+          font-size: 1.2rem;
+          height: $ui-select-input-height;
+          line-height: $ui-select-input-height;
+          margin: 0;
+          max-height: $ui-select-input-height;
+          min-height: $ui-select-input-height;
+          outline: none;
+          padding: 0 0 0 6px;
+        }
+
+        .ui-select-choices {
+          border-color: $gray-lighter;
+          border-radius: 0;
+          border-width: 1px;
+          max-height: #{$property-multichoice-height * 10};
+          overflow: auto;
+          -ms-overflow-style: auto;
+          padding: 0;
+          width: $property-input-width;
+
+          .ui-select-choices-row {
+            height: $property-multichoice-height;
+
+            .ui-select-choices-row-inner {
+              color: $gray-darker;
+              cursor: pointer;
+              text-decoration: none;
+
+              .ui-select-choice-item {
+                font-size: 1.2rem;
+                line-height: $property-multichoice-height;
+                overflow: hidden;
+                padding: 0 8px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                width: 100%;
+
+                &::before {
+                  content: '';
+                  display: inline-block;
+                  width: 12px;
+                }
+
+                .ui-select-highlight {
+                  text-decoration: underline;
+                }
+              }
+            }
+          }
+
+          &:not(.disable-highlight) {
+            .ui-select-choices-row.active .ui-select-choice-item,
+            .ui-select-choices-row-inner:hover .ui-select-choice-item {
               background: $blue-lightest;
 
               &::before {
@@ -326,415 +548,247 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
               }
             }
           }
-        }
 
-        .ui-select-choices-row.disabled {
-          .ui-select-choices-row-inner {
-            color: $gray;
-            cursor: not-allowed;
+          .ui-select-choices-row.disabled {
+            .ui-select-choices-row-inner {
+              color: $gray;
+              cursor: not-allowed;
 
-            .ui-select-choice-item {
-              background: transparent;
+              .ui-select-choice-item {
+                background: transparent;
 
-              &::before {
-                content: '\2713';
-              }
+                &::before {
+                  content: '\2713';
+                }
 
-              .ui-select-highlight {
-                text-decoration: none;
-              }
-            }
-          }
-        }
-      }
-
-      .ui-select-offscreen {
-        clip: rect(0 0 0 0) !important;
-        width: 1px !important;
-        height: 1px !important;
-        border: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-        position: absolute !important;
-        outline: 0 !important;
-        left: 0px !important;
-        top: 0px !important;
-      }
-    }
-    $ui-select-input-height: $property-min-height - 4px;
-    .ui-select-multiple {
-      border: 0;
-      box-shadow: none !important;
-      float: none;
-      height: $property-min-height;
-      max-width: #{$property-input-width - 20px};
-      overflow: visible;
-      padding: 0;
-      width: #{$property-input-width - 20px};
-
-      > div {
-        border: solid 1px $gray-lightest;
-        max-height: $property-multiple-height;
-        overflow: auto;
-        -ms-overflow-style: auto;
-        padding: 0;
-        width: $property-input-width;
-
-        &:hover,
-        &:focus {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
-        }
-
-        &::before {
-          background: transparent;
-          content: ' ';
-          display: block;
-          float: right;
-          height: $ui-select-input-height;
-          width: 20px;
-        }
-      }
-
-      .ui-select-match-item {
-        background: $gray-lightest;
-        border-color: $gray-lighter;
-        border-width: 1px;
-        box-shadow: none;
-        margin: 2px;
-        max-width: calc(100% - 24px);
-        min-width: calc((100% - 32px) / 3);
-        outline: none;
-        padding: 0;
-
-        span.close {
-          color: $gray;
-          font-size: 16px;
-          line-height: 18px;
-          opacity: 1;
-          text-shadow: none;
-          width: 20px;
-        }
-
-        span:not(.close) {
-          float: left;
-          max-width: calc(100% - 20px);
-        }
-      }
-
-      .ui-select-match-item-chosen {
-        color: $gray-darker;
-        font-size: 1.2rem;
-        line-height: 18px;
-        overflow: hidden;
-        padding-left: 4px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      input,
-      input:hover,
-      input:focus {
-        background: transparent;
-        border: 0;
-        font-size: 1.2rem;
-        height: $ui-select-input-height;
-        line-height: $ui-select-input-height;
-        margin: 0;
-        max-height: $ui-select-input-height;
-        min-height: $ui-select-input-height;
-        outline: none;
-        padding: 0 0 0 6px;
-      }
-
-      .ui-select-choices {
-        border-color: $gray-lighter;
-        border-radius: 0;
-        border-width: 1px;
-        max-height: #{$property-multichoice-height * 10};
-        overflow: auto;
-        -ms-overflow-style: auto;
-        padding: 0;
-        width: $property-input-width;
-
-        .ui-select-choices-row {
-          height: $property-multichoice-height;
-
-          .ui-select-choices-row-inner {
-            color: $gray-darker;
-            cursor: pointer;
-            text-decoration: none;
-
-            .ui-select-choice-item {
-              font-size: 1.2rem;
-              line-height: $property-multichoice-height;
-              overflow: hidden;
-              padding: 0 8px;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              width: 100%;
-
-              &::before {
-                content: '';
-                display: inline-block;
-                width: 12px;
-              }
-
-              .ui-select-highlight {
-                text-decoration: underline;
-              }
-            }
-          }
-
-          &.active .ui-select-choice-item,
-          .ui-select-choices-row-inner:hover .ui-select-choice-item {
-            background: $blue-lightest;
-
-            &::before {
-              content: '\2713';
-            }
-          }
-        }
-
-        .ui-select-choices-row.disabled {
-          .ui-select-choices-row-inner {
-            color: $gray;
-            cursor: not-allowed;
-
-            .ui-select-choice-item {
-              background: transparent;
-
-              &::before {
-                content: '\2713';
-              }
-
-              .ui-select-highlight {
-                text-decoration: none;
+                .ui-select-highlight {
+                  text-decoration: none;
+                }
               }
             }
           }
         }
+
+        .ui-select-no-choice {
+          border-color: $gray-lighter;
+          border-radius: 0;
+          border-width: 1px;
+          font-size: 1.2rem;
+          line-height: $property-multichoice-height;
+          padding: 0 8px;
+          width: $property-input-width;
+        }
       }
 
-      .ui-select-no-choice {
-        border-color: $gray-lighter;
-        border-radius: 0;
-        border-width: 1px;
-        font-size: 1.2rem;
-        line-height: $property-multichoice-height;
-        padding: 0 8px;
-        width: $property-input-width;
-      }
-    }
+      .read-only-input {
+        box-sizing: border-box;
+        color: $gray-dark;
+        font-size: $font-size-normal;
+        font-weight: 400;
 
-    .read-only-input {
-      box-sizing: border-box;
-      color: $gray-dark;
-      font-size: $font-size-normal;
-      font-weight: 400;
-
-      &.simple,
-      &.multiple {
-        border: solid 1px transparent;
-        max-width: $property-input-width;
-        overflow: hidden;
-        padding: 0 $property-padding-default;
-        width: $property-input-width;
-      }
-
-      &.simple {
-        height: $property-min-height;
-        line-height: $property-min-height;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      &.multiple {
-        margin-top: 5px;
-        max-height: #{2.5 * $property-min-height};
-        min-height: #{$property-min-height - 5px};
-        padding-bottom: 4px;
-
-        .choice {
+        &.simple,
+        &.multiple {
+          border: solid 1px transparent;
+          max-width: $property-input-width;
           overflow: hidden;
+          padding: 0 $property-padding-default;
+          width: $property-input-width;
+        }
+
+        &.simple {
+          height: $property-min-height;
+          line-height: $property-min-height;
           text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        &.multiple {
+          margin-top: 5px;
+          max-height: #{2.5 * $property-min-height};
+          min-height: #{$property-min-height - 5px};
+          padding-bottom: 4px;
+
+          .choice {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        &.richtext {
+          height: #{3 * $property-min-height};
+          min-width: $property-input-width;
+          padding: 0;
+        }
+      }
+
+      .overflow-fade {
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+        display: none;
+        height: 10px;
+        margin-top: -10px;
+        position: relative;
+      }
+
+      .read-only-input.ps-active-y + .overflow-fade {
+        display: block;
+      }
+
+      .has-messages {
+        display: inline-table;
+        position: relative;
+        vertical-align: top;
+
+        input.has-icon {
+          border-bottom-right-radius: 0;
+          border-right: 0;
+          border-top-right-radius: 0;
+          max-width: $property-input-with-icon-width;
+          width: $property-input-with-icon-width;
+
+          &:not([disabled]):hover {
+            background-position: #{$property-input-with-icon-width - 20px} 6px;
+          }
+        }
+
+        .input-group-btn {
+          width: $property-input-icon-width;
+
+          > .btn {
+            border: solid 1px $gray-lightest;
+            color: $gray-dark !important;
+            line-height: #{$property-min-height - 2px};
+            margin-left: 0;
+            min-width: $property-input-icon-width;
+            padding: 0;
+            text-align: center;
+            width: $property-input-icon-width;
+
+            &:active,
+            &:hover {
+              background: $gray-lightest;
+              box-shadow: none;
+            }
+          }
+        }
+      }
+
+      select {
+        padding: 2px;
+
+        &[multiple] {
+          height: #{2.5 * $property-min-height};
+        }
+
+        &:not([multiple]) {
+          background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
+          -ms-overflow-style: scrollbar;
+        }
+
+        &[disabled] {
+          cursor: default;
+        }
+
+        &:not([disabled]):hover {
+          background-color: $yellow-pale;
+        }
+      }
+
+      .form-tinymce {
+        border: solid 1px $gray-lightest;
+        border-radius: 0;
+        box-shadow: none !important;
+        box-sizing: border-box;
+        color: $gray-dark;
+        font-size: $font-size-normal;
+        font-weight: 400;
+        min-height: #{3 * $property-min-height};
+        min-width: $property-input-width;
+      }
+
+      .form-tinymce-toolbar {
+        position: relative;
+
+        .mce-tinymce {
+          bottom: 0;
+          position: absolute;
+          top: auto !important;
+        }
+      }
+
+      .error-messages {
+        bottom: calc((#{$font-size-smaller} + 2px) * -1);
+        position: absolute;
+        right: 0;
+
+        .message {
+          font-size: $font-size-smaller;
           white-space: nowrap;
         }
       }
 
-      &.richtext {
-        height: #{3 * $property-min-height};
-        min-width: $property-input-width;
-        padding: 0;
+      &.formly-field-bpFieldSelectMulti .error-messages {
+        right: -20px;
       }
-    }
 
-    .overflow-fade {
-      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-      display: none;
-      height: 10px;
-      margin-top: -10px;
-      position: relative;
-    }
+      .has-error {
+        textarea,
+        input,
+        .ui-select-container > div,
+        .ui-select-single .ui-select-toggle {
+          border-color: $gray-lightest;
+          border-bottom-color: $brand-error;
+        }
 
-    .read-only-input.ps-active-y + .overflow-fade {
-      display: block;
-    }
+        select {
+          border-color: $brand-error;
+        }
 
-    .has-messages {
-      display: inline-table;
-      position: relative;
-      vertical-align: top;
-
-      input.has-icon {
-        border-bottom-right-radius: 0;
-        border-right: 0;
-        border-top-right-radius: 0;
-        max-width: $property-input-with-icon-width;
-        width: $property-input-with-icon-width;
-
-        &:not([disabled]):hover {
-          background-position: #{$property-input-with-icon-width - 20px} 6px;
+        .error-messages {
+          color: $brand-error;
         }
       }
 
-      .input-group-btn {
-        width: $property-input-icon-width;
+      .read-only {
+        background: transparent !important;
+        border-color: transparent !important;
+        cursor: default !important;
+        padding-right: $property-padding-default !important;
+      }
+    }
+    /*
+      .formly-field-tinymce,
+      .formly-field-tinymceInline {
+        display: block;
+        max-width: 100%;
+        width: 100%;
 
-        > .btn {
-          border: solid 1px $gray-lightest;
-          color: $gray-dark !important;
-          line-height: #{$property-min-height - 2px};
-          margin-left: 0;
-          min-width: $property-input-icon-width;
-          padding: 0;
-          text-align: center;
-          width: $property-input-icon-width;
-
-          &:active,
-          &:hover {
-            background: $gray-lightest;
-            box-shadow: none;
-          }
+        label {
+          display: block;
+          width: 100%;
+        }
+      }
+    */
+    .formly-field-bpFieldTinymce,
+    .formly-field-bpFieldInlineTinymce {
+      div.form-tinymce,
+      div.form-tinymce[contenteditable="true"] {
+        a {
+          color: blue;
+          cursor: pointer;
+          text-decoration: underline;
         }
       }
     }
 
-    select {
-      padding: 2px;
-
-      &[multiple] {
-        height: #{2.5 * $property-min-height};
+    .formly-field-bpFieldDatepicker {
+      button {
+        border-radius: 0;
       }
 
-      &:not([multiple]) {
-        background: $white $property-select-background repeat-y #{$property-input-width - 22px} 0;
-        -ms-overflow-style: scrollbar;
+      .has-error button {
+        border-bottom-color: $brand-error !important;
       }
-
-      &[disabled] {
-        cursor: default;
-      }
-
-      &:not([disabled]):hover {
-        background-color: $yellow-pale;
-      }
-    }
-
-    .form-tinymce {
-      border: solid 1px $gray-lightest;
-      border-radius: 0;
-      box-shadow: none !important;
-      box-sizing: border-box;
-      color: $gray-dark;
-      font-size: $font-size-normal;
-      font-weight: 400;
-      min-height: #{3 * $property-min-height};
-      min-width: $property-input-width;
-    }
-
-    .form-tinymce-toolbar {
-      position: relative;
-
-      .mce-tinymce {
-        bottom: 0;
-        position: absolute;
-        top: auto !important;
-      }
-    }
-
-    .error-messages {
-      bottom: calc((#{$font-size-smaller} + 2px) * -1);
-      position: absolute;
-      right: 0;
-
-      .message {
-        font-size: $font-size-smaller;
-        white-space: nowrap;
-      }
-    }
-
-    &.formly-field-bpFieldSelectMulti .error-messages {
-      right: -20px;
-    }
-
-    .has-error {
-      textarea,
-      input,
-      .ui-select-container > div,
-      .ui-select-single .ui-select-toggle {
-        border-color: $gray-lightest;
-        border-bottom-color: $brand-error;
-      }
-
-      select {
-        border-color: $brand-error;
-      }
-
-      .error-messages {
-        color: $brand-error;
-      }
-    }
-
-    .read-only {
-      background: transparent !important;
-      border-color: transparent !important;
-      cursor: default !important;
-      padding-right: $property-padding-default !important;
-    }
-  }
-/*
-  .formly-field-tinymce,
-  .formly-field-tinymceInline {
-    display: block;
-    max-width: 100%;
-    width: 100%;
-
-    label {
-      display: block;
-      width: 100%;
-    }
-  }
-*/
-  .formly-field-bpFieldTinymce,
-  .formly-field-bpFieldInlineTinymce {
-    div.form-tinymce,
-    div.form-tinymce[contenteditable="true"] {
-      a {
-        color: blue;
-        cursor: pointer;
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .formly-field-bpFieldDatepicker {
-    button {
-      border-radius: 0;
-    }
-
-    .has-error button {
-      border-bottom-color: $brand-error !important;
     }
   }
 }
@@ -913,5 +967,4 @@ $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
       float: none;
     }
   }
-}
 }

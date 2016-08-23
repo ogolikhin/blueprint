@@ -1,0 +1,40 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
+</div>
+<div class="modal-body file-upload-status">
+    <div class="file-wrapper" perfect-scrollbar>
+
+        <div class="file" 
+            ng-class="{'error': item.errorMessage}"
+            ng-repeat="item in $ctrl.files">
+
+            <div class="upload-status">
+                <div class="name">{{ item.file.name }}</div>
+                <uib-progressbar value="item.progress"></uib-progressbar>
+                <div class="indicator">
+                    <i class="fonticon fonticon-success" ng-if="item.isComplete"></i>
+                    <span class="error" ng-if="item.isFailed">Failed</span>
+                    <i class="fonticon fonticon-close" ng-if="item.isUploading" ng-click="$ctrl.cancelUpload(item)"></i>
+                </div>
+            </div>
+            <div class="size">{{ item.file.size | BpFilesize }}</div>
+            <div class="error-message">{{ item.errorMessage }}</div>
+        </div>
+
+        <div class="empty-state" ng-if="$ctrl.files.length === 0">
+            There are no files to upload.
+        </div>
+
+    </div>
+    <div class="total-failed" ng-if="$ctrl.totalFailedFiles > 0">Total items failed: {{ $ctrl.totalFailedFiles }}</div>
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
+        </button>
+        <button class="btn btn-primary" ng-click="$ctrl.ok()">
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
+        </button>
+    </div>
+</div>

@@ -4,10 +4,11 @@ import { ISession } from "../../shell/login/session.svc";
 
 export interface IStateManager {
     dispose(): void;
-    onChanged: Rx.Observable<ItemState>;
+    reset(): void;
+    stateChange: Rx.Observable<ItemState>;
+    addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
     addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
-    deleteState(artifact: number | Models.IItem);
 }
 
 export interface IPropertyChangeSet {
@@ -18,29 +19,44 @@ export interface IPropertyChangeSet {
 }
 
 export class ItemState {
-    constructor(userId: number, item: Models.IItem) {
-        this._userId = userId;
-        this._originItem = item;
-    }
-
-    private _userId: number;
+    private manager: StateManager;
     private _originItem: Models.IArtifact;
     private _readonly: boolean;
     private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IArtifact;
     private _lock: Models.ILockResult;
+    
+    public itemType: Models.IItemType;
+
+    constructor(manager: StateManager, item: Models.IItem, itemtype?: Models.IItemType) {
+        this.manager = manager;
+        this._originItem = item;
+        this.itemType = itemtype;
+    }
+
+    public clear() {
+        delete this.originItem;
+        delete this.itemType;
+        delete this._readonly;
+        delete this._changedItem;
+        delete this._changesets;
+        delete this._lock;
+    }
 
     public get originItem(): Models.IArtifact {
         return this._originItem;
     }
     public set originItem(value: Models.IArtifact) {
-        if (!value)
+        if (!value) {
             return;
+        }
         this._originItem = value;
     }
 
     public get isReadonly(): boolean {
-        return this._readonly || (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+        return this._readonly ||
+               this.lockedBy === Enums.LockedByEnum.OtherUser ||
+               (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
     public set isReadonly(value: boolean) {
         this._readonly = value;
@@ -48,7 +64,7 @@ export class ItemState {
 
     public get lockedBy(): Enums.LockedByEnum {
         if (this.originItem.lockedByUser) {
-            if (this.originItem.lockedByUser.id === this._userId) {
+            if (this.originItem.lockedByUser.id === this.manager.currentUser.id) {
                 return Enums.LockedByEnum.CurrentUser;
             }
             return Enums.LockedByEnum.OtherUser;
@@ -86,7 +102,7 @@ export class ItemState {
         this._lock = value;
         if (value.result === Enums.LockResultEnum.Success) {
             this.originItem.lockedByUser = {
-                id: this._userId
+                id: this.manager.currentUser.id
             };
         } else {
             if (value.result === Enums.LockResultEnum.AlreadyLocked) {
@@ -98,14 +114,8 @@ export class ItemState {
             this.revertChanges();
             this._readonly = true;
         }
+        this.manager.changeState(this);
         return this._lock;
-    }
-
-    public clear() {
-        this._readonly = false;
-        delete this._changedItem;
-        delete this._changesets;
-        this.originItem = null;
     }
 
     private add(changeSet: IPropertyChangeSet) {
@@ -123,6 +133,46 @@ export class ItemState {
         
     }
 
+    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet) {
+        let propertyTypeId: number;
+        let propertyValue: Models.IPropertyValue;
+        switch (changeSet.lookup) {
+            case Enums.PropertyLookupEnum.System:
+                if (changeSet.id in this.originItem) {
+                    item[changeSet.id] = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Custom:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (item.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    propertyValue.value = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (item.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    propertyValue.value = changeSet.value;
+                } else {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+
     public saveChange(item: Models.IItem, changeSet: IPropertyChangeSet): boolean {
         if (!item || !changeSet ) {
             return false;
@@ -135,9 +185,15 @@ export class ItemState {
         if ("projectId" in item) {
             updateItem = this._changedItem;
         } else {
+            if (angular.isArray(this._changedItem.subArtifacts)) {
+                this._changedItem.subArtifacts = [];
+            }
             updateItem = this._changedItem.subArtifacts.filter((it: Models.ISubArtifact) => {
                 return it.id === item.id;
             })[0];
+            if (!updateItem) {
+                this._changedItem.subArtifacts.push(updateItem = item);
+            }
             
         }
 
@@ -149,42 +205,27 @@ export class ItemState {
         }
         changeSet.itemId = updateItem.id;
 
-        switch (changeSet.lookup) {
-            case Enums.PropertyLookupEnum.System:
-                if (changeSet.id in this.originItem) {
-                    updateItem[changeSet.id] = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            case Enums.PropertyLookupEnum.Custom:
-                propertyTypeId = changeSet.id as number;
-                propertyValue = (updateItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
-                    return it.propertyTypeId === propertyTypeId;
-                })[0];
-                if (propertyValue) {
-                    propertyValue.value = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            case Enums.PropertyLookupEnum.Special:
-                propertyTypeId = changeSet.id as number;
-                propertyValue = (updateItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
-                    return it.propertyTypeId === propertyTypeId;
-                })[0];
-                if (propertyValue) {
-                    propertyValue.value = changeSet.value;
-                } else {
-                    return false;
-                }
-                break;
-            default:
-                return false;
-        }
-        this.add(changeSet);
-        return true;
+        if (this.applyChange(updateItem, changeSet)) {
 
+            this.add(changeSet);
+            this.manager.changeState(this);
+            return true;
+        } else if (!this.isChanged && this._changedItem) {
+            //removes changed item if not changed
+            delete this._changedItem;
+        }
+        return false;
+    }
+
+    public getArtifact(): Models.IArtifact {
+        return this.changedItem || this.originItem;
+    }
+
+    public getSubArtifact(id: number): Models.ISubArtifact {
+        let artifact = this.getArtifact();
+        return (artifact.subArtifacts || []).filter((it: Models.ISubArtifact) => {
+            return it.id === id;
+        })[0];
     }
 
     public revertChanges() {
@@ -196,10 +237,11 @@ export class ItemState {
 export class StateManager implements IStateManager {
     static $inject: [string] = ["session"];
     private _itemStateCollection: ItemState[];
-
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor(private session: ISession) { }
+    constructor(private session: ISession) {
+        
+    }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
         return this._itemChanged || (this._itemChanged = new Rx.BehaviorSubject<ItemState>(null));
@@ -208,79 +250,110 @@ export class StateManager implements IStateManager {
         return this._itemStateCollection || (this._itemStateCollection = []);
     }
 
-    public dispose() {
-        
-        //clear all subjects
-        if (this._itemStateCollection) {
-            this._itemStateCollection.forEach((it: ItemState) => {
-                it.clear();
-            });
-            this._itemStateCollection = null;
-        }
-
-        if (this._itemChanged) {
-            this._itemChanged.dispose();
-            this._itemChanged = null;
-        }
+    public get currentUser(): Models.IUserGroup {
+        return this.session.currentUser;
     }
 
-    public get onChanged(): Rx.Observable<ItemState> {
+    public changeState(value: ItemState): void {
+        this.itemChanged.onNext(value);
+    }
+
+    public get stateChange(): Rx.Observable<ItemState> {
         return this.itemChanged
             .filter(it => it != null)
             .asObservable();
     }
 
-    public addChange(originItem: Models.IItem, changeSet?: IPropertyChangeSet): ItemState {
-        if (!originItem) {
+    public reset() {
+        //clear all subjects
+        if (this._itemStateCollection) {
+            this._itemStateCollection.forEach((it: ItemState) => {
+                it.clear();
+            });
+            delete this._itemStateCollection;
+        }
+    }
+
+    public dispose() {
+
+        this.reset();
+        if (this._itemChanged) {
+            this._itemChanged.dispose();
+            delete this._itemChanged;
+        }
+    }
+
+    public addItem(item: Models.IItem, type?: Models.IItemType): ItemState {
+        if (!item) {
             return null;
         }
         let artifact: Models.IArtifact;
         let subartifact: Models.ISubArtifact;
-
-        if ("projectId" in originItem) {
-            artifact = originItem as Models.IArtifact;
+        let changed: boolean = false;
+        if ("projectId" in item) {
+            artifact = item as Models.IArtifact;
         } else {
-            subartifact = originItem as Models.ISubArtifact;
+            subartifact = item as Models.ISubArtifact;
         }
 
-        let state = this.getState(originItem);
+        let state = this.getState(item);
+
         if (!state) {
             if (artifact) {
-                this.itemStateCollection.push(state = new ItemState(this.session.currentUser.id, artifact));
+                this.itemStateCollection.push(state = new ItemState(this, artifact, type));
+                changed = true;
             } else {
                 throw new Error("Artifact_Not_Found");
             }
         } else {
             if (artifact) {
-                state.originItem = artifact;
+                if (state.originItem === artifact) {
+                    state.originItem = artifact;
+                    changed = true;
+                }
             } else {
+                if (angular.isArray(state.originItem.subArtifacts)) {
+                    state.originItem.subArtifacts = [];
+                }
+
                 let _subartifact = state.originItem.subArtifacts.filter((it: Models.ISubArtifact) => {
                     return it.id === subartifact.id;
                 })[0];
                 if (_subartifact) {
-                    angular.extend(_subartifact, subartifact);
+                    if (_subartifact !== artifact) {
+                        angular.extend(_subartifact, subartifact);
+                        changed = true;
+                    }
                 } else {
                     state.originItem.subArtifacts.push(subartifact);
+                    changed = true;
                 }
             }
         }
-        this.clearStates(state);
-
-        if (changeSet) {
-            
-            if (state.saveChange(artifact || subartifact, changeSet)) {
-                this.itemChanged.onNext(state);
-                return state;
-            }
-        }
-        return null;
-    }
-
-    public clearStates(exceptState?: ItemState) {
+        // removes all unchanged item states excluding current
         this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
-            return it.isChanged || (it === exceptState);
+            return it.isChanged || (it === state);
         });
+
+
+        if (changed) {
+            this.changeState(state);
+        }
+
+        return state;
     }
+
+    public addChange(item: Models.IItem, changeSet?: IPropertyChangeSet): ItemState {
+        let state = this.addItem(item);
+
+        if (state.saveChange(item, changeSet)) {
+            this.itemChanged.onNext(state);
+        }
+
+        return state;
+    }
+
+    
 
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
@@ -299,14 +372,4 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    public deleteState(item: number | Models.IItem) {
-        let itemId = angular.isNumber(item) ? item as number : (item ? item.id : -1);
-        this._itemStateCollection = this.itemStateCollection.filter((it: ItemState) => {
-            if (it.originItem.id === itemId) {
-                it.clear();
-                return false;
-            }
-            return true;
-        });
-    }
 }

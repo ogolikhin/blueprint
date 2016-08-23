@@ -1,5 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../main/models/enums";
-import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
+﻿import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
 import {ISelectionManager, Models, IProjectManager, IWindowManager, IArtifactService} from "../../../main";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -7,8 +6,6 @@ import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum} from "../../../main/models/enums";
-//import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -22,6 +19,7 @@ export class BPPropertiesPanel implements ng.IComponentOptions {
 export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     public static $inject: [string] = [
+        "$q",
         "selectionManager",
         "messageService",
         "stateManager",
@@ -48,6 +46,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     private selectedSubArtifact: Models.ISubArtifact;
 
     constructor(
+        $q: ng.IQService,
         protected selectionManager: ISelectionManager,        
         public messageService: IMessageService,
         public stateManager: IStateManager,
@@ -57,7 +56,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super(selectionManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization.current);
     }    
 
@@ -79,7 +78,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
-    protected onSelectionChanged = (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) => {
+    protected onSelectionChanged (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         try {
             this.fields = [];
             this.model = {};
@@ -87,11 +86,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.customFields = [];
             this.richTextFields = [];         
             if (artifact) {
-                this.onLoad(artifact, subArtifact);
+                return this.onLoad(artifact, subArtifact, timeout);
             }
         } catch (ex) {
             this.messageService.addError(ex.message);
         }
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
     private addSubArtifactChangeset(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, changeSet: IPropertyChangeSet) {
@@ -100,35 +100,41 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.stateManager.addChange(subArtifact, changeSet);
     }
 
-    private onLoad(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    private onLoad(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
         this.isLoading = true;
         
         if (subArtifact) {
-            this.artifactService.getSubArtifact(artifact.id, subArtifact.id).then((it: Models.ISubArtifact) => {
+            return this.artifactService.getSubArtifact(artifact.id, subArtifact.id, timeout).then((it: Models.ISubArtifact) => {
                 angular.extend(subArtifact, it);
                 this.addSubArtifactChangeset(artifact, subArtifact, undefined);
                 this.selectedArtifact = artifact;
                 this.selectedSubArtifact = subArtifact;
                 this.onUpdate(artifact, subArtifact);
             }).catch((error: any) => {
-                //ignore authentication errors here
-                if (error.statusCode !== 1401) {
-                    this.messageService.addError(error["message"] || "SubArtifact_NotFound");
+                switch (error.statusCode) {
+                    case -1: break; //ignore timeout
+                    case 1401: break; //ignore authentication errors
+                    default:
+                        this.messageService.addError(error["message"] || "SubArtifact_NotFound");
+                        break;
                 }
             }).finally(() => {
                 this.isLoading = false;
             });
         } else {
-            this.artifactService.getArtifact(artifact.id).then((it: Models.IArtifact) => {
+            return this.artifactService.getArtifact(artifact.id, timeout).then((it: Models.IArtifact) => {
                 angular.extend(artifact, it);
                 this.stateManager.addChange(artifact);                
                 this.selectedArtifact = artifact;
                 this.selectedSubArtifact = undefined;
                 this.onUpdate(artifact, subArtifact);
             }).catch((error: any) => {
-                //ignore authentication errors here
-                if (error.statusCode !== 1401) {
-                    this.messageService.addError(error["message"] || "Artifact_NotFound");
+                switch (error.statusCode) {
+                    case -1: break; //ignore timeout
+                    case 1401: break; //ignore authentication errors
+                    default:
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                        break;
                 }
             }).finally(() => {
                 this.isLoading = false;
@@ -144,7 +150,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.itemState = this.stateManager.getState(item.id);
 
         if (this.itemState) {
-            changedItem = this.itemState.changedItem || this.itemState.originItem;
+            changedItem = this.itemState.getArtifact();
         } else {
             changedItem = item;
         }
@@ -160,9 +166,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
         if (this.itemState) {
             if (this.itemState.changedItem) {                
-                changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);;
+                changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);
             } else {                               
-                changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);;
+                changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);
             }
         } else {
             changedItem = item;
@@ -222,6 +228,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
         let propertyContext = field.data as PropertyContext;
         if (!propertyContext) {
+            return;
+        }
+
+        if (true === propertyContext.isRichText && PropertyLookupEnum.Special === propertyContext.lookup) {
+            this.systemFields.push(field);
             return;
         }
 

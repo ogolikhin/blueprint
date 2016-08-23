@@ -10,6 +10,7 @@ import "./bp-item-icon";
 import "./bp-speciallink";
 import "./bp-compile-html";
 import "./bp-collapsible";
+import "./bp-file-upload";
 
 angular.module("bp.widjets", [
     "bp.widjets.dialog",
@@ -23,8 +24,10 @@ angular.module("bp.widjets", [
     "bp.widjets.itemicon",
     "bp.widjets.speciallink",
     "bp.widjets.compilehtml",
-    "bp.widjets.collapsible"
+    "bp.widjets.collapsible",
+    "bp.widjets.fileupload"
 ]);
     
+export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
 export { IBPTreeController, ITreeNode } from "./bp-tree"
 export { IDialogSettings, IDialogService, BaseDialogController} from "./bp-dialog";

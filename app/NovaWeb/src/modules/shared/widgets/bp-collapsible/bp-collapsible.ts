@@ -1,21 +1,32 @@
-﻿export class BPCollapsible implements ng.IDirective {
+﻿import { ILocalizationService } from "../../../core";
+export class BPCollapsible implements ng.IDirective {
     public restrict = "A";
     public scope = {
         bpCollapsible: "="
     };
 
-    constructor() {
+    constructor(
+        private $timeout: ng.ITimeoutService,
+        private localization: ILocalizationService) {
     }
 
-    public static directive: any[] = [
-        () => {
-            return new BPCollapsible();
-        }];
+    public static factory() {
+        const directive = (
+            $timeout: ng.ITimeoutService,
+            localization: ILocalizationService) => new BPCollapsible($timeout, localization);
 
-    public link: ng.IDirectiveLinkFn = ($scope: any, $element: ng.IAugmentedJQuery, attr: ng.IAttributes, $timeout: ng.ITimeoutService) => {
+        directive["$inject"] = [
+            "$timeout",
+            "localization"
+        ];
 
-        let showMore = angular.element("<div class='show-more'><span>Show more</span></div>");
-        let showLess = angular.element("<div class='show-less'><span>Show less</span></div>");
+        return directive;
+    }
+
+    public link: ng.IDirectiveLinkFn = ($scope: any, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
+
+        let showMore = angular.element(`<div class='show-more'><span>${this.localization.get("App_Collapsible_ShowMore")}</span></div>`);
+        let showLess = angular.element(`<div class='show-less'><span>${this.localization.get("App_Collapsible_ShowLess")}</span></div>`);
 
         let showMoreClick = () => {
             $element.removeClass("collapsed");
@@ -30,11 +41,11 @@
         showMore[0].addEventListener("click", showMoreClick);
         showLess[0].addEventListener("click", showLessClick);
 
-        $element.ready(() => {
+        this.$timeout(() => {
             //displays the 'show more' and 'show less' part if comment height is more than desired size + (%30 of desired size)
             if ($element[0].offsetHeight > 1.3 * $scope.bpCollapsible) {
                 $element.addClass("collapsed");
-                $element[0].style.height = $scope.bpCollapsible + "px";
+                $element[0].style.height = `${$scope.bpCollapsible}px`;
                 $element.append(showMore[0]);
                 $element.append(showLess[0]);
             }

@@ -1,7 +1,11 @@
 ﻿import { ILocalizationService } from "../../../core";
 
 export interface IArtifactAttachments {
-    getArtifactAttachments(artifactId: number, subArtifactId?: number, addDrafts?: boolean): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getArtifactAttachments(
+        artifactId: number,
+        subArtifactId?: number,
+        addDrafts?: boolean,
+        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet>;
 }
 
 export interface IArtifactAttachment {
@@ -48,7 +52,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
     public getArtifactAttachments(
         artifactId: number, 
         subArtifactId: number = null, 
-        addDrafts: boolean = true): ng.IPromise<IArtifactAttachmentsResultSet> {
+        addDrafts: boolean = true,
+        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
 
         const defer = this.$q.defer<IArtifactAttachmentsResultSet>();
         const requestObj: ng.IRequestConfig = {
@@ -57,7 +62,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
             params: {
                 subartifactId: subArtifactId,
                 addDrafts: addDrafts
-            }
+            },
+            timeout: timeout
         };
 
         this.$http(requestObj).then(

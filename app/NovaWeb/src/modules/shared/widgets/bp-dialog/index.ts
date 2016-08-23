@@ -3,4 +3,4 @@
 angular.module("bp.widjets.dialog", [])
     .service("dialogService", DialogService);
 
-export { IDialogSettings, IDialogData, IDialogService, BaseDialogController };
+export { IDialogSettings, IDialogData, IDialogService, DialogService, BaseDialogController };

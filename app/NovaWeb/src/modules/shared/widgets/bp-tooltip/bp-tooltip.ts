@@ -77,7 +77,7 @@ export class BPTooltip implements ng.IDirective {
                 }
                 return (elem && (
                     elem.offsetWidth < elem.scrollWidth - (compensateWidth ? 1 : 0) ||
-                    elem.offsetHeight < elem.scrollHeight - 1)
+                    elem.offsetHeight < elem.scrollHeight - 3)
                 );
             }
             return true;

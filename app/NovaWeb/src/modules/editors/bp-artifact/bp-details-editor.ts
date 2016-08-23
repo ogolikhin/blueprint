@@ -11,7 +11,7 @@
     Message,
     ItemState
 } from "./bp-artifact-editor";
-import { IArtifactService } from "../../main";
+import { IArtifactService } from "../../main/services";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -73,7 +73,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public onLoad(context: Models.IEditorContext) {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            angular.extend(context.artifact, it);
+            context.artifact = it;
             this.stateManager.addChange(context.artifact);
             this.onUpdate(context);
         }).catch((error: any) => {
@@ -112,7 +112,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 return;
             }
             this.artifactService.lock(state.originItem.id).then((response: Models.ILockResult[]) => {
-                response[0].result = Enums.LockResultEnum.AlreadyLocked;
                 let lock = state.setLock(response[0]);
                 if (lock.result === Enums.LockResultEnum.Success) {
                     if (lock.info.versionId !== state.originItem.version) {
@@ -120,7 +119,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                     }
                 } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                     this.onUpdate(this.context);
-                    this.messageService.addMessage(new Message(3,"Artifact locked by another user"));
+                    this.messageService.addMessage(new Message(3, "Artifact locked by another user"));
                 } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
                     this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
                 } else {

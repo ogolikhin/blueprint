@@ -30,7 +30,7 @@ export class BPCommentEditController {
     public commentText: string;
     public isWaiting: boolean = false;
     public emailDiscussionsEnabled: boolean;
-    public tinymceOptions = angular.extend({
+    public tinymceOptions = {
         plugins: "textcolor table noneditable autolink link autoresize mention",
         autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
@@ -112,7 +112,7 @@ export class BPCommentEditController {
                     }]
             });
         }
-    });
+    };
 
 
     public callPostComment() {

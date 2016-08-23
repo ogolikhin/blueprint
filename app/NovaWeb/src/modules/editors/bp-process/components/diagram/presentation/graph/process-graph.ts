@@ -25,8 +25,8 @@ export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
-    //#TODO fix up references later 
     public nodeLabelEditor: NodeLabelEditor;
+    //#TODO fix up references later 
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
@@ -113,8 +113,7 @@ export class ProcessGraph implements IProcessGraph {
         this.initializeGlobalScope();
   
     }
-
-
+    
     public render(useAutolayout, selectedNodeId) {
         try {
             // uses layout object to draw a new diagram for process model

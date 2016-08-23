@@ -1,11 +1,7 @@
-﻿import {
-    IProcessGraph,
-    IDiagramNode, 
-    IDiagramLink, 
-    IDiagramNodeElement, 
-    NodeType
-} from "../models/";
-
+﻿import {IProcessGraph, IDiagramNode} from "../models/";
+import {IDiagramLink, IDiagramNodeElement} from "../models/";
+import {NodeType} from "../models/";
+ 
 export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;

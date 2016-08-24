@@ -1,4 +1,4 @@
-export class BpEscapeAndHighlightFilter {
+export class bpEscapeAndHighlightFilter {
 
     public static $inject = [
     ];

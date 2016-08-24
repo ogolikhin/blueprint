@@ -301,7 +301,7 @@ export function formlyConfig(
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
-                            ng-bind-html="option[to.labelProp] | BpEscapeAndHighlight: $select.search"
+                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
@@ -439,7 +439,7 @@ export function formlyConfig(
                         on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item"
-                            ng-bind-html="option[to.labelProp] | BpEscapeAndHighlight: $select.search"
+                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>

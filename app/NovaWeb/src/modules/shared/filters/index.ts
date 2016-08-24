@@ -1,10 +1,10 @@
 ﻿import "angular";
-import { BpFilesizeFilter } from "./bp-filesize/bp-filesize.filter";
-import { BpEscapeAndHighlightFilter } from "./bp-escape-hightlight/bp-escape-highlight.filter";
+import { bpFilesizeFilter } from "./bp-filesize/bp-filesize.filter";
+import { bpEscapeAndHighlightFilter } from "./bp-escape-hightlight/bp-escape-highlight.filter";
 
 angular.module("bp.filters", [])
-    .filter("BpFilesize", BpFilesizeFilter.Factory())
-    .filter("BpEscapeAndHighlight", BpEscapeAndHighlightFilter.Factory());
+    .filter("bpFilesize", bpFilesizeFilter.Factory())
+    .filter("bpEscapeAndHighlight", bpEscapeAndHighlightFilter.Factory());
 
-export { BpFilesizeFilter } from "./bp-filesize/bp-filesize.filter";
-export { BpEscapeAndHighlightFilter } from "./bp-escape-hightlight/bp-escape-highlight.filter";
+export { bpFilesizeFilter } from "./bp-filesize/bp-filesize.filter";
+export { bpEscapeAndHighlightFilter } from "./bp-escape-hightlight/bp-escape-highlight.filter";

@@ -155,27 +155,22 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             return "";
         }
         return `<a class="mceNonEditable" 
-            linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, 
-                                       BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
-            text="${person.name}" 
-            canclick="True"
-            isvalid="True"
-            ${this.prepareMentionIdAttributes(person)} 
-            ${this.prepareMentionEmailAttribute(person)}>
-                <span style="font-family: 'Portable User Interface';
-                    font-size: 13.3330001831055px;
-                    font-style: italic;
-                    font-weight: bold;
-                    color: Black; text-decoration: ;
-                    line-height: 1.45000004768372">${Helper.escapeHTMLText(person.name)}
-                </span>
-        </a>`;
+                    linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                    text="${person.name}" 
+                    canclick="True"
+                    isvalid="True"
+                    ${this.prepareMentionIdAttributes(person)} 
+                    ${this.prepareMentionEmailAttribute(person)}>
+                        <span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">
+                            ${Helper.escapeHTMLText(person.name)}
+                        </span>
+                    </a> `;
     }
 
     private prepareMentionIdAttributes(person: IUserOrGroupInfo): string {
         if (person.id) {
             const id = person.id.slice(1);
-            return `mentionid="${id}" isgroup="${person["isgroup"] ? "True" : "False"}"`;
+            return `mentionid="${id}" isgroup="${person.isGroup ? "True" : "False"}"`;
         }
         return "";
     }

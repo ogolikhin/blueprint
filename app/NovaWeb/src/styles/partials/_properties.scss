@@ -245,6 +245,10 @@ pagecontent, bp-properties-panel {
       }
 
       .ui-select-single {
+        .ui-select-search {
+          min-width: $property-input-width;
+        }
+
         &.no-custom {
           .ui-select-search {
             background: url('images/typeahead-arrow.png') no-repeat right top;

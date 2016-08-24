@@ -123,7 +123,6 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\UserInfo.cs" />
-    <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

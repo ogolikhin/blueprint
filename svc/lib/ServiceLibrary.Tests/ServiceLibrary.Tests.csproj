@@ -98,7 +98,6 @@
     <Compile Include="Models\LicenseTransactionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepositoryTests.cs" />
-    <Compile Include="Repositories\ConfigControl\StatusRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceSettingsRepositoryMock.cs" />

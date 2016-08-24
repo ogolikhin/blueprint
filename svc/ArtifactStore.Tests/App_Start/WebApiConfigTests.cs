@@ -61,8 +61,8 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is SessionRequiredAttribute || a is NoSessionRequiredAttribute),
-                "{0} is missing SessionRequiredAttribute or NoSessionRequiredAttribute.");
+            config.AssertMethodAttributes(attr => attr.Any(a => a is SessionAttribute || a is NoSessionRequiredAttribute),
+                "{0} is missing SessionAttribute or NoSessionRequiredAttribute.");
         }
     }
 }

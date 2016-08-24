@@ -51,9 +51,20 @@ namespace FileStore.Controllers
         }
 
         #region Service Methods
+
+        /// <summary>
+        /// GetFileHead
+        /// </summary>
+        /// <remarks>
+        /// Returns information about a file including name, type and size.
+        /// </remarks>
+        /// <param name="id">The GUID of the file.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The id is missing or malformed.</response>
+        /// <response code="404">Not Found. The file does not exist or has expired.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpHead, NoCache]
         [Route("{id}"), SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)
         {
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"HEAD:{id}, Getting file head");
@@ -106,10 +117,19 @@ namespace FileStore.Controllers
             }
         }
 
-
+        /// <summary>
+        /// GetFileContent
+        /// </summary>
+        /// <remarks>
+        /// Downloads a file.
+        /// </remarks>
+        /// <param name="id">The GUID of the file.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The id is missing or malformed.</response>
+        /// <response code="404">Not Found. The file does not exist or has expired.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("{id}"), SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("{id}"), SessionRequired(true)]
         public async Task<IHttpActionResult> GetFileContent(string id)
         {
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Getting file");
@@ -193,9 +213,18 @@ namespace FileStore.Controllers
             }
         }
 
+        /// <summary>
+        /// PostFile
+        /// </summary>
+        /// <remarks>
+        /// Uploads a file.
+        /// </remarks>
+        /// <param name="expired">The expiration date and time, if any.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route(""), SessionRequired]
-        [ResponseType(typeof(string))]
+        [ResponseType(typeof(UploadResult))]
         public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
         {
             try
@@ -220,9 +249,19 @@ namespace FileStore.Controllers
             }
         }
 
+        /// <summary>
+        /// PutFile
+        /// </summary>
+        /// <remarks>
+        /// Appends a chunk to an existing file.
+        /// </remarks>
+        /// <param name="id">The GUID of the file.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="404">Not Found. The file does not exist or has expired.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("{id}"), SessionRequired]
-        [ResponseType(typeof(string))]
+        [ResponseType(typeof(UploadResult))]
         public async Task<IHttpActionResult> PutFile(string id)
         {
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"PUT:{id}, Initiate PUT");
@@ -245,6 +284,18 @@ namespace FileStore.Controllers
             }
         }
 
+        /// <summary>
+        /// DeleteFile
+        /// </summary>
+        /// <remarks>
+        /// Updates the expiration date and time of an existing file.
+        /// </remarks>
+        /// <param name="id">The GUID of the file.</param>
+        /// <param name="expired">The expiration date and time, if any.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The id is missing or malformed.</response>
+        /// <response code="404">Not Found. The file does not exist or has expired.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpDelete]
         [Route("{id}"), SessionRequired]
         [ResponseType(typeof(string))]

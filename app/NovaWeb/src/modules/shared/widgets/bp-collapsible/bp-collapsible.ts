@@ -72,6 +72,7 @@ export class BPCollapsible implements ng.IDirective {
             showLess = null;
             showLessClick = null;
             showMoreClick = null;
+            updateScrollbar = null;
         });
     };
 }

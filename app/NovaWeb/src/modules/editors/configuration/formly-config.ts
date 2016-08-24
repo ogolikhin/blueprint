@@ -125,7 +125,7 @@ export function formlyConfig(
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
                 <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
                 <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
@@ -178,7 +178,7 @@ export function formlyConfig(
                     if ($scope.options.data.isRichText) {
                         newValue = $sce.trustAsHtml(newValue);
                     } else if ($scope.options.data.isMultipleAllowed) {
-                        newValue = $sce.trustAsHtml((newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
+                        newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
                     break;
                 case PrimitiveType.Date:

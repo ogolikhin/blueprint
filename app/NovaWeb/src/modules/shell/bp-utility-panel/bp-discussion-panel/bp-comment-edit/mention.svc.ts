@@ -154,7 +154,17 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id === "PlaceHolderEntry") {
             return "";
         }
-        return `<a class="mceNonEditable" linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" text="${person.name}" canclick="True" isvalid="True" ${this.prepareMentionIdAttributes(person)} ${this.prepareMentionEmailAttribute(person)}><span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">${Helper.escapeHTMLText(person.name)}</span></a> `;
+        return `<a class="mceNonEditable" 
+                    linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                    text="${person.name}" 
+                    canclick="True"
+                    isvalid="True"
+                    ${this.prepareMentionIdAttributes(person)} 
+                    ${this.prepareMentionEmailAttribute(person)}>
+                        <span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">
+                            ${Helper.escapeHTMLText(person.name)}
+                        </span>
+                    </a> `;
     }
 
     private prepareMentionIdAttributes(person: IUserOrGroupInfo): string {

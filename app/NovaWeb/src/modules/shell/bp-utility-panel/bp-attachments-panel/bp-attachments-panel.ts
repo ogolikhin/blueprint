@@ -52,7 +52,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         alert("Add Doc Ref: US781");
     }
 
-    public onFileSelect(files: File[]) {
+    public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {
             const dialogSettings = <IDialogSettings>{
                 okButton: "Attach", //this.localization.get("App_Button_Open"),
@@ -73,7 +73,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
-                
+                if (callback) {
+                    callback();
+                }
                 // TODO: add state manager handling
 
                 if (uploadList) {

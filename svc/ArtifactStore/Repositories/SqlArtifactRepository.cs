@@ -27,6 +27,8 @@ namespace ArtifactStore.Repositories
             ConnectionWrapper = connectionWrapper;
         }
 
+        #region GetProjectOrArtifactChildrenAsync
+
         public async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
         {
             if (projectId < 1)
@@ -77,7 +79,7 @@ namespace ArtifactStore.Repositories
                         // Replace with the corrected ParentId
                         if (dicUserArtifactVersions.ContainsKey(userOrphanVersion.ItemId))
                             dicUserArtifactVersions.Remove(userOrphanVersion.ItemId);
-                        
+
                         // Add the orphan with children
                         dicUserArtifactVersions.Add(userOrphanVersion.ItemId, userOrphanVersion);
                         foreach (var userOrphanChildVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == userOrphanVersion.ItemId))
@@ -110,7 +112,7 @@ namespace ArtifactStore.Repositories
             if (!parentUserArtifactVersion.DirectPermissions.HasValue)
             {
                 var ancestorUserVersion = FindAncestorOrProjectUserVersionWithDirectPermissions(dicUserArtifactVersions, parentUserArtifactVersion, projectId);
-                if (ancestorUserVersion!= null)
+                if (ancestorUserVersion != null)
                 {
                     parentUserArtifactVersion.EffectivePermissions = ancestorUserVersion.DirectPermissions;
                 }
@@ -164,13 +166,13 @@ namespace ArtifactStore.Repositories
                 return double.MaxValue;
             }).ToList();
         }
- 
+
         // Returns stub ItemTypeId for Collections and Baselines and Reviews folders under the project.
         private static int? GetItemTypeId(ArtifactVersion av)
         {
             if (av.ParentId != av.VersionProjectId)
                 return av.ItemTypeId;
-            
+
             switch(av.ItemTypePredefined)
             {
                 case ItemTypePredefined.CollectionFolder:
@@ -246,7 +248,7 @@ namespace ArtifactStore.Repositories
                 || (headAndDraft[0].ItemId == headAndDraft[1].ItemId && headAndDraft[0].HasDraft == headAndDraft[1].HasDraft),
                 "ItemId or HasDraft properties of Head and Draft are different.");
 
-            var headOrDraft = headAndDraft[0].HasDraft 
+            var headOrDraft = headAndDraft[0].HasDraft
                 ? headAndDraft.FirstOrDefault(v => v.StartRevision == ServiceConstants.VersionDraft && v.EndRevision != ServiceConstants.VersionDraftDeleted)
                 : headAndDraft.FirstOrDefault(v => v.EndRevision == ServiceConstants.VersionHead);
 
@@ -272,6 +274,17 @@ namespace ArtifactStore.Repositories
                 : I18NHelper.FormatInvariant("User does not permissions for Artifact (Id:{0}).", artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
+
+        #endregion
+
+        #region GetProjectOrArtifactChildrenAsync
+
+        public Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 
     internal class ArtifactVersion

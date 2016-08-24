@@ -301,7 +301,7 @@ export function formlyConfig(
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
-                            ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelect.escapeHTMLText($select.search)"
+                            ng-bind-html="option[to.labelProp] | BpEscapeAndHighlight: $select.search"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
@@ -391,10 +391,6 @@ export function formlyConfig(
                         }
                     }
                 },
-                escapeHTMLText: function (str: string): string {
-                    let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
-                },
                 onOpenClose: function (isOpen) {
                     if (isOpen && $scope["uiSelectContainer"]) {
                         let currentVal = $scope.model[$scope.options.key];
@@ -443,8 +439,8 @@ export function formlyConfig(
                         on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item"
-                            ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)"
-                            bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
+                            ng-bind-html="option[to.labelProp] | BpEscapeAndHighlight: $select.search"
+                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -551,10 +547,6 @@ export function formlyConfig(
                             }
                         }
                     }
-                },
-                escapeHTMLText: function (str: string): string {
-                    let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
                 },
                 onOpenClose: function (isOpen: boolean) {
                     this.isOpen = isOpen;

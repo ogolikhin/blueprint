@@ -1,5 +1,5 @@
 ﻿import "angular-ui-tinymce";
-import { IMentionService } from "./mention.svc";
+import { IMentionService, MentionService } from "./mention.svc";
 
 
 export class BPCommentEdit implements ng.IComponentOptions {
@@ -39,6 +39,7 @@ export class BPCommentEditController {
         remove_script_host: false,
         statusbar: false,
         menubar: false,
+        extended_valid_elements: MentionService.requiredAttributes,
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             editor.focus();
@@ -113,21 +114,13 @@ export class BPCommentEditController {
         }
     };
 
-
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postCommentInternal()
-                .finally(() => {
-                    this.isWaiting = false;
-                });
+            this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" }).finally(() => {
+                this.isWaiting = false;
+            });
         }
-    }
-
-    public postCommentInternal(): ng.IPromise<void> {
-        const defer = this.$q.defer<any>();
-        this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" });
-        return defer.promise;
     }
 
     public $onDestroy() {

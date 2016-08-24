@@ -20,7 +20,7 @@ export class BpArtifactInfoController {
     public isChanged: boolean;
     public isLocked: boolean;
     public lockTooltip: string;
-    public selfLocked: boolean;;
+    public selfLocked: boolean;
     public isLegacy: boolean;
     public artifactName: string;
     public artifactType: string;
@@ -66,7 +66,9 @@ export class BpArtifactInfoController {
 
     private onStateChange(state: ItemState) {
         this.initProperties();
-
+        if (!state) {
+            return;
+        }
         let artifact = state.getArtifact(); 
 
         this.artifactName = artifact.name || "";

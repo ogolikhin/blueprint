@@ -2,6 +2,7 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
+import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -21,12 +22,11 @@ export class BpProcessEditor implements ng.IComponentOptions {
 
 export class BpProcessEditorController extends BpBaseEditor {
 
-    private _context: number;
-
+    public context: IEditorContext;
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IModalDialogManager;
-
+    
     public static $inject: [string] = [
         "messageService", 
         "stateManager", 
@@ -76,13 +76,13 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            this._context = changesObj.context.currentValue;
+            this.context = <IEditorContext>changesObj.context.currentValue;
         }
     }
 
     public $postLink() {
-        if (this._context) {
-            this.load(this._context);
+        if (this.context && this.context.artifact) {
+            this.load(this.context.artifact.id);
         }
 
     }

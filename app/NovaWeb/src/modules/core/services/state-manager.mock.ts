@@ -1,9 +1,12 @@
 ﻿import {IStateManager, ItemState, IPropertyChangeSet} from "./state-manager";
-import { Models } from "../../main/models";
+import { Models, Enums } from "../../main/models";
 
 export class StateManagerMock implements IStateManager {
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
 
     public dispose(): void { }
+    public reset(): void { }
 
     public stateChange: Rx.Observable<ItemState>;
     public addItem(origin: Models.IItem, itemtype?: Models.IItemType): ItemState {
@@ -16,4 +19,15 @@ export class StateManagerMock implements IStateManager {
         return null;
     }
     
+    public lockArtifact(state: ItemState): ng.IPromise<Models.ILockResult> {
+        var deferred = this.$q.defer<Models.ILockResult>();
+        deferred.resolve({
+            result: Enums.LockResultEnum.Success,
+            info: {
+                lockOwnerLogin: "user"
+            } as Models.IVersionInfo
+        } as Models.ILockResult);
+        return deferred.promise;
+
+    }
 }

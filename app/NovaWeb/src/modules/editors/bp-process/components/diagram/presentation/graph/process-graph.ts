@@ -1047,7 +1047,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private setIsIe11() {
         var myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        this.isIe11 = (myBrowser.msie && (myBrowser.version == 11));
+        this.isIe11 = (myBrowser.msie && (myBrowser.version === 11));
     }
 
     private initSelection() {

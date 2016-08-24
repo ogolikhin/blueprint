@@ -1,8 +1,11 @@
-﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+﻿<div class="page-heading">
+    <bp-artifact-info context="$ctrl.context"></bp-artifact-info>
+</div>
+
+<div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
     <span>Loading...</span>
 </div>
-
 
 <div class="artifact-overview" ng-if="!$ctrl.isLoading">
     <div class="heading">Overview</div>

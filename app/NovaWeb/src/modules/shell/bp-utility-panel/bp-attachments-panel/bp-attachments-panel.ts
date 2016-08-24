@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, ISettingsService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IStateManager, ItemState } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -21,6 +21,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "selectionManager",
+        "stateManager",
         "artifactAttachments",
         "settings",
         "dialogService"
@@ -35,12 +36,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
+        protected stateManager: IStateManager,
         private artifactAttachments: IArtifactAttachments,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
     }
     
     public addDocRef(): void {
@@ -57,14 +59,20 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: "File Upload"
             };
 
+            const maxAttachmentFilesizeDefault: number = 2 * 1024 * 1024; 
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", 2 * 1024 * 1024),
+                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault),
                 maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - this.artifactAttachmentsList.attachments.length
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
                 console.log("returned values");
+
+                // 1. this.artifactService.lock
+                // 2. mark as dirty
+                // 3. add change sets to the state manager (should handle 1 & 2)
+                // 4. add new attachments to the list
             });
         };
 

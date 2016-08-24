@@ -73,7 +73,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public onLoad(context: Models.IEditorContext) {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            angular.extend(context.artifact, it);
+            context.artifact = it;
             this.stateManager.addChange(context.artifact);
             this.onUpdate(context);
         }).catch((error: any) => {
@@ -105,35 +105,4 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     }
 
-    public doLock(state: ItemState): void {
-        try {
-
-            if (state.lock || state.lockedBy === Enums.LockedByEnum.CurrentUser) {
-                return;
-            }
-            this.artifactService.lock(state.originItem.id).then((response: Models.ILockResult[]) => {
-                let lock = state.setLock(response[0]);
-                if (lock.result === Enums.LockResultEnum.Success) {
-                    if (lock.info.versionId !== state.originItem.version) {
-                        this.onLoad(this.context);
-                    }
-                } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-                    this.onUpdate(this.context);
-                    this.messageService.addMessage(new Message(3, "Artifact locked by another user"));
-                } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-                    this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
-                } else {
-                    this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
-                }
-            }).catch((error: any) => {
-                //ignore authentication errors here
-                if (error.statusCode !== 1401) {
-                    this.messageService.addError(error["message"] || "Artifact_NotFound");
-                }
-            });
-        } catch (e) {
-            this.messageService.addError(e["message"] || "Artifact_NotFound");
-        }
-
-    }
 }

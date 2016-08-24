@@ -10,6 +10,8 @@ import { ArtifactRelationshipsMock } from "./artifact-relationships.mock";
 import { Models, ProjectManager } from "../../../main/services/project-manager";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { StateManager } from "../../../core/services/state-manager";
+import { DialogService } from "../../../shared/widgets/bp-dialog";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -28,6 +30,8 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("projectManager", ProjectManager);
         $provide.service("projectRepository", ProjectRepositoryMock);
+        $provide.service("stateManager", StateManager);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject(() => {

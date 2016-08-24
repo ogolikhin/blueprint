@@ -50,7 +50,7 @@ describe("Component BPDiscussionReplyItem", () => {
     it("should be visible by default", () => {
 
         //Arrange
-        directiveTest.createComponent({});  
+        directiveTest.createComponent({});
 
         //Assert
         expect(directiveTest.element.find(".button-bar").length).toBe(1);
@@ -58,7 +58,7 @@ describe("Component BPDiscussionReplyItem", () => {
     });
 
     it("edit reply should return default reply",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService) => {
+        inject(($timeout: ng.ITimeoutService) => {
 
             //Arrange
             vm.artifactId = 1;
@@ -72,7 +72,7 @@ describe("Component BPDiscussionReplyItem", () => {
         }));
 
     it("edit reply throws exception",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.artifactId = 1;
             let deferred = $q.defer();
@@ -96,7 +96,7 @@ describe("Component BPDiscussionReplyItem", () => {
         }));
 
     it("cancel comment click changes editing mode",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             vm.editing = true;
 
@@ -105,10 +105,10 @@ describe("Component BPDiscussionReplyItem", () => {
 
             //Assert
             expect(vm.editing).toBe(false);
-        }));
+        });
 
     it("edit comment click changes editing mode",
-        inject(($rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        () => {
             //Arrange
             vm.editing = false;
             vm.canCreate = true;
@@ -119,5 +119,5 @@ describe("Component BPDiscussionReplyItem", () => {
 
             //Assert
             expect(vm.editing).toBe(true);
-        }));
+        });
 });

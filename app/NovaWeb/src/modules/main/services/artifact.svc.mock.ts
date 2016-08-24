@@ -56,7 +56,7 @@ export class ArtifactServiceMock implements IArtifactService {
         let data = {
             result : Enums.LockResultEnum.Success
 
-        } as Models.ILockResult
+        } as Models.ILockResult;
         return [data];
     }
 

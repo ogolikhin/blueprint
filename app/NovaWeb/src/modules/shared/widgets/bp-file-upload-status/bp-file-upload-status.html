@@ -9,7 +9,7 @@
             ng-repeat="item in $ctrl.files">
 
             <div class="upload-status">
-                <div class="name">{{ item.file.name }}</div>
+                <div class="name" bp-tooltip="{{ item.file.name }}" bp-tooltip-truncated="true">{{ item.file.name }}</div>
                 <uib-progressbar value="item.progress"></uib-progressbar>
                 <div class="indicator">
                     <i class="fonticon fonticon-success" ng-if="item.isComplete"></i>

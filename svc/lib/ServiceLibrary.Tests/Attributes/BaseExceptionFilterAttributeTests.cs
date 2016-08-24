@@ -1,19 +1,17 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net.Http;
-using System.Web.Http.Hosting;
-using System.Web.Http;
+using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using AdminStore.Controllers;
-using ServiceLibrary.Repositories.ConfigControl;
+using System.Web.Http;
+using System.Web.Http.Hosting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Filters;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories.ConfigControl;
 
-namespace AdminStore.Filters
+namespace ServiceLibrary.Attributes
 {
     [TestClass]
     public class BaseExceptionFilterAttributeTests
@@ -35,7 +33,7 @@ namespace AdminStore.Filters
 
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://someurl");
             request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
-            var contextAction = ContextUtil.GetActionExecutedContext(request, null, "Controller", typeof(InstanceController));
+            var contextAction = HttpFilterHelper.CreateActionExecutedContext(request, null);
 
             contextAction.ActionContext.ControllerContext.Controller = _mockController.Object;
             contextAction.Exception = ex;

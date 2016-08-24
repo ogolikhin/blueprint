@@ -83,10 +83,12 @@
     <Compile Include="..\..\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Attributes\BaseExceptionFilterAttributeTests.cs" />
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
     <Compile Include="Attributes\SessionOptionalAttributeTests.cs" />
     <Compile Include="Attributes\SessionRequiredAttributeTests.cs" />
     <Compile Include="EventSources\EventSourcesTests.cs" />
+    <Compile Include="Helpers\HttpFilterHelper.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
     <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />

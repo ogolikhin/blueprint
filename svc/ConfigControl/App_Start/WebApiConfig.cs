@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 using System.Web.Http;
-using ServiceLibrary.Helpers;
+using ServiceLibrary.Attributes;
 
 namespace ConfigControl
 {

@@ -10,7 +10,7 @@ $property-input-with-icon-width: $property-input-width - $property-input-icon-wi
 $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing; // should be 4 * ...
 $property-padding-default: 6px;
 $property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAABCAIAAAATs2rlAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4QzNENTgzNDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjg4QzNENTg0NDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODhDM0Q1ODE0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODhDM0Q1ODI0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz72Ya4LAAAAKUlEQVR42mJ88eIFLy8vAwPD////gSQjIyMDGAC5yGxcUsgKqAgAAgwAL9YR3iDzIXQAAAAASUVORK5CYII=');
-$property-multichoice-height: 24px;
+$property-choice-height: 24px;
 
 pagecontent, bp-properties-panel {
   .properties {
@@ -245,6 +245,10 @@ pagecontent, bp-properties-panel {
       }
 
       .ui-select-single {
+        .ui-select-search {
+          min-width: $property-input-width;
+        }
+
         &.no-custom {
           .ui-select-search {
             background: url('images/typeahead-arrow.png') no-repeat right top;
@@ -300,7 +304,7 @@ pagecontent, bp-properties-panel {
           overflow: hidden;
           padding: 0;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          white-space: pre;
           width: #{$property-input-width - 30px};
         }
 
@@ -308,7 +312,7 @@ pagecontent, bp-properties-panel {
           border-color: $gray-lighter;
           border-radius: 0;
           border-width: 1px;
-          max-height: #{$property-multichoice-height * 10};
+          max-height: #{$property-choice-height * 10};
           overflow: auto;
           -ms-overflow-style: auto;
           padding: 0;
@@ -316,7 +320,7 @@ pagecontent, bp-properties-panel {
           width: $property-input-width;
 
           .ui-select-choices-row {
-            height: $property-multichoice-height;
+            height: $property-choice-height;
 
             .ui-select-choices-row-inner {
               color: $gray-darker;
@@ -325,11 +329,11 @@ pagecontent, bp-properties-panel {
 
               .ui-select-choice-item {
                 font-size: 1.2rem;
-                line-height: $property-multichoice-height;
+                line-height: $property-choice-height;
                 overflow: hidden;
                 padding: 0 8px;
                 text-overflow: ellipsis;
-                white-space: nowrap;
+                white-space: pre;
                 width: 100%;
 
                 &::before {
@@ -385,6 +389,17 @@ pagecontent, bp-properties-panel {
           }
         }
 
+        .ui-select-no-choice {
+          border-color: $gray-lighter;
+          border-radius: 0;
+          border-width: 1px;
+          font-size: 1.2rem;
+          line-height: $property-choice-height;
+          padding: 0 8px;
+          top: #{$property-choice-height + 4px};
+          width: $property-input-width;
+        }
+
         .ui-select-offscreen {
           clip: rect(0 0 0 0) !important;
           width: 1px !important;
@@ -399,6 +414,7 @@ pagecontent, bp-properties-panel {
           top: 0px !important;
         }
       }
+
       $ui-select-input-height: $property-min-height - 4px;
       .ui-select-multiple {
         border: 0;
@@ -480,7 +496,7 @@ pagecontent, bp-properties-panel {
           overflow: hidden;
           padding-left: 4px;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          white-space: pre;
         }
 
         input,
@@ -502,14 +518,14 @@ pagecontent, bp-properties-panel {
           border-color: $gray-lighter;
           border-radius: 0;
           border-width: 1px;
-          max-height: #{$property-multichoice-height * 10};
+          max-height: #{$property-choice-height * 10};
           overflow: auto;
           -ms-overflow-style: auto;
           padding: 0;
           width: $property-input-width;
 
           .ui-select-choices-row {
-            height: $property-multichoice-height;
+            height: $property-choice-height;
 
             .ui-select-choices-row-inner {
               color: $gray-darker;
@@ -518,11 +534,11 @@ pagecontent, bp-properties-panel {
 
               .ui-select-choice-item {
                 font-size: 1.2rem;
-                line-height: $property-multichoice-height;
+                line-height: $property-choice-height;
                 overflow: hidden;
                 padding: 0 8px;
                 text-overflow: ellipsis;
-                white-space: nowrap;
+                white-space: pre;
                 width: 100%;
 
                 &::before {
@@ -574,7 +590,7 @@ pagecontent, bp-properties-panel {
           border-radius: 0;
           border-width: 1px;
           font-size: 1.2rem;
-          line-height: $property-multichoice-height;
+          line-height: $property-choice-height;
           padding: 0 8px;
           width: $property-input-width;
         }
@@ -599,7 +615,7 @@ pagecontent, bp-properties-panel {
           height: $property-min-height;
           line-height: $property-min-height;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          white-space: pre;
         }
 
         &.multiple {
@@ -611,7 +627,7 @@ pagecontent, bp-properties-panel {
           .choice {
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: pre;
           }
         }
 

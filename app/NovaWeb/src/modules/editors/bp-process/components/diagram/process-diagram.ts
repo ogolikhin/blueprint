@@ -153,7 +153,7 @@ export class ProcessDiagram {
         this.$log.error("Error: " + err.message);
     }
 
-    public resize = (width: number) => {
-        this.graph.updateSizeChanges(width);
+    public resize = (width: number, height: number) => {
+        this.graph.updateSizeChanges(width, height);
     }
 }

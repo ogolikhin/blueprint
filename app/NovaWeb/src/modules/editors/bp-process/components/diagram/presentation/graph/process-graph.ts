@@ -445,8 +445,9 @@ export class ProcessGraph implements IProcessGraph {
         var height = window.innerHeight - shift - 6;
         return "" + height + "px";
     }
-    private getMinWidth(delta: number): string {
-        let width = this.htmlElement.parentElement.offsetWidth + delta;
+
+    private getMinWidth(): string {
+        let width = this.htmlElement.parentElement.offsetWidth;
         return "" + width + "px";
     }
 
@@ -454,21 +455,22 @@ export class ProcessGraph implements IProcessGraph {
         this.updateSizeChanges();
     };
 
-    private setContainerSize(delta: number) {
-        var minHeight = this.getMinHeight();
-        var minWidth = this.getMinWidth(delta);
-        if (delta === 0) {
+    private setContainerSize(width: number, height: number = 0) {
+        var minHeight = height === 0 ? this.getMinHeight() : "" + (height - 6) + "px";
+        var minWidth = width === 0 ? this.getMinWidth() : "" + (width - 6) + "px";
+        if (width === 0) {
             this.htmlElement.style.transition = "";
         } else {
             this.htmlElement.style.transition = "width 400ms, height 400ms";
+            setTimeout(this.fireUIEvent, 400, "resize");
         }
 
         this.htmlElement.style.height = minHeight;
         this.htmlElement.style.width = minWidth;
     }
 
-    public updateSizeChanges(width: number = 0) {
-        this.setContainerSize(width);
+    public updateSizeChanges(width: number = 0, height: number = 0) {
+        this.setContainerSize(width, height);
 
         //// This prevents some weird issue with the graph growing as we drag off the container edge.
         var svgElement = angular.element(this.htmlElement.children[0])[0];
@@ -486,7 +488,7 @@ export class ProcessGraph implements IProcessGraph {
 
     public updateAfterRender() {
         if (this.viewModel.isSpa) {
-            this.fireUIEvent("resize");
+            this.updateSizeChanges(); //this.fireUIEvent("resize");
         }
     }
 

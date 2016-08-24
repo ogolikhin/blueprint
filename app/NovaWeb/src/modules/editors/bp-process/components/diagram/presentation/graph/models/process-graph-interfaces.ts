@@ -120,7 +120,7 @@ export interface IProcessGraph {
     redraw(action: any);
     saveProcess();
     publishProcess();
-    updateSizeChanges(width?: number);
+    updateSizeChanges(width?: number, height?: number);
     destroy();
 }
 

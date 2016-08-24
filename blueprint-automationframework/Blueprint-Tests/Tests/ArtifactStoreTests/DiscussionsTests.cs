@@ -532,7 +532,7 @@ namespace ArtifactStoreTests
         public void PostNewComment_ArtifactHasVersion2_CheckCommentHasVersion2()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase,
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _adminUser, BaseArtifactType.UseCase,
                 numberOfVersions: 2);//artifact version is 2
 
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
@@ -542,7 +542,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = artifact.PostRaptorDiscussions(commentText, _authorUser);
+                postedRaptorComment = Artifact.PostRaptorDiscussions(artifact.Address, artifact.Id, commentText, _authorUser);
                 artifact.Save(_authorUser);
                 artifact.Publish(_authorUser);//artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);

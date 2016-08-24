@@ -54,6 +54,10 @@ export class ItemState {
         this._originItem = value;
     }
 
+    private get changeSets(): IPropertyChangeSet[] {
+        return this._changesets || (this._changesets = []);
+    }
+
     public get isReadonly(): boolean {
         return this._readonly ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
@@ -85,7 +89,7 @@ export class ItemState {
     }
 
     public get isChanged(): boolean {
-        return Boolean(angular.isArray(this._changesets) && this._changesets.length);
+        return !!this.changeSets.length;
     }
 
     public get changedItem(): Models.IArtifact {
@@ -121,13 +125,13 @@ export class ItemState {
         if (!this._changesets) {
             this._changesets = [];
         }
-        let _changeset = this._changesets.filter((it: IPropertyChangeSet) => {
+        let _changeset = this.changeSets.filter((it: IPropertyChangeSet) => {
             return it.lookup === changeSet.lookup && it.id === changeSet.id;
         })[0];
         if (_changeset) {
             _changeset.value = changeSet.value;
         } else {
-            this._changesets.push(changeSet);
+            this.changeSets.push(changeSet);
         }
         
     }
@@ -227,8 +231,14 @@ export class ItemState {
         })[0];
     }
 
-    public revertChanges() {
-        delete this._changesets;
+    public revertChanges(id?: number) {
+        this._changesets = this.changeSets.filter((it: IPropertyChangeSet) => {
+            return id && it.itemId != id;
+        });
+
+        if (!this.changeSets.length) {
+            delete this._changesets;
+        }
         delete this._changedItem;
     }
 }
@@ -305,7 +315,11 @@ export class StateManager implements IStateManager {
             }
         } else {
             if (artifact) {
-                if (state.originItem !== artifact) {
+                if (state.originItem.version < artifact.version) {
+                    state.originItem = artifact;
+                    state.revertChanges();
+                    changed = true;
+                } else if (state.originItem != artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }
@@ -318,8 +332,12 @@ export class StateManager implements IStateManager {
                     return it.id === subartifact.id;
                 })[0];
                 if (_subartifact) {
-                    if (_subartifact !== artifact) {
-                        angular.extend(_subartifact, subartifact);
+                    if (_subartifact.version < subartifact.version) {
+                        _subartifact = subartifact;
+                        state.revertChanges(subartifact.id);
+                        changed = true;
+                    } else if (_subartifact != subartifact) {
+                        _subartifact = subartifact;
                         changed = true;
                     }
                 } else {

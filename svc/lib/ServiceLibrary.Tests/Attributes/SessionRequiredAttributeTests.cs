@@ -5,9 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -42,7 +39,7 @@ namespace ServiceLibrary.Attributes
             var attribute = new SessionRequiredAttribute();
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost/");
             request.Headers.Add("e51d8f58-0c62-46ad-a6fc-7e7994670f34", "");
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -59,7 +56,7 @@ namespace ServiceLibrary.Attributes
             var attribute = new SessionRequiredAttribute(CreateHttpClientProvider(session));
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost");
             request.Headers.Add("Session-Token", session);
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -76,7 +73,7 @@ namespace ServiceLibrary.Attributes
             var attribute = new SessionRequiredAttribute(CreateHttpClientProvider(session, false));
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost");
             request.Headers.Add("Cookie", "BLUEPRINT_SESSION_TOKEN=" + session);
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -93,7 +90,7 @@ namespace ServiceLibrary.Attributes
             var attribute = new SessionRequiredAttribute(CreateHttpClientProvider(""));
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost");
             request.Headers.Add("Session-Token", session);
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -108,7 +105,7 @@ namespace ServiceLibrary.Attributes
             // Arrange
             var attribute = new SessionRequiredAttribute();
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost");
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -123,7 +120,7 @@ namespace ServiceLibrary.Attributes
             // Arrange
             var attribute = new SessionRequiredAttribute();
             var request = new HttpRequestMessage(new HttpMethod("PUT"), "http://localhost");
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -140,7 +137,7 @@ namespace ServiceLibrary.Attributes
             var attribute = new SessionRequiredAttribute(new TestHttpClientProvider(r => { throw new Exception(); }));
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost");
             request.Headers.Add("Session-Token", session);
-            var actionContext = CreateHttpActionContext(request);
+            var actionContext = HttpFilterHelper.CreateHttpActionContext(request);
 
             // Act
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
@@ -150,13 +147,6 @@ namespace ServiceLibrary.Attributes
         }
 
         #endregion OnActionExecutingAsync
-
-        private static HttpActionContext CreateHttpActionContext(HttpRequestMessage request)
-        {
-            var context = new HttpControllerContext(new HttpConfiguration(), new HttpRouteData(new HttpRoute()), request);
-            var descriptor = new ReflectedHttpActionDescriptor();
-            return new HttpActionContext(context, descriptor);
-        }
 
         private static IHttpClientProvider CreateHttpClientProvider(string token, bool useCookies = true)
         {

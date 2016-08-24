@@ -77,36 +77,36 @@ bp-accordion {
     // custom checkbox
     > input[type=checkbox].bp-accordion-panel-pin:not(:checked) + label.bp-accordion-panel-pin::before,
     > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin::before {
-      background-color: lighten($brand-secondary, 15%);
-      border-radius: $border-radius-amount;
-      content: '';
+      background: $brand-secondary url('images/thumbtack.svg') no-repeat center;
+      background-size: contain;
+      content: ' ';
       cursor: pointer;
-      height: 15px;
+      height: #{$utility-panel-heading-height - 4px};
+      line-height: #{$utility-panel-heading-height - 4px};
+      opacity: .5;
       position: absolute;
-      right: 10px;
-      top: 8px;
-      width: 15px;
+      right: 6px;
+      top: 2px;
+      transform: rotate(-90deg);
+      width: #{$utility-panel-heading-height - 4px};
       z-index: 3;
     }
 
     // custom checkmark
     > input[type=checkbox].bp-accordion-panel-pin:not(:checked) + label.bp-accordion-panel-pin::after,
     > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin::after {
-      background-image: url('images/thumbtack.svg');
-      background-repeat: no-repeat;
-      background-size: cover;
+      background: $brand-secondary url('images/thumbtack.svg') no-repeat center;
+      background-size: contain;
       color: $white;
       content: ' ';//'✔';
       cursor: pointer;
-      font-size: 10px;
-      height: 25px;
-      line-height: 11px;
+      height: #{$utility-panel-heading-height - 4px};
+      line-height: #{$utility-panel-heading-height - 4px};
       position: absolute;
       right: 6px;
       text-align: center;
-      top: -2px;
-      transform: rotate(45deg);
-      width: 12px;
+      top: 2px;
+      width: #{$utility-panel-heading-height - 4px};
       z-index: 4;
     }
 

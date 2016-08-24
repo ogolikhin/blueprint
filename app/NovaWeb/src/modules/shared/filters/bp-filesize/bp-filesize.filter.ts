@@ -1,12 +1,12 @@
 import { ILocalizationService } from  "../../../core/";
 
-export class bpFilesizeFilter {
+export class BpFilesizeFilter {
 
     public static $inject = [
         "localization"
     ];
 
-    public static Factory() {
+    public static factory() {
         let filter = (localizationService: ILocalizationService) => {
             return (size) => {
                 if (isNaN(size)) {

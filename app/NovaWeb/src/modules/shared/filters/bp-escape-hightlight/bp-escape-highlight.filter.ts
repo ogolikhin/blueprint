@@ -1,14 +1,14 @@
-export class bpEscapeAndHighlightFilter {
+export class BpEscapeAndHighlightFilter {
 
     public static $inject = [
     ];
 
-    public static Factory() {
+    public static factory() {
         let entityMap = {
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
-            '"': "&quot;",
+            "\"": "&quot;",
             "'": "&#39;",
             "/": "&#x2F;"
         };
@@ -25,7 +25,7 @@ export class bpEscapeAndHighlightFilter {
                 let toHighlightLCase = toHighlight.toLowerCase();
                 let substrings = toFilterLCase.split(toHighlightLCase);
                 toFilterLCase = "";
-                if (substrings.length > 1 && toHighlight != "") {
+                if (substrings.length > 1 && toHighlight !== "") {
                     let pos = 0;
                     substrings.forEach(function (substring, index) {
                         toFilterLCase += escapeHtmlEntities(toFilter.substr(pos, substring.length));

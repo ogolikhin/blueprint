@@ -125,7 +125,7 @@ export function formlyConfig(
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
                 <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
                 <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
@@ -178,7 +178,7 @@ export function formlyConfig(
                     if ($scope.options.data.isRichText) {
                         newValue = $sce.trustAsHtml(newValue);
                     } else if ($scope.options.data.isMultipleAllowed) {
-                        newValue = $sce.trustAsHtml((newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
+                        newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
                     break;
                 case PrimitiveType.Date:
@@ -304,6 +304,7 @@ export function formlyConfig(
                             ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelect.escapeHTMLText($select.search)"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
+                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -589,8 +590,8 @@ export function formlyConfig(
                     if (nextItem === -1) {
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);
                     }
+                    $select.activeIndex = nextItem;
                     $timeout(() => {
-                        $select.activeIndex = nextItem;
                         if ($scope["uiSelectContainer"]) {
                             $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
                             $scope["uiSelectContainer"].querySelector("input").focus();

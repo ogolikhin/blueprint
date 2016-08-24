@@ -4,7 +4,7 @@ import { IStencilService } from "./impl/stencil.svc";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
 import { Models } from "../../main";
-import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
+import { ISelectionManager, ISelection } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
 import { ILocalizationService } from "../../core";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
@@ -58,10 +58,17 @@ export class BPDiagramController {
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
             this.selectionManager.selectionObservable
-                .filter(s => s != null && s.source !== SelectionSource.UtilityPanel && !s.subArtifact)
+                .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this),
         ];
         this.$element.on("click", this.stopPropagation);
+    }
+
+    private clearSelectionFilter = (selection: ISelection) => {
+        return selection != null
+               && selection.artifact
+               && selection.artifact.id === this.artifact.id
+               && !selection.subArtifact;
     }
 
     public $onChanges(changesObj) {

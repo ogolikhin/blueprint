@@ -1,4 +1,4 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import { ILocalizationService, IStateManager } from "../../../core";
 import { ISelectionManager, Models, Relationships } from "../../../main";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
@@ -29,6 +29,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         "$q",
         "localization",
         "selectionManager",
+        "stateManager",
         "artifactRelationships"
     ];
 
@@ -46,10 +47,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
+        protected stateManager: IStateManager,
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           

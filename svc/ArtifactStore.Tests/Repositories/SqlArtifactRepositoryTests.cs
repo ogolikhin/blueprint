@@ -178,7 +178,7 @@ namespace ArtifactStore.Repositories
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -218,7 +218,7 @@ namespace ArtifactStore.Repositories
                     Permissions = project.DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -265,7 +265,7 @@ namespace ArtifactStore.Repositories
                     Permissions = ancestor3.DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -301,7 +301,7 @@ namespace ArtifactStore.Repositories
                     Permissions = input[2].DirectPermissions,
                     LockedDateTime = input[2].LockedByUserTime,
                     ItemTypeId = input[2].ItemTypeId,
-                    LockedByUserId = input[2].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[2].VersionsCount / 2,
                     ProjectId = input[2].VersionProjectId,
                     Prefix = input[2].Prefix
@@ -377,7 +377,7 @@ namespace ArtifactStore.Repositories
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -441,7 +441,7 @@ namespace ArtifactStore.Repositories
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -457,7 +457,7 @@ namespace ArtifactStore.Repositories
                     Permissions = collections.DirectPermissions,
                     LockedDateTime = collections.LockedByUserTime,
                     ItemTypeId = collections.ItemTypeId,
-                    LockedByUserId = collections.LockedByUserId,
+                    LockedByUser = new UserGroup { Id = collections.LockedByUserId },
                     Version = collections.VersionsCount,
                     ProjectId = collections.VersionProjectId,
                     Prefix = collections.Prefix
@@ -515,7 +515,7 @@ namespace ArtifactStore.Repositories
                     Permissions = input[1].DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     ItemTypeId = input[1].ItemTypeId,
-                    LockedByUserId = input[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = input[1].LockedByUserId },
                     Version = input[1].VersionsCount,
                     ProjectId = input[1].VersionProjectId,
                     Prefix = input[1].Prefix
@@ -560,7 +560,7 @@ namespace ArtifactStore.Repositories
                     Permissions = inputOrphans[0].DirectPermissions,
                     LockedDateTime = inputOrphans[0].LockedByUserTime,
                     ItemTypeId = inputOrphans[0].ItemTypeId,
-                    LockedByUserId = inputOrphans[0].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = inputOrphans[0].LockedByUserId },
                     Version = inputOrphans[0].VersionsCount,
                     ProjectId = inputOrphans[0].VersionProjectId,
                     Prefix = inputOrphans[0].Prefix
@@ -605,7 +605,7 @@ namespace ArtifactStore.Repositories
                     Permissions = inputOrphans[1].DirectPermissions,
                     LockedDateTime = inputOrphans[1].LockedByUserTime,
                     ItemTypeId = inputOrphans[1].ItemTypeId,
-                    LockedByUserId = inputOrphans[1].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = inputOrphans[1].LockedByUserId },
                     Version = inputOrphans[1].VersionsCount / 2,
                     ProjectId = inputOrphans[1].VersionProjectId,
                     Prefix = inputOrphans[1].Prefix
@@ -652,7 +652,7 @@ namespace ArtifactStore.Repositories
                     Permissions = inputOrphans[0].DirectPermissions,
                     LockedDateTime = inputOrphans[0].LockedByUserTime,
                     ItemTypeId = inputOrphans[0].ItemTypeId,
-                    LockedByUserId = inputOrphans[0].LockedByUserId,
+                    LockedByUser = new UserGroup { Id = inputOrphans[0].LockedByUserId },
                     Version = inputOrphans[0].VersionsCount,
                     ProjectId = inputOrphans[0].VersionProjectId,
                     Prefix = inputOrphans[0].Prefix
@@ -714,9 +714,9 @@ namespace ArtifactStore.Repositories
                     errorMessage = I18NHelper.FormatInvariant(template, i, "Id", e.Id, a.Id);
                     return false;
                 }
-                if (e.LockedByUserId != a.LockedByUserId)
+                if (e.LockedByUser?.Id != a.LockedByUser?.Id)
                 {
-                    errorMessage = I18NHelper.FormatInvariant(template, i, "LockedByUserId", e.LockedByUserId, a.LockedByUserId);
+                    errorMessage = I18NHelper.FormatInvariant(template, i, "LockedByUserId", e.LockedByUser?.Id, a.LockedByUser?.Id);
                     return false;
                 }
                 if (e.LockedDateTime != a.LockedDateTime)

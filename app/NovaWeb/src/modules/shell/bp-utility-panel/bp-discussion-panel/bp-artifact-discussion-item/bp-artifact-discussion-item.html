@@ -18,7 +18,7 @@
         </div>
 
         <div class="info">
-            <div class="comment" bp-collapsible="80" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
             <div class="version">v{{$ctrl.discussionInfo.version}}</div>
             <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
         </div>

@@ -56,7 +56,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization.current);
     }    
 

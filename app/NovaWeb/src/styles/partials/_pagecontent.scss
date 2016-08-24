@@ -115,11 +115,10 @@ pagecontent, bp-properties-panel {
         font-style: normal;
         text-align: center;
         vertical-align: bottom;
-        height: 20px;
-        width: 20px;
-
+        height: 12px;
+        padding-left: 5px;
         &::before {
-          font-size: 16px;
+          font-size: $font-size-big;
           line-height: normal;
         }
       }

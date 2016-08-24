@@ -11,7 +11,7 @@
                  bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
         </div>
         <div class="info">
-            <div class="comment" bp-collapsible="80" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
             <div class="version">v{{$ctrl.replyInfo.version}}</div>
             <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
         </div>

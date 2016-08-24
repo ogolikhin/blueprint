@@ -276,64 +276,102 @@
     padding-top:10px;
 }
 
-/* add text ellipsis to drop down*/
-.dropdown-menu li a,
-#storyteller-include[uib-typeahead] + .dropdown-menu li a,
-#storyteller-systemtask-include[uib-typeahead] + .dropdown-menu li a,
-.rte-autocomplete > li > a {
-    @include text-ellipsis-fixed-width(100%);
-    padding-right: 10px;
-}
-/* formatting the highlighting of dropdowns and mentions*/
-.dropdown-menu li a strong,
-#storyteller-include[uib-typeahead] + .dropdown-menu li a strong,
-#storyteller-systemtask-include[uib-typeahead] + .dropdown-menu li a strong {
-    font-weight: normal;
-    background: rgba(255, 237, 40, 0.4);
-}
+bp-process-editor {
+    /* add text ellipsis to drop down*/
+    .dropdown-menu li a,
+    #storyteller-include[uib-typeahead] + .dropdown-menu li a,
+    #storyteller-systemtask-include[uib-typeahead] + .dropdown-menu li a,
+    .rte-autocomplete > li > a {
+        @include text-ellipsis-fixed-width(100%);
+        padding-right: 10px;
+    }
+    /* formatting the highlighting of dropdowns and mentions*/
+    .dropdown-menu li a strong,
+    #storyteller-include[uib-typeahead] + .dropdown-menu li a strong,
+    #storyteller-systemtask-include[uib-typeahead] + .dropdown-menu li a strong {
+        font-weight: normal;
+        background: rgba(255, 237, 40, 0.4);
+    }
 
-.dropdown-menu > .active > a,
-.dropdown-menu > .active > a:hover,
-.dropdown-menu > .active > a:focus,
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus,
-#storyteller-include[uib-typeahead] + .dropdown-menu > .active > a,
-#storyteller-include[uib-typeahead] + .dropdown-menu > .active > a:hover,
-#storyteller-include[uib-typeahead] + .dropdown-menu > .active > a:focus,
-.rte-autocomplete > li > a:hover,
-.rte-autocomplete > li > a:focus,
-.rte-autocomplete:hover > a,
-.rte-autocomplete:focus > a,
-.rte-autocomplete > .active > a,
-.rte-autocomplete > .active > a:hover,
-.rte-autocomplete > .active > a:focus {
-    color: #fff;
-    text-decoration: none;
-    background-color: #428bca;
-    background-image: none;
-    background-repeat: initial;
-    filter: initial;
-    outline: 0;
-}
+    .dropdown-menu > .active > a,
+    .dropdown-menu > .active > a:hover,
+    .dropdown-menu > .active > a:focus,
+    .dropdown-menu > li > a:hover,
+    .dropdown-menu > li > a:focus,
+    #storyteller-include[uib-typeahead] + .dropdown-menu > .active > a,
+    #storyteller-include[uib-typeahead] + .dropdown-menu > .active > a:hover,
+    #storyteller-include[uib-typeahead] + .dropdown-menu > .active > a:focus,
+    .rte-autocomplete > li > a:hover,
+    .rte-autocomplete > li > a:focus,
+    .rte-autocomplete:hover > a,
+    .rte-autocomplete:focus > a,
+    .rte-autocomplete > .active > a,
+    .rte-autocomplete > .active > a:hover,
+    .rte-autocomplete > .active > a:focus {
+        color: #fff;
+        text-decoration: none;
+        background-color: #428bca;
+        background-image: none;
+        background-repeat: initial;
+        filter: initial;
+        outline: 0;
+    }
 
-.loading {
-    background: url("/Areas/Web/Style/images/spinner.gif") center no-repeat;
-    background-size: contain;
-}
+    .loading {
+        background: url("/Areas/Web/Style/images/spinner.gif") center no-repeat;
+        background-size: contain;
+    }
 
-#storyteller-include[uib-typeahead] ~ .loading, #storyteller-systemtask-include[uib-typeahead] ~ .loading {
-    @extend .loading;
+    #storyteller-include[uib-typeahead] ~ .loading, #storyteller-systemtask-include[uib-typeahead] ~ .loading {
+        @extend .loading;
 
-    margin-top: 5px;
-    width: 16px;
-    height: 16px;
-}
+        margin-top: 5px;
+        width: 16px;
+        height: 16px;
+    }
 
-.rte-autocomplete > li.loading {
-    @extend .loading;
-}
-.rte-autocomplete {
-    max-width: 400px;
+    .rte-autocomplete > li.loading {
+        @extend .loading;
+    }
+    .rte-autocomplete {
+        max-width: 400px;
+    }
+
+    .dropdown-next-node{
+        max-height: 250px;
+        overflow-y: auto;
+
+        li a {
+            padding-left: 0;
+            padding-right: 0;
+
+            [class^="fonticon-"]:before {
+                font-size: 1.5rem;
+            }
+        }
+    }
+
+    .dropdown-menu {
+        width: 100% !important;
+        padding: 10px;
+        background-color:aqua;
+    }
+
+    .page-heading {
+        .process-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+
+            .process-breadcrumbs {
+                padding-bottom: 5px;
+                font-size: 12px;
+                border: none;
+                padding: 0;
+                height: auto;
+            }
+        }
+    }
 }
 /* mxPopupMenu style */
 
@@ -759,28 +797,9 @@ margin-top: 72px;
 .clearable::-ms-value {       
     margin-right:20px;
     }
-.dropdown-next-node{
-    max-height: 250px;
-    overflow-y: auto;
-
-    li a {
-        padding-left: 0;
-        padding-right: 0;
-
-        [class^="fonticon-"]:before {
-            font-size: 1.5rem;
-        }
-    }
-}
 
 .fonticon-st-tabs:before {
     font-size: 1.5rem;
-}
-
-.dropdown-menu {
-    width: 100% !important;
-    padding: 10px;
-    background-color:aqua;
 }
 
 .delete-condition {
@@ -835,20 +854,4 @@ p {
     margin: 0;
     padding: 0;
     font-size: inherit;
-}
-
-.page-heading {
-    .process-header {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-
-        .process-breadcrumbs {
-            padding-bottom: 5px;
-            font-size: 12px;
-            border: none;
-            padding: 0;
-            height: auto;
-        }
-    }
 }

@@ -70,7 +70,9 @@ export class BPUtilityPanelController {
 
     private showPanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
-        accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
+        if (accordionCtrl) {
+            accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
+        }
     }
 
     private getAccordionController(): IBpAccordionController {

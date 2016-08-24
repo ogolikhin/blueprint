@@ -271,9 +271,11 @@
         }
     }
 }
+
 #SystemTaskUploadImage{
     padding-top:10px;
 }
+
 /* add text ellipsis to drop down*/
 .dropdown-menu li a,
 #storyteller-include[uib-typeahead] + .dropdown-menu li a,
@@ -430,8 +432,8 @@ table.mxPopupMenu tr {
 
 /* Given-When-Then Dialogue*/
 .preview-modal.in .modal-dialog {
-    width: 450px;
-    margin-top: 72px;
+width: 450px;
+margin-top: 72px;
 }
 
 .image-preview-modal {
@@ -583,6 +585,7 @@ table.mxPopupMenu tr {
         }
     }
 }
+
 
 .storyteller-gt_image-container {
     width: 100%;
@@ -739,9 +742,10 @@ table.mxPopupMenu tr {
 .storyteller-gt_text-container-grayed-text {
     color: $gray-light;
 }
+
 .clearable {
-background: #fff url(data:image/gif;base64,R0lGODlhBwAHAIAAAP///5KSkiH5BAAAAAAALAAAAAAHAAcAAAIMTICmsGrIXnLxuDMLADs=) no-repeat right -10px center;
-padding-right: 20px;
+    background: #fff url(data:image/gif;base64,R0lGODlhBwAHAIAAAP///5KSkiH5BAAAAAAALAAAAAAHAAcAAAIMTICmsGrIXnLxuDMLADs=) no-repeat right -10px center;
+    padding-right: 20px;
 }
 
 .clearable.btnX {
@@ -786,6 +790,7 @@ padding-right: 20px;
 .user-story-preview-center-pane {
     position: relative;
 }
+
 .contextual-help-container {
     position: absolute;
     top: 10px;
@@ -799,36 +804,37 @@ padding-right: 20px;
         }
     }
 }
+
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
     .contextual-help-container {
         right: -20px;
     }
 }
 
-    /*Tiny Mce in Storyteller*/
-    body.mce-content-body {
-        min-height: 92px;
-        padding: 6px 0 0;
-        margin: 0;
-        font-weight: 400;
-        font-size: 16px;
-        color: #0c0c0c;
-    }
-    body.mce-content-body a, body.mce-content-body a:hover {
-        cursor: pointer !important;
-    }
-    #mce_noneditablecaret {
-        font-size: 0;
-        line-height: 0;
-        height: 0;
-        display: none;
-    }
-    p {
-        margin: 0;
-        padding: 0;
-        font-size: inherit;
-    }
-    /*************************/
+/*Tiny Mce in Storyteller*/
+body.mce-content-body {
+    min-height: 92px;
+    padding: 6px 0 0;
+    margin: 0;
+    font-weight: 400;
+    font-size: 16px;
+    color: #0c0c0c;
+}
+
+body.mce-content-body a, body.mce-content-body a:hover {
+    cursor: pointer !important;
+}
+
+#mce_noneditablecaret {
+    font-size: 0;
+    line-height: 0;
+    height: 0;
+    display: none;
+}
+p {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
 }
 
 .page-heading {

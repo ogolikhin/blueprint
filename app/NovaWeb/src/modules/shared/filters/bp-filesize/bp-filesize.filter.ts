@@ -1,6 +1,6 @@
 import { ILocalizationService } from  "../../../core/";
 
-export class BpFilesizeFilter {
+export class bpFilesizeFilter {
 
     public static $inject = [
         "localization"

@@ -17,7 +17,7 @@
                     <i class="fonticon fonticon-close" ng-if="item.isUploading" ng-click="$ctrl.cancelUpload(item)"></i>
                 </div>
             </div>
-            <div class="size">{{ item.file.size | BpFilesize }}</div>
+            <div class="size">{{ item.file.size | bpFilesize }}</div>
             <div class="error-message">{{ item.errorMessage }}</div>
         </div>
 

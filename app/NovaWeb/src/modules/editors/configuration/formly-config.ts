@@ -304,6 +304,7 @@ export function formlyConfig(
                             ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelect.escapeHTMLText($select.search)"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
+                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -589,8 +590,8 @@ export function formlyConfig(
                     if (nextItem === -1) {
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);
                     }
+                    $select.activeIndex = nextItem;
                     $timeout(() => {
-                        $select.activeIndex = nextItem;
                         if ($scope["uiSelectContainer"]) {
                             $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
                             $scope["uiSelectContainer"].querySelector("input").focus();

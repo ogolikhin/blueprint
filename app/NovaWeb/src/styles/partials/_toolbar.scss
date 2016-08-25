@@ -30,9 +30,9 @@ bp-toolbar {
         box-sizing: border-box;
         color: $gray-dark;
         height: $toolbar-height;
-        min-width: 50px;
+        width: 50px;
         line-height: normal;
-        padding: 8px 0 0 0;
+        padding: 6px 0 0 0;
         text-align: center;
 
         .fonticon::before {
@@ -41,16 +41,16 @@ bp-toolbar {
         }
 
         .caret {
-          margin: 0;
+          margin: 0 0 0 3px;
         }
 
         span {
           display: block;
           font-size: $font-size-smaller;
+          line-height: 0.9rem;
           font-weight: normal;
           padding: 0 5px;
-          margin-top: -3px;
-          white-space: nowrap;
+          margin: 0;
         }
       }
 

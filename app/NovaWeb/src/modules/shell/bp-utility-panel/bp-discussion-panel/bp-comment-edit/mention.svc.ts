@@ -167,10 +167,12 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
                     </a> `;
     }
 
-    private prepareMentionIdAttributes(person: IUserOrGroupInfo): string {
+    private prepareMentionIdAttributes(person: any): string {
         if (person.id) {
             const id = person.id.slice(1);
-            return `mentionid="${id}" isgroup="${person.isGroup ? "True" : "False"}"`;
+            // This conversion is necessary because mentions plugin casts all fields into strings on select, and is cased differently on different browsers.
+            let isgroup = (person["isgroup"] === "true" || person["isGroup"] === "true") ? "True" : "False"; 
+            return `mentionid="${id}" isgroup="${isgroup}"`;
         }
         return "";
     }

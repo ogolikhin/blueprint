@@ -1,23 +1,25 @@
 <?xml version="1.0"?>
 <OutputSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GeneralInfo>
-    <InstallationPath>C:\Web\Blueprint</InstallationPath>
+    <InstallationPath>C:\Program Files\Blueprint Software Systems\Blueprint</InstallationPath>
     <IsDistributedInstallation>false</IsDistributedInstallation>
   </GeneralInfo>
   <BlueprintWebInfo>
     <SiteName>Blueprint</SiteName>
     <SitePort>80</SitePort>
     <SiteAuxiliaryPort>83</SiteAuxiliaryPort>
-    <SiteHostName>nw.blueprintsys.net</SiteHostName>
+    <EnableHTTPSBinding>false</EnableHTTPSBinding>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
     <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
     <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
     <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
-    <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
+	<ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
   </BlueprintWebInfo>
+  <ALMInfo>
     <IsALMEnabled>true</IsALMEnabled>
-    <ALMSiteName>Blueprint_ALMConnector</ALMSiteName>
+    <ALMSiteName>HPALMLegacyConnector</ALMSiteName>
     <ALMPort>85</ALMPort>
+  </ALMInfo>
   <JobExecutorInfo>
     <AccountType>LocalSystem</AccountType>
   </JobExecutorInfo>

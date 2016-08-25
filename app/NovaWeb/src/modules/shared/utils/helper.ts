@@ -79,6 +79,11 @@ export class Helper {
     };
     /* tslint:enable */
 
+    static stripWingdings(htmlText: string): string {
+        let _htmlText = htmlText || "";
+        let wingdingsRegEx = /font-family:[ ]?['"]?Wingdings['"]?/gi;
+        return _htmlText.replace(wingdingsRegEx, "");
+    };
 
     static autoLinkURLText(node: Node) {
         /* tslint:disable */

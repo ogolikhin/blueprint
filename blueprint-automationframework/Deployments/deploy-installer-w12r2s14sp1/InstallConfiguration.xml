@@ -13,11 +13,11 @@
     <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
     <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
     <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
-	<ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
+    <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
   </BlueprintWebInfo>
   <ALMInfo>
     <IsALMEnabled>true</IsALMEnabled>
-    <ALMSiteName>HPALMLegacyConnector</ALMSiteName>
+    <ALMSiteName>Blueprint_ALMLegacyConnector</ALMSiteName>
     <ALMPort>85</ALMPort>
   </ALMInfo>
   <JobExecutorInfo>

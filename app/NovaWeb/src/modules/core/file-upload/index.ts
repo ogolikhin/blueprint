@@ -33,7 +33,7 @@ export class FileUploadService implements IFileUploadService {
         const deferred = this.$q.defer<IFileResult>();
         const request: ng.IRequestConfig | any = {
             method: "POST",
-            url: `/svc/components/filestore/files/${file.name}`,
+            url: `/svc/bpfilestore/files/${file.name}`,
             params: expirationDate ? { expired: expirationDate.toISOString() } : undefined,
             data: file,
             uploadEventHandlers: progress ? { progress: progress } : undefined,

@@ -34,7 +34,7 @@ bp-properties-panel {
 
         .formly-field {
             width: $property-width;
-
+            
             .has-messages {
                 display: block;
             }
@@ -59,7 +59,11 @@ bp-properties-panel {
                 .ui-select-choices {
                     width: $property-input-width;
                 }                
-            }
+
+                .ui-select-search {
+                    min-width: $property-input-width;
+                }
+            }            
 
             .ui-select-multiple {
                     width: #{$property-input-width - 20px};

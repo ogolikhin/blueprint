@@ -155,7 +155,12 @@ export class BpArtifactEditor extends BpBaseEditor {
             };
             let state = this.stateManager.addChange(this.context.artifact, changeSet);
 
-            this.stateManager.lockArtifact(state);
+            this.stateManager.lockArtifact(state).catch((error: any) => {
+                if (error) {
+                    this.messageService.addError(error);
+                }
+            });
+
         } catch (err) {
             this.messageService.addError(err);
         }

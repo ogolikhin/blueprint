@@ -119,11 +119,12 @@ export class ProjectManager implements IProjectManager {
                                 this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
-                                this.messageService.addError(error["message"] || "Project_NotFound");
+                                
+                                this.messageService.addError(error);
                             });
 
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || "Project_NotFound");
+                        this.messageService.addError(error);
                     });
 
 
@@ -207,12 +208,8 @@ export class ProjectManager implements IProjectManager {
 
     }
 
-    public loadFolders(id?: number) {
-        try {
-            return this._repository.getFolders(id);
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || "Project_NotFound");
-        }
+    public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        return this._repository.getFolders(id);
     }
 
     public getProject(id: number) {

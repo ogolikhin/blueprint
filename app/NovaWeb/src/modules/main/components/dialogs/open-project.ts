@@ -142,11 +142,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 }
             }, (error) => {
                 //close dialog on authentication error
-                if (error.statusCode === 1401) {
-                    this.cancel();
-                } else {
-                    this._errorMessage = error.message;
-                }
+                this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
             });
 
         return null;

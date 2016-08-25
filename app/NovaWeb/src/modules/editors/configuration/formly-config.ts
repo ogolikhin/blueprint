@@ -176,7 +176,7 @@ export function formlyConfig(
                     }
                     $scope.tooltip = newValue;
                     if ($scope.options.data.isRichText) {
-                        newValue = $sce.trustAsHtml(newValue);
+                        newValue = $sce.trustAsHtml(Helper.stripWingdings(newValue));
                     } else if ($scope.options.data.isMultipleAllowed) {
                         newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
@@ -710,14 +710,14 @@ export function formlyConfig(
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
         defaultOptions: {
-            templateOptions: {        
+            templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    init_instance_callback: function(editor) {
+                    init_instance_callback: function (editor) {
                         Helper.autoLinkURLText(editor.getBody());
                         editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
-                        editor.dom.bind(editor.dom.select("a"), "click", function(e) {
+                        editor.dom.bind(editor.dom.select("a"), "click", function (e) {
                             let element = e.target as HTMLElement;
                             while (element && element.tagName.toUpperCase() !== "A") {
                                 element = element.parentElement;
@@ -730,7 +730,11 @@ export function formlyConfig(
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
-        }
+        },
+        controller: ["$scope", function ($scope) {
+            let currentModelVal = $scope.model[$scope.options.key];
+            $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
+        }]
     });
 
     formlyConfig.setType({

@@ -116,6 +116,7 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCaseDiagram
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
+            || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
                 selection.source === SelectionSource.Editor))) {
 

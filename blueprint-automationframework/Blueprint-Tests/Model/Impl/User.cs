@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using Common;
 using Model.Factories;
-using TestConfig;
 using Utilities;
 
 namespace Model.Impl
@@ -20,9 +19,12 @@ namespace Model.Impl
             "[InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp]," +
             "[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]";
 
+        protected bool IsDeletedFromDatabase { get; set; }
         private List<IGroup> _GroupMembership = new List<IGroup>();
 
         #region Properties
+
+        public bool IsDeleted { get { return (!IsDeletedFromDatabase && (EndTimestamp != null)); } }
 
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
@@ -290,8 +292,9 @@ namespace Model.Impl
                         {
                             int userIdOrdinal = sqlDataReader.GetOrdinal("UserId");
                             UserId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
-                            //UserId = (int)(sqlDataReader.GetSqlInt32(0));
                         }
+
+                        IsDeletedFromDatabase = false;
                     }
                     else
                     {
@@ -308,6 +311,11 @@ namespace Model.Impl
         ///     Pass true to really delete the user from the database.</param>
         public override void DeleteUser(bool deleteFromDatabase = false)
         {
+            if (IsDeletedFromDatabase)
+            {
+                return;
+            }
+
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
@@ -339,6 +347,10 @@ namespace Model.Impl
                     {
                         string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
+                    }
+                    else
+                    {
+                        IsDeletedFromDatabase = true;
                     }
                 }
                 catch

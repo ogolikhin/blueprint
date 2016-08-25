@@ -25,6 +25,7 @@ namespace Helper
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
+        public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
 
         // Lists of objects created by this class to be disposed:
         public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();

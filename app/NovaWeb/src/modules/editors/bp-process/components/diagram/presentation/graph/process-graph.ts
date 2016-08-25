@@ -34,6 +34,8 @@ export class ProcessGraph implements IProcessGraph {
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     private executionEnvironmentDetector: any;
+    private transitionTimeOut: number = 400;
+    private bottomBorderWidt: number = 6;
     
     public globalScope: IScopeContext;
 
@@ -446,33 +448,35 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         var shift = this.getPosition(this.htmlElement).y;
-        var height = window.innerHeight - shift - 6;
-        return "" + height + "px";
+        var height = window.innerHeight - shift - this.bottomBorderWidt;
+        return `${height}px`;
     }
-    private getMinWidth(delta: number): string {
-        let width = this.htmlElement.parentElement.offsetWidth + delta;
-        return "" + width + "px";
+
+    private getMinWidth(): string {
+        let width = this.htmlElement.parentElement.offsetWidth;
+        return `${width}px`;
     }
 
     private resizeWrapper = (event) => {
         this.updateSizeChanges();
     };
 
-    private setContainerSize(delta: number) {
-        var minHeight = this.getMinHeight();
-        var minWidth = this.getMinWidth(delta);
-        if (delta === 0) {
+    private setContainerSize(width: number, height: number = 0) {
+        var minHeight = height === 0 ? this.getMinHeight() : `${height - this.bottomBorderWidt}px`;
+        var minWidth = width === 0 ? this.getMinWidth() : `${width}px`;
+        if (width === 0) {
             this.htmlElement.style.transition = "";
         } else {
-            this.htmlElement.style.transition = "width 400ms, height 400ms";
+            this.htmlElement.style.transition = `width ${this.transitionTimeOut}ms`;
+            setTimeout(this.fireUIEvent, this.transitionTimeOut, "resize");
         }
 
         this.htmlElement.style.height = minHeight;
         this.htmlElement.style.width = minWidth;
     }
 
-    public updateSizeChanges(width: number = 0) {
-        this.setContainerSize(width);
+    public updateSizeChanges(width: number = 0, height: number = 0) {
+        this.setContainerSize(width, height);
 
         //// This prevents some weird issue with the graph growing as we drag off the container edge.
         var svgElement = angular.element(this.htmlElement.children[0])[0];
@@ -490,7 +494,7 @@ export class ProcessGraph implements IProcessGraph {
 
     public updateAfterRender() {
         if (this.viewModel.isSpa) {
-            this.fireUIEvent("resize");
+            this.updateSizeChanges(); //this.fireUIEvent("resize");
         }
     }
 

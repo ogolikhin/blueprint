@@ -21,7 +21,6 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
-    private contentAreaWidth: number;
 
     public context: IEditorContext;
     public processDiagram: ProcessDiagram;
@@ -65,7 +64,6 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         this.dialogManager = new ModalDialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
-        this.contentAreaWidth = null;
     }
 
     public $onInit() {
@@ -87,13 +85,10 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.load(this.context.artifact.id);
         }
 
-        if (this.$element[0].parentElement) {
-            this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
-        }
     }
 
     public $onDestroy() {
-        //super.$onDestroy();
+        super.$onDestroy();
     }
     
     private load(artifactId: number) {
@@ -134,14 +129,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onWidthResized(mainWindow: IMainWindow) {
-        if (
-            (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle)
-            && !!this.processDiagram
-        ) {
-            //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
-            let deltaX: number = mainWindow.contentWidth - this.contentAreaWidth;
-            this.contentAreaWidth = mainWindow.contentWidth;
-            this.processDiagram.resize(deltaX);
+        if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
         }
     }
     

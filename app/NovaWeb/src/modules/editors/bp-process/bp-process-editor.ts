@@ -129,10 +129,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onWidthResized(mainWindow: IMainWindow) {
-        if (
-            (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle)
-            && !!this.processDiagram
-        ) {
+        if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
             this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
         }
     }

@@ -34,6 +34,8 @@ export class ProcessGraph implements IProcessGraph {
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     private executionEnvironmentDetector: any;
+    private transitionTimeOut: number = 400;
+    private bottomBorderWidt: number = 6;
     
     public globalScope: IScopeContext;
 
@@ -446,13 +448,13 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         var shift = this.getPosition(this.htmlElement).y;
-        var height = window.innerHeight - shift - 6;
-        return "" + height + "px";
+        var height = window.innerHeight - shift - this.bottomBorderWidt;
+        return `${height}px`;
     }
 
     private getMinWidth(): string {
         let width = this.htmlElement.parentElement.offsetWidth;
-        return "" + width + "px";
+        return `${width}px`;
     }
 
     private resizeWrapper = (event) => {
@@ -460,13 +462,13 @@ export class ProcessGraph implements IProcessGraph {
     };
 
     private setContainerSize(width: number, height: number = 0) {
-        var minHeight = height === 0 ? this.getMinHeight() : "" + (height - 6) + "px";
-        var minWidth = width === 0 ? this.getMinWidth() : "" + (width - 6) + "px";
+        var minHeight = height === 0 ? this.getMinHeight() : `${height - this.bottomBorderWidt}px`;
+        var minWidth = width === 0 ? this.getMinWidth() : `${width}px`;
         if (width === 0) {
             this.htmlElement.style.transition = "";
         } else {
-            this.htmlElement.style.transition = "width 400ms, height 400ms";
-            setTimeout(this.fireUIEvent, 400, "resize");
+            this.htmlElement.style.transition = `width ${this.transitionTimeOut}ms`;
+            setTimeout(this.fireUIEvent, this.transitionTimeOut, "resize");
         }
 
         this.htmlElement.style.height = minHeight;

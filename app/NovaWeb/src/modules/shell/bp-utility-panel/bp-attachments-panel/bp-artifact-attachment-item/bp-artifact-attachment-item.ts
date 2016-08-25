@@ -47,7 +47,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
         let url: string = "";
 
         if (this.attachmentInfo.guid) {
-            url = `/svc/components/filestore/image/${this.attachmentInfo.guid}`;
+            url = `/svc/bpfilestore/file/${this.attachmentInfo.guid}`;
         } else {
             url = `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`;
         }

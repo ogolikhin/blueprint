@@ -13,7 +13,7 @@ export interface IArtifactPickerController {
 }
 
 export interface IArtifactPickerFilter {
-    ItemTypePredefines: Models.ItemTypePredefined[]
+    ItemTypePredefines: Models.ItemTypePredefined[];
 }
 
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
@@ -81,8 +81,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         if (this.dialogData && this.dialogData.ItemTypePredefines && this.dialogData.ItemTypePredefines.length > 0) {
             if (this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0) {
                 return true;
-            }
-            else {
+            }else {
                 return false;
             }
         } else {

@@ -9,7 +9,6 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
-import { IAuth, IUser } from "../../login/auth.svc";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -28,8 +27,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "session",
         "artifactAttachments",
         "settings",
-        "dialogService",
-        "auth"
+        "dialogService"
     ];
 
     public artifactAttachmentsList: IArtifactAttachmentsResultSet;
@@ -46,7 +44,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private artifactAttachments: IArtifactAttachments,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
-        private authSvc: IAuth,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, selectionManager, stateManager, bpAccordionPanel);
@@ -67,19 +64,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             if (artifact) {
-                let userId: number;
-                let userName: string;
-                this.authSvc.getCurrentUser().then((user: IUser) => {
-                    userId = user.id;
-                    userName = user.login;
-                });
                 this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
                     artifactName: artifact.name,
                     artifactId: artifact.id,
-                    userId: userId,
-                    userName: userName,
+                    userId: this.session.currentUser.id,
+                    userName: this.session.currentUser.displayName,
                     itemTypePrefix: artifact.prefix,
-                    referencedDate: new Date().toLocaleTimeString();
+                    referencedDate: new Date().toISOString()
                 });
             }
         });

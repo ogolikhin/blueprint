@@ -30,10 +30,11 @@ export class FileUploadService implements IFileUploadService {
         progress?: (ev: ProgressEvent) => any, 
         cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
 
+        const filename: string = encodeURIComponent(file.name);
         const deferred = this.$q.defer<IFileResult>();
         const request: ng.IRequestConfig | any = {
             method: "POST",
-            url: `/svc/bpfilestore/files/${file.name}`,
+            url: `/svc/bpfilestore/files/${filename}`,
             params: expirationDate ? { expired: expirationDate.toISOString() } : undefined,
             data: file,
             uploadEventHandlers: progress ? { progress: progress } : undefined,

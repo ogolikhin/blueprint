@@ -69,7 +69,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _selectedDescription: string;
 
     public get selectedDescription() {
-        return Helper.stripWingdings(this._selectedDescription.toString());
+        return Helper.stripWingdings(this._selectedDescription);
     }
 
     private setSelectedItem(item: any) {

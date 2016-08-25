@@ -1,13 +1,15 @@
 ﻿import { ILocalizationService, ISettingsService, IStateManager, ItemState } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { ISession } from "../../../shell";
-import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
+import { IArtifactAttachmentsResultSet, IArtifactAttachments, IArtifactDocRef } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { IDialogSettings, IDialogService } from "../../../shared";
+import { IDialogSettings, IDialogService, IDialogData } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
+import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { IAuth, IUser } from "../../login/auth.svc";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -26,7 +28,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "session",
         "artifactAttachments",
         "settings",
-        "dialogService"
+        "dialogService",
+        "auth"
     ];
 
     public artifactAttachmentsList: IArtifactAttachmentsResultSet;
@@ -43,13 +46,43 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private artifactAttachments: IArtifactAttachments,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
+        private authSvc: IAuth,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, selectionManager, stateManager, bpAccordionPanel);
     }
     
     public addDocRef(): void {
-        alert("Add Doc Ref: US781");
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
+            controller: ArtifactPickerController,
+            css: "nova-open-project",
+            header: "Add Document Reference"
+        };
+
+        const dialogData: IArtifactPickerFilter = {
+            ItemTypePredefines: [Models.ItemTypePredefined.Document]
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
+            if (artifact) {
+                let userId: number;
+                let userName: string;
+                this.authSvc.getCurrentUser().then((user: IUser) => {
+                    userId = user.id;
+                    userName = user.login;
+                });
+                this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
+                    artifactName: artifact.name,
+                    artifactId: artifact.id,
+                    userId: userId,
+                    userName: userName,
+                    itemTypePrefix: artifact.prefix,
+                    referencedDate: new Date().toLocaleTimeString();
+                });
+            }
+        });
     }
 
     public onFileSelect(files: File[], callback?: Function) {

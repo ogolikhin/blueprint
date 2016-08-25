@@ -32,4 +32,4 @@ angular.module("bp.widjets", [
     
 export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
 export { IBPTreeController, ITreeNode } from "./bp-tree"
-export { IDialogSettings, IDialogService, BaseDialogController} from "./bp-dialog";
+export { IDialogSettings, IDialogData, IDialogService, BaseDialogController} from "./bp-dialog";

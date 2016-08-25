@@ -30,7 +30,7 @@
         <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
             <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
-        <button class="btn btn-primary" ng-click="$ctrl.ok()">
+        <button class="btn btn-primary" ng-click="$ctrl.ok()" ng-disabled="!$ctrl._selectedItem">
             <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>

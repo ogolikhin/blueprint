@@ -40,7 +40,7 @@ namespace HtmlLibrary.Tests
 
             // Assert
             Assert.AreEqual(1, mentions.Count());
-            Assert.AreEqual("Email Discussions have been Disabled", mentions.SingleOrDefault().GetAttributeValue("tooltip", null));
+            Assert.AreEqual("Email Discussions have been Disabled", mentions.SingleOrDefault().GetAttributeValue("title", null));
 
         }
 
@@ -63,7 +63,7 @@ namespace HtmlLibrary.Tests
 
             // Assert
             Assert.AreEqual(1, mentions.Count());
-            Assert.AreEqual("Email is blocked by Instance Admin", mentions.SingleOrDefault().GetAttributeValue("tooltip", null));
+            Assert.AreEqual("Email is blocked by Instance Admin", mentions.SingleOrDefault().GetAttributeValue("title", null));
         }
 
         [TestMethod]

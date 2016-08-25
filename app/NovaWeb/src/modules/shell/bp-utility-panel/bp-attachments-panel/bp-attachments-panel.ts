@@ -1,5 +1,6 @@
-﻿import { ILocalizationService, ISettingsService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IStateManager, ItemState } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
+import { ISession } from "../../../shell";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -21,6 +22,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "selectionManager",
+        "stateManager",
+        "session",
         "artifactAttachments",
         "settings",
         "dialogService"
@@ -35,19 +38,21 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected selectionManager: ISelectionManager,
+        protected stateManager: IStateManager,
+        private session: ISession,
         private artifactAttachments: IArtifactAttachments,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
     }
     
     public addDocRef(): void {
         alert("Add Doc Ref: US781");
     }
 
-    public onFileSelect(files: File[]) {
+    public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {
             const dialogSettings = <IDialogSettings>{
                 okButton: "Attach", //this.localization.get("App_Button_Open"),
@@ -57,14 +62,34 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: "File Upload"
             };
 
+            const maxAttachmentFilesizeDefault: number = 10 * 1024 * 1024;
+            const curNumOfAttachments: number = this.artifactAttachmentsList 
+                    && this.artifactAttachmentsList.attachments 
+                    && this.artifactAttachmentsList.attachments.length || 0;
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", 2 * 1024 * 1024),
-                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - this.artifactAttachmentsList.attachments.length
+                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault),
+                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - curNumOfAttachments
             };
 
-            this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
-                console.log("returned values");
+            this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
+                if (callback) {
+                    callback();
+                }
+                // TODO: add state manager handling
+
+                if (uploadList) {
+                    uploadList.map((uploadedFile: any) => {
+                        this.artifactAttachmentsList.attachments.push({
+                            userId: this.session.currentUser.id,
+                            userName: this.session.currentUser.displayName,
+                            fileName: uploadedFile.name,
+                            attachmentId: null,
+                            guid: uploadedFile.guid,
+                            uploadedDate: null
+                        });
+                    });
+                }
             });
         };
 

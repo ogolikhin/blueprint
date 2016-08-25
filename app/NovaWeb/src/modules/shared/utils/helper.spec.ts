@@ -122,10 +122,10 @@ describe("findAncestorByCssClass", () => {
 });
 
 describe("to and from HTML", () => {
-    let html = `<div><h3 class="heading">Labels</h3>
+    let html = `<div><h3 class="heading" style="font-family: Wingdings">Labels</h3>
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
 <a href="/folder2/declined" class="label" title="Declined">Declined</a>
-<a href="#" onclick="javascript:alert('Popup!')" class="popup" title="Popup">Popup</a></div>`;
+<a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup">Popup</a></div>`;
 
     describe("stripHTMLTags", () => {
         it("retrieves the text content of an HTML structure", () => {
@@ -152,15 +152,26 @@ Popup`);
             text = Helper.escapeHTMLText(html);
 
             // Assert
-            expect(text).toEqual(`&lt;div&gt;&lt;h3 class="heading"&gt;Labels&lt;/h3&gt;
+            expect(text).toEqual(`&lt;div&gt;&lt;h3 class="heading" style="font-family: Wingdings"&gt;Labels&lt;/h3&gt;
 &lt;a href="/folder1/accepted" class="label" title="Accepted"&gt;Accepted&lt;/a&gt;
 &lt;a href="/folder2/declined" class="label" title="Declined"&gt;Declined&lt;/a&gt;
-&lt;a href="#" onclick="javascript:alert('Popup!')" class="popup" title="Popup"&gt;Popup&lt;/a&gt;&lt;/div&gt;`);
+&lt;a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup"&gt;Popup&lt;/a&gt;&lt;/div&gt;`);
+        });
+    });
+
+    describe("stripWingdings", () => {
+        it("removes CSS style definition for Wingdings font", () => {
+            // Arrange
+            let text;
+
+            // Act
+            text = Helper.stripWingdings(html);
+
+            // Assert
+            expect(text).not.toContain("Wingdings");
         });
     });
 });
-
-
 
 describe("autoLinkURLText", () => {
     it("should find and replace text URLs in nested HTML elements", () => {

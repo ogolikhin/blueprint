@@ -15,7 +15,7 @@ describe("File Upload", () => {
             const file = { name: "empty.txt" };
             const expirationDate = new Date();
             const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
-            $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
+            $httpBackend.when("POST", `/svc/bpfilestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
                 .respond(data);
 
             // Act
@@ -35,7 +35,7 @@ describe("File Upload", () => {
             // Arrange
             const file = { name: "empty.txt" };
             const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
-            $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}`)
+            $httpBackend.when("POST", `/svc/bpfilestore/files/${file.name}`)
                 .respond(data);
 
             // Act
@@ -57,7 +57,7 @@ describe("File Upload", () => {
             const status = 500;
             const data = { message: "Internal Server Error" };
             const expirationDate = new Date();
-            $httpBackend.when("POST", `/svc/components/filestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
+            $httpBackend.when("POST", `/svc/bpfilestore/files/${file.name}?expired=${expirationDate.toISOString()}`)
                 .respond(status, data);
 
             // Act

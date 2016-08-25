@@ -70,7 +70,9 @@ export class BPUtilityPanelController {
 
     private showPanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
-        accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
+        if (accordionCtrl) {
+            accordionCtrl.showPanel(accordionCtrl.getPanels()[panelType]);
+        }
     }
 
     private getAccordionController(): IBpAccordionController {
@@ -114,8 +116,9 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCaseDiagram
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
+            || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                selection.source === SelectionSource.UtilityPanel))) {
+                selection.source === SelectionSource.Editor))) {
 
             this.showPanel(PanelType.Properties);
         } else {

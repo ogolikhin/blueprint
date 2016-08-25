@@ -35,7 +35,10 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
 
     private static emailValidator = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
 
-    constructor(private usersAndGroupsService: IUsersAndGroupsService, private $rootScope: ng.IRootScopeService, private localization: ILocalizationService, private $compile: ng.ICompileService) {
+    constructor(private usersAndGroupsService: IUsersAndGroupsService,
+                private $rootScope: ng.IRootScopeService,
+                private localization: ILocalizationService,
+                private $compile: ng.ICompileService) {
         if (!MentionService.emailDiscussionDisabledMessage) {
             MentionService.emailDiscussionDisabledMessage = this.localization.get("Email_Discussions_Disabled_Message");
         }
@@ -87,8 +90,9 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
     }
 
     private static highlight(query: string, text: string): string {
-        if (!query)
+        if (!query) {
             return text;
+        }
 
         return text.replace(new RegExp(`(${query})`, "ig"), ($1, match) => (`<span class="highlight">${match}</span>`));
     }
@@ -98,8 +102,10 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         let iconToRender: string;
         let boldName: boolean;
         if (person.id === "PlaceHolderEntry") { //we modified the plugin source code to insert this fake user when ever email discussions is disabled.
-            //return `<div class="error"><img src="/novaweb/static/images/icons/warning.svg" height="32" width="32"/> <span class="error-msg"> ${MentionService.emailDiscussionDisabledMessage}</span></div>`;
-            const error = `<div class="error"><img src="/novaweb/static/images/icons/warning.svg" height="32" width="32"/> <span class="message"> ${MentionService.emailDiscussionDisabledMessage}</span></div>`;
+            const error = `<div class="error">
+                               <img src="/novaweb/static/images/icons/warning.svg" height="32" width="32"/>
+                               <span class="message">${MentionService.emailDiscussionDisabledMessage}</span>
+                           </div>`;
             return angular.element(error)[0];
         }
         if (person.isGroup) {
@@ -115,7 +121,6 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             iconToRender = `<bp-avatar icon="" name="${person.name}" color-base="${person.id}${person.name}"></bp-avatar>`;
             boldName = true;
         }
-        //iconToRender = this.$compile("<div>"+iconToRender+"</div>")(this.$rootScope)[0].innerHTML;
         if (person.id) {
             // this.query is defined in the caller context (mention plugin)
             const query = MentionService.escapeRegExp((<any>this).query);
@@ -125,17 +130,20 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             } else {
                 nameString = `${MentionService.highlight(query, nameString)}`;
             }
-            htmlToRender = `<li><a href='javascript:;'>${iconToRender}${nameString}${(person.email && person.name !== person.email ? `<small>(${MentionService.highlight(query, person.email)})</small>` : "")}</a></li>`;
-        }
-        else {
+            htmlToRender = `<li><a href='javascript:;'>${iconToRender}${nameString}${(person.email && person.name !== person.email ? `
+                                    <small>(${MentionService.highlight(query, person.email)})</small>` : "")}
+                                </a>
+                            </li>`;
+        } else {
             htmlToRender = `<li><a href='javascript:;'><small>Add new: </small>${person.name}</a></li>`;
         }
         return (this.$compile(htmlToRender)(this.$rootScope)[0]);
     }
 
     private static escapeRegExp(str: string) {
-        if (!str)
+        if (!str) {
             return str;
+        }
 
         return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
@@ -146,13 +154,25 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id === "PlaceHolderEntry") {
             return "";
         }
-        return `<a class="mceNonEditable" linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" text="${person.name}" canclick="True" isvalid="True" ${this.prepareMentionIdAttributes(person)} ${this.prepareMentionEmailAttribute(person)}><span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">${Helper.escapeHTMLText(person.name)}</span></a> `;
+        return `<a class="mceNonEditable" 
+                    linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextMentionLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                    text="${person.name}" 
+                    canclick="True"
+                    isvalid="True"
+                    ${this.prepareMentionIdAttributes(person)} 
+                    ${this.prepareMentionEmailAttribute(person)}>
+                        <span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">
+                            ${Helper.escapeHTMLText(person.name)}
+                        </span>
+                    </a> `;
     }
 
-    private prepareMentionIdAttributes(person: IUserOrGroupInfo): string {
+    private prepareMentionIdAttributes(person: any): string {
         if (person.id) {
             const id = person.id.slice(1);
-            return `mentionid="${id}" isgroup="${person["isgroup"] ? "True" : "False"}"`;
+            // This conversion is necessary because mentions plugin casts all fields into strings on select, and is cased differently on different browsers.
+            let isgroup = (person["isgroup"] === "true" || person["isGroup"] === "true") ? "True" : "False"; 
+            return `mentionid="${id}" isgroup="${isgroup}"`;
         }
         return "";
     }

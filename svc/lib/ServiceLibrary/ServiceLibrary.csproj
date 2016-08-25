@@ -78,10 +78,12 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
+    <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\SessionOptionalAttribute.cs" />
     <Compile Include="Attributes\SessionRequiredAttribute.cs" />
+    <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
     <Compile Include="EventSources\PerformanceLogEventSource.cs" />
     <Compile Include="EventSources\StandardLogEventSource.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
-    <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
@@ -101,7 +102,6 @@
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\ThrowIf.cs" />
-    <Compile Include="Helpers\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
@@ -123,7 +123,6 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Models\UserInfo.cs" />
-    <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

@@ -44,8 +44,14 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     
     public downloadItem(): void {
         const artifact: Models.IArtifact = this.selectionManager.selection.artifact;
-        this.$window.open(
-                `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`,
-                "_blank");
+        let url: string = "";
+
+        if (this.attachmentInfo.guid) {
+            url = `/svc/bpfilestore/file/${this.attachmentInfo.guid}`;
+        } else {
+            url = `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`;
+        }
+
+        this.$window.open(url, "_blank");
     }
 }

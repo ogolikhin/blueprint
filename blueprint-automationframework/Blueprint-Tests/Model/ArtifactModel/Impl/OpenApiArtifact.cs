@@ -188,7 +188,7 @@ namespace Model.ArtifactModel.Impl
             {
                 RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
 
-                var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
+                var artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiAddArtifactResult, ArtifactBase>(
                     path,
                     restRequestMethod,
                     artifactToSave as ArtifactBase,
@@ -263,12 +263,12 @@ namespace Model.ArtifactModel.Impl
 
             // TODO: Expand this to have the properties to update configurable
             // Create a copy of the artifact to update that only includes the properties to be updated
-            var artifactWithPropertyToUpdate = new ArtifactForUpdate
+            var artifactWithPropertyToUpdate = new OpenApiArtifactForUpdate
             {
                 Id = artifactToUpdate.Id,
-                Properties = new List<PropertyForUpdate>
+                Properties = new List<OpenApiPropertyForUpdate>
                 {
-                    new PropertyForUpdate
+                    new OpenApiPropertyForUpdate
                     {
                         PropertyTypeId = propertyToUpdate.PropertyTypeId,
                         TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
@@ -276,10 +276,10 @@ namespace Model.ArtifactModel.Impl
                 }
             };
 
-            var artifactsToUpdate = new List<ArtifactForUpdate> { artifactWithPropertyToUpdate };
+            var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
 
             RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
-            var updateResultList = restApi.SendRequestAndDeserializeObject<List<ArtifactResult>, List<ArtifactForUpdate>>(
+            var updateResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiUpdateArtifactResult>, List<OpenApiArtifactForUpdate>>(
                 path, RestRequestMethod.PATCH, artifactsToUpdate, expectedStatusCodes: expectedStatusCodes);
 
             Assert.IsNotEmpty(updateResultList, "No artifact results were returned");
@@ -290,12 +290,15 @@ namespace Model.ArtifactModel.Impl
 
             if (updateResult.ResultCode == HttpStatusCode.OK)
             {
-                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}", updateResult.ArtifactId, updateResult.ResultCode);
+                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}, Message: {2}", updateResult.ArtifactId, updateResult.ResultCode, updateResult.Message);
 
                 // Copy updated property into original artifact
                 propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
 
                 artifactToUpdate.IsSaved = true;
+
+                Assert.AreEqual("Success", updateResult.Message,
+                        "The returned Message was '{0}' but 'Success' was expected", updateResult.Message);
             }
         }
 
@@ -908,15 +911,15 @@ namespace Model.ArtifactModel.Impl
         #endregion Static Methods
     }
 
-    public class ArtifactForUpdate
+    public class OpenApiArtifactForUpdate
     {
         public int Id { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<PropertyForUpdate> Properties { get; set; }
+        public List<OpenApiPropertyForUpdate> Properties { get; set; }
     }
 
-    public class PropertyForUpdate
+    public class OpenApiPropertyForUpdate
     {
         public int PropertyTypeId { get; set; }
         public string TextOrChoiceValue { get; set; }

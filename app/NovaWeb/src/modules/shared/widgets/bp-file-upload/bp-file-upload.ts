@@ -4,11 +4,16 @@ export class BPFileUpload implements ng.IDirective {
         "onFileUpload": "&bpFileUpload"
     };
     public link: Function = ($scope: any, $element: any, $attrs: ng.IAttributes): void => {
+
+        const clearSelectedFiles = () => {
+            $element[0].value = "";
+        };
+
         $element.on("change", () => {
             const files = $element[0].files;
 
             if (files && files.length > 0) {
-                $scope.onFileUpload({ files: files });
+                $scope.onFileUpload({ files: files, callback: clearSelectedFiles });
             }
         });
     };

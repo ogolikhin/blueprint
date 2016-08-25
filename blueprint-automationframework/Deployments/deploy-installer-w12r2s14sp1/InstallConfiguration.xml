@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <OutputSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GeneralInfo>
-    <InstallationPath>C:\Program Files\Blueprint Software Systems\Blueprint</InstallationPath>
+    <InstallationPath>C:\Web\Blueprint</InstallationPath>
     <IsDistributedInstallation>false</IsDistributedInstallation>
   </GeneralInfo>
   <BlueprintWebInfo>

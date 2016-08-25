@@ -7,7 +7,7 @@
             <ul uib-dropdown-menu class="dropdown-menu">
                 <li>
                     <label>
-                        <input bp-file-upload="$ctrl.onFileSelect(files)" type="file" multiple="1" class="file-input">
+                        <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
                     </label>
                 </li>
@@ -38,6 +38,7 @@
 
             <bp-artifact-attachment-item
                 class="utility-panel-artifact-item"
+                ng-class="{'new-attachment': attachment.guid}"
                 attachment-info="attachment"></bp-artifact-attachment-item>
         </div>
     </div>
@@ -72,7 +73,7 @@
     <div class="add-empty">
         <p>A file attachment is a file that you upload and associate with a single artifact.</p>
         <label class="btn btn-default" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
-            <input bp-file-upload="$ctrl.onFileSelect(files)" type="file" multiple="1" class="file-input">
+            <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             Add {{ $ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
         

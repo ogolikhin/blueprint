@@ -16,7 +16,8 @@
 </bp-comment-edit>
 <div class="scrollable-content"
      ng-if="$ctrl.artifactDiscussionList.length"
-     perfect-scrollbar>
+     perfect-scrollbar
+     id="discussion-scrollable-content">
     <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-item-wrapper">
         <bp-artifact-discussion-item discussion-info="discussion"
                                      get-replies="$ctrl.expandCollapseDiscussion(discussion)"

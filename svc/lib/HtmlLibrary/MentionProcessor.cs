@@ -59,17 +59,17 @@ namespace HtmlLibrary
                         if (isEmailBlocked)
                         {
                             styleDictionary["font-weight"] = "normal";
-                            mention.SetAttributeValue("tooltip", "Email is blocked by Instance Admin");
+                            mention.SetAttributeValue("title", "Email is blocked by Instance Admin");
                         }
                         else if (!areEmailDiscussionsEnabled)
                         {
                             styleDictionary["font-weight"] = "normal";
-                            mention.SetAttributeValue("tooltip", "Email Discussions have been Disabled");
+                            mention.SetAttributeValue("title", "Email Discussions have been Disabled");
                         }
                         else
                         {
                             styleDictionary["font-weight"] = "bold";
-                            mention.Attributes.Remove("tooltip");
+                            mention.Attributes.Remove("title");
                         }
                         var newStyleString = "";
                         foreach (var entry in styleDictionary)

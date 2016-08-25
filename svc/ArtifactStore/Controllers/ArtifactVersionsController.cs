@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Filters;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Net;
 
 namespace ArtifactStore.Controllers
 {

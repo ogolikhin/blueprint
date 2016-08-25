@@ -272,14 +272,13 @@ export class ProjectManager implements IProjectManager {
             isRichText: true
         });
 
-        //if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
-        //    properties.push(<Models.IPropertyType>{
-        //        name: "Label",
-        //        propertyTypePredefined: Models.PropertyTypePredefined.Label,
-        //        primitiveType: Models.PrimitiveType.Text,
-        //        isRichText: true
-        //    });
-        //}
+        if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
+           properties.push(<Models.IPropertyType>{
+               name: "Step Of",
+               propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
+               primitiveType: Models.PrimitiveType.Choice,               
+           });
+        }
 
         if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
             subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
@@ -301,6 +300,15 @@ export class ProjectManager implements IProjectManager {
                 primitiveType: Models.PrimitiveType.Text,
                 isRichText: true
             });
+        }
+
+        if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.SBShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UIShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UCDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.PROShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape) {
 
             properties.push(<Models.IPropertyType>{
                 name: "X",

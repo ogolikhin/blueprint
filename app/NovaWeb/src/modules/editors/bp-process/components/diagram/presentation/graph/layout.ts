@@ -13,6 +13,7 @@ import {GraphLayoutPreprocessor} from "./graph-layout-preprocessor";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {ProcessCellRenderer} from "./process-cell-renderer";
 import {ProcessValidator} from "./process-graph-validator";
+import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {NodeFactory, NodeFactorySettings} from "./shapes/node-factory";
 import {SystemTask} from "./shapes/system-task";
 import {SystemDecision} from "./shapes/system-decision";
@@ -24,10 +25,10 @@ export var tempShapeId: number = 0;
 
 
 export class Layout implements ILayout {
-    private mxgraph: MxGraph;
+    private mxgraph: MxGraph = null;
     private tempId = 0;
-    //private insertNodePopupMenu: InsertNodePopupMenu;
-    private preprocessor: IGraphLayoutPreprocessor;
+    private popupMenu: NodePopupMenu = null;
+    private preprocessor: IGraphLayoutPreprocessor = null;
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
 
@@ -43,9 +44,21 @@ export class Layout implements ILayout {
         this.mxgraph = processGraph.getMxGraph();
 
         this.mxgraph.cellRenderer = new ProcessCellRenderer();
-        // #TODO: add back the popup menu afterwards
-        //this.insertNodePopupMenu = new InsertNodePopupMenu(graph, this.insertTaskWithUpdate, this.insertUserDecision, 
-                //this.insertUserDecisionConditionWithUpdate, this.insertSystemDecision, this.insertSystemDecisionConditionWithUpdate, this.rootScope);
+
+        // initialize a popup menu for the graph
+        // #TODO: activate handlers when the code is ready
+
+        this.popupMenu = new NodePopupMenu (
+            this.rootScope,
+            this.processGraph.getHtmlElement(),
+            this.mxgraph, 
+
+            null,   //this.insertTaskWithUpdate,
+            null,   //this.insertUserDecision, 
+            null,   //this.insertUserDecisionConditionWithUpdate,
+            null,   //this.insertSystemDecision,
+            null ); //this.insertSystemDecisionConditionWithUpdate
+
         this.tempId = 0;
 
     }
@@ -56,9 +69,7 @@ export class Layout implements ILayout {
         var link: IProcessLinkModel;
         var linksMap = [];
         var processValidator = new ProcessValidator();
-        ////// profiling
-        //let tS = Date.now();
-
+      
         this.viewmodel.updateTreeAndFlows();
 
         if (useAutolayout) {
@@ -544,9 +555,8 @@ export class Layout implements ILayout {
         return (y - GRAPH_TOP) / GRAPH_ROW_HEIGHT;
     }
 
-    public hideInsertNodePopupMenu() {
-        // #TODO: add back the popup menu afterwards 
-        // this.insertNodePopupMenu.hidePopupMenu();
+    public hidePopupMenu() {
+        this.popupMenu.hidePopupMenu();
     }
 
     private getEdgeCellState(edge: MxCell): MxCellState {
@@ -563,7 +573,6 @@ export class Layout implements ILayout {
                 return false;
             }
         }
-
         return true;
     }
 

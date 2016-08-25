@@ -14,6 +14,7 @@ export interface IArtifactAttachment {
     fileName: string;
     attachmentId: number;
     uploadedDate: string;
+    guid?: string;
 }
 
 export interface IArtifactDocRef {

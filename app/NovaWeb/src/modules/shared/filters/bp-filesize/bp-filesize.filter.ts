@@ -6,7 +6,7 @@ export class BpFilesizeFilter {
         "localization"
     ];
 
-    public static Factory() {
+    public static factory() {
         let filter = (localizationService: ILocalizationService) => {
             return (size) => {
                 if (isNaN(size)) {

@@ -14,4 +14,4 @@ angular.module("bp.router", [])
     .controller("diagramStateController", DiagramStateController)
     .controller("glossaryStateController", GlossaryStateController)
     .controller("processStateController", ProcessStateController)
-    .config(Routes)    
+    .config(Routes);    

@@ -25,8 +25,8 @@ export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
-    //#TODO fix up references later 
     public nodeLabelEditor: NodeLabelEditor;
+    //#TODO fix up references later 
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
@@ -101,15 +101,19 @@ export class ProcessGraph implements IProcessGraph {
         this.applyReadOnlyStyles();
         this.initSelection();
 
+        // #TODO: temporarily disable edge selection until 
+        // the Selection Manager is restored 
+        this.disableEdgeSelection();
+
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
              this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
         this.initializeGlobalScope();
+  
     }
-
-
+    
     public render(useAutolayout, selectedNodeId) {
         try {
             // uses layout object to draw a new diagram for process model
@@ -142,7 +146,7 @@ export class ProcessGraph implements IProcessGraph {
             model.endUpdate();
         }
     }
-
+    
     public getMxGraph(): MxGraph {
         return this.mxgraph;
     }
@@ -524,7 +528,16 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
-    
+
+    private disableEdgeSelection() {
+        mxGraph.prototype.isCellSelectable = (cell) => {
+            if (cell.isEdge()) {
+                return false;
+            }
+            return true;
+        };
+    }
+
     public addSelectionListener(listener: ISelectionListener) {
         if (listener != null) {
             this.selectionListeners.push(listener);
@@ -996,7 +1009,7 @@ export class ProcessGraph implements IProcessGraph {
 
         this.logInfo("Enter setSystemTasksVisible, value = " + value);
 
-        this.layout.hideInsertNodePopupMenu();
+        this.layout.hidePopupMenu();
 
         graphModel.beginUpdate();
 
@@ -1047,7 +1060,8 @@ export class ProcessGraph implements IProcessGraph {
 
     private setIsIe11() {
         var myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        this.isIe11 = (myBrowser.msie && (myBrowser.version === 11));
+        let ver = parseInt(myBrowser.version, 10);
+        this.isIe11 = (myBrowser.msie && (ver === 11));
     }
 
     private initSelection() {

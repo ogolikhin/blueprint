@@ -35,6 +35,10 @@ bp-properties-panel {
         .formly-field {
             width: $property-width;
 
+            .has-messages {
+                display: block;
+            }
+
             input,
             textarea,
             select {

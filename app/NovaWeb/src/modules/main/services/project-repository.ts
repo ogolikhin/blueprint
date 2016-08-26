@@ -1,5 +1,4 @@
 ﻿import * as Models from "../models/models";
-import { ILocalizationService } from "../../core";
 export { Models }
 
 export interface IProjectRepository {
@@ -10,13 +9,12 @@ export interface IProjectRepository {
 }
 
 export class ProjectRepository implements IProjectRepository {
-    static $inject: [string] = ["$q", "$http", "$log", "localization"];
+    static $inject: [string] = ["$q", "$http", "$log"];
 
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+        private $log: ng.ILogService) {
     }
 
     public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
@@ -24,10 +22,13 @@ export class ProjectRepository implements IProjectRepository {
         this.$http.get<Models.IProjectNode[]>(`svc/adminstore/instance/folders/${id || 1}/children`).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode[]>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                this.$log.error(errResult.data);
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Folder_NotFound")
+                    message: "Folder_NotFound"
                 };
                 defer.reject(error);
             }
@@ -41,10 +42,13 @@ export class ProjectRepository implements IProjectRepository {
                 defer.resolve(result.data);
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                this.$log.error(errResult.data);
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Project_NotFound")
+                    message: "Project_NotFound"
                 };
                 defer.reject(error);
             }
@@ -62,10 +66,13 @@ export class ProjectRepository implements IProjectRepository {
                 defer.resolve(result.data);
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                this.$log.error(errResult.data);
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    message: "Artifact_NotFound"
                 };
                 defer.reject(error);
             }
@@ -85,10 +92,13 @@ export class ProjectRepository implements IProjectRepository {
                 defer.resolve(result.data);
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                this.$log.error(errResult.data);
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Project_NotFound")
+                    message: "Project_NotFound"
                 };
                 defer.reject(error);
             }

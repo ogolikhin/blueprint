@@ -1,32 +1,5 @@
 "use strict";
 
-// POLYFILLS
-// Element.matches
-if (!Element.prototype.matches) {
-    Element.prototype.matches =
-        Element.prototype.matchesSelector ||
-        Element.prototype.mozMatchesSelector ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.oMatchesSelector ||
-        Element.prototype.webkitMatchesSelector ||
-        function(selector) {
-            var matches = (this.document || this.ownerDocument).querySelectorAll(selector),
-                i = matches.length;
-            while (--i >= 0 && matches.item(i) !== this) {}
-            return i > -1;
-        };
-}
-
-if (!Element.prototype.closest) {
-    Element.prototype.closest =
-        Element.prototype.closest ||
-        function (selector) {
-            var el = this;
-            while (el.matches && !el.matches(selector)) el = el.parentNode;
-            return el.matches ? el : null;
-        };
-}
-
 var executionEnvironmentDetector = (function () {
     executionEnvironmentDetector.prototype.userBrowser = {};
 

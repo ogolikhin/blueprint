@@ -41,7 +41,12 @@ export class Helper {
     };
 
     static findAncestorByCssClass = (elem: Element, selector: string): Element => {
-        return elem["closest"](selector);
+        let el = elem.parentElement;
+        while (el && !el.classList.contains(selector)) {
+            el = el.parentElement;
+        }
+
+        return el;
     };
 
     static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {

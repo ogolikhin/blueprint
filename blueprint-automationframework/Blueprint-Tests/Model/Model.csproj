@@ -60,6 +60,8 @@
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaArtifact.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaArtifactDetails.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
+    <Compile Include="ArtifactModel\INovaArtifactBase.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />

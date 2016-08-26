@@ -132,7 +132,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var fields = "[GroupUser_User_GroupId],[Users_UserId]";
-            object[] valueArray = {GroupId, user.UserId};
+            object[] valueArray = {GroupId, user.Id};
             string values = string.Join(",", objArraytoStringList(valueArray));
 
             string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", GROUPUSER_TABLE, fields, values);

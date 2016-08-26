@@ -202,44 +202,45 @@ export class BPTreeDragndrop implements ng.IDirective {
                 var $span = $element[0];
                 $span.removeAttribute("bp-tree-dragndrop");
 
-                var $row = $span.parentElement.parentElement.parentElement.parentElement;
+                var $row = Helper.findAncestorByCssClass($span, ".ag-row");
+                if ($row) {
+                    var $cell = <HTMLElement>$row.querySelector(".ag-cell");
 
-                var $cell = <HTMLElement>$row.querySelector(".ag-cell");
+                    var $preRow = document.createElement("DIV");
+                    $preRow.className = "ag-row-dnd-pre";
+                    $preRow.setAttribute("ng-drop", "true");
+                    $preRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPre);
 
-                var $preRow = document.createElement("DIV");
-                $preRow.className = "ag-row-dnd-pre";
-                $preRow.setAttribute("ng-drop", "true");
-                $preRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPre);
+                    var $postRow = document.createElement("DIV");
+                    $postRow.className = "ag-row-dnd-post";
+                    $postRow.setAttribute("ng-drop", "true");
+                    $postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
 
-                var $postRow = document.createElement("DIV");
-                $postRow.className = "ag-row-dnd-post";
-                $postRow.setAttribute("ng-drop", "true");
-                $postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
+                    $row.insertBefore($preRow, $row.firstChild);
+                    $row.appendChild($postRow);
 
-                $row.insertBefore($preRow, $row.firstChild);
-                $row.appendChild($postRow);
+                    //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
+                    $cell.setAttribute("ng-drop", "true");
+                    $cell.setAttribute("ng-drop-success", dropSuccessCallbackAsString);
+                    //}
 
-                //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
-                $cell.setAttribute("ng-drop", "true");
-                $cell.setAttribute("ng-drop-success", dropSuccessCallbackAsString);
-                //}
+                    if (self.typeNotDraggable.indexOf(node.type) === -1 && node.predefinedType !== -1) {
+                        angular.element($row).addClass("ag-row-draggable");
+                        $row.setAttribute("ng-drag", "true");
+                        $row.setAttribute("ng-drag-data", "data");
+                        $row.setAttribute("ng-drag-start", dragStartCallbackAsString);
 
-                if (self.typeNotDraggable.indexOf(node.type) === -1 && node.predefinedType !== -1) {
-                    angular.element($row).addClass("ag-row-draggable");
-                    $row.setAttribute("ng-drag", "true");
-                    $row.setAttribute("ng-drag-data", "data");
-                    $row.setAttribute("ng-drag-start", dragStartCallbackAsString);
+                        //var $dragHandle = document.createElement("DIV");
+                        //$dragHandle.className = "ag-row-dnd-handle";
+                        //$dragHandle.setAttribute("ng-drag-handle", "");
+                        //$dragHandle.addEventListener("mousedown", function(e) {
+                        //   $cell.focus();
+                        //});
+                        //$row.insertBefore($dragHandle, $row.firstChild);
+                    }
 
-                    //var $dragHandle = document.createElement("DIV");
-                    //$dragHandle.className = "ag-row-dnd-handle";
-                    //$dragHandle.setAttribute("ng-drag-handle", "");
-                    //$dragHandle.addEventListener("mousedown", function(e) {
-                    //   $cell.focus();
-                    //});
-                    //$row.insertBefore($dragHandle, $row.firstChild);
+                    self.compiler($row)($scope);
                 }
-//
-                self.compiler($row)($scope);
             }
         }, 100);
     };

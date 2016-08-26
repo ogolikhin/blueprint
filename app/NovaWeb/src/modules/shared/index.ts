@@ -15,6 +15,7 @@ export {
     ITreeNode,
     IDialogSettings,
     IDialogService,
+    IDialogData,
     BaseDialogController
 } from "./widgets"
 

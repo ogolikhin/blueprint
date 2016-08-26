@@ -34,6 +34,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public categoryFilter: number;
     public isLoading: boolean = false;
     public filesToUpload: any;
+    private artifactIsDeleted: boolean = false;
     
     constructor(
         $q: ng.IQService,
@@ -125,13 +126,22 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
-                .then( (result: IArtifactAttachmentsResultSet) => {
+                .then((result: IArtifactAttachmentsResultSet) => {
                     this.artifactAttachmentsList = result;
+                }, (error) => {
+                    if (error.statusCode == 404) {
+                        this.artifactIsDeleted = true;
+                    }
                 });
         } else {
             this.artifactAttachmentsList = null;
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
+    }
+
+    private fileCanNotBeAdded() {
+        return this.artifactIsDeleted ||
+            this.itemState.isReadonly;
     }
 
     private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {

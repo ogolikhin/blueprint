@@ -35,13 +35,15 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
         var sanitizedValue = encodeURI(value);
         this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", this.createRequestConfig(sanitizedValue, emailDiscussions))
-            .success((result) => {
-                deferred.resolve(result);
-            }).error((data: IHttpError, status: number) => {
-                data.statusCode = status;
-                deferred.reject(data);
+            .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
+                deferred.resolve(result.data);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+                const error = {
+                    statusCode: result.status,
+                    message: (result.data ? result.data.message : "")
+                };
+                deferred.reject(error);
             });
-
         return deferred.promise;
     }
 

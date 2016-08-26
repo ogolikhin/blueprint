@@ -93,6 +93,7 @@ export class BPUtilityPanelController {
         if (selection) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
+            this.toggleFilesPanel(selection);
         }
     }
 
@@ -123,6 +124,16 @@ export class BPUtilityPanelController {
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);
+        }
+    }
+
+    private toggleFilesPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (artifact && artifact.predefinedType === ItemTypePredefined.Document) {
+            this.hidePanel(PanelType.Files);
+        } else {
+            this.showPanel(PanelType.Files);
         }
     }
 }

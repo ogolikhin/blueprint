@@ -12,10 +12,10 @@
   </BlueprintServices>
 
   <Databases>
-    <Database name="Blueprint"     connection_string="Data Source=installer-w12r2s14sp2.blueprintsys.net\sqlserver2014;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AdminStore"    connection_string="Data Source=installer-w12r2s14sp2.blueprintsys.net\sqlserver2014;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AccessControl" connection_string="Data Source=installer-w12r2s14sp2.blueprintsys.net\sqlserver2014;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="FileStore"     connection_string="Data Source=installer-w12r2s14sp2.blueprintsys.net\sqlserver2014;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
+    <Database name="Blueprint"     connection_string="Data Source=localhost\sqlserver2014;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=localhost\sqlserver2014;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=localhost\sqlserver2014;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="FileStore"     connection_string="Data Source=localhost\sqlserver2014;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
   </Databases>
 
   <LogLevel>TRACE</LogLevel>

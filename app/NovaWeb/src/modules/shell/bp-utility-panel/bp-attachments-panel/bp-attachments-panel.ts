@@ -127,6 +127,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
                 .then((result: IArtifactAttachmentsResultSet) => {
+                    this.artifactIsDeleted = false;
                     this.artifactAttachmentsList = result;
                 }, (error) => {
                     if (error.statusCode == 404) {

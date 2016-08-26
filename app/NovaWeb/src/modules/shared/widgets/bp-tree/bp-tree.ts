@@ -280,11 +280,26 @@ export class BPTreeController implements IBPTreeController  {
     };
     /* tslint:disable */
     private innerRenderer = (params: any) => {
-        var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
-        var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
+        let currentValue = params.value;
+        let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
-        return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
+        let enableDragndrop: string;
+        let cancelDragndrop: string;
+        if (this.enableDragndrop) {
+            let node = params.node;
+            let path = node.childIndex;
+            while (node.level) {
+                node = node.parent;
+                path = node.childIndex + "/" + path;
+            }
+            enableDragndrop = ` bp-tree-dragndrop="${path}"`;
+            cancelDragndrop = " ng-cancel-drag";
+        } else {
+            enableDragndrop = "";
+            cancelDragndrop = "";
+        }
+
+        return `<span ${inlineEditing}${enableDragndrop}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
     /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {
@@ -393,17 +408,6 @@ export class BPTreeController implements IBPTreeController  {
     private rowPostCreate = (params: any) => {
         if (angular.isFunction(this.onRowPostCreate)) {
             this.onRowPostCreate({prms: params});
-        } else {
-            if (this.enableDragndrop) {
-                let node = params.node;
-                let path = node.childIndex;
-                while (node.level) {
-                    node = node.parent;
-                    path = node.childIndex + "/" + path;
-                }
-                let row = angular.element(params.eRow)[0];
-                row.setAttribute("bp-tree-dragndrop", path);
-            }
         }
     };
 }

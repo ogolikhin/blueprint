@@ -24,7 +24,9 @@ namespace CommonServiceTests
             public string Message { get; set; }
         }
 
-        const string REST_PATH = RestPaths.Svc.Shared.Users.SEARCH;
+        private const string REST_PATH = RestPaths.Svc.Shared.Users.SEARCH;
+        private const string LIMIT_EXCEEDS_MAX = "Query parameter 'limit' exceeds the max value 500.";
+        private const string LIMIT_BELOW_MIN = "Query parameter 'limit' must be greater than 0.";
 
         private IUser _user;
         private List<IUser> _users = new List<IUser>();
@@ -80,9 +82,10 @@ namespace CommonServiceTests
         {
             // Setup:
             string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
 
             // Create 2 users with and 3 without E-mail addresses.
-            var users = CreateUsers(displayNamePrefix, emailUserPrefix: displayNamePrefix, numberOfUsers: 2);
+            var users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 2);
             _users.AddRange(users);
             users = CreateUsers(displayNamePrefix, numberOfUsers: 3);
             _users.AddRange(users);
@@ -121,11 +124,12 @@ namespace CommonServiceTests
         {
             // Setup:
             string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
 
             // Create 2 users and 3 guest users.
-            var users = CreateUsers(displayNamePrefix, emailUserPrefix: displayNamePrefix, numberOfUsers: 2);
+            var users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 2);
             _users.AddRange(users);
-            users = CreateUsers(displayNamePrefix, emailUserPrefix: displayNamePrefix, numberOfUsers: 3, isGuest: true);
+            users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 3, isGuest: true);
             _users.AddRange(users);
 
             List<UserOrGroupInfo> userOrGroupInfo = null;
@@ -180,20 +184,19 @@ namespace CommonServiceTests
                 limit, userOrGroupInfo.Count);
         }
 
-        [TestCase(-1, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/WejtkryM
-        [TestCase(0, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/WejtkryM
-        [TestCase(501)]
-        [TestCase(int.MaxValue)]
+        [TestCase(-1, LIMIT_BELOW_MIN)]
+        [TestCase(0, LIMIT_BELOW_MIN)]
+        [TestCase(501, LIMIT_EXCEEDS_MAX)]
+        [TestCase(int.MaxValue, LIMIT_EXCEEDS_MAX)]
         [TestRail(157084)]
         [Description("FindUserOrGroup with limit=x (where x is out of bounds).  Verify it returns 400 BadRequest.")]
-        public void FindUserOrGroupWithLimit_LimitIsOutOfBounds_400BadRequest(int limit)
+        public void FindUserOrGroupWithLimit_LimitIsOutOfBounds_400BadRequest(int limit, string expectedMessage)
         {
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SvcShared.FindUserOrGroup(_user, limit: limit),
                 "'GET {0}' should return 400 BadRequest when an invalid limit parameter is passed!", REST_PATH);
 
             // Verify:
-            const string expectedMessage = "Query parameter 'limit' exceeds the max value 500.";
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
 
             Assert.AreEqual(expectedMessage, messageResult.Message,

@@ -185,7 +185,7 @@ namespace Model
 
                     public static class Artifacts
                     {
-                        public const string PROPERTIES = "svc/components/RapidReview/artifacts/properties";
+                        public const string PROPERTIES              = "svc/components/RapidReview/artifacts/properties";
                     }
 
                     [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
@@ -298,6 +298,11 @@ namespace Model
                 /// {0} = all the Artifact IDs in the breadcrumb.  Ex.  1/2/3/4
                 /// </summary>
                 public const string NAVIGATION_ids_             = "svc/shared/navigation/{0}";
+
+                public static class Users
+                {
+                    public const string SEARCH                  = "svc/shared/users/search";
+                }
             }
 
             public static class Status

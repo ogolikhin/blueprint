@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -14,19 +15,33 @@ namespace Model
     {
         #region Properties
 
+        [JsonIgnore]
         string Department { get; set; }                     // (NULLABLE)
+        //[JsonIgnore] - For UserStoryTests
         string Email { get; set; }                          // (NULLABLE)
+        [JsonIgnore]
         bool Enabled { get; set; }
+        //[JsonIgnore] - For UserStoryTests
         string FirstName { get; set; }
+        [JsonIgnore]
         List<IGroup> GroupMembership { get; }
+        //[JsonIgnore] - For UserStoryTests
         InstanceAdminRole? InstanceAdminRole { get; set; }  // (NULLABLE) From "InstanceAdminRoleId" field in database.
+        //[JsonIgnore] - For UserStoryTests
         string LastName { get; set; }
+        [JsonIgnore]
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
+        [JsonIgnore]
         string Password { get; set; }                       // (NULLABLE)
+        [JsonIgnore]
         IEnumerable<byte> Picture { get; set; }             // (NULLABLE) "Image_ImageId" in database.
+        [JsonIgnore]
         UserSource Source { get; }
+        [JsonIgnore]
         string Title { get; set; }                          // (NULLABLE)
+        [JsonIgnore]
         IBlueprintToken Token { get; set; }                 // This isn't in the database.
+        //[JsonIgnore] - For UserStoryTests
         string Username { get; set; }                       // i.e. "Login" field in database.
 
         #endregion Properties

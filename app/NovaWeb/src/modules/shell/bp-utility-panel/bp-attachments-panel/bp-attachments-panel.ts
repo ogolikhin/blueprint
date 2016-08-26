@@ -141,7 +141,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     private fileCanNotBeAdded() {
         return this.artifactIsDeleted ||
-            this.itemState.isReadonly;
+            (this.itemState && this.itemState.isReadonly);
     }
 
     private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {

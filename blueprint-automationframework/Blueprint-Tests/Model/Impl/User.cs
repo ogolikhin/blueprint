@@ -25,64 +25,38 @@ namespace Model.Impl
 
         #region Properties
 
-        [JsonIgnore]
         public bool IsDeleted { get { return (!IsDeletedFromDatabase && (EndTimestamp != null)); } }
 
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
-        [JsonIgnore]
         public string Department { get; set; }
-        //[JsonIgnore] - For UserStoryTests
         public string Email { get; set; }
-        [JsonIgnore]
         public bool Enabled { get; set; }
-        //[JsonIgnore] - For UserStoryTests
         public string FirstName { get; set; }
         public List<IGroup> GroupMembership { get { return _GroupMembership; } }
-        //[JsonIgnore] - For UserStoryTests
         public InstanceAdminRole? InstanceAdminRole { get; set; }
-        //[JsonIgnore] - For UserStoryTests
         public string LastName { get; set; }
-        [JsonIgnore]
         public LicenseType License { get; set; }
-        [JsonIgnore]
         public string Password { get; set; }
-        [JsonIgnore]
         public IEnumerable<byte> Picture { get; set; }
-        [JsonIgnore]
         public virtual UserSource Source { get { return UserSource.Unknown; } }
-        [JsonIgnore]
         public string Title { get; set; }
-        [JsonIgnore]
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
-        //[JsonIgnore] - For UserStoryTests
         public string Username { get; set; }
 
         // These are fields not included by IUser:
-        [JsonIgnore]
         public bool? AllowFallback { get; set; }
-        [JsonIgnore]
         public int CurrentVersion { get; set; }
-        [JsonIgnore]
         public string EncryptedPassword { get; set; }
-        [JsonIgnore]
         public DateTime? EndTimestamp { get; set; }
-        [JsonIgnore]
         public bool EULAccepted { get; set; }
-        [JsonIgnore]
         public bool? ExpirePassword { get; set; }
-        [JsonIgnore]
         public bool Guest { get; set; }
-        [JsonIgnore]
         public int InvalidLogonAttemptsNumber { get; set; }
-        [JsonIgnore]
         public DateTime? LastInvalidLogonTimeStamp { get; set; }
-        [JsonIgnore]
         public DateTime? LastPasswordChangeTimestamp { get; set; }
-        [JsonIgnore]
         public DateTime StartTimestamp { get; set; }
-        [JsonIgnore]
         public Guid UserSALT { get; set; }
 
         #endregion Properties

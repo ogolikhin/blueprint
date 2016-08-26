@@ -130,7 +130,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             } else {
                 nameString = `${MentionService.highlight(query, nameString)}`;
             }
-            htmlToRender = `<li><a href='javascript:;'>${iconToRender}${nameString}${(person.email && person.name !== person.email ? `
+            htmlToRender = `<li><a href='javascript:;'>${iconToRender} ${nameString}${(person.email && person.name !== person.email ? `
                                     <small>(${MentionService.highlight(query, person.email)})</small>` : "")}
                                 </a>
                             </li>`;

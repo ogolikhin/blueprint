@@ -11,6 +11,7 @@
     z-index: 20000;
     float: left;
     min-width: 160px;
+    max-width: 400px;
     padding: 5px 0;
     margin: 2px 0 0;
     list-style: none;
@@ -118,7 +119,8 @@
     font-weight: normal;
     line-height: 20px;
     color: $gray-darker;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-all;
     text-decoration: none;
 }
 

@@ -25,8 +25,8 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
 
     public search(value: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
-
-        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", { params: { search: value, emailDiscussions: emailDiscussions } })
+        var santizedValue = encodeURI(value);
+        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", { params: { search: santizedValue, emailDiscussions: emailDiscussions } })
             .success((result) => {
                 deferred.resolve(result);
             }).error((data: IHttpError, status: number) => {

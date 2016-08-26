@@ -203,7 +203,6 @@ export class BPTreeDragndrop implements ng.IDirective {
                 $span.removeAttribute("bp-tree-dragndrop");
 
                 var $row = $span.parentElement.parentElement.parentElement.parentElement;
-                console.log($row)
 
                 var $cell = <HTMLElement>$row.querySelector(".ag-cell");
 
@@ -239,8 +238,8 @@ export class BPTreeDragndrop implements ng.IDirective {
                     //});
                     //$row.insertBefore($dragHandle, $row.firstChild);
                 }
-
-                self.compiler($element)($scope);
+//
+                self.compiler($row)($scope);
             }
         }, 100);
     };

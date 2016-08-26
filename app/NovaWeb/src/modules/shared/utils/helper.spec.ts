@@ -88,7 +88,7 @@ describe("findAncestorByCssClass", () => {
         let child = document.querySelector("#child");
 
         // Act
-        let elem = Helper.findAncestorByCssClass(child, "parent");
+        let elem = Helper.findAncestorByCssClass(child, ".parent");
 
         // Assert
         expect(elem).toBeDefined();
@@ -101,7 +101,7 @@ describe("findAncestorByCssClass", () => {
         let child = document.querySelector("#child");
 
         // Act
-        let elem = Helper.findAncestorByCssClass(child, "grandparent");
+        let elem = Helper.findAncestorByCssClass(child, ".grandparent");
 
         // Assert
         expect(elem).toBeDefined();
@@ -114,7 +114,7 @@ describe("findAncestorByCssClass", () => {
         let child = document.querySelector("#child");
 
         // Act
-        let elem = Helper.findAncestorByCssClass(child, "uncle");
+        let elem = Helper.findAncestorByCssClass(child, ".uncle");
 
         // Assert
         expect(elem).toBeNull();

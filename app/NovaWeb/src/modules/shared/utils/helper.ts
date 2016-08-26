@@ -1,4 +1,5 @@
 ﻿import { Models} from "../../main";
+
 export class Helper {
 
     static get UID(): string {        
@@ -39,17 +40,15 @@ export class Helper {
         return stringEscaper.innerHTML;
     };
 
-    /* tslint:disable */
-    static findAncestorByCssClass = (element: Element, className: string): any => {
-        while ((element = element.parentElement) && !element.classList.contains(className)) {
-        }
-        return element;
+    static findAncestorByCssClass = (elem: Element, selector: string): Element => {
+        return elem["closest"](selector);
     };
 
     static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {
         return JSON.stringify(obj, Helper.serializer(replacer, cycleReplacer), spaces);
     };
 
+    /* tslint:disable */
     static serializer = (replacer, cycleReplacer): any => {
         var stack = [], keys = [];
 

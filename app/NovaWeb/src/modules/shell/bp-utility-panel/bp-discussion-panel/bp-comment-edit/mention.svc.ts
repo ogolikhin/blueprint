@@ -21,6 +21,7 @@ export interface ITinyMceMentionOptions<T> {
     renderDropdown?: () => string;
     highlighter?: (text: string) => string;
     delimiter?: string;
+    delay?: number;
 }
 
 export interface IMentionService {
@@ -43,6 +44,8 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             MentionService.emailDiscussionDisabledMessage = this.localization.get("Email_Discussions_Disabled_Message");
         }
     }
+
+    public delay = 1000;
 
     public create(areEmailDiscussionsEnabled: boolean): ITinyMceMentionOptions<IUserOrGroupInfo> {
         let options = new MentionService(this.usersAndGroupsService, this.$rootScope, this.localization, this.$compile);

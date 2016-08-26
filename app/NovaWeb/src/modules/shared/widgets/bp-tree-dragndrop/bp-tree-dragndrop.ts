@@ -202,7 +202,7 @@ export class BPTreeDragndrop implements ng.IDirective {
                 var $span = $element[0];
                 $span.removeAttribute("bp-tree-dragndrop");
 
-                var $row = Helper.findAncestorByCssClass($span, ".ag-row");
+                var $row = Helper.findAncestorByCssClass($span, "ag-row");
                 if ($row) {
                     var $cell = <HTMLElement>$row.querySelector(".ag-cell");
 

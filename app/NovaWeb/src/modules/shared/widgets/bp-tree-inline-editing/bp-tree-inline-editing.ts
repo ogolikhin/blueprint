@@ -21,6 +21,10 @@ export class BPTreeInlineEditing implements ng.IDirective {
             }
         }
 
+        var containerCell: Element;
+        var containerRow: Element;
+        var gridBody: Element;
+
         if (Controller) {
             var data = $scope["data"];
             var currentValue = data[self.valueFrom];
@@ -28,9 +32,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             var span = $element[0];
             span.removeAttribute("bp-tree-inline-editing");
 
-            var containerCell = Helper.findAncestorByCssClass(span, ".ag-cell");
-            var containerRow = Helper.findAncestorByCssClass(span, ".ag-row");
-            var gridBody = Helper.findAncestorByCssClass(span, ".ag-body");
+            containerCell = Helper.findAncestorByCssClass(span, "ag-cell");
 
             containerCell.addEventListener("keydown", inputEventHandler);
             containerCell.addEventListener("keypress", inputEventHandler);
@@ -72,6 +74,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
         function inlineEdit() {
             self.selectedNode = Controller.options.api.getSelectedNodes()[0];
             var valueSpan = containerCell.querySelector(".ag-group-value") as HTMLElement;
+            containerRow = Helper.findAncestorByCssClass(span, "ag-row");
+            gridBody = Helper.findAncestorByCssClass(span, "ag-body");
             if (!self.editing && valueSpan) {
                 var editSpan = document.createElement("span");
                 editSpan.className = "ag-group-inline-edit";

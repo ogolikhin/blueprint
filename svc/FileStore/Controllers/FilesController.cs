@@ -220,7 +220,8 @@ namespace FileStore.Controllers
         /// Uploads a file.
         /// </remarks>
         /// <param name="expired">The expiration date and time, if any.</param>
-        /// <response code="200">OK.</response>
+        /// <response code="201">Created. The file was created.</response>
+        /// <response code="400">Bad Request. File headers are missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route(""), SessionRequired]

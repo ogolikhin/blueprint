@@ -27,12 +27,12 @@ export class HttpErrorInterceptor {
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && (config.ignoreInterceptor || config.dontRetry)) {
+        if (config && (config.ignoreInterceptor)) {
             deferred.reject(response);
         } else if (response.status === 401) {            
             session.onExpired().then(
                 () => {
-                    if (config) {
+                    if (config &&  !config.dontRetry) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
                         HttpErrorInterceptor.applyNewSessionToken(config);                    
 

@@ -130,7 +130,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     this.artifactIsDeleted = false;
                     this.artifactAttachmentsList = result;
                 }, (error) => {
-                    if (error.statusCode == 404) {
+                    if (error.statusCode === 404) {
                         this.artifactIsDeleted = true;
                     }
                 });

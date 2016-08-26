@@ -1,3 +1,3 @@
-NAME = deploy-installer-w12r2s14sp1
+NAME = deploy_installer_w12r2s14sp1
 AMI_ID = ami-a39ffdb4
 ELASTIC_IP = 52.206.121.218

@@ -46,7 +46,7 @@ namespace Model.Impl
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
-        public int UserId { get; set; }
+        public int Id { get; set; }
         public string Username { get; set; }
 
         // These are fields not included by IUser:
@@ -109,7 +109,7 @@ namespace Model.Impl
             StartTimestamp = userToCopy.StartTimestamp;
             Title = userToCopy.Title;
             Token = userToCopy.Token;
-            UserId = userToCopy.UserId;
+            Id = userToCopy.Id;
             Username = userToCopy.Username;
             UserSALT = userToCopy.UserSALT;
 
@@ -291,7 +291,7 @@ namespace Model.Impl
                         while (sqlDataReader.Read())
                         {
                             int userIdOrdinal = sqlDataReader.GetOrdinal("UserId");
-                            UserId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
+                            Id = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
                         }
 
                         IsDeletedFromDatabase = false;

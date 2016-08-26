@@ -69,7 +69,11 @@ describe("Artifact Picker", () => {
                 controller: null,
                 css: null,
                 backdrop: false
-            });
+            },
+            {
+                ItemTypePredefines: [Models.ItemTypePredefined.Document]
+            }
+        );
 
         controller["tree"] = new BPTreeControllerMock();      
 

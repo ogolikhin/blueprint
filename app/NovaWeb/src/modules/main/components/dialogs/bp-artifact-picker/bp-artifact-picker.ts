@@ -12,9 +12,13 @@ export interface IArtifactPickerController {
     getProjects: any;
 }
 
+export interface IArtifactPickerFilter {
+    ItemTypePredefines: Models.ItemTypePredefined[];
+}
+
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: Models.IProject;
+    private _selectedItem: Models.IArtifact;
 
     public tree: IBPTreeController;
     public projectId: number;
@@ -30,7 +34,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         "selectionManager", 
         "projectRepository", 
         "dialogService", 
-        "dialogSettings"];
+        "dialogSettings",
+        "dialogData"];
         
     constructor(
         private $scope: ng.IScope,
@@ -40,7 +45,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private selectionManager: ISelectionManager,
         private projectRepository: IProjectRepository,
         private dialogService: IDialogService,
-        dialogSettings: IDialogSettings
+        dialogSettings: IDialogSettings,
+        private dialogData: IArtifactPickerFilter
     ) {
         super($uibModalInstance, dialogSettings);
         dialogService.dialogSettings.okButton = "OK";
@@ -63,12 +69,24 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         return this.selectedItem || null;
     };
 
-    public get selectedItem() {
+    public get selectedItem(): Models.IArtifact {
         return this._selectedItem;
     }
 
-    private setSelectedItem(item: any) {
-        this._selectedItem = item;
+    private setSelectedItem(item: Models.IArtifact) {
+        this._selectedItem = this.isItemSelectable(item) ? item : undefined;
+    }
+
+    private isItemSelectable(item: Models.IArtifact): boolean {
+        if (this.dialogData && this.dialogData.ItemTypePredefines && this.dialogData.ItemTypePredefines.length > 0) {
+            if (this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0) {
+                return true;
+            }else {
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 
     private onEnterKeyPressed = (e: any) => {
@@ -132,9 +150,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {   
-                     const filtered = nodes.filter(this.filterCollections);
-                      self.tree.reload(filtered, artifactId);
+                .then((nodes: Models.IArtifact[]) => {
+                    const filtered = nodes.filter(this.filterCollections);
+                    self.tree.reload(filtered, artifactId);
                 }, (error) => {
                     if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
                         this.cancel();
@@ -171,7 +189,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         this.projectName = project.name;
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
-                                const filtered = nodes.filter(this.filterCollections);   
+                                const filtered = nodes.filter(this.filterCollections);
                                 this.projectView = false;
                                 self.tree.reload(filtered);
                             }, (error) => {
@@ -183,7 +201,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     }
 
-    private filterCollections(node: Models.IItem) {       
+    private filterCollections(node: Models.IItem) {
         if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
             return true;
         }

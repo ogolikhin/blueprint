@@ -65,7 +65,9 @@ export class BPUtilityPanelController {
 
     private hidePanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
-        accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
+        if (accordionCtrl) {
+            accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
+        }
     }
 
     private showPanel(panelType: PanelType) {
@@ -93,6 +95,7 @@ export class BPUtilityPanelController {
         if (selection) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
+            this.toggleFilesPanel(selection);
         }
     }
 
@@ -123,6 +126,16 @@ export class BPUtilityPanelController {
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);
+        }
+    }
+
+    private toggleFilesPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (artifact && artifact.predefinedType === ItemTypePredefined.Document) {
+            this.hidePanel(PanelType.Files);
+        } else {
+            this.showPanel(PanelType.Files);
         }
     }
 }

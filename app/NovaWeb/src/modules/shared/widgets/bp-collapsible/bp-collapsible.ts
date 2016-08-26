@@ -29,6 +29,17 @@ export class BPCollapsible implements ng.IDirective {
         let showMore = angular.element(`<div class='show-more'><span>${this.localization.get("App_Collapsible_ShowMore")}</span></div>`);
         let showLess = angular.element(`<div class='show-less'><span>${this.localization.get("App_Collapsible_ShowLess")}</span></div>`);
 
+        let updateScrollbar = () => {
+            if ($scope.scrollableContainerId) {
+                let scrollableContainer = document.getElementById($scope.scrollableContainerId);
+                if (scrollableContainer && !angular.isUndefined((<any>window).PerfectScrollbar)) {
+                    if (scrollableContainer.getAttribute("data-ps-id")) {
+                        (<any>window).PerfectScrollbar.update(scrollableContainer);
+                    }
+                }
+            }
+        };
+
         let showMoreClick = () => {
             $element.removeClass("collapsed");
             $element[0].style.height = "";
@@ -39,17 +50,6 @@ export class BPCollapsible implements ng.IDirective {
             $element.addClass("collapsed");
             $element[0].style.height = $scope.bpCollapsible + "px";
             updateScrollbar();
-        };
-
-        let updateScrollbar = () => {
-            if ($scope.scrollableContainerId) {
-                let scrollableContainer = document.getElementById($scope.scrollableContainerId);
-                if (scrollableContainer && !angular.isUndefined((<any>window).PerfectScrollbar)) {
-                    if (scrollableContainer.getAttribute("data-ps-id")) {
-                        (<any>window).PerfectScrollbar.update(scrollableContainer);
-                    }
-                }
-            }
         };
 
         showMore[0].addEventListener("click", showMoreClick);

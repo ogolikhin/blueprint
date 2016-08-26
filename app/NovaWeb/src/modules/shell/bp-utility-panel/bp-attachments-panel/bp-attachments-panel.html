@@ -72,7 +72,7 @@
     
     <div class="add-empty">
         <p>A file attachment is a file that you upload and associate with a single artifact.</p>
-        <label class="btn btn-default" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
+        <label class="btn btn-default" ng-class="{'disabled': $ctrl.fileCanNotBeAdded()}">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             Add {{ $ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -80,7 +80,7 @@
         <hr />
 
         <p>A document reference is an existing document artifact that you can associate with one or more artifacts.</p>
-        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
+        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.fileCanNotBeAdded()}">
             Add {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

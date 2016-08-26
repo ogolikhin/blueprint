@@ -2,15 +2,18 @@
 import "angular-mocks";
 import { 
     HttpErrorInterceptor, 
-    HttpHandledErrorStatusCodes, 
+    HttpErrorStatusCodes, 
     IHttpInterceptorConfig 
+
 } from "./http-error-interceptor";
 import { SessionSvcMock } from "../login/mocks.spec";
+import {MessageServiceMock} from "../../core/messages/message.mock"
 
 describe("HttpErrorInterceptor", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $httpProvider: ng.IHttpProvider) => {
         $provide.service("session", SessionSvcMock);
         $provide.service("httpErrorInterceptor", HttpErrorInterceptor);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     describe("responseError", () => {
@@ -34,7 +37,7 @@ describe("HttpErrorInterceptor", () => {
 
             // Assert
             expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(HttpHandledErrorStatusCodes.handledUnauthorizedStatus);
+            expect(processedResponse.status).toBe(HttpErrorStatusCodes.Unauthorized);
         }));
 
         it("process 401 error and do successfull retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
@@ -61,7 +64,7 @@ describe("HttpErrorInterceptor", () => {
             // Assert
             expect(config.dontRetry).toBeTruthy();
             $httpBackend.verifyNoOutstandingRequest();
-            expect(processedResponse.status).toBe(200);
+            expect(processedResponse.status).toBe(HttpErrorStatusCodes.Succsess);
         }));
 
         it("process 401 error and do failed retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
@@ -137,31 +140,89 @@ describe("HttpErrorInterceptor", () => {
 
             // Assert
             expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(1401);
+            expect(processedResponse.status).toBe(401);
         }));
 
-        it("process other error from http request", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+        it("process 500 error from http request", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
-            var deferred: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            deferred.status = 500;
+            var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
+            response.status = 500;
             
             // Act
-            httpErrorInterceptor.responseError(deferred).then(
+            httpErrorInterceptor.responseError(response).then(
                 () => {
                     processedResponse = undefined;
                 },
-                (response: any) => {
-                    processedResponse = response;
+                (resp: any) => {
+                    processedResponse = resp;
                 }
             );
             $rootScope.$digest();
 
             // Assert
-            expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(500);
+            expect(processedResponse).toBeUndefined();
+            expect(messageService.messages.length).toBe(1);
+            expect(messageService.messages[0].messageText).toBe("HttpError_InternalServer");
+
         }));
+
+        it("process -1: Unavailbale, timeout error ", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
+            // Arrange
+            var processedResponse: ng.IHttpPromiseCallbackArg<any>;
+            var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
+            response.status = -1;
+            
+            // Act
+            httpErrorInterceptor.responseError(response).then(
+                () => {
+                    processedResponse = undefined;
+                },
+                (resp: any) => {
+                    processedResponse = resp;
+                }
+            );
+            $rootScope.$digest();
+
+            // Assert
+            expect(processedResponse).toBeUndefined();
+            expect(messageService.messages.length).toBe(1);
+            expect(messageService.messages[0].messageText).toBe("HttpError_ServiceUnavailable");
+        }));
+
+        it("process -1: canceled by user ", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
+            // Arrange
+            var processedResponse: ng.IHttpPromiseCallbackArg<any>;
+            var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
+            var timeout: ng.IDeferred<any> = $q.defer();
+            timeout.resolve();
+            response.config = {
+                method: "GET",
+                url: "",    
+                timeout: timeout.promise
+            } as ng.IRequestConfig;
+            response.status = -1;
+
+            // Act
+            httpErrorInterceptor.responseError(response).then(
+                () => {
+                    processedResponse = undefined;
+                },
+                (resp: any) => {
+                    processedResponse = resp;
+                }
+            );
+            $rootScope.$digest();
+
+            // Assert
+            expect(processedResponse).toBeUndefined();
+            expect(messageService.messages.length).toBe(0);
+        }));
+
+
         
     });
 

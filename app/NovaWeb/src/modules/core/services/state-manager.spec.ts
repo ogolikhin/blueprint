@@ -250,26 +250,80 @@ describe("State Manager:", () => {
         expect(state).toBeUndefined();
     }));
 
-    it("lock artifact state", inject((stateManager: StateManager) => {
+    it("lock artifact state: succsessful", inject((($httpBackend: ng.IHttpBackendService, stateManager: StateManager) => {
         //Arrange
-        const artifact = { id: 1, name: "old", projectId: 1 } as Models.IArtifact;
+        const artifact = { id: 10, name: "old", projectId: 1 } as Models.IArtifact;
+
+        $httpBackend.expectPOST("/svc/shared/artifacts/lock", angular.toJson([10]) )
+            .respond(200, [{
+                result: Enums.LockResultEnum.Success,
+                info: {
+                    lockOwnerLogin: "user"
+                }
+            }] as Models.ILockResult[]);
+
             
         //Act
-        stateManager.addChange(artifact, { lookup: Enums.PropertyLookupEnum.System, id: "name", value: "new" });
-
-        let state = stateManager.getState(1);
-        state.lock = {
-            result: Enums.LockResultEnum.Success,
-                info: {
-                lockOwnerLogin: "user"
-            }
-        } as Models.ILockResult
+        let state = stateManager.addItem(artifact);
+        let err;
+        stateManager.lockArtifact(state).catch(e => err = e);
+        $httpBackend.flush();
         //Assert
         expect(state).toBeDefined();
         expect(state.lock).toBeDefined();
-    }));
+        expect(state.lock.result).toBe(Enums.LockResultEnum.Success);
+        expect(err).toBeUndefined();
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    })));
 
+    it("lock artifact state: already locked", inject((($httpBackend: ng.IHttpBackendService, stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 10, name: "old", projectId: 1 } as Models.IArtifact;
 
+        $httpBackend.expectPOST("/svc/shared/artifacts/lock", angular.toJson([10]))
+            .respond(200, [{
+                result: Enums.LockResultEnum.AlreadyLocked,
+                info: {
+                    lockOwnerLogin: "user"
+                }
+            }] as Models.ILockResult[]);
+
+            
+        //Act
+        let state = stateManager.addItem(artifact);
+        let err;
+        stateManager.lockArtifact(state).catch(e => err = e);
+        $httpBackend.flush();
+        //Assert
+        expect(state).toBeDefined();
+        expect(state.lock).toBeDefined();
+        expect(state.lock.result).toBe(Enums.LockResultEnum.AlreadyLocked);
+        expect(err).toBeUndefined();
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    })));
+
+    it("lock artifact state: error", inject((($httpBackend: ng.IHttpBackendService, stateManager: StateManager) => {
+        //Arrange
+        const artifact = { id: 10, name: "old", projectId: 1 } as Models.IArtifact;
+
+        $httpBackend.expectPOST("/svc/shared/artifacts/lock", angular.toJson([10]))
+            .respond(401);
+
+            
+        //Act
+        let state = stateManager.addItem(artifact);
+        let err;
+        stateManager.lockArtifact(state).catch(e => err = e);
+        $httpBackend.flush();
+        //Assert
+        expect(state).toBeDefined();
+        expect(state.lock).toBeUndefined();
+        expect(err).toBeDefined();
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    })));
 
 
 });

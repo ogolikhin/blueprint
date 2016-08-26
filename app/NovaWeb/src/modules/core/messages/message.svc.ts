@@ -87,11 +87,15 @@ export class MessageService implements IMessageService {
         });
     }
 
-    public addError(text: string | Error): void {
-        if (text instanceof Error) {
-            this.addMessage(new Message(MessageType.Error, (text as Error).message));
+    public addError(error: string | Error): void {
+        if (!error) {
+            return;
+        }
+
+        if (error instanceof Error) {
+                this.addMessage(new Message(MessageType.Error, (error as Error).message));
         } else {
-            this.addMessage(new Message(MessageType.Error, text as string));
+                this.addMessage(new Message(MessageType.Error, error as string));
         }
     }
 

@@ -9,7 +9,7 @@ export interface IStateManager {
     addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
     addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
-    lockArtifact(state: ItemState);//: ng.IPromise<Models.ILockResult>;
+    lockArtifact(state: ItemState): ng.IPromise<Models.ILockResult>;
 }
 
 export interface IPropertyChangeSet {
@@ -387,30 +387,37 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    public lockArtifact(state: ItemState) {
+    public lockArtifact(state: ItemState): ng.IPromise<Models.ILockResult> {
+        var defer = this.$q.defer<Models.ILockResult>();
 
-            if (state.lock || state.lockedBy !== Enums.LockedByEnum.None) {
-                return;
-            }
-
+        if (state.lock || state.lockedBy !== Enums.LockedByEnum.None) {
+            defer.resolve(state.lock);
+        } else {
             const request: ng.IRequestConfig = {
                 url: `/svc/shared/artifacts/lock`,
                 method: "post",
                 data: angular.toJson([state.originItem.id])
             };
 
-             this.$http(request).then(
+            this.$http(request).then(
                 (result: ng.IHttpPromiseCallbackArg<Models.ILockResult[]>) => {
                     state.lock = result.data[0];
+                    defer.resolve(state.lock);
                 },
                 (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                    if (!errResult) {
+                        defer.reject();
+                        return;
+                    }
                     var error = {
                         statusCode: errResult.status,
                         message: (errResult.data ? errResult.data.message : "")
                     };
+                    defer.reject(error);
                 }
             );
-
+        }
+        return defer.promise;
     }
 
 

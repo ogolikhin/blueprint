@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,16 @@ namespace ServiceLibrary.Attributes
     {
     }
 
+    public class SessionRequiredAttribute : SessionAttribute
+    {
+        public SessionRequiredAttribute(bool allowCookie = false) : base(allowCookie) { }
+    }
+
+    public class SessionOptionalAttribute : SessionAttribute
+    {
+        public SessionOptionalAttribute(bool allowCookie = false) : base(allowCookie, true) { }
+    }
+
     public class SessionAttribute : ActionFilterAttribute
     {
         protected const string BlueprintSessionToken = "Session-Token";
@@ -26,19 +37,53 @@ namespace ServiceLibrary.Attributes
         protected const string InternalServerErrorMessage = "An error occurred.";
         protected const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
 
+        private readonly bool _allowCookie;
+        private readonly bool _ignoreBadToken;
         internal readonly IHttpClientProvider _httpClientProvider;
 
-        public SessionAttribute() : this(new HttpClientProvider())
+        protected internal SessionAttribute(bool allowCookie = false, bool ignoreBadToken = false) :
+            this(allowCookie, ignoreBadToken, new HttpClientProvider())
         {
         }
 
-        internal SessionAttribute(IHttpClientProvider httpClientProvider)
+        internal SessionAttribute(bool allowCookie, bool ignoreBadToken, IHttpClientProvider httpClientProvider)
         {
+            _allowCookie = allowCookie;
+            _ignoreBadToken = ignoreBadToken;
             _httpClientProvider = httpClientProvider;
         }
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
+            var request = actionContext.Request;
+            if (!request.Headers.Contains(BlueprintSessionTokenIgnore))
+            {
+                try
+                {
+                    request.Properties[ServiceConstants.SessionProperty] = await GetAccessAsync(request);
+                }
+                catch (ArgumentNullException)
+                {
+                    if (!_ignoreBadToken)
+                    {
+                        actionContext.Response = request.CreateErrorResponse(HttpStatusCode.BadRequest,
+                            BadRequestMessage);
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    if (!_ignoreBadToken)
+                    {
+                        actionContext.Response = request.CreateErrorResponse(HttpStatusCode.Unauthorized,
+                            UnauthorizedMessage);
+                    }
+                }
+                catch
+                {
+                    actionContext.Response = request.CreateErrorResponse(HttpStatusCode.InternalServerError,
+                        InternalServerErrorMessage);
+                }
+            }
             await base.OnActionExecutingAsync(actionContext, cancellationToken);
         }
 
@@ -54,13 +99,13 @@ namespace ServiceLibrary.Attributes
             return JsonConvert.DeserializeObject<Session>(content);
         }
 
-        private static string GetHeaderSessionToken(HttpRequestMessage request)
+        private string GetHeaderSessionToken(HttpRequestMessage request)
         {
             if (request.Headers.Contains(BlueprintSessionToken))
             {
                 return request.Headers.GetValues(BlueprintSessionToken).FirstOrDefault();
             }
-            if (request.Method != HttpMethod.Get)
+            if (!_allowCookie)
             {
                 throw new ArgumentNullException();
             }

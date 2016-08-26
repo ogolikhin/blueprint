@@ -119,6 +119,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
             f.progress = Math.floor((event.loaded / event.total) * 100);
         }, f.timeout.promise).then(
             (result: IFileResult) => {
+                f.progress = 100;
                 f.guid = result.guid;
                 f.filepath = result.uriToFile;
                 f.isComplete = true;

@@ -10,10 +10,10 @@ namespace Model.ArtifactModel
 
         int Id { get; set; }
         int ItemTypeId { get; set; }
-        IUser LockedByUser { get; set; }
-        DateTime LockedDateTime { get; set; }
+        IUser LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
+        DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property
         string Name { get; set; }
-        int OrderIndex { get; set; }
+        double OrderIndex { get; set; }
         int ParentId { get; set; }
         int Permissions { get; set; }
         int ProjectId { get; set; }
@@ -23,7 +23,7 @@ namespace Model.ArtifactModel
 
     }
 
-    public interface INovaArtifact
+    public interface INovaArtifact : INovaArtifactBase
     {
         #region Serialized JSON Properties
 

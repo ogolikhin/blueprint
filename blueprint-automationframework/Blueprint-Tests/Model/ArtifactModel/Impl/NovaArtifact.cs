@@ -12,9 +12,9 @@ namespace Model.ArtifactModel.Impl
         public int Id { get; set; }
         public int ItemTypeId { get; set; }
         public IUser LockedByUser { get; set; }
-        public DateTime LockedDateTime { get; set; }
+        public DateTime? LockedDateTime { get; set; }
         public string Name { get; set; }
-        public int OrderIndex { get; set; }
+        public double OrderIndex { get; set; }
         public int ParentId { get; set; }
         public int Permissions { get; set; }
         public int PredefinedType { get; set; }

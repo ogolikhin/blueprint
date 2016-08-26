@@ -68,6 +68,7 @@ function Build-Nova-Html{
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+        [Parameter(Mandatory=$false)][bool] $RunTests = $true,
 
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -91,8 +92,11 @@ function Build-Nova-Html{
        # Build Nova Application
        Invoke-MyExpression "npm" "run build"
 
-       # Test Nova Application
-       Invoke-MyExpression "npm" "run test"
+        if($RunTests)
+        {
+            # Test Nova Application
+            Invoke-MyExpression "npm" "run test"
+        }
     }
     finally
     {

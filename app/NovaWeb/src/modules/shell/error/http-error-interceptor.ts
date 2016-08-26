@@ -11,9 +11,9 @@ export class HttpHandledErrorStatusCodes {
 }
 
 export enum HttpErrorStatusCodes {
-    Inaccessible = -1,
+    Unavailable = -1,
+    Succsess = 200,
     Unauthorized = 401,
-    UnauthorizedHandeled = 1401,
     Forbidden = 403,
     NotFound = 404,
     ServerError = 500
@@ -44,46 +44,48 @@ export class HttpErrorInterceptor {
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && (config.ignoreInterceptor || config.dontRetry)) {
+        if (config && (config.ignoreInterceptor)) {
             deferred.reject(response);
-
-        } else if (response.status === HttpErrorStatusCodes.Inaccessible) {
+        } else if (response.status === HttpErrorStatusCodes.Unavailable) {
             if (!this.canceledByUser(config)) {
-                $message.addError("App_Error_Inaccessible"); // Service is inaccessible
+                $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
             }
             deferred.reject();
-
-        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {
-            $session.onExpired().then(() => {
-                    if (config) {
+        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {            
+            $session.onExpired().then(
+                () => {
+                    if (config && !config.dontRetry) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
-                        HttpErrorInterceptor.applyNewSessionToken(config);
+                        HttpErrorInterceptor.applyNewSessionToken(config);                    
 
                         config.dontRetry = true;
 
                         $http(config).then(retryResponse => deferred.resolve(retryResponse), retryResponse => deferred.reject(retryResponse));
                     } else {
-                        response.status = HttpErrorStatusCodes.UnauthorizedHandeled;
+                        response.status = HttpErrorStatusCodes.Unauthorized;
                         deferred.reject(response);
                     }
                 },
                 () => deferred.reject(response)
             );
         } else if (response.status === HttpErrorStatusCodes.Forbidden) {
-            $message.addError("App_Error_Forbidden"); //Forbidden. The user does not have permissions for the artifact
+            $message.addError("HttpError_Forbidden"); //Forbidden. The user does not have permissions for the artifact
             //here we need to reject with none object passed in, means that the error has been handled
-            //TODO: change to deferred.reject();
+            deferred.reject();
+
+        } else if (response.status === HttpErrorStatusCodes.NotFound) {
+            $message.addError("HttpError_NotFound"); //Forbidden. The user does not have permissions for the artifact
+            //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();
 
         } else if (response.status === HttpErrorStatusCodes.ServerError) {
-            $message.addError("App_Error_InternalServer"); //Internal Server Error. An error occurred.
+            $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
             //here we need to reject with none object passed in, means that the error has been handled
-            //TODO: change to deferred.reject();
             deferred.reject();
         
         } else {
             $log.error(response.data);
-            deferred.reject(response);  
+            deferred.reject(response);
         }
 
         return deferred.promise;
@@ -95,8 +97,8 @@ export class HttpErrorInterceptor {
             return false;
         }
         let promise = config.timeout as ng.IPromise<any>;
-        if (config.timeout) {
-            if (promise && promise["$$state"] && promise["$$state"].status === 1) {
+        if (promise) {
+            if (promise["$$state"] && promise["$$state"].status === 1) {
                 //request canceled by user
                 return true;
             }

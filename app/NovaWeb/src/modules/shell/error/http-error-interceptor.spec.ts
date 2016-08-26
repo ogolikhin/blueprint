@@ -37,7 +37,7 @@ describe("HttpErrorInterceptor", () => {
 
             // Assert
             expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(HttpErrorStatusCodes.UnauthorizedHandeled);
+            expect(processedResponse.status).toBe(HttpErrorStatusCodes.Unauthorized);
         }));
 
         it("process 401 error and do successfull retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
@@ -64,7 +64,7 @@ describe("HttpErrorInterceptor", () => {
             // Assert
             expect(config.dontRetry).toBeTruthy();
             $httpBackend.verifyNoOutstandingRequest();
-            expect(processedResponse.status).toBe(200);
+            expect(processedResponse.status).toBe(HttpErrorStatusCodes.Succsess);
         }));
 
         it("process 401 error and do failed retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
@@ -164,11 +164,11 @@ describe("HttpErrorInterceptor", () => {
             // Assert
             expect(processedResponse).toBeUndefined();
             expect(messageService.messages.length).toBe(1);
-            expect(messageService.messages[0].messageText).toBe("App_Error_InternalServer");
+            expect(messageService.messages[0].messageText).toBe("HttpError_InternalServer");
 
         }));
 
-        it("process -1: Inaccessible, timeout error ", inject(($rootScope: ng.IRootScopeService,
+        it("process -1: Unavailbale, timeout error ", inject(($rootScope: ng.IRootScopeService,
             $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
@@ -189,7 +189,7 @@ describe("HttpErrorInterceptor", () => {
             // Assert
             expect(processedResponse).toBeUndefined();
             expect(messageService.messages.length).toBe(1);
-            expect(messageService.messages[0].messageText).toBe("App_Error_Inaccessible");
+            expect(messageService.messages[0].messageText).toBe("HttpError_ServiceUnavailable");
         }));
 
         it("process -1: canceled by user ", inject(($rootScope: ng.IRootScopeService,

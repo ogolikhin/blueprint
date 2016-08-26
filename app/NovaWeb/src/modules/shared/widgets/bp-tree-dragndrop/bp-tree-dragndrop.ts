@@ -4,6 +4,7 @@ export class BPTreeDragndrop implements ng.IDirective {
     public restrict = "A";
 
     private compiler: ng.ICompileService;
+    private timeout: ng.ITimeoutService;
     private isMoving: boolean;
     private movingFrom: string;
     private typeNotDraggable: number[] = [
@@ -156,109 +157,119 @@ export class BPTreeDragndrop implements ng.IDirective {
             }
         }
 
-        if (Controller) {
-            var nodes = Controller._datasource;
-            var nodePath = $attrs["bpTreeDragndrop"];
-            let node = getNode(nodePath, nodes);
+        this.timeout(() => {
+            if (Controller) {
+                var nodes = Controller._datasource;
+                var nodePath = $attrs["bpTreeDragndrop"];
+                let node = getNode(nodePath, nodes);
 
-            $scope["onDragRow"] = function (path, $data, $event) {
-                self.isMoving = true;
-                self.movingFrom = path;
-            };
+                $scope["onDragRow"] = function (path, $data, $event) {
+                    self.isMoving = true;
+                    self.movingFrom = path;
+                };
 
-            $scope["onDropRow"] = function (path, $data, $event, position) {
-                if (self.isMoving) {
-                    // we backup the current data in case the drag and drop fails
-                    var dataBackup = JSON.parse(Helper.stringifySafe(nodes));
+                $scope["onDropRow"] = function (path, $data, $event, position) {
+                    if (self.isMoving) {
+                        // we backup the current data in case the drag and drop fails
+                        var dataBackup = JSON.parse(Helper.stringifySafe(nodes));
 
-                    // handle special case when trying to drag to first position in an open folder
-                    let node = getNode(path, nodes);
-                    if (node.open && position === "after") {
-                        return;
+                        // handle special case when trying to drag to first position in an open folder
+                        let node = getNode(path, nodes);
+                        if (node.open && position === "after") {
+                            return;
+                        }
+
+                        self.isMoving = false;
+
+                        node = extractNodeByIndex(self.movingFrom, nodes);
+                        // we need to recalculate the target path, after we extracted the node from the data
+                        var adjustedPath = adjustPath(self.movingFrom, path);
+
+                        if (!insertNodeByIndex(adjustedPath, node, nodes, position)) {
+                            Controller._datasource = dataBackup;
+                            nodes = Controller._datasource;
+                        }
+                        Controller.options.api.setRowData(nodes);
+                        Controller.options.api.refreshView();
+                    }
+                };
+
+                var dragStartCallbackAsString = "onDragRow('" + nodePath + "', $data, $event)";
+                var dropSuccessCallbackAsString = "onDropRow('" + nodePath + "', $data, $event, 'inside')";
+                var dropSuccessCallbackAsStringPre = "onDropRow('" + nodePath + "', $data, $event, 'before')";
+                var dropSuccessCallbackAsStringPost = "onDropRow('" + nodePath + "', $data, $event, 'after')";
+
+                var $span = $element[0];
+                $span.removeAttribute("bp-tree-dragndrop");
+
+                var $row = Helper.findAncestorByCssClass($span, ".ag-row");
+                if ($row) {
+                    var $cell = <HTMLElement>$row.querySelector(".ag-cell");
+
+                    var $preRow = document.createElement("DIV");
+                    $preRow.className = "ag-row-dnd-pre";
+                    $preRow.setAttribute("ng-drop", "true");
+                    $preRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPre);
+
+                    var $postRow = document.createElement("DIV");
+                    $postRow.className = "ag-row-dnd-post";
+                    $postRow.setAttribute("ng-drop", "true");
+                    $postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
+
+                    $row.insertBefore($preRow, $row.firstChild);
+                    $row.appendChild($postRow);
+
+                    //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
+                    $cell.setAttribute("ng-drop", "true");
+                    $cell.setAttribute("ng-drop-success", dropSuccessCallbackAsString);
+                    //}
+
+                    if (self.typeNotDraggable.indexOf(node.type) === -1 && node.predefinedType !== -1) {
+                        angular.element($row).addClass("ag-row-draggable");
+                        $row.setAttribute("ng-drag", "true");
+                        $row.setAttribute("ng-drag-data", "data");
+                        $row.setAttribute("ng-drag-start", dragStartCallbackAsString);
+
+                        //var $dragHandle = document.createElement("DIV");
+                        //$dragHandle.className = "ag-row-dnd-handle";
+                        //$dragHandle.setAttribute("ng-drag-handle", "");
+                        //$dragHandle.addEventListener("mousedown", function(e) {
+                        //   $cell.focus();
+                        //});
+                        //$row.insertBefore($dragHandle, $row.firstChild);
                     }
 
-                    self.isMoving = false;
-
-                    node = extractNodeByIndex(self.movingFrom, nodes);
-                    // we need to recalculate the target path, after we extracted the node from the data
-                    var adjustedPath = adjustPath(self.movingFrom, path);
-
-                    if (!insertNodeByIndex(adjustedPath, node, nodes, position)) {
-                        Controller._datasource = dataBackup;
-                        nodes = Controller._datasource;
-                    }
-                    Controller.options.api.setRowData(nodes);
-                    Controller.options.api.refreshView();
+                    self.compiler($row)($scope);
                 }
-            };
-
-            var dragStartCallbackAsString = "onDragRow('" + nodePath + "', $data, $event)";
-            var dropSuccessCallbackAsString = "onDropRow('" + nodePath + "', $data, $event, 'inside')";
-            var dropSuccessCallbackAsStringPre = "onDropRow('" + nodePath + "', $data, $event, 'before')";
-            var dropSuccessCallbackAsStringPost = "onDropRow('" + nodePath + "', $data, $event, 'after')";
-
-            var $row = $element[0];
-            $row.removeAttribute("bp-tree-dragndrop");
-
-            var $cell = <HTMLElement>$row.querySelector(".ag-cell");
-
-            var $preRow = document.createElement("DIV");
-            $preRow.className = "ag-row-dnd-pre";
-            $preRow.setAttribute("ng-drop", "true");
-            $preRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPre);
-
-            var $postRow = document.createElement("DIV");
-            $postRow.className = "ag-row-dnd-post";
-            $postRow.setAttribute("ng-drop", "true");
-            $postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
-
-            $row.insertBefore($preRow, $row.firstChild);
-            $row.appendChild($postRow);
-
-            //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
-            $cell.setAttribute("ng-drop", "true");
-            $cell.setAttribute("ng-drop-success", dropSuccessCallbackAsString);
-            //}
-
-            if (self.typeNotDraggable.indexOf(node.type) === -1 && node.predefinedType !== -1) {
-                angular.element($row).addClass("ag-row-draggable");
-                $row.setAttribute("ng-drag", "true");
-                $row.setAttribute("ng-drag-data", "data");
-                $row.setAttribute("ng-drag-start", dragStartCallbackAsString);
-
-                //var $dragHandle = document.createElement("DIV");
-                //$dragHandle.className = "ag-row-dnd-handle";
-                //$dragHandle.setAttribute("ng-drag-handle", "");
-                //$dragHandle.addEventListener("mousedown", function(e) {
-                //   $cell.focus();
-                //});
-                //$row.insertBefore($dragHandle, $row.firstChild);
             }
-
-            self.compiler($element)($scope);
-        }
+        }, 100);
     };
 
     constructor(
-        $compile
+        $compile,
+        $timeout
         //list of other dependencies*/
     ) {
         this.isMoving = false;
         this.movingFrom = "";
         this.compiler = $compile;
+        this.timeout = $timeout;
     }
 
     public static factory() {
         const directive = (
-            $compile
+            $compile,
+            $timeout
             //list of dependencies
         ) => new BPTreeDragndrop (
-            $compile
+            $compile,
+            $timeout
             //list of other dependencies
         );
 
         directive["$inject"] = [
-            "$compile"
+            "$compile",
+            "$timeout"
             //list of other dependencies
         ];
 

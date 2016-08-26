@@ -1,0 +1,2 @@
+AMI_ID = ami-ab9efcbc
+ELASTIC_IP = 54.80.174.58

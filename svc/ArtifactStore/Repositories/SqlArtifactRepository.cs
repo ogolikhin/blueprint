@@ -22,14 +22,14 @@ namespace ArtifactStore.Repositories
         {
         }
 
-        internal SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
         }
 
         #region GetProjectOrArtifactChildrenAsync
 
-        public async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
+        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
         {
             if (projectId < 1)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -40,9 +40,7 @@ namespace ArtifactStore.Repositories
 
             // We do not treat the project as the artifact
             if (artifactId == projectId)
-            {
                 ThrowNotFoundException(projectId, artifactId);
-            }
 
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);
@@ -54,9 +52,7 @@ namespace ArtifactStore.Repositories
 
             // The artifact or the project is not found
             if (!artifactVersions.Any())
-            {
                 ThrowNotFoundException(projectId, artifactId);
-            }
 
             var dicUserArtifactVersions = artifactVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
@@ -150,7 +146,7 @@ namespace ArtifactStore.Repositories
                 LockedByUser = v.LockedByUserId.HasValue ? new UserGroup { Id = v.LockedByUserId } : null,
                 LockedDateTime = v.LockedByUserTime
             })
-            //NOTE:: Temporary filter Review and BaseLines ou from the list
+            //NOTE:: Temporary filter Review and BaseLines out from the list
             // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
             .Where(a => a.PredefinedType != ItemTypePredefined.BaselineFolder)
             .OrderBy(a => {
@@ -279,9 +275,64 @@ namespace ArtifactStore.Repositories
 
         #region GetProjectOrArtifactChildrenAsync
 
-        public Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, int userId)
+        public virtual async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren, int userId)
         {
-            throw new NotImplementedException();
+            if (projectId < 1)
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            if (expandedToArtifactId < 1)
+                throw new ArgumentOutOfRangeException(nameof(expandedToArtifactId));
+            if (userId < 1)
+                throw new ArgumentOutOfRangeException(nameof(userId));
+
+            // We do not treat the project as the artifact
+            if (expandedToArtifactId == projectId)
+                ThrowNotFoundException(projectId, expandedToArtifactId);
+
+            var prm = new DynamicParameters();
+            prm.Add("@projectId", projectId);
+            prm.Add("@artifactId", expandedToArtifactId);
+            prm.Add("@userId", userId);
+
+            // One of the return items is supposed to be the project
+            var ancestorsAndSelfIds = (await
+                ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactAncestorsAndSelf", prm,
+                    commandType: CommandType.StoredProcedure)).Select(av => av.ItemId).ToList();
+
+            var setAncestorsAndSelfIds = new HashSet<int>(ancestorsAndSelfIds);
+
+            if (!setAncestorsAndSelfIds.Any())
+                ThrowNotFoundException(projectId, expandedToArtifactId);
+
+            if (!includeChildren)
+                setAncestorsAndSelfIds.Remove(expandedToArtifactId);
+
+            var rootArtifacts = await GetProjectOrArtifactChildrenAsync(projectId, null, userId);
+
+            await AddChildrenToAncestors(rootArtifacts, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
+
+            return rootArtifacts;
+        }
+
+        private async Task AddChildrenToAncestors(List<Artifact> siblings, HashSet<int> ancestorsAndSelfIds, int projectId, int expandedToArtifactId, int userId)
+        {
+            var isArtifactToExpandToFetched = false;
+            while (true)
+            {
+                if (siblings.FirstOrDefault(a => a.Id == expandedToArtifactId) != null)
+                    isArtifactToExpandToFetched = true;
+
+                var ancestor = siblings.FirstOrDefault(a => ancestorsAndSelfIds.Contains(a.Id));
+                if (ancestor == null)
+                {
+                    if (isArtifactToExpandToFetched)
+                        return;
+
+                    ThrowForbiddenException(projectId, expandedToArtifactId);
+                }
+                var children = await GetProjectOrArtifactChildrenAsync(projectId, ancestor.Id, userId);
+                ancestor.Children = children;
+                siblings = children;
+            }
         }
 
         #endregion

@@ -106,17 +106,8 @@ export function formlyConfig(
         }
     };
 
-    let primeValidation = function(formControl) {
-        let input = formControl.querySelector("input.ng-untouched") as HTMLElement;
-        if (input) {
-            let previousFocusedElement = document.activeElement as HTMLElement;
-            input.focus();
-            if (previousFocusedElement) {
-                previousFocusedElement.focus();
-            } else {
-                input.blur();
-            }
-        }
+    let primeValidation = function(scope) {
+        scope.form[scope.id].$setTouched();
     };
 
     formlyConfig.setType({
@@ -249,7 +240,7 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            primeValidation($scope);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {
@@ -277,7 +268,7 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            primeValidation($scope);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -322,7 +313,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                //primeValidation($element[0]);
+                primeValidation($scope);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -474,7 +465,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                //primeValidation($element[0]);
+                primeValidation($scope);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -682,7 +673,7 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            primeValidation($scope);
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {
@@ -822,7 +813,7 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            primeValidation($scope);
         },
         controller: ["$scope", function ($scope) {
             // make sure the values are of type Date!

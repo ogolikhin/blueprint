@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Model
 {
@@ -16,7 +15,6 @@ namespace Model
         #region Properties
 
         string Department { get; set; }                     // (NULLABLE)
-        string DisplayName { get; set; }                    // (NULLABLE)
         string Email { get; set; }                          // (NULLABLE)
         bool Enabled { get; set; }
         string FirstName { get; set; }
@@ -29,11 +27,16 @@ namespace Model
         UserSource Source { get; }
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.
-        int UserId { get; set; }
         string Username { get; set; }                       // i.e. "Login" field in database.
 
         #endregion Properties
 
+        #region Serialized JSON Properties
+
+        string DisplayName { get; set; }                    // (NULLABLE)
+        int Id { get; set; }
+
+        #endregion Serialized JSON Properties
 
         #region Methods
 

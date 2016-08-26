@@ -137,7 +137,7 @@ describe("HttpErrorInterceptor", () => {
 
             // Assert
             expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(401);
+            expect(processedResponse.status).toBe(1401);
         }));
 
         it("process other error from http request", inject(($rootScope: ng.IRootScopeService,

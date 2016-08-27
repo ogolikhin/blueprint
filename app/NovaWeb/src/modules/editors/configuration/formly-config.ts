@@ -705,7 +705,6 @@ export function formlyConfig(
         defaultOptions: {
             templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
-                    document_base_url: "pippo",
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                     init_instance_callback: function (editor) {

@@ -23,16 +23,15 @@ describe("Formly", () => {
     });
 
     let template = `<test-dir model="model" on-submit="onSubmit()"></test-dir>`;
-    let compile, scope, rootScope, element, node, isolateScope, vm, timeout;
+    let compile, scope, rootScope, element, node, isolateScope, vm;
 
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $timeout: ng.ITimeoutService) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
                 scope.model = {};
-                timeout = $timeout;
             }
         )
     );
@@ -166,7 +165,6 @@ describe("Formly", () => {
     describe("SelectMulti", () => {
         it("should be initialized properly", function () {
             compileAndSetupStuff({model: {selectMulti: ""}});
-            timeout.flush();
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti");
             let fieldScope = angular.element(fieldNode[0]).isolateScope();
@@ -597,7 +595,6 @@ describe("Formly", () => {
         node = element[0];
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
-        //timeout.flush();
     }
 
     function triggerKey(targetElement, keyCode, eventType) {

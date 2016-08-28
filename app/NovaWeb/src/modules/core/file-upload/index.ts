@@ -43,12 +43,15 @@ export class FileUploadService implements IFileUploadService {
 
         this.$http(request).then((result: ng.IHttpPromiseCallbackArg<IFileResult>) => {
             deferred.resolve(result.data);
-        }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+        }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+            if (!errResult) {
+                deferred.reject();
+                return;
+            }
             const error = {
-                statusCode: result.status,
-                message: result.data ? result.data.message : ""
+                statusCode: errResult.status,
+                message: errResult.data ? errResult.data.message : ""
             };
-            this.$log.error(error);
             deferred.reject(error);
         });
 

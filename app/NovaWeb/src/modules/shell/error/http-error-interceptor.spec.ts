@@ -17,28 +17,6 @@ describe("HttpErrorInterceptor", () => {
     }));
 
     describe("responseError", () => {
-        it("process 401 error from http request", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
-            // Arrange
-            var processedResponse: ng.IHttpPromiseCallbackArg<any>;
-            var deferred: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            deferred.status = 401;
-            
-            // Act
-            httpErrorInterceptor.responseError(deferred).then(
-                () => {
-                    processedResponse = undefined;
-                },
-                (response: any) => {
-                    processedResponse = response;
-                }
-            );
-            $rootScope.$digest();
-
-            // Assert
-            expect(processedResponse).toBeDefined();
-            expect(processedResponse.status).toBe(HttpErrorStatusCodes.Unauthorized);
-        }));
 
         it("process 401 error and do successfull retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
             $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {

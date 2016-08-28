@@ -154,9 +154,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     const filtered = nodes.filter(this.filterCollections);
                     self.tree.reload(filtered, artifactId);
                 }, (error) => {
-                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
-                        this.cancel();
-                    } 
                 });
             return null;
         } else {
@@ -166,9 +163,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 .then((nodes: Models.IProjectNode[]) => {                  
                     self.tree.reload(nodes, id);
                 }, (error) => {
-                    if (error.statusCode === HttpHandledErrorStatusCodes.handledUnauthorizedStatus) {
-                        this.cancel();
-                    }
                 });
 
             return null;

@@ -22,6 +22,7 @@ export enum HttpErrorStatusCodes {
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
     ignoreInterceptor: boolean;
     dontRetry: boolean;
+    dontHandle: boolean;
 }
 
 export class HttpErrorInterceptor {
@@ -40,11 +41,11 @@ export class HttpErrorInterceptor {
         let $message = this.$injector.get("messageService") as IMessageService;
         let $log = this.$injector.get("$log") as ng.ILogService;
 
-        let config = <IHttpInterceptorConfig>response.config;
+        let config = (response.config || {}) as IHttpInterceptorConfig;
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && (config.ignoreInterceptor)) {
+        if (config.ignoreInterceptor) {
             deferred.reject(response);
         } else if (response.status === HttpErrorStatusCodes.Unavailable) {
             if (!this.canceledByUser(config)) {
@@ -54,7 +55,7 @@ export class HttpErrorInterceptor {
         } else if (response.status === HttpErrorStatusCodes.Unauthorized) {            
             $session.onExpired().then(
                 () => {
-                    if (config && !config.dontRetry) {
+                    if (!config.dontRetry) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
                         HttpErrorInterceptor.applyNewSessionToken(config);                    
 
@@ -68,17 +69,12 @@ export class HttpErrorInterceptor {
                 },
                 () => deferred.reject(response)
             );
-        } else if (response.status === HttpErrorStatusCodes.Forbidden) {
+        } else if (response.status === HttpErrorStatusCodes.Forbidden && !config.dontHandle) {
             $message.addError("HttpError_Forbidden"); //Forbidden. The user does not have permissions for the artifact
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();
 
-        } else if (response.status === HttpErrorStatusCodes.NotFound) {
-            $message.addError("HttpError_NotFound"); //Forbidden. The user does not have permissions for the artifact
-            //here we need to reject with none object passed in, means that the error has been handled
-            deferred.reject();
-
-        } else if (response.status === HttpErrorStatusCodes.ServerError) {
+        } else if (response.status === HttpErrorStatusCodes.ServerError && !config.dontHandle) {
             $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();

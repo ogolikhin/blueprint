@@ -84,7 +84,7 @@ export class AuthSvc implements IAuth {
                 var error = {
                     statusCode: result.status,
                     message: this.getLoginErrorMessage(result.data),
-                    errorCode: result.data.errorCode
+                    errorCode: result.data ? result.data.errorCode : -1
                 };
                 deferred.reject(error);
 
@@ -125,8 +125,8 @@ export class AuthSvc implements IAuth {
                     }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                         var error = {
                             statusCode: result.status,
-                            message: this.getLoginErrorMessage(result.data),
-                            errorCode: result.data.errorCode
+                            message: this.getLoginErrorMessage(result),
+                            errorCode: result.data ? result.data.errorCode : -1
                         };
                         deferred.reject(error);
                     });

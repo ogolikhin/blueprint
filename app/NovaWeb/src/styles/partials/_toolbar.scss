@@ -34,16 +34,17 @@ bp-toolbar {
         line-height: normal;
         padding: 6px 0 0 0;
         text-align: center;
+          > .icon-container {
+              height: 24px;
+            .fonticon::before {
+              font-size: 22px;
+              margin: 0;
+            }
 
-        .fonticon::before {
-          font-size: 22px;
-          margin: 0;
-        }
-
-        .caret {
-          margin: 0 0 0 3px;
-        }
-
+            .caret {
+              margin: 0 0 0 3px;
+            }
+          }
         span {
           display: block;
           font-size: $font-size-smaller;

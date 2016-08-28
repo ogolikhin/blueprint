@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
@@ -14,6 +15,8 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactRepositoryTests
     {
+        #region GetProjectOrGetChildrenAsync
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetProjectOrGetChildrenAsync_InvalidProjectId()
@@ -82,7 +85,7 @@ namespace ArtifactStore.Repositories
             var input = new List<ArtifactVersion>();
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
@@ -97,7 +100,7 @@ namespace ArtifactStore.Repositories
             var input = new List<ArtifactVersion>();
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
@@ -114,7 +117,7 @@ namespace ArtifactStore.Repositories
             input[1].HasDraft = false;
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
@@ -132,7 +135,7 @@ namespace ArtifactStore.Repositories
             input[0].DirectPermissions = null;
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
@@ -150,7 +153,7 @@ namespace ArtifactStore.Repositories
             input[0].DirectPermissions = RolePermissions.None;
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
@@ -186,7 +189,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -226,7 +229,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -273,7 +276,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -309,7 +312,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -328,7 +331,7 @@ namespace ArtifactStore.Repositories
             var expected = new List<Artifact>();
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -347,7 +350,7 @@ namespace ArtifactStore.Repositories
             var expected = new List<Artifact>();
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -385,7 +388,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
@@ -483,7 +486,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
@@ -523,7 +526,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
@@ -568,7 +571,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
@@ -613,7 +616,7 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
@@ -660,10 +663,10 @@ namespace ArtifactStore.Repositories
             };
 
             // Act and Assert
-            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
         }
 
-        private async Task BaseTest(int projectId, int? artifactId, int userId,
+        private async Task GetProjectOrGetChildrenBaseTest(int projectId, int? artifactId, int userId,
                                     List<ArtifactVersion> input, List<Artifact> expected,
                                     List<ArtifactVersion> inputOrphans = null)
         {
@@ -832,6 +835,262 @@ namespace ArtifactStore.Repositories
                 HasDraft = hasDraft
             };
         }
+
+        #endregion
+
+        #region GetExpandedTreeToArtifactAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetExpandedTreeToArtifactAsync_InvalidProjectId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetExpandedTreeToArtifactAsync(0, 1, true, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetExpandedTreeToArtifactAsync_InvalidArtifactId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetExpandedTreeToArtifactAsync(1, 0, true, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetExpandedTreeToArtifactAsync_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetExpandedTreeToArtifactAsync(1, 2, true, 0);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetExpandedTreeToArtifactAsync_ArtifactIdIsEqualToProjectId_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetExpandedTreeToArtifactAsync(1, 1, true, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetExpandedTreeToArtifactAsync_ArtifactInProjectNotFound()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 2;
+            const int userId = 3;
+
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, new List<ArtifactVersion>());
+           
+            // Act
+            await repository.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetExpandedTreeToArtifactAsync_NoProjectPermissions_Forbidden()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 3;
+            const int userId = 99;
+            var ancestorsAnsSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 1 },
+                new ArtifactVersion { ItemId = 2 },
+                new ArtifactVersion { ItemId = 3 },
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) {CallBase = true};
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .Throws(new AuthorizationException());
+
+            // Act
+            await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetExpandedTreeToArtifactAsync_NoArtifactPermissions_Forbidden()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 3;
+            const int userId = 99;
+            var ancestorsAnsSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 1 },
+                new ArtifactVersion { ItemId = 2 },
+                new ArtifactVersion { ItemId = 3 },
+            };
+
+            var children1 = new List<Artifact>
+            {
+                new Artifact { Id = 2 }
+            };
+            var children2 = new List<Artifact>();
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .Returns(Task.FromResult(children1));
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+                .Returns(Task.FromResult(children2));
+
+            // Act
+            await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task GetExpandedTreeToArtifactAsync_SuccessWithoutChildren()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 3;
+            const int userId = 99;
+            var ancestorsAnsSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 1 },
+                new ArtifactVersion { ItemId = 2 },
+                new ArtifactVersion { ItemId = 3 },
+            };
+
+            var children1 = new List<Artifact>
+            {
+                new Artifact { Id = 2 },
+                new Artifact { Id = 22 }
+            };
+            var children2 = new List<Artifact>
+            {
+                new Artifact { Id = 3 },
+                new Artifact { Id = 33 }
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .Returns(Task.FromResult(children1));
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+                .Returns(Task.FromResult(children2));
+
+            // Act
+            var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, false, userId);
+
+            // Assert
+            Assert.AreEqual(children1.Count, result.Count);
+            Assert.AreEqual(children1[0].Id, result[0].Id);
+            Assert.AreEqual(children1[1].Id, result[1].Id);
+
+            Assert.AreEqual(children2.Count, result[0].Children.Count);
+            Assert.AreEqual(children2[0].Id, result[0].Children[0].Id);
+            Assert.AreEqual(children2[1].Id, result[0].Children[1].Id);
+
+            Assert.IsNull(result[0].Children[0].Children);
+        }
+
+        [TestMethod]
+        public async Task GetExpandedTreeToArtifactAsync_SuccessWithChildren()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 3;
+            const int userId = 99;
+            var ancestorsAnsSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 1 },
+                new ArtifactVersion { ItemId = 2 },
+                new ArtifactVersion { ItemId = 3 },
+            };
+
+            var children1 = new List<Artifact>
+            {
+                new Artifact { Id = 2 },
+                new Artifact { Id = 22 }
+            };
+            var children2 = new List<Artifact>
+            {
+                new Artifact { Id = 3 },
+                new Artifact { Id = 33 }
+            };
+            var children3 = new List<Artifact>
+            {
+                new Artifact { Id = 4 },
+                new Artifact { Id = 44 }
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .Returns(Task.FromResult(children1));
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+                .Returns(Task.FromResult(children2));
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[2].ItemId, userId))
+                .Returns(Task.FromResult(children3));
+
+            // Act
+            var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId);
+
+            // Assert
+            Assert.AreEqual(children1.Count, result.Count);
+            Assert.AreEqual(children1[0].Id, result[0].Id);
+            Assert.AreEqual(children1[1].Id, result[1].Id);
+
+            Assert.AreEqual(children2.Count, result[0].Children.Count);
+            Assert.AreEqual(children2[0].Id, result[0].Children[0].Id);
+            Assert.AreEqual(children2[1].Id, result[0].Children[1].Id);
+
+            Assert.AreEqual(children3.Count, result[0].Children[0].Children.Count);
+            Assert.AreEqual(children3[0].Id, result[0].Children[0].Children[0].Id);
+            Assert.AreEqual(children3[1].Id, result[0].Children[0].Children[1].Id);
+        }
+
+        #endregion
     }
 }
 

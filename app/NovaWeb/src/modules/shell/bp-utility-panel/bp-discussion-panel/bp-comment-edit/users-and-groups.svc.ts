@@ -1,4 +1,5 @@
-﻿export interface IHttpError {
+﻿import { IHttpInterceptorConfig } from "../../../error/http-error-interceptor";
+export interface IHttpError {
     message: string;
     statusCode: number; // client side only
     errorCode: number;
@@ -23,17 +24,26 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
+    private createRequestConfig(value: string, emailDiscussions: boolean = false): ng.IRequestConfig {
+        var config = <IHttpInterceptorConfig>{ };
+        config.params = { search: value, emailDiscussions: emailDiscussions };
+        config.dontRetry = true;
+        return config;
+    }
+
     public search(value: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
-
-        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", { params: { search: value, emailDiscussions: emailDiscussions } })
-            .success((result) => {
-                deferred.resolve(result);
-            }).error((data: IHttpError, status: number) => {
-                data.statusCode = status;
-                deferred.reject(data);
+        var sanitizedValue = encodeURI(value);
+        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", this.createRequestConfig(sanitizedValue, emailDiscussions))
+            .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
+                deferred.resolve(result.data);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+                const error = {
+                    statusCode: result.status,
+                    message: (result.data ? result.data.message : "")
+                };
+                deferred.reject(error);
             });
-
         return deferred.promise;
     }
 

@@ -219,6 +219,7 @@ export function formlyConfig(
                     break;
                 case PrimitiveType.User:
                     newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                    $scope.tooltip = newValue;
                     break;
                 default:
                     break;

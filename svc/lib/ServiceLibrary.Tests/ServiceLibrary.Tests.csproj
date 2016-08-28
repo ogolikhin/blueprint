@@ -85,8 +85,7 @@
     </Compile>
     <Compile Include="Attributes\BaseExceptionFilterAttributeTests.cs" />
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
-    <Compile Include="Attributes\SessionOptionalAttributeTests.cs" />
-    <Compile Include="Attributes\SessionRequiredAttributeTests.cs" />
+    <Compile Include="Attributes\SessionAttributeTests.cs" />
     <Compile Include="EventSources\EventSourcesTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />

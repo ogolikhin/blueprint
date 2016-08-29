@@ -172,6 +172,13 @@ export class ItemState {
         return true;
     }
 
+    public finishSave() {
+        if (!this._changedItem) {
+            this.originItem = angular.copy(this._changedItem);
+            this._changedItem = null;
+        }
+        this._changesets = [];
+    }
 
     public saveChange(item: Models.IItem, changeSet: IPropertyChangeSet): boolean {
         if (!item || !changeSet ) {

@@ -115,6 +115,8 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public doLock(state: ItemState): void { }
 
+    public doSave(state: ItemState): void { }
+
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         //here we need to update original model
         let context = $field.data as PropertyContext;

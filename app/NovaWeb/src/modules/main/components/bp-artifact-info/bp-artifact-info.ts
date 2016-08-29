@@ -4,6 +4,8 @@ import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../..
 import { ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
+//import { BpArtifactEditor } from "../../../editors/bp-artifact/bp-artifact-editor";
+import { IArtifactService } from "../../services";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -14,7 +16,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager", "artifactService"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -26,7 +28,7 @@ export class BpArtifactInfoController {
     public artifactType: string;
     public artifactClass: string;
     public artifactTypeDescription: string;
-
+    private _artifactId: number;
 
     constructor(
         private projectManager: IProjectManager,
@@ -34,7 +36,8 @@ export class BpArtifactInfoController {
         private localization: ILocalizationService,
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowManager: IWindowManager
+        private windowManager: IWindowManager,
+        private artifactService: IArtifactService
     ) {
         this.initProperties();
     }
@@ -62,6 +65,7 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this._artifactId = null;
     }
 
     private onStateChange(state: ItemState) {
@@ -72,6 +76,7 @@ export class BpArtifactInfoController {
         let artifact = state.getArtifact(); 
 
         this.artifactName = artifact.name || "";
+        this._artifactId = artifact.id;
 
         if (state.itemType) {
             this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
@@ -164,6 +169,12 @@ export class BpArtifactInfoController {
         }
     }
 
+    public saveChanges() {
+        //this.bpArtifactEditor.doSave(this.stateManager.getState(this._artifactId));
+        let state: ItemState = this.stateManager.getState(this._artifactId);
+        this.artifactService.updateArtifact(state.getArtifact())
+            .then(() => { state.finishSave()});
+    }
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{

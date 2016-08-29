@@ -200,8 +200,6 @@ export class ItemState {
             
         }
 
-        let propertyTypeId: number;
-        let propertyValue: Models.IPropertyValue;
 
         if (!updateItem || !changeSet) {
             return false;
@@ -233,7 +231,7 @@ export class ItemState {
 
     public revertChanges(id?: number) {
         this._changesets = this.changeSets.filter((it: IPropertyChangeSet) => {
-            return id && it.itemId != id;
+            return id && it.itemId !== id;
         });
 
         if (!this.changeSets.length) {
@@ -319,7 +317,7 @@ export class StateManager implements IStateManager {
                     state.originItem = artifact;
                     state.revertChanges();
                     changed = true;
-                } else if (state.originItem != artifact) {
+                } else if (state.originItem !== artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }
@@ -336,7 +334,7 @@ export class StateManager implements IStateManager {
                         _subartifact = subartifact;
                         state.revertChanges(subartifact.id);
                         changed = true;
-                    } else if (_subartifact != subartifact) {
+                    } else if (_subartifact !== subartifact) {
                         _subartifact = subartifact;
                         changed = true;
                     }

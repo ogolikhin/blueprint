@@ -289,7 +289,7 @@ describe("AuthSvc", () => {
             $httpBackend.flush();
 
             // Assert
-            expect(error.message).toBe("saml login error");
+            expect(error.message).toBe("Login_Auth_LoginFailed");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

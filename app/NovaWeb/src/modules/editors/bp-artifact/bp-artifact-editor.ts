@@ -36,7 +36,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
         this._subscribers.push(
             this.stateManager.stateChange.filter(it => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
-        )
+        );
     }
 
 

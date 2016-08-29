@@ -100,7 +100,7 @@ export class BPArtifactDiscussionItemController {
                 this.discussionEdited();
                 return discussion;
             }).catch((error: any) => {
-                if (error.statusCode && error.statusCode !== 1401) {
+                if (error) {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;

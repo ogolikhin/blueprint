@@ -20,7 +20,7 @@
                 </div>
                 <div class="nova-form-group nova-form-buttons">
                     <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreenBecauseExpired()" ng-if="ctrl.isChangePasswordScreenEnabled">{{::$root.config.labels["Login_UpdatePasswordButton"]}}</button>
-                    <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-refresh spin" ng-if="ctrl.isLoginInProgress"></span>{{::$root.config.labels["Login_LoginButton"]}}</button>
+                    <button class="btn btn-primary" type="submit" ng-disabled="ctrl.isLoginInProgress"><span class="glyphicon glyphicon-refresh spin" ng-if="ctrl.isLoginInProgress" ></span>{{::$root.config.labels["Login_LoginButton"]}}</button>
                     <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</a></div>
                 </div>
             </form>

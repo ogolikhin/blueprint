@@ -48,9 +48,15 @@ export class ProcessService implements IProcessService {
                 deferred.resolve(result.data);
             
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-
-                result.data.statusCode = result.status;
-                deferred.reject(result.data);
+                if (!result) {
+                    deferred.reject();
+                    return;
+                }
+                const error = {
+                    statusCode: result.status,
+                    message: result.data ? result.data.message : ""
+                };
+                deferred.reject(error);
             }
         );
         return deferred.promise;

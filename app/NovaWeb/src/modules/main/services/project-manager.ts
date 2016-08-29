@@ -162,7 +162,9 @@ export class ProjectManager implements IProjectManager {
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
-                    if (error.statusCode === 1401) {
+                    if (error) {
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    } else {
                         angular.extend(artifact, {
                             artifacts: null,
                             hasChildren: true,
@@ -170,8 +172,6 @@ export class ProjectManager implements IProjectManager {
                             open: false
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
-                    } else {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 

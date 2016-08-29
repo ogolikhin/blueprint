@@ -211,6 +211,11 @@ Property_Suffix_Or_Greater," or greater."
 Property_Suffix_Or_Less," or less."
 
 #Messages
+HttpError_ServiceUnavailable, "Service is unavailable"
+HttpError_Forbidden, "Forbidden. The user does not have permissions for the artifact"
+HttpError_NotFound, "Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted"
+HttpError_InternalServer,"Internal Server Error. An error occurred"
+
 Project_NoProjectsAvailable,"Either no projects are available or you do not have the required permissions to access them."
 Error_Page_Message1,"An error ocurred while loading the page."
 Error_Page_Message2,"Please try again."

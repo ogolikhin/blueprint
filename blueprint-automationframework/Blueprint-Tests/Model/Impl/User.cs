@@ -5,6 +5,7 @@ using System.Linq;
 using Common;
 using Model.Factories;
 using Utilities;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -29,16 +30,12 @@ namespace Model.Impl
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
-
         public string Department { get; set; }
-        public string DisplayName { get; set; }
         public string Email { get; set; }
         public bool Enabled { get; set; }
         public string FirstName { get; set; }
         public List<IGroup> GroupMembership { get { return _GroupMembership; } }
-
         public InstanceAdminRole? InstanceAdminRole { get; set; }
-
         public string LastName { get; set; }
         public LicenseType License { get; set; }
         public string Password { get; set; }
@@ -46,7 +43,6 @@ namespace Model.Impl
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
-        public int Id { get; set; }
         public string Username { get; set; }
 
         // These are fields not included by IUser:
@@ -65,6 +61,12 @@ namespace Model.Impl
 
         #endregion Properties
 
+        #region Serialized JSON Properties
+
+        public string DisplayName { get; set; }
+        public int Id { get; set; }
+
+        #endregion Serialized JSON Properties
 
         #region Methods
 

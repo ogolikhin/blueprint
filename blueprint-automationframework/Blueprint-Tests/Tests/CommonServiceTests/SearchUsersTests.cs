@@ -59,7 +59,7 @@ namespace CommonServiceTests
         public void FindUserOrGroup_Create6Users_DefaultLimitOf5UsersIsReturned()
         {
             // Setup:
-            var users = CreateUsers(numberOfUsers: 6);
+            var users = CreateUsersWithRandomEmailAddresses(numberOfUsers: 6);
             _users.AddRange(users);
             List<UserOrGroupInfo> userOrGroupInfo = null;
 
@@ -82,10 +82,9 @@ namespace CommonServiceTests
         {
             // Setup:
             string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
-            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
 
             // Create 2 users with and 3 without E-mail addresses.
-            var users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 2);
+            var users = CreateUsersWithRandomEmailAddresses(displayNamePrefix, numberOfUsers: 2);
             _users.AddRange(users);
             users = CreateUsers(displayNamePrefix, numberOfUsers: 3);
             _users.AddRange(users);
@@ -124,12 +123,11 @@ namespace CommonServiceTests
         {
             // Setup:
             string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
-            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
 
             // Create 2 users and 3 guest users.
-            var users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 2);
+            var users = CreateUsersWithRandomEmailAddresses(displayNamePrefix, numberOfUsers: 2);
             _users.AddRange(users);
-            users = CreateUsers(displayNamePrefix, emailUserPrefix, numberOfUsers: 3, isGuest: true);
+            users = CreateUsersWithRandomEmailAddresses(displayNamePrefix, numberOfUsers: 3, isGuest: true);
             _users.AddRange(users);
 
             List<UserOrGroupInfo> userOrGroupInfo = null;
@@ -169,7 +167,7 @@ namespace CommonServiceTests
             string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
 
             // Create 2 more users than the limit we're testing with.
-            var users = CreateUsers(displayNamePrefix, emailUserPrefix: displayNamePrefix, numberOfUsers: limit + 2);
+            var users = CreateUsersWithRandomEmailAddresses(displayNamePrefix, numberOfUsers: limit + 2);
             _users.AddRange(users);
 
             List<UserOrGroupInfo> userOrGroupInfo = null;
@@ -204,7 +202,175 @@ namespace CommonServiceTests
                 limit, expectedMessage);
         }
 
+        [TestCase]
+        [TestRail(157124)]
+        [Description("Create 6 users (3 with the same E-mail prefix).  FindUserOrGroup with DisplayNameOrEmail equal to the E-mail prefix.  Verify it finds all users with that E-mail prefix.")]
+        public void FindUserOrGroupWithDisplayNameOrEmail_SearchForEmailPrefix_ReturnsUsersWithSpecifiedEmailPrefix()
+        {
+            // Setup:
+            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            var users = CreateUsersWithRandomEmailAddresses(numberOfUsers: 3);
+            _users.AddRange(users);
+            users = CreateUsers(emailUserPrefix: emailUserPrefix, numberOfUsers: 3);
+            _users.AddRange(users);
+
+            List<UserOrGroupInfo> userOrGroupInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => userOrGroupInfo = Helper.SvcShared.FindUserOrGroup(_user, emailUserPrefix),
+                "'GET {0}' should return 200 OK for valid parameters!", REST_PATH);
+
+            // Verify:
+            const int expectedUserCount = 3;
+            Assert.AreEqual(expectedUserCount, userOrGroupInfo.Count,
+                "If DisplayNameOrEmail is set to the Email prefix of the users we created, we should find {0} users!", expectedUserCount);
+        }
+
+        [TestCase]
+        [TestRail(157125)]
+        [Description("Create 6 users (3 with the same strings in the middle of their E-mail addresses).  FindUserOrGroup with DisplayNameOrEmail equal to the string in their E-mail addresses." +
+            "  Verify it finds all users with that string in their E-mail address.")]
+        public void FindUserOrGroupWithDisplayNameOrEmail_SearchForStringInMiddleOfEmail_ReturnsUsersWithSpecifiedStringInEmail()
+        {
+            // Setup:
+            string emailCommonString = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            var users = CreateUsersWithRandomEmailAddresses(numberOfUsers: 3);
+            _users.AddRange(users);
+
+            for (int i = 0; i < 3; ++i)
+            {
+                string emailUserPrefix = I18NHelper.FormatInvariant("{0}{1}{0}", RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8), emailCommonString);
+                users = CreateUsers(emailUserPrefix: emailUserPrefix);
+                _users.AddRange(users);
+            }
+
+            List<UserOrGroupInfo> userOrGroupInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => userOrGroupInfo = Helper.SvcShared.FindUserOrGroup(_user, emailCommonString),
+                "'GET {0}' should return 200 OK for valid parameters!", REST_PATH);
+
+            // Verify:
+            const int expectedUserCount = 3;
+            Assert.AreEqual(expectedUserCount, userOrGroupInfo.Count,
+                "If DisplayNameOrEmail is set to the Email sub-string of the users we created, we should find {0} users!", expectedUserCount);
+        }
+
+        [TestCase]
+        [TestRail(157126)]
+        [Description("Create 6 users (3 with the same strings in the middle of their Display Names).  FindUserOrGroup with DisplayNameOrEmail equal to the string in their Display Names." +
+            "  Verify it finds all users with that string in their Display Names.")]
+        public void FindUserOrGroupWithDisplayNameOrEmail_SearchForStringInMiddleOfDisplayName_ReturnsUsersWithSpecifiedStringInDisplayName()
+        {
+            // Setup:
+            string displayNameCommonString = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            var users = CreateUsersWithRandomEmailAddresses(numberOfUsers: 3);
+            _users.AddRange(users);
+
+            for (int i = 0; i < 3; ++i)
+            {
+                string displayNamePrefix = I18NHelper.FormatInvariant("{0}{1}{0}", RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8), displayNameCommonString);
+                users = CreateUsersWithRandomEmailAddresses(displayNamePrefix);
+                _users.AddRange(users);
+            }
+
+            List<UserOrGroupInfo> userOrGroupInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => userOrGroupInfo = Helper.SvcShared.FindUserOrGroup(_user, displayNameCommonString),
+                "'GET {0}' should return 200 OK for valid parameters!", REST_PATH);
+
+            // Verify:
+            const int expectedUserCount = 3;
+            Assert.AreEqual(expectedUserCount, userOrGroupInfo.Count,
+                "If DisplayNameOrEmail is set to the Display Name sub-string of the users we created, we should find {0} users!", expectedUserCount);
+        }
+
+        [TestCase]
+        [TestRail(157127)]
+        [Description("Create 6 users (3 with the same strings in the domain of their E-mail addresses).  FindUserOrGroup with DisplayNameOrEmail equal to the string in their E-mail addresses." +
+            "  Verify it finds all users with that string in their E-mail address.")]
+        public void FindUserOrGroupWithDisplayNameOrEmail_SearchForStringInDomainOfEmail_ReturnsUsersWithSpecifiedStringInEmail()
+        {
+            // Setup:
+            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+            string emailDomain = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            var users = CreateUsersWithRandomEmailAddresses(numberOfUsers: 3);
+            _users.AddRange(users);
+            users = CreateUsers(emailUserPrefix: emailUserPrefix, emailDomain: emailDomain, numberOfUsers: 3);
+            _users.AddRange(users);
+
+            List<UserOrGroupInfo> userOrGroupInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => userOrGroupInfo = Helper.SvcShared.FindUserOrGroup(_user, emailDomain),
+                "'GET {0}' should return 200 OK for valid parameters!", REST_PATH);
+
+            // Verify:
+            const int expectedUserCount = 3;
+            Assert.AreEqual(expectedUserCount, userOrGroupInfo.Count,
+                "If DisplayNameOrEmail is set to the Email domain of the users we created, we should find {0} users!", expectedUserCount);
+        }
+
+        [TestCase]
+        [TestRail(157128)]
+        [Description("Create 5 guest users whose Display Names all begin with the same string.  FindUserOrGroup without the guest parameter." +
+            "  Verify it finds the 5 the guest users we created.")]
+        public void FindUserOrGroup_GuestUsers_ReturnsGuestUsers()
+        {
+            // Setup:
+            string displayNamePrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            // Create 5 guest users.
+            var users = CreateUsersWithRandomEmailAddresses(displayNamePrefix, numberOfUsers: 5, isGuest: true);
+            _users.AddRange(users);
+
+            List<UserOrGroupInfo> userOrGroupInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => userOrGroupInfo = Helper.SvcShared.FindUserOrGroup(_user, displayNameOrEmail: displayNamePrefix),
+                "'GET {0}' should return 200 OK for valid parameters!", REST_PATH);
+
+            // Verify:
+            int expectedUserCount = 5;
+
+            Assert.AreEqual(expectedUserCount, userOrGroupInfo.Count,
+                "By default includeGuests should be true, so we should find {0} users, but {1} were found!",
+                expectedUserCount, userOrGroupInfo.Count);
+
+            var guestUsers = userOrGroupInfo.FindAll(u => u.Guest);
+
+            Assert.AreEqual(expectedUserCount, guestUsers.Count,
+                "All the users we found should be guests, but {0} guests were returned!", guestUsers.Count);
+        }
+
+        // TODO: Verify that Users have 'HasImage' property.
+        // TODO: Verify groups can be found.
+        // TODO: Verify results are in alphabetical order.
+        // TODO: Verify 401 error cases.
+
         #region Private functions
+
+        /// <summary>
+        /// Creates a specified number of users that have DisplayNames that start with a specified prefix and have random E-mail addresses.
+        /// </summary>
+        /// <param name="displayNamePrefix">(optional) The Display Name prefix.  By default a random Display Name is created.</param>
+        /// <param name="isGuest">(optional) Pass true to make this a guest user.</param>
+        /// <param name="numberOfUsers">The number of users to create.</param>
+        /// <returns>The list of users created.</returns>
+        private static List<IUser> CreateUsersWithRandomEmailAddresses(string displayNamePrefix = null,
+            bool isGuest = false,
+            int numberOfUsers = 1)
+        {
+            string emailUserPrefix = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+            string emailDomain = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8);
+
+            return CreateUsers(displayNamePrefix, emailUserPrefix, emailDomain, isGuest, numberOfUsers);
+        }
 
         /// <summary>
         /// Creates a specified number of users that have DisplayNames and Email addresses that start with a specified prefix.
@@ -216,7 +382,11 @@ namespace CommonServiceTests
         /// <param name="isGuest">(optional) Pass true to make this a guest user.</param>
         /// <param name="numberOfUsers">The number of users to create.</param>
         /// <returns>The list of users created.</returns>
-        private static List<IUser> CreateUsers(string displayNamePrefix = null, string emailUserPrefix = null, string emailDomain = null, bool isGuest = false, int numberOfUsers = 1)
+        private static List<IUser> CreateUsers(string displayNamePrefix = null,
+            string emailUserPrefix = null,
+            string emailDomain = null,
+            bool isGuest = false,
+            int numberOfUsers = 1)
         {
             List<IUser> users = new List<IUser>();
 

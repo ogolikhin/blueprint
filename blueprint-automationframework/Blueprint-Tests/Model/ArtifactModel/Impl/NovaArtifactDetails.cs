@@ -15,9 +15,8 @@ namespace Model.ArtifactModel.Impl
         public IUser CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         // TODO I will replace PropertyForUpdate with correct implementation if there is change or mismatch of returned JSON structure
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<PropertyForUpdate>>))]
-        public List<PropertyForUpdate> CustomPropertyValues { get; set; } = new List<PropertyForUpdate>();
+        public List<PropertyForUpdate> CustomPropertyValues { get; } = new List<PropertyForUpdate>();
         public string Description { get; set; }
         public int Id { get; set; }
         public int ItemTypeId { get; set; }
@@ -32,9 +31,8 @@ namespace Model.ArtifactModel.Impl
         public int Permissions { get; set; }
         public int ProjectId { get; set; }
         // TODO I will replace PropertyForUpdate with correct implementation if there is change or mismatch of returned JSON structure
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<PropertyForUpdate>>))]
-        public List<PropertyForUpdate> SpecificPropertyValues { get; set; } = new List<PropertyForUpdate>();
+        public List<PropertyForUpdate> SpecificPropertyValues { get; } = new List<PropertyForUpdate>();
         public int Version { get; set; }
 
         #endregion Serialized JSON Properties

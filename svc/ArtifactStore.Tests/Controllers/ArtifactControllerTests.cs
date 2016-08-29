@@ -74,7 +74,7 @@ namespace ArtifactStore.Controllers
             const int artifactId = 20;
             var rootChildren = new List<Artifact>();
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
-            mockArtifactRepository.Setup(r => r.GetExpandedTreeToArtifactAsync(projectId, artifactId, userId)).ReturnsAsync(rootChildren);
+            mockArtifactRepository.Setup(r => r.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId)).ReturnsAsync(rootChildren);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
             {
@@ -83,7 +83,7 @@ namespace ArtifactStore.Controllers
             artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var result = await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId);
+            var result = await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId, true);
 
             //Assert
             Assert.AreSame(rootChildren, result);

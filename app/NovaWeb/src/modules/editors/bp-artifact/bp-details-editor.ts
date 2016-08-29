@@ -7,9 +7,7 @@
     IStateManager,
     IWindowManager,
     Models,
-    Enums,
-    Message,
-    ItemState
+    Enums
 } from "./bp-artifact-editor";
 import { IArtifactService } from "../../main/services";
 
@@ -78,7 +76,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             this.onUpdate(context);
         }).catch((error: any) => {
             //ignore authentication errors here
-            if (error.statusCode !== 1401) {
+            if (error) {
                 this.messageService.addError(error["message"] || "Artifact_NotFound");
             }
         }).finally(() => {

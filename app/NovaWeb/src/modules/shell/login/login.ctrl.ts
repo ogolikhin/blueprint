@@ -252,7 +252,12 @@ export class LoginCtrl {
     }
 
     private handleLoginErrors(error) {
-        if (error.statusCode === 401) {
+        if (error.statusCode === -1) {
+            this.errorMessage = this.localization.get("HttpError_ServiceUnavailable");
+            this.isLabelErrorStyleShowing = true;
+            this.isTextFieldErrorStyleShowing = false;
+
+        } else if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 if (this.currentFormState === LoginState.SamlLoginForm) {
                     this.errorMessage = this.localization.get("Login_Session_ADUserNotInDB");

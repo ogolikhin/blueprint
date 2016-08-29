@@ -49,7 +49,6 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
     static $inject: [string] = [
         "$q",
         "$http",
-        "$log",
         "localization"];
 
     public artifactDiscussions: ng.IPromise<IDiscussion[]>;
@@ -57,7 +56,6 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private $log: ng.ILogService,
         private localization: ILocalizationService) {
     }
 
@@ -257,7 +255,6 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                     statusCode: errResult.status,
                     message: msg
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;
@@ -287,7 +284,6 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                     statusCode: errResult.status,
                     message: msg
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;

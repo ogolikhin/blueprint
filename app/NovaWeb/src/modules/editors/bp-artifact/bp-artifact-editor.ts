@@ -68,8 +68,8 @@ export class BpArtifactEditor extends BpBaseEditor {
          this.onUpdate(context);
     }
 
-    public clearFields() {
-        this.fields = [];
+    public clearFields() { 
+        this.fields = []; 
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {

@@ -1,7 +1,7 @@
 ﻿import { Models, Enums } from "../../models";
 
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { ILocalizationService, IStateManager, ItemState } from "../../../core";
+import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 
@@ -14,12 +14,12 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager"];
+    static $inject: [string] = ["localization", "stateManager", "messageService",  "dialogService",  "$element",  "windowManager"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
-    public lockTooltip: string;
+    public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
     public artifactName: string;
@@ -29,11 +29,11 @@ export class BpArtifactInfoController {
 
 
     constructor(
-        private projectManager: IProjectManager,
-        private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
+        private messageService: IMessageService,
+        private dialogService: IDialogService,
+        private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager
     ) {
         this.initProperties();
@@ -62,6 +62,10 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        if (this.lockMessage) {
+            this.messageService.deleteMessageById(this.lockMessage.id)
+            this.lockMessage = null;
+        }
     }
 
     private onStateChange(state: ItemState) {
@@ -96,16 +100,18 @@ export class BpArtifactInfoController {
         this.isChanged = state.isChanged;
         switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
-                this.isLocked = true;
+//                this.isLocked = true;
                 this.selfLocked = true;
-                this.lockTooltip = "Locked";
+//                this.lockTooltip = "Locked";
                 break;
             case Enums.LockedByEnum.OtherUser:
-                this.isLocked = true;
+//                this.isLocked = true;
                 let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+                let msg = "Locked by " + state.originItem.lockedByUser.displayName; 
                 if (date) {
-                    this.lockTooltip = `Locked by user ${state.originItem.lockedByUser.displayName} on ${this.localization.current.formatDate(date)}`;
+                    msg += " on " + this.localization.current.formatShortDateTime(date);
                 }
+                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:
                 break;

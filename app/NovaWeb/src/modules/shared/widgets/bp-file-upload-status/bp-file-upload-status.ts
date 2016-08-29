@@ -128,10 +128,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 return result;
             },
             (error: any) => {
-                if (error.statusCode === -1) {
-                    error.message = error.message || "Cancelled upload";
-                }
-                f.errorMessage = error.message || "Upload error";
+                f.errorMessage = error && error.message || "Upload error";
                 f.isFailed = true;
                 f.isComplete = false;
             }

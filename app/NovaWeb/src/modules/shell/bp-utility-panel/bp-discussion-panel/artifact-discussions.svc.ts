@@ -240,17 +240,21 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             method: "DELETE"
         };
         this.$http(requestObj)
-            .success(() => {
+            .then((result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.resolve(true);
-            }).error((err: any, statusCode: number) => {
+            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 let msg: string;
-                if (statusCode === 404) {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                if (errResult.status === 404) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
-                    msg = (err ? err.message : "");
+                    msg = (errResult.data ? errResult.data.message : "");
                 }
                 const error = {
-                    statusCode: statusCode,
+                    statusCode: errResult.status,
                     message: msg
                 };
                 this.$log.error(error);
@@ -266,17 +270,21 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             method: "DELETE"
         };
         this.$http(requestObj)
-            .success(() => {
+            .then((result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.resolve(true);
-            }).error((err: any, statusCode: number) => {
+            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 let msg: string;
-                if (statusCode === 404) {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                if (errResult.status === 404) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
-                    msg = (err ? err.message : "");
+                    msg = (errResult.data ? errResult.data.message : "");
                 }
                 const error = {
-                    statusCode: statusCode,
+                    statusCode: errResult.status,
                     message: msg
                 };
                 this.$log.error(error);

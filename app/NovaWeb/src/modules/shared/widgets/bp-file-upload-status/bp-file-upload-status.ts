@@ -129,6 +129,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
             },
             (error: any) => {
                 f.errorMessage = error && error.message || "Upload error";
+                f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;
             }

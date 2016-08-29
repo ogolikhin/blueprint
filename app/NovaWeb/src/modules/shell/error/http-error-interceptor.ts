@@ -2,13 +2,7 @@
 import { ISession } from "../login/session.svc";
 import { SessionTokenHelper } from "../login/session.token.helper";
 import { IMessageService,} from "../../core";
-import { } from "../../shared";
 
-export class HttpHandledErrorStatusCodes {
-    public static get handledUnauthorizedStatus() {
-        return 1401;
-    }
-}
 
 export enum HttpErrorStatusCodes {
     Unavailable = -1,
@@ -31,10 +25,6 @@ export class HttpErrorInterceptor {
     constructor(private $injector: ng.auto.IInjectorService) {
     }
 
-    //private $q: ng.IQService;
-    //private session: ISession;
-    //private messageService: IMessageService;
-    //private $log: ng.ILogService;
     public responseError = (response: ng.IHttpPromiseCallbackArg<any>) => {
         let $q = this.$injector.get("$q") as ng.IQService;
         let $session = this.$injector.get("session") as ISession;

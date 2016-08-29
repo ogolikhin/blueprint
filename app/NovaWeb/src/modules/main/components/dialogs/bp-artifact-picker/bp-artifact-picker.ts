@@ -4,7 +4,7 @@ import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
 import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
-import { HttpHandledErrorStatusCodes } from "../../../../shell/error/http-error-interceptor";
+
 
 export interface IArtifactPickerController {
     propertyMap: any;  

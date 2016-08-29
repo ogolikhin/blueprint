@@ -28,7 +28,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         private projectManager: IProjectManager
     ) {
         super(messageService, stateManager, windowManager);
-        this.editor = new PropertyEditor(this.localization.current);
+        this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {

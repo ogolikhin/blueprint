@@ -57,7 +57,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, selectionManager, stateManager, bpAccordionPanel);
-        this.editor = new PropertyEditor(this.localization.current);
+        this.editor = new PropertyEditor(this.localization);
     }    
 
     public $onDestroy() {

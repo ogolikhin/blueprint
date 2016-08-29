@@ -99,7 +99,7 @@ export class ItemState {
     public get lock(): Models.ILockResult {
         return this._lock;
     }
-
+ 
     public set lock(value: Models.ILockResult)  {
         this._lock = value;
         if (!value) {
@@ -115,7 +115,7 @@ export class ItemState {
                     displayName: value.info.lockOwnerLogin
                 };
             }
-            this.revertChanges();
+            this.discardChanges();
             this._readonly = true;
         }
         this.manager.changeState(this);
@@ -200,8 +200,6 @@ export class ItemState {
             
         }
 
-        let propertyTypeId: number;
-        let propertyValue: Models.IPropertyValue;
 
         if (!updateItem || !changeSet) {
             return false;
@@ -231,9 +229,9 @@ export class ItemState {
         })[0];
     }
 
-    public revertChanges(id?: number) {
+    public discardChanges(id?: number) {
         this._changesets = this.changeSets.filter((it: IPropertyChangeSet) => {
-            return id && it.itemId != id;
+            return id && it.itemId !== id;
         });
 
         if (!this.changeSets.length) {
@@ -317,9 +315,9 @@ export class StateManager implements IStateManager {
             if (artifact) {
                 if (state.originItem.version < artifact.version) {
                     state.originItem = artifact;
-                    state.revertChanges();
+                    state.discardChanges();
                     changed = true;
-                } else if (state.originItem != artifact) {
+                } else if (state.originItem !== artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }
@@ -334,9 +332,9 @@ export class StateManager implements IStateManager {
                 if (_subartifact) {
                     if (_subartifact.version < subartifact.version) {
                         _subartifact = subartifact;
-                        state.revertChanges(subartifact.id);
+                        state.discardChanges(subartifact.id);
                         changed = true;
-                    } else if (_subartifact != subartifact) {
+                    } else if (_subartifact !== subartifact) {
                         _subartifact = subartifact;
                         changed = true;
                     }

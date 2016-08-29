@@ -71,7 +71,7 @@ export class BPDiscussionReplyItemController {
                 this.replyInfo.comment = comment;
                 return reply;
             }).catch((error: any) => {
-                if (error.statusCode && error.statusCode !== 1401) {
+                if (error) {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 }
                 return null;

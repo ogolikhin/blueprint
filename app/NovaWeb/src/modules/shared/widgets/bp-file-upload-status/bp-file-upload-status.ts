@@ -119,6 +119,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
             f.progress = Math.floor((event.loaded / event.total) * 100);
         }, f.timeout.promise).then(
             (result: IFileResult) => {
+                f.progress = 100;
                 f.guid = result.guid;
                 f.filepath = result.uriToFile;
                 f.isComplete = true;
@@ -127,10 +128,8 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 return result;
             },
             (error: any) => {
-                if (error.statusCode === -1) {
-                    error.message = error.message || "Cancelled upload";
-                }
-                f.errorMessage = error.message || "Upload error";
+                f.errorMessage = error && error.message || "Upload error";
+                f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;
             }

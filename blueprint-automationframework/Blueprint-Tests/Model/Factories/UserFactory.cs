@@ -192,7 +192,7 @@ namespace Model.Factories
                         //user.Picture = ??
                         user.Picture = null;
                         user.Title = GetValueOrDefault<string>(reader, "Title");
-                        user.UserId = GetValueOrDefault<int>(reader, "UserId");
+                        user.Id = GetValueOrDefault<int>(reader, "UserId");
                         user.Username = GetValueOrDefault<string>(reader, "Login");
 
                         // These are properties not in IUser:

@@ -18,4 +18,24 @@
 
         public string DisplayName { get; set; }
     }
+
+    /// <summary>
+    /// Contains User or Group info.  Taken from:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Models/Metadata/UserOrGroupInfo.cs
+    /// </summary>
+    public class UserOrGroupInfo
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string Email { get; set; }
+
+        public bool IsGroup { get; set; }
+
+        public bool Guest { get; set; }
+
+        public bool IsBlocked { get; set; }
+
+        public bool HasImage { get; set; }
+    }
 }

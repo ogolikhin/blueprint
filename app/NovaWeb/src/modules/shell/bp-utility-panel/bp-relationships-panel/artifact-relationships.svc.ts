@@ -41,13 +41,15 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<IArtifactRelationshipsResultSet>) => {               
                     defer.resolve(result.data);               
-            },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 const error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
             
@@ -65,13 +67,15 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Relationships.IRelationshipExtendedInfo>) => {                
                     defer.resolve(result.data);               
-            },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 const error = {
                     statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "") || this.localization.get("Artifact_NotFound", "Error")
+                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
 

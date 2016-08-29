@@ -132,7 +132,9 @@ export class BPUtilityPanelController {
     private toggleFilesPanel(selection: ISelection) {
         const artifact = selection.artifact;
 
-        if (artifact && artifact.predefinedType === ItemTypePredefined.Document) {
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.Project)) {
             this.hidePanel(PanelType.Files);
         } else {
             this.showPanel(PanelType.Files);

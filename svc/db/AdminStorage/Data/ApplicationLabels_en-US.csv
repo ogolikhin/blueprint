@@ -107,6 +107,8 @@ App_UP_Relationships_Selected,"Selected: "
 App_Properties_Loading_Indicator_Label,"Loading..."
 App_Properties_System_Properties_Label,"System Properties"
 App_Properties_Additional_Properties_Label,"Additional Properties"
+App_Properties_Actor_StepOf_Actor,"Actor (Input)"
+App_Properties_Actor_StepOf_System,"System (Expected Outcome)"
 
 # glossary artifact
 Artifact_Glossary_Term,"Term"

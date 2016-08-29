@@ -499,7 +499,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sourceArtifact">The ArtifactDetails to copy properties from.</param>
         /// <param name="project">The project where the artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
-        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(ArtifactDetails sourceArtifact, IProject project, IUser user)
+        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(NovaArtifactDetails sourceArtifact, IProject project, IUser user)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
 

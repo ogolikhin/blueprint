@@ -43,7 +43,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
@@ -91,7 +91,7 @@ namespace ArtifactStoreTests
                 openApiArtifacts.Add(retrievedArtifactVersion);
             }
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
@@ -141,7 +141,7 @@ namespace ArtifactStoreTests
             Artifact.SaveArtifact(retrievedArtifactVersion2, _user);
             retrievedArtifactVersion2.Publish();
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {

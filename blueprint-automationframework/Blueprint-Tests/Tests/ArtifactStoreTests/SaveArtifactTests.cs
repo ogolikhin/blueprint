@@ -383,7 +383,7 @@ namespace ArtifactStoreTests
         private void UpdateArtifact_CanGetArtifact(IArtifact artifact, BaseArtifactType artifactType)
         {
             // Setup:
-            ArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Update the Id of the artifact with the value after the save.
             artifact.Id = artifactDetails.Id;
@@ -391,7 +391,7 @@ namespace ArtifactStoreTests
             // Change the Description so it can be updated.
             artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
 
-            ArtifactDetails updateResult = null;
+            NovaArtifactDetails updateResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),

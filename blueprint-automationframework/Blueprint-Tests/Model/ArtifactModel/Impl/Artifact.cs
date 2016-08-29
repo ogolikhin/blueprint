@@ -444,9 +444,9 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>
-        public static ArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
+        public static NovaArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
-            ArtifactDetails artifactChanges = null,
+            NovaArtifactDetails artifactChanges = null,
             string address = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -458,7 +458,7 @@ namespace Model.ArtifactModel.Impl
 
             if (artifactChanges == null)
             {
-                artifactChanges = new ArtifactDetails
+                artifactChanges = new NovaArtifactDetails
                 {
                     Id = artifactToUpdate.Id,
                     ProjectId = artifactToUpdate.ProjectId,
@@ -473,7 +473,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            restApi.SendRequestAndGetResponse<ArtifactDetails>(
+            restApi.SendRequestAndGetResponse<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
                 bodyObject: artifactChanges,

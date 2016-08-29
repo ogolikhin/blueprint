@@ -86,7 +86,7 @@ describe("File Upload Status", () => {
         };
         controller = createController(dialogData);
 
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
@@ -108,7 +108,7 @@ describe("File Upload Status", () => {
         };
         controller = createController(dialogData);
 
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
@@ -129,7 +129,7 @@ describe("File Upload Status", () => {
         };
         controller = createController(dialogData);
 
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
@@ -150,11 +150,11 @@ describe("File Upload Status", () => {
         };
         controller = createController(dialogData);
 
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName1?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName2?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName3?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
 
         $scope.$digest();
@@ -180,11 +180,11 @@ describe("File Upload Status", () => {
         };
         controller = createController(dialogData);
 
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName1?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName2?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
-        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files\/testName3?.*/g)
+        $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
             .respond(200, {guid: "test", uriToFile: "test"});
 
         $scope.$digest();

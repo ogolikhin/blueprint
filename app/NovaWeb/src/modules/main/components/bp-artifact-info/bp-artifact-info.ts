@@ -1,11 +1,9 @@
 ﻿import { Models, Enums } from "../../models";
-import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
-//import { BpArtifactEditor } from "../../../editors/bp-artifact/bp-artifact-editor";
 import { IArtifactService } from "../../services";
-import { Message, MessageType} from "../../../core/messages";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -16,7 +14,8 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["localization", "stateManager", "messageService",  "dialogService",  "$element",  "windowManager", "artifactService"];
+    static $inject: [string] = ["projectManager", "localization", "stateManager", "messageService",
+        "dialogService", "$element", "windowManager", "artifactService"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -31,14 +30,14 @@ export class BpArtifactInfoController {
     private _artifactId: number;
 
     constructor(
+        private projectManager: IProjectManager,
         private localization: ILocalizationService,
         private stateManager: IStateManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService,
-        private messageService: IMessageService
+        private artifactService: IArtifactService
     ) {
         this.initProperties();
     }
@@ -177,19 +176,27 @@ export class BpArtifactInfoController {
     }
 
     public saveChanges() {
-        //this.bpArtifactEditor.doSave(this.stateManager.getState(this._artifactId));
         let state: ItemState = this.stateManager.getState(this._artifactId);
         this.artifactService.updateArtifact(state.getArtifact())
             .then(() => {
-                this.messageService.addMessage(new Message(MessageType.Info, "save was successful"));
+                this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
                 state.finishSave();
                 this.isChanged = false;
                 this.projectManager.updateArtifactName(state.getArtifact());
             }, (error) => {
-                this.messageService.addError(error.message);
-                if (error.statusCode === 1401) {
-                    this.saveChanges();
+                let message: string;
+                if (error.statusCode === 400) {
+                    message = this.localization.get("App_Save_Artifact_Error_400");
+                } else if (error.statusCode === 403) {
+                    message = this.localization.get("App_Save_Artifact_Error_403");
+                } else if (error.statusCode === 404) {
+                    message = this.localization.get("App_Save_Artifact_Error_404");
+                } else if (error.statusCode === 409) {
+                    message = this.localization.get("App_Save_Artifact_Error_409");
+                } else {
+                    message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                 }
+                this.messageService.addError(error.message);
             }
         );
     }

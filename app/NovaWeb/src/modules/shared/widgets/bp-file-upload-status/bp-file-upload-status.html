@@ -13,7 +13,7 @@
                 <uib-progressbar value="item.progress"></uib-progressbar>
                 <div class="indicator">
                     <i class="fonticon fonticon-success" ng-if="item.isComplete"></i>
-                    <span class="error" ng-if="item.isFailed">Failed</span>
+                    <i class="fonticon fonticon-error" ng-if="item.isFailed"></i>
                     <i class="fonticon fonticon-close" ng-if="item.isUploading" ng-click="$ctrl.cancelUpload(item)"></i>
                 </div>
             </div>

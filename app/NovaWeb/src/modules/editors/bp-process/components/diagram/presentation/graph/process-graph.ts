@@ -36,7 +36,8 @@ export class ProcessGraph implements IProcessGraph {
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
     private bottomBorderWidt: number = 6;
-    
+    private selectedNode: IDiagramNode;
+
     public globalScope: IScopeContext;
 
     public static get MinConditions(): number {
@@ -761,6 +762,15 @@ export class ProcessGraph implements IProcessGraph {
         return canDelete;
     }
 
+    private deleteShape = () => {
+        this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShape);
+        if (this.selectedNode.getNodeType() == NodeType.UserTask) {
+            this.deleteUserTask(this.selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
+        } else if (this.selectedNode.getNodeType() == NodeType.UserDecision || this.selectedNode.getNodeType() == NodeType.SystemDecision) {
+            this.deleteDecision(this.selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
+        }
+    }
+
     public deleteUserTask(userTaskId: number, postDeleteFunction: INotifyModelChanged = null): boolean {
         let newDestinationId: number = this.viewModel.getFirstNonSystemShapeId(userTaskId);
         let previousShapeIds: number[] = this.viewModel.getPrevShapeIds(userTaskId);
@@ -947,7 +957,8 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public notifyUpdateInModel: INotifyModelChanged = (nodeChange: NodeChange, selectedId: number) => {
-        this.rootScope.$broadcast("processModelUpdate", selectedId);
+        this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(selectedId);
+        //this.rootScope.$broadcast("processModelUpdate", selectedId);
         this.updateProcessChangedState(selectedId, nodeChange);
     }
 
@@ -1070,9 +1081,30 @@ export class ProcessGraph implements IProcessGraph {
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
             var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
             elements = elements.filter(e => e instanceof DiagramNode);
-            this.selectionListeners.forEach((listener: ISelectionListener) => {
-                listener(elements);
-            });
+            let element: any = elements[0];
+
+            let deletable = elements.length > 0;
+            if (deletable) {
+                deletable = element.getNodeType() == NodeType.UserDecision || 
+                            element.getNodeType() == NodeType.SystemDecision ||
+                            element.getNodeType() == NodeType.UserTask;
+            } 
+
+            if (deletable) {
+                this.selectedNode = element;
+                this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
+            } 
+            else {
+                this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShape);
+            } 
+
+            this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
+
+            if (!!this.selectionListeners) {
+                this.selectionListeners.forEach((listener: ISelectionListener) => {
+                    listener(elements);
+                });
+            }
         });
     }
 

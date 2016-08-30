@@ -1,5 +1,5 @@
 import {ModalDialogType} from "./base-modal-dialog-controller";
-import {ModalDialogObservable} from "./modal-dialog-observable";
+import {CommunicationWrapper, ICommunicationWrapper} from "./communication-wrapper";
 
 export interface IModalDialogManager {
     registerSetGraphObserver(observer: any);
@@ -14,47 +14,47 @@ export interface IModalDialogManager {
 }
 
 export class ModalDialogManager implements IModalDialogManager {
-    private setGraphObservable: ModalDialogObservable<any>; 
-    private openDialogObservable: ModalDialogObservable<any>;
+    private setGraphSubject: ICommunicationWrapper; 
+    private openDialogSubject: ICommunicationWrapper;
 
     constructor() {
 
         //this.exceptionHandler = new Shell.ExceptionHandler(messageService, $rootScope);
 
         // Create observables
-        this.setGraphObservable = new ModalDialogObservable<any>();
-        this.openDialogObservable = new ModalDialogObservable<any>();
+        this.setGraphSubject = new CommunicationWrapper();
+        this.openDialogSubject = new CommunicationWrapper();
     };
 
     // 1. Set graph object  
     public registerSetGraphObserver(observer: any) {
-        this.setGraphObservable.registerObserver(observer);
+        return this.setGraphSubject.subscribe(observer);
     }
 
-    public removeSetGraphObserver(observer: any) {
-        this.setGraphObservable.removeObserver(observer);
+    public removeSetGraphObserver(observer: Rx.IDisposable) {
+        this.setGraphSubject.disposeObserver(observer);
     }
 
     public setGraph(func: any) {
-        this.setGraphObservable.notifyObservers(func);
+        this.setGraphSubject.notify(func);
     }
 
     // 2. Open dialog  
     public registerOpenDialogObserver(observer: any) {
-        this.openDialogObservable.registerObserver(observer);
+        return this.openDialogSubject.subscribe(observer);
     }
 
-    public removeOpenDialogObserver(observer: any) {
-        this.openDialogObservable.removeObserver(observer);
+    public removeOpenDialogObserver(observer: Rx.IDisposable) {
+        this.openDialogSubject.disposeObserver(observer);
     }
 
     public openDialog(id: number, dialogType: ModalDialogType) {
-        this.openDialogObservable.notifyObservers(id, dialogType);
+        this.openDialogSubject.notify(arguments);
     }
 
     public onDestroy() {
-        this.setGraphObservable.removeAllObservers();
-        this.openDialogObservable.removeAllObservers();
+        this.setGraphSubject.dispose();
+        this.openDialogSubject.dispose();
     }
 }
 

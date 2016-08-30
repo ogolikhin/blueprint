@@ -21,16 +21,20 @@ export class SubArtifactEditorModalOpener {
         private dialogManager: IModalDialogManager
     ) {
         dialogManager.registerSetGraphObserver(this.setGraph);
-        dialogManager.registerOpenDialogObserver(this.openDialog);
+        dialogManager.registerOpenDialogObserver(this.openDialogCaller);
     }
 
     private setGraph = (graph) => {
         this.getGraph = graph;
     }
 
+    private openDialogCaller = (args: any[]) => {
+        this.openDialog.apply(this, args);
+    }
+
     private openDialog = (id: number, dialogType: ModalDialogType) => {
 
-        alert(`Open dialog with parameters ${id}, ${dialogType}`);
+        window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
 
         try {
             let graph = this.getGraph(); 

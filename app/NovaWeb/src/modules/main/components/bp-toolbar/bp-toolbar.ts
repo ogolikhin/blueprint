@@ -1,10 +1,11 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
-import { IProjectManager, ISelectionManager } from "../../services";
+import { IProjectManager, ISelectionManager, ICommunicationManager } from "../../services";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
+import {IToolbarCommunicationManager} from "./toolbar-communication-manager";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -20,11 +21,12 @@ class BPToolbarController implements IBPToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: number;
+    private toolbarCommunicationManager: IToolbarCommunicationManager;
 
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope"];
+    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope", "communicationManager"];
 
     constructor(
         private localization: ILocalizationService,
@@ -32,7 +34,10 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService) {
+        private $rootScope: ng.IRootScopeService,
+        private communicationManager: ICommunicationManager) {
+            this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
+            this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
     }
 
     execute(evt: any): void {
@@ -91,6 +96,12 @@ class BPToolbarController implements IBPToolbarController {
 
     //temporary
     private deleteArtifact() {
+        this.toolbarCommunicationManager.clickDelete();
+    }
+    
+    private enableDeleteButton(value: boolean) {
+        let deleteButton = document.getElementById("deleteartifact");
+        deleteButton.style.visibility = value ? "visible": "hidden";
     }
 
     public goToImpactAnalysis() {
@@ -116,6 +127,7 @@ class BPToolbarController implements IBPToolbarController {
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButton);
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {

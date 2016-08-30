@@ -188,6 +188,8 @@ export class Layout implements ILayout {
                 }
             }
 
+            this.viewmodel.communicationManager.modalDialogManager.setGraph(this.getGraph);
+
             // Set vertices z-order on top in case some of them are overlaped by edges
             this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));
 
@@ -200,6 +202,10 @@ export class Layout implements ILayout {
         if (selectedNodeId) {
             this.scrollShapeToView(selectedNodeId.toString());
         }
+    }
+
+    public getGraph = () => {
+        return this.processGraph;
     }
 
     public scrollShapeToView(shapeId: string) {

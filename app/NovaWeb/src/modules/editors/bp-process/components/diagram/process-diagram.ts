@@ -5,6 +5,7 @@ import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
+import {ICommunicationManager} from "../../../../main/services";
 
 
 export class ProcessDiagram {
@@ -21,7 +22,7 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private dialogManager: IModalDialogManager) {
+        private communicationManager: ICommunicationManager) {
 
         this.processModel = null;
     }
@@ -86,11 +87,18 @@ export class ProcessDiagram {
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
-            this.processViewModel.dialogManager = this.dialogManager; 
+            this.processViewModel.communicationManager = this.communicationManager; 
         } else {
             this.processViewModel.updateProcessGraphModel(process);
+            this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdate);
         }
+        this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
         return this.processViewModel;
+    }
+
+    private modelUpdate = (selectedNodeId: number) => {
+        this.graph.destroy();
+        this.createProcessGraph(this.processViewModel, true, selectedNodeId);
     }
 
     private createProcessGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
@@ -114,10 +122,6 @@ export class ProcessDiagram {
         } catch (err) {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
-    }
-
-    public openDialog() {
-        this.processViewModel.dialogManager.openDialog(1, 0);
     }
 
     private resetBeforeLoad() {

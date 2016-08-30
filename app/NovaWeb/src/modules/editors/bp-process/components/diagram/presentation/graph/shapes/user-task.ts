@@ -13,6 +13,7 @@ import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
+import {IModalDialogManager} from "../../../../modal-dialogs/modal-dialog-manager";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -37,6 +38,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
+    private dialogManager: IModalDialogManager;
     // #UNUSED
     // private _userStoryId: number;
 
@@ -293,6 +295,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
+        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         var mxGraph = graph.getMxGraph();
         var fillColor = "#FFFFFF";
         if (this.model.id < 0) {
@@ -414,6 +417,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     private openDialog(dialogType: ModalDialogType) {
+        window.console.log(`UserTask.openDialog, ${dialogType}`);
+        
+        this.dialogManager.openDialog(this.model.id, dialogType);
+        
         // #TODO use new dialog communication mechanism to open modal dialog
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,

@@ -1,0 +1,1 @@
+export { IArtifactProperties, ArtifactProperties } from "./artifact-properties"

@@ -109,7 +109,6 @@ export class BPUtilityPanelController {
     
     private togglePropertiesPanel(selection: ISelection) {
         const artifact = selection.artifact;        
-        
         if (artifact && (selection.subArtifact 
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
@@ -121,7 +120,8 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                selection.source === SelectionSource.Editor))) {
+                selection.source === SelectionSource.Editor &&
+                this.selectionManager.getExplorerSelectedArtifact().predefinedType === ItemTypePredefined.UseCaseDiagram))) {
 
             this.showPanel(PanelType.Properties);
         } else {

@@ -1,6 +1,6 @@
 <TestConfiguration>
 
-  <BlueprintServer address="http://integration.blueprintsys.net/" username="admin" password="$Admin93" />
+  <BlueprintServer address="http://installer-w12r2s14.blueprintsys.net/" username="admin" password="$Admin93" />
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://installer-w12r2s14.blueprintsys.net" />

@@ -7,6 +7,8 @@ export class ArtifactServiceMock implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
+    public updateArtifact(artifact: Models.IArtifact) {}
+
     public static createArtifact(id: number, properties?: number): any {
         return new Models.Artifact({
             id: id,

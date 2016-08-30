@@ -31,6 +31,7 @@ export interface IProjectManager {
 
     getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
+    updateArtifactName(artifact: Models.IArtifact);
 }
 
 
@@ -176,6 +177,21 @@ export class ProjectManager implements IProjectManager {
 
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Artifact_NotFound");
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        }
+    }
+
+    public updateArtifactName(artifact: Models.IArtifact) {
+        let project = this.projectCollection.getValue().filter(function(it) {
+            return it.id === artifact.projectId;
+        })[0];
+        if (project) {
+            let art = project.artifacts.filter(function(it) {
+                return it.id === artifact.id;
+            })[0];
+            if (art) {
+                art.name = artifact.name;
+            }
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }

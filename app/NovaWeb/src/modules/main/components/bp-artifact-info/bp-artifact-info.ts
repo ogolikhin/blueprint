@@ -1,11 +1,11 @@
 ﻿import { Models, Enums } from "../../models";
-
 import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { ILocalizationService, IStateManager, ItemState } from "../../../core";
+import { ILocalizationService, IStateManager, ItemState, IMessageService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 //import { BpArtifactEditor } from "../../../editors/bp-artifact/bp-artifact-editor";
 import { IArtifactService } from "../../services";
+import { Message, MessageType} from "../../../core/messages";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -16,7 +16,8 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager", "artifactService"];
+    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element",
+        "stateManager", "windowManager", "artifactService", "messageService"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -37,7 +38,8 @@ export class BpArtifactInfoController {
         private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private messageService: IMessageService
     ) {
         this.initProperties();
     }
@@ -173,7 +175,18 @@ export class BpArtifactInfoController {
         //this.bpArtifactEditor.doSave(this.stateManager.getState(this._artifactId));
         let state: ItemState = this.stateManager.getState(this._artifactId);
         this.artifactService.updateArtifact(state.getArtifact())
-            .then(() => { state.finishSave()});
+            .then(() => {
+                this.messageService.addMessage(new Message(MessageType.Info, "save was successful"));
+                state.finishSave();
+                this.isChanged = false;
+                this.projectManager.updateArtifactName(state.getArtifact());
+            }, (error) => {
+                this.messageService.addError(error.message);
+                if (error.statusCode === 1401) {
+                    this.saveChanges();
+                }
+            }
+        );
     }
 
     public openPicker() {

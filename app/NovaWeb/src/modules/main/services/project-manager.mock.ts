@@ -31,7 +31,10 @@ export class ProjectManagerMock implements IProjectManager {
     };
     public getSubArtifact = (artifact: number | Models.IArtifact, subArtifactId: number) => { return null; };
     public getArtifactType = (artifact: number | Models.IArtifact, project?: number | Models.IProject) => { return null; };
-    public getArtifactPropertyTypes = (artifact: number | Models.IArtifact) => { return null; };
+    public getArtifactPropertyTypes = (artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] => {
+        var result: Models.IPropertyType[] = [{id: 1}];
+        return result;
+    };
     public getSubArtifactPropertyTypes = (subArtifact: number | Models.IArtifact) => { return null; };
     public getPropertyTypes = (project: number, propertyTypeId: number) => { return null; };
 }

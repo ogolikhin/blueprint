@@ -1,16 +1,4 @@
-
-export interface IState {
-    locked : boolean;
-    readonly: boolean;
-    dirty: boolean;
-    published: boolean;
-
-} 
-
-export interface IArtifactState {
-
-} 
-
+import { IArtifactState, IState } from "../interfaces";
 
 export class ArtifactState implements IArtifactState{
     private _lock: any;
@@ -28,7 +16,6 @@ export class ArtifactState implements IArtifactState{
     }    
 
 
-    public list: StateEnum[];
     
     public set lock(value: any) {
         this._lock = value;

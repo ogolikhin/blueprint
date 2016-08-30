@@ -255,7 +255,7 @@ namespace Model.Impl
             return relationships;
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, List{HttpStatusCode}))"/>
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, List{HttpStatusCode})"/>
         public TraceDetails GetRelationshipsDetails(IUser user,
             IArtifactBase artifact,
             bool? addDrafts = null,
@@ -283,9 +283,67 @@ namespace Model.Impl
             return traceDetails;
         }
 
+        /*    Commented out because this is still in development.
+        /// <summary>
+        /// Save a single artifact to ArtifactStore.
+        /// </summary>
+        /// <param name="artifactToSave">The artifact to save.</param>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
+        public static void PostArtifact(IArtifactBase artifactToSave,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { artifactToSave.Id == 0 ? HttpStatusCode.Created : HttpStatusCode.OK };
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToSave.ProjectId);  // TODO: Update REST path to include projectID.
+
+            RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
+
+            var artifactResult = restApi.SendRequestAndDeserializeObject<UpdateArtifactResult, ArtifactBase>(
+                path,
+                RestRequestMethod.POST,
+                artifactToSave as ArtifactBase,
+                expectedStatusCodes: expectedStatusCodes);
+
+            ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
+
+            // Artifact was successfully created so IsSaved is set to true
+            if (artifactResult.ResultCode == HttpStatusCode.Created)
+            {
+                artifactToSave.IsSaved = true;
+            }
+
+            Logger.WriteDebug("POST {0} returned the following: Message: {1}, ResultCode: {2}",
+                path, artifactResult.Message, artifactResult.ResultCode);
+            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+
+            if (expectedStatusCodes.Contains(HttpStatusCode.OK) || expectedStatusCodes.Contains(HttpStatusCode.Created))
+            {
+                Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
+                    "The returned ResultCode was '{0}' but '{1}' was expected",
+                    artifactResult.ResultCode,
+                    ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+
+                Assert.That(artifactResult.Message == "Success",
+                    "The returned Message was '{0}' but 'Success' was expected",
+                    artifactResult.Message);
+            }
+        }
+        */
+
         #endregion Members inherited from IArtifactStore
 
-            #region Members inherited from IDisposable
+        #region Members inherited from IDisposable
 
         private bool _isDisposed = false;
 

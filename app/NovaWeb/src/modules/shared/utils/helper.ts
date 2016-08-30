@@ -1,4 +1,5 @@
 ﻿import { Models} from "../../main";
+
 export class Helper {
 
     static get UID(): string {        
@@ -39,17 +40,20 @@ export class Helper {
         return stringEscaper.innerHTML;
     };
 
-    /* tslint:disable */
-    static findAncestorByCssClass = (element: Element, className: string): any => {
-        while ((element = element.parentElement) && !element.classList.contains(className)) {
+    static findAncestorByCssClass = (elem: Element, selector: string): Element => {
+        let el = elem.parentElement;
+        while (el && !el.classList.contains(selector)) {
+            el = el.parentElement;
         }
-        return element;
+
+        return el;
     };
 
     static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {
         return JSON.stringify(obj, Helper.serializer(replacer, cycleReplacer), spaces);
     };
 
+    /* tslint:disable */
     static serializer = (replacer, cycleReplacer): any => {
         var stack = [], keys = [];
 
@@ -79,6 +83,11 @@ export class Helper {
     };
     /* tslint:enable */
 
+    static stripWingdings(htmlText: string): string {
+        let _htmlText = htmlText || "";
+        let wingdingsRegEx = /font-family:[ ]?['"]?Wingdings['"]?/gi;
+        return _htmlText.replace(wingdingsRegEx, "");
+    };
 
     static autoLinkURLText(node: Node) {
         /* tslint:disable */

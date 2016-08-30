@@ -1,8 +1,6 @@
-﻿import {IProcessShape, IProcessLink, IProcessLinkModel, IArtifactProperty,
-    ItemIndicatorFlags,
-    Direction, NodeType, NodeChange, ElementType,
-
-} from "./";
+﻿import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
+import {IArtifactProperty, ItemIndicatorFlags} from "./";
+import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
@@ -120,7 +118,7 @@ export interface IProcessGraph {
     redraw(action: any);
     saveProcess();
     publishProcess();
-    updateSizeChanges(width?: number);
+    updateSizeChanges(width?: number, height?: number);
     destroy();
 }
 
@@ -147,7 +145,7 @@ export interface ILayout {
     createAutoInsertTaskMessage();
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
-    hideInsertNodePopupMenu();
+    hidePopupMenu();
 }
 
 export interface ISourcesAndDestinations {

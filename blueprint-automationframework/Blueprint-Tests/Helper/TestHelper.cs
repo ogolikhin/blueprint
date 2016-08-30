@@ -6,6 +6,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
@@ -24,6 +25,7 @@ namespace Helper
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
+        public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
 
         // Lists of objects created by this class to be disposed:
         public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
@@ -89,6 +91,68 @@ namespace Helper
             artifact.RegisterObserver(this);
             return artifact;
         }
+
+        /// <summary>
+        /// Create and save an artifact object using the Blueprint application server address from the TestConfiguration file.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <returns>The new artifact object.</returns>
+        public IArtifact CreateAndSaveOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
+            artifact.Save();
+            return artifact;
+        }
+
+        /// <summary>
+        /// Creates a new OpenApi artifact, then saves and publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
+        /// <returns>The OpenApi artifact.</returns>
+        public IOpenApiArtifact CreateAndPublishOpenApiArtifact(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfVersions = 1)
+        {
+            IOpenApiArtifact artifact = CreateOpenApiArtifact(project, user, artifactType);
+
+            for (int i = 0; i < numberOfVersions; ++i)
+            {
+                artifact.Save();
+                artifact.Publish();
+            }
+
+            return artifact;
+        }
+
+        /// <summary>
+        /// Creates a list of new published OpenApi artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactType">The type of artifacts to create.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <returns>The list of OpenApi artifacts.</returns>
+        public List<IArtifactBase> CreateAndPublishMultipleOpenApiArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IOpenApiArtifact artifact = CreateAndPublishOpenApiArtifact(project, user, artifactType);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
 
         /// <summary>
         /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
@@ -272,6 +336,35 @@ namespace Helper
             {
                 BlueprintServer.LoginUsingBasicAuthorization(user);
                 Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
+            }
+
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database,
+        /// then assigns random fake AdminStore and/or OpenAPI tokens.
+        /// </summary>
+        /// <param name="targets">The authentication targets.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user that has the requested access tokens.</returns>
+        public IUser CreateUserWithInvalidToken(AuthenticationTokenTypes targets,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
+        {
+            IUser user = CreateUserAndAddToDatabase(instanceAdminRole, source);
+            string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
+
+            if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+            {
+                user.SetToken(fakeTokenValue);
+            }
+
+            if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
+            {
+                user.SetToken(I18NHelper.FormatInvariant("{0} {1}",
+                    BlueprintToken.OPENAPI_START_OF_TOKEN, fakeTokenValue));
             }
 
             return user;

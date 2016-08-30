@@ -1,16 +1,14 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
-using System.Web;
 using System.Web.Http.Filters;
 
-namespace ServiceLibrary.Helpers
+namespace ServiceLibrary.Attributes
 {
     public class UnhandledExceptionFilterAttribute : ExceptionFilterAttribute
     {
         public override void OnException(HttpActionExecutedContext context)
         {
-
             if (context.Exception is NotImplementedException)
             {
                 var statusCode = HttpStatusCode.NotImplemented;
@@ -20,7 +18,6 @@ namespace ServiceLibrary.Helpers
             {
                 base.OnException(context);
             }
-
         }
     }
 }

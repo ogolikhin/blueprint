@@ -27,6 +27,10 @@ export class ArtifactService implements IArtifactService {
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
                     message: (errResult.data ? errResult.data.message : "")
@@ -73,6 +77,10 @@ export class ArtifactService implements IArtifactService {
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ILockResult>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
                     message: (errResult.data ? errResult.data.message : "")

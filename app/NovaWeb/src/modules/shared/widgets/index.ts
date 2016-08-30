@@ -11,6 +11,7 @@ import "./bp-speciallink";
 import "./bp-compile-html";
 import "./bp-collapsible";
 import "./bp-file-upload";
+import "./bp-toggle";
 
 angular.module("bp.widjets", [
     "bp.widjets.dialog",
@@ -25,9 +26,10 @@ angular.module("bp.widjets", [
     "bp.widjets.speciallink",
     "bp.widjets.compilehtml",
     "bp.widjets.collapsible",
-    "bp.widjets.fileupload"
+    "bp.widjets.fileupload",
+    "bp.widjets.toggle"
 ]);
     
 export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
 export { IBPTreeController, ITreeNode } from "./bp-tree"
-export { IDialogSettings, IDialogService, BaseDialogController} from "./bp-dialog";
+export { IDialogSettings, IDialogData, IDialogService, BaseDialogController} from "./bp-dialog";

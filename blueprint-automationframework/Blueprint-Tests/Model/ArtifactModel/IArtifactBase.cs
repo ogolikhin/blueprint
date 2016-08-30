@@ -114,6 +114,7 @@ namespace Model.ArtifactModel
         bool IsSaved { get; set; }
         bool IsMarkedForDeletion { get; set; }
         bool IsDeleted { get; set; }
+        IProject Project { get; set; }
 
         // XXX: These 3 properties don't appear to be set anywhere.
         bool AreTracesReadOnly { get; set; }

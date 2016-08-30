@@ -120,11 +120,12 @@ export class ProjectManager implements IProjectManager {
                                 this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
-                                this.messageService.addError(error["message"] || "Project_NotFound");
+                                
+                                this.messageService.addError(error);
                             });
 
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || "Project_NotFound");
+                        this.messageService.addError(error);
                     });
 
 
@@ -162,7 +163,9 @@ export class ProjectManager implements IProjectManager {
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
-                    if (error.statusCode === 1401) {
+                    if (error) {
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    } else {
                         angular.extend(artifact, {
                             artifacts: null,
                             hasChildren: true,
@@ -170,8 +173,6 @@ export class ProjectManager implements IProjectManager {
                             open: false
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
-                    } else {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 
@@ -223,12 +224,8 @@ export class ProjectManager implements IProjectManager {
 
     }
 
-    public loadFolders(id?: number) {
-        try {
-            return this._repository.getFolders(id);
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || "Project_NotFound");
-        }
+    public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        return this._repository.getFolders(id);
     }
 
     public getProject(id: number) {
@@ -288,14 +285,13 @@ export class ProjectManager implements IProjectManager {
             isRichText: true
         });
 
-        //if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
-        //    properties.push(<Models.IPropertyType>{
-        //        name: "Label",
-        //        propertyTypePredefined: Models.PropertyTypePredefined.Label,
-        //        primitiveType: Models.PrimitiveType.Text,
-        //        isRichText: true
-        //    });
-        //}
+        if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
+           properties.push(<Models.IPropertyType>{
+               name: "Step Of",
+               propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
+               primitiveType: Models.PrimitiveType.Choice,               
+           });
+        }
 
         if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
             subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
@@ -317,6 +313,15 @@ export class ProjectManager implements IProjectManager {
                 primitiveType: Models.PrimitiveType.Text,
                 isRichText: true
             });
+        }
+
+        if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.SBShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UIShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.UCDShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.PROShape ||
+            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape) {
 
             properties.push(<Models.IPropertyType>{
                 name: "X",

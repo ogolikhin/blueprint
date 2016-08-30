@@ -9,6 +9,7 @@ export interface IStateManager {
     addItem(item: Models.IItem, itemtype?: Models.IItemType): ItemState;
     addChange(origin: Models.IItem, changeSet?: IPropertyChangeSet): ItemState;
     getState(item: number | Models.IItem): ItemState;
+    lockArtifact(state: ItemState): ng.IPromise<Models.ILockResult>;
 }
 
 export interface IPropertyChangeSet {
@@ -53,6 +54,10 @@ export class ItemState {
         this._originItem = value;
     }
 
+    private get changeSets(): IPropertyChangeSet[] {
+        return this._changesets || (this._changesets = []);
+    }
+
     public get isReadonly(): boolean {
         return this._readonly ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
@@ -84,7 +89,7 @@ export class ItemState {
     }
 
     public get isChanged(): boolean {
-        return Boolean(angular.isArray(this._changesets) && this._changesets.length);
+        return !!this.changeSets.length;
     }
 
     public get changedItem(): Models.IArtifact {
@@ -94,13 +99,12 @@ export class ItemState {
     public get lock(): Models.ILockResult {
         return this._lock;
     }
-
-    public setLock(value: Models.ILockResult): Models.ILockResult {
-        if (!value) {
-            return null;
-        }
+ 
+    public set lock(value: Models.ILockResult)  {
         this._lock = value;
-        if (value.result === Enums.LockResultEnum.Success) {
+        if (!value) {
+
+        } else if (value.result === Enums.LockResultEnum.Success) {
             this.originItem.lockedByUser = {
                 id: this.manager.currentUser.id
             };
@@ -111,24 +115,23 @@ export class ItemState {
                     displayName: value.info.lockOwnerLogin
                 };
             }
-            this.revertChanges();
+            this.discardChanges();
             this._readonly = true;
         }
         this.manager.changeState(this);
-        return this._lock;
     }
 
     private add(changeSet: IPropertyChangeSet) {
         if (!this._changesets) {
             this._changesets = [];
         }
-        let _changeset = this._changesets.filter((it: IPropertyChangeSet) => {
+        let _changeset = this.changeSets.filter((it: IPropertyChangeSet) => {
             return it.lookup === changeSet.lookup && it.id === changeSet.id;
         })[0];
         if (_changeset) {
             _changeset.value = changeSet.value;
         } else {
-            this._changesets.push(changeSet);
+            this.changeSets.push(changeSet);
         }
         
     }
@@ -204,8 +207,6 @@ export class ItemState {
             
         }
 
-        let propertyTypeId: number;
-        let propertyValue: Models.IPropertyValue;
 
         if (!updateItem || !changeSet) {
             return false;
@@ -235,19 +236,24 @@ export class ItemState {
         })[0];
     }
 
-    public revertChanges() {
-        delete this._changesets;
+    public discardChanges(id?: number) {
+        this._changesets = this.changeSets.filter((it: IPropertyChangeSet) => {
+            return id && it.itemId !== id;
+        });
+
+        if (!this.changeSets.length) {
+            delete this._changesets;
+        }
         delete this._changedItem;
     }
 }
 
 export class StateManager implements IStateManager {
-    static $inject: [string] = ["session"];
+    static $inject: [string] = ["$http", "$q", "session"];
     private _itemStateCollection: ItemState[];
     private _itemChanged: Rx.BehaviorSubject<ItemState>;
 
-    constructor(private session: ISession) {
-        
+    constructor(private $http: ng.IHttpService, private $q: ng.IQService, private session: ISession) {
     }
 
     private get itemChanged(): Rx.BehaviorSubject<ItemState> {
@@ -314,7 +320,11 @@ export class StateManager implements IStateManager {
             }
         } else {
             if (artifact) {
-                if (state.originItem !== artifact) {
+                if (state.originItem.version < artifact.version) {
+                    state.originItem = artifact;
+                    state.discardChanges();
+                    changed = true;
+                } else if (state.originItem !== artifact) {
                     state.originItem = artifact;
                     changed = true;
                 }
@@ -327,8 +337,12 @@ export class StateManager implements IStateManager {
                     return it.id === subartifact.id;
                 })[0];
                 if (_subartifact) {
-                    if (_subartifact !== artifact) {
-                        angular.extend(_subartifact, subartifact);
+                    if (_subartifact.version < subartifact.version) {
+                        _subartifact = subartifact;
+                        state.discardChanges(subartifact.id);
+                        changed = true;
+                    } else if (_subartifact !== subartifact) {
+                        _subartifact = subartifact;
                         changed = true;
                     }
                 } else {
@@ -360,7 +374,6 @@ export class StateManager implements IStateManager {
         return state;
     }
 
-    
 
     public getState(item: number | Models.IItem): ItemState {
         let id = angular.isNumber(item) ? item as number : (item ? item.id : -1);
@@ -378,5 +391,40 @@ export class StateManager implements IStateManager {
 
         return state;
     }
+
+    public lockArtifact(state: ItemState): ng.IPromise<Models.ILockResult> {
+        var defer = this.$q.defer<Models.ILockResult>();
+
+        if (state.lock || state.lockedBy !== Enums.LockedByEnum.None) {
+            defer.resolve(state.lock);
+        } else {
+            const request: ng.IRequestConfig = {
+                url: `/svc/shared/artifacts/lock`,
+                method: "post",
+                data: angular.toJson([state.originItem.id])
+            };
+
+            this.$http(request).then(
+                (result: ng.IHttpPromiseCallbackArg<Models.ILockResult[]>) => {
+                    state.lock = result.data[0];
+                    defer.resolve(state.lock);
+                },
+                (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                    if (!errResult) {
+                        defer.reject();
+                        return;
+                    }
+                    var error = {
+                        statusCode: errResult.status,
+                        message: (errResult.data ? errResult.data.message : "")
+                    };
+                    defer.reject(error);
+                }
+            );
+        }
+        return defer.promise;
+    }
+
+
 
 }

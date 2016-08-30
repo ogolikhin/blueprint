@@ -21,6 +21,10 @@ export class BPTreeInlineEditing implements ng.IDirective {
             }
         }
 
+        var containerCell: Element;
+        var containerRow: Element;
+        var gridBody: Element;
+
         if (Controller) {
             var data = $scope["data"];
             var currentValue = data[self.valueFrom];
@@ -28,9 +32,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             var span = $element[0];
             span.removeAttribute("bp-tree-inline-editing");
 
-            var containerCell = Helper.findAncestorByCssClass(span, "ag-cell");
-            var containerRow = Helper.findAncestorByCssClass(span, "ag-row");
-            var gridBody = Helper.findAncestorByCssClass(span, "ag-body");
+            containerCell = Helper.findAncestorByCssClass(span, "ag-cell");
 
             containerCell.addEventListener("keydown", inputEventHandler);
             containerCell.addEventListener("keypress", inputEventHandler);
@@ -40,10 +42,10 @@ export class BPTreeInlineEditing implements ng.IDirective {
         }
 
         function stopEditing() {
-            var editSpan = containerCell.querySelector(".ag-group-inline-edit");
-            var valueSpan = containerCell.querySelector(".ag-group-value");
+            var editSpan = containerCell.querySelector(".ag-group-inline-edit") as HTMLElement;
+            var valueSpan = containerCell.querySelector(".ag-group-value") as HTMLElement;
             if (self.editing && editSpan && valueSpan) {
-                var input = editSpan.querySelector("input");
+                var input = editSpan.querySelector("input") as HTMLInputElement;
                 input.removeEventListener("blur", stopEditing);
                 input.removeEventListener("keydown", inputEventHandler);
                 input.removeEventListener("click", inputEventHandler);
@@ -55,11 +57,11 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 } else {
                     valueSpan.querySelector("span").textContent = currentValue;
                 }
-                var parentSpan = editSpan.parentNode;
+                var parentSpan = editSpan.parentElement;
                 parentSpan.removeChild(editSpan);
                 valueSpan.style.display = "inline-block";
                 // reset the focus on the container div so that the keyboard navigation can resume
-                parentSpan.parentNode.focus();
+                parentSpan.parentElement.focus();
 
                 //Controller.options.api.refreshView(); // if we refresh the view, the navigation/renaming misbehave
 
@@ -71,7 +73,9 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
         function inlineEdit() {
             self.selectedNode = Controller.options.api.getSelectedNodes()[0];
-            var valueSpan = containerCell.querySelector(".ag-group-value");
+            var valueSpan = containerCell.querySelector(".ag-group-value") as HTMLElement;
+            containerRow = Helper.findAncestorByCssClass(span, "ag-row");
+            gridBody = Helper.findAncestorByCssClass(span, "ag-body");
             if (!self.editing && valueSpan) {
                 var editSpan = document.createElement("span");
                 editSpan.className = "ag-group-inline-edit";
@@ -110,7 +114,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             if (self.editing) {
                 var editSpan = containerCell.querySelector(".ag-group-inline-edit");
                 if (editSpan) {
-                    var input = editSpan.querySelector("input");
+                    var input = editSpan.querySelector("input") as HTMLInputElement;
                     var inputValue = input.value;
                     var selectionStart = input.selectionStart;
                     var selectionEnd = input.selectionEnd;

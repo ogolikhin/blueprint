@@ -12,11 +12,16 @@ describe("BPCollapsible Directive", () => {
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        longElement = angular.element("<div class='collapsible' bp-collapsible='80' style='height:250px;'></div>");
+        let ContainterId = "discussion-scrollable-content";
+        let collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' scrollable-container-id=${ContainterId} style='height:250px;'></div>`;
+        longElement = angular.element(`<div class='scrollable-content' data-ps-id='tt' perfect-scrollbar >${collapsibleElementHtml}</div>`);
         var scope = $rootScope.$new();
         let element = $compile(longElement)(scope);
         angular.element("body").append(element);
         scope.$digest();
+        let perfectScrollbar = {};
+        perfectScrollbar["update"] = () => { };
+        (<any>window).PerfectScrollbar = perfectScrollbar;
     }));
 
     afterEach(function () {
@@ -39,19 +44,19 @@ describe("BPCollapsible Directive", () => {
             $timeout.flush();
 
             // Assert
-            expect(longElement[0].classList.contains("collapsed")).toBe(true);
+            expect(longElement[0].children[0].classList.contains("collapsed")).toBe(true);
         }));
 
     it("clicking showmore and showless should remove and add collapsed class",
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
             $timeout.flush();
-            longElement[0].children[0].dispatchEvent(new Event("click", { "bubbles": true }));
+            longElement[0].getElementsByClassName("show-more")[0].dispatchEvent(new Event("click", { "bubbles": true }));
 
             // Assert
             expect(longElement[0].classList.contains("collapsed")).toBe(false);
-            longElement[0].children[1].dispatchEvent(new Event("click", { "bubbles": true }));
-            expect(longElement[0].classList.contains("collapsed")).toBe(true);
+            longElement[0].getElementsByClassName("show-less")[0].dispatchEvent(new Event("click", { "bubbles": true }));
+            expect(longElement[0].children[0].classList.contains("collapsed")).toBe(true);
         }));
 
     it("collapsed class should not be added to element",

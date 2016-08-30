@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Models
@@ -41,9 +42,13 @@ namespace ArtifactStore.Models
         public RolePermissions? Permissions { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? LockedByUserId { get; set; }
+        public UserGroup LockedByUser { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? LockedDateTime { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For JSON serialization, the property sometimes needs to be null")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<Artifact> Children { get; set; }
 	}
 }

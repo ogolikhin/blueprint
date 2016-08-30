@@ -24,5 +24,8 @@
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;
+
+        //Bad request
+        public const int OutOfRangeParameter = 6000;
     }
 }

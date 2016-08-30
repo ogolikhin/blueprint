@@ -4,7 +4,7 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://integration.blueprintsys.net" />
-    <Service name="AccessControl" address="http://integration.blueprintsys.net:82" />
+    <Service name="AccessControl" address="http://integration.blueprintsys.net:8182" />
     <Service name="ArtifactStore" address="http://integration.blueprintsys.net" />
     <Service name="ConfigControl" address="http://integration.blueprintsys.net:82" />
     <Service name="FileStore"     address="http://integration.blueprintsys.net" />

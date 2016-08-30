@@ -1,7 +1,7 @@
 ﻿import {IEditorParameters} from "../artifact.state";
 
 export class DiagramState implements ng.ui.IState {
-    public template = "<bp-diagram context='$content.context.artifact'></bp-diagram>";
+    public template = "<bp-diagram context='$content.context'></bp-diagram>";
     public params: IEditorParameters = { context: null };
     public controller = "diagramStateController";
     public controllerAs = "$content";

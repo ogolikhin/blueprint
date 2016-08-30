@@ -9,8 +9,8 @@ export class ProcessCellRenderer extends mxCellRenderer {
 
         var graph = state.view.graph;
         mxEvent.addGestureListeners(shape.node, function (evt) {
-            // set a flag on the event object to show the 'Add Task/Decision' 
-            // pop-up menu if the source of this mouse click is an overlay on
+            // set a flag on the event object to show the node popup menu
+            // if the source of this mouse click is an overlay on
             // an edge
 
             var diagramNode = <IDiagramNode>state.cell;

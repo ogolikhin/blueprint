@@ -2,6 +2,7 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ISelectionManager } from "../../main/services";
+import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -21,13 +22,11 @@ export class BpProcessEditor implements ng.IComponentOptions {
 
 export class BpProcessEditorController extends BpBaseEditor {
 
-    private _context: number;
-
+    public context: IEditorContext;
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     public dialogManager: IModalDialogManager;
-    private contentAreaWidth: number;
-
+    
     public static $inject: [string] = [
         "messageService", 
         "stateManager", 
@@ -65,7 +64,6 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         this.dialogManager = new ModalDialogManager();
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
-        this.contentAreaWidth = null;
     }
 
     public $onInit() {
@@ -78,22 +76,19 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onChanges(changesObj) {
         if (changesObj.context) {
-            this._context = changesObj.context.currentValue;
+            this.context = <IEditorContext>changesObj.context.currentValue;
         }
     }
 
     public $postLink() {
-        if (this._context) {
-            this.load(this._context);
+        if (this.context && this.context.artifact) {
+            this.load(this.context.artifact.id);
         }
 
-        if (this.$element[0].parentElement) {
-            this.contentAreaWidth = this.$element[0].parentElement.clientWidth + 40;
-        }
     }
 
     public $onDestroy() {
-        //super.$onDestroy();
+        super.$onDestroy();
     }
     
     private load(artifactId: number) {
@@ -134,14 +129,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onWidthResized(mainWindow: IMainWindow) {
-        if (
-            (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle)
-            && !!this.processDiagram
-        ) {
-            //let deltaX = ((toggleAction % 2) * 2 - 1) * 270;
-            let deltaX: number = mainWindow.contentWidth - this.contentAreaWidth;
-            this.contentAreaWidth = mainWindow.contentWidth;
-            this.processDiagram.resize(deltaX);
+        if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
         }
     }
     

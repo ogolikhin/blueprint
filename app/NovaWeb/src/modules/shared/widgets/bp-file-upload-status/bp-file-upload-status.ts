@@ -13,6 +13,12 @@ export interface IUploadStatusDialogData {
     maxAttachmentFilesize: number;
 }
 
+export interface IUploadStatusResult {
+    guid: string;
+    url: string;
+    name: string;
+}
+
 interface IFileUploadStatus {
     file: File;
     isComplete: boolean;
@@ -93,7 +99,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     }
 
     private isFileValid(f: IFileUploadStatus) {
-        const filesizeFilter: Function = this.$filter("BpFilesize") as Function;
+        const filesizeFilter: Function = this.$filter("bpFilesize") as Function;
 
         if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;
@@ -106,11 +112,14 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     private uploadFile(f: IFileUploadStatus) {
         f.isUploading = true;
+        let expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 2);
 
-        this.fileUploadService.uploadToFileStore(f.file, new Date(), (event: ProgressEvent) => {
+        this.fileUploadService.uploadToFileStore(f.file, expiryDate, (event: ProgressEvent) => {
             f.progress = Math.floor((event.loaded / event.total) * 100);
         }, f.timeout.promise).then(
             (result: IFileResult) => {
+                f.progress = 100;
                 f.guid = result.guid;
                 f.filepath = result.uriToFile;
                 f.isComplete = true;
@@ -119,11 +128,8 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 return result;
             },
             (error: any) => {
-                if (error.code === -1) {
-                    f.errorMessage = "Cancelled upload";
-                }
-                console.log("error uploading a file: " + error.message);
-                f.errorMessage = error.message;
+                f.errorMessage = error && error.message || "Upload error";
+                f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;
             }
@@ -154,10 +160,16 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     }
 
     // Dialog return value
-    public get returnValue(): any {
+    public get returnValue(): IUploadStatusResult[] {
         return this.files
             .filter((f: IFileUploadStatus) => f.isComplete)
-            .map((f: IFileUploadStatus) => f.guid);
+            .map((f: IFileUploadStatus) => {
+                return {
+                    guid: f.guid,
+                    url: f.filepath,
+                    name: f.file.name
+                };
+            });
     };
 
     public cancel() {

@@ -30,25 +30,28 @@ bp-toolbar {
         box-sizing: border-box;
         color: $gray-dark;
         height: $toolbar-height;
+        width: 50px;
         line-height: normal;
-        padding: 6px 4px 0;
+        padding: 6px 0 0 0;
         text-align: center;
+          > .icon-container {
+              height: 24px;
+            .fonticon::before {
+              font-size: 22px;
+              margin: 0;
+            }
 
-        .fonticon::before {
-          font-size: 20px;
-          margin: 0;
-        }
-
-        .caret {
-          margin: 0;
-        }
-
+            .caret {
+              margin: 0 0 0 3px;
+            }
+          }
         span {
           display: block;
-          font-size: $font-size-tiny;
-          font-weight: 700;
-          margin-top: -3px;
-          white-space: nowrap;
+          font-size: $font-size-smaller;
+          line-height: 0.9rem;
+          font-weight: normal;
+          padding: 0 5px;
+          margin: 0;
         }
       }
 

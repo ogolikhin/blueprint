@@ -67,6 +67,11 @@ export class DiagramService implements IDiagramService {
                 }
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                 delete this.promises[id];
+                if (!result) {
+                    deferred.reject();
+                    return;   
+                }
+
                 if (result.status <= 0) {
                     deferred.reject(CancelationTokenConstant.cancelationToken);
                 } else if (result.status === 1401) {

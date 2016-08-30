@@ -1,5 +1,4 @@
 .nova-file-upload-status {
-
     .modal-body {
         padding: 15px 30px;
         background: #f0f0f0;
@@ -52,8 +51,9 @@
         border: 1px solid $gray-lightest;
 
         .name {
-            padding: 0 0 5px 0;
+            padding: 0 40px 5px 0;
             font-size: $font-size-normal;
+            @include text-ellipsis-flex-width(100%);
         }
 
         .indicator {

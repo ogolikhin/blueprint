@@ -33,17 +33,30 @@ namespace Model.ArtifactModel.Impl
 
         #region Properties
 
+        [JsonIgnore]
         public bool ShouldDeleteChildren { get; set; }
+        [JsonIgnore]
         public IUser LockOwner { get; set; }
+        [JsonIgnore]
         public string Address { get; set; }
+        [JsonIgnore]
         public IUser CreatedBy { get; set; }
+        [JsonIgnore]
         public bool IsPublished { get; set; }
+        [JsonIgnore]
         public bool IsSaved { get; set; }
+        [JsonIgnore]
         public bool IsMarkedForDeletion { get; set; }
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
+        [JsonIgnore]
+        public IProject Project { get; set; }
 
+        [JsonIgnore]
         public bool AreTracesReadOnly { get; set; }
+        [JsonIgnore]
         public bool AreAttachmentsReadOnly { get; set; }
+        [JsonIgnore]
         public bool AreDocumentReferencesReadOnly { get; set; }
 
         #region Serialized JSON Properties
@@ -477,6 +490,126 @@ namespace Model.ArtifactModel.Impl
                     var value = sourcePropertyInfo.GetValue(sourceArtifactBase);
                     destinationPropertyInfo.SetValue(destinationArtifactBase, value);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Replace properties in an artifact with properties from an ArtifactDetails object.
+        /// </summary>
+        /// <param name="sourceArtifact">The ArtifactDetails to copy properties from.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(ArtifactDetails sourceArtifact, IProject project, IUser user)
+        {
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+
+            Id = sourceArtifact.Id;
+            Name = sourceArtifact.Name;
+            ParentId = sourceArtifact.ParentId;
+            ProjectId = sourceArtifact.ProjectId;
+            Version = sourceArtifact.Version;
+
+            // Now set the list of Property objects.
+            AddOrReplaceTextOrChoiceValueProperty("Name", sourceArtifact.Name, project, user);
+            AddOrReplaceTextOrChoiceValueProperty("Description", sourceArtifact.Description, project, user);
+
+            // TODO: There is also an "ID" property to set which has a value of <prefix> + <Id>.  Ex. "AC1503".
+
+            if (sourceArtifact.CreatedOn != null)
+            {
+                AddOrReplaceDateValueProperty("Created On", sourceArtifact.CreatedOn.Value, project, user);
+            }
+
+            if (sourceArtifact.LastEditedOn != null)
+            {
+                AddOrReplaceDateValueProperty("Last Edited On", sourceArtifact.LastEditedOn.Value, project, user);
+            }
+
+            AddOrReplaceUsersAndGroupsProperty("Created By", sourceArtifact.CreatedBy, project, user);
+            AddOrReplaceUsersAndGroupsProperty("Last Edited By", sourceArtifact.LastEditedBy, project, user);
+
+            // TODO: Convert CustomProperties & SpecificPropertyValues into OpenApiProperty lists and set them...
+            //CustomProperties.AddRange(sourceArtifact.CustomProperties);
+            //SpecificPropertyValues.AddRange(sourceArtifact.SpecificPropertyValues);
+        }
+
+        /// <summary>
+        /// Add or replace the specified TextOrChoiceValue property value with a new value.
+        /// </summary>
+        /// <param name="propertyName">The name of the property in the OpenApiArtifact.</param>
+        /// <param name="propertyValue">The new value to set.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        private void AddOrReplaceTextOrChoiceValueProperty(string propertyName, string propertyValue, IProject project, IUser user)
+        {
+            OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+
+            if (property == null)
+            {
+                property = OpenApiProperty.SetPropertyAttribute(Address, project, user, this.BaseArtifactType, propertyName, propertyValue);
+                Properties.Add(property);
+            }
+
+            property.TextOrChoiceValue = propertyValue;
+        }
+
+        /// <summary>
+        /// Add or replace the specified DateValue property value with a new value.
+        /// </summary>
+        /// <param name="propertyName">The name of the property in the OpenApiArtifact.</param>
+        /// <param name="propertyValue">The new value to set.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        private void AddOrReplaceDateValueProperty(string propertyName, DateTime propertyValue, IProject project, IUser user)
+        {
+            OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+
+            if (property == null)
+            {
+                property = OpenApiProperty.SetPropertyAttribute(Address, project, user, this.BaseArtifactType, propertyName, dateValue: propertyValue);
+                Properties.Add(property);
+            }
+
+            property.DateValue = propertyValue.ToStringInvariant();
+        }
+
+        /// <summary>
+        /// Add or replace the specified UsersAndGroups property value with a new value.
+        /// </summary>
+        /// <param name="propertyName">The name of the property in the OpenApiArtifact.</param>
+        /// <param name="propertyValue">The new value to set.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        /// <param name="userType">(optional) Specify whether the value being added is a user or group.</param>
+        private void AddOrReplaceUsersAndGroupsProperty(string propertyName,
+            Identification propertyValue,
+            IProject project,
+            IUser user,
+            UsersAndGroupsType userType = UsersAndGroupsType.User)
+        {
+            // Only add/replace if the source artifact had a value for this property.
+            if (propertyValue != null)
+            {
+                OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+
+                UsersAndGroups userOrGroup = new UsersAndGroups
+                {
+                    Type = userType,
+                    DisplayName = propertyValue.DisplayName,
+                    Id = propertyValue.Id
+                };
+
+                var usersAndGroups = new List<UsersAndGroups> {userOrGroup};
+
+                if (property == null)
+                {
+                    property = OpenApiProperty.SetPropertyAttribute(Address, project, user, this.BaseArtifactType, propertyName,
+                        usersAndGroups: usersAndGroups);
+                    Properties.Add(property);
+                }
+
+                property.UsersAndGroups?.Clear();
+                property.UsersAndGroups?.Add(userOrGroup);
             }
         }
 

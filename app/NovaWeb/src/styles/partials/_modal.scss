@@ -11,7 +11,7 @@ $modal-side-clearance: 8px;
   .modal-header {
     @include rounded-corners($border-radius-amount $border-radius-amount 0 0);
     background-color: $brand-secondary;
-    padding: 15px 10px;
+    padding: 15px 30px;
 
     .modal-title {
       color: $white;
@@ -78,8 +78,6 @@ $modal-open-project-height: 450px;
   }
 
   .modal-header {
-    padding-left: 30px;
-
     h3 {
       line-height: 40px;
     }

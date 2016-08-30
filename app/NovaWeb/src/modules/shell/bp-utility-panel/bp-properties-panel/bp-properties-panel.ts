@@ -56,8 +56,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, bpAccordionPanel);
-        this.editor = new PropertyEditor(this.localization.current);
+        super($q, selectionManager, stateManager, bpAccordionPanel);
+        this.editor = new PropertyEditor(this.localization);
     }    
 
     public $onDestroy() {
@@ -111,12 +111,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 this.selectedSubArtifact = subArtifact;
                 this.onUpdate(artifact, subArtifact);
             }).catch((error: any) => {
-                switch (error.statusCode) {
-                    case -1: break; //ignore timeout
-                    case 1401: break; //ignore authentication errors
-                    default:
-                        this.messageService.addError(error["message"] || "SubArtifact_NotFound");
-                        break;
+                if (error) {
+                    this.messageService.addError(error["message"] || "SubArtifact_NotFound");
                 }
             }).finally(() => {
                 this.isLoading = false;
@@ -129,12 +125,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 this.selectedSubArtifact = undefined;
                 this.onUpdate(artifact, subArtifact);
             }).catch((error: any) => {
-                switch (error.statusCode) {
-                    case -1: break; //ignore timeout
-                    case 1401: break; //ignore authentication errors
-                    default:
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
-                        break;
+                if (error) {
+                    this.messageService.addError(error["message"] || "Artifact_NotFound");
                 }
             }).finally(() => {
                 this.isLoading = false;

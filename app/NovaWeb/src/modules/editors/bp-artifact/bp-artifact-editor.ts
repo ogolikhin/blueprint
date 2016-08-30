@@ -28,7 +28,15 @@ export class BpArtifactEditor extends BpBaseEditor {
         private projectManager: IProjectManager
     ) {
         super(messageService, stateManager, windowManager);
-        this.editor = new PropertyEditor(this.localization.current);
+        this.editor = new PropertyEditor(this.localization);
+    }
+
+    public $onInit() {
+        super.$onInit();
+
+        this._subscribers.push(
+            this.stateManager.stateChange.filter(it => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
+        );
     }
 
 
@@ -60,8 +68,8 @@ export class BpArtifactEditor extends BpBaseEditor {
          this.onUpdate(context);
     }
 
-    public clearFields() {
-        this.fields = [];
+    public clearFields() { 
+        this.fields = []; 
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -113,24 +121,51 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.setArtifactEditorLabelsWidth();
     }
 
-    public doLock(state: ItemState): void { }
+    private onLockChanged(state: ItemState) {
+        let lock = state.lock;
+        if (lock.result === Enums.LockResultEnum.Success) {
+            if (lock.info.versionId !== state.originItem.version) {
+                this.onLoad(this.context);
+            }
+        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+            this.onUpdate(this.context);
+            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
+        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        } else {
+            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        }
+
+    }
+
+
 
     public doSave(state: ItemState): void { }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        //here we need to update original model
-        let context = $field.data as PropertyContext;
-        if (!context) {
-            return;
+        try {
+            //here we need to update original model
+            let context = $field.data as PropertyContext;
+            if (!context) {
+                return;
+            }
+            let value = this.editor.convertToModelValue($field, $value);
+            let changeSet: IPropertyChangeSet = {
+                lookup: context.lookup,
+                id: context.modelPropertyName,
+                value: value
+            };
+            let state = this.stateManager.addChange(this.context.artifact, changeSet);
+
+            this.stateManager.lockArtifact(state).catch((error: any) => {
+                if (error) {
+                    this.messageService.addError(error);
+                }
+            });
+
+        } catch (err) {
+            this.messageService.addError(err);
         }
-        let value = this.editor.convertToModelValue($field, $value);
-        let changeSet: IPropertyChangeSet = {
-            lookup: context.lookup,
-            id: context.modelPropertyName,
-            value: value
-        };
-        let state = this.stateManager.addChange(this.context.artifact, changeSet);
-        this.doLock(state);
     };
 
 }

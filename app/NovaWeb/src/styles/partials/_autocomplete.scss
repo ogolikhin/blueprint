@@ -11,6 +11,7 @@
     z-index: 20000;
     float: left;
     min-width: 160px;
+    max-width: 400px;
     padding: 5px 0;
     margin: 2px 0 0;
     list-style: none;
@@ -107,8 +108,13 @@
 }
 
 .rte-autocomplete > li.loading {
-	background: url("http://www.ajaxload.info/cache/FF/FF/FF/00/00/00/1-0.gif") center no-repeat;
-	height: 16px;
+	background: url("/novaweb/static/images/icons/spinner.gif") center no-repeat;
+    background-size: contain;
+    margin-top: 5px;
+    margin-left: 45%;
+    margin-bottom: 5px;
+    width: 25px;
+    height: 25px;
 }
 
 .rte-autocomplete > li > a {
@@ -118,7 +124,8 @@
     font-weight: normal;
     line-height: 20px;
     color: $gray-darker;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-all;
     text-decoration: none;
 }
 

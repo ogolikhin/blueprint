@@ -137,6 +137,14 @@ export class BPLocale  {
         }
         return result;
     }
+    public formatShortDateTime(value: Date) {
+        let d = moment(value);
+        let result: string = null;
+        if (d.isValid()) {
+            result = d.format("l LT");
+        }
+        return result;
+    }
 
     private getDatePickerFormat(): string {
         let adapted = this.shortDateFormat;

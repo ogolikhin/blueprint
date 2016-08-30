@@ -124,8 +124,8 @@ export function formlyConfig(
         /* tslint:disable */
         template: `
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions" ng-bind-html="model[options.key]"></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">{{model[options.key]}}</div>
+                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
+                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
                 <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
                 <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
             </div>
@@ -156,7 +156,8 @@ export function formlyConfig(
             $scope.primitiveType = PrimitiveType;
             $scope.tooltip = "";
             $scope.scrollOptions = {
-                minScrollbarLength: 20
+                minScrollbarLength: 20,
+                scrollYMarginOffset: 4
             };
 
             $scope.filterMultiChoice = function(item): boolean {
@@ -175,7 +176,9 @@ export function formlyConfig(
                     }
                     $scope.tooltip = newValue;
                     if ($scope.options.data.isRichText) {
-                        newValue = $sce.trustAsHtml(newValue);
+                        newValue = $sce.trustAsHtml(Helper.stripWingdings(newValue));
+                    } else if ($scope.options.data.isMultipleAllowed) {
+                        newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
                     break;
                 case PrimitiveType.Date:
@@ -216,6 +219,7 @@ export function formlyConfig(
                     break;
                 case PrimitiveType.User:
                     newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                    $scope.tooltip = newValue;
                     break;
                 default:
                     break;
@@ -298,9 +302,10 @@ export function formlyConfig(
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
-                            ng-bind-html="bpFieldSelect.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelect.escapeHTMLText($select.search)"
+                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
+                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select></div>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -317,7 +322,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                primeValidation($element[0]);
+                //primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -387,10 +392,6 @@ export function formlyConfig(
                         }
                     }
                 },
-                escapeHTMLText: function (str: string): string {
-                    let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
-                },
                 onOpenClose: function (isOpen) {
                     if (isOpen && $scope["uiSelectContainer"]) {
                         let currentVal = $scope.model[$scope.options.key];
@@ -422,7 +423,8 @@ export function formlyConfig(
         extends: "select",
         /* tslint:disable */
         template: `<div class="input-group has-messages">
-                <ui-select multiple
+                <ui-select class="has-scrollbar"
+                    multiple
                     ng-model="model[options.key]"
                     ng-disabled="{{to.disabled}}"
                     remove-selected="false"
@@ -438,8 +440,8 @@ export function formlyConfig(
                         on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
                         <div class="ui-select-choice-item"
-                            ng-bind-html="bpFieldSelectMulti.escapeHTMLText(option[to.labelProp]) | highlight: bpFieldSelectMulti.escapeHTMLText($select.search)"
-                            bp-tooltip="{{bpFieldSelectMulti.escapeHTMLText(option[to.labelProp])}}" bp-tooltip-truncated="true"></div>
+                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
+                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
                     </ui-select-choices>
                     <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
                 </ui-select>
@@ -472,7 +474,7 @@ export function formlyConfig(
         },
         link: function($scope, $element, $attrs) {
             $timeout(() => {
-                primeValidation($element[0]);
+                //primeValidation($element[0]);
                 ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
@@ -481,7 +483,8 @@ export function formlyConfig(
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
-                    $scope["bpFieldSelectMulti"].toggleScrollbar(false);
+                    $scope["bpFieldSelectMulti"].toggleScrollbar();
+                    $scope["uiSelectContainer"].firstChild.scrollTop = 0;
                 }
             }, 0);
         },
@@ -526,7 +529,17 @@ export function formlyConfig(
                     }
                     return -1;
                 },
-                toggleScrollbar: function (removeScrollbar: boolean) {
+                toggleScrollbar: function (removeScrollbar?: boolean) {
+                    if (!removeScrollbar) {
+                        if ($scope["uiSelectContainer"]) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight > elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                            } else {
+                                removeScrollbar = true;
+                            }
+                        }
+                    }
                     if (removeScrollbar) {
                         if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
                             let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
@@ -534,18 +547,7 @@ export function formlyConfig(
                                 $scope["uiSelectContainer"].classList.remove("has-scrollbar");
                             }
                         }
-                    } else {
-                        if ($scope["uiSelectContainer"] && !$scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                            if (elem && elem.scrollHeight > elem.clientHeight) {
-                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
-                            }
-                        }
                     }
-                },
-                escapeHTMLText: function (str: string): string {
-                    let escaped = Helper.escapeHTMLText(str);
-                    return escaped.replace(/&gt;/g, "<span>></span>").replace(/&lt;/g, "<span><</span>");
                 },
                 onOpenClose: function (isOpen: boolean) {
                     this.isOpen = isOpen;
@@ -581,14 +583,14 @@ export function formlyConfig(
                     if (nextItem === -1) {
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);
                     }
+                    $select.activeIndex = nextItem;
                     $timeout(() => {
-                        $select.activeIndex = nextItem;
                         if ($scope["uiSelectContainer"]) {
                             $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
                             $scope["uiSelectContainer"].querySelector("input").focus();
                         }
                     }, 100);
-                    this.toggleScrollbar(false);
+                    this.toggleScrollbar();
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
@@ -709,14 +711,14 @@ export function formlyConfig(
         template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
         /* tslint:enable */
         defaultOptions: {
-            templateOptions: {        
+            templateOptions: {
                 tinymceOption: { // this will goes to ui-tinymce directive
                     inline: true,
                     plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    init_instance_callback: function(editor) {
+                    init_instance_callback: function (editor) {
                         Helper.autoLinkURLText(editor.getBody());
                         editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
-                        editor.dom.bind(editor.dom.select("a"), "click", function(e) {
+                        editor.dom.bind(editor.dom.select("a"), "click", function (e) {
                             let element = e.target as HTMLElement;
                             while (element && element.tagName.toUpperCase() !== "A") {
                                 element = element.parentElement;
@@ -729,7 +731,11 @@ export function formlyConfig(
                     mentions: {} // an empty mentions is needed when including the mention plugin and not using it
                 }
             }
-        }
+        },
+        controller: ["$scope", function ($scope) {
+            let currentModelVal = $scope.model[$scope.options.key];
+            $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
+        }]
     });
 
     formlyConfig.setType({

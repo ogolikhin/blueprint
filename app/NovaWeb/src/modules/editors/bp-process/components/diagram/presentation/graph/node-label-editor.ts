@@ -94,17 +94,17 @@ export class NodeLabelEditor {
 
     private isIe11(): boolean {
         let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        return (myBrowser.msie && (myBrowser.version == 11));
+        let ver = parseInt(myBrowser.version, 10);
+        return (myBrowser.msie && (ver === 11));
     }
 
     private pointerDown = (e) => {
         if (e.target.className !== "processEditorCustomLabel") {
-            let divs: any = Array.prototype.filter.call(this.divs, (elem) => {
-                return elem.contenteditable === true;
-            });
-            let div = (divs != null) ? divs[0] : null;
-            if (div != null) {
-                this.fireEvent(div, "blur");
+            for (let div of this.divs) {
+                if (div.contentEditable === "true") {
+                    this.fireEvent(div, "blur");
+                    return;
+                }
             }
         }
     }

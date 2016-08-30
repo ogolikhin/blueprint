@@ -27,7 +27,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return new Session(user.UserId, user.Username, LicenseLevel, true);
+            return new Session(user.Id, user.Username, LicenseLevel, true);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return new Session(user.UserId, user.Username, LicenseLevel, isSso, user.Token?.AccessControlToken);
+            return new Session(user.Id, user.Username, LicenseLevel, isSso, user.Token?.AccessControlToken);
         }
     }
 }

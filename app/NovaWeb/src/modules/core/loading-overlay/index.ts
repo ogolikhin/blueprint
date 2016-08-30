@@ -3,6 +3,6 @@ import { LoadingOverlayComponent } from "./loading-overlay";
 
 angular.module("bp.core.loadingOverlay", [])
     .service("loadingOverlayService", LoadingOverlayService)
-    .component("loadingOverlay", new LoadingOverlayComponent())
+    .component("loadingOverlay", new LoadingOverlayComponent());
 
 export { ILoadingOverlayService, LoadingOverlayService, LoadingOverlayComponent }

@@ -10,14 +10,13 @@ export interface ILoadingOverlayController { }
 
 export class LoadingOverlayController implements ILoadingOverlayController { 
 
-    private displayOverlay: boolean;
-
     public static $inject = ["loadingOverlayService"];
-    constructor(private loadingOverlayService: ILoadingOverlayService) {
-        window.overlaycontroller = this; //TODO: Remove once finished debugging
-        this.displayOverlay = loadingOverlayService.DisplayOverlay;
+    constructor(private loadingOverlayService: ILoadingOverlayService) {}
+    
+    private get displayOverlay() {
+        return this.loadingOverlayService.DisplayOverlay;
     }
-   
+
     public $onDestroy() {
     }
 }

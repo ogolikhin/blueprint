@@ -6,8 +6,6 @@
 }
 
 export class LoadingOverlayService implements ILoadingOverlayService {
-    private timers: { [id: number]: ng.IPromise<any>; } = {};
-    private count: number = 0;
 
     public static $inject = [];
     constructor() {
@@ -15,10 +13,16 @@ export class LoadingOverlayService implements ILoadingOverlayService {
     }
 
     public initialize = () => {
-        this.DisplayOverlay = false;
+        this._displayOverlay = false;
+
+        window.overlayservice = this; //TODO: Remove once finished debugging
     }
 
-    public DisplayOverlay: boolean
+    private _displayOverlay: boolean;
+
+    public get DisplayOverlay(): boolean {
+        return this._displayOverlay;
+    }
 
     public dispose(): void {
         //Remove the overlay?
@@ -26,10 +30,14 @@ export class LoadingOverlayService implements ILoadingOverlayService {
     }
 
     public BeginLoading(): void {
+        this._displayOverlay = true;
+        console.log(this._displayOverlay);
         //Increment counter., display overlay.
     }
 
     public EndLoading(): void {
+        this._displayOverlay = false;
+        console.log(this._displayOverlay);
         //Decrement counter. If 0, remove overlay.
     }
 }

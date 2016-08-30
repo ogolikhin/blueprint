@@ -25,7 +25,7 @@ namespace Model.Impl
 
         /// <seealso cref="ISvcShared.FindUserOrGroup(IUser, string, bool?, int?, bool?, List{HttpStatusCode})"/>
         public List<UserOrGroupInfo> FindUserOrGroup(IUser user, 
-            string displayNameOrEmail = null,
+            string search = null,
             bool? allowEmptyEmail = null,
             int? limit = null,
             bool? includeGuests = null,
@@ -37,9 +37,9 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
             Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
-            if (displayNameOrEmail != null)
+            if (search != null)
             {
-                queryParams.Add("search", displayNameOrEmail);
+                queryParams.Add("search", search);
             }
 
             if (allowEmptyEmail != null)

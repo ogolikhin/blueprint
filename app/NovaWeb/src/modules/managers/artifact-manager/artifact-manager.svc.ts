@@ -1,6 +1,5 @@
 ﻿import * as Models from "../models/models";
-
-interface IStatefulArtifact {}
+import  "./interfaces" 
 
 export interface IStatefulArtifactManagerService {
     list(): IStatefulArtifact[];
@@ -19,7 +18,7 @@ this.get(10).getAttachment().remove(attachment: IAttachment); // ng.Promiss<IAtt
 this.get(10).getAttachment().add(attachment: IAttachment); // ng.Promiss<IAttachment[]>
 this.get(10).getAttachment().changes(); // ng.Promiss<IAttachment[]>
 
-
+this.get(10).property.update(id, value)
 this.get(10).getState().list()
 this.get(10).getState().locked()
 this.get(10).getState().dirty()
@@ -52,7 +51,7 @@ class StatefullArtifact {
     private attachemnts: IAttachments;
     public getAttachment() {
         if (!this.attachemnts) {
-            this.attachemnts = new Attachment(<IFullState>null, this.superFactory.attachmentFactory);
+            this.attachemnts = new Attachment(<IFullState>null, this.superFactory.attachmentFactory));
         }
     }
 

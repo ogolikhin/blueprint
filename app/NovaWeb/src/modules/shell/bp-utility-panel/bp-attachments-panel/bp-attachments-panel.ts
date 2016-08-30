@@ -98,9 +98,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
-                if (callback) {
-                    callback();
-                }
                 // TODO: add state manager handling
 
                 if (uploadList) {
@@ -114,6 +111,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                             uploadedDate: null
                         });
                     });
+                }
+            }).finally(() => {
+                if (callback) {
+                    callback();
                 }
             });
         };

@@ -100,6 +100,7 @@ export class ArtifactService implements IArtifactService {
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
                     statusCode: errResult.status,
+                    errorCode: errResult.data ? errResult.data.errorCode : -1,
                     message: (errResult.data ? errResult.data.message : "")
                 };
                 defer.reject(error);

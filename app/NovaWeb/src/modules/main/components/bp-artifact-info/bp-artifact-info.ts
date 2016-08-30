@@ -186,17 +186,26 @@ export class BpArtifactInfoController {
             }, (error) => {
                 let message: string;
                 if (error.statusCode === 400) {
-                    message = this.localization.get("App_Save_Artifact_Error_400");
+                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
                 } else if (error.statusCode === 403) {
                     message = this.localization.get("App_Save_Artifact_Error_403");
                 } else if (error.statusCode === 404) {
                     message = this.localization.get("App_Save_Artifact_Error_404");
                 } else if (error.statusCode === 409) {
-                    message = this.localization.get("App_Save_Artifact_Error_409");
+                    if (error.errorCode === 116) {
+                        message = this.localization.get("App_Save_Artifact_Error_409_116");
+                    } else if (error.errorCode === 117) {
+                        message = this.localization.get("App_Save_Artifact_Error_409_117");
+                    } else if (error.errorCode === 114) {
+                        message = this.localization.get("App_Save_Artifact_Error_409_114");
+                    } else {
+                        message = this.localization.get("App_Save_Artifact_Error_409");    
+                    }
+                    
                 } else {
                     message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                 }
-                this.messageService.addError(error.message);
+                this.messageService.addError(message);
             }
         );
     }

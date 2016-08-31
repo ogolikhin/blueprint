@@ -11,11 +11,8 @@ namespace FileStore.Repositories
     {
         private readonly IConfigRepository _configRepository;
 
-        private const int CommandTimeout = 60;
-
         public FileStreamRepository() : this(ConfigRepository.Instance)
         {
-
         }
 
         internal FileStreamRepository(IConfigRepository configRepository)
@@ -32,25 +29,25 @@ namespace FileStore.Repositories
         public bool IsDatabaseAvailable()
         {
             // check that we have a connection string for the legacy db
-            return (string.IsNullOrEmpty(_configRepository.FileStreamDatabase)) ? false : true;
+            return !string.IsNullOrEmpty(_configRepository.FileStreamDatabase);
         }
 
         public bool FileExists(Guid fileId)
         {
             // check if the legacy database is configured 
             // if it is not available then return false 
-
             if (IsDatabaseAvailable() == false)
             {
                 return false;
             }
+
             // returns true if the file is found in the legacy database 
             // returns false not found in the legacy database
-
             if (fileId == Guid.Empty)
             {
                 throw new ArgumentException("fileId param is empty.");
             }
+
             using (var sqlConnection = CreateConnection())
             {
                 sqlConnection.Open();
@@ -58,11 +55,11 @@ namespace FileStore.Repositories
                 return FileExists((SqlConnection) sqlConnection, fileId);
             }
         }
+
         public File GetFileHead(Guid fileId)
         {
             // return a File object with the file info  or null if the file is
             // not found in the legacy database
-
             if (fileId == Guid.Empty)
             {
                 throw new ArgumentException("fileId param is empty.");
@@ -88,7 +85,6 @@ namespace FileStore.Repositories
 
             // if there is no file content assume that the file does not exist in the legacy db
             return file;
-
         }
 
         private string GetFileName(SqlConnection sqlConnection, Guid fileId)
@@ -100,6 +96,7 @@ namespace FileStore.Repositories
             {
                 fileName = GetFileNameFromTemplates(sqlConnection, fileId);
             }
+
             return fileName;
         }
 
@@ -109,7 +106,7 @@ namespace FileStore.Repositories
             {
                 cmd.Parameters.Clear();
                 // get file size by checking the file content
-                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT Top 1 1 FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
@@ -125,7 +122,7 @@ namespace FileStore.Repositories
             {
                 cmd.Parameters.Clear();
                 // get file size by checking the file content
-                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText =
                     "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
@@ -134,26 +131,25 @@ namespace FileStore.Repositories
                 pLength.Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
 
-                return (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
+                return (pLength.Value is DBNull) ? 0L : (long)pLength.Value;
             }
         }
-
-
 
         private string GetFileTypeFromAttachmentVersions(SqlConnection sqlConnection, Guid fileId, string fileName)
         {
             string fileType = null;
+
             using (var cmd = sqlConnection.CreateCommand())
             {
                 cmd.Parameters.Clear();
-                cmd.CommandText =
-                    "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                 SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
                 pType.Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
 
                 fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
+
                 if (string.IsNullOrWhiteSpace(fileType))
                 {
                     if (!string.IsNullOrWhiteSpace(fileName))
@@ -167,6 +163,7 @@ namespace FileStore.Repositories
                     }
                 }
             }
+
             return fileType;
         }
 
@@ -217,7 +214,7 @@ namespace FileStore.Repositories
 
             using (SqlCommand cmd = (dbConnection as SqlConnection).CreateCommand())
             {
-                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
 
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT @pContent = SUBSTRING([Content], @pOffset, @pCount ) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
@@ -244,6 +241,5 @@ namespace FileStore.Repositories
 
             return content;
         }
-
     }
 }

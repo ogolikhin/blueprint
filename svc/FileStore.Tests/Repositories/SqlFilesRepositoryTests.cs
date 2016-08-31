@@ -40,8 +40,10 @@ namespace FileStore.Repositories
         public async Task PostFile_QueryReturnsId_ReturnsId()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
@@ -66,8 +68,10 @@ namespace FileStore.Repositories
         public async Task GetHeadFile_QueryReturnsFile_ReturnsFirst()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("99999999999999999999999999999999");
             File[] result = { new File { FileName = "name", FileType = "type" } };
             cxn.SetupQueryAsync(
@@ -86,8 +90,10 @@ namespace FileStore.Repositories
         public async Task HeadFile_QueryReturnsEmpty_ReturnsNull()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("88888888888888888888888888888888");
             File[] result = { };
             cxn.SetupQueryAsync(
@@ -110,8 +116,10 @@ namespace FileStore.Repositories
         public async Task GetFile_QueryReturnsFile_ReturnsFirst()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("33333333333333333333333333333333");
             File[] result = { new File { FileName = "nnnn", FileType = "tttt" } };
             cxn.SetupQueryAsync(
@@ -131,8 +139,10 @@ namespace FileStore.Repositories
         public async Task GetFile_QueryReturnsEmpty_ReturnsNull()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("22222222222222222222222222222222");
             File[] result = { };
             cxn.SetupQueryAsync(
@@ -188,31 +198,26 @@ namespace FileStore.Repositories
 
             moqFilesRepo.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
 
-
             // Act
-
-
             SqlPushStream sqlPushStream = new SqlPushStream();
 
             sqlPushStream.Initialize(moqFilesRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
+            HttpContent responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
-            System.IO.Stream response = await responseContent.ReadAsStreamAsync();
+            Stream response = await responseContent.ReadAsStreamAsync();
 
             string originalContent = Encoding.UTF8.GetString(fileStreamContent);
             string resultContent = string.Empty;
 
-            using (var memoryStream = new System.IO.MemoryStream())
+            using (var memoryStream = new MemoryStream())
             {
                 response.CopyTo(memoryStream);
                 resultContent = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
 
             // Assert
-
             Assert.IsTrue(originalContent.Equals(resultContent));
-
         }
 
         private string GetRandomString(int length)
@@ -222,18 +227,16 @@ namespace FileStore.Repositories
             if (length < 1) length = 1;
             // each string is 11 chars 
             // combine to make a string of size length 
-            int loop = ((int)(length / 11)) + 1;
+            int loop = length / 11 + 1;
             for (int i = 0; i < loop; i++)
             {
-                string path = System.IO.Path.GetRandomFileName();
+                string path = Path.GetRandomFileName();
                 path = path.Replace(".", ""); // Remove period.
                 result += path;
             }
 
-
             return result.Substring(0, length);
         }
-
 
         #endregion
 
@@ -243,8 +246,10 @@ namespace FileStore.Repositories
         public async Task DeleteFile_QueryReturnsId_ReturnsId()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("12345123451234512345123451234512");
             Guid? result = guid;
             cxn.SetupExecuteScalarAsync(
@@ -265,14 +270,16 @@ namespace FileStore.Repositories
         public async Task DeleteFile_QueryReturnsNull_ReturnsNotNull()
         {
             // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlFilesRepository(cxn.Object);
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("34567345673456734567345673456734");
             cxn.SetupExecuteScalarAsync(
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
-                     new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
+                new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
             Guid? id = await repository.DeleteFile(guid, DateTime.UtcNow);

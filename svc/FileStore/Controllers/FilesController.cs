@@ -1,7 +1,4 @@
-﻿using FileStore.Helpers;
-using FileStore.Models;
-using FileStore.Repositories;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,6 +10,9 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using FileStore.Helpers;
+using FileStore.Models;
+using FileStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using sl = ServiceLibrary.Repositories.ConfigControl;
@@ -23,7 +23,6 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
-
         //remove unnecessary headers from web api
         //http://www.4guysfromrolla.com/articles/120209-1.aspx
 
@@ -591,7 +590,5 @@ namespace FileStore.Controllers
         }
 
         #endregion
-
     }
-
 }

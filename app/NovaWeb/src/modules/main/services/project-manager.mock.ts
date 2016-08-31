@@ -34,4 +34,6 @@ export class ProjectManagerMock implements IProjectManager {
     public getArtifactPropertyTypes = (artifact: number | Models.IArtifact) => { return null; };
     public getSubArtifactPropertyTypes = (subArtifact: number | Models.IArtifact) => { return null; };
     public getPropertyTypes = (project: number, propertyTypeId: number) => { return null; };
+
+    public updateArtifactName(artifact: Models.IArtifact) {}
 }

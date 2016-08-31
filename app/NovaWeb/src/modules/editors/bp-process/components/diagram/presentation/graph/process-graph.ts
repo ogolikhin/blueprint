@@ -124,6 +124,9 @@ export class ProcessGraph implements IProcessGraph {
             if (this.nodeLabelEditor != null) {
                 this.nodeLabelEditor.init();
             }
+
+            this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
+            
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -575,6 +578,9 @@ export class ProcessGraph implements IProcessGraph {
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
         }
+
+        this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShape);
+        
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -763,7 +769,6 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private deleteShape = () => {
-        this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShape);
         if (this.selectedNode.getNodeType() == NodeType.UserTask) {
             this.deleteUserTask(this.selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
         } else if (this.selectedNode.getNodeType() == NodeType.UserDecision || this.selectedNode.getNodeType() == NodeType.SystemDecision) {
@@ -1078,6 +1083,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private initSelection() {
+        //let that = this;
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
             var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
             elements = elements.filter(e => e instanceof DiagramNode);
@@ -1090,13 +1096,7 @@ export class ProcessGraph implements IProcessGraph {
                             element.getNodeType() == NodeType.UserTask;
             } 
 
-            if (deletable) {
-                this.selectedNode = element;
-                this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
-            } 
-            else {
-                this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShape);
-            } 
+            this.selectedNode = deletable ? element : null;
 
             this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
 

@@ -265,7 +265,7 @@ export class SubArtifactEditorModalOpener {
 
     public onDestroy = () => {
         this.dialogManager.removeSetGraphObserver(this.setGraph);
-        this.dialogManager.removeOpenDialogObserver(this.openDialog);
+        this.dialogManager.removeOpenDialogObserver(this.openDialogCaller);
     }
 
 }

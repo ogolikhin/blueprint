@@ -7,12 +7,13 @@ export interface ICommunicationWrapper {
 
 export class CommunicationWrapper implements ICommunicationWrapper {
     private subject : Rx.ReplaySubject<any>; 
-    private observersHash = {};
+    private observersHash = [];
     constructor () {
         this.subject = new Rx.ReplaySubject<any>(0);
     }
 
     public subscribe(observer: any) {
+        this.disposeObserver(observer);
         let disposable: Rx.IDisposable = this.subject.subscribeOnNext(observer);
         this.observersHash[observer.toString()] = disposable;
     }
@@ -22,7 +23,10 @@ export class CommunicationWrapper implements ICommunicationWrapper {
     }
 
     public disposeObserver(observer: any) {
-        this.observersHash[observer.toString()].dispose();
+        let disposable: Rx.IDisposable = this.observersHash[observer.toString()];
+        if (disposable != null) {
+            disposable.dispose();
+        }
     }
 
     public dispose() {

@@ -140,6 +140,8 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
 
+    public doSave(state: ItemState): void { }
+
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         try {
             //here we need to update original model

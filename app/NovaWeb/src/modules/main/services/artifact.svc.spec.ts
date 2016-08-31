@@ -53,4 +53,46 @@ describe("Artifact Repository", () => {
         }));
     });
 
+    describe("Update Artifact", () => {
+
+        it("update artifact", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
+                .respond(200, ArtifactServiceMock.createLightArtifact(100));
+
+            // Act
+            var error: any;
+            var data: Models.IArtifact;
+            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).not.toBeUndefined();
+            expect(data.id).toEqual(100);
+            expect(data.version).toEqual("1");
+            expect(data.lastSavedOn).toEqual('20160831T16:00:00');
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("update artifact unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
+                .respond(401);
+                
+            // Act
+            var error: any;
+            var data: Models.IArtifact;
+            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => { data = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(401);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
 });

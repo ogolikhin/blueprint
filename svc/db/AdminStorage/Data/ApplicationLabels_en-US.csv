@@ -110,6 +110,15 @@ App_Properties_Additional_Properties_Label,"Additional Properties"
 App_Properties_Actor_StepOf_Actor,"Actor (Input)"
 App_Properties_Actor_StepOf_System,"System (Expected Outcome)"
 
+App_Save_Artifact_Error_200,"Artifact was saved successfully."
+App_Save_Artifact_Error_400,"Artifact provided is invalid."
+App_Save_Artifact_Error_404,"Artifact not found or was deleted."
+App_Save_Artifact_Error_409,"There was a conflict while saving the artifact."
+App_Save_Artifact_Error_409_114,"Validation for a property failed."
+App_Save_Artifact_Error_409_116,"Cannot perform save, the artifact provided is attempting to override a property made readonly by reuse."
+App_Save_Artifact_Error_409_117,"A property type is out of date."
+App_Save_Artifact_Error_Other,"There was a problem saving the artifact, server returned: "
+
 # glossary artifact
 Artifact_Glossary_Term,"Term"
 Artifact_Glossary_Definition,"Definition"

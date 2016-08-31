@@ -17,52 +17,8 @@ export class StatefullArtifact implements IStatefulArtifact {
     constructor(manager: IArtifactManagerService, artifact: Models.IArtifact) {
         
         this.manager = manager;
-        this.properties = new ArtifactProperties(this,this.collectProperties(artifact));
-        this.properties.add()
+        this.properties = new ArtifactProperties(this, artifact);
         this.state = new ArtifactState(this);
     }
-
-    public get id(): number {
-        return this.properties.system("id").value;
-    }
-    public get name(): number {
-        return this.properties.system("name").value;
-    }
-
-    private collectProperties(artifact: Models.IArtifact) {
-        let properties: IProperty[] = []; 
-        for(let key in artifact) {
-            if (key === "customPropertyValues") {
-                properties.concat(
-                    artifact.customPropertyValues.map((it:Models.IPropertyValue) => {
-                        return angular.extend({}, it, {
-                            propertyLookup: Enums.PropertyLookupEnum.Custom
-                        } );
-                    })
-                )
-            } else if (key === "specificPropertyValues") {
-                properties.concat(
-                    artifact.specificPropertyValues.map((it:Models.IPropertyValue) => {
-                        return angular.extend({}, it, {
-                            propertyLookup: Enums.PropertyLookupEnum.Special
-                        });
-                    })
-                )
-            } else {
-                properties.push({
-                    propertyLookup: Enums.PropertyLookupEnum.System,
-                    propertyTypeId: -1,
-                    propertyName: key,
-                    propertyTypePredefined: Enums.PropertyTypePredefined[key],
-                    value: artifact[key]
-
-                } );
-            }
-
-            return properties;
-        }
-        
-    }
-
  
 }

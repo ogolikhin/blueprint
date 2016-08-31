@@ -1,5 +1,5 @@
 import { Models, Enums } from "../../../main/models";
-import { IBlock, IStatefulArtifact, IProperty, IArtifactProperties, ISystemProperty } from "../interfaces";
+import { IStatefulArtifact, IProperty, IArtifactProperties, ISystemProperty } from "../interfaces";
 
 class SystemProperty {
     public id: number;
@@ -21,21 +21,50 @@ export class ArtifactProperties implements IArtifactProperties {
     
     private _custom: IProperty[];
     private _special: IProperty[];
-    private _system: SystemProperty;
+    private _system: ISystemProperty;
     private subject: Rx.BehaviorSubject<IProperty[]>;
     private state: IStatefulArtifact;
 
-    constructor(artifactState: IStatefulArtifact, system:SystemProperty, custom?: IProperty[], special?: IProperty[]) {
+    constructor(artifactState: IStatefulArtifact, artifact: Models.IArtifact) {
         this.state = artifactState;
-        this._system = system || {} as SystemProperty;
-        this._custom = custom || [];
-        this._special = special || [];
+        this.load(artifact);
         this.subject = new Rx.BehaviorSubject<IProperty[]>([]);
     }
 
-    public get name(): string {
-        return this._system.name;
+    private load(artifact: Models.IArtifact) {
+        this._system = {} as SystemProperty;
+        this._custom = [];
+        this._special = [];
+        for(let key in artifact) {
+            if (key === "customPropertyValues") {
+                this._custom.concat(
+                    artifact.customPropertyValues.map((it: Models.IPropertyValue) => {
+                        return angular.extend({}, it, {
+                            propertyLookup: Enums.PropertyLookupEnum.Custom
+                        } );
+                    })
+                )
+            } else if (key === "specificPropertyValues") {
+                this._special.concat(
+                    artifact.specificPropertyValues.map((it: Models.IPropertyValue) => {
+                        return angular.extend({}, it, {
+                            propertyLookup: Enums.PropertyLookupEnum.Special
+                        });
+                    })
+                )
+            } else {
+                angular.extend(this._system, {
+                    key : artifact[key]
+                }); 
+            }
+
+        }
+        
     }
+
+
+
+
     public get value(): ng.IPromise<IProperty[]> {
   
         return {} as ng.IPromise<IProperty[]>;
@@ -46,7 +75,7 @@ export class ArtifactProperties implements IArtifactProperties {
         return this.subject.filter(it => it !== null).asObservable();
     }    
 
-    public system(): SystemProperty {
+    public system(): ISystemProperty {
         return this._system; 
     }
 
@@ -63,7 +92,7 @@ export class ArtifactProperties implements IArtifactProperties {
     }    
 
     public update(property: IProperty | IProperty[]): ng.IPromise<IProperty[]> {
-        //this.state.manager..lockArtifact();
+        //this.state.manager.lockArtifact();
         return {} as ng.IPromise<IProperty[]>;
 
     }

@@ -66,6 +66,7 @@ export interface IArtifact extends IItem {
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
+    lastSavedOn?: Date;
 
     lockedByUser?: IUserGroup;
     lockedDateTime?: Date;

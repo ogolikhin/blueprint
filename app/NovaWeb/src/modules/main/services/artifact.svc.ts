@@ -92,11 +92,11 @@ export class ArtifactService implements IArtifactService {
     }
 
 
-    public updateArtifact(artifact: Models.IArtifact) {
-        var defer = this.$q.defer<any>();
+    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact>  {
+        var defer = this.$q.defer<Models.IArtifact>();
 
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
-            () => defer.resolve(),
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 var error = {
                     statusCode: errResult.status,

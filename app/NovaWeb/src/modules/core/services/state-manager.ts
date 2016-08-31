@@ -229,6 +229,13 @@ export class ItemState {
         return this.changedItem || this.originItem;
     }
 
+    public updateArtifactVersion(version: number) {
+        this.originItem.version = version;
+    }
+    public updateArtifactSavedTime(lastSavedOn: Date) {
+        this.originItem.lastSavedOn = lastSavedOn;
+    }
+
     public getSubArtifact(id: number): Models.ISubArtifact {
         let artifact = this.getArtifact();
         return (artifact.subArtifacts || []).filter((it: Models.ISubArtifact) => {

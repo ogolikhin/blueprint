@@ -175,10 +175,18 @@ export class BpArtifactInfoController {
         }
     }
 
+    //TODO: move the save logic to a more appropriate place
     public saveChanges() {
         let state: ItemState = this.stateManager.getState(this._artifactId);
         this.artifactService.updateArtifact(state.getArtifact())
-            .then(() => {
+            .then((artifact: Models.IArtifact) => {
+                let oldArtifact = state.getArtifact();
+                if (artifact.version) {
+                    state.updateArtifactVersion(artifact.version);
+                }
+                if (artifact.lastSavedOn) {
+                    state.updateArtifactSavedTime(artifact.lastSavedOn);
+                }
                 this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
                 state.finishSave();
                 this.isChanged = false;
@@ -187,8 +195,6 @@ export class BpArtifactInfoController {
                 let message: string;
                 if (error.statusCode === 400) {
                     message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                } else if (error.statusCode === 403) {
-                    message = this.localization.get("App_Save_Artifact_Error_403");
                 } else if (error.statusCode === 404) {
                     message = this.localization.get("App_Save_Artifact_Error_404");
                 } else if (error.statusCode === 409) {

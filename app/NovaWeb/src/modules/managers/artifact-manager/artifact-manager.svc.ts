@@ -18,7 +18,7 @@ this.get(10).getAttachment().remove(attachment: IAttachment); // ng.Promiss<IAtt
 this.get(10).getAttachment().add(attachment: IAttachment); // ng.Promiss<IAttachment[]>
 this.get(10).getAttachment().changes(); // ng.Promiss<IAttachment[]>
 
-this.get(10).property.update(id, value)
+this.get(10).properties.get('name')
 this.get(10).getState().list()
 this.get(10).getState().locked()
 this.get(10).getState().dirty()
@@ -109,42 +109,3 @@ interface IBlock<T> {
     add(T): ng.Promiss<T[]>
 }
 
-export class ArtifactManagerService  implements IArtifactManagerService {
-
-    public static $inject = [
-        "$http", 
-        "$q"
-    ];
-
-    private artifactList: Models.IArtifact[];
-
-    constructor(
-        private $http: ng.IHttpService, 
-        private $q: ng.IQService) {
-
-        this.artifactList = [];
-    }
-
-    public list(): Models.IArtifact[] {
-        return this.artifactList;
-    }
-
-    public get(id: number): Models.IArtifact {
-        const foundArtifacts = this.artifactList.filter((artifact: Models.IArtifact) => artifact.id === id);
-
-        return foundArtifacts.length ? foundArtifacts[0] : null;
-    }
-    
-    public add(artifact: Models.IArtifact) {
-        this.artifactList.push(artifact);
-    }
-
-    public remove(id: number) {
-        this.artifactList = this.artifactList.filter((artifact: Models.IArtifact) => artifact.id !== id);
-    }
-
-    public update(id: number) {
-        // TODO: 
-    }
-
-}

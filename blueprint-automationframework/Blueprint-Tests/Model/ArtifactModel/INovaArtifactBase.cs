@@ -1,6 +1,7 @@
 ﻿using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
+using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel
 {
@@ -10,7 +11,7 @@ namespace Model.ArtifactModel
 
         int Id { get; set; }
         int ItemTypeId { get; set; }
-        IUser LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
+        Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
         DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property
         string Name { get; set; }
         double OrderIndex { get; set; }
@@ -38,14 +39,14 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
-        IUser CreatedBy { get; set; }
+        Identification CreatedBy { get; set; }
         DateTime CreatedOn { get; set; }
         string Description { get; set; }
         int ItemTypeVersionId { get; set; }
-        IUser LastEditedBy { get; set; }
+        Identification LastEditedBy { get; set; }
         DateTime LastEditedOn { get; set; }
-        List<PropertyForUpdate> CustomPropertyValues { get; }
-        List<PropertyForUpdate> SpecificPropertyValues { get; }
+        List<CustomProperty> CustomPropertyValues { get; }
+        List<CustomProperty> SpecificPropertyValues { get; }
 
         #endregion Serialized JSON Properties
 

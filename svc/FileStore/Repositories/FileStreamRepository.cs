@@ -32,20 +32,19 @@ namespace FileStore.Repositories
             return !string.IsNullOrEmpty(_configRepository.FileStreamDatabase);
         }
 
+        // returns true if the file is found in the legacy database and false otherwise
         public bool FileExists(Guid fileId)
         {
             // check if the legacy database is configured 
             // if it is not available then return false 
-            if (IsDatabaseAvailable() == false)
+            if (!IsDatabaseAvailable())
             {
                 return false;
             }
 
-            // returns true if the file is found in the legacy database 
-            // returns false not found in the legacy database
             if (fileId == Guid.Empty)
             {
-                throw new ArgumentException("fileId param is empty.");
+                throw new ArgumentException("fileId param is empty.", nameof(fileId));
             }
 
             using (var sqlConnection = CreateConnection())
@@ -56,16 +55,16 @@ namespace FileStore.Repositories
             }
         }
 
+        // Return a File object with the file info or null if the file is not found in the legacy database
         public File GetFileHead(Guid fileId)
         {
-            // return a File object with the file info  or null if the file is
-            // not found in the legacy database
             if (fileId == Guid.Empty)
             {
-                throw new ArgumentException("fileId param is empty.");
+                throw new ArgumentException("fileId param is empty.", nameof(fileId));
             }
 
             File file = new File();
+
             using (var sqlConnection = CreateConnection())
             {
                 sqlConnection.Open();
@@ -124,7 +123,7 @@ namespace FileStore.Repositories
                 // get file size by checking the file content
                 cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText =
+                cmd.CommandText = 
                     "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                 SqlParameter pLength = cmd.Parameters.AddWithValue("@pLength", 0L);
@@ -142,9 +141,10 @@ namespace FileStore.Repositories
             using (var cmd = sqlConnection.CreateCommand())
             {
                 cmd.Parameters.Clear();
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
+                SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, int.MaxValue);
                 pType.Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
 
@@ -172,10 +172,11 @@ namespace FileStore.Repositories
             using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
                 cmd.Parameters.Clear();
-                cmd.CommandText =
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
+                cmd.CommandText = 
                     "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, int.MaxValue);
                 pName.Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
                 return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
@@ -187,9 +188,10 @@ namespace FileStore.Repositories
             using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
                 cmd.Parameters.Clear();
+                cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandText = "SELECT TOP 1 @pName = [Path] FROM [dbo].[Templates] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, int.MaxValue);
                 pName.Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
                 return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;

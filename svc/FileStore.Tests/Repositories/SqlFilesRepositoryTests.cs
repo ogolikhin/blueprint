@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -36,6 +35,7 @@ namespace FileStore.Repositories
         #endregion Constructor
 
         #region PostFile
+
         [TestMethod]
         public async Task PostFile_QueryReturnsId_ReturnsId()
         {
@@ -108,6 +108,7 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.IsNull(file);
         }
+
         #endregion HeadFile
 
         #region GetFile

@@ -49,6 +49,8 @@ namespace FileStore.Repositories
             }
         }
 
+        private static int DefaultFileChunkSize = 1;
+
         private int _fileChunkSize;
         public int FileChunkSize
         {
@@ -56,7 +58,7 @@ namespace FileStore.Repositories
             {
                 if (_fileChunkSize == 0)
                 {
-                    _fileChunkSize = 1024 * 1024 * GetConfigValue("FileChunkSize", 1);
+                    _fileChunkSize = 1024 * 1024 * GetConfigValue("FileChunkSize", DefaultFileChunkSize);
                 }
 
                 return _fileChunkSize;
@@ -70,7 +72,7 @@ namespace FileStore.Repositories
             {
                 if (_legacyFileChunkSize == 0)
                 {
-                    // #DEBUG _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", I18NHelper.Int32ParseInvariant, 1);
+                    // #DEBUG _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", 1);
                     _legacyFileChunkSize = 4096;
                 }
 
@@ -107,13 +109,8 @@ namespace FileStore.Repositories
 
         private static int GetConfigValue(string configKey, int defaultValue)
         {
-            string configValue = GetConfigValue(configKey);
+            string configValue = ConfigurationManager.AppSettings[configKey];
             return configValue != null ? I18NHelper.Int32ParseInvariant(configValue) : defaultValue;
-        }
-
-        private static string GetConfigValue(string configKey)
-        {
-            return ConfigurationManager.AppSettings[configKey];
         }
     }
 }

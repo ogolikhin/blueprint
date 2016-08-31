@@ -1,6 +1,6 @@
 import "./artifact-manager";
 //import { } from "./project-manager";
 
-angular.module("bp.managres", [
+angular.module("bp.managers", [
     "bp.managres.artifact"
 ]);

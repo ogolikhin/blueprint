@@ -1,4 +1,5 @@
 import { Models, Enums } from "../../main/models";
+// import { IArtifactAttachment } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
 export interface IArtifactManagerService {
     $q: ng.IQService;
@@ -18,6 +19,7 @@ export interface IStatefulArtifact {
     manager: IArtifactManagerService;
     state: IState;
     properties: IArtifactProperties;
+    attachments: IArtifactAttachments;
     //lock: void;
 }
 
@@ -29,6 +31,25 @@ export interface IBlock<T> {
     add(T): ng.IPromise<T[]>;
     remove(T): ng.IPromise<T[]>;
     update(T): ng.IPromise<T[]>;
+}
+
+// from artifact-attachments.svc
+export interface IArtifactAttachment {
+    userId: number;
+    userName: string;
+    fileName: string;
+    attachmentId: number;
+    uploadedDate: string;
+    guid?: string;
+}
+
+export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
+    // list(): IArtifactAttachment[];
+    value: ng.IPromise<IArtifactAttachment[]>;
+    observable: Rx.IObservable<IArtifactAttachment[]>;
+    add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
+    remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
+    update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
 }
 
 export interface  ISystemProperty {

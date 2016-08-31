@@ -3,7 +3,7 @@ import { StatefullArtifact  } from "./artifact/artifact";
 import { } from "./properties/properties";
 import { Models, Enums } from "../../main/models";
 
-export interface IArtifactManagerService {
+export interface IArtifactManager {
     $q: ng.IQService;
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact);
@@ -15,7 +15,7 @@ export interface IArtifactManagerService {
     // refreshAll(id);
 }
 
-export class ArtifactManagerService  implements IArtifactManagerService {
+export class ArtifactManager  implements IArtifactManager {
 
     public static $inject = [
         "$http", 
@@ -43,7 +43,6 @@ export class ArtifactManagerService  implements IArtifactManagerService {
     }
     
     public add(artifact: Models.IArtifact) {
-        
         this.artifactList.push(new StatefullArtifact(this, artifact));
     }
 

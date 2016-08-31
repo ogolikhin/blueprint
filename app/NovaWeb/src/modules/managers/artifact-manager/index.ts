@@ -1,5 +1,5 @@
 
-import { ArtifactManagerService } from "./artifact-manager";
+import { ArtifactManager } from "./artifact-manager";
 
-angular.module("bp.managres.artifact", [])
-    .service("artifactManager", ArtifactManagerService);
+angular.module("bp.managers.artifact", [])
+    .service("artifactManager", ArtifactManager );

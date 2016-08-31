@@ -4,7 +4,7 @@ import { ISelectionManager, Models, ISelection, SelectionSource } from "../../ma
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
-enum PanelType {
+export enum PanelType {
     Properties,
     Relationships,    
     Discussions,
@@ -77,7 +77,7 @@ export class BPUtilityPanelController {
         }
     }
 
-    private getAccordionController(): IBpAccordionController {
+    public getAccordionController(): IBpAccordionController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 

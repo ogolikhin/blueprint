@@ -1,4 +1,5 @@
 ﻿using System;
+using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -11,7 +12,7 @@ namespace Model.ArtifactModel.Impl
         public string Description { get; set; }
         public int Id { get; set; }
         public int ItemTypeId { get; set; }
-        public IUser LockedByUser { get; set; }
+        public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public string Name { get; set; }
         public double OrderIndex { get; set; }

@@ -561,7 +561,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="propertyValue">The new value to set.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
-        private void AddOrReplaceDateValueProperty(string propertyName, DateTime propertyValue, IProject project, IUser user)
+        private void AddOrReplaceDateValueProperty(string propertyName, DateTime? propertyValue, IProject project, IUser user)
         {
             OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
 

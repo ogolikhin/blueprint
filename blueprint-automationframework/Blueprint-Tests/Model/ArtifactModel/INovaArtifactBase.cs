@@ -40,11 +40,11 @@ namespace Model.ArtifactModel
         #region Serialized JSON Properties
 
         Identification CreatedBy { get; set; }
-        DateTime CreatedOn { get; set; }
+        DateTime? CreatedOn { get; set; }
         string Description { get; set; }
         int ItemTypeVersionId { get; set; }
         Identification LastEditedBy { get; set; }
-        DateTime LastEditedOn { get; set; }
+        DateTime? LastEditedOn { get; set; }
         List<CustomProperty> CustomPropertyValues { get; }
         List<CustomProperty> SpecificPropertyValues { get; }
 

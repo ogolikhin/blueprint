@@ -1,1 +1,6 @@
-﻿<div class="overlay" ng-if="$ctrl.displayOverlay">LOADING</div>
+﻿<div ng-class="{'overlay': $ctrl.displayOverlay, 'overlay-hidden': !$ctrl.displayOverlay}">
+    <span class="container">
+        <span class="glyphicon glyphicon-refresh spin"></span>
+        <span>Loading...</span>
+    </span>
+</div>

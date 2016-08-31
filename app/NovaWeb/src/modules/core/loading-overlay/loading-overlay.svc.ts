@@ -12,14 +12,16 @@ export class LoadingOverlayService implements ILoadingOverlayService {
         this.initialize();
     }
 
+    private loadingCounter: number;
+
     public initialize = () => {
         this._displayOverlay = false;
+        this.loadingCounter = 0;
 
         window.overlayservice = this; //TODO: Remove once finished debugging
     }
 
     private _displayOverlay: boolean;
-
     public get DisplayOverlay(): boolean {
         return this._displayOverlay;
     }
@@ -29,15 +31,22 @@ export class LoadingOverlayService implements ILoadingOverlayService {
         //When do we dispose?
     }
 
-    public BeginLoading(): void {
+    public beginLoading(): void {
         this._displayOverlay = true;
+        this.loadingCounter++;
         console.log(this._displayOverlay);
         //Increment counter., display overlay.
     }
 
-    public EndLoading(): void {
-        this._displayOverlay = false;
-        console.log(this._displayOverlay);
-        //Decrement counter. If 0, remove overlay.
+    public endLoading(): void {
+        this.loadingCounter--;
+        if (this.loadingCounter < 0) {
+            //TODO: Error; something called loading in the wrong order.
+            this.loadingCounter = 0;
+        }
+
+        if (this.loadingCounter === 0) {
+            this._displayOverlay = false;
+        }
     }
 }

@@ -2,13 +2,14 @@
 import "angular-mocks";
 import "angular-sanitize";
 import { ComponentTest } from "../../util/component.test";
-import { BPUtilityPanelController } from "./bp-utility-panel";
+import { BPUtilityPanelController, PanelType } from "./bp-utility-panel";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { ArtifactHistoryMock } from "./bp-history-panel/artifact-history.mock";
 import { ArtifactRelationshipsMock } from "./bp-relationships-panel/artifact-relationships.mock";
 import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachments.mock";
 import { Models } from "../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../main/services/selection-manager";
+import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
 
 describe("Component BPUtilityPanel", () => {
 
@@ -47,7 +48,7 @@ describe("Component BPUtilityPanel", () => {
     it("should load data for a selected artifact", 
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;
+            const artifact = { id: 22, name: "Artifact", prefix: "My", predefinedType: 4099 } as Models.IArtifact;
             
             //Act
             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
@@ -58,5 +59,19 @@ describe("Component BPUtilityPanel", () => {
             expect(selectedArtifact).toBeDefined();
             expect(selectedArtifact.id).toBe(22);
             expect(vm.currentItem).toBe("My22: Artifact");
-    }));
+        }));
+
+    it("should hide files tab for collections",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+            //Arrange
+            const artifact = { id: 22, name: "Artifact", prefix: "My", predefinedType: 4609 } as Models.IArtifact;
+
+            //Act
+            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            $rootScope.$digest();
+            const accordionCtrl = vm.getAccordionController();
+
+            // Assert
+            expect((<IBpAccordionPanelController>accordionCtrl.getPanels()[PanelType.Files]).isVisible).toBe(false);
+        }));
 });

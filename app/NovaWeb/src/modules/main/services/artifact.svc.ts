@@ -5,6 +5,7 @@ export interface IArtifactService {
     getArtifact(id: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
     getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
+    updateArtifact(artifact: Models.IArtifact);
 }
 
 export class ArtifactService implements IArtifactService {
@@ -91,4 +92,20 @@ export class ArtifactService implements IArtifactService {
     }
 
 
+    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact>  {
+        var defer = this.$q.defer<Models.IArtifact>();
+
+        this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                var error = {
+                    statusCode: errResult.status,
+                    errorCode: errResult.data ? errResult.data.errorCode : -1,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
 }

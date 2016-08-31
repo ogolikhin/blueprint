@@ -96,8 +96,8 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.GetArtifactDetails(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+        { 
+        string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
@@ -107,7 +107,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
             }
 
-            return restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+              return restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,

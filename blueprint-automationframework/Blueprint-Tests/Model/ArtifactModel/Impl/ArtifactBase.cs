@@ -493,6 +493,7 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+
         /// <summary>
         /// Replace properties in an artifact with properties from an ArtifactDetails object.
         /// </summary>
@@ -517,12 +518,12 @@ namespace Model.ArtifactModel.Impl
 
             if (sourceArtifact.CreatedOn != null)
             {
-                AddOrReplaceDateValueProperty("Created On", sourceArtifact.CreatedOn.Value, project, user);
+                AddOrReplaceDateValueProperty("Created On", sourceArtifact.CreatedOn, project, user);
             }
 
             if (sourceArtifact.LastEditedOn != null)
             {
-                AddOrReplaceDateValueProperty("Last Edited On", sourceArtifact.LastEditedOn.Value, project, user);
+                AddOrReplaceDateValueProperty("Last Edited On", sourceArtifact.LastEditedOn, project, user);
             }
 
             AddOrReplaceUsersAndGroupsProperty("Created By", sourceArtifact.CreatedBy, project, user);
@@ -582,7 +583,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">A user to authenticate with.</param>
         /// <param name="userType">(optional) Specify whether the value being added is a user or group.</param>
         private void AddOrReplaceUsersAndGroupsProperty(string propertyName,
-            Identification propertyValue,
+            NovaArtifactDetails.Identification propertyValue,
             IProject project,
             IUser user,
             UsersAndGroupsType userType = UsersAndGroupsType.User)

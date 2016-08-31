@@ -443,10 +443,11 @@ namespace Model.ArtifactModel.Impl
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>
+        /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>        
         public static NovaArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
             NovaArtifactDetails artifactChanges = null,
+
             string address = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -473,7 +474,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            restApi.SendRequestAndGetResponse<NovaArtifactDetails>(
+            restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
                 bodyObject: artifactChanges,

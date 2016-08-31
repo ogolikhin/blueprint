@@ -34,7 +34,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public categoryFilter: number;
     public isLoading: boolean = false;
     public filesToUpload: any;
+
     private artifactIsDeleted: boolean = false;
+    private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
+    private maxNumberAttachmentsDefault: number = 50;
     
     constructor(
         $q: ng.IQService,
@@ -87,14 +90,24 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: "File Upload"
             };
 
-            const maxAttachmentFilesizeDefault: number = 10 * 1024 * 1024;
             const curNumOfAttachments: number = this.artifactAttachmentsList 
                     && this.artifactAttachmentsList.attachments 
                     && this.artifactAttachmentsList.attachments.length || 0;
+            
+            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
+            let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
+
+            if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
+                maxNumberAttachments = this.maxNumberAttachmentsDefault;
+            }
+            if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
+                maxAttachmentFilesize = this.maxAttachmentFilesizeDefault;
+            }
+
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault),
-                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - curNumOfAttachments
+                maxAttachmentFilesize: maxAttachmentFilesize,
+                maxNumberAttachments: maxNumberAttachments - curNumOfAttachments
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {

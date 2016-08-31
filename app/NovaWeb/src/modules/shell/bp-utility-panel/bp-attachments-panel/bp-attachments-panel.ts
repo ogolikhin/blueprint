@@ -59,7 +59,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
-            header: "Add Document Reference"
+            header: this.localization.get("App_UP_Attachments_Document_Picker_Title")
         };
 
         const dialogData: IArtifactPickerFilter = {

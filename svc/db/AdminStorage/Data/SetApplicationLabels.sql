@@ -74,6 +74,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Download', 'en-US', N'Download')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Delete', 'en-US', N'Delete')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Download_No_Attachment', 'en-US', N'There''s no attachment available')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Document_Picker_Title', 'en-US', N'Add Document Reference')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Introduction_Message', 'en-US', N'You may collaborate with others using this discussion panel to add comments to any selected artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Start_Discussion', 'en-US', N'+ Start a new discussion')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Discussion', 'en-US', N'+ New comment')

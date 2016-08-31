@@ -83,11 +83,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {
             const dialogSettings = <IDialogSettings>{
-                okButton: "Attach", //this.localization.get("App_Button_Open"),
+                okButton: this.localization.get("App_Button_Ok", "OK"),
                 template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
                 controller: BpFileUploadStatusController,
                 css: "nova-file-upload-status",
-                header: "File Upload"
+                header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload")
             };
 
             const curNumOfAttachments: number = this.artifactAttachmentsList 

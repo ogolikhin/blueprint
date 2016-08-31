@@ -55,6 +55,14 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             this.projectId = _project.id;
             this.projectName = _project.name;
         }
+        $scope.$on("$destroy", () => {
+            this.columns[0].cellClass = null;
+            this.columns[0].cellRendererParams = null;
+            this.columns = null;
+            this.doSelect = null;
+            this.doSync = null;
+            this.doLoad = null;
+        });
     };
 
     public propertyMap = {

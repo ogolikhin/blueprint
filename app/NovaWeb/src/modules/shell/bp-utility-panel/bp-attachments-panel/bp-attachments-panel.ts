@@ -1,10 +1,10 @@
-﻿import { ILocalizationService, ISettingsService, IStateManager, ItemState } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { ISession } from "../../../shell";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments, IArtifactDocRef } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { IDialogSettings, IDialogService, IDialogData } from "../../../shared";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
@@ -141,10 +141,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
+    /* tslint:disable:no-unused-variable */
     private fileCanNotBeAdded() {
         return this.artifactIsDeleted ||
             (this.itemState && this.itemState.isReadonly);
     }
+    /* tslint:disable:no-unused-variable */
 
     private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
         this.isLoading = true;

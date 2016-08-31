@@ -5,71 +5,67 @@ namespace FileStore.Repositories
 {
     public class ConfigRepository : IConfigRepository
     {
-        private readonly static object Locker = new object();
+        private static readonly ConfigRepository _instance = new ConfigRepository();
+
+        // Explicit static constructor to tell C# compiler
+        // not to mark type as beforefieldinit
+        static ConfigRepository() { }
 
         private ConfigRepository() { }
 
-        private static ConfigRepository _instance;
         public static ConfigRepository Instance
         {
             get
             {
-                if (_instance == null)
-                {
-                    lock (Locker)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new ConfigRepository();
-                        }
-                    }
-                }
                 return _instance;
             }
         }
 
-        string _fileStoreDatabase;
+        private string _fileStoreDatabase;
         public string FileStoreDatabase
         {
             get
             {
                 if (_fileStoreDatabase == null)
                 {
-                    _fileStoreDatabase =
-                        ConfigurationManager.ConnectionStrings["FileStoreDatabase"].ConnectionString;
+                    _fileStoreDatabase = GetConnectionString("FileStoreDatabase");
                 }
+
                 return _fileStoreDatabase;
             }
         }
 
-        string _fileStreamDatabase;
+        private string _fileStreamDatabase;
         public string FileStreamDatabase
         {
             get
             {
                 if (_fileStreamDatabase == null)
                 {
-                    _fileStreamDatabase =
-                         ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
+                    _fileStreamDatabase = GetConnectionString("FileStreamDatabase");
                 }
+
                 return _fileStreamDatabase;
             }
         }
 
-        int _fileChunkSize;
+        private static int DefaultFileChunkSize = 1;
+
+        private int _fileChunkSize;
         public int FileChunkSize
         {
             get
             {
                 if (_fileChunkSize == 0)
                 {
-                    _fileChunkSize = 1024 * 1024 * GetConfigValue("FileChunkSize", 1);
+                    _fileChunkSize = 1024 * 1024 * GetConfigValue("FileChunkSize", DefaultFileChunkSize);
                 }
+
                 return _fileChunkSize;
             }
         }
 
-        int _legacyFileChunkSize;
+        private int _legacyFileChunkSize;
         public int LegacyFileChunkSize
         {
             get
@@ -79,13 +75,42 @@ namespace FileStore.Repositories
                     // #DEBUG _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", 1);
                     _legacyFileChunkSize = 4096;
                 }
+
                 return _legacyFileChunkSize;
             }
         }
 
-        public static int GetConfigValue(string configValue, int defaultValue)
+        private const int DefaultCommandTimeout = 60;
+
+        private int? _commandTimeout;
+        public int CommandTimeout
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+            get
+            {
+                if (!_commandTimeout.HasValue)
+                {
+                    var configValue = GetConfigValue("CommandTimeout", DefaultCommandTimeout);
+                    if (configValue <= 0)
+                    {
+                        configValue = DefaultCommandTimeout;
+                    }
+
+                    _commandTimeout = configValue;
+                }
+
+                return _commandTimeout.Value;
+            }
+        }
+
+        private static string GetConnectionString(string name)
+        {
+            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+        }
+
+        private static int GetConfigValue(string configKey, int defaultValue)
+        {
+            string configValue = ConfigurationManager.AppSettings[configKey];
+            return configValue != null ? I18NHelper.Int32ParseInvariant(configValue) : defaultValue;
         }
     }
 }

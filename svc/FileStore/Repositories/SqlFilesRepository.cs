@@ -1,27 +1,28 @@
 ﻿using System;
-using System.Linq;
 using System.Data;
-using System.Threading.Tasks;
-using ServiceLibrary.Repositories;
-using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using FileStore.Models;
+using ServiceLibrary.Repositories;
 
 namespace FileStore.Repositories
 {
     public class SqlFilesRepository : IFilesRepository
     {
+        private readonly int _commandTimeout;
+
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        public SqlFilesRepository()
-             : this(new SqlConnectionWrapper(ConfigRepository.Instance.FileStoreDatabase))
+        public SqlFilesRepository() : this(new SqlConnectionWrapper(ConfigRepository.Instance.FileStoreDatabase), ConfigRepository.Instance)
         {
         }
 
-        internal SqlFilesRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlFilesRepository(ISqlConnectionWrapper connectionWrapper, IConfigRepository configRepository)
         {
             ConnectionWrapper = connectionWrapper;
+            _commandTimeout = configRepository.CommandTimeout;
         }
 
         public DbConnection CreateConnection()
@@ -32,11 +33,13 @@ namespace FileStore.Repositories
 
         private DateTime? GetPostFileHeadExpirationTime(DateTime? dateTime)
         {
-            DateTime? dateTimeUtc= null;
+            DateTime? dateTimeUtc = null;
+
             if (dateTime.HasValue)
             {
                 // Convert to UTC if required
                 dateTimeUtc = dateTime.Value.Kind != DateTimeKind.Utc ? dateTime.Value.ToUniversalTime() : dateTime.Value;
+
                 if (dateTimeUtc < DateTime.UtcNow)
                 {
                     dateTimeUtc = DateTime.UtcNow;
@@ -58,7 +61,7 @@ namespace FileStore.Repositories
             {
                 // Convert to UTC if required
                 dateTimeUtc = dateTime.Value.Kind != DateTimeKind.Utc ? dateTime.Value.ToUniversalTime() : dateTime.Value;
-                
+
                 if (dateTimeUtc < DateTime.UtcNow)
                 {
                     dateTimeUtc = DateTime.UtcNow;
@@ -81,7 +84,7 @@ namespace FileStore.Repositories
             prm.Add("@ChunkCount", file.ChunkCount);
             prm.Add("@FileSize", file.FileSize);
             prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-            await ConnectionWrapper.ExecuteAsync("InsertFileHead", prm, commandType: CommandType.StoredProcedure);
+            await ConnectionWrapper.ExecuteAsync("InsertFileHead", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure);
             return file.FileId = prm.Get<Guid>("FileId");
         }
 
@@ -92,7 +95,7 @@ namespace FileStore.Repositories
             prm.Add("@ChunkNum", chunk.ChunkNum);
             prm.Add("@ChunkSize", chunk.ChunkSize);
             prm.Add("@ChunkContent", chunk.ChunkContent);
-            await ConnectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandType: CommandType.StoredProcedure);
+            await ConnectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure);
             return chunk.ChunkNum + 1;
         }
 
@@ -102,14 +105,15 @@ namespace FileStore.Repositories
             prm.Add("@FileId", fileId);
             prm.Add("@ChunkCount", chunkCount);
             prm.Add("@FileSize", fileSize);
-            await ConnectionWrapper.ExecuteAsync("UpdateFileHead", prm, commandType: CommandType.StoredProcedure);
+            await ConnectionWrapper.ExecuteAsync("UpdateFileHead", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure);
         }
+
         public async Task<File> GetFileHead(Guid guid)
         {
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
 
-            var file = (await ConnectionWrapper.QueryAsync<File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var file = (await ConnectionWrapper.QueryAsync<File>("ReadFileHead", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 
             if (file != null)
             {
@@ -117,6 +121,7 @@ namespace FileStore.Repositories
                 {
                     file.ExpiredTime = DateTime.SpecifyKind(file.ExpiredTime.Value, DateTimeKind.Utc);
                 }
+
                 file.StoredTime = DateTime.SpecifyKind(file.StoredTime, DateTimeKind.Utc);
             }
 
@@ -128,7 +133,7 @@ namespace FileStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
             prm.Add("@ChunkNum", num);
-            return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         public async Task<Guid?> DeleteFile(Guid guid, DateTime? expired)
@@ -136,21 +141,23 @@ namespace FileStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
             prm.Add("@ExpiredTime", GetDeleteFileExpirationTime(expired));
-            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
+            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFile", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
         }
+
         public async Task<int> DeleteFileChunk(Guid guid, int chunkNumber)
         {
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
             prm.Add("@ChunkNumber", chunkNumber);
-            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFileChunk", prm, commandType: CommandType.StoredProcedure));
+            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFileChunk", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure));
         }
-        public Models.File GetFileInfo(Guid fileId)
+
+        public File GetFileInfo(Guid fileId)
         {
             var prm = new DynamicParameters();
             prm.Add("@FileId", fileId);
 
-            return ConnectionWrapper.Query<Models.File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            return ConnectionWrapper.Query<File>("ReadFileHead", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure).FirstOrDefault();
         }
 
         public byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num)
@@ -171,9 +178,7 @@ namespace FileStore.Repositories
                 throw new ArgumentNullException("The database connection must be open prior to use.");
             }
 
-            return dbConnection.ExecuteScalar<byte[]>("ReadChunkContent", prm, commandType: CommandType.StoredProcedure);
-
+            return dbConnection.ExecuteScalar<byte[]>("ReadChunkContent", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure);
         }
-
     }
 }

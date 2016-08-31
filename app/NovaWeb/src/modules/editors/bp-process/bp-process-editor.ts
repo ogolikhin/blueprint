@@ -1,7 +1,6 @@
 ﻿// References to StorytellerDiagramDirective
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
-import {ISelectionManager } from "../../main/services";
 import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
@@ -37,7 +36,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         "$q",
         "$log",
         "processService",
-        "selectionManager",
         "$uibModal",
         "localization",
         "$timeout", 
@@ -54,7 +52,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private selectionManager: ISelectionManager,
         private $uibModal: ng.ui.bootstrap.IModalService,
         private localization: ILocalizationService,
         private $timeout: ng.ITimeoutService,

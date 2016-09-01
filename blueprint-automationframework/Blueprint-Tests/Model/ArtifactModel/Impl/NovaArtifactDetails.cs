@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using Model.Impl;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
 
 
-    public class NovaArtifactDetails:INovaArtifactDetails
+    public class NovaArtifactDetails : INovaArtifactDetails
     {
         #region Serialized JSON Properties
 
@@ -23,7 +23,7 @@ namespace Model.ArtifactModel.Impl
         public int ItemTypeVersionId { get; set; }
         public IUser LastEditedBy { get; set; }
         public DateTime LastEditedOn { get; set; }
-        public IUser LockedByUser { get; set; }
+        public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public string Name { get; set; }
         public double OrderIndex { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
+using Model.Impl;
 
 namespace Model.ArtifactModel
 {
@@ -10,7 +11,7 @@ namespace Model.ArtifactModel
 
         int Id { get; set; }
         int ItemTypeId { get; set; }
-        IUser LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
+        Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
         DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property
         string Name { get; set; }
         double OrderIndex { get; set; }
@@ -31,7 +32,16 @@ namespace Model.ArtifactModel
         int PredefinedType { get; set; }
         string Prefix { get; set; }
 
+        /// <summary>
+        /// A list of child artifacts.  This is optional and can be null depending on the REST call made.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
+        List<INovaArtifact> Children { get; set; }
+
         #endregion Serialized JSON Properties
+
+        void AssertEquals(IArtifactBase artifact, bool shouldCompareVersions = true);
+        void AssertEquals(INovaArtifactBase artifact);
     }
 
     public interface INovaArtifactDetails : INovaArtifactBase

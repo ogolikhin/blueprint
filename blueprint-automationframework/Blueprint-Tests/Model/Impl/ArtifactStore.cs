@@ -94,6 +94,27 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetExpandedArtifactTree(IUser, IProject, int, bool?, List{HttpStatusCode})"/>
+        public List<INovaArtifact> GetExpandedArtifactTree(IUser user,
+            IProject project,
+            int artifactId,
+            bool? includeChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var novaArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            var ret = novaArtifacts.ConvertAll(o => (INovaArtifact)o);
+            return ret;
+        }
+
         /// <seealso cref="IArtifactStore.GetArtifactDetails(IUser, int, int?, List{HttpStatusCode})"/>
         public ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {

@@ -1,6 +1,5 @@
-import { IState, IStatefulArtifact } from "./interfaces";
-import { StatefullArtifact  } from "./artifact/artifact";
-import { } from "./properties/properties";
+import { IStatefulArtifact } from "./interfaces";
+import { StatefullArtifact  } from "./artifact";
 import { Models, Enums } from "../../main/models";
 
 export interface IArtifactManager {

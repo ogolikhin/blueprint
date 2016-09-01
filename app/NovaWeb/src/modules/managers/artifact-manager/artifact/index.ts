@@ -1,0 +1,1 @@
+export { StatefullArtifact } from "./artifact";

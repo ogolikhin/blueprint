@@ -36,9 +36,7 @@ export class ProcessGraph implements IProcessGraph {
     private transitionTimeOut: number = 400;
     private bottomBorderWidt: number = 6;
     private highlightedEdgeStates: any[] = [];
-
     private deleteShapeHandler: string;
-    public selectedNode: IDiagramNode;
 
     public globalScope: IScopeContext;
 
@@ -615,10 +613,15 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private deleteShape = () => {
-        if (this.selectedNode.getNodeType() === NodeType.UserTask) {
-            ProcessDeleteHelper.deleteUserTask(this.selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-        } else if (this.selectedNode.getNodeType() === NodeType.UserDecision || this.selectedNode.getNodeType() === NodeType.SystemDecision) {
-            ProcessDeleteHelper.deleteDecision(this.selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+        let selectedNodes = this.getSelectedNodes();
+        if (selectedNodes.length > 0) {
+            let selectedNode = selectedNodes[0];
+            
+            if (selectedNode.getNodeType() === NodeType.UserTask) {
+                ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+            } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
+                ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+            }
         }
     }
 
@@ -778,18 +781,14 @@ export class ProcessGraph implements IProcessGraph {
     private initSelection() {
         //let that = this;
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
-            elements = elements.filter(e => e instanceof DiagramNode);
-            let element: any = elements[0];
-
+            let elements = this.getSelectedNodes();
             let deletable = elements.length > 0;
             if (deletable) {
+                let element: IDiagramNode = elements[0];
                 deletable = element.getNodeType() === NodeType.UserDecision || 
                             element.getNodeType() === NodeType.SystemDecision ||
                             element.getNodeType() === NodeType.UserTask;
             } 
-
-            this.selectedNode = deletable ? element : null;
 
             this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
 
@@ -799,6 +798,12 @@ export class ProcessGraph implements IProcessGraph {
                 });
             }
         });
+    }
+
+    private getSelectedNodes(): Array<IDiagramNode> {
+        var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
+        elements = elements.filter(e => e instanceof DiagramNode);
+        return elements;
     }
 
     private findConditionStart(context: IScopeContext, nextId: number): IConditionContext {

@@ -93,7 +93,6 @@ export interface IProcessGraph {
     layout: ILayout;
     startNode: IDiagramNode;
     endNode: IDiagramNode;
-    selectedNode: IDiagramNode;
     messageService: IMessageService;
     rootScope: any;
     getMxGraph(): MxGraph;

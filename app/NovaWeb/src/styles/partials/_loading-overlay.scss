@@ -1,6 +1,6 @@
 loading-overlay {
 
-    .overlay-hidden
+    .overlay-hidden //apply to div instead
     {
         position:fixed;
         visibility: hidden;
@@ -37,7 +37,7 @@ loading-overlay {
             position:fixed;
             left:auto;
             right:auto;
-            top:50%;
+            top:20%;
             width: 100%;
             text-align:center;
 

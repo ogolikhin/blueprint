@@ -6,10 +6,6 @@ import { IDialogService } from "../../../../shared";
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: Function = BpProcessHeaderController;
-    public controllerAs: string = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
     public transclude: boolean = true;
 }
 

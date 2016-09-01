@@ -11,8 +11,12 @@ export class MessageServiceMock implements IMessageService {
         this.messages.push(msg);
     }
 
-    public addError(text: string) {
-        this.addMessage(new Message(MessageType.Error, text));
+    public addError(text: string | Error): void {
+        if (text instanceof Error) {
+            this.addMessage(new Message(MessageType.Error, (text as Error).message));
+        } else {
+            this.addMessage(new Message(MessageType.Error, text as string));
+        }
     }
 
     public deleteMessageById(id: number) {

@@ -31,6 +31,7 @@ export interface IProjectManager {
 
     getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
+    updateArtifactName(artifact: Models.IArtifact);
 }
 
 
@@ -119,11 +120,12 @@ export class ProjectManager implements IProjectManager {
                                 this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
                             }).catch((error: any) => {
-                                this.messageService.addError(error["message"] || "Project_NotFound");
+                                
+                                this.messageService.addError(error);
                             });
 
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || "Project_NotFound");
+                        this.messageService.addError(error);
                     });
 
 
@@ -161,7 +163,9 @@ export class ProjectManager implements IProjectManager {
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
-                    if (error.statusCode === 1401) {
+                    if (error) {
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    } else {
                         angular.extend(artifact, {
                             artifacts: null,
                             hasChildren: true,
@@ -169,13 +173,26 @@ export class ProjectManager implements IProjectManager {
                             open: false
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
-                    } else {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
                     }
                 });
 
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Artifact_NotFound");
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        }
+    }
+
+    public updateArtifactName(artifact: Models.IArtifact) {
+        let project = this.projectCollection.getValue().filter(function(it) {
+            return it.id === artifact.projectId;
+        })[0];
+        if (project) {
+            let art = project.artifacts.filter(function(it) {
+                return it.id === artifact.id;
+            })[0];
+            if (art) {
+                art.name = artifact.name;
+            }
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
@@ -207,12 +224,8 @@ export class ProjectManager implements IProjectManager {
 
     }
 
-    public loadFolders(id?: number) {
-        try {
-            return this._repository.getFolders(id);
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || "Project_NotFound");
-        }
+    public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+        return this._repository.getFolders(id);
     }
 
     public getProject(id: number) {

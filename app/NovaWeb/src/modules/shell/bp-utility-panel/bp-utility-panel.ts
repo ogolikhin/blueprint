@@ -4,7 +4,7 @@ import { ISelectionManager, Models, ISelection, SelectionSource } from "../../ma
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
-enum PanelType {
+export enum PanelType {
     Properties,
     Relationships,    
     Discussions,
@@ -65,7 +65,9 @@ export class BPUtilityPanelController {
 
     private hidePanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
-        accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
+        if (accordionCtrl) {
+            accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
+        }
     }
 
     private showPanel(panelType: PanelType) {
@@ -75,7 +77,7 @@ export class BPUtilityPanelController {
         }
     }
 
-    private getAccordionController(): IBpAccordionController {
+    public getAccordionController(): IBpAccordionController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
@@ -93,6 +95,7 @@ export class BPUtilityPanelController {
         if (selection) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
+            this.toggleFilesPanel(selection);
         }
     }
 
@@ -106,7 +109,6 @@ export class BPUtilityPanelController {
     
     private togglePropertiesPanel(selection: ISelection) {
         const artifact = selection.artifact;        
-        
         if (artifact && (selection.subArtifact 
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
@@ -116,12 +118,26 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCaseDiagram
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
+            || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                selection.source === SelectionSource.Editor))) {
+                selection.source === SelectionSource.Editor &&
+                this.selectionManager.getExplorerSelectedArtifact().predefinedType === ItemTypePredefined.UseCaseDiagram))) {
 
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);
+        }
+    }
+
+    private toggleFilesPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.Project)) {
+            this.hidePanel(PanelType.Files);
+        } else {
+            this.showPanel(PanelType.Files);
         }
     }
 }

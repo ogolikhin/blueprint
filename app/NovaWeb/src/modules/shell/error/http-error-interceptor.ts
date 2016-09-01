@@ -1,16 +1,22 @@
 ﻿import "angular";
 import { ISession } from "../login/session.svc";
 import { SessionTokenHelper } from "../login/session.token.helper";
+import { IMessageService,} from "../../core";
 
-export class HttpHandledErrorStatusCodes {
-    public static get handledUnauthorizedStatus() {
-        return 1401;
-    }
+
+export enum HttpErrorStatusCodes {
+    Unavailable = -1,
+    Succsess = 200,
+    Unauthorized = 401,
+    Forbidden = 403,
+    NotFound = 404,
+    ServerError = 500
 }
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
     ignoreInterceptor: boolean;
     dontRetry: boolean;
+    dontHandle: boolean;
 }
 
 export class HttpErrorInterceptor {
@@ -20,19 +26,26 @@ export class HttpErrorInterceptor {
     }
 
     public responseError = (response: ng.IHttpPromiseCallbackArg<any>) => {
-        var $q: ng.IQService = <ng.IQService>this.$injector.get("$q");
-        var session: ISession = <ISession>this.$injector.get("session");
+        let $q = this.$injector.get("$q") as ng.IQService;
+        let $session = this.$injector.get("session") as ISession;
+        let $message = this.$injector.get("messageService") as IMessageService;
+        let $log = this.$injector.get("$log") as ng.ILogService;
 
-        var config = <IHttpInterceptorConfig>response.config;
+        let config = (response.config || {}) as IHttpInterceptorConfig;
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        if (config && (config.ignoreInterceptor || config.dontRetry)) {
+        if (config.ignoreInterceptor) {
             deferred.reject(response);
-        } else if (response.status === 401) {            
-            session.onExpired().then(
+        } else if (response.status === HttpErrorStatusCodes.Unavailable) {
+            if (!this.canceledByUser(config)) {
+                $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
+            }
+            deferred.reject();
+        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {            
+            $session.onExpired().then(
                 () => {
-                    if (config) {
+                    if (!config.dontRetry) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
                         HttpErrorInterceptor.applyNewSessionToken(config);                    
 
@@ -40,18 +53,44 @@ export class HttpErrorInterceptor {
 
                         $http(config).then(retryResponse => deferred.resolve(retryResponse), retryResponse => deferred.reject(retryResponse));
                     } else {
-                        response.status = HttpHandledErrorStatusCodes.handledUnauthorizedStatus;
+                        response.status = HttpErrorStatusCodes.Unauthorized;
                         deferred.reject(response);
                     }
                 },
                 () => deferred.reject(response)
             );
+        } else if (response.status === HttpErrorStatusCodes.Forbidden && !config.dontHandle) {
+            $message.addError("HttpError_Forbidden"); //Forbidden. The user does not have permissions for the artifact
+            //here we need to reject with none object passed in, means that the error has been handled
+            deferred.reject();
+
+        } else if (response.status === HttpErrorStatusCodes.ServerError && !config.dontHandle) {
+            $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
+            //here we need to reject with none object passed in, means that the error has been handled
+            deferred.reject();
+        
         } else {
+            $log.error(response.data);
             deferred.reject(response);
         }
 
         return deferred.promise;
     };
+
+    private canceledByUser(config: IHttpInterceptorConfig): boolean {
+        //handle edge-case for cancelled request
+        if (!config) {
+            return false;
+        }
+        let promise = config.timeout as ng.IPromise<any>;
+        if (promise) {
+            if (promise["$$state"] && promise["$$state"].status === 1) {
+                //request canceled by user
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static applyNewSessionToken(config: ng.IRequestConfig) {
         var token = SessionTokenHelper.getSessionToken();

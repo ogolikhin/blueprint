@@ -89,7 +89,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             for (var a = 0; a < aTags.length; a++) {
                 aTags[a].setAttribute("target", "_blank");
             }
-            this._selectedDescription = this.$sce.trustAsHtml(virtualDiv.innerHTML);
+            this._selectedDescription = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
             this._selectedItem.description = this._selectedDescription.toString();
         } else {
             this._selectedDescription = null;
@@ -142,11 +142,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 }
             }, (error) => {
                 //close dialog on authentication error
-                if (error.statusCode === 1401) {
-                    this.cancel();
-                } else {
-                    this._errorMessage = error.message;
-                }
+                this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
             });
 
         return null;

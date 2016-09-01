@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 
 namespace Model.ArtifactModel.Impl
@@ -78,7 +79,7 @@ namespace Model.ArtifactModel.Impl
                 BasePropertyType = returnedPropertyType.BasePropertyType,
                 // Set the value for the property with propertyValue parameter
                 TextOrChoiceValue = propertyValue ?? returnedPropertyType.DefaultValue,
-                DateValue = dateValue?.ToString(),
+                DateValue = dateValue?.ToString(DateTimeFormatInfo.InvariantInfo),
                 UsersAndGroups = usersAndGroups,
                 IsRichText = returnedPropertyType.IsRichText ?? false,
                 IsReadOnly = returnedPropertyType.IsReadOnly

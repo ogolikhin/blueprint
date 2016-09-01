@@ -5,6 +5,7 @@ export interface IArtifactService {
     getArtifact(id: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
     getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
+    updateArtifact(artifact: Models.IArtifact);
 }
 
 export class ArtifactService implements IArtifactService {
@@ -26,6 +27,10 @@ export class ArtifactService implements IArtifactService {
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
                     message: (errResult.data ? errResult.data.message : "")
@@ -72,6 +77,10 @@ export class ArtifactService implements IArtifactService {
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ILockResult>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
                     message: (errResult.data ? errResult.data.message : "")
@@ -83,4 +92,24 @@ export class ArtifactService implements IArtifactService {
     }
 
 
+    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact>  {
+        var defer = this.$q.defer<Models.IArtifact>();
+
+        this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                var error = {
+                    statusCode: errResult.status,
+                    errorCode: errResult.data ? errResult.data.errorCode : -1,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
 }

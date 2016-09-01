@@ -7,7 +7,7 @@
             </div>
             <div class="indicators">
                 <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
-                <i class="lock-indicator fonticon2-lock" ng-if="$ctrl.isLocked" ng-class="{'self-locked': $ctrl.selfLocked}" bp-tooltip="{{ $ctrl.lockTooltip }}"> </i>
+                <i class="fonticon-lock self-locked" ng-if="$ctrl.selfLocked" bp-tooltip="Locked"> </i>
                 <!--TODO  please do not remove, I'll remove after testing-->
                 <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
@@ -19,6 +19,6 @@
 <div class="page-top-toolbar">
     <button class="btn btn-bluelight" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>
-    <button class="btn btn-bluelight" bp-tooltip="Save">Save</button>
+    <button class="btn btn-bluelight" bp-tooltip="Save" ng-click="$ctrl.saveChanges()" ng-disabled="!$ctrl.isChanged">Save</button>
     <button class="btn btn-primary" bp-tooltip="Publish">Publish</button>
 </div>

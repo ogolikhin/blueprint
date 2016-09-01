@@ -23,7 +23,7 @@ export class ProcessService implements IProcessService {
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
         let deferred = this.$q.defer<ProcessModels.IProcess>();
-        this.messageService.dispose();
+
         let queryParamData = {
             versionId: isNaN(versionId) ? null : versionId,
             revisionId: isNaN(revisionId) ? null : revisionId,
@@ -48,9 +48,15 @@ export class ProcessService implements IProcessService {
                 deferred.resolve(result.data);
             
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-
-                result.data.statusCode = result.status;
-                deferred.reject(result.data);
+                if (!result) {
+                    deferred.reject();
+                    return;
+                }
+                const error = {
+                    statusCode: result.status,
+                    message: result.data ? result.data.message : ""
+                };
+                deferred.reject(error);
             }
         );
         return deferred.promise;

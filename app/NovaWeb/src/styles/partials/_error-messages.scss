@@ -85,6 +85,9 @@ bp-message {
     &.info {
       background-color: $messages-bg-info;
     }
+    &.lock {
+      background-color: $messages-bg-warning;
+    }
   }
 }
 

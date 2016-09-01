@@ -58,7 +58,7 @@ namespace ArtifactStoreTests
             var expectedArtifactHistory = new ArtifactHistoryVersion
             {
                 VersionId = versionId ?? 1,
-                UserId = userId ?? _user.UserId,
+                UserId = userId ?? _user.Id,
                 DisplayName = displayName ?? _user.DisplayName,
                 HasUserIcon = hasUserIcon ?? false,
                 Timestamp = timestamp ?? DateTime.Now.ToUniversalTime(),

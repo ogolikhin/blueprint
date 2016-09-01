@@ -127,7 +127,7 @@ pagecontent, bp-properties-panel {
         width: 24px;
       }
 
-      .lock-indicator.self-locked::before {
+      .fonticon-lock.self-locked::before {
         color: $brand-secondary;
       }
 

@@ -28,7 +28,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         private projectManager: IProjectManager
     ) {
         super(messageService, stateManager, windowManager);
-        this.editor = new PropertyEditor(this.localization.current);
+        this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
@@ -36,7 +36,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
         this._subscribers.push(
             this.stateManager.stateChange.filter(it => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
-        )
+        );
     }
 
 
@@ -68,8 +68,8 @@ export class BpArtifactEditor extends BpBaseEditor {
          this.onUpdate(context);
     }
 
-    public clearFields() {
-        this.fields = [];
+    public clearFields() { 
+        this.fields = []; 
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -140,6 +140,8 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
 
+    public doSave(state: ItemState): void { }
+
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         try {
             //here we need to update original model
@@ -155,7 +157,12 @@ export class BpArtifactEditor extends BpBaseEditor {
             };
             let state = this.stateManager.addChange(this.context.artifact, changeSet);
 
-            this.stateManager.lockArtifact(state);
+            this.stateManager.lockArtifact(state).catch((error: any) => {
+                if (error) {
+                    this.messageService.addError(error);
+                }
+            });
+
         } catch (err) {
             this.messageService.addError(err);
         }

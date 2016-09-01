@@ -1,15 +1,19 @@
-﻿import { BPLocale, } from "../../core";
+﻿import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export class PropertyEditor {
-
+    
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
-    public  propertyContexts: PropertyContext[];
-    constructor(private locale: BPLocale) { }
+    public propertyContexts: PropertyContext[];
+    private locale: BPLocale;
+    constructor(private localization: ILocalizationService)
+    {
+        this.locale = localization.current;
+    }
 
     public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
         if (!field) {
@@ -131,7 +135,12 @@ export class PropertyEditor {
                             return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
                         if (specificpropertyvalue) {
-                            modelValue = specificpropertyvalue.value || null;
+                            if (artifactOrSubArtifact.predefinedType === Enums.ItemTypePredefined.Step &&
+                                specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
+                                modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
+                            } else {
+                                modelValue = specificpropertyvalue.value || null;
+                            }
                             propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
@@ -144,6 +153,15 @@ export class PropertyEditor {
             });
         }
         return this._model;
+    }
+
+    private GetActorStepOfValue(propertyValue: any): string {        
+        if (propertyValue) {
+            return this.localization.get("App_Properties_Actor_StepOf_Actor");            
+        }
+        else {            
+            return this.localization.get("App_Properties_Actor_StepOf_System");
+        }
     }
 
     public destroy() {

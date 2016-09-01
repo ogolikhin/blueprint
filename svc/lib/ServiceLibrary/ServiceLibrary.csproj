@@ -81,8 +81,6 @@
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
-    <Compile Include="Attributes\SessionOptionalAttribute.cs" />
-    <Compile Include="Attributes\SessionRequiredAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
     <Compile Include="EventSources\PerformanceLogEventSource.cs" />

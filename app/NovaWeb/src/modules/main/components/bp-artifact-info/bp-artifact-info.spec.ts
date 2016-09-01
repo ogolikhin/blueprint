@@ -163,7 +163,7 @@ describe("Component BpArtifactInfo", () => {
         //Assert
         expect(vm.isChanged).toBeFalsy();
         expect(vm.isReadonly).toBeFalsy();
-        expect(vm.isLocked).toBeTruthy();
+        expect(vm.selfLocked).toBeTruthy();
 
     }));
 
@@ -185,7 +185,7 @@ describe("Component BpArtifactInfo", () => {
         //Assert
         expect(vm.isChanged).toBeFalsy();
         expect(vm.isReadonly).toBeTruthy();
-        expect(vm.isLocked).toBeTruthy();
+        expect(vm.lockMessage).toBeDefined();
         expect(vm.selfLocked).toBeFalsy();
 
     }));
@@ -213,7 +213,6 @@ describe("Component BpArtifactInfo", () => {
         //Assert
         expect(vm.isChanged).toBeTruthy();
         expect(vm.isReadonly).toBeFalsy();
-        expect(vm.isLocked).toBeTruthy();
         expect(vm.selfLocked).toBeTruthy();
 
 

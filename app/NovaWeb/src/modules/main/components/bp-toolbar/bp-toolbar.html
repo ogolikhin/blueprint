@@ -1,9 +1,14 @@
-﻿<div class="navbar-toolbar">
+<div class="navbar-toolbar">
     <ul class="nav navbar-nav">
         <li uib-dropdown>
-            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>{{::$root.config.labels["App_Toolbar_Project"]}}</span></a>
+            <a href="#" uib-dropdown-toggle>
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-project"></i><b class="caret"></b>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Project"]}}</span>
+                </a>
             <ul class="dropdown-menu">
-                <li><a href="#" id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a></li>
+                <li><a href="#" id="openProject" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a></li>
                 <!-- The following second level menu has been temporarily disabled -->
                 <!-- <li class="dropdown-submenu">
                      <a href="#" ng-click="$ctrl.showSubLevel($event)">{{::$root.config.labels["App_Toolbar_Open_Recent_Projects"]}}</a>
@@ -18,23 +23,43 @@
             </ul>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-error"></i><span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-discard-line"></i>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span>
+            </a>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-upload-cloud"></i><span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-publish-line"></i>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span>
+            </a>
         </li>
         <li>
-            <a href="#" id="refresh" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-refresh"></i><span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span></a>
+            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-refresh-line"></i>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
+            </a>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-delete"></i><span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span></a>
+            <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-delete"></i>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span>
+            </a>
         </li>
        
     </ul>
     <ul class="nav navbar-nav nav-right">
         <li>
-            <a href="#" id="tour" ng-click="$ctrl.openTour()"><i class="fonticon fonticon-tour"></i><span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
+            <a href="#" id="tour" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-tour"></i><span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
         </li>
     </ul>
     <ul class="nav navbar-nav nav-right" ng-show="$ctrl.currentArtifact">

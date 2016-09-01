@@ -1,6 +1,5 @@
 ﻿import "angular";
 import "angular-mocks";
-import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { Models } from "../../main/";
 import { IProjectRepository, ProjectRepository } from "./";
 import { ProjectRepositoryMock } from "./project-repository.mock";
@@ -9,7 +8,6 @@ describe("Project Repository", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectRepository", ProjectRepository);
-        $provide.service("localization", LocalizationServiceMock);
     }));
     
     describe("getFolders", () => {
@@ -218,7 +216,7 @@ describe("Project Repository", () => {
                 .respond(401);
 
             // Act
-            var error: any;
+            var error: any; 
             var data: Models.IProjectMeta;
             projectRepository.getProjectMeta(10).then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();

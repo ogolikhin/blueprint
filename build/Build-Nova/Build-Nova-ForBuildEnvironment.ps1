@@ -16,6 +16,7 @@ param(
     [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
     [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
     [Parameter(Mandatory=$false)][bool] $buildNovaWeb = $false, #Currently not part of release; remove parameter once it is
+    [Parameter(Mandatory=$false)][bool] $RunTests = $true,
 
     #Unused, for splatting the same hashtable into multiple methods without error.
     [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -39,8 +40,12 @@ $buildParams = @{
 
 Setup-Environment @buildParams -removeFiles $removeFiles
 Build-Nova-Services @buildParams
-Run-Nova-Unit-Tests @buildParams
+
+if($RunTests)
+{
+    Run-Nova-Unit-Tests @buildParams
+}
 
 if($buildNovaWeb){
-    Build-Nova-Html @buildParams
+    Build-Nova-Html @buildParams -RunTests $RunTests
 }

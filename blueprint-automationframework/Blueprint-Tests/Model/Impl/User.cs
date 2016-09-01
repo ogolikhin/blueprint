@@ -4,8 +4,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using Common;
 using Model.Factories;
-using TestConfig;
 using Utilities;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -20,23 +20,22 @@ namespace Model.Impl
             "[InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp]," +
             "[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]";
 
+        protected bool IsDeletedFromDatabase { get; set; }
         private List<IGroup> _GroupMembership = new List<IGroup>();
 
         #region Properties
 
+        public bool IsDeleted { get { return (!IsDeletedFromDatabase && (EndTimestamp != null)); } }
+
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
-
         public string Department { get; set; }
-        public string DisplayName { get; set; }
         public string Email { get; set; }
         public bool Enabled { get; set; }
         public string FirstName { get; set; }
         public List<IGroup> GroupMembership { get { return _GroupMembership; } }
-
         public InstanceAdminRole? InstanceAdminRole { get; set; }
-
         public string LastName { get; set; }
         public LicenseType License { get; set; }
         public string Password { get; set; }
@@ -44,7 +43,6 @@ namespace Model.Impl
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
-        public int UserId { get; set; }
         public string Username { get; set; }
 
         // These are fields not included by IUser:
@@ -63,6 +61,12 @@ namespace Model.Impl
 
         #endregion Properties
 
+        #region Serialized JSON Properties
+
+        public string DisplayName { get; set; }
+        public int Id { get; set; }
+
+        #endregion Serialized JSON Properties
 
         #region Methods
 
@@ -107,7 +111,7 @@ namespace Model.Impl
             StartTimestamp = userToCopy.StartTimestamp;
             Title = userToCopy.Title;
             Token = userToCopy.Token;
-            UserId = userToCopy.UserId;
+            Id = userToCopy.Id;
             Username = userToCopy.Username;
             UserSALT = userToCopy.UserSALT;
 
@@ -289,9 +293,10 @@ namespace Model.Impl
                         while (sqlDataReader.Read())
                         {
                             int userIdOrdinal = sqlDataReader.GetOrdinal("UserId");
-                            UserId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
-                            //UserId = (int)(sqlDataReader.GetSqlInt32(0));
+                            Id = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
                         }
+
+                        IsDeletedFromDatabase = false;
                     }
                     else
                     {
@@ -308,6 +313,11 @@ namespace Model.Impl
         ///     Pass true to really delete the user from the database.</param>
         public override void DeleteUser(bool deleteFromDatabase = false)
         {
+            if (IsDeletedFromDatabase)
+            {
+                return;
+            }
+
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
@@ -339,6 +349,10 @@ namespace Model.Impl
                     {
                         string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
+                    }
+                    else
+                    {
+                        IsDeletedFromDatabase = true;
                     }
                 }
                 catch

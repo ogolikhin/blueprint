@@ -185,11 +185,16 @@ $has-children-padding-before-arrow: 3px;
         }
 
         .ag-cell {
-            width: calc(100% - #{2 * $aggrid-left-spacing}) !important;
+            width: calc(100% - #{$aggrid-left-spacing}) !important;
 
             &.has-children > span {
                 margin-left: -$aggrid-left-spacing;
             }
+        }
+
+        .ag-row-group .ag-cell {
+            margin-left: #{$aggrid-left-spacing / 2};
+            width: calc(100% - #{0.5 * $aggrid-left-spacing}) !important;
         }
     }
     // icons for artifacts and folders
@@ -392,6 +397,11 @@ $has-children-padding-before-arrow: 3px;
         padding-top: $aggrid-row-height;
         text-align: left;
         vertical-align: top;
+    }
+
+    .ag-row-group.ag-row-level-0 .ag-cell {
+        margin-left: 0;
+        width: calc(100% - #{$aggrid-left-spacing}) !important;
     }
 }
 

@@ -13,7 +13,7 @@ export class ArtifactManager  implements IArtifactManager {
     private artifactList: IStatefulArtifact[];
 
     constructor(
-        public $http: ng.IHttpService, 
+        private $http: ng.IHttpService, 
         public $q: ng.IQService) {
 
         this.artifactList = [];

@@ -2,7 +2,6 @@ import { Models, Enums } from "../../main/models";
 // import { IArtifactAttachment } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
 export interface IArtifactManager {
-    $http: ng.IHttpService;
     $q: ng.IQService;
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact);

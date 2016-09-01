@@ -1,4 +1,4 @@
-import { IArtifactManager, IStatefulArtifact } from "./interfaces";
+import { IArtifactManager, IStatefulArtifact, ISession } from "./interfaces";
 import { StatefullArtifact  } from "./artifact";
 import { Models, Enums } from "../../main/models";
 
@@ -7,16 +7,22 @@ export class ArtifactManager  implements IArtifactManager {
 
     public static $inject = [
         "$http", 
-        "$q"
+        "$q",
+        "session"
     ];
 
     private artifactList: IStatefulArtifact[];
 
     constructor(
         private $http: ng.IHttpService, 
-        public $q: ng.IQService) {
+        public $q: ng.IQService,
+        private session: ISession) {
 
         this.artifactList = [];
+    }
+
+    public get currentUser(): Models.IUserGroup {
+        return this.session.currentUser;
     }
 
     public list(): IStatefulArtifact[] {
@@ -42,6 +48,7 @@ export class ArtifactManager  implements IArtifactManager {
     public update(id: number) {
         // TODO: 
     }
+
 
     public load<T>(request: ng.IRequestConfig): ng.IPromise<T> {
         var defer = this.$q.defer<T>();

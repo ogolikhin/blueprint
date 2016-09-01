@@ -5,12 +5,12 @@ import { IStatefulArtifact, IArtifactPropertyValues } from "../interfaces";
 export class CustomProperties implements IArtifactPropertyValues  {
     
     private properties: Models.IPropertyValue[];
-    private state: IStatefulArtifact;
+    private stateArtifact: IStatefulArtifact;
     private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
     private observableSubject: Rx.Observable<Models.IPropertyValue>;
 
-    constructor(artifactState: IStatefulArtifact, properties: Models.IPropertyValue[]) {
-        this.state = artifactState;
+    constructor(artifactState: IStatefulArtifact, properties?: Models.IPropertyValue[]) {
+        this.stateArtifact = artifactState;
         this.properties = properties || [];
         this.observableSubject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
         this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
@@ -18,6 +18,13 @@ export class CustomProperties implements IArtifactPropertyValues  {
             this.addChangeSet(it);
 
         })
+    }
+
+    public initialize(artifact: Models.IArtifact): CustomProperties {
+        if (artifact){
+            this.properties = artifact.customPropertyValues;
+        }
+        return this;
     }
 
 
@@ -33,13 +40,13 @@ export class CustomProperties implements IArtifactPropertyValues  {
 
 
     public update(id: number, value: any): ng.IPromise<Models.IPropertyValue> {
-        let deferred = this.state.manager.$q.defer<Models.IPropertyValue>();
+        let deferred = this.stateArtifact.manager.$q.defer<Models.IPropertyValue>();
 
         let property = this.get(id);
         if (property) {
             property.value = value;
         }
-        //this.state.manager.lockArtifact();
+        this.stateArtifact.lock();
         deferred.resolve(property);
         return deferred.promise;
 

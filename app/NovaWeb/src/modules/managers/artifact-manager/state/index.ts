@@ -1,1 +1,1 @@
-export { IState, ArtifactState, StateEnum } from "./artifact-state"
+export { ArtifactState } from "./state"

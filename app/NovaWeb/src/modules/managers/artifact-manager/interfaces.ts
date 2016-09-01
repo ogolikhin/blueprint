@@ -3,6 +3,7 @@ import { Models, Enums } from "../../main/models";
 
 export interface IArtifactManager {
     $q: ng.IQService;
+    currentUser: Models.IUserGroup;
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact);
     get(id: number): IStatefulArtifact;
@@ -19,6 +20,8 @@ export interface IStatefulArtifact extends Models.IArtifact  {
     manager: IArtifactManager;
     state: IState;
     customProperties: IArtifactPropertyValues;
+
+    lock();
 }
 
 
@@ -50,34 +53,6 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
     update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
 }
 
-export interface  ISystemProperty {
-    //    
-    // id: number;
-    // name?: string;
-    // description?: string;
-    // prefix?: string;
-    // parentId?: number;
-    // itemTypeId?: number;
-    // itemTypeVersionId?: number;
-    // version?: number;
-    // predefinedType?: Enums.ItemTypePredefined;
-    // projectId?: number;
-    // orderIndex?: number;
-
-    // createdOn?: Date; 
-    // lastEditedOn?: Date;
-    // createdBy?: Models.IUserGroup;
-    // lastEditedBy?: Models.IUserGroup;
-    // permissions?: Enums.RolePermissions;
-    // readOnlyReuseSettings?: Enums.ReuseSettings;
-
-
-    // lockedByUser?: IUserGroup;
-    // lockedDateTime?: Date;
-
-}
-
-
 
 export interface IArtifactPropertyValues {
     get(id: number): Models.IPropertyValue;
@@ -87,14 +62,19 @@ export interface IArtifactPropertyValues {
 
 
 export interface IState {
-    locked: boolean;
+    readonly?: boolean;
+    dirty?: boolean;
+    published?: boolean;
+    lock?: Models.ILockResult;
+} 
+
+export interface IArtifactState {
+
+    locked: Enums.LockedByEnum;
     readonly: boolean;
     dirty: boolean;
     published: boolean;
 
 } 
 
-export interface IArtifactState {
-
-} 
-
+export { ISession } from "../../shell/login/session.svc";

@@ -11,6 +11,7 @@ namespace ServiceLibrary.Helpers
     public interface IStatusControllerHelper
     {
         Task<ServiceStatus> GetStatus();
+        Task<ShorterServiceStatus> GetShorterStatus();
     }
 
     public class StatusControllerHelper : IStatusControllerHelper
@@ -57,6 +58,34 @@ namespace ServiceLibrary.Helpers
             return serviceStatus;
         }
 
+        // For shorter version of status as per US955
+        public async Task<ShorterServiceStatus> GetShorterStatus()
+        {
+            var shorterServiceStatus = new ShorterServiceStatus();
+
+            shorterServiceStatus.ServiceName = ServiceName;
+
+            //Get status responses from each repo, store the tasks.
+            List<Task<ShorterStatusResponse>> shorterStatusResponses = new List<Task<ShorterStatusResponse>>();
+            foreach (IStatusRepository statusRepo in StatusRepos)
+            {
+                shorterStatusResponses.Add(TryGetShorterStatusResponse(statusRepo));
+            }
+
+            //Await the status check task results.
+            shorterServiceStatus.NoErrors = true;
+            foreach (var result in shorterStatusResponses)
+            {
+                var statusResult = await result;
+                shorterServiceStatus.ShorterStatusResponses.Add(statusResult);
+
+                shorterServiceStatus.NoErrors &= statusResult.NoErrors;
+            }
+
+            return shorterServiceStatus;
+        }
+        
+
         /// <summary>
         /// Modifies serviceStatus in place, returns whether status was successfully obtained.
         /// </summary>
@@ -84,6 +113,31 @@ namespace ServiceLibrary.Helpers
 
             return responseData;
         }
+
+        // For shorter version of status as per US955
+        private async Task<ShorterStatusResponse> TryGetShorterStatusResponse(IStatusRepository statusRepo)
+        {
+            var responseData = new ShorterStatusResponse()
+            {
+                Name = statusRepo.Name,
+                
+            };
+
+            try
+            {
+                var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
+
+                responseData.NoErrors = true;
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                responseData.NoErrors = false;
+            }
+
+            return responseData;
+        }
+       
 
         private static string GetAssemblyFileVersion()
         {
@@ -130,6 +184,33 @@ namespace ServiceLibrary.Helpers
         public string Errors;
     }
 
+    // For shorter version of status as per US955
+    public class ShorterServiceStatus
+    {
+        [JsonProperty]
+        public string ServiceName;
+
+        private List<ShorterStatusResponse> _shorterStatusResponses;
+
+        [JsonProperty]
+        public List<ShorterStatusResponse> ShorterStatusResponses
+        {
+            get
+            {
+                if (_shorterStatusResponses == null)
+                {
+                    _shorterStatusResponses = new List<ShorterStatusResponse>();
+                }
+                return _shorterStatusResponses;
+            }
+        }
+
+        [JsonProperty]
+        public bool NoErrors;
+
+    }
+
+
     public class StatusResponse
     {
         [JsonProperty]
@@ -144,4 +225,17 @@ namespace ServiceLibrary.Helpers
         [JsonProperty]
         public bool NoErrors;
     }
+
+    // For shorter version of status as per US955
+
+    public class ShorterStatusResponse
+    {
+        [JsonProperty]
+        public string Name;
+
+        [JsonProperty]
+        public bool NoErrors;
+    }
+
+
 }

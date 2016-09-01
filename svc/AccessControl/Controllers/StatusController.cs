@@ -8,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace AccessControl.Controllers
 {
@@ -16,14 +17,15 @@ namespace AccessControl.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
+        internal readonly string _preAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
-                        new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage")},
+                        new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage") },
                         "AccessControl",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
-                    )
+                    )                 
                   )
         {
         }
@@ -31,6 +33,7 @@ namespace AccessControl.Controllers
         internal StatusController(IStatusControllerHelper scHelper)
         {
             _statusControllerHelper = scHelper;
+            
         }
 
         /// <summary>
@@ -44,18 +47,36 @@ namespace AccessControl.Controllers
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]
-        public async Task<IHttpActionResult> GetStatus()
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+            if (preAuthorizedKey == null)
+            {
+                ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
 
-            if (serviceStatus.NoErrors)
-            {
-                return Ok(serviceStatus);
+                if (shorterServiceStatus.NoErrors)
+                {
+                    return Ok(shorterServiceStatus);
+                }
+                else
+                {
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, shorterServiceStatus);
+                    return ResponseMessage(response);
+                }
+
             }
-            else
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
+            else {
+                // As per design , we do not expose this end point. hence there is not validation for pre authrized key
+                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+
+                if (serviceStatus.NoErrors)
+                {
+                    return Ok(serviceStatus);
+                }
+                else
+                {
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                    return ResponseMessage(response);
+                }
             }
         }
 

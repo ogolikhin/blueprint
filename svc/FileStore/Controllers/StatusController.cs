@@ -10,6 +10,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace FileStore.Controllers
 {
@@ -34,7 +35,7 @@ namespace FileStore.Controllers
                     "FileStore",
                     new ServiceLogRepository(),
                     WebApiConfig.LogSourceStatus
-                ), 
+                ),
                 WebApiConfig.StatusCheckPreauthorizedKey
             )
         {
@@ -60,20 +61,43 @@ namespace FileStore.Controllers
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
             //Check pre-authorized key
-            if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
+            // Refactoring for shorter status as per US955
+            if (preAuthorizedKey == null)
             {
-                return Unauthorized();
+                ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
+
+                if (shorterServiceStatus.NoErrors)
+                {
+                    return Ok(shorterServiceStatus);
+                }
+                else
+                {
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, shorterServiceStatus);
+                    return ResponseMessage(response);
+                }
+                
             }
+            else {
+                if (preAuthorizedKey != _preAuthorizedKey)
+                {
+                    var unauthorizedMessage = "Unauthorized";
+                    var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
+                    var response1 = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
+                    return ResponseMessage(response1);
+                }
 
-            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
 
-            if (serviceStatus.NoErrors)
-            {
-                return Ok(serviceStatus);
+                if (serviceStatus.NoErrors)
+                {
+                    return Ok(serviceStatus);
+                }
+                else {
+
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                    return ResponseMessage(response);
+                }
             }
-
-            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-            return ResponseMessage(response);
         }
 
         /// <summary>

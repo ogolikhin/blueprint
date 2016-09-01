@@ -9,6 +9,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace AdminStore.Controllers
 {
@@ -20,7 +21,7 @@ namespace AdminStore.Controllers
         internal readonly string _preAuthorizedKey;
 
         public StatusController()
-            : this( new StatusControllerHelper(
+            : this(new StatusControllerHelper(
                         new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorageDB"),
                                                         new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
@@ -50,24 +51,45 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]
-        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey=null)
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
             //Check pre-authorized key
-            if(_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
+            // Refactoring for shorter status as per US955
+            if (preAuthorizedKey == null)
             {
-                return Unauthorized();
-            }
+                ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
 
-            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+                if (shorterServiceStatus.NoErrors)
+                {
+                    return Ok(shorterServiceStatus);
+                }
+                else
+                {
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, shorterServiceStatus);
+                    return ResponseMessage(response);
+                }
 
-            if (serviceStatus.NoErrors)
-            {
-                return Ok(serviceStatus);
             }
-            else
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
+            else {
+                if (preAuthorizedKey != _preAuthorizedKey)
+                {
+                    var unauthorizedMessage = "Unauthorized";
+                    var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
+                    var response = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
+                    return ResponseMessage(response);
+                }
+
+                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+
+                if (serviceStatus.NoErrors)
+                {
+                    return Ok(serviceStatus);
+                }
+                else
+                {
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                    return ResponseMessage(response);
+                }
             }
         }
 

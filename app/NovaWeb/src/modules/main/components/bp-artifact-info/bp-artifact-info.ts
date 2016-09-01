@@ -105,14 +105,16 @@ export class BpArtifactInfoController {
         this.isChanged = state.isChanged;
         switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
-//                this.isLocked = true;
                 this.selfLocked = true;
-//                this.lockTooltip = "Locked";
                 break;
             case Enums.LockedByEnum.OtherUser:
-//                this.isLocked = true;
+                let name = "";
                 let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                let msg = "Locked by " + state.originItem.lockedByUser.displayName; 
+                if (state.lock && state.lock.info) {
+                    name = state.lock.info.lockOwnerLogin;
+                }
+                name =  name || state.originItem.lockedByUser.displayName || "";
+                let msg = name ? "Locked by " + name : "Locked "; 
                 if (date) {
                     msg += " on " + this.localization.current.formatShortDateTime(date);
                 }

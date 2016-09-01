@@ -13,7 +13,7 @@ import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
-import {IModalDialogManager} from "../../../../modal-dialogs/modal-dialog-manager";
+import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -38,7 +38,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private dialogManager: IModalDialogManager;
+    private dialogManager: IModalDialogCommunication;
     // #UNUSED
     // private _userStoryId: number;
 

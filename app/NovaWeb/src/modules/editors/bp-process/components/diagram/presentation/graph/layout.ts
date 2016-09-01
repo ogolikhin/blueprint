@@ -6,6 +6,7 @@ import {ProcessType, ProcessShapeType} from "../../../../models/enums";
 import {NodeType, NodeChange} from "./models/";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";
 import {IProcessGraph, IDiagramNode} from "./models/";
+import {ProcessDeleteHelper} from "./process-delete-helper";
 import {IDiagramNodeElement} from "./models/";
 import {ILayout, IGraphLayoutPreprocessor, IScopeContext} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
@@ -395,8 +396,8 @@ export class Layout implements ILayout {
     }
 
     private needToReplaceUserTask(userTaskId: number, previousIds: number[], nextId: number): boolean {
-        return this.processGraph.isLastUserTaskInCondition(userTaskId, previousIds, nextId) ||
-            this.processGraph.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId);
+        return ProcessDeleteHelper.isLastUserTaskInCondition(userTaskId, previousIds, nextId, this.processGraph) ||
+            ProcessDeleteHelper.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId, this.processGraph);
     }
 
     private replaceUserTask(userTaskId: number, previousIds: number[], nextId: number): NewUserTaskInfo {

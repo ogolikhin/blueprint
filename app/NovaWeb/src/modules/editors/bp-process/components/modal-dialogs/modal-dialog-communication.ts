@@ -1,7 +1,7 @@
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {CommunicationWrapper, ICommunicationWrapper} from "./communication-wrapper";
 
-export interface IModalDialogManager {
+export interface IModalDialogCommunication {
     registerSetGraphObserver(observer: any);
     removeSetGraphObserver(observer: any);
     setGraph(func: any);
@@ -13,7 +13,7 @@ export interface IModalDialogManager {
     onDestroy();
 }
 
-export class ModalDialogManager implements IModalDialogManager {
+export class ModalDialogCommunication implements IModalDialogCommunication {
     private setGraphSubject: ICommunicationWrapper; 
     private openDialogSubject: ICommunicationWrapper;
 
@@ -27,12 +27,12 @@ export class ModalDialogManager implements IModalDialogManager {
     };
 
     // 1. Set graph object  
-    public registerSetGraphObserver(observer: any) {
+    public registerSetGraphObserver(observer: any): string {
         return this.setGraphSubject.subscribe(observer);
     }
 
-    public removeSetGraphObserver(observer: Rx.IDisposable) {
-        this.setGraphSubject.disposeObserver(observer);
+    public removeSetGraphObserver(handler: string) {
+        this.setGraphSubject.disposeObserver(handler);
     }
 
     public setGraph(func: any) {
@@ -40,12 +40,12 @@ export class ModalDialogManager implements IModalDialogManager {
     }
 
     // 2. Open dialog  
-    public registerOpenDialogObserver(observer: any) {
+    public registerOpenDialogObserver(observer: any): string {
         return this.openDialogSubject.subscribe(observer);
     }
 
-    public removeOpenDialogObserver(observer: Rx.IDisposable) {
-        this.openDialogSubject.disposeObserver(observer);
+    public removeOpenDialogObserver(handler: string) {
+        this.openDialogSubject.disposeObserver(handler);
     }
 
     public openDialog(id: number, dialogType: ModalDialogType) {

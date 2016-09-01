@@ -6,7 +6,6 @@ import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IModalDialogManager, ModalDialogManager} from "./components/modal-dialogs/modal-dialog-manager";
 import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
 import {BpBaseEditor} from "../bp-base-editor";
 
@@ -90,6 +89,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     public $onDestroy() {
         super.$onDestroy();
         this.subArtifactEditorModalOpener.onDestroy();
+        this.processDiagram.destroy();
     }
     
     private load(artifactId: number) {

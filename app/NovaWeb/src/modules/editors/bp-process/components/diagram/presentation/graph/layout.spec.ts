@@ -13,6 +13,7 @@ import {ProcessLinkModel} from "../../../../models/processModels";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
 import * as layout from "./layout";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../main/services";
 
 describe("Layout test", () => {
 
@@ -21,18 +22,27 @@ describe("Layout test", () => {
         rootScope,
         processModelService,
         wrapper,
-        container;
+        container,
+        communicationManager: ICommunicationManager;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("processModelService", ProcessServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
+
+    let setProcessViewModel = function (model) {
+        var processModel = new ProcessViewModel(model);
+        processModel.communicationManager = communicationManager;
+        return processModel;
+    }
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
         _processModelService_: IProcessService,
-        messageService: IMessageService) => {
+        messageService: IMessageService, 
+        _communicationManager_: ICommunicationManager) => {
 
         rootScope = $rootScope;
         processModelService = _processModelService_;
@@ -42,6 +52,7 @@ describe("Layout test", () => {
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
         layout.tempShapeId = 0;
+        communicationManager = _communicationManager_;
 
         $rootScope["config"] = {
             labels: {
@@ -73,7 +84,7 @@ describe("Layout test", () => {
     it("Test default process without system tasks", () => {
         // Arrange
         var testModel = TestModels.createModelWithoutSystemTask();
-        var processModel = new ProcessViewModel(testModel);
+        var processModel = setProcessViewModel(testModel);
 
         // Act
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
@@ -88,7 +99,7 @@ describe("Layout test", () => {
     it("Test default process", () => {
         // Arrange
         var testModel = TestModels.createDefaultProcessModel();
-        var processModel = new ProcessViewModel(testModel);
+        var processModel = setProcessViewModel(testModel);
 
         // Act
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
@@ -106,7 +117,7 @@ describe("Layout test", () => {
     it("Test insert task", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -136,7 +147,7 @@ describe("Layout test", () => {
     it("Test insert user decision in the middle of the diagram", () => {
         // Arrange
         var testModel = TestModels.createDefaultProcessModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
@@ -165,7 +176,7 @@ describe("Layout test", () => {
 
     it("Test insert user decision at the end of the diagram", () => {
         // Arrange
-        let processModel = new ProcessViewModel(TestModels.createDefaultProcessModel());
+        let processModel = setProcessViewModel(TestModels.createDefaultProcessModel());
         let graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, container, processModelService,  processModel);
 
         let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -219,7 +230,7 @@ describe("Layout test", () => {
     it("Test insert System decision in the middle of the diagram", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
@@ -252,7 +263,7 @@ describe("Layout test", () => {
     it("Test rendering with the adding merging point", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
 
         // Act
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
@@ -268,7 +279,7 @@ describe("Layout test", () => {
     it("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the previous subtree", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -299,7 +310,7 @@ describe("Layout test", () => {
     it("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the next subtree", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -328,7 +339,7 @@ describe("Layout test", () => {
     it("Gap between precondition and next user task is same as between any other system task and next user task", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -353,7 +364,7 @@ describe("Layout test", () => {
     it("Inserted user task is selected", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -374,7 +385,7 @@ describe("Layout test", () => {
     it("Inserted decision point is selected", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -395,7 +406,7 @@ describe("Layout test", () => {
     it("Insert condition negative test.", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(false, null);
 
@@ -407,7 +418,7 @@ describe("Layout test", () => {
     it("Insert task negative test.", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(false, null);
 
@@ -419,7 +430,7 @@ describe("Layout test", () => {
     it("Test setSystemTasksVisible method.", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(false, null);
 
@@ -433,7 +444,7 @@ describe("Layout test", () => {
     it("Test auto-layout Default Process", () => {
         // Arrange && Act
         var testModel = TestModels.createDefaultProcessModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -450,7 +461,7 @@ describe("Layout test", () => {
     it("Test auto-layout simple case", () => {
         // Arrange && Act
         var testModel = TestModels.createSimpleCaseModelWithoutXandY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -467,7 +478,7 @@ describe("Layout test", () => {
     it("Test auto-layout decision with multiple branches case", () => {
         // Arrange && Act
         var testModel = TestModels.createMultiDecisionBranchModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -484,7 +495,7 @@ describe("Layout test", () => {
     it("Test auto-layout two merge points case", () => {
         // Arrange && Act
         var testModel = TestModels.createTwoMergePointsModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -501,7 +512,7 @@ describe("Layout test", () => {
     it("Test auto-layout multiple merge points with multiple branches case", () => {
         // Arrange && Act
         var testModel = TestModels.createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -518,7 +529,7 @@ describe("Layout test", () => {
     it("Test auto-layout system decision before user decision in a branch", () => {
         // Arrange && Act
         var testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         graph.render(true, null);
 
@@ -537,7 +548,7 @@ describe("Layout test", () => {
         it("with system task as the next shape.", () => {
             // Arrange
             let testModel = TestModels.createLargeTestModel();
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
                 graph.destroy();
@@ -558,7 +569,7 @@ describe("Layout test", () => {
         it("system decision as the next shape.", () => {
             // Arrange
             let testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModel();
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
                 graph.destroy();
@@ -587,7 +598,7 @@ describe("Layout test", () => {
            */
             // Arrange
             let testModel = TestModels.createSystemDecisionForDnDTestModel();
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let ut1Id = 20;
             let ut4Id = 40;
 
@@ -623,7 +634,7 @@ describe("Layout test", () => {
                 // Arrange
 
                 let testModel = TestModels.createDnDComplicatedModel();
-                processModel = new ProcessViewModel(testModel);
+                processModel = setProcessViewModel(testModel);
                 graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
                 /*
                     start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
@@ -713,7 +724,7 @@ describe("Layout test", () => {
             //                       UT4 -> ST4 -> UT5 -> ST5 -> UT3
             let UT3 = 80;
             let ST1 = 50;
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             graph.render(false, null);
             let st1ToEnd = graph.getNodeById(ST1.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
@@ -743,7 +754,7 @@ describe("Layout test", () => {
             //                       UT4 -> ST4 -> UT5 -> ST5 -> UT3
             let UT3 = 80;
             let ST2 = 70;
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             graph.render(false, null);
             let st2ToMergeUt3 = graph.getNodeById(ST2.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
@@ -772,7 +783,7 @@ describe("Layout test", () => {
             //                       UT4 -> ST4 -> UT5 -> ST5 -> UT3
             let UT3 = 80;
             let ST5 = 130;
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             graph.render(false, null);
             let st5ToMergeUt3 = graph.getNodeById(ST5.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
@@ -797,7 +808,7 @@ describe("Layout test", () => {
             //Arrange
             let testModel = TestModels.createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily();
 
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             graph.render(true, null);
             let ut2Id = 60;
@@ -823,7 +834,7 @@ describe("Layout test", () => {
         it("returns correct results for large model", () => {
             // Arrange
             var testModel = TestModels.createLargeTestModel();
-            let processModel = new ProcessViewModel(testModel);
+            let processModel = setProcessViewModel(testModel);
             var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
             // Act
@@ -840,7 +851,7 @@ describe("Layout test", () => {
         it("returns false for system decision loop", () => {
             // Arrange
             let process = TestModels.createSystemDecisionLoopModel();
-            let viewModel = new ProcessViewModel(process);
+            let viewModel = setProcessViewModel(process);
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, viewModel);
             graph.render(true, null);
 
@@ -859,7 +870,7 @@ describe("Layout test", () => {
     it("Test getDropEdgeState method.", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
         var p1: MxPoint = new mxPoint(607, 388);
         var p2: MxPoint = new mxPoint(520, 420);
@@ -875,7 +886,7 @@ describe("Layout test", () => {
     it("Test end arrows appearance in the diagram edges", () => {
         // Arrange && Act
         var testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY();
-        let processModel = new ProcessViewModel(testModel);
+        let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
         // Act
@@ -897,7 +908,7 @@ describe("Layout test", () => {
     it("Test loop connector appears correctly", () => {
         // Arrange
         let process = TestModels.createUserDecisionLoopModelWithoutXAndY();
-        let model = new ProcessViewModel(process);
+        let model = setProcessViewModel(process);
         let graph = new ProcessGraph(rootScope, localScope, container, processModelService, model);
 
         // Act
@@ -912,7 +923,7 @@ describe("Layout test", () => {
         describe("insert user decision branch", () => {
             it("insert user decision branch, destination is correct", () => {
                 let testModel = TestModels.createUserDecisionForAddBranchTestModel();
-                let processModel = new ProcessViewModel(testModel);
+                let processModel = setProcessViewModel(testModel);
                 let ut4Id = 50;
                 let udId = 25;
                 let endId = 60;
@@ -935,7 +946,7 @@ describe("Layout test", () => {
             it("succeeds if no user task exist in first condition", () => {
                 // Arrange
                 let process = TestModels.createUserDecisionWithoutUserTaskInFirstConditionModel();
-                let viewModel = new ProcessViewModel(process);
+                let viewModel = setProcessViewModel(process);
                 let graph = new ProcessGraph(rootScope, localScope, container, processModelService, viewModel);
                 let decisionId = 40;
                 let expectedConditions = 3;
@@ -951,7 +962,7 @@ describe("Layout test", () => {
         describe("insert system decision branch", () => {
             it("simple, destination is correct", () => {
                 let testModel = TestModels.createSystemDecisionForAddBranchTestModel();
-                let processModel = new ProcessViewModel(testModel);
+                let processModel = setProcessViewModel(testModel);
                 let ut4Id = 40;
                 let sdId = 25;
                 let endId = 50;
@@ -971,7 +982,7 @@ describe("Layout test", () => {
 
             it("back to back system decisions different end points, first system decision destination is correct", () => {
                 let testModel = TestModels.createBackToBackSystemDecisionWithLoopTestModel();
-                let processModel = new ProcessViewModel(testModel);
+                let processModel = setProcessViewModel(testModel);
                 let ut1Id = 20;
                 let sd1Id = 25;
                 let ut4Id = 50;
@@ -989,7 +1000,7 @@ describe("Layout test", () => {
             });
             it("back to back system decisions different end points, second system decision destination is correct", () => {
                 let testModel = TestModels.createBackToBackSystemDecisionWithLoopTestModel();
-                let processModel = new ProcessViewModel(testModel);
+                let processModel = setProcessViewModel(testModel);
                 let sd2Id = 35;
                 let ut4Id = 50;
                 let endId = 60;
@@ -1014,6 +1025,7 @@ describe("Layout test", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, msgService);
 
             let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
@@ -1043,6 +1055,7 @@ describe("Layout test", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, msgService);
 
             let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {

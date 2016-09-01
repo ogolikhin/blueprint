@@ -5,7 +5,7 @@ import { IProjectManager, ISelectionManager, ICommunicationManager } from "../..
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
-import {IToolbarCommunicationManager} from "./toolbar-communication-manager";
+import {IToolbarCommunication} from "./toolbar-communication";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -21,7 +21,8 @@ class BPToolbarController implements IBPToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: number;
-    private toolbarCommunicationManager: IToolbarCommunicationManager;
+    private toolbarCommunicationManager: IToolbarCommunication;
+    private enableDeleteButtonHandler: string;
 
     public get currentArtifact() {
         return this._currentArtifact;
@@ -37,7 +38,7 @@ class BPToolbarController implements IBPToolbarController {
         private $rootScope: ng.IRootScopeService,
         private communicationManager: ICommunicationManager) {
             this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
-            this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
+            this.enableDeleteButtonHandler = this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
     }
 
     execute(evt: any): void {
@@ -101,7 +102,7 @@ class BPToolbarController implements IBPToolbarController {
     
     private enableDeleteButton(value: boolean) {
         let deleteButton = document.getElementById("deleteartifact");
-        deleteButton.style.visibility = value ? "visible": "hidden";
+        deleteButton.style.visibility = value ? "visible" : "hidden";
     }
 
     public goToImpactAnalysis() {
@@ -127,7 +128,7 @@ class BPToolbarController implements IBPToolbarController {
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButton);
+        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {

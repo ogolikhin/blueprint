@@ -4,7 +4,6 @@ import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
 import {ICommunicationManager} from "../../../../main/services";
 
 
@@ -13,7 +12,7 @@ export class ProcessDiagram {
     public processViewModel: IProcessViewModel = null;
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement; 
-   
+    private modelUpdateHandler: string;
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -90,9 +89,10 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager = this.communicationManager; 
         } else {
             this.processViewModel.updateProcessGraphModel(process);
-            this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdate);
+            this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         }
-        this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
+        this.modelUpdateHandler = 
+           this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
         return this.processViewModel;
     }
 
@@ -101,7 +101,9 @@ export class ProcessDiagram {
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
     }
 
-    private createProcessGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+    private createProcessGraph(processViewModel: IProcessViewModel, 
+                               useAutolayout: boolean = false, 
+                               selectedNodeId: number = undefined) {
 
         try {
             this.graph = new ProcessGraph(
@@ -132,6 +134,8 @@ export class ProcessDiagram {
     }
 
     public destroy() {
+        this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
+        
         // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();

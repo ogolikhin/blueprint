@@ -4,6 +4,7 @@ import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IMessageService} from "../../../../../../../core/";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -92,20 +93,21 @@ export interface IProcessGraph {
     layout: ILayout;
     startNode: IDiagramNode;
     endNode: IDiagramNode;
+    selectedNode: IDiagramNode;
+    messageService: IMessageService;
+    rootScope: any;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;
     getDefaultParent();
     render(useAutolayout: boolean, selectedNodeId: number);
-    deleteUserTask(userTaskId: number, postDeleteFunction?: INotifyModelChanged);
-    deleteDecision(decisionId: number, postDeleteFunction?: INotifyModelChanged);
-    addDecisionBranches(decisionId: number, newConditions: ICondition[]);
-    deleteDecisionBranches(decisionId: number, targetIds: number[]);
     updateMergeNode(decisionId: number, condition: ICondition): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
-    isUserTaskBetweenTwoUserDecisions(userTaskId: number, previousIds: number[], nextShapeId: number): boolean;
-    isLastUserTaskInCondition(userTaskId: number, previousShapeIds: number[], nextShapeId: number): boolean;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
+    getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
+    getLink(sourceId: number, destinationId: number): IProcessLink;
+    globalScope: IScopeContext;
+    defaultNextIdsProvider: INextIdsProvider;    
     getScope(id: number): IScopeContext;
     notifyUpdateInModel: INotifyModelChanged;
     getShapeById(id: number): IProcessShape;

@@ -12,6 +12,8 @@ import {IProcessGraph, IDiagramNode} from "./models/";
 import {UserTask, UserDecision, Condition} from "./shapes/";
 import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
+import {ProcessDeleteHelper} from "./process-delete-helper";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../main/services";
 
 
 import * as TestModels from "../../../../models/test-model-factory";
@@ -19,19 +21,23 @@ import * as TestModels from "../../../../models/test-model-factory";
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
     let localScope, rootScope, timeout, processModelService, wrapper, container;
+    let communicationManager: ICommunicationManager;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
         $timeout: ng.ITimeoutService,
-        _processModelService_: IProcessService) => {
+        _processModelService_: IProcessService, 
+        _communicationManager_: ICommunicationManager) => {
         rootScope = $rootScope;
         timeout = $timeout;
         processModelService = _processModelService_;
+        communicationManager = _communicationManager_;
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -169,6 +175,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createDefaultProcessModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
+                viewModel.communicationManager = communicationManager;
                 graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel);
             });
 
@@ -184,7 +191,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 999;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(false);
@@ -197,7 +204,7 @@ describe("ProcessGraph", () => {
                 let linkLengthBeforeDelete = process.links.length;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(process.shapes.length).toEqual(shapeLengthBeforeDelete); // 7
@@ -211,6 +218,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createDefaultProcessModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
+                viewModel.communicationManager = communicationManager;
                 graph = new ProcessGraph(rootScope, localScope, container, processModelService, viewModel);
             });
 
@@ -226,7 +234,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 20;
 
                 //Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 //Assert
                 expect(result).toBe(false);
@@ -239,7 +247,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 20;
 
                 //Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 //Assert
                 expect(process.shapes.length).toEqual(shapeLengthBeforeDelete); //5
@@ -253,10 +261,11 @@ describe("ProcessGraph", () => {
             process = TestModels.createTwoUserTaskModel();
             clientModel = new ProcessGraphModel(process);
             viewModel = new ProcessViewModel(clientModel);
+            viewModel.communicationManager = communicationManager;
             graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel);
 
             // Act
-            let result = graph.deleteUserTask(35);
+            let result = ProcessDeleteHelper.deleteUserTask(35, null, graph);
 
             // Assert
             expect(result).toBe(true);
@@ -272,7 +281,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 7;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(false);
@@ -287,7 +296,7 @@ describe("ProcessGraph", () => {
                 let spy = spyOn(messageService, "addError").and.callThrough();
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(false);
@@ -307,6 +316,7 @@ describe("ProcessGraph", () => {
                 // UT3 = 80
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
+                viewModel.communicationManager = communicationManager;
                 graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel);
             });
 
@@ -320,7 +330,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 40;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -331,7 +341,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 60;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -345,7 +355,7 @@ describe("ProcessGraph", () => {
                 let conditionDestinationCountBefore = viewModel.decisionBranchDestinationLinks.length;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
                 let conditionDestinationCountAfter = viewModel.decisionBranchDestinationLinks.length;
 
                 // Assert
@@ -362,7 +372,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 80;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -376,7 +386,7 @@ describe("ProcessGraph", () => {
                 let conditionDestinationCountBefore = viewModel.decisionBranchDestinationLinks.length;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
                 let conditionDestinationCountAfter = viewModel.decisionBranchDestinationLinks.length;
 
                 // Assert
@@ -395,6 +405,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createUserDecisionWithThreeConditionsAndTwoUserTasksModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
+                viewModel.communicationManager = communicationManager;
                 graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel);
             });
 
@@ -408,7 +419,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 40;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -422,7 +433,7 @@ describe("ProcessGraph", () => {
                 let userDecisionId = 30;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(process.shapes.length).toBe(14);
@@ -436,7 +447,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 60;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -450,7 +461,7 @@ describe("ProcessGraph", () => {
                 let endId = 160;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(process.shapes.length).toBe(14);
@@ -464,7 +475,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 80;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -478,7 +489,7 @@ describe("ProcessGraph", () => {
                 let userDecisionId = 30;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(process.shapes.length).toBe(14);
@@ -492,7 +503,7 @@ describe("ProcessGraph", () => {
                 let userTaskId = 100;
 
                 // Act
-                let result = graph.deleteUserTask(userTaskId);
+                let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(result).toBe(true);
@@ -506,7 +517,7 @@ describe("ProcessGraph", () => {
                 let endId = 160;
 
                 // Act
-                graph.deleteUserTask(userTaskId);
+                ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                 // Assert
                 expect(process.shapes.length).toBe(14);
@@ -528,10 +539,10 @@ describe("ProcessGraph", () => {
             graph = createGraph(process);
             let userTaskId = 90;
             let shapesNumBefore = process.shapes.length;
-            let spy = spyOn(graph, "deleteUserTaskInternal");
+            let spy = spyOn(ProcessDeleteHelper, "deleteUserTaskInternal");
 
             // Act
-            let result = graph.deleteUserTask(userTaskId);
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
             // Assert
             expect(result).toBe(false);
@@ -546,7 +557,7 @@ describe("ProcessGraph", () => {
             (<ProcessGraph>graph).initializeGlobalScope();
 
             // Act
-            let result = graph.deleteUserTask(70);
+            let result = ProcessDeleteHelper.deleteUserTask(70, null, graph);
 
             // Assert
             expect(result).toBe(true);
@@ -562,7 +573,7 @@ describe("ProcessGraph", () => {
             (<ProcessGraph>graph).initializeGlobalScope();
 
             // Act
-            let result = graph.deleteUserTask(70);
+            let result = ProcessDeleteHelper.deleteUserTask(70, null, graph);
 
             // Assert
             expect(result).toBe(true);
@@ -575,6 +586,7 @@ describe("ProcessGraph", () => {
             //Arrange
             let testModel = TestModels.createSimpleProcessModelWithSystemDecision();
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             
             graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeLengthBeforeDelete = processModel.shapes.length;
@@ -585,8 +597,7 @@ describe("ProcessGraph", () => {
             let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactoryService);
 
             //Act
-            let result = graph.deleteUserTask(userTaskShapeDiagramNode.model.id);
-
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete); //5
             expect(processModel.links.length).toEqual(linkLengthBeforeDelete);  //4
@@ -606,13 +617,14 @@ describe("ProcessGraph", () => {
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 20, 2, 0);
             let testModel = TestModels.createDeleteUserTaskSimpleModel(userTaskShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
             //Act
-            let result = graph.deleteUserTask(userTaskShapeDiagramNode.model.id);
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
 
             //Assert
             expect(processModel.shapes.length).toEqual(5);
@@ -634,13 +646,14 @@ describe("ProcessGraph", () => {
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 280, 4, 0);
             let testModel = TestModels.createUserTaskFollowedBySystemDecision(userTaskShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
 
             //Act
-            let result = graph.deleteUserTask(userTaskShapeDiagramNode.model.id);
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
 
             //Assert
             expect(processModel.shapes.length).toEqual(5);
@@ -662,6 +675,7 @@ describe("ProcessGraph", () => {
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 280, 4, 0);
             let testModel = TestModels.createUserTaskFollowedBySystemDecision(userTaskShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
@@ -672,7 +686,7 @@ describe("ProcessGraph", () => {
             let destinationId = processModel.decisionBranchDestinationLinks[0].destinationId;
 
             //Act
-            let result = graph.deleteUserTask(userTaskShapeDiagramNode.model.id);
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
 
             let linksContainingDecision = processModel.links.filter(a => a.sourceId === userTaskShapeDiagramNode.id ||
                 a.destinationId === userTaskShapeDiagramNode.id).length;
@@ -696,7 +710,7 @@ describe("ProcessGraph", () => {
             let spy = spyOn(test, "action");
 
             // Act
-            let result = graph.deleteUserTask(userTaskId, test.action);
+            let result = ProcessDeleteHelper.deleteUserTask(userTaskId, test.action, graph);
 
             // Assert
             expect(result).toBe(true);
@@ -714,10 +728,11 @@ describe("ProcessGraph", () => {
             let ST5 = 130;
             let END = 140;
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
 
             // Act
-            let result = graph.deleteUserTask(UT3);
+            let result = ProcessDeleteHelper.deleteUserTask(UT3, null, graph);
 
             // Assert
             processModel.updateTree();
@@ -737,6 +752,7 @@ describe("ProcessGraph", () => {
             //Arrange
             let testModel = TestModels.createInfiniteLoopFromDifferentDecisions();
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             let utToDelete = 210;
 
@@ -744,7 +760,7 @@ describe("ProcessGraph", () => {
             let incomingSystemTaskDifferentCondition = 110;
 
             //Act
-            graph.deleteUserTask(utToDelete, null);
+            ProcessDeleteHelper.deleteUserTask(utToDelete, null, graph);
             (<ProcessGraph>graph).initializeGlobalScope();
 
             //Assert
@@ -765,13 +781,14 @@ describe("ProcessGraph", () => {
             let otherDecisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 999, 0, 0);
             let testModel = TestModels.createUserDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            graph.deleteDecision(otherDecisionShape.id);
+            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph);
 
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete);
@@ -794,12 +811,13 @@ describe("ProcessGraph", () => {
             let decisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 30, 0, 0);
             let testModel = TestModels.createUserDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            graph.deleteDecision(decisionShape.id);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
 
             //Assert
             expect(processModel.shapes.length).not.toEqual(shapeLengthBeforeDelete);
@@ -823,6 +841,7 @@ describe("ProcessGraph", () => {
             let decisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 30, 0, 0);
             let testModel = TestModels.createUserDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
@@ -830,7 +849,7 @@ describe("ProcessGraph", () => {
                 .reduce((a, b) => a.orderindex < b.orderindex ? a : b).destinationId;
 
             //Act
-            graph.deleteDecision(decisionShape.id);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
 
             //Assert
             var linksContainingDecision = processModel.links.filter(a => a.sourceId === decisionShape.id || a.destinationId === decisionShape.id).length;
@@ -853,12 +872,13 @@ describe("ProcessGraph", () => {
             let otherDecisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 999, 0, 0);
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            graph.deleteDecision(otherDecisionShape.id);
+            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph);
 
             //Assert
 
@@ -880,12 +900,13 @@ describe("ProcessGraph", () => {
             let decisionShape = shapesFactory.createSystemDecisionShapeModel(2, 1, 25, 0, 0);
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            graph.deleteDecision(decisionShape.id);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
 
             //Assert
             expect(processModel.shapes.length).not.toEqual(shapeLengthBeforeDelete);
@@ -907,6 +928,7 @@ describe("ProcessGraph", () => {
             let decisionShape = shapesFactory.createSystemDecisionShapeModel(2, 1, 25, 0, 0);
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
@@ -914,7 +936,7 @@ describe("ProcessGraph", () => {
                 .reduce((a, b) => a.orderindex < b.orderindex ? a : b).destinationId;
 
             //Act
-            graph.deleteDecision(decisionShape.id);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
 
             //Assert
             var linksContainingDecision = processModel.links.filter(a => a.sourceId === decisionShape.id || a.destinationId === decisionShape.id).length;
@@ -940,7 +962,7 @@ describe("ProcessGraph", () => {
             spyOn(messageServiceMock, "addMessage").and.callThrough();
 
             // Act
-            let result = graph.deleteDecision(decisionId, test.action);
+            let result = ProcessDeleteHelper.deleteDecision(decisionId, test.action, graph);
 
             // Assert
             expect(result).toBe(true);
@@ -1146,10 +1168,10 @@ describe("ProcessGraph", () => {
                 // Arrange
                 graph = createGraph(TestModels.createUserDecisionWithTwoBranchesModel());
                 let decisionId = 4;
-                let spy = spyOn(graph, "deleteShapesAndLinksByIds");
+                let spy = spyOn(ProcessDeleteHelper, "deleteShapesAndLinksByIds");
 
                 // Act
-                graph.deleteDecisionBranches(decisionId, []);
+                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1161,11 +1183,11 @@ describe("ProcessGraph", () => {
                 graph = createGraph(process);
                 let decisionId = 30;
                 let userDecisionId = 60;
-                let spy = spyOn(graph, "deleteShapesAndLinksByIds");
+                let spy = spyOn(ProcessDeleteHelper, "deleteShapesAndLinksByIds");
                 process.decisionBranchDestinationLinks = [];
 
                 // Act
-                graph.deleteDecisionBranches(decisionId, [userDecisionId]);
+                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [userDecisionId], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1177,11 +1199,11 @@ describe("ProcessGraph", () => {
                 graph = createGraph(TestModels.createUserDecisionWithTwoBranchesModel(), messageService);
                 let decisionId = 4;
                 let userTaskId = 7;
-                let spy = spyOn(graph, "deleteShapesAndLinksByIds");
+                let spy = spyOn(ProcessDeleteHelper, "deleteShapesAndLinksByIds");
                 let addErrorSpy = spyOn(messageService, "addError");
 
                 // Act
-                graph.deleteDecisionBranches(decisionId, [userTaskId]);
+                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [userTaskId], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1192,6 +1214,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createUserDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel);
+                    processModel.communicationManager = communicationManager;
                     graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
                     graph.render(true, null);
                 });
@@ -1209,7 +1232,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    let result = graph.deleteDecisionBranches(userDecisionId, [branchUserTaskId]);
+                    let result = ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [branchUserTaskId], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1223,7 +1246,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    let result = graph.deleteDecisionBranches(userDecisionId, [7]);
+                    let result = ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [7], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1243,6 +1266,7 @@ describe("ProcessGraph", () => {
                     */
                     testModel = TestModels.createUserDecisionWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
+                    processModel.communicationManager = communicationManager;
                     graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
                     graph.render(true, null);
                 });
@@ -1260,7 +1284,7 @@ describe("ProcessGraph", () => {
                     let systemTaskId = 8;
 
                     // Act
-                    graph.deleteDecisionBranches(userDecisionId, [userTaskId]);
+                    ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(10);
@@ -1284,7 +1308,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    graph.deleteDecisionBranches(userDecisionId, [userTask1Id, userTask2Id]);
+                    ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [userTask1Id, userTask2Id], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1312,6 +1336,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createMultipleUserDecisionsWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
+                    processModel.communicationManager = communicationManager;
                     graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
                     graph.render(true, null);
                 });
@@ -1327,7 +1352,7 @@ describe("ProcessGraph", () => {
                     let userTaskId = 5;
 
                     // Act
-                    var result = graph.deleteUserTask(userTaskId);
+                    var result = ProcessDeleteHelper.deleteUserTask(userTaskId, null, graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(13);
@@ -1339,6 +1364,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createSystemDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel);
+                    processModel.communicationManager = communicationManager;
                     graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
                     graph.render(true, null);
                 });
@@ -1355,7 +1381,7 @@ describe("ProcessGraph", () => {
                     let userTaskId = 6;
 
                     // Act
-                    let result = graph.deleteDecisionBranches(systemDecisionId, [userTaskId]);
+                    let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(result).toEqual(false);
@@ -1367,7 +1393,7 @@ describe("ProcessGraph", () => {
                     let userTaskId = 7;
 
                     // Act
-                    let result = graph.deleteDecisionBranches(systemDecisionId, [userTaskId]);
+                    let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(result).toEqual(false);
@@ -1378,6 +1404,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createSystemDecisionWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
+                    processModel.communicationManager = communicationManager;
                     graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
                     graph.render(true, null);
                 });
@@ -1394,7 +1421,7 @@ describe("ProcessGraph", () => {
                     let systemTaskId = 7;
 
                     // Act
-                    graph.deleteDecisionBranches(systemDecisionId, [systemTaskId]);
+                    let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [systemTaskId], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(7);
@@ -1412,7 +1439,7 @@ describe("ProcessGraph", () => {
                     let systemTask2Id = 7;
 
                     // Act
-                    graph.deleteDecisionBranches(systemDecisionId, [systemTask1Id, systemTask2Id]);
+                                        let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [systemTask1Id, systemTask2Id], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(6);
@@ -1442,6 +1469,7 @@ describe("ProcessGraph", () => {
             */
             testModel = TestModels.createUserDecisionWithMultipleBranchesModel_V2();
             processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
             graph.render(null, null);
         });
@@ -1558,6 +1586,7 @@ describe("ProcessGraph", () => {
     function createGraph(process: ProcessModels.IProcess, messageService?: IMessageService): ProcessGraph {
         let clientModel = new ProcessGraphModel(process);
         let viewModel = new ProcessViewModel(clientModel);
+        viewModel.communicationManager = communicationManager;
         return new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, messageService);
     }
 });

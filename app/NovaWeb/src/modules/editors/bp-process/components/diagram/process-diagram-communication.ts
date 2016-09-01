@@ -17,12 +17,12 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     };
 
     // 1. Model update  
-    public registerModelUpdateObserver(observer: any) {
+    public registerModelUpdateObserver(observer: any): string {
         return this.setModelUpdateSubject.subscribe(observer);
     }
 
-    public removeModelUpdateObserver(observer: Rx.IDisposable) {
-        this.setModelUpdateSubject.disposeObserver(observer);
+    public removeModelUpdateObserver(handler: string) {
+        this.setModelUpdateSubject.disposeObserver(handler);
     }
 
     public modelUpdate(selectedNodeId: number) {

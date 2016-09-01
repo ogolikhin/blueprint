@@ -1,6 +1,6 @@
 import { ICommunicationWrapper, CommunicationWrapper } from "../../../editors/bp-process/components/modal-dialogs/communication-wrapper";
 
-export interface IToolbarCommunicationManager {
+export interface IToolbarCommunication {
     registerClickDeleteObserver(observer: any);
     removeClickDeleteObserver(observer: any);
     clickDelete();
@@ -12,7 +12,7 @@ export interface IToolbarCommunicationManager {
     onDestroy();
 }
 
-export class ToolbarCommunicationManager implements IToolbarCommunicationManager {
+export class ToolbarCommunication implements IToolbarCommunication {
     private setClickDeleteSubject: ICommunicationWrapper; 
     private setEnableDeleteSubject: ICommunicationWrapper;
 
@@ -23,12 +23,12 @@ export class ToolbarCommunicationManager implements IToolbarCommunicationManager
     };
 
     // 1. Click delete  
-    public registerClickDeleteObserver(observer: any) {
+    public registerClickDeleteObserver(observer: any): string {
         return this.setClickDeleteSubject.subscribe(observer);
     }
 
-    public removeClickDeleteObserver(observer: Rx.IDisposable) {
-        this.setClickDeleteSubject.disposeObserver(observer);
+    public removeClickDeleteObserver(handler: string) {
+        this.setClickDeleteSubject.disposeObserver(handler);
     }
 
     public clickDelete() {
@@ -36,12 +36,12 @@ export class ToolbarCommunicationManager implements IToolbarCommunicationManager
     }
 
     // 2. Enable delete  
-    public registerEnableDeleteObserver(observer: any) {
+    public registerEnableDeleteObserver(observer: any): string {
         return this.setEnableDeleteSubject.subscribe(observer);
     }
 
-    public removeEnableDeleteObserver(observer: Rx.IDisposable) {
-        this.setEnableDeleteSubject.disposeObserver(observer);
+    public removeEnableDeleteObserver(handler: string) {
+        this.setEnableDeleteSubject.disposeObserver(handler);
     }
 
     public enableDelete(value: boolean) {

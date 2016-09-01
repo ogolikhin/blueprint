@@ -10,7 +10,8 @@ import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "../../main/models/enums";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {/*formlyDecorate, */formlyConfig} from "./formly-config";
+import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
+import {formlyConfig} from "./formly-config";
 
 let moduleName = createModule();
 
@@ -22,13 +23,14 @@ describe("Formly", () => {
     });
 
     let template = `<test-dir model="model" on-submit="onSubmit()"></test-dir>`;
-    let compile, scope, element, node, isolateScope, vm;
+    let compile, scope, rootScope, element, node, isolateScope, vm;
 
     beforeEach(
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                rootScope = $rootScope;
                 compile = $compile;
-                scope = $rootScope.$new();
+                scope = rootScope.$new();
                 scope.model = {};
             }
         )
@@ -166,13 +168,13 @@ describe("Formly", () => {
 
             let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti");
             let fieldScope = angular.element(fieldNode[0]).isolateScope();
-            //let fieldInput = fieldNode[0].querySelector("input");
-            angular.element(fieldNode[0]).triggerHandler("click");
+            fieldNode[0].querySelector(".ui-select-container").dispatchEvent(new Event("click", { "bubbles": true }));
 
             expect(fieldNode.length).toBe(2);
             expect(fieldNode[0]).toBeDefined();
             expect(fieldScope).toBeDefined();
             expect(document.activeElement.tagName.toUpperCase()).toBe("INPUT");
+            expect(document.activeElement.classList.contains("ui-select-search")).toBeTruthy();
         });
 
         it("should fail if empty", function () {
@@ -589,6 +591,7 @@ describe("Formly", () => {
         element = compile(template)(scope);
         angular.element("body").append(element);
         scope.$digest();
+        rootScope.$apply();
         node = element[0];
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
@@ -601,14 +604,14 @@ describe("Formly", () => {
     }
 });
 
-function simulateTyping(key: string | number, element: HTMLElement, eventType?: string): void {
+/*function simulateTyping(key: string | number, element: HTMLElement, eventType?: string): void {
     let keyEvent = document.createEvent("Events");
     let keyCode = angular.isNumber(key) ? key : key.charCodeAt(0);
     keyEvent.initEvent(eventType ? eventType : "keydown", true, true);
     keyEvent["which"] = keyCode;
     keyEvent["keyCode"] = keyCode;
     element.dispatchEvent(keyEvent);
-}
+}*/
 
 function createModule() {
     let app = angular.module("formlyModule", [
@@ -626,7 +629,10 @@ function createModule() {
     function setupFormly(ngModule) {
         ngModule
             .service("localization", LocalizationServiceMock)
-            //.config(formlyDecorate)
+            .filter("bpEscapeAndHighlight", BpEscapeAndHighlightFilter.factory())
+            .run(function () {
+                tinymce.baseURL = "../novaweb/libs/tinymce";
+            })
             .run(formlyConfig);
     }
 
@@ -715,14 +721,14 @@ function createModule() {
                                 ]
                             }
                         },
-                        {
+                        /*{
                             type: "bpFieldTinymce",
                             key: "tinymce"
                         },
                         {
                             type: "bpFieldInlineTinymce",
                             key: "inlineTinymce"
-                        },
+                        },*/
                         {
                             type: "bpFieldSelect",
                             key: "select",

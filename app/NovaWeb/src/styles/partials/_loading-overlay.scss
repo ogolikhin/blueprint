@@ -2,6 +2,7 @@ loading-overlay {
 
     .overlay-hidden
     {
+        position:fixed;
         visibility: hidden;
         z-index: -9001;
         background-color: rgba(255, 255, 255, 0);

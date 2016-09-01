@@ -25,7 +25,8 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope", "loadingOverlayService", "$timeout"];
+    static $inject = ["localization", "dialogService", "projectManager", "selectionManager",
+        "messageService", "$rootScope", "loadingOverlayService", "$timeout"];
 
     constructor(
         private localization: ILocalizationService,
@@ -68,20 +69,25 @@ class BPToolbarController implements IBPToolbarController {
             case `discardall`:
                 //Test Code: Display load screen for 0.4s (invisible), then popup result.
                 this.loadingOverlayService.beginLoading();
-                var promise: ng.IPromise<number> = this.$timeout(() => { return 0 }, 620);
-                promise.finally(() => { this.loadingOverlayService.endLoading(); this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`) });
+                let discardPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 500);
+                discardPromise.finally(() => {
+                    this.loadingOverlayService.endLoading();
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
                 break;
             case `publishall`:
                 //Test Code: Display load screen for 5s, then popup result.
                 this.loadingOverlayService.beginLoading();
-                var promise: ng.IPromise<number> = this.$timeout(() => { return 0 }, 5000);
-                promise.finally(() => { this.loadingOverlayService.endLoading(); this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`) });
-
+                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 50000);
+                publishPromise.finally(() => {
+                    this.loadingOverlayService.endLoading();
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
                 break;
             case `refresh`:
                 //Test Code: Wait for 5s, then popup result. No loading screen (to see the difference)
-                var promise: ng.IPromise<number> = this.$timeout(() => { return 0 }, 5000);
-                promise.finally(() => { this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`) });
+                let refreshPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
+                refreshPromise.finally(() => { this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`); });
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

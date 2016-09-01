@@ -193,25 +193,27 @@ export class BpArtifactInfoController {
                 this.projectManager.updateArtifactName(state.getArtifact());
             }, (error) => {
                 let message: string;
-                if (error.statusCode === 400) {
-                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                } else if (error.statusCode === 404) {
-                    message = this.localization.get("App_Save_Artifact_Error_404");
-                } else if (error.statusCode === 409) {
-                    if (error.errorCode === 116) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_116");
-                    } else if (error.errorCode === 117) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_117");
-                    } else if (error.errorCode === 114) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_114");
+                if (error) {
+                    if (error.statusCode === 400) {
+                        message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
+                    } else if (error.statusCode === 404) {
+                        message = this.localization.get("App_Save_Artifact_Error_404");
+                    } else if (error.statusCode === 409) {
+                        if (error.errorCode === 116) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_116");
+                        } else if (error.errorCode === 117) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_117");
+                        } else if (error.errorCode === 114) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_114");
+                        } else {
+                            message = this.localization.get("App_Save_Artifact_Error_409");
+                        }
+
                     } else {
-                        message = this.localization.get("App_Save_Artifact_Error_409");    
+                        message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
-                    
-                } else {
-                    message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                 }
-                this.messageService.addError(message);
+                    this.messageService.addError(message);
             }
         );
     }

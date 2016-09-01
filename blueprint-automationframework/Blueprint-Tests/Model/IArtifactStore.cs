@@ -56,7 +56,7 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all artifacts in the specified project.</returns>
-        List<Artifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets all children artifacts by project and artifact id.
@@ -67,7 +67,7 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
-        List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId,
+        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId,
             int artifactId,
             IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null);
@@ -159,7 +159,7 @@ namespace Model
         /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
-        ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+        NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationshipsdetails for the specified artifact/subartifact

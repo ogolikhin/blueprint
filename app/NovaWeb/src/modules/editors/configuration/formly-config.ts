@@ -7,14 +7,13 @@ import {ILocalizationService} from "../../core";
 import {Helper} from "../../shared";
 
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
-    $sce: ng.ISCEService,
-    $timeout: ng.ITimeoutService
+    $sce: ng.ISCEService
 ): void {
 /* tslint:enable */
 
@@ -103,19 +102,6 @@ export function formlyConfig(
             event.target.dispatchEvent(escKey);
 
             blurOnKey(event, 9);
-        }
-    };
-
-    let primeValidation = function(formControl) {
-        let input = formControl.querySelector("input.ng-untouched") as HTMLElement;
-        if (input) {
-            let previousFocusedElement = document.activeElement as HTMLElement;
-            input.focus();
-            if (previousFocusedElement) {
-                previousFocusedElement.focus();
-            } else {
-                input.blur();
-            }
         }
     };
 
@@ -249,7 +235,9 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {
@@ -277,7 +265,9 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -321,16 +311,16 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            $timeout(() => {
-                //primeValidation($element[0]);
-                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
                 if (uiSelectContainer) {
-                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    scope["uiSelectContainer"] = uiSelectContainer;
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                 }
-            }, 0);
+            });
         },
         controller: ["$scope", function ($scope) {
             let newCustomValueId = function(): number {
@@ -473,20 +463,20 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            $timeout(() => {
-                //primeValidation($element[0]);
-                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
                 if (uiSelectContainer) {
-                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    scope["uiSelectContainer"] = uiSelectContainer;
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
-                    $scope["bpFieldSelectMulti"].toggleScrollbar();
-                    $scope["uiSelectContainer"].firstChild.scrollTop = 0;
+                    scope["bpFieldSelectMulti"].toggleScrollbar();
+                    scope["uiSelectContainer"].firstChild.scrollTop = 0;
                 }
-            }, 0);
+            });
         },
         controller: ["$scope", function ($scope) {
             let direction = Object.freeze({
@@ -584,12 +574,12 @@ export function formlyConfig(
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);
                     }
                     $select.activeIndex = nextItem;
-                    $timeout(() => {
-                        if ($scope["uiSelectContainer"]) {
-                            $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                            $scope["uiSelectContainer"].querySelector("input").focus();
+                    $scope.$applyAsync((scope) => {
+                        if (scope["uiSelectContainer"]) {
+                            scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                            scope["uiSelectContainer"].querySelector("input").focus();
                         }
-                    }, 100);
+                    });
                     this.toggleScrollbar();
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
@@ -682,7 +672,9 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {
@@ -822,7 +814,9 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             // make sure the values are of type Date!

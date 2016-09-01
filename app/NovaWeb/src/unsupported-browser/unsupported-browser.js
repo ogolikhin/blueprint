@@ -217,7 +217,6 @@ var appBootstrap = (function() {
 
     function appBootstrap() {
         this.executionEnvironment = new executionEnvironmentDetector();
-        this.isSupportedVersion();
     }
 
     appBootstrap.prototype.isSupportedVersion = function () {

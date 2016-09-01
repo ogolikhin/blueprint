@@ -8,7 +8,7 @@ export class StateManagerMock implements IStateManager {
     public dispose(): void { }
     public reset(): void { }
 
-    public stateChange: Rx.Observable<ItemState>;
+    public stateChange: Rx.Observable<ItemState> = Rx.Observable.empty<ItemState>();
     public addItem(origin: Models.IItem, itemtype?: Models.IItemType): ItemState {
         return null;
     }

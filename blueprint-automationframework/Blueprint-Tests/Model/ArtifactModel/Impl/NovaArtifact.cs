@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
+using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel.Impl
 {

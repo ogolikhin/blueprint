@@ -13,7 +13,7 @@
                 <uib-progressbar value="item.progress"></uib-progressbar>
                 <div class="indicator">
                     <i class="fonticon fonticon-success" ng-if="item.isComplete"></i>
-                    <span class="error" ng-if="item.isFailed">Failed</span>
+                    <i class="fonticon fonticon-error" ng-if="item.isFailed"></i>
                     <i class="fonticon fonticon-close" ng-if="item.isUploading" ng-click="$ctrl.cancelUpload(item)"></i>
                 </div>
             </div>
@@ -22,11 +22,11 @@
         </div>
 
         <div class="empty-state" ng-if="$ctrl.files.length === 0">
-            There are no files to upload.
+            {{::$ctrl.localization.get('App_UP_Attachments_Upload_Empty') }}
         </div>
 
     </div>
-    <div class="total-failed" ng-if="$ctrl.totalFailedFiles > 0">Total items failed: {{ $ctrl.totalFailedFiles }}</div>
+    <div class="total-failed" ng-if="$ctrl.totalFailedFiles > 0">{{::$ctrl.localization.get('App_UP_Attachments_Upload_Total_Failed') }} {{ $ctrl.totalFailedFiles }}</div>
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">

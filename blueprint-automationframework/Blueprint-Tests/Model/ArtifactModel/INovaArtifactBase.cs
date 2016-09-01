@@ -1,7 +1,6 @@
-﻿using Model.ArtifactModel.Impl;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Model.Impl;
+using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel
 {
@@ -21,7 +20,6 @@ namespace Model.ArtifactModel
         int Version { get; set; }
 
         #endregion Serialized JSON Properties
-
     }
 
     public interface INovaArtifact : INovaArtifactBase
@@ -48,17 +46,16 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
-        IUser CreatedBy { get; set; }
-        DateTime CreatedOn { get; set; }
+        Identification CreatedBy { get; set; }
+        DateTime? CreatedOn { get; set; }
         string Description { get; set; }
         int ItemTypeVersionId { get; set; }
-        IUser LastEditedBy { get; set; }
-        DateTime LastEditedOn { get; set; }
-        List<PropertyForUpdate> CustomPropertyValues { get; }
-        List<PropertyForUpdate> SpecificPropertyValues { get; }
+        Identification LastEditedBy { get; set; }
+        DateTime? LastEditedOn { get; set; }
+        List<CustomProperty> CustomPropertyValues { get; }
+        List<CustomProperty> SpecificPropertyValues { get; }
 
         #endregion Serialized JSON Properties
-
     }
 
 }

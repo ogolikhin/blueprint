@@ -1,1 +1,1 @@
-export { CustomProperties } from "./custom-properties"
+export { CustomProperties } from "./custom-properties";

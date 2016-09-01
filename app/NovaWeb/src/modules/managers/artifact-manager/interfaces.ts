@@ -1,11 +1,13 @@
 import { Models, Enums } from "../../main/models";
 // import { IArtifactAttachment } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
-export interface IArtifactManagerService {
+export interface IArtifactManager {
+    $http: ng.IHttpService;
     $q: ng.IQService;
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact);
     get(id: number): IStatefulArtifact;
+    load<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
     remove(id: number);
     // removeAll(); // when closing all projects
@@ -13,13 +15,11 @@ export interface IArtifactManagerService {
     // refreshAll(id);
 }
 
-
-
 export interface IStatefulArtifact extends Models.IArtifact  {
     
-    manager: IArtifactManagerService;
+    manager: IArtifactManager;
     state: IState;
-    customProperties: IPropertyValues;
+    customProperties: IArtifactPropertyValues;
 }
 
 

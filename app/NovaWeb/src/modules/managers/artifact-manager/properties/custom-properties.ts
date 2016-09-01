@@ -2,7 +2,7 @@ import { Models, Enums } from "../../../main/models";
 import { IStatefulArtifact, IArtifactPropertyValues } from "../interfaces";
 
 
-export class CustomProperties implements IProperIArtifactPropertyValuestyValues {
+export class CustomProperties implements IArtifactPropertyValues  {
     
     private properties: Models.IPropertyValue[];
     private state: IStatefulArtifact;

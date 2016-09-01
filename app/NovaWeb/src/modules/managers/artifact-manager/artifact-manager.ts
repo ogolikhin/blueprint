@@ -1,18 +1,7 @@
-import { IStatefulArtifact } from "./interfaces";
+import { IArtifactManager, IStatefulArtifact } from "./interfaces";
 import { StatefullArtifact  } from "./artifact";
 import { Models, Enums } from "../../main/models";
 
-export interface IArtifactManager {
-    $q: ng.IQService;
-    list(): IStatefulArtifact[];
-    add(artifact: Models.IArtifact);
-    get(id: number): IStatefulArtifact;
-    // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
-    remove(id: number);
-    // removeAll(); // when closing all projects
-    // refresh(id); // refresh lightweight artifact
-    // refreshAll(id);
-}
 
 export class ArtifactManager  implements IArtifactManager {
 
@@ -24,7 +13,7 @@ export class ArtifactManager  implements IArtifactManager {
     private artifactList: IStatefulArtifact[];
 
     constructor(
-        private $http: ng.IHttpService, 
+        public $http: ng.IHttpService, 
         public $q: ng.IQService) {
 
         this.artifactList = [];
@@ -47,11 +36,31 @@ export class ArtifactManager  implements IArtifactManager {
 
     public remove(id: number) {
         this.artifactList = this.artifactList.filter((artifact: IStatefulArtifact) => 
-            artifact.properties.system().id !== id);
+            artifact.id !== id);
     }
 
     public update(id: number) {
         // TODO: 
+    }
+
+    public load<T>(request: ng.IRequestConfig): ng.IPromise<T> {
+        var defer = this.$q.defer<T>();
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+
     }
 
 }

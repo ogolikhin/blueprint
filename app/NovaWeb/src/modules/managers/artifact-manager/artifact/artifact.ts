@@ -2,12 +2,12 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
-import { IStatefulArtifact, IArtifactPropertyValues, IArtifactManagerService } from "../interfaces";
+import { IStatefulArtifact, IArtifactPropertyValues, IArtifactManager } from "../interfaces";
 
 
 export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
     private artifact: Models.IArtifact;
-    public manager: IArtifactManagerService;
+    public manager: IArtifactManager;
     public state: ArtifactState;
     public attachments: ArtifactAttachments;
     public customProperties: IArtifactPropertyValues; 
@@ -55,7 +55,7 @@ export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
     }
     
 
-    constructor(manager: IArtifactManagerService, artifact: Models.IArtifact) {
+    constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
         this.manager = manager;
         this.artifact = artifact;
         this.state = new ArtifactState(this);
@@ -64,5 +64,18 @@ export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
     }
 
  
+    public updateArtifact(artifactId: number, timeout?: ng.IPromise<any>) {
+        const request: ng.IRequestConfig = {
+            url: `/svc/bpartifactstore/artifacts/${artifactId}`,
+            method: "GET",
+            timeout: timeout
+        };
+        this.manager.load<Models.IArtifact>(request).then((artifact: Models.IArtifact) => {
+            this.artifact = artifact; 
+
+        });
+    }
+
+
  //ArtifactProperties.name
 }

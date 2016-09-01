@@ -3,7 +3,7 @@ loading-overlay {
     .overlay-hidden
     {
         visibility: hidden;
-        z-index: -50;
+        z-index: -9001;
         background-color: rgba(255, 255, 255, 0);
     }
 
@@ -12,7 +12,7 @@ loading-overlay {
     .overlay, 
     .overlay-graphic {
         position:fixed;
-        z-index:9001;
+        z-index:9000;
 
         top:0;
         left:0;
@@ -20,11 +20,15 @@ loading-overlay {
         height:100%;  
     }
 
+    .overlay {
+        border: solid red 5px;
+    }
+
     .overlay-graphic {
-        background-color:rgba(128, 128, 128, 0.8);    
+        background-color:rgba(255, 255, 255, 0.8);    
 
         transition-delay:0.5s;
-        transition-duration:2.0s;
+        transition-duration:1.0s;
         transition-property:all;
         transition-timing-function:linear;  
 
@@ -33,10 +37,16 @@ loading-overlay {
             left:auto;
             right:auto;
             top:50%;
-            width: auto;
+            width: 100%;
+            text-align:center;
 
             color: black;
             font-size:50px;
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
 
             span {
                 display:inline-block;

@@ -14,7 +14,7 @@ export class LoadingOverlayController implements ILoadingOverlayController {
     constructor(private loadingOverlayService: ILoadingOverlayService) {}
     
     private get displayOverlay() {
-        return this.loadingOverlayService.DisplayOverlay;
+        return this.loadingOverlayService.displayOverlay;
     }
 
     public $onDestroy() {

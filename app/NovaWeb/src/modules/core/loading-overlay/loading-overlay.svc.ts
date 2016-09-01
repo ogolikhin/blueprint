@@ -1,7 +1,7 @@
 ﻿export interface ILoadingOverlayService {
-    BeginLoading(): void;
-    EndLoading(): void;    
-    DisplayOverlay: boolean;
+    beginLoading(): void;
+    endLoading(): void;    
+    displayOverlay: boolean;
     dispose(): void;
 }
 
@@ -17,12 +17,10 @@ export class LoadingOverlayService implements ILoadingOverlayService {
     public initialize = () => {
         this._displayOverlay = false;
         this.loadingCounter = 0;
-
-        window.overlayservice = this; //TODO: Remove once finished debugging
     }
 
     private _displayOverlay: boolean;
-    public get DisplayOverlay(): boolean {
+    public get displayOverlay(): boolean {
         return this._displayOverlay;
     }
 
@@ -34,8 +32,7 @@ export class LoadingOverlayService implements ILoadingOverlayService {
     public beginLoading(): void {
         this._displayOverlay = true;
         this.loadingCounter++;
-        console.log(this._displayOverlay);
-        //Increment counter., display overlay.
+        
     }
 
     public endLoading(): void {

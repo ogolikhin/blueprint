@@ -37,7 +37,7 @@ export class ArtifactManager  implements IArtifactManager {
 
     public get(id: number): IStatefulArtifact {
         const foundArtifacts = this.artifactList.filter((artifact: IStatefulArtifact) => 
-            artifact.properties.system().id === id);
+            artifact.id === id);
 
         return foundArtifacts.length ? foundArtifacts[0] : null;
     }

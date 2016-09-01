@@ -15,12 +15,11 @@ export interface IArtifactManagerService {
 
 
 
-export interface IStatefulArtifact {
+export interface IStatefulArtifact extends Models.IArtifact  {
+    
     manager: IArtifactManagerService;
     state: IState;
-    properties: IArtifactProperties;
-    attachments: IArtifactAttachments;
-    //lock: void;
+    customProperties: IPropertyValues;
 }
 
 
@@ -53,32 +52,38 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
 }
 
 export interface  ISystemProperty {
-    id: number;
-    name: string;
-    description: string;
-    prefix?: string;
-    parentId?: number;
-    itemTypeId?: number;
-    itemTypeVersionId?: number;
-    version?: number;
-    createdOn?: Date; 
-    lastEditedOn?: Date;
-    createdBy?: Models.IUserGroup;
-    lastEditedBy?: Models.IUserGroup;
+    //    
+    // id: number;
+    // name?: string;
+    // description?: string;
+    // prefix?: string;
+    // parentId?: number;
+    // itemTypeId?: number;
+    // itemTypeVersionId?: number;
+    // version?: number;
+    // predefinedType?: Enums.ItemTypePredefined;
+    // projectId?: number;
+    // orderIndex?: number;
+
+    // createdOn?: Date; 
+    // lastEditedOn?: Date;
+    // createdBy?: Models.IUserGroup;
+    // lastEditedBy?: Models.IUserGroup;
+    // permissions?: Enums.RolePermissions;
+    // readOnlyReuseSettings?: Enums.ReuseSettings;
+
+
+    // lockedByUser?: IUserGroup;
+    // lockedDateTime?: Date;
 
 }
 
 
-export interface IProperty extends Models.IPropertyValue {
-    propertyLookup: Enums.PropertyLookupEnum;
-    propertyName?: string;
-}
 
-
-export interface IArtifactProperties extends IBlock<IProperty> {
-    system(): ISystemProperty;
-    custom(id: number): IProperty;
-    special(id: number): IProperty;
+export interface IArtifactPropertyValues {
+    get(id: number): Models.IPropertyValue;
+    observable: Rx.IObservable<Models.IPropertyValue>;
+    update(id: number, value: any): ng.IPromise<Models.IPropertyValue>;
 }
 
 

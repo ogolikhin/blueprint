@@ -2,13 +2,13 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
-import { IStatefulArtifact, IArtifactPropertyValues, IArtifactManager, IState } from "../interfaces";
+import { IStatefulArtifact, IArtifactState, IArtifactPropertyValues, IArtifactManager, IState } from "../interfaces";
 
 
-export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
+export class StatefullArtifact implements IStatefulArtifact {
     private artifact: Models.IArtifact;
     public manager: IArtifactManager;
-    public state: ArtifactState;
+    public state: IArtifactState;
     public attachments: ArtifactAttachments;
     public customProperties: IArtifactPropertyValues; 
 
@@ -79,6 +79,10 @@ export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
         return this.artifact.permissions;
     }
 
+    public get version() {
+        return this.artifact.version;
+    }
+
     public get projectId() {
         return this.artifact.projectId;
     }
@@ -115,55 +119,82 @@ export class StatefullArtifact implements IStatefulArtifact, Models.IArtifact {
 
         this.attachments = new ArtifactAttachments(this);
         this.customProperties = new CustomProperties(this).initialize(artifact);
+
+        this.state.observable.filter((it: IState) => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this);
     }
+
 
 
      public set(name: string, value: any) {
         if (name in this) {
             this[name] = value;
         }
-        this.lock();  // may be called with a call back ex: this.lock(this.EXECUTE, [parameters])
+        this.lock(); 
     }
 
 
 
-    private loadArtifact(artifactId: number, timeout?: ng.IPromise<any>) {
-        const request: ng.IRequestConfig = {
-            url: `/svc/bpartifactstore/artifacts/${artifactId}`,
+    public loadArtifact(timeout?: ng.IPromise<any>)  {
+        
+        const config: ng.IRequestConfig = {
+            url: `/svc/bpartifactstore/artifacts/${this.id}`,
             method: "GET",
             timeout: timeout
         };
-        this.manager.load<Models.IArtifact>(request).then((artifact: Models.IArtifact) => {
-            this.artifact = artifact; 
+        this.manager.request<Models.IArtifact>(config).then((artifact: Models.IArtifact) => {
+            this.artifact = artifact;
+            this.state.initialize(artifact);
+            this.customProperties.initialize(artifact);
         });
     }
 
-    private loadSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>) {
-        const request: ng.IRequestConfig = {
-            url:  `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`,
+    private loadSubArtifact(subArtifactId: number, timeout?: ng.IPromise<any>) {
+        const config: ng.IRequestConfig = {
+            url:  `/svc/bpartifactstore/artifacts/${this.id}/subartifacts/${subArtifactId}`,
             method: "GET",
             timeout: timeout
         };
-        this.manager.load<Models.ISubArtifact>(request).then((artifact: Models.ISubArtifact) => {
+        this.manager.request<Models.ISubArtifact>(config).then((artifact: Models.ISubArtifact) => {
 
         });
     }
 
 
-    public lock(func?: Function, ...params:any[]) {
-        const request: ng.IRequestConfig = {
+    public lock(): ng.IPromise<IState> {
+        let deferred = this.manager.$q.defer<IState>();
+
+        const config: ng.IRequestConfig = {
             url: `/svc/shared/artifacts/lock`,
             method: "post",
             data: angular.toJson([this.id])
         };
-        this.manager.load<Models.ILockResult>(request).then((lock: Models.ILockResult) => {
+        this.manager.request<Models.ILockResult>(config).then((lock: Models.ILockResult) => {
             this.state.set({lock: lock} as IState);
-            if (angular.isFunction(func)) {
-                func(...params);
-            }
+            deferred.resolve(this.state.get());
+        }).catch((err) => {
+            deferred.reject(err);
         });
+        return deferred.promise;
     }
 
 
- //ArtifactProperties.name
+     private onLockChanged(state: IState) {
+        if (!state.lock) {
+            return;
+        }
+        if (state.lock.result === Enums.LockResultEnum.Success) {
+            if (state.lock.info.versionId !== this.version) {
+                this.loadArtifact();
+            }
+        } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
+//            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
+            this.loadArtifact();
+        } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
+//            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        } else {
+//            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        }
+
+    }
+
 }

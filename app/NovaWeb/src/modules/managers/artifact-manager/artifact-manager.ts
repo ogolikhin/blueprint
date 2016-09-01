@@ -50,7 +50,7 @@ export class ArtifactManager  implements IArtifactManager {
     }
 
 
-    public load<T>(request: ng.IRequestConfig): ng.IPromise<T> {
+    public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
         var defer = this.$q.defer<T>();
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),

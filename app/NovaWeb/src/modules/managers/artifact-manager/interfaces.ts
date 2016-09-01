@@ -7,12 +7,12 @@ export interface IArtifactManager {
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact);
     get(id: number): IStatefulArtifact;
-    load<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
     remove(id: number);
     // removeAll(); // when closing all projects
     // refresh(id); // refresh lightweight artifact
     // refreshAll(id);
+    request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
 }
 
 export interface IStatefulArtifact extends Models.IArtifact  {
@@ -55,6 +55,7 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
 
 
 export interface IArtifactPropertyValues {
+    initialize(artifact: Models.IArtifact): IArtifactPropertyValues; 
     get(id: number): Models.IPropertyValue;
     observable: Rx.IObservable<Models.IPropertyValue>;
     update(id: number, value: any): ng.IPromise<Models.IPropertyValue>;
@@ -69,12 +70,14 @@ export interface IState {
 } 
 
 export interface IArtifactState {
-
+    initialize(artifact: Models.IArtifact): IArtifactState; 
     locked: Enums.LockedByEnum;
     readonly: boolean;
     dirty: boolean;
     published: boolean;
-
+    get(): IState;
+    set(value: any): void;
+    observable: Rx.Observable<IState>;
 } 
 
 export { ISession } from "../../shell/login/session.svc";

@@ -20,12 +20,17 @@ export class CustomProperties implements IArtifactPropertyValues  {
         })
     }
 
-    public initialize(artifact: Models.IArtifact): CustomProperties {
-        if (artifact){
+    public initialize(artifact: Models.IArtifact): IArtifactPropertyValues {
+        if (artifact) {
             this.properties = artifact.customPropertyValues;
         }
         return this;
     }
+
+    public get value(): ng.IPromise<Models.IPropertyValue[]> {
+            // try to get custom property through a service
+            return {} as ng.IPromise<Models.IPropertyValue[]>;
+    }    
 
 
     public get(id: number): Models.IPropertyValue {

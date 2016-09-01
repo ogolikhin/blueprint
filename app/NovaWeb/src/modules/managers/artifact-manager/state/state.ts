@@ -18,7 +18,7 @@ export class ArtifactState implements IArtifactState {
 
     }
 
-    public initialize(artifact: Models.IArtifact): ArtifactState {
+    public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
             if (artifact.lockedByUser) {
                 this.state.lock = {
@@ -36,7 +36,7 @@ export class ArtifactState implements IArtifactState {
         return this;
     }
 
-    public get observable(): Rx.IObservable<IState> {
+    public get observable(): Rx.Observable<IState> {
         return this.subject.filter(it => it !== null).asObservable();
     }    
 
@@ -52,15 +52,16 @@ export class ArtifactState implements IArtifactState {
                         return Enums.LockedByEnum.None;
                 }
         }
-
         return Enums.LockedByEnum.None;
-
     }
 
+    public get(): IState {
+        return this.state;
+    }
     
-    public set set(value: any) {
+    public set(value: any) {
         angular.extend(this.state, value);
-        this.subject.onNext(this.state)
+        this.subject.onNext(this.state);
     }
 
     public get readonly(): boolean {

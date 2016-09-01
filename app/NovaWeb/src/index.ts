@@ -7,7 +7,7 @@ import "./styles/screen.scss";
 declare var appBootstrap: any;
 
 (function() {
-    if (appBootstrap.isSupportedVersion) {
+    if (appBootstrap.isSupportedVersion()) {
         appBootstrap.initApp();
     }
 })();

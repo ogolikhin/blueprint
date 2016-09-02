@@ -6,7 +6,7 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPAttachmentsPanelController } from "./bp-attachments-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
-import { IArtifactAttachmentsResultSet } from "./artifact-attachments.svc";
+import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./artifact-attachments.svc";
 import { Models } from "../../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
 import { DialogService } from "../../../shared/widgets/bp-dialog";
@@ -85,7 +85,7 @@ describe("Component BP Attachments Panel", () => {
     it("addDocRef should add new document reference to the list",
         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
+            const artifact = { id: 22, name: "TestDocument", prefix: "PRO" } as Models.IArtifact;
             let deferred = $q.defer();
             DialogService.prototype.open = jasmine.createSpy("open() spy").and.callFake(
                 (): ng.IPromise<Models.IArtifact> => {
@@ -101,7 +101,9 @@ describe("Component BP Attachments Panel", () => {
             $timeout.flush();
 
             //Assert
-            expect(vm.artifactAttachmentsList.documentReferences.length).toBeGreaterThan(0);
+            expect(vm.artifactAttachmentsList.documentReferences
+                .filter((doc: IArtifactDocRef) => { return doc.artifactName === artifact.name; }).length)
+                .toBeGreaterThan(0);
         }));
 
     it("the list should be empty when service throwing exception",

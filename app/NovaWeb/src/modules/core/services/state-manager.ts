@@ -136,7 +136,7 @@ export class ItemState {
         
     }
 
-    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet) {
+    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet){
         let propertyTypeId: number;
         let propertyValue: Models.IPropertyValue;
         switch (changeSet.lookup) {
@@ -175,44 +175,48 @@ export class ItemState {
         return true;
     }
 
+    private applyChangeSet(item: Models.IItem, changeSet: IPropertyChangeSet): Models.IItem{
+        let propertyTypeId: number;
+        let propertyValue: Models.IPropertyValue;
+        switch (changeSet.lookup) {
+            case Enums.PropertyLookupEnum.System:
+                if (changeSet.id in this.originItem) {
+                    item[changeSet.id] = changeSet.value;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Custom:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+        }
+        return item;
+    }
+
     public generateArtifactDelta(): Models.IArtifact {
-        let baseItem: Models.IArtifact = this.originItem;
-        let changedItem: Models.IArtifact = this._changedItem;
-        let delta: Models.IArtifact = new Models.Artifact();
+        let delta: Models.IArtifact = {} as Models.Artifact;
 
-        //constant properties - just take from base
-        delta.id = baseItem.id;
-        delta.projectId = baseItem.projectId;
-
-        //variable properties - compare and add changes
-        if (baseItem.name !== changedItem.name) {
-            delta.name = changedItem.name;
-        }
-        if (baseItem.description !== changedItem.description) {
-            delta.description = changedItem.description;
-        }
-
+        //constant properties - just take from changed item
+        delta.id = this._changedItem.id;
+        delta.projectId = this._changedItem.projectId;
         delta.customPropertyValues = [];
-        angular.forEach(baseItem.customPropertyValues, function (val, key) {
-            //check choice values
-            if (val.value != null  && val.value.validValueIds) {
-                angular.forEach(val.value.validValueIds, function (choiceVal, choiceKey) {
-                    //if the choice values has multiple valid values
-                    if (changedItem.customPropertyValues[key].value.validValueIds) {
-                        if (changedItem.customPropertyValues[key].value.validValueIds[choiceKey] !== choiceVal) {
-                            delta.customPropertyValues.push(val);
-                        }
-                    } else { //otherwise, check single
-                        if (changedItem.customPropertyValues[key].value !== choiceVal) {
-                            delta.customPropertyValues.push(val);
-                        }
-                    }
-                });
-                //check other values  
-            } else if (changedItem.customPropertyValues[key].value !== val.value) {
-                delta.customPropertyValues.push(val);
-            }
-        });
+        
+        angular.forEach(this._changesets, function(set, key) {
+            delta = this.applyChangeSet(delta, set);
+        }, this);
 
         return delta;
     }

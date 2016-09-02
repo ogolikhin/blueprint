@@ -1,29 +1,7 @@
+import { IMessageService } from "../../core/";
 import { Models, Enums } from "../../main/models";
 // import { IArtifactAttachment } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-
-export interface IArtifactManager {
-    $q: ng.IQService;
-    currentUser: Models.IUserGroup;
-    list(): IStatefulArtifact[];
-    add(artifact: Models.IArtifact);
-    get(id: number): IStatefulArtifact;
-    // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
-    remove(id: number);
-    // removeAll(); // when closing all projects
-    // refresh(id); // refresh lightweight artifact
-    // refreshAll(id);
-    request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
-}
-
-export interface IStatefulArtifact extends Models.IArtifact  {
-    
-    manager: IArtifactManager;
-    state: IState;
-    customProperties: IArtifactPropertyValues;
-
-    lock();
-}
-
+export { ISession } from "../../shell/login/session.svc";
 
 
 export interface IBlock<T> {
@@ -33,6 +11,14 @@ export interface IBlock<T> {
     remove(T): ng.IPromise<T[]>;
     update(T): ng.IPromise<T[]>;
 }
+
+export interface IState {
+    readonly?: boolean;
+    dirty?: boolean;
+    published?: boolean;
+    lock?: Models.ILockResult;
+} 
+
 
 // from artifact-attachments.svc
 export interface IArtifactAttachment {
@@ -44,6 +30,7 @@ export interface IArtifactAttachment {
     guid?: string;
 }
 
+
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
     // list(): IArtifactAttachment[];
     value: ng.IPromise<IArtifactAttachment[]>;
@@ -53,31 +40,49 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
     update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
 }
 
-
-export interface IArtifactPropertyValues {
-    initialize(artifact: Models.IArtifact): IArtifactPropertyValues; 
+export interface IArtifactProperties {
+    initialize(artifact: Models.IArtifact): IArtifactProperties; 
+    observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
-    observable: Rx.IObservable<Models.IPropertyValue>;
-    update(id: number, value: any): ng.IPromise<Models.IPropertyValue>;
+    set(id: number, value: any): Models.IPropertyValue;
+    discard();
+
 }
 
-
-export interface IState {
-    readonly?: boolean;
-    dirty?: boolean;
-    published?: boolean;
-    lock?: Models.ILockResult;
-} 
-
-export interface IArtifactState {
-    initialize(artifact: Models.IArtifact): IArtifactState; 
+export interface IArtifactStates {
+    initialize(artifact: Models.IArtifact): IArtifactStates; 
+    get(): IState;
+    set(value: any): void;
     locked: Enums.LockedByEnum;
     readonly: boolean;
     dirty: boolean;
     published: boolean;
-    get(): IState;
-    set(value: any): void;
     observable: Rx.Observable<IState>;
 } 
 
-export { ISession } from "../../shell/login/session.svc";
+export interface IStatefulArtifact extends Models.IArtifact  {
+    manager: IArtifactManager;
+    artifactState: IArtifactStates;
+    customProperties: IArtifactProperties;
+    attachments: IArtifactAttachments;
+    discard(): ng.IPromise<IStatefulArtifact>;
+    load(): ng.IPromise<IStatefulArtifact>;
+    lock(): ng.IPromise<IState>;
+}
+
+export interface IArtifactManager {
+    $q: ng.IQService;
+    messages: IMessageService;
+    currentUser: Models.IUserGroup;
+    list(): IStatefulArtifact[];
+    add(artifact: Models.IArtifact): IStatefulArtifact;
+    get(id: number): IStatefulArtifact;
+    // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
+    remove(id: number): IStatefulArtifact;
+    // removeAll(); // when closing all projects
+    // refresh(id); // refresh lightweight artifact
+    // refreshAll(id);
+    request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
+}
+
+

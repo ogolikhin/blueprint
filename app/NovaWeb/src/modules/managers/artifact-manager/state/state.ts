@@ -1,14 +1,14 @@
 import { Models, Enums } from "../../../main/models";
-import { IStatefulArtifact, IArtifactState, IState } from "../interfaces";
+import { IStatefulArtifact, IArtifactStates, IState } from "../interfaces";
 
-export class ArtifactState implements IArtifactState {
-    private stateArtifact: IStatefulArtifact;
+export class ArtifactState implements IArtifactStates {
+    private statefullArtifact: IStatefulArtifact;
     private state: IState;
     private subject: Rx.BehaviorSubject<IState>;
 
 
     constructor(artifact: IStatefulArtifact, state?: IState) {
-        this.stateArtifact = artifact; 
+        this.statefullArtifact = artifact; 
         this.state = angular.extend({
             readonly: false,
             dirty: false,
@@ -18,11 +18,11 @@ export class ArtifactState implements IArtifactState {
 
     }
 
-    public initialize(artifact: Models.IArtifact): IArtifactState {
+    public initialize(artifact: Models.IArtifact): IArtifactStates {
         if (artifact) {
             if (artifact.lockedByUser) {
                 this.state.lock = {
-                    result: artifact.lockedByUser.id === this.stateArtifact.manager.currentUser.id ? 
+                    result: artifact.lockedByUser.id === this.statefullArtifact.manager.currentUser.id ? 
                             Enums.LockResultEnum.Success : 
                             Enums.LockResultEnum.AlreadyLocked,
                     info: {
@@ -59,7 +59,7 @@ export class ArtifactState implements IArtifactState {
         return this.state;
     }
     
-    public set(value: any) {
+    private set(value: any) {
         angular.extend(this.state, value);
         this.subject.onNext(this.state);
     }
@@ -67,11 +67,11 @@ export class ArtifactState implements IArtifactState {
     public get readonly(): boolean {
         return this.state.readonly ||
                this.locked === Enums.LockedByEnum.OtherUser ||
-               (this.stateArtifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+               (this.statefullArtifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
+    
     public set readonly(value: boolean) {
-        this.state.readonly = value;
-        this.subject.onNext(this.state);
+        this.set({readonly: value});
     }
 
     public get dirty(): boolean {
@@ -79,8 +79,7 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set dirty(value: boolean) {
-        this.state.dirty = value;
-        this.subject.onNext(this.state);
+        this.set({dirty: value});
     }
 
     public get published(): boolean {
@@ -88,10 +87,6 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set published(value: boolean) {
-        this.state.published = value;
-        this.subject.onNext(this.state);
+        this.set({published: value});
     }
-
-
-
 }

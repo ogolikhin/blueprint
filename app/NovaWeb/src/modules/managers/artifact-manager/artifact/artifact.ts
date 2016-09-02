@@ -2,24 +2,35 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
-import { IStatefulArtifact, IArtifactState, IArtifactPropertyValues, IArtifactManager, IState } from "../interfaces";
+import { ChangeSet, ChangeTypeEnum } from "../changeset";
+
+import { IStatefulArtifact, 
+         IArtifactStates, 
+         IArtifactProperties, 
+         IArtifactAttachments, 
+         IArtifactManager, 
+         IState,
+         } from "../interfaces";
 
 
 export class StatefullArtifact implements IStatefulArtifact {
     private artifact: Models.IArtifact;
     public manager: IArtifactManager;
-    public state: IArtifactState;
-    public attachments: ArtifactAttachments;
-    public customProperties: IArtifactPropertyValues; 
+    public artifactState: IArtifactStates;
+    public attachments: IArtifactAttachments;
+    public customProperties: IArtifactProperties; 
+    private changeset: ChangeSet;
+
 
     constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
         this.manager = manager;
         this.artifact = artifact;
-        this.state = new ArtifactState(this).initialize(artifact);
+        this.artifactState = new ArtifactState(this).initialize(artifact);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
+        this.changeset = new ChangeSet();
 
-        this.state.observable
+        this.artifactState.observable
             .filter((it: IState) => !!it.lock)
             .distinctUntilChanged()
             .subscribeOnNext(this.onLockChanged, this);
@@ -112,11 +123,21 @@ export class StatefullArtifact implements IStatefulArtifact {
      private set(name: string, value: any) {
         if (name in this) {
            this[name] = value;
+           this.changeset.add(ChangeTypeEnum.Update, name, value);
            this.lock(); 
         }
     }
 
-    public loadArtifact(timeout?: ng.IPromise<any>)  {
+    public discard(): ng.IPromise<IStatefulArtifact>   {
+        let deferred = this.manager.$q.defer<IStatefulArtifact>();
+        this.customProperties.discard();
+
+        return deferred.promise;
+    }
+
+    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact>   {
+        let deferred = this.manager.$q.defer<IStatefulArtifact>();
+
         const config: ng.IRequestConfig = {
             url: `/svc/bpartifactstore/artifacts/${this.id}`,
             method: "GET",
@@ -124,10 +145,16 @@ export class StatefullArtifact implements IStatefulArtifact {
         };
         this.manager.request<Models.IArtifact>(config).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
-            this.state.initialize(artifact);
+            this.artifactState.initialize(artifact);
             this.customProperties.initialize(artifact);
+            deferred.resolve(this);
+        }).catch((err) => {
+            deferred.reject(err);
         });
+        return deferred.promise;
+        
     }
+
 
     // private loadSubArtifact(subArtifactId: number, timeout?: ng.IPromise<any>) {
     //     const config: ng.IRequestConfig = {
@@ -149,8 +176,8 @@ export class StatefullArtifact implements IStatefulArtifact {
             data: angular.toJson([this.id])
         };
         this.manager.request<Models.ILockResult>(config).then((lock: Models.ILockResult) => {
-            this.state.set({lock: lock} as IState);
-            deferred.resolve(this.state.get());
+            this.artifactState.set({lock: lock} as IState);
+            deferred.resolve(this.artifactState.get());
         }).catch((err) => {
             deferred.reject(err);
         });
@@ -163,15 +190,15 @@ export class StatefullArtifact implements IStatefulArtifact {
         }
         if (state.lock.result === Enums.LockResultEnum.Success) {
             if (state.lock.info.versionId !== this.version) {
-                this.loadArtifact();
+                this.load();
             }
         } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-//            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
-            this.loadArtifact();
+            this.manager.messages.addWarning("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
+            this.load();
         } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
-//            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.manager.messages.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         } else {
-//            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.manager.messages.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         }
 
     }

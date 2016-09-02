@@ -3,6 +3,8 @@ import { ILocalizationService, IMessageService } from "../../core";
 import { IProjectRepository, Models } from "./project-repository";
 import { ISelectionManager, SelectionSource } from "./selection-manager";
 
+import { IArtifactManager } from "../../managers";
+
 export {Models}
 
 export interface IProjectManager {
@@ -40,12 +42,13 @@ export class ProjectManager implements IProjectManager {
     private _projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository", "selectionManager"];
+    static $inject: [string] = ["localization", "messageService", "projectRepository", "selectionManager", "artifactManager"];
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository,
-        private selectionManager: ISelectionManager
+        private selectionManager: ISelectionManager,
+        private artifactManager: IArtifactManager
     ) {
     }
 
@@ -116,6 +119,12 @@ export class ProjectManager implements IProjectManager {
                                     open: true
                                 });
                                 _projectCollection.unshift(_project);
+                                
+                                this.artifactManager.add(_project);
+                                _project.artifacts.forEach((a) => {
+                                    this.artifactManager.add(a);
+                                });
+                                
                                 self.projectCollection.onNext(_projectCollection);
                                 this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 

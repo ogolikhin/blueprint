@@ -13,7 +13,7 @@ import "angular-perfect-scrollbar-2";
 import "tinymce";
 import "../shell";
 import "../shared";
-//import "../managers";
+import "../managers";
 import "./services/";
 import "./components";
 import "./router";
@@ -58,7 +58,8 @@ angular.module("app.main", [
     "agGrid",
     "ngDraggable",
     "angular-perfect-scrollbar-2",
-//    "bp.managers",
+    "bp.managers",
+    "bp.editors",
     "bp.components",
     "bp.router",
     "bp.main.services",

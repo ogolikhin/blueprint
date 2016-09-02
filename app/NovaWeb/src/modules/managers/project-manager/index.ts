@@ -1,4 +1,4 @@
-// import {  } from "./artifact-manager";
+// import { ProjectManager } from "./project-manager";
 
 // angular.module("bp.managres.project", [])
-//     .service("projectManager", ProjectManagerService);
+//     .service("projectManager", ProjectManager);

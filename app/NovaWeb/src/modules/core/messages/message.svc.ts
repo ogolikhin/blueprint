@@ -4,6 +4,7 @@ import { ISettingsService } from "../configuration";
 export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error): void;    
+    addWarning(text: string): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -96,6 +97,13 @@ export class MessageService implements IMessageService {
         } else {
                 this.addMessage(new Message(MessageType.Error, error as string));
         }
+    }
+    public addWarning(msg: string): void {
+        if (!msg) {
+            return;
+        }
+
+        this.addMessage(new Message(MessageType.Warning, msg));
     }
 
     public addMessage(msg: Message): void {

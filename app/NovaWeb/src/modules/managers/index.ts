@@ -4,3 +4,5 @@ import "./artifact-manager";
 angular.module("bp.managers", [
     "bp.managers.artifact"
 ]);
+
+export { IArtifactManager } from  "./artifact-manager/interfaces"; 

@@ -1,4 +1,4 @@
-import { ICommunicationWrapper, CommunicationWrapper } from "../../../editors/bp-process/components/modal-dialogs/communication-wrapper";
+import { ICommunicationWrapper, CommunicationWrapper } from "../modal-dialogs/communication-wrapper";
 
 export interface IToolbarCommunication {
     registerClickDeleteObserver(observer: any);

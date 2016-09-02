@@ -1,5 +1,5 @@
 ﻿import { Models, Enums } from "../../models";
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause, ICommunicationManager } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -14,8 +14,8 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "localization", "stateManager", "messageService",
-        "dialogService", "$element", "windowManager", "artifactService"];
+    static $inject: [string] = ["$scope","projectManager", "localization", "stateManager", "messageService",
+        "dialogService", "$element", "windowManager", "artifactService", "communicationManager"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -30,6 +30,7 @@ export class BpArtifactInfoController {
     private _artifactId: number;
 
     constructor(
+        public $scope: ng.IScope,
         private projectManager: IProjectManager,
         private localization: ILocalizationService,
         private stateManager: IStateManager,
@@ -37,7 +38,8 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private communicationManager: ICommunicationManager
     ) {
         this.initProperties();
     }

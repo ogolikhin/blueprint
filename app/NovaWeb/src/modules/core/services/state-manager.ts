@@ -175,8 +175,50 @@ export class ItemState {
         return true;
     }
 
+    public generateArtifactDelta(): Models.IArtifact {
+        let baseItem: Models.IArtifact = this.originItem;
+        let changedItem: Models.IArtifact = this._changedItem;
+        let delta: Models.IArtifact = new Models.Artifact();
+
+        //constant properties - just take from base
+        delta.id = baseItem.id;
+        delta.projectId = baseItem.projectId;
+
+        //variable properties - compare and add changes
+        if (baseItem.name !== changedItem.name) {
+            delta.name = changedItem.name;
+        }
+        if (baseItem.description !== changedItem.description) {
+            delta.description = changedItem.description;
+        }
+
+        delta.customPropertyValues = [];
+        angular.forEach(baseItem.customPropertyValues, function (val, key) {
+            //check choice values
+            if (val.value != null  && val.value.validValueIds) {
+                angular.forEach(val.value.validValueIds, function (choiceVal, choiceKey) {
+                    //if the choice values has multiple valid values
+                    if (changedItem.customPropertyValues[key].value.validValueIds) {
+                        if (changedItem.customPropertyValues[key].value.validValueIds[choiceKey] !== choiceVal) {
+                            delta.customPropertyValues.push(val);
+                        }
+                    } else { //otherwise, check single
+                        if (changedItem.customPropertyValues[key].value !== choiceVal) {
+                            delta.customPropertyValues.push(val);
+                        }
+                    }
+                });
+                //check other values  
+            } else if (changedItem.customPropertyValues[key].value !== val.value) {
+                delta.customPropertyValues.push(val);
+            }
+        });
+
+        return delta;
+    }
+
     public finishSave() {
-        if (!this._changedItem) {
+        if (this._changedItem) {
             this.originItem = angular.copy(this._changedItem);
             this._changedItem = null;
         }

@@ -177,10 +177,13 @@ export class BpArtifactInfoController {
         }
     }
 
+   
+
     //TODO: move the save logic to a more appropriate place
     public saveChanges() {
         let state: ItemState = this.stateManager.getState(this._artifactId);
-        this.artifactService.updateArtifact(state.getArtifact())
+        let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
+        this.artifactService.updateArtifact(artifactDelta)
             .then((artifact: Models.IArtifact) => {
                 let oldArtifact = state.getArtifact();
                 if (artifact.version) {

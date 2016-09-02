@@ -1,6 +1,6 @@
 ﻿export interface ILoadingOverlayService {
-    beginLoading(): void;
-    endLoading(): void;    
+    beginLoading(): number;
+    endLoading(id: number): void;    
     displayOverlay: boolean;
     dispose(): void;
 }
@@ -12,38 +12,33 @@ export class LoadingOverlayService implements ILoadingOverlayService {
         this.initialize();
     }
 
-    private loadingCounter: number;
+    private loadingIds: Array<number>;
 
     public initialize = () => {
-        this._displayOverlay = false;
-        this.loadingCounter = 0;
+        this.loadingIds = new Array<number>();
     }
 
-    private _displayOverlay: boolean;
     public get displayOverlay(): boolean {
-        return this._displayOverlay;
+        return this.loadingIds.length > 0;
     }
 
     public dispose(): void {
-        //Remove the overlay?
-        //When do we dispose?
+        this.loadingIds = new Array<number>();
     }
 
-    public beginLoading(): void {
-        this._displayOverlay = true;
-        this.loadingCounter++;
-        
+    public beginLoading(): number {
+        let randomId = Math.random();
+        this.loadingIds.push(randomId);
+        return randomId;
     }
 
-    public endLoading(): void {
-        this.loadingCounter--;
-        if (this.loadingCounter < 0) {
-            //TODO: Error; something called loading in the wrong order.
-            this.loadingCounter = 0;
+    public endLoading(id: number): void {
+        let index = this.loadingIds.indexOf(id);
+        if (index < 0) {
+            //Error, endLoading was called twice, or beginLoading wasn't called, or dispose was called
         }
-
-        if (this.loadingCounter === 0) {
-            this._displayOverlay = false;
+        else {
+            this.loadingIds.splice(index, 1);
         }
     }
 }

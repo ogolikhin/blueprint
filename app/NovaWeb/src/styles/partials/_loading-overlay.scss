@@ -1,6 +1,6 @@
 loading-overlay {
 
-    .overlay-hidden //apply to div instead
+    div //apply to div instead
     {
         position:fixed;
         visibility: hidden;
@@ -9,20 +9,17 @@ loading-overlay {
     }
 
     //The overlay is separate from the overlay-graphic because we use a transition-delay on the graphic
-    //But we want to prevent clicking right away.
+    //This will slow down switching the size/visibility; but we want to prevent clicking right away.
     .overlay, 
     .overlay-graphic {
         position:fixed;
+        visibility:visible;
         z-index:9000;
 
         top:0;
         left:0;
         width:100%;
         height:100%;  
-    }
-
-    .overlay {
-        border: solid red 5px;
     }
 
     .overlay-graphic {

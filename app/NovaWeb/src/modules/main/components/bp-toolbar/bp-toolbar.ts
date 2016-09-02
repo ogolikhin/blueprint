@@ -68,19 +68,19 @@ class BPToolbarController implements IBPToolbarController {
                 break;
             case `discardall`:
                 //Test Code: Display load screen for 0.4s (invisible), then popup result.
-                this.loadingOverlayService.beginLoading();
+                let discardLoadingId = this.loadingOverlayService.beginLoading();
                 let discardPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 500);
                 discardPromise.finally(() => {
-                    this.loadingOverlayService.endLoading();
+                    this.loadingOverlayService.endLoading(discardLoadingId);
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 });
                 break;
             case `publishall`:
                 //Test Code: Display load screen for 5s, then popup result.
-                this.loadingOverlayService.beginLoading();
-                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 50000);
+                let publishLoadingId = this.loadingOverlayService.beginLoading();
+                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
                 publishPromise.finally(() => {
-                    this.loadingOverlayService.endLoading();
+                    this.loadingOverlayService.endLoading(publishLoadingId);
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 });
                 break;

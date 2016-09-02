@@ -869,6 +869,41 @@ export function formlyConfig(
               <formly-transclude></formly-transclude>
             </div>`
     });
+
+    formlyConfig.setType({
+        name: "bpFieldImage",
+        /* tslint:disable */
+        template: `<div class="input-group">
+                <img ng-src="{{model[options.key]}}" width="64" height="64" style="border:1px solid grey" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.delete($event)">+</button>
+                </span>
+            </div>`
+        /* tslint:enable */
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldInheritFrom",
+        /* tslint:disable */
+        template: `<div class="input-group">
+                <input type="text"
+                    id="{{::id}}"
+                    name="{{::id}}"
+                    ng-model="model[options.key].hasAccess ? model[options.key].path : 'Unauthorized'"
+                    ng-keyup="bpFieldText.keyup($event)"
+                    class="form-control read-only-input"
+                    enable="false" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.delete($event)">-</button>
+                </span>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.change($event)">Change</button>
+                </span>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel"]
+    });
+ 
     /* tslint:disable */
     /* not using this template yet
     formlyConfig.setWrapper({

@@ -4,6 +4,8 @@
 }
 
 export enum PrimitiveType {
+    ActorInheritance = -1, // for client use only
+
     Text = 0,
     Number = 1,
     Date = 2,
@@ -78,6 +80,7 @@ export enum ItemTypePredefined {
 
 export enum PropertyTypePredefined {
     ItemTypeId = -1, // for client use only 
+    ActorInheritance = -2, // for client use only
 
     None = 0,
     SystemGroup = 4096,

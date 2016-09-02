@@ -25,8 +25,31 @@ export class ArtifactService implements IArtifactService {
         };
 
         this.$http(request).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => {
+                //DEBUG
+                result.data.specificPropertyValues.push({
+                    propertyTypeId: 1,
+                    propertyTypeVersionId: 1,
+                    propertyTypePredefined: Models.PropertyTypePredefined.Image,
+                    isReuseReadOnly: false,
+                    value: "https://www.google.ca/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+                }, {
+                    propertyTypeId: 1,
+                    propertyTypeVersionId: 1,
+                    propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
+                    isReuseReadOnly: false,
+                    value: {
+                        path: "Path",
+                        id: 1,
+                        name: "Actor Name",
+                        prefix: "ACT",
+                        hasAccess: true
+                    }
+                });
+                //END DEBUG
+
+                defer.resolve(result.data);
+            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();
                     return;

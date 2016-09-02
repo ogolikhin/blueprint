@@ -38,6 +38,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public customFields: AngularFormly.IFieldConfigurationObject[];
+    public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
     public get isSystemPropertyAvailable(): boolean {
@@ -46,6 +47,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
+    public get isSpecificPropertyAvailable(): boolean {
+        return this.specificFields && this.specificFields.length > 0;
+    }
     public get isRichTextPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }
@@ -53,6 +57,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public $onDestroy() {
         delete this.systemFields;
         delete this.customFields;
+        delete this.specificFields;
         delete this.richTextFields;
         super.$onDestroy();
     }
@@ -60,10 +65,10 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public clearFields() {
         this.systemFields = [];
         this.customFields = [];
+        this.specificFields = [];
         this.richTextFields = [];
     }
-
-
+    
     public onLoading(obj: any): boolean {
         return super.onLoading(obj);
     }
@@ -100,9 +105,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Custom === propertyContext.lookup) {
             this.customFields.push(field);
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
-            
+            this.specificFields.push(field);
         }
-
     }
-
 }

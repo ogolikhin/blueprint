@@ -5,13 +5,15 @@ import { PropertyContext} from "./bp-property-context";
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export class PropertyEditor {
+    public static $inject = [
+        "localization"
+    ];
     
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
-    constructor(private localization: ILocalizationService)
-    {
+    constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
 
@@ -158,8 +160,7 @@ export class PropertyEditor {
     private GetActorStepOfValue(propertyValue: any): string {        
         if (propertyValue) {
             return this.localization.get("App_Properties_Actor_StepOf_Actor");            
-        }
-        else {            
+        } else {            
             return this.localization.get("App_Properties_Actor_StepOf_System");
         }
     }
@@ -256,9 +257,14 @@ export class PropertyEditor {
                     //TODO needs to be changed to user selection
                     field.type = "bpFieldReadOnly";
                     break;
+                case Models.PrimitiveType.Image:
+                    field.type = "bpFieldImage";
+                    break;
+                case Models.PrimitiveType.ActorInheritance:
+                    field.type = "bpFieldInheritFrom";
+                    break;
                 default:
-                    //case Models.PrimitiveType.Image:
-                    field.type = "input"; // needs to be changed to image editor
+                    field.type = "input";
                     field.defaultValue = (context.defaultValidValueId || 0).toString();
                     field.templateOptions.options = [];
                     if (context.validValues) {

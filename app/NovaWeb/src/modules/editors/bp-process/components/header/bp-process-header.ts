@@ -48,11 +48,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public enableDeleteButton = (value: boolean) => {
-        setTimeout(() => {
-            this.$scope.$apply(() => {
-                this.isDeleteButtonEnabled = value;
-            }); 
-        }, 200);
+        this.$scope.$applyAsync((s) => {
+            this.isDeleteButtonEnabled = value;
+        });
     }
 
     private clickDelete() {

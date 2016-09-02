@@ -192,12 +192,11 @@ namespace Helper
         /// <param name="project">The target project.</param>
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <returns>The new artifact object.</returns>
-        public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
-            Artifacts.Add(artifact);
-            artifact.RegisterObserver(this);
+            IArtifact artifact = CreateArtifact(project, user, artifactType, parent);
             artifact.Save();
             return artifact;
         }
@@ -208,7 +207,7 @@ namespace Helper
         /// <param name="project">The project where the artifact is to be created.</param>
         /// <param name="user">The user who will create the artifact.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
-        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
         public IArtifact CreateAndPublishArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null, int numberOfVersions = 1)

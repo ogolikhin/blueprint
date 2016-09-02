@@ -9,11 +9,15 @@ import {WindowManager} from "../../main";
 import {ProjectManagerMock} from "../../main/services/project-manager.mock";
 import {BpProcessEditorController} from "./bp-process-editor";
 import { ComponentTest } from "../../util/component.test";
+import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
+import { ArtifactServiceMock } from "../../main/services/artifact.svc.mock";
 
 describe("BpProcessEditorController Tests", () => {
     beforeEach(angular.mock.module("bp.editors.process"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
         $provide.service("processModelService", ProcessServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("selectionManager", SelectionManager);

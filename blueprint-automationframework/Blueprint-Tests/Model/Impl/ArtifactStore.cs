@@ -71,33 +71,54 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
-        public List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<List<Artifact>>(
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
-        public List<Artifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<List<Artifact>>(
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactDetails(IUser, int, int?, List{HttpStatusCode})"/>
-        public ArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetExpandedArtifactTree(IUser, IProject, int, bool?, List{HttpStatusCode})"/>
+        public List<INovaArtifact> GetExpandedArtifactTree(IUser user,
+            IProject project,
+            int artifactId,
+            bool? includeChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var novaArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            var ret = novaArtifacts.ConvertAll(o => (INovaArtifact)o);
+            return ret;
+        }
+
+        /// <seealso cref="IArtifactStore.GetArtifactDetails(IUser, int, int?, List{HttpStatusCode})"/>
+        public NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        { 
+        string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
@@ -107,7 +128,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
             }
 
-            return restApi.SendRequestAndDeserializeObject<ArtifactDetails>(
+              return restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,

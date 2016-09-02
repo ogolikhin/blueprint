@@ -153,5 +153,9 @@ export class Helper {
             artifact.prefix &&
             ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
     }
+
+    public static isInt(n: number): boolean {
+        return parseInt(n.toString(), 10) === n;
+    }
 }
 

@@ -88,7 +88,8 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         this.files.map((file: IFileUploadStatus, index: number) => {
             if (index > this.dialogData.maxNumberAttachments - 1) {
                 file.isFailed = true;
-                file.errorMessage = "You have exceeded the maximum allowed number of attachments";
+                file.errorMessage = 
+                    this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error", "The artifact has the maximum number of attachments.");
             
             } else if (this.isFileValid(file)) {
                 this.uploadFile(file);
@@ -103,7 +104,9 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
         if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;
-            f.errorMessage = "File exceeds " + filesizeFilter(this.dialogData.maxAttachmentFilesize);
+            f.errorMessage = 
+                this.localization.get("App_UP_Attachments_Upload_Max_Filesize_Error", "The file exceeds")
+                + ` ${filesizeFilter(this.dialogData.maxAttachmentFilesize)}.`;
 
             return false;
         }
@@ -128,7 +131,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 return result;
             },
             (error: any) => {
-                f.errorMessage = error && error.message || "Upload error";
+                f.errorMessage = error && error.message || this.localization.get("App_UP_Attachments_Upload_Error", "Upload error.");
                 f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;

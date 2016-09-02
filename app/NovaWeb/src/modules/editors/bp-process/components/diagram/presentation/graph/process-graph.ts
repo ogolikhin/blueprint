@@ -1,15 +1,13 @@
 ﻿import {IMessageService} from "../../../../../../core/";
-import {
-    IProcessGraph, ILayout,
-    INotifyModelChanged, IConditionContext,
-    ICondition, IScopeContext, IStopTraversalCondition,
-    ISelectionListener, INextIdsProvider,
-    IOverlayHandler, IShapeInformation,
-    IDiagramNode, IDiagramNodeElement,
-    IProcessShape, IProcessLink,
-    SourcesAndDestinations, ProcessShapeType,
-    NodeType, NodeChange
-} from "./models/";
+import {IProcessGraph, ILayout} from "./models/";
+import {INotifyModelChanged, IConditionContext} from "./models/";
+import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";
+import {ISelectionListener, INextIdsProvider} from "./models/";
+import {IOverlayHandler, IShapeInformation} from "./models/";
+import {IDiagramNode, IDiagramNodeElement} from "./models/";
+import {IProcessShape, IProcessLink} from "./models/";
+import {SourcesAndDestinations, ProcessShapeType} from "./models/";
+import {NodeType, NodeChange} from "./models/";
 import {IProcessService} from "../../../../services/process/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
@@ -36,7 +34,8 @@ export class ProcessGraph implements IProcessGraph {
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
     private bottomBorderWidt: number = 6;
-    
+    private highlightedEdgeStates: any[] = [];
+
     public globalScope: IScopeContext;
 
     public static get MinConditions(): number {
@@ -102,16 +101,20 @@ export class ProcessGraph implements IProcessGraph {
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
         this.initSelection();
-
-        // #TODO: temporarily disable edge selection until 
-        // the Selection Manager is restored 
-        this.disableEdgeSelection();
-
+         
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
              this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
+
+        this.disableEdgeSelection();
+
+        // add a selection listener to highlight node edges
+        this.addSelectionListener((elements) => {
+            this.highlightNodeEdges(elements);
+        });
+
         this.initializeGlobalScope();
   
     }
@@ -1353,7 +1356,6 @@ export class ProcessGraph implements IProcessGraph {
     public updateMergeNode(decisionId: number, condition: ICondition): boolean {
         let originalEndNode: IProcessLink = this.getDecisionBranchDestLinkForIndex(decisionId, condition.orderindex);
 
-
         if (condition.mergeNode &&
             originalEndNode &&
             originalEndNode.destinationId !== condition.mergeNode.model.id) {
@@ -1375,6 +1377,56 @@ export class ProcessGraph implements IProcessGraph {
             return true;
         }
         return false;
+    }
+
+    private highlightNodeEdges(nodes: Array<IDiagramNode>) {
+        this.clearHighlightEdges();
+        if (nodes.length > 0) {
+            let selectedNode: IDiagramNode = nodes[0];
+
+            let highLightEdges = this.getHighlightScope(selectedNode, this.mxgraph.getModel());
+            for (let edge of highLightEdges) {
+                this.highlightEdge(edge);
+            }
+            this.mxgraph.orderCells(false, highLightEdges);
+        }
+    }
+
+    private getHighlightScope(diagramNode: IDiagramNode, graphModel: MxGraphModel): MxCell[] {
+
+        let connectableElement = diagramNode.getConnectableElement();
+        let returnEdges: MxCell[] = [];
+        for (let edge of graphModel.getOutgoingEdges(connectableElement)) {
+            let targetDiagramNode = <IDiagramNode>edge.target;
+            if (targetDiagramNode) {
+                let actualTargetDiagramNode = targetDiagramNode.getNode();
+                if (actualTargetDiagramNode.getNodeType() === NodeType.SystemDecision ||
+                    actualTargetDiagramNode.getNodeType() === NodeType.SystemTask) {
+                    returnEdges = returnEdges.concat(this.getHighlightScope(actualTargetDiagramNode, graphModel));
+                }
+                returnEdges.push(edge);
+            }
+        }
+        return returnEdges;
+    }
+
+    private highlightEdge(edge: MxCell) {
+        let state: any = this.mxgraph.getView().getState(edge);
+        if (state.shape) {
+            state.shape.stroke = mxConstants.EDGE_SELECTION_COLOR;
+            state.shape.reconfigure();
+            this.highlightedEdgeStates.push(state);
+        }
+    }
+
+    private clearHighlightEdges() {
+        for (let edge of this.highlightedEdgeStates) {
+            if (edge.shape) {
+                edge.shape.stroke = mxConstants.DEFAULT_VALID_COLOR;
+                edge.shape.reconfigure();
+            }
+        }
+        this.highlightedEdgeStates = [];
     }
 
     private logError(arg: any) {

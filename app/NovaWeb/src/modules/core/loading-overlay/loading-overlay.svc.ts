@@ -1,6 +1,17 @@
 ﻿export interface ILoadingOverlayService {
+
+    /**
+      * Display the loading overlay
+      * @return {number} The id to pass to endLoading()
+      */
     beginLoading(): number;
-    endLoading(id: number): void;    
+
+    /**
+      * Hide the loading overlay (if nothing else is using it)
+      * @param {number} id - The id given by beginLoading()
+      */
+    endLoading(id: number): void;
+
     displayOverlay: boolean;
     dispose(): void;
 }
@@ -31,6 +42,7 @@ export class LoadingOverlayService implements ILoadingOverlayService {
         this.loadingIds.push(randomId);
         return randomId;
     }
+
 
     public endLoading(id: number): void {
         let index = this.loadingIds.indexOf(id);

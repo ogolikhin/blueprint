@@ -1,5 +1,5 @@
 import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
-import { ILocalizationService } from "../../core";
+import { ILocalizationService, IMessageService } from "../../core";
 import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
 import { IEditorContext, ItemTypePredefined } from "../../main/models/models";
 
@@ -18,7 +18,8 @@ export class BpGlossaryController {
         "localization",
         "glossaryService",
         "selectionManager",
-        "$sce"
+        "$sce",
+        "messageService"
     ];
 
     private _context: IEditorContext;
@@ -33,7 +34,8 @@ export class BpGlossaryController {
         private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
         private selectionManager: ISelectionManager,
-        private $sce: ng.ISCEService) {
+        private $sce: ng.ISCEService,
+        private messageService: IMessageService) {
     }
 
     public $onInit() {
@@ -58,12 +60,17 @@ export class BpGlossaryController {
 
                 this.glossaryService.getGlossary(this._context.artifact.id).then((result: IGlossaryDetails) => {
                     result.terms = result.terms.map((term: IGlossaryTerm) => {
-                        term.definition = this.$sce.trustAsHtml(term.definition); 
+                        term.definition = this.$sce.trustAsHtml(term.definition);
                         return term;
                     });
 
                     this.glossary = result;
 
+                }).catch((error: any) => {
+                    //ignore authentication errors here
+                    if (error) {
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    }
                 }).finally(() => {
                     this.isLoading = false;
                 });

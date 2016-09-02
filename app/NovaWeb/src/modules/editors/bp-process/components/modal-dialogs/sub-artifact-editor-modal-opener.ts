@@ -1,4 +1,4 @@
-import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
+import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./sub-artifact-dialog-model";
@@ -14,23 +14,29 @@ export class SubArtifactEditorModalOpener {
     private isReadonly: boolean; 
     private isHistorical: boolean; 
     public getGraph: () => any;
+    private setGraphHandler: string;
+    private openDialogCallerHandler: string;
 
     constructor(private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
         private $rootScope: ng.IRootScopeService,
-        private dialogManager: IModalDialogManager
+        private dialogCommunication: IModalDialogCommunication
     ) {
-        dialogManager.registerSetGraphObserver(this.setGraph);
-        dialogManager.registerOpenDialogObserver(this.openDialog);
+        this.setGraphHandler = dialogCommunication.registerSetGraphObserver(this.setGraph);
+        this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
     }
 
     private setGraph = (graph) => {
         this.getGraph = graph;
     }
 
+    private openDialogCaller = (args: any[]) => {
+        this.openDialog.apply(this, args);
+    }
+
     private openDialog = (id: number, dialogType: ModalDialogType) => {
 
-        alert(`Open dialog with parameters ${id}, ${dialogType}`);
+        window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
 
         try {
             let graph = this.getGraph(); 
@@ -260,8 +266,8 @@ export class SubArtifactEditorModalOpener {
     }
 
     public onDestroy = () => {
-        this.dialogManager.removeSetGraphObserver(this.setGraph);
-        this.dialogManager.removeOpenDialogObserver(this.openDialog);
+        this.dialogCommunication.removeSetGraphObserver(this.setGraphHandler);
+        this.dialogCommunication.removeOpenDialogObserver(this.openDialogCallerHandler);
     }
 
 }

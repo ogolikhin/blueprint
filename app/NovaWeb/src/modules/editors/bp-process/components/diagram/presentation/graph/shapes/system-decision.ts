@@ -113,8 +113,8 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(mxGraph, this.detailsButton, null, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, null,
-            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_DECISION_WIDTH / 2, this.SYSTEM_DECISION_HEIGHT / 2);
+        this.addOverlay(mxGraph, this.detailsButton, null, this.BUTTON_SIZE, this.SYSTEM_DECISION_HEIGHT, null,
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.BUTTON_SIZE / 2, this.SYSTEM_DECISION_HEIGHT / 2);
 
         return this;
     }

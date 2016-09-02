@@ -22,6 +22,7 @@
     </div>
 </div>
 <div class="page-top-toolbar">
+    <button class="btn btn-bluelight" bp-tooltip="Delete" ng-click="$ctrl.clickDelete()" ng-if="$ctrl.isDeleteButtonEnabled">Delete</button>
     <bp-toggle class="btn bp-toggle" context="$ctrl.context"></bp-toggle>
     <button class="btn btn-bluelight" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>

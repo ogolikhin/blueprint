@@ -1,6 +1,6 @@
 ﻿import {ProcessServiceMock} from "./services/process/process.svc.mock";
 import * as TestModels from "./models/test-model-factory";
-import {SelectionManager} from "../../main/services";
+import {SelectionManager, CommunicationManager} from "../../main/services";
 import {StateManagerMock} from "../../core/services/state-manager.mock";
 import {WindowResize} from "../../core/services/window-resize";
 import {MessageServiceMock} from "../../core/messages/message.mock";
@@ -26,6 +26,7 @@ describe("BpProcessEditorController Tests", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("projectManager", ProjectManagerMock);
         $provide.service("windowResize", WindowResize);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     let componentTest: ComponentTest<BpProcessEditorController>;
@@ -66,7 +67,7 @@ describe("BpProcessEditorController Tests", () => {
         vm = componentTest.createComponent(bindings);
         httpBackend.flush();
         // assert
-        expect(vm.dialogManager).not.toBeNull();
+        expect(vm.subArtifactEditorModalOpener).not.toBeNull();
         expect(vm.processDiagram).not.toBeNull();
     });
 });

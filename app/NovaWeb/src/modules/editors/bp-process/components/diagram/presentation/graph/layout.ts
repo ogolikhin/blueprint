@@ -6,6 +6,7 @@ import {ProcessType, ProcessShapeType} from "../../../../models/enums";
 import {NodeType, NodeChange} from "./models/";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";
 import {IProcessGraph, IDiagramNode} from "./models/";
+import {ProcessDeleteHelper} from "./process-delete-helper";
 import {IDiagramNodeElement} from "./models/";
 import {ILayout, IGraphLayoutPreprocessor, IScopeContext} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
@@ -34,7 +35,7 @@ export class Layout implements ILayout {
 
     constructor(
         private processGraph: IProcessGraph,
-        private viewmodel: IProcessViewModel,
+        private viewModel: IProcessViewModel,
         private rootScope: any,
         private shapesFactoryService: ShapesFactory,
         private messageService: IMessageService,
@@ -70,15 +71,15 @@ export class Layout implements ILayout {
         var linksMap = [];
         var processValidator = new ProcessValidator();
       
-        this.viewmodel.updateTreeAndFlows();
+        this.viewModel.updateTreeAndFlows();
 
         if (useAutolayout) {
-            this.preprocessor = new GraphLayoutPreprocessor(this.viewmodel);
+            this.preprocessor = new GraphLayoutPreprocessor(this.viewModel);
             this.preprocessor.setCoordinates();
         }
 
         let validationErrors: string[] = [];
-        if (!processValidator.isValid(this.viewmodel, this.rootScope, validationErrors)) {
+        if (!processValidator.isValid(this.viewModel, this.rootScope, validationErrors)) {
             if (this.messageService) {
                 for (let error of validationErrors) {
                     this.messageService.addError(error);
@@ -88,37 +89,37 @@ export class Layout implements ILayout {
         }
 
         // collect links with same destinations
-        for (i in this.viewmodel.links) {
-            link = this.viewmodel.links[i];
+        for (i in this.viewModel.links) {
+            link = this.viewModel.links[i];
             if (linksMap[link.destinationId.toString()] == null) {
                 linksMap[link.destinationId.toString()] = [];
             }
 
-            link.parentId = this.viewmodel.id;
+            link.parentId = this.viewModel.id;
             linksMap[link.destinationId.toString()].push(link);
         }
 
         const nodeFactorySettings = new NodeFactorySettings();
-        nodeFactorySettings.isCommentsButtonEnabled = !this.viewmodel.isHistorical && !this.viewmodel.isSMB;
-        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewmodel.isHistorical && !this.viewmodel.isSMB;
-        nodeFactorySettings.isDetailsButtonEnabled = this.viewmodel.isSpa;
-        nodeFactorySettings.isLinkButtonEnabled = this.viewmodel.isSpa && !this.viewmodel.isHistorical;
-        nodeFactorySettings.isMockupButtonEnabled = this.viewmodel.isSpa;
-        nodeFactorySettings.isPreviewButtonEnabled = this.viewmodel.isSpa && !this.viewmodel.isHistorical;
+        nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
+        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
+        nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
+        nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
+        nodeFactorySettings.isMockupButtonEnabled = this.viewModel.isSpa;
+        nodeFactorySettings.isPreviewButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
 
         graphModel.beginUpdate();
 
         try {
-            for (i in this.viewmodel.shapes) {
-                var shape: IProcessShape = this.viewmodel.shapes[i];
+            for (i in this.viewModel.shapes) {
+                var shape: IProcessShape = this.viewModel.shapes[i];
                 var node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
 
                 if (node != null) {
                     node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
-                        this.viewmodel.isShapeJustCreated(shape.id));
+                        this.viewModel.isShapeJustCreated(shape.id));
 
                     // Hide system tasks for process types different than 'Business Process'
-                    if (this.viewmodel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+                    if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
                         if (node.getNodeType() === NodeType.SystemTask) {
                             (<SystemTask>node).setCellVisible(this.mxgraph, false);
                         }
@@ -137,8 +138,8 @@ export class Layout implements ILayout {
                     var destinationNode: IDiagramNode = graphModel.getCell(linkArray[0].destinationId.toString());
 
                     // Add merging point for links with the same destination
-                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewmodel.id,
-                        this.viewmodel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
+                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewModel.id,
+                        this.viewModel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
 
                     var mergingPoint = new MergingPoint(mergingPointShape);
                     mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
@@ -165,8 +166,8 @@ export class Layout implements ILayout {
 
             graphModel.endUpdate();
             
-            for (i in this.viewmodel.shapes) {
-                var thisShape: IProcessShape = this.viewmodel.shapes[i];
+            for (i in this.viewModel.shapes) {
+                var thisShape: IProcessShape = this.viewModel.shapes[i];
                 var thisNode = this.processGraph.getNodeById(thisShape.id.toString());
                 thisNode.renderLabels();
             }
@@ -188,10 +189,12 @@ export class Layout implements ILayout {
                 }
             }
 
+            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
+
             // Set vertices z-order on top in case some of them are overlaped by edges
             this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));
 
-            this.viewmodel.resetJustCreatedShapeIds();
+            this.viewModel.resetJustCreatedShapeIds();
 
             setTimeout(() => this.processGraph.updateAfterRender(), 100);
             
@@ -200,6 +203,10 @@ export class Layout implements ILayout {
         if (selectedNodeId) {
             this.scrollShapeToView(selectedNodeId.toString());
         }
+    }
+
+    public getGraph = () => {
+        return this.processGraph;
     }
 
     public scrollShapeToView(shapeId: string) {
@@ -261,7 +268,7 @@ export class Layout implements ILayout {
     }
 
     public updateBranchDestinationId(oldDestinationId: number, newDestinationId: number) {
-        this.viewmodel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
+        this.viewModel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
             return link.destinationId === oldDestinationId;
         }).forEach((link: IProcessLink) => {
             link.destinationId = newDestinationId;
@@ -270,7 +277,7 @@ export class Layout implements ILayout {
 
     public updateProcessChangedState(id: number, change: NodeChange = NodeChange.Add, redraw: boolean = false) {
         var eventArguments = {
-            processId: this.viewmodel.id,
+            processId: this.viewModel.id,
             nodeChanges: [
                 {
                     nodeId: id,
@@ -287,11 +294,11 @@ export class Layout implements ILayout {
     public insertTaskWithUpdate = (edge: MxCell): void => {
         // insertTask adds two shapes:
         // user task + system task
-        if (this.viewmodel.isWithinShapeLimit(2)) {
+        if (this.viewModel.isWithinShapeLimit(2)) {
             let sourcesAndDestinations = this.getSourcesAndDestinations(edge);
             let taskId = this.insertTask(sourcesAndDestinations.sourceIds, sourcesAndDestinations.destinationIds[0]);
 
-            this.rootScope.$broadcast("processModelUpdate", taskId);
+            this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(taskId);
         }
     };
 
@@ -303,16 +310,16 @@ export class Layout implements ILayout {
     public insertSystemDecision = (connector: DiagramLink) => {
         // insertSystemDecision adds two shapes:
         // system decision + system task
-        if (this.viewmodel.isWithinShapeLimit(2)) {
+        if (this.viewModel.isWithinShapeLimit(2)) {
             let id: number = this.insertSystemDecisionInternal(connector.model);
 
-            this.rootScope.$broadcast("processModelUpdate", id);
+            this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(id);
         }
     };
 
     public getConditionDestination(decisionId: number): IProcessShape {
-        if (this.viewmodel.isDecision(decisionId)) {
-            let conditionShapeIds: number[] = this.viewmodel.getNextShapeIds(decisionId);
+        if (this.viewModel.isDecision(decisionId)) {
+            let conditionShapeIds: number[] = this.viewModel.getNextShapeIds(decisionId);
             let destinationId = conditionShapeIds[0];
             return this.getDecisionConditionDestination(destinationId);
         }
@@ -332,9 +339,9 @@ export class Layout implements ILayout {
     public insertSystemDecisionConditionWithUpdate = (decisionId: number, label?: string, conditionDestinationId?: number): number => {
         // insertSystemDecisionCondition adds 1 shape:
         // system task
-        if (this.viewmodel.isWithinShapeLimit(1)) {
+        if (this.viewModel.isWithinShapeLimit(1)) {
             let id = this.insertSystemDecisionCondition(decisionId, label, conditionDestinationId);
-            this.rootScope.$broadcast("processModelUpdate", id);
+            this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(id);
 
             return id;
         }
@@ -343,12 +350,12 @@ export class Layout implements ILayout {
     public insertUserDecision = (edge: MxCell) => {
         // insertUserDecision adds five shapes:
         // user condition + user task + system task + user task + system task
-        if (this.viewmodel.isWithinShapeLimit(5)) {
+        if (this.viewModel.isWithinShapeLimit(5)) {
             let sourcesAndDestinations = this.getSourcesAndDestinations(edge);
             let id = this.insertUserDecisionInternal(sourcesAndDestinations.sourceIds, sourcesAndDestinations.destinationIds[0]);
 
             this.updateProcessChangedState(id, NodeChange.Add);
-            this.rootScope.$broadcast("processModelUpdate", id);
+            this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(id);
         }
     };
 
@@ -364,9 +371,9 @@ export class Layout implements ILayout {
     public insertUserDecisionConditionWithUpdate = (decisionId: number, label?: string, conditionDestinationId?: number): number => {
         // insertUserDecisionCondition adds 2 shapes:
         // user task + system task
-        if (this.viewmodel.isWithinShapeLimit(2)) {
+        if (this.viewModel.isWithinShapeLimit(2)) {
             let id = this.insertUserDecisionCondition(decisionId, label, conditionDestinationId);
-            this.rootScope.$broadcast("processModelUpdate", id);
+            this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(id);
 
             return id;
         }
@@ -377,10 +384,10 @@ export class Layout implements ILayout {
     //}
 
     private getNextSystemTaskOnMainCondition(id: number): number {
-        let nextIds = this.viewmodel.getNextShapeIds(id);
+        let nextIds = this.viewModel.getNextShapeIds(id);
         if (nextIds && nextIds.length > 0) {
             let nextMainConditionId = nextIds[0];
-            if (this.viewmodel.getShapeTypeById(nextMainConditionId) === ProcessShapeType.SystemTask) {
+            if (this.viewModel.getShapeTypeById(nextMainConditionId) === ProcessShapeType.SystemTask) {
                 return nextMainConditionId;
             }
             return this.getNextSystemTaskOnMainCondition(nextMainConditionId);
@@ -389,8 +396,8 @@ export class Layout implements ILayout {
     }
 
     private needToReplaceUserTask(userTaskId: number, previousIds: number[], nextId: number): boolean {
-        return this.processGraph.isLastUserTaskInCondition(userTaskId, previousIds, nextId) ||
-            this.processGraph.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId);
+        return ProcessDeleteHelper.isLastUserTaskInCondition(userTaskId, previousIds, nextId, this.processGraph) ||
+            ProcessDeleteHelper.isUserTaskBetweenTwoUserDecisions(userTaskId, previousIds, nextId, this.processGraph);
     }
 
     private replaceUserTask(userTaskId: number, previousIds: number[], nextId: number): NewUserTaskInfo {
@@ -423,8 +430,8 @@ export class Layout implements ILayout {
     }
 
     public handleUserTaskDragDrop(userTaskShapeId: number, edge: MxCell) {
-        let oldAfterShapeId: number = this.viewmodel.getFirstNonSystemShapeId(userTaskShapeId);
-        let oldBeforeShapeIds = this.viewmodel.getPrevShapeIds(userTaskShapeId);
+        let oldAfterShapeId: number = this.viewModel.getFirstNonSystemShapeId(userTaskShapeId);
+        let oldBeforeShapeIds = this.viewModel.getPrevShapeIds(userTaskShapeId);
         let systemTaskShapeId: number = this.getNextSystemTaskOnMainCondition(userTaskShapeId);
 
         let newUserTask: NewUserTaskInfo = null;
@@ -474,7 +481,7 @@ export class Layout implements ILayout {
 
 
         this.updateProcessChangedState(userTaskShapeId, NodeChange.Update);
-        this.rootScope.$broadcast("processModelUpdate", userTaskShapeId);
+        this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(userTaskShapeId);
     }
 
     private addAdditionaSourcesAndDestinations(
@@ -566,7 +573,7 @@ export class Layout implements ILayout {
     }
 
     private hasOverlay(sourceNode: IDiagramNode, targetNode: IDiagramNode): boolean {
-        if (this.viewmodel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+        if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
             if ((sourceNode.getNodeType() === NodeType.UserTask && targetNode.getNodeType() === NodeType.SystemTask) ||
                 (sourceNode.getNodeType() === NodeType.SystemDecision) ||
                 (targetNode.getNodeType() === NodeType.SystemDecision)) {
@@ -607,7 +614,7 @@ export class Layout implements ILayout {
         }
 
         if (source.getNodeType() === NodeType.MergingPoint) {
-            sourceIds = this.viewmodel.getPrevShapeIds(destinationId);
+            sourceIds = this.viewModel.getPrevShapeIds(destinationId);
         }
 
         let sourcesAndDestinations = new SourcesAndDestinations();
@@ -626,25 +633,25 @@ export class Layout implements ILayout {
             return;
         }
 
-        if (this.viewmodel.decisionBranchDestinationLinks == null) {
-            this.viewmodel.decisionBranchDestinationLinks = new Array<IProcessLink>();
-            this.viewmodel.decisionBranchDestinationLinks.push(processLink);
+        if (this.viewModel.decisionBranchDestinationLinks == null) {
+            this.viewModel.decisionBranchDestinationLinks = new Array<IProcessLink>();
+            this.viewModel.decisionBranchDestinationLinks.push(processLink);
         } else {
-            var matchingLinks = this.viewmodel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
+            var matchingLinks = this.viewModel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
                 return processLink.sourceId === link.sourceId &&
                     processLink.destinationId === link.destinationId &&
                     processLink.orderindex === link.orderindex;
             });
 
             if (matchingLinks.length === 0) {
-                this.viewmodel.decisionBranchDestinationLinks.push(processLink);
+                this.viewModel.decisionBranchDestinationLinks.push(processLink);
             }
         }
     }
 
     private updateSubtreeBranchesDestinationId(oldDestinationId: number, newDestinationId: number) {
 
-        this.viewmodel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
+        this.viewModel.getDecisionBranchDestinationLinks((link: IProcessLink) => {
             return link.destinationId === oldDestinationId;
         }).forEach((link: IProcessLink) => {
             link.destinationId = newDestinationId;
@@ -663,24 +670,24 @@ export class Layout implements ILayout {
     //}
 
     private getDecisionConditionDestination(shapeId: number): IProcessShape {
-        let nextShapeIds: number[] = this.viewmodel.getNextShapeIds(shapeId);
+        let nextShapeIds: number[] = this.viewModel.getNextShapeIds(shapeId);
 
         if (nextShapeIds && nextShapeIds.length > 0) {
             let nextShapeId: number = nextShapeIds[0];
-            let shapeType: ProcessShapeType = this.viewmodel.getShapeTypeById(shapeId);
+            let shapeType: ProcessShapeType = this.viewModel.getShapeTypeById(shapeId);
 
             if (shapeType === ProcessShapeType.SystemTask) {
-                return this.viewmodel.getShapeById(nextShapeId);
+                return this.viewModel.getShapeById(nextShapeId);
             } else {
                 return this.getDecisionConditionDestination(nextShapeId);
             }
         }
 
-        return this.viewmodel.getShapeById(shapeId);
+        return this.viewModel.getShapeById(shapeId);
     }
 
     private insertUserTaskInternal() {
-        var userTaskShape = this.shapesFactoryService.createModelUserTaskShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, -1, -1);
+        var userTaskShape = this.shapesFactoryService.createModelUserTaskShape(this.viewModel.id, this.viewModel.projectId, --tempShapeId, -1, -1);
         this.addShape(userTaskShape);
         this.updateProcessChangedState(userTaskShape.id, NodeChange.Add);
 
@@ -688,7 +695,7 @@ export class Layout implements ILayout {
     }
 
     private insertSystemTaskInternal() {
-        var systemTaskShape = this.shapesFactoryService.createModelSystemTaskShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, -1, -1);
+        var systemTaskShape = this.shapesFactoryService.createModelSystemTaskShape(this.viewModel.id, this.viewModel.projectId, --tempShapeId, -1, -1);
         this.addShape(systemTaskShape);
         this.updateProcessChangedState(systemTaskShape.id, NodeChange.Add);
 
@@ -723,7 +730,7 @@ export class Layout implements ILayout {
     }
 
     private getDefaultBranchLabel(decisionId: number): string {
-        var nextLinks = this.viewmodel.getNextShapeIds(decisionId);
+        var nextLinks = this.viewModel.getNextShapeIds(decisionId);
         var branchIndex = nextLinks ? nextLinks.length + 1 : 1;
         return `${this.rootScope.config.labels["ST_Decision_Modal_New_System_Task_Edge_Label"]}${branchIndex}`;
     }
@@ -732,7 +739,7 @@ export class Layout implements ILayout {
         var sourceId = link.sourceId;
         var destinationId = link.destinationId;
 
-        var systemDecision = this.shapesFactoryService.createSystemDecisionShapeModel(--tempShapeId, this.viewmodel.id, this.viewmodel.projectId, -1, -1);
+        var systemDecision = this.shapesFactoryService.createSystemDecisionShapeModel(--tempShapeId, this.viewModel.id, this.viewModel.projectId, -1, -1);
         this.addShape(systemDecision);
         this.updateProcessChangedState(systemDecision.id, NodeChange.Add);
 
@@ -748,7 +755,7 @@ export class Layout implements ILayout {
     private insertSystemDecisionConditionInternal(systemDecisionId: number, branchDestinationId: number, label?: string): number {
         let systemTaskId = this.insertSystemTaskInternal();
 
-        let orderIndex: number = this.viewmodel.getNextOrderIndex(systemDecisionId);
+        let orderIndex: number = this.viewModel.getNextOrderIndex(systemDecisionId);
         let currentLabel: string = label == null ? this.getDefaultBranchLabel(systemDecisionId) : label;
         let condition = this.addLinkInfo(systemDecisionId, systemTaskId, orderIndex, currentLabel);
         this.addLinkInfo(systemTaskId, branchDestinationId);
@@ -765,7 +772,7 @@ export class Layout implements ILayout {
     }
 
     private insertUserDecisionInternal(sourceIds: number[], destinationId: number): number {
-        var userDecisionShape = this.shapesFactoryService.createModelUserDecisionShape(this.viewmodel.id, this.viewmodel.projectId, --tempShapeId, -1, -1);
+        var userDecisionShape = this.shapesFactoryService.createModelUserDecisionShape(this.viewModel.id, this.viewModel.projectId, --tempShapeId, -1, -1);
         this.addShape(userDecisionShape);
 
         // update source decision references
@@ -781,9 +788,9 @@ export class Layout implements ILayout {
         this.addLinkInfo(userDecisionShape.id, destinationId, 0, this.getDefaultBranchLabel(userDecisionShape.id));
 
         // add tasks before end
-        var nextShapeType = this.viewmodel.getShapeTypeById(destinationId);
+        var nextShapeType = this.viewModel.getShapeTypeById(destinationId);
 
-        if (nextShapeType === ProcessShapeType.End || this.viewmodel.hasMultiplePrevShapesById(destinationId)) {
+        if (nextShapeType === ProcessShapeType.End || this.viewModel.hasMultiplePrevShapesById(destinationId)) {
             this.insertTaskInternal([userDecisionShape.id], destinationId);
         }
 
@@ -798,7 +805,7 @@ export class Layout implements ILayout {
         // add user task and system task shapes
         let userTaskShapeId = this.insertUserTaskInternal();
         let systemTaskId = this.insertSystemTaskInternal();
-        let orderIndex = this.viewmodel.getNextOrderIndex(userDecisionId);
+        let orderIndex = this.viewModel.getNextOrderIndex(userDecisionId);
         let currentLabel: string = label == null ? this.getDefaultBranchLabel(userDecisionId) : label;
 
         // add links
@@ -819,27 +826,27 @@ export class Layout implements ILayout {
 
     private addShape(processShape: IProcessShape): void {
         if (processShape != null) {
-            this.viewmodel.shapes.push(processShape);
-            this.viewmodel.addJustCreatedShapeId(processShape.id);
+            this.viewModel.shapes.push(processShape);
+            this.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }
 
     private addLinkInfo(sourceId: number, destinationId: number, orderIndex: number = 0, label: string = "",
         source: IDiagramNode = null, destination: IDiagramNode = null): IProcessLinkModel {
-        var link = new ProcessLinkModel(this.viewmodel.id, sourceId, destinationId, orderIndex, label, source, destination);
-        this.viewmodel.links.push(link);
+        var link = new ProcessLinkModel(this.viewModel.id, sourceId, destinationId, orderIndex, label, source, destination);
+        this.viewModel.links.push(link);
         return link;
     }
 
     private updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number) {
-        var index: number = this.viewmodel.getLinkIndex(sourceId, oldDestinationId);
+        var index: number = this.viewModel.getLinkIndex(sourceId, oldDestinationId);
         if (index > -1) {
-            this.viewmodel.links[index].destinationId = newDestinationId;
+            this.viewModel.links[index].destinationId = newDestinationId;
         }
     }
 
     private changeLink(sourceId: number, newDestinationId: number) {
-        for (let link of this.viewmodel.links) {
+        for (let link of this.viewModel.links) {
             if (link.sourceId === sourceId) {
                 link.destinationId = newDestinationId;
             }

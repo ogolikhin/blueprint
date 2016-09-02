@@ -9,6 +9,7 @@ import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-vi
 import {SystemTask, DiagramNodeElement} from "./";
 import {NodeChange, NodeType, ElementType} from "../models/";
 import {ISystemTask} from "../models/";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
 
 describe("SystemTask", () => {
 
@@ -18,20 +19,24 @@ describe("SystemTask", () => {
     let PERSONA_VIEW_MAXLENGTH = 12;
     let shapesFactory: ShapesFactory;
     let localScope, rootScope, processModelService, wrapper, container;
+    let communicationManager: ICommunicationManager;
 
     let testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService
+        _processModelService_: IProcessService, 
+        _communicationManager_: ICommunicationManager
     ) => {
         rootScope = $rootScope;
         processModelService = _processModelService_;
+        communicationManager = _communicationManager_;
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -48,6 +53,7 @@ describe("SystemTask", () => {
         // Arrange
         let processModel = new ProcessModel();
         let viewModel = new ProcessViewModel(processModel);
+        viewModel.communicationManager = communicationManager;
         viewModel.isReadonly = false;
 
         // Act
@@ -225,6 +231,7 @@ describe("SystemTask", () => {
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
             processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
 

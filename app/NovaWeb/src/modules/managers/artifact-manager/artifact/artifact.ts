@@ -12,36 +12,34 @@ export class StatefullArtifact implements IStatefulArtifact {
     public attachments: ArtifactAttachments;
     public customProperties: IArtifactPropertyValues; 
 
+    constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
+        this.manager = manager;
+        this.artifact = artifact;
+        this.state = new ArtifactState(this).initialize(artifact);
+        this.customProperties = new CustomProperties(this).initialize(artifact);
+        this.attachments = new ArtifactAttachments(this);
+
+        this.state.observable
+            .filter((it: IState) => !!it.lock)
+            .distinctUntilChanged()
+            .subscribeOnNext(this.onLockChanged, this);
+    }
+
     //TODO. 
     //Needs implementation of other object like 
     //attachments, traces and etc.
 
     //TODO: implement system property getters and setters    
-    // id: number;
-    // name?: string;
-    // description?: string;
-    // prefix?: string;
-    // parentId?: number;
-    // itemTypeId?: number;
-    // itemTypeVersionId?: number;
-    // version?: number;
-    // predefinedType?: Enums.ItemTypePredefined;
-    // projectId?: number;
-    // orderIndex?: number;
-
-    // createdOn?: Date; 
-    // lastEditedOn?: Date;
-    // createdBy?: Models.IUserGroup;
-    // lastEditedBy?: Models.IUserGroup;
-    // permissions?: Enums.RolePermissions;
-    // readOnlyReuseSettings?: Enums.ReuseSettings;
-
-    
-    // lockedByUser?: IUserGroup;
-    // lockedDateTime?: Date;
-
     public get id(): number {
         return this.artifact.id;
+    }
+
+    public get projectId() {
+        return this.artifact.projectId;
+    }
+    
+    public set projectId(value: number) {
+        this.set("projectId", value);
     }
 
     public get name(): string {
@@ -83,10 +81,6 @@ export class StatefullArtifact implements IStatefulArtifact {
         return this.artifact.version;
     }
 
-    public get projectId() {
-        return this.artifact.projectId;
-    }
-
     public get prefix(): string {
         return this.artifact.prefix;
     }
@@ -111,31 +105,18 @@ export class StatefullArtifact implements IStatefulArtifact {
         return this.artifact.lastEditedBy;
     }
     
-
-    constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
-        this.manager = manager;
-        this.artifact = artifact;
-        this.state = new ArtifactState(this).initialize(artifact);
-
-        this.attachments = new ArtifactAttachments(this);
-        this.customProperties = new CustomProperties(this).initialize(artifact);
-
-        this.state.observable.filter((it: IState) => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this);
+    public get readOnlyReuseSettings(): Enums.ReuseSettings {
+        return this.artifact.readOnlyReuseSettings;
     }
 
-
-
-     public set(name: string, value: any) {
+     private set(name: string, value: any) {
         if (name in this) {
-            this[name] = value;
+           this[name] = value;
+           this.lock(); 
         }
-        this.lock(); 
     }
-
-
 
     public loadArtifact(timeout?: ng.IPromise<any>)  {
-        
         const config: ng.IRequestConfig = {
             url: `/svc/bpartifactstore/artifacts/${this.id}`,
             method: "GET",
@@ -148,17 +129,16 @@ export class StatefullArtifact implements IStatefulArtifact {
         });
     }
 
-    private loadSubArtifact(subArtifactId: number, timeout?: ng.IPromise<any>) {
-        const config: ng.IRequestConfig = {
-            url:  `/svc/bpartifactstore/artifacts/${this.id}/subartifacts/${subArtifactId}`,
-            method: "GET",
-            timeout: timeout
-        };
-        this.manager.request<Models.ISubArtifact>(config).then((artifact: Models.ISubArtifact) => {
+    // private loadSubArtifact(subArtifactId: number, timeout?: ng.IPromise<any>) {
+    //     const config: ng.IRequestConfig = {
+    //         url:  `/svc/bpartifactstore/artifacts/${this.id}/subartifacts/${subArtifactId}`,
+    //         method: "GET",
+    //         timeout: timeout
+    //     };
+    //     this.manager.request<Models.ISubArtifact>(config).then((artifact: Models.ISubArtifact) => {
 
-        });
-    }
-
+    //     });
+    // }
 
     public lock(): ng.IPromise<IState> {
         let deferred = this.manager.$q.defer<IState>();
@@ -177,8 +157,7 @@ export class StatefullArtifact implements IStatefulArtifact {
         return deferred.promise;
     }
 
-
-     private onLockChanged(state: IState) {
+    private onLockChanged(state: IState) {
         if (!state.lock) {
             return;
         }
@@ -196,5 +175,4 @@ export class StatefullArtifact implements IStatefulArtifact {
         }
 
     }
-
 }

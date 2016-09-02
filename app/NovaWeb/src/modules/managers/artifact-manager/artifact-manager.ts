@@ -1,6 +1,6 @@
+import { Models } from "../../main/models";
 import { IArtifactManager, IStatefulArtifact, ISession } from "./interfaces";
 import { StatefullArtifact  } from "./artifact";
-import { Models, Enums } from "../../main/models";
 
 
 export class ArtifactManager  implements IArtifactManager {

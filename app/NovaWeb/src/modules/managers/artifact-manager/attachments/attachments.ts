@@ -51,10 +51,16 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
+        const deferred = this.manager.$q.defer<IArtifactAttachment[]>();
+
         this.attachments.push(attachment);
+
+        // TODO: add changeset tracking
+
+        deferred.resolve(this.attachments);
         this.subject.onNext(this.attachments);
 
-        return null;
+        return deferred.promise;
     }
 
     public update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
@@ -72,6 +78,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             // TODO: add changeset tracking
 
             deferred.resolve(this.attachments);
+            this.subject.onNext(this.attachments);
         } else {
             deferred.reject("Attachment not found");
         }

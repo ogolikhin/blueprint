@@ -564,7 +564,7 @@ export function formlyConfig(
                     this.items = options;
 
                     let dropdown = this.findDropdown($select);
-                    if (dropdown) {
+                    if (dropdown && options.length > this.maxItemsToRender) {
                         let itemsContainer = dropdown.firstElementChild as HTMLElement;
                         if (isOpen) {
                             if (this.startingItem === 0) {

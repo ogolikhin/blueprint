@@ -77,6 +77,8 @@
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\SvcShared.cs" />
     <Compile Include="ISvcShared.cs" />
+    <Compile Include="NovaModel\Impl\NovaFile.cs" />
+    <Compile Include="NovaModel\INovaFile.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />

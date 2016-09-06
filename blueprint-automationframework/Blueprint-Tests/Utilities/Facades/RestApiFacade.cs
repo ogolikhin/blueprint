@@ -5,7 +5,6 @@ using System.Net;
 using Common;
 using RestSharp;
 using RestSharp.Authenticators;
-using RestSharp.Extensions;
 using Newtonsoft.Json;
 using Utilities.Factories;
 
@@ -43,6 +42,15 @@ namespace Utilities.Facades
     }
 
     /// <summary>
+    /// Stores some of the properties that get send in a REST request and re-packages them in
+    /// our own implementation.
+    /// </summary>
+    public class BPRestRequest
+    {
+        public long ContentLength { get; set; }
+    }
+
+    /// <summary>
     /// This class simplifies the job of talking to a REST API.
     /// </summary>
     public class RestApiFacade
@@ -54,6 +62,7 @@ namespace Utilities.Facades
         private readonly string _password;
         private readonly string _token;
         private RestResponse _restResponse = new RestResponse();
+        private BPRestRequest _restRequest = new BPRestRequest();
 
         #endregion Member variables
 
@@ -68,6 +77,8 @@ namespace Utilities.Facades
         public IEnumerable<byte> RawBytes => _restResponse.RawBytes;
         public HttpStatusCode StatusCode => _restResponse.StatusCode;
 
+        public long ReqContentLength => _restRequest.ContentLength;
+        
         #endregion Properties
 
         #region Private functions
@@ -207,6 +218,18 @@ namespace Utilities.Facades
             return response;
         }
 
+        private static BPRestRequest ConvertToRestRequest(IRestRequest restRequest)
+        {
+            ThrowIf.ArgumentNull(restRequest, nameof(restRequest));
+
+            var request = new BPRestRequest();
+            if (restRequest.Files.Any())
+            {
+                request.ContentLength = restRequest.Files[0].ContentLength + 180 + restRequest.Files[0].FileName.Length*2;
+            }            
+            return request; 
+        }
+
         /// <summary>
         /// Throws a WebException derived exception if we got an unexpected status code.
         /// </summary>
@@ -318,6 +341,7 @@ namespace Utilities.Facades
                 response = client.Execute(request);
 
                 _restResponse = ConvertToRestResponse(response);
+                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 // Derialization
@@ -432,7 +456,8 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-
+                _restRequest = ConvertToRestRequest(request);                    
+                              
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;
@@ -480,7 +505,7 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-
+                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;
@@ -528,7 +553,7 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-
+                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;

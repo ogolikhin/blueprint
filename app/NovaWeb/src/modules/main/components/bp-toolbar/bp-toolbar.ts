@@ -102,7 +102,7 @@ class BPToolbarController implements IBPToolbarController {
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 });
                 break;
-            case `refresh`:
+            case `refreshall`:
                 //Test Code: Wait for 5s, then popup result. No loading screen (to see the difference)
                 let refreshPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
                 refreshPromise.finally(() => { this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`); });

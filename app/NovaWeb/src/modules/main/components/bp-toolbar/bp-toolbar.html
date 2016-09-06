@@ -22,6 +22,27 @@
                 <li><a href="#" id="ProjectCloseAll" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a></li>
             </ul>
         </li>
+         <li>
+            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-relationship-right"></i>
+                </div>
+                <span>Go to</span>
+            </a>
+        </li>
+        <li uib-dropdown>
+            <a href="#" uib-dropdown-toggle>
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-new"></i><b class="caret"></b>
+                </div>
+                <span>New</span>
+                </a>
+            <ul class="dropdown-menu">
+                <li><a href="#" ng-click="$ctrl.execute($event)">Actor</a></li>
+                <li><a href="#" ng-click="$ctrl.execute($event)">Textual</a></li>
+                <li><a href="#" ng-click="$ctrl.execute($event)">Process</a></li>
+            </ul>
+        </li>
         <li>
             <a href="#" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">

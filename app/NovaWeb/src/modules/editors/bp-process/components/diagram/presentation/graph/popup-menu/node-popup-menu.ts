@@ -222,20 +222,36 @@ export class NodePopupMenu {
         // It is safe to be called even on first run as "Calling removeEventListener() with arguments that do not
         // identify any currently registered EventListener on the EventTarget has no effect."
         // ref: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-        this.removeScrollHandler();
+        // #DEBUG
+        //this.removeScrollHandler();
 
-        this.initScrollingPositionOfPopupMenu();
+        //this.initScrollingPositionOfPopupMenu();
         // register the scroll handler
-        this.htmlElement.addEventListener("scroll", this.scrollHandler);
-    };
+        //this.htmlElement.addEventListener("scroll", this.scrollHandler);
 
+        // remove the popup if a mousedown event is detected anywhere in the document 
+        // this means that only one popup can be shown at a time
+        
+        this.removePopupOnMouseDown();
+    };
+    
     public hidePopupMenu = () => {
         if (this.menu == null) {
             return;
         }
-
         this.menu.hideMenu();
+        this.menu = null;
     };
+    
+    private removePopupOnMouseDown() {
+        // listen for a mousedown event and remove the popup menu if it is still showing
+        var mouseDown$: Rx.Observable<MouseEvent>;
+        mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, 'mousedown');
+        var mouseDownListener = mouseDown$.subscribe(event => {
+            this.hidePopupMenu();
+            mouseDownListener.dispose();
+        });
+    }
 
     private calcMenuOffsets(menu) {
         /*

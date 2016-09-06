@@ -6,8 +6,7 @@ using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-
-    public class NovaArtifactDetails:INovaArtifactDetails
+    public class NovaArtifactDetails : INovaArtifactDetails
     {
         #region Serialized JSON Properties
 

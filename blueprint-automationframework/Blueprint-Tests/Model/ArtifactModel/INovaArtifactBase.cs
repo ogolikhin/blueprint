@@ -1,5 +1,4 @@
-﻿using Model.ArtifactModel.Impl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
@@ -21,7 +20,6 @@ namespace Model.ArtifactModel
         int Version { get; set; }
 
         #endregion Serialized JSON Properties
-
     }
 
     public interface INovaArtifact : INovaArtifactBase
@@ -32,7 +30,16 @@ namespace Model.ArtifactModel
         int PredefinedType { get; set; }
         string Prefix { get; set; }
 
+        /// <summary>
+        /// A list of child artifacts.  This is optional and can be null depending on the REST call made.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
+        List<INovaArtifact> Children { get; set; }
+
         #endregion Serialized JSON Properties
+
+        void AssertEquals(IArtifactBase artifact, bool shouldCompareVersions = true);
+        void AssertEquals(INovaArtifactBase artifact);
     }
 
     public interface INovaArtifactDetails : INovaArtifactBase
@@ -49,7 +56,6 @@ namespace Model.ArtifactModel
         List<CustomProperty> SpecificPropertyValues { get; }
 
         #endregion Serialized JSON Properties
-
     }
 
 }

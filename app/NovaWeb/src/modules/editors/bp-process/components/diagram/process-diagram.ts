@@ -4,7 +4,7 @@ import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {IModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
+import {ICommunicationManager} from "../../../../main/services";
 
 
 export class ProcessDiagram {
@@ -12,7 +12,7 @@ export class ProcessDiagram {
     public processViewModel: IProcessViewModel = null;
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement; 
-   
+    private modelUpdateHandler: string;
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -21,7 +21,7 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private dialogManager: IModalDialogManager) {
+        private communicationManager: ICommunicationManager) {
 
         this.processModel = null;
     }
@@ -86,14 +86,24 @@ export class ProcessDiagram {
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
-            this.processViewModel.dialogManager = this.dialogManager; 
+            this.processViewModel.communicationManager = this.communicationManager; 
         } else {
             this.processViewModel.updateProcessGraphModel(process);
+            this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         }
+        this.modelUpdateHandler = 
+           this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
         return this.processViewModel;
     }
 
-    private createProcessGraph(processViewModel: IProcessViewModel, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
+    private modelUpdate = (selectedNodeId: number) => {
+        this.graph.destroy();
+        this.createProcessGraph(this.processViewModel, true, selectedNodeId);
+    }
+
+    private createProcessGraph(processViewModel: IProcessViewModel, 
+                               useAutolayout: boolean = false, 
+                               selectedNodeId: number = undefined) {
 
         try {
             this.graph = new ProcessGraph(
@@ -116,10 +126,6 @@ export class ProcessDiagram {
         }
     }
 
-    public openDialog() {
-        this.processViewModel.dialogManager.openDialog(1, 0);
-    }
-
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
@@ -128,6 +134,8 @@ export class ProcessDiagram {
     }
 
     public destroy() {
+        this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
+        
         // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();

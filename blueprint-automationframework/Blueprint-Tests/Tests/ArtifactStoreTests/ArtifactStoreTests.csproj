@@ -69,6 +69,7 @@
     <Compile Include="ArtifactHistoryTests.cs" />
     <Compile Include="AttachmentTests.cs" />
     <Compile Include="DiscussionsTests.cs" />
+    <Compile Include="ExpandedArtifactTreeTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />
     <Compile Include="ProjectTests.cs" />
     <Compile Include="RelationshipsTests.cs" />

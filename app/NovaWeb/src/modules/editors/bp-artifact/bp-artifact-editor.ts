@@ -129,7 +129,6 @@ export class BpArtifactEditor extends BpBaseEditor {
             }
         } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             this.onUpdate(this.context);
-            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
         } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
         } else {

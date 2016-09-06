@@ -98,6 +98,10 @@ export class ArtifactService implements IArtifactService {
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
                 var error = {
                     statusCode: errResult.status,
                     errorCode: errResult.data ? errResult.data.errorCode : -1,

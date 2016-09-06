@@ -3,7 +3,7 @@ import * as Enums from "../../../../../main/models/enums";
 import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
-import {IModalDialogManager} from "../../modal-dialogs/modal-dialog-manager";
+import {ICommunicationManager} from "../../../../../main/services";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -20,7 +20,7 @@ export interface IProcessViewModel extends IProcessGraphModel {
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
-    dialogManager: IModalDialogManager;
+    communicationManager: ICommunicationManager;
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
@@ -46,7 +46,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private _isSpa: boolean;
     private _isSMB: boolean;
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
-    private _dialogManager: IModalDialogManager;
+    private _communicationManager: ICommunicationManager;
     private _justCreatedShapeIds: number[] = [];
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
@@ -158,12 +158,12 @@ export class ProcessViewModel implements IProcessViewModel {
         this._shapeLimit = value;
     }
 
-    public get dialogManager(): IModalDialogManager {
-        return this._dialogManager;
+    public get communicationManager(): ICommunicationManager {
+        return this._communicationManager;
     }
 
-    public set dialogManager(value: IModalDialogManager) {
-        this._dialogManager = value;
+    public set communicationManager(value: ICommunicationManager) {
+        this._communicationManager = value;
     }
 
     public get licenseType(): Enums.LicenseTypeEnum {

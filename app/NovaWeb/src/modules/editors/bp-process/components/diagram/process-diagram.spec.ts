@@ -3,7 +3,7 @@ import {IProcessService} from "../../services/process/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ProcessDiagram} from "./process-diagram";
-import {ModalDialogManager} from "../modal-dialogs/modal-dialog-manager";
+import {CommunicationManager} from "../../../../main/services";
 import * as TestModels from "../../models/test-model-factory";
 
 describe("ProcessDiagram Tests", () => {
@@ -62,7 +62,7 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new ModalDialogManager());
+            new CommunicationManager());
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -87,7 +87,7 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new ModalDialogManager());
+            new CommunicationManager());
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -115,7 +115,7 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new ModalDialogManager());
+            new CommunicationManager());
         
 
         let error: Error;
@@ -139,7 +139,7 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new ModalDialogManager());
+            new CommunicationManager());
 
 
         let error: Error;

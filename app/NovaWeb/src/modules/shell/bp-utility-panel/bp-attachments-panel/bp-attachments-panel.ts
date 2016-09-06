@@ -155,9 +155,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     }
 
     /* tslint:disable:no-unused-variable */
-    private fileCanNotBeAdded() {
-        return this.artifactIsDeleted ||
-            (this.itemState && this.itemState.isReadonly);
+    public canAddNewFile() {
+        return !this.artifactIsDeleted &&
+            !(this.itemState && this.itemState.isReadonly);
     }
     /* tslint:disable:no-unused-variable */
 

@@ -1,5 +1,5 @@
 ﻿import { Models, Enums } from "../../models";
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause, ICommunicationManager } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
@@ -14,8 +14,8 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "localization", "stateManager", "messageService",
-        "dialogService", "$element", "windowManager", "artifactService"];
+    static $inject: [string] = ["$scope","projectManager", "localization", "stateManager", "messageService",
+        "dialogService", "$element", "windowManager", "artifactService", "communicationManager"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -30,6 +30,7 @@ export class BpArtifactInfoController {
     private _artifactId: number;
 
     constructor(
+        public $scope: ng.IScope,
         private projectManager: IProjectManager,
         private localization: ILocalizationService,
         private stateManager: IStateManager,
@@ -37,7 +38,8 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private communicationManager: ICommunicationManager
     ) {
         this.initProperties();
     }
@@ -105,14 +107,16 @@ export class BpArtifactInfoController {
         this.isChanged = state.isChanged;
         switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
-//                this.isLocked = true;
                 this.selfLocked = true;
-//                this.lockTooltip = "Locked";
                 break;
             case Enums.LockedByEnum.OtherUser:
-//                this.isLocked = true;
+                let name = "";
                 let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                let msg = "Locked by " + state.originItem.lockedByUser.displayName; 
+                if (state.lock && state.lock.info) {
+                    name = state.lock.info.lockOwnerLogin;
+                }
+                name =  name || state.originItem.lockedByUser.displayName || "";
+                let msg = name ? "Locked by " + name : "Locked "; 
                 if (date) {
                     msg += " on " + this.localization.current.formatShortDateTime(date);
                 }
@@ -175,10 +179,13 @@ export class BpArtifactInfoController {
         }
     }
 
+   
+
     //TODO: move the save logic to a more appropriate place
     public saveChanges() {
         let state: ItemState = this.stateManager.getState(this._artifactId);
-        this.artifactService.updateArtifact(state.getArtifact())
+        let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
+        this.artifactService.updateArtifact(artifactDelta)
             .then((artifact: Models.IArtifact) => {
                 let oldArtifact = state.getArtifact();
                 if (artifact.version) {
@@ -193,25 +200,27 @@ export class BpArtifactInfoController {
                 this.projectManager.updateArtifactName(state.getArtifact());
             }, (error) => {
                 let message: string;
-                if (error.statusCode === 400) {
-                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                } else if (error.statusCode === 404) {
-                    message = this.localization.get("App_Save_Artifact_Error_404");
-                } else if (error.statusCode === 409) {
-                    if (error.errorCode === 116) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_116");
-                    } else if (error.errorCode === 117) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_117");
-                    } else if (error.errorCode === 114) {
-                        message = this.localization.get("App_Save_Artifact_Error_409_114");
+                if (error) {
+                    if (error.statusCode === 400) {
+                        message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
+                    } else if (error.statusCode === 404) {
+                        message = this.localization.get("App_Save_Artifact_Error_404");
+                    } else if (error.statusCode === 409) {
+                        if (error.errorCode === 116) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_116");
+                        } else if (error.errorCode === 117) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_117");
+                        } else if (error.errorCode === 114) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_114");
+                        } else {
+                            message = this.localization.get("App_Save_Artifact_Error_409");
+                        }
+
                     } else {
-                        message = this.localization.get("App_Save_Artifact_Error_409");    
+                        message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
-                    
-                } else {
-                    message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
                 }
-                this.messageService.addError(message);
+                    this.messageService.addError(message);
             }
         );
     }

@@ -587,6 +587,11 @@ export function formlyConfig(
                         window.requestAnimationFrame(() => {
                             let $select = $scope.bpFieldSelectMulti.$select;
                             let items = $scope.bpFieldSelectMulti.items;
+                            if ($select.search !== "") {
+                                items = items.filter((item) => {
+                                    return item[$scope["to"].labelProp].toLowerCase().indexOf($select.search.toLowerCase()) !== -1;
+                                });
+                            }
                             let itemsHeight = $scope.bpFieldSelectMulti.itemsHeight;
                             let itemsContainer = dropdown.firstElementChild as HTMLElement;
                             let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;

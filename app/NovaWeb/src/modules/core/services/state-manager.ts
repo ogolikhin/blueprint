@@ -31,7 +31,7 @@ export class ItemState {
 
     constructor(manager: StateManager, item: Models.IItem, itemtype?: Models.IItemType) {
         this.manager = manager;
-        this._originItem = item;
+        this.originItem = item;
         this.itemType = itemtype;
     }
 
@@ -52,6 +52,20 @@ export class ItemState {
             return;
         }
         this._originItem = value;
+        if (value.lockedByUser) {
+                this._lock = {
+                    result: value.lockedByUser.id === this.manager.currentUser.id ? 
+                            Enums.LockResultEnum.Success : 
+                            Enums.LockResultEnum.AlreadyLocked,
+                    info: {
+                        lockOwnerLogin: value.lockedByUser.id === this.manager.currentUser.id ? this.manager.currentUser.displayName : value.lockedByUser.displayName,
+                        utcLockedDateTime: value.lockedDateTime
+                    }
+                }; 
+                
+            }
+
+        
     }
 
     private get changeSets(): IPropertyChangeSet[] {

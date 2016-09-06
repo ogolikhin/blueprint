@@ -59,6 +59,7 @@ export class DiagramService implements IDiagramService {
                             }
                         }
                     }
+                    diagaram.data = result.data;
                     delete this.promises[id];
                     deferred.resolve(diagaram);
                 } catch (error) {

@@ -28,7 +28,6 @@ export class BpProcessEditorController extends BpBaseEditor {
     public static $inject: [string] = [
         "messageService", 
         "stateManager", 
-        "windowManager",
         "$rootScope",
         "$scope",
         "$element", 
@@ -58,7 +57,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         private projectManager: IProjectManager,
         private communicationManager: ICommunicationManager
     ) {
-       super(messageService, stateManager, windowManager);
+       super(messageService, stateManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager);
     }
@@ -66,7 +65,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     public $onInit() {
         //super.$onInit();
         this._subscribers = [
-            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
+            
         ];
         
     }

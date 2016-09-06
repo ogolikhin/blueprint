@@ -288,7 +288,7 @@ export function formlyConfig(
                     </ui-select-match>
                     <ui-select-choices class="ps-child"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
-                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh="bpFieldSelect.refreshResults($select)"
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
@@ -421,8 +421,9 @@ export function formlyConfig(
                     on-remove="bpFieldSelectMulti.onRemove($item, $select, fc, options)"
                     on-select="bpFieldSelectMulti.onSelect($item, $select)"
                     close-on-select="false"
-                    uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen)"
-                    ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
+                    uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen, $select, to.options)"
+                    ng-mouseover="bpFieldSelectMulti.setUpDropdown($event, $select)"
+                    ng-keydown="bpFieldSelectMulti.setUpDropdown($event, $select)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -474,7 +475,7 @@ export function formlyConfig(
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
                     scope["bpFieldSelectMulti"].toggleScrollbar();
-                    scope["uiSelectContainer"].firstChild.scrollTop = 0;
+                    scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
                 }
             });
         },
@@ -494,6 +495,13 @@ export function formlyConfig(
             });
 
             $scope.bpFieldSelectMulti = {
+                $select: null,
+                items: [],
+                itemsHeight: 24,
+                maxItemsToRender: 50,
+                startingItem: 0,
+                firstVisibleItem: 0,
+                isScrolling: false,
                 isOpen: false,
                 isChoiceSelected: function (item, $select): boolean {
                     return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
@@ -539,8 +547,99 @@ export function formlyConfig(
                         }
                     }
                 },
-                onOpenClose: function (isOpen: boolean) {
+                onOpenClose: function (isOpen: boolean, $select, options) {
+                    let dropdown: HTMLElement;
+                    let elements = $select.$element.find("ul");
+                    for (let i = 0; i < elements.length; i++) {
+                        if (elements[i].classList.contains("ui-select-choices")) {
+                            dropdown = elements[i];
+                            break;
+                        }
+                    }
+
                     this.isOpen = isOpen;
+                    this.$select = $select;
+                    this.items = options;
+
+                    if (dropdown) {
+                        let itemsContainer = dropdown.firstElementChild as HTMLElement;
+                        if (isOpen) {
+                            itemsContainer.style.marginTop = "0";
+                            itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
+                            angular.element(dropdown).on("scroll", this.onScroll);
+                        } else {
+                            itemsContainer.style.marginTop = "0";
+                            itemsContainer.style.marginBottom = "0";
+                            angular.element(dropdown).off("scroll", this.onScroll);
+                            // reset the options to the first page/cluster
+                            $select.items = options.slice(0, this.maxItemsToRender);
+                        }
+                        $select.activeIndex = 0;
+                    }
+                },
+                onScroll: function (event) {
+                    let dropdown = this;
+                    if (!$scope.bpFieldSelectMulti.isScrolling) {
+                        //using requestAnimationFrame to throttle the event (see: https://developer.mozilla.org/en-US/docs/Web/Events/scroll)
+                        window.requestAnimationFrame(() => {
+                            let $select = $scope.bpFieldSelectMulti.$select;
+                            let items = $scope.bpFieldSelectMulti.items;
+                            let itemsHeight = $scope.bpFieldSelectMulti.itemsHeight;
+                            let itemsContainer = dropdown.firstElementChild as HTMLElement;
+                            let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;
+
+                            let firstVisibleItem = Math.round(dropdown.scrollTop / itemsHeight);
+                            let lastVisibleItem = Math.round((dropdown.scrollTop + dropdown.offsetHeight) / itemsHeight);
+                            let visibleItems = lastVisibleItem - firstVisibleItem;
+                            let itemsToKeepOffscreen = Math.round((maxItemsToRender - visibleItems) / 2);
+
+                            let newStartingItem: number;
+                            if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                newStartingItem = 0;
+                            } else if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                newStartingItem = items.length - maxItemsToRender;
+                            } else {
+                                newStartingItem = firstVisibleItem - itemsToKeepOffscreen;
+                            }
+                            if (firstVisibleItem !== $scope.bpFieldSelectMulti.firstVisibleItem ||
+                                newStartingItem !== $scope.bpFieldSelectMulti.startingItem) {
+                                $scope.$applyAsync(() => {
+                                    if (firstVisibleItem > $scope.bpFieldSelectMulti.firstVisibleItem) { // scrolling down
+                                        $select.activeIndex = lastVisibleItem - newStartingItem - 1;
+                                    } else { // scrolling up
+                                        $select.activeIndex = firstVisibleItem - newStartingItem;
+                                    }
+                                    $scope.bpFieldSelectMulti.firstVisibleItem = firstVisibleItem;
+                                    $scope.bpFieldSelectMulti.startingItem = newStartingItem;
+                                    $select.items = items.slice(newStartingItem, newStartingItem + maxItemsToRender);
+                                });
+                            }
+
+                            let marginTop: number;
+                            if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                marginTop = 0;
+                            } else if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                marginTop = (items.length - maxItemsToRender) * itemsHeight;
+                            } else {
+                                marginTop = (firstVisibleItem - itemsToKeepOffscreen) * itemsHeight;
+                            }
+
+                            let marginBottom: number;
+                            if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                marginBottom = 0;
+                            } else if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                marginBottom = (items.length - maxItemsToRender) * itemsHeight;
+                            } else {
+                                marginBottom = (items.length - (lastVisibleItem + itemsToKeepOffscreen)) * itemsHeight;
+                            }
+
+                            itemsContainer.style.marginTop = marginTop.toString() + "px";
+                            itemsContainer.style.marginBottom = marginBottom.toString() + "px";
+
+                            $scope.bpFieldSelectMulti.isScrolling = false;
+                        });
+                    }
+                    $scope.bpFieldSelectMulti.isScrolling = true;
                 },
                 onHighlight: function (option, $select) {
                     let nextIndex = -1;
@@ -584,12 +683,15 @@ export function formlyConfig(
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
-                onMouseOver: function ($event) {
+                setUpDropdown: function ($event, $select) {
                     if ($scope["uiSelectContainer"]) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
                         if (elem && !elem.classList.contains("ps-child")) {
                             elem.classList.add("ps-child");
                         }
+                    }
+                    if ($select.items.length > this.maxItemsToRender) {
+                        $select.items = $select.items.slice(0, this.maxItemsToRender);
                     }
                 }
             };

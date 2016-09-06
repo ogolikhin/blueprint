@@ -35,6 +35,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
     public static emailDiscussionDisabledMessage: string;
 
     private static emailValidator = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+    private queryText: string;
 
     constructor(private usersAndGroupsService: IUsersAndGroupsService,
                 private $rootScope: ng.IRootScopeService,
@@ -57,6 +58,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
 
     public source = (query: string, process: (users: IUserOrGroupInfo[]) => void) => {
         if (query && query.length >= 3) {
+            this.queryText = query;
             this.usersAndGroupsService.search(query, true).then(
                 (users) => {
                     if (users && users.length === 0 && MentionService.emailValidator.test(query)) {
@@ -75,6 +77,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
                 });
         } else {
             process([]);
+            this.queryText = "";
         }
     }
 
@@ -126,7 +129,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         }
         if (person.id) {
             // this.query is defined in the caller context (mention plugin)
-            const query = MentionService.escapeRegExp((<any>this).query);
+            const query = MentionService.escapeRegExp(this.queryText);
             var nameString: string = Helper.escapeHTMLText(person.name);
             if (boldName) {
                 nameString = `<strong>${MentionService.highlight(query, nameString)}</strong>`;

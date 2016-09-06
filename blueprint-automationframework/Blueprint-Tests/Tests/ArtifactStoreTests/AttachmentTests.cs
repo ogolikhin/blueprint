@@ -14,11 +14,13 @@ using Model.StorytellerModel.Impl;
 
 namespace ArtifactStoreTests
 {
+    [TestFixture]
+    [Category(Categories.ArtifactStore)]
     public class AttachmentTests : TestBase
     {
         private IUser _user = null;
         private IProject _project = null;
-        private uint _fileSize = (uint)(RandomGenerator.RandomNumber(4096));
+        private uint _fileSize = (uint)RandomGenerator.RandomNumber(4096);
         private string _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
         private IFile _attachmentFile = null;
 

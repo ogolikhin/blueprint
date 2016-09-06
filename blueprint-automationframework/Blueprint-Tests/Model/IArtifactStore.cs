@@ -67,7 +67,26 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
-        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId,
+            int artifactId,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the artifact tree expanded to the specified artifact.
+        /// (Runs: GET /projects/{projectId}/artifacts/{artifactId}/[includeChildren={bool}])
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project containing the artifact.</param>
+        /// <param name="artifactId">The Id of artifact whose hierarchy you are getting.</param>
+        /// <param name="includeChildren">(optional) Pass true to also get children of the specified artifact.  By default no children are retrieved.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts (top-level siblings), and one artifact that contains a tree of children down to the specified artifact.</returns>
+        List<INovaArtifact> GetExpandedArtifactTree(IUser user, 
+            IProject project,
+            int artifactId,
+            bool? includeChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifacts history by artifact id.

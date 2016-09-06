@@ -136,7 +136,7 @@ export class ItemState {
         
     }
 
-    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet) {
+    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet){
         let propertyTypeId: number;
         let propertyValue: Models.IPropertyValue;
         switch (changeSet.lookup) {
@@ -175,8 +175,54 @@ export class ItemState {
         return true;
     }
 
+    private applyChangeSet(item: Models.IItem, changeSet: IPropertyChangeSet): Models.IItem{
+        let propertyTypeId: number;
+        let propertyValue: Models.IPropertyValue;
+        switch (changeSet.lookup) {
+            case Enums.PropertyLookupEnum.System:
+                if (changeSet.id in this.originItem) {
+                    item[changeSet.id] = changeSet.value;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Custom:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+        }
+        return item;
+    }
+
+    public generateArtifactDelta(): Models.IArtifact {
+        let delta: Models.IArtifact = {} as Models.Artifact;
+
+        //constant properties - just take from changed item
+        delta.id = this._changedItem.id;
+        delta.projectId = this._changedItem.projectId;
+        delta.customPropertyValues = [];
+        
+        angular.forEach(this._changesets, function(set, key) {
+            delta = this.applyChangeSet(delta, set);
+        }, this);
+
+        return delta;
+    }
+
     public finishSave() {
-        if (!this._changedItem) {
+        if (this._changedItem) {
             this.originItem = angular.copy(this._changedItem);
             this._changedItem = null;
         }

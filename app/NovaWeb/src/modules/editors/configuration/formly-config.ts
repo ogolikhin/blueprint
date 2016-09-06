@@ -547,7 +547,7 @@ export function formlyConfig(
                         }
                     }
                 },
-                onOpenClose: function (isOpen: boolean, $select, options) {
+                findDropdown: function ($select): HTMLElement {
                     let dropdown: HTMLElement;
                     let elements = $select.$element.find("ul");
                     for (let i = 0; i < elements.length; i++) {
@@ -556,11 +556,14 @@ export function formlyConfig(
                             break;
                         }
                     }
-
+                    return dropdown;
+                },
+                onOpenClose: function (isOpen: boolean, $select, options) {
                     this.isOpen = isOpen;
                     this.$select = $select;
                     this.items = options;
 
+                    let dropdown = this.findDropdown($select);
                     if (dropdown) {
                         let itemsContainer = dropdown.firstElementChild as HTMLElement;
                         if (isOpen) {
@@ -668,6 +671,14 @@ export function formlyConfig(
                     if ($scope["uiSelectContainer"]) {
                         $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
                     }
+
+                    let items = $scope.bpFieldSelectMulti.items;
+                    let startingItem = $scope.bpFieldSelectMulti.startingItem;
+                    let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;
+                    if (startingItem !== 0) { // user selected an item after scrolling
+                        $select.items = items.slice(startingItem, startingItem + maxItemsToRender);
+                    }
+
                     let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
                     if (nextItem === -1) {
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);

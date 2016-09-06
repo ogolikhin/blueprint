@@ -410,6 +410,10 @@ export class ProcessGraph implements IProcessGraph {
         mxGraph.prototype.isCellSelectable = (cell) => {
             if (cell.isEdge()) {
                 return false;
+            } else if (cell.getNodeType) {
+                 if (cell.getNodeType() === NodeType.SystemTask && !this.viewModel.isUserToSystemProcess) {
+                    return false;
+                }
             }
             return true;
         };

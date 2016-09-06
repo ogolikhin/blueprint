@@ -1,13 +1,7 @@
-<div class="page-heading">
-    <bp-artifact-info context="$ctrl.context"></bp-artifact-info>
-</div>
-
 <div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
     <span>Loading...</span>
 </div>
-
-<div class="diagram-container"></div>
 
 <div ng-if="!$ctrl.isLoading && $ctrl.isBrokenOrOld" class="error-broken-diagram">
     <error message="{{::$ctrl.errorMsg }}" />

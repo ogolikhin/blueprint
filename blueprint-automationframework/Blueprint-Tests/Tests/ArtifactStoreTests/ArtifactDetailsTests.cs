@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -7,7 +6,6 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -43,17 +41,14 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
+             
             artifactDetails.AssertEquals(retrievedArtifact);
-
-            Assert.IsEmpty(artifactDetails.CustomProperties,
-                "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");
@@ -91,7 +86,7 @@ namespace ArtifactStoreTests
                 openApiArtifacts.Add(retrievedArtifactVersion);
             }
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
@@ -99,9 +94,6 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             artifactDetails.AssertEquals(retrievedArtifactVersion);
-
-            Assert.IsEmpty(artifactDetails.CustomProperties,
-                "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");
@@ -141,7 +133,7 @@ namespace ArtifactStoreTests
             Artifact.SaveArtifact(retrievedArtifactVersion2, _user);
             retrievedArtifactVersion2.Publish();
 
-            ArtifactDetails artifactDetails = null;
+            NovaArtifactDetails artifactDetails = null;
 
             Assert.DoesNotThrow(() =>
             {
@@ -149,9 +141,6 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             artifactDetails.AssertEquals(retrievedArtifactVersion1);
-
-            Assert.IsEmpty(artifactDetails.CustomProperties,
-                "We found Custom Properties in an artifact that shouldn't have any Custom Properties!");
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");

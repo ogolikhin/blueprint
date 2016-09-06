@@ -11,7 +11,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         cancelComment: "&",
         artifactId: "=",
         deleteCommentThread: "&",
-        discussionEdited: "&"
+        discussionEdited: "&",
+        emailDiscussionsEnabled: "="
     };
 }
 
@@ -26,8 +27,6 @@ export class BPArtifactDiscussionItemController {
     public discussionEdited: Function;
 
     public static $inject: [string] = [
-        "$element",
-        "$scope",
         "artifactDiscussions",
         "localization",
         "$sce",
@@ -35,25 +34,10 @@ export class BPArtifactDiscussionItemController {
     ];
 
     constructor(
-        private element: ng.IAugmentedJQuery,
-        private scope: ng.IScope,
-        private _artifactDiscussionsRepository: IArtifactDiscussions,
+        private artifactDiscussions: IArtifactDiscussions,
         private localization: ILocalizationService,
         private $sce: ng.ISCEService,
         private messageService: IMessageService) {
-        if (this.discussionInfo) {
-            let commentContainer = document.createElement("DIV");
-            this.addTargetBlankToComment(commentContainer);
-            this.scope.$on("$destroy", () => {
-                angular.element(commentContainer).remove();
-            });
-        }
-    }
-
-    private addTargetBlankToComment(commentContainer: HTMLElement) {
-        commentContainer.innerHTML = this.discussionInfo.comment;
-        angular.element(commentContainer).find("a").attr("target", "_blank");
-        this.discussionInfo.comment = commentContainer.innerHTML;
     }
 
     public newReplyClick(): void {
@@ -93,7 +77,7 @@ export class BPArtifactDiscussionItemController {
 
     /* tslint:disable:no-unused-variable */
     public editDiscussion(comment: string): ng.IPromise<IDiscussion> {
-        return this._artifactDiscussionsRepository.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
+        return this.artifactDiscussions.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
                 this.editing = false;
                 this.discussionInfo.comment = comment;

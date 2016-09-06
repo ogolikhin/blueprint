@@ -99,7 +99,7 @@ export class ItemState {
     public get lock(): Models.ILockResult {
         return this._lock;
     }
-
+ 
     public set lock(value: Models.ILockResult)  {
         this._lock = value;
         if (!value) {
@@ -115,7 +115,7 @@ export class ItemState {
                     displayName: value.info.lockOwnerLogin
                 };
             }
-            this.revertChanges();
+            this.discardChanges();
             this._readonly = true;
         }
         this.manager.changeState(this);
@@ -136,7 +136,7 @@ export class ItemState {
         
     }
 
-    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet) {
+    private applyChange(item: Models.IItem, changeSet: IPropertyChangeSet){
         let propertyTypeId: number;
         let propertyValue: Models.IPropertyValue;
         switch (changeSet.lookup) {
@@ -175,6 +175,59 @@ export class ItemState {
         return true;
     }
 
+    private applyChangeSet(item: Models.IItem, changeSet: IPropertyChangeSet): Models.IItem{
+        let propertyTypeId: number;
+        let propertyValue: Models.IPropertyValue;
+        switch (changeSet.lookup) {
+            case Enums.PropertyLookupEnum.System:
+                if (changeSet.id in this.originItem) {
+                    item[changeSet.id] = changeSet.value;
+                }
+                break;
+            case Enums.PropertyLookupEnum.Custom:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                propertyTypeId = changeSet.id as number;
+                propertyValue = (this._changedItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
+                    return it.propertyTypeId === propertyTypeId;
+                })[0];
+                if (propertyValue) {
+                    item.customPropertyValues.push(propertyValue);
+                }
+                break;
+        }
+        return item;
+    }
+
+    public generateArtifactDelta(): Models.IArtifact {
+        let delta: Models.IArtifact = {} as Models.Artifact;
+
+        //constant properties - just take from changed item
+        delta.id = this._changedItem.id;
+        delta.projectId = this._changedItem.projectId;
+        delta.customPropertyValues = [];
+        
+        angular.forEach(this._changesets, function(set, key) {
+            delta = this.applyChangeSet(delta, set);
+        }, this);
+
+        return delta;
+    }
+
+    public finishSave() {
+        if (this._changedItem) {
+            this.originItem = angular.copy(this._changedItem);
+            this._changedItem = null;
+        }
+        this._changesets = [];
+    }
 
     public saveChange(item: Models.IItem, changeSet: IPropertyChangeSet): boolean {
         if (!item || !changeSet ) {
@@ -222,6 +275,13 @@ export class ItemState {
         return this.changedItem || this.originItem;
     }
 
+    public updateArtifactVersion(version: number) {
+        this.originItem.version = version;
+    }
+    public updateArtifactSavedTime(lastSavedOn: Date) {
+        this.originItem.lastSavedOn = lastSavedOn;
+    }
+
     public getSubArtifact(id: number): Models.ISubArtifact {
         let artifact = this.getArtifact();
         return (artifact.subArtifacts || []).filter((it: Models.ISubArtifact) => {
@@ -229,7 +289,7 @@ export class ItemState {
         })[0];
     }
 
-    public revertChanges(id?: number) {
+    public discardChanges(id?: number) {
         this._changesets = this.changeSets.filter((it: IPropertyChangeSet) => {
             return id && it.itemId !== id;
         });
@@ -315,7 +375,7 @@ export class StateManager implements IStateManager {
             if (artifact) {
                 if (state.originItem.version < artifact.version) {
                     state.originItem = artifact;
-                    state.revertChanges();
+                    state.discardChanges();
                     changed = true;
                 } else if (state.originItem !== artifact) {
                     state.originItem = artifact;
@@ -332,7 +392,7 @@ export class StateManager implements IStateManager {
                 if (_subartifact) {
                     if (_subartifact.version < subartifact.version) {
                         _subartifact = subartifact;
-                        state.revertChanges(subartifact.id);
+                        state.discardChanges(subartifact.id);
                         changed = true;
                     } else if (_subartifact !== subartifact) {
                         _subartifact = subartifact;

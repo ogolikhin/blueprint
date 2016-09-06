@@ -8,8 +8,7 @@ import {ProcessType} from "../../../../../models/enums";
 import {DiagramNode} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {NodeChange} from "../models/";
-
-
+import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
 
 describe("DiagramNode", () => {
 
@@ -18,15 +17,20 @@ describe("DiagramNode", () => {
         let shapesFactory;
         let rootScope: ng.IRootScopeService; 
         var processModelMock: IProcessService;
+        let communicationManager: ICommunicationManager;
+        
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("processModelService", ProcessServiceMock);
+            $provide.service("communicationManager", CommunicationManager);
         }));
 
         beforeEach(inject((
             _processModelService_: IProcessService,
-            $rootScope: ng.IRootScopeService
+            $rootScope: ng.IRootScopeService, 
+            _communicationManager_: ICommunicationManager
         ) => {
             processModelMock = _processModelService_;
+            communicationManager = _communicationManager_;
             rootScope = $rootScope;
 
             rootScope["config"] = {
@@ -68,6 +72,7 @@ describe("DiagramNode", () => {
                 testModel.links = [];
                 testModel.links.push(link);
                 processModel = new ProcessViewModel(testModel);
+                processModel.communicationManager = communicationManager;
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");
@@ -309,6 +314,7 @@ describe("DiagramNode", () => {
                 testModel.shapes = [systemTaskModel, userDecisionModel, userTaskModel1, userTaskModel2, userTaskModel3];
                 testModel.links = [link3, link2, link1, link0];
                 processModel = new ProcessViewModel(testModel);
+                processModel.communicationManager = communicationManager;
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");

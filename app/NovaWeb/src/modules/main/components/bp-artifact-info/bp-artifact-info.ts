@@ -1,9 +1,9 @@
 ﻿import { Models, Enums } from "../../models";
-
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { ILocalizationService, IStateManager, ItemState } from "../../../core";
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause, ICommunicationManager } from "../../services";
+import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
+import { IArtifactService } from "../../services";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -14,27 +14,32 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["projectManager", "dialogService", "localization", "$element", "stateManager", "windowManager"];
+    static $inject: [string] = ["$scope","projectManager", "localization", "stateManager", "messageService",
+        "dialogService", "$element", "windowManager", "artifactService", "communicationManager"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
-    public lockTooltip: string;
+    public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
     public artifactName: string;
     public artifactType: string;
     public artifactClass: string;
     public artifactTypeDescription: string;
-
+    private _artifactId: number;
 
     constructor(
+        public $scope: ng.IScope,
         private projectManager: IProjectManager,
-        private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private $element: ng.IAugmentedJQuery,
         private stateManager: IStateManager,
-        private windowManager: IWindowManager
+        private messageService: IMessageService,
+        private dialogService: IDialogService,
+        private $element: ng.IAugmentedJQuery,
+        private windowManager: IWindowManager,
+        private artifactService: IArtifactService,
+        private communicationManager: ICommunicationManager
     ) {
         this.initProperties();
     }
@@ -62,6 +67,11 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this._artifactId = null;
+        if (this.lockMessage) {
+            this.messageService.deleteMessageById(this.lockMessage.id)
+            this.lockMessage = null;
+        }
     }
 
     private onStateChange(state: ItemState) {
@@ -72,6 +82,7 @@ export class BpArtifactInfoController {
         let artifact = state.getArtifact(); 
 
         this.artifactName = artifact.name || "";
+        this._artifactId = artifact.id;
 
         if (state.itemType) {
             this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
@@ -96,16 +107,20 @@ export class BpArtifactInfoController {
         this.isChanged = state.isChanged;
         switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
-                this.isLocked = true;
                 this.selfLocked = true;
-                this.lockTooltip = "Locked";
                 break;
             case Enums.LockedByEnum.OtherUser:
-                this.isLocked = true;
+                let name = "";
                 let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (date) {
-                    this.lockTooltip = `Locked by user ${state.originItem.lockedByUser.displayName} on ${this.localization.current.formatDate(date)}`;
+                if (state.lock && state.lock.info) {
+                    name = state.lock.info.lockOwnerLogin;
                 }
+                name =  name || state.originItem.lockedByUser.displayName || "";
+                let msg = name ? "Locked by " + name : "Locked "; 
+                if (date) {
+                    msg += " on " + this.localization.current.formatShortDateTime(date);
+                }
+                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:
                 break;
@@ -164,6 +179,51 @@ export class BpArtifactInfoController {
         }
     }
 
+   
+
+    //TODO: move the save logic to a more appropriate place
+    public saveChanges() {
+        let state: ItemState = this.stateManager.getState(this._artifactId);
+        let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
+        this.artifactService.updateArtifact(artifactDelta)
+            .then((artifact: Models.IArtifact) => {
+                let oldArtifact = state.getArtifact();
+                if (artifact.version) {
+                    state.updateArtifactVersion(artifact.version);
+                }
+                if (artifact.lastSavedOn) {
+                    state.updateArtifactSavedTime(artifact.lastSavedOn);
+                }
+                this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
+                state.finishSave();
+                this.isChanged = false;
+                this.projectManager.updateArtifactName(state.getArtifact());
+            }, (error) => {
+                let message: string;
+                if (error) {
+                    if (error.statusCode === 400) {
+                        message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
+                    } else if (error.statusCode === 404) {
+                        message = this.localization.get("App_Save_Artifact_Error_404");
+                    } else if (error.statusCode === 409) {
+                        if (error.errorCode === 116) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_116");
+                        } else if (error.errorCode === 117) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_117");
+                        } else if (error.errorCode === 114) {
+                            message = this.localization.get("App_Save_Artifact_Error_409_114");
+                        } else {
+                            message = this.localization.get("App_Save_Artifact_Error_409");
+                        }
+
+                    } else {
+                        message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
+                    }
+                }
+                    this.messageService.addError(message);
+            }
+        );
+    }
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{

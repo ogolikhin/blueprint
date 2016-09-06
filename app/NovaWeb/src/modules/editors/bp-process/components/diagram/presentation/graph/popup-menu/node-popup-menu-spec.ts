@@ -21,7 +21,10 @@ describe("Popup Menu test", () => {
 
         rootScope["config"] = {};
         rootScope["config"].labels = {
-            "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition"
+            "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition",
+            "ST_Popup_Menu_Add_User_Task_Label": "Add User Task",
+            "ST_Popup_Menu_Add_System_Decision_Label": "Add System Decision Point",
+            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
         };
 
         localScope = {};

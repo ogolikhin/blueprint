@@ -168,7 +168,7 @@ export class NodePopupMenu {
             
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
-                menu.addItem("Add User Task", null, () => {
+                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -176,21 +176,21 @@ export class NodePopupMenu {
                 });
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
-                menu.addItem("Add System Decision Point", null, () => {
+                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
                     }
                 });
             } else {
-                menu.addItem("Add User Task", null, () => {
+                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
                     }
                 });
 
-                menu.addItem("Add User Decision Point", null, () => {
+                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;

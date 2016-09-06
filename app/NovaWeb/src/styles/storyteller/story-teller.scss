@@ -9,8 +9,6 @@
 @import "partials/button";
 @import "partials/dialog";*/
 
-
-  
 .toolbar-clearfix {
     background-color: #f4f6fa;
 }
@@ -94,9 +92,11 @@
     width: calc(100% - 3rem);
     max-height: 20px;
 }
+
 .module-title .fonticon-unauthorize {
     color: $brand-secondary;
 }
+
 .storyteller-header-readonly-label {
     font-size: $font-size-smaller;
     color: $brand-secondary;
@@ -276,6 +276,21 @@
     padding-top:10px;
 }
 
+.page-heading {
+    .process-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+
+        .process-breadcrumbs {
+            padding: 0px;
+            font-size: 12px;
+            border: none;
+            height: auto;
+        }
+    }
+}
+
 bp-process-editor {
     /* add text ellipsis to drop down*/
     .dropdown-menu li a,
@@ -356,23 +371,8 @@ bp-process-editor {
         padding: 10px;
         background-color:aqua;
     }
-
-    .page-heading {
-        .process-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-
-            .process-breadcrumbs {
-                padding-bottom: 5px;
-                font-size: 12px;
-                border: none;
-                padding: 0;
-                height: auto;
-            }
-        }
-    }
 }
+
 /* mxPopupMenu style */
 
 div.mxPopupMenu {
@@ -624,7 +624,6 @@ margin-top: 72px;
     }
 }
 
-
 .storyteller-gt_image-container {
     width: 100%;
     height: 200px;
@@ -751,6 +750,7 @@ margin-top: 72px;
             display: inline;
         }
     }
+
     &.show :not(.fonticon-caret-right):before {
         transform: none;
     }
@@ -759,7 +759,6 @@ margin-top: 72px;
         @include transform-rotate(90);
     }
 }
-
 
 .storyteller-gwt_user-input {
     color: $brand-secondary;
@@ -794,7 +793,7 @@ margin-top: 72px;
     cursor: pointer;
 }
 
-.clearable::-ms-value {       
+.clearable::-ms-value {
     margin-right:20px;
     }
 
@@ -806,6 +805,7 @@ margin-top: 72px;
     margin-left: -20px;
     padding: 0;
 }
+
 .user-story-preview-center-pane {
     position: relative;
 }
@@ -850,6 +850,7 @@ body.mce-content-body a, body.mce-content-body a:hover {
     height: 0;
     display: none;
 }
+
 p {
     margin: 0;
     padding: 0;

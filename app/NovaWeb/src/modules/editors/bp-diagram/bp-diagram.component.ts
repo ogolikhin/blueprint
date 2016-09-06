@@ -75,6 +75,7 @@ export class BPDiagramController {
         if (changesObj.context) {
             let editorContext = <Models.IEditorContext>changesObj.context.currentValue;
             this.artifact = editorContext.artifact as Models.IArtifact;
+            
             if (this.artifact) {
                 this.onArtifactChanged();
             }
@@ -84,6 +85,7 @@ export class BPDiagramController {
     public $onDestroy() {
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.$element.off("click", this.stopPropagation);
+
         if (this.diagramView) {
             this.diagramView.destroy();
         }
@@ -93,13 +95,17 @@ export class BPDiagramController {
         this.$element.css("height", "100%");
         this.$element.css("width", "");
         this.$element.css("background-color", "transparent");
+
         if (this.diagramView) {
             this.diagramView.destroy();
         }
+
         if (this.cancelationToken) {
            this.cancelationToken.resolve();
         }
+
         this.isLoading = true;
+
         if (this.artifact !== null && this.diagramService.isDiagram(this.artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
@@ -110,18 +116,18 @@ export class BPDiagramController {
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
                     this.isBrokenOrOld = false;
+
                     if (this.diagramView) {
                         this.diagramView.destroy();
                         this.$element.css("width", "");
                         this.$element.css("overflow", "");
                     }
-                    let viewContainer = this.getViewContainer(this.$element);
-                    this.diagramView = new DiagramView(viewContainer, this.stencilService);
+
+                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
                     this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
                     this.diagramView.drawDiagram(diagram);
                 }
-
             }).catch((error: any) => {
                 if (error !== CancelationTokenConstant.cancelationToken) {
                     this.isBrokenOrOld = true;
@@ -133,20 +139,6 @@ export class BPDiagramController {
                 this.isLoading = false;
             });
         }
-    }
-
-    private getViewContainer($element: ng.IAugmentedJQuery): HTMLElement {
-        let htmlElement = null;
-        let childElements = this.$element.find("div");
-
-        for (let i = 0; i < childElements.length; i++) {
-            if (childElements[i].className.match(/diagram-container/)) {
-                htmlElement = childElements[i];
-                break;
-            }
-        }
-
-        return htmlElement;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

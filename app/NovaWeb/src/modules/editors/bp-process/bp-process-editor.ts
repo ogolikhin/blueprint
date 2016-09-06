@@ -1,12 +1,11 @@
 ﻿// References to StorytellerDiagramDirective
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
-import {ISelectionManager } from "../../main/services";
+import {ICommunicationManager} from "../../main/services";
 import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IModalDialogManager, ModalDialogManager} from "./components/modal-dialogs/modal-dialog-manager";
 import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
 import {BpBaseEditor} from "../bp-base-editor";
 
@@ -25,7 +24,6 @@ export class BpProcessEditorController extends BpBaseEditor {
     public context: IEditorContext;
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
-    public dialogManager: IModalDialogManager;
     
     public static $inject: [string] = [
         "messageService", 
@@ -37,11 +35,11 @@ export class BpProcessEditorController extends BpBaseEditor {
         "$q",
         "$log",
         "processService",
-        "selectionManager",
         "$uibModal",
         "localization",
         "$timeout", 
-        "projectManager"
+        "projectManager",
+        "communicationManager"
     ];
 
     constructor(
@@ -54,16 +52,15 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $q: ng.IQService,
         private $log: ng.ILogService,
         private processService: IProcessService,
-        private selectionManager: ISelectionManager,
         private $uibModal: ng.ui.bootstrap.IModalService,
         private localization: ILocalizationService,
         private $timeout: ng.ITimeoutService,
-        private projectManager: IProjectManager
+        private projectManager: IProjectManager,
+        private communicationManager: ICommunicationManager
     ) {
        super(messageService, stateManager, windowManager);
 
-        this.dialogManager = new ModalDialogManager();
-        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, this.dialogManager);
+        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager);
     }
 
     public $onInit() {
@@ -89,6 +86,8 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onDestroy() {
         super.$onDestroy();
+        this.subArtifactEditorModalOpener.onDestroy();
+        this.processDiagram.destroy();
     }
     
     private load(artifactId: number) {
@@ -100,7 +99,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.$log,
             this.processService,
             this.messageService,
-            this.dialogManager
+            this.communicationManager
         );
        
         let htmlElement = this.getHtmlElement();

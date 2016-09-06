@@ -71,7 +71,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public onLoad(context: Models.IEditorContext) {
         this.isLoading = true;
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            context.artifact = it;
+            delete context.artifact.lockedByUser;
+            delete context.artifact.lockedDateTime;
+            context.artifact = angular.extend({}, context.artifact, it);
             this.stateManager.addChange(context.artifact);
             this.onUpdate(context);
         }).catch((error: any) => {

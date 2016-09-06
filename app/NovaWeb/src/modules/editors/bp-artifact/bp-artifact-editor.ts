@@ -28,7 +28,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         private projectManager: IProjectManager
     ) {
         super(messageService, stateManager, windowManager);
-        this.editor = new PropertyEditor(this.localization.current);
+        this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
@@ -68,8 +68,8 @@ export class BpArtifactEditor extends BpBaseEditor {
          this.onUpdate(context);
     }
 
-    public clearFields() {
-        this.fields = [];
+    public clearFields() { 
+        this.fields = []; 
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -129,7 +129,6 @@ export class BpArtifactEditor extends BpBaseEditor {
             }
         } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             this.onUpdate(this.context);
-            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
         } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
         } else {
@@ -139,6 +138,8 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
+
+    public doSave(state: ItemState): void { }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         try {

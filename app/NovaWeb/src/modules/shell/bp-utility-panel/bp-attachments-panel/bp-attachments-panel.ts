@@ -1,10 +1,10 @@
-﻿import { ILocalizationService, ISettingsService, IStateManager, ItemState } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { ISession } from "../../../shell";
 import { IArtifactAttachmentsResultSet, IArtifactAttachments, IArtifactDocRef } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { IDialogSettings, IDialogService, IDialogData } from "../../../shared";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
@@ -34,7 +34,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public categoryFilter: number;
     public isLoading: boolean = false;
     public filesToUpload: any;
+
     private artifactIsDeleted: boolean = false;
+    private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
+    private maxNumberAttachmentsDefault: number = 50;
     
     constructor(
         $q: ng.IQService,
@@ -56,7 +59,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
-            header: "Add Document Reference"
+            header: this.localization.get("App_UP_Attachments_Document_Picker_Title")
         };
 
         const dialogData: IArtifactPickerFilter = {
@@ -80,27 +83,34 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {
             const dialogSettings = <IDialogSettings>{
-                okButton: "Attach", //this.localization.get("App_Button_Open"),
+                okButton: this.localization.get("App_Button_Ok", "OK"),
                 template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
                 controller: BpFileUploadStatusController,
                 css: "nova-file-upload-status",
-                header: "File Upload"
+                header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload")
             };
 
-            const maxAttachmentFilesizeDefault: number = 10 * 1024 * 1024;
             const curNumOfAttachments: number = this.artifactAttachmentsList 
                     && this.artifactAttachmentsList.attachments 
                     && this.artifactAttachmentsList.attachments.length || 0;
+            
+            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
+            let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
+
+            if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
+                maxNumberAttachments = this.maxNumberAttachmentsDefault;
+            }
+            if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
+                maxAttachmentFilesize = this.maxAttachmentFilesizeDefault;
+            }
+
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: this.settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault),
-                maxNumberAttachments: this.settingsService.getNumber("MaxNumberAttachments", 5) - curNumOfAttachments
+                maxAttachmentFilesize: maxAttachmentFilesize,
+                maxNumberAttachments: maxNumberAttachments - curNumOfAttachments
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
-                if (callback) {
-                    callback();
-                }
                 // TODO: add state manager handling
 
                 if (uploadList) {
@@ -114,6 +124,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                             uploadedDate: null
                         });
                     });
+                }
+            }).finally(() => {
+                if (callback) {
+                    callback();
                 }
             });
         };
@@ -140,10 +154,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private fileCanNotBeAdded() {
-        return this.artifactIsDeleted ||
-            (this.itemState && this.itemState.isReadonly);
+    /* tslint:disable:no-unused-variable */
+    public canAddNewFile() {
+        return !this.artifactIsDeleted &&
+            !(this.itemState && this.itemState.isReadonly);
     }
+    /* tslint:disable:no-unused-variable */
 
     private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
         this.isLoading = true;

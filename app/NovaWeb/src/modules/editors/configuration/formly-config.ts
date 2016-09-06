@@ -7,14 +7,13 @@ import {ILocalizationService} from "../../core";
 import {Helper} from "../../shared";
 
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$timeout"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
-    $sce: ng.ISCEService,
-    $timeout: ng.ITimeoutService
+    $sce: ng.ISCEService
 ): void {
 /* tslint:enable */
 
@@ -103,19 +102,6 @@ export function formlyConfig(
             event.target.dispatchEvent(escKey);
 
             blurOnKey(event, 9);
-        }
-    };
-
-    let primeValidation = function(formControl) {
-        let input = formControl.querySelector("input.ng-untouched") as HTMLElement;
-        if (input) {
-            let previousFocusedElement = document.activeElement as HTMLElement;
-            input.focus();
-            if (previousFocusedElement) {
-                previousFocusedElement.focus();
-            } else {
-                input.blur();
-            }
         }
     };
 
@@ -249,7 +235,9 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldText = {
@@ -277,7 +265,9 @@ export function formlyConfig(
         /*defaultOptions: {
          },*/
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldTextMulti = {};
@@ -298,7 +288,7 @@ export function formlyConfig(
                     </ui-select-match>
                     <ui-select-choices class="ps-child"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
-                        refresh="bpFieldSelect.refreshResults($select)" 
+                        refresh="bpFieldSelect.refreshResults($select)"
                         refresh-delay="0">
                         <div class="ui-select-choice-item"
                             ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
@@ -321,16 +311,16 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            $timeout(() => {
-                //primeValidation($element[0]);
-                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
                 if (uiSelectContainer) {
-                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    scope["uiSelectContainer"] = uiSelectContainer;
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                 }
-            }, 0);
+            });
         },
         controller: ["$scope", function ($scope) {
             let newCustomValueId = function(): number {
@@ -431,8 +421,9 @@ export function formlyConfig(
                     on-remove="bpFieldSelectMulti.onRemove($item, $select, fc, options)"
                     on-select="bpFieldSelectMulti.onSelect($item, $select)"
                     close-on-select="false"
-                    uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen)"
-                    ng-mouseover="bpFieldSelectMulti.onMouseOver($event)">
+                    uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen, $select, to.options)"
+                    ng-mouseover="bpFieldSelectMulti.setUpDropdown($event, $select)"
+                    ng-keydown="bpFieldSelectMulti.setUpDropdown($event, $select)">
                     <ui-select-match placeholder="{{to.placeholder}}">
                         <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
                     </ui-select-match>
@@ -473,20 +464,20 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            $timeout(() => {
-                //primeValidation($element[0]);
-                ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
 
                 let uiSelectContainer = $element[0].querySelector(".ui-select-container");
                 if (uiSelectContainer) {
-                    $scope["uiSelectContainer"] = uiSelectContainer;
+                    scope["uiSelectContainer"] = uiSelectContainer;
                     uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
                     uiSelectContainer.addEventListener("click", scrollIntoView, true);
 
-                    $scope["bpFieldSelectMulti"].toggleScrollbar();
-                    $scope["uiSelectContainer"].firstChild.scrollTop = 0;
+                    scope["bpFieldSelectMulti"].toggleScrollbar();
+                    scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
                 }
-            }, 0);
+            });
         },
         controller: ["$scope", function ($scope) {
             let direction = Object.freeze({
@@ -504,6 +495,13 @@ export function formlyConfig(
             });
 
             $scope.bpFieldSelectMulti = {
+                $select: null,
+                items: [],
+                itemsHeight: 24,
+                maxItemsToRender: 50,
+                startingItem: 0,
+                firstVisibleItem: 0,
+                isScrolling: false,
                 isOpen: false,
                 isChoiceSelected: function (item, $select): boolean {
                     return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
@@ -549,8 +547,107 @@ export function formlyConfig(
                         }
                     }
                 },
-                onOpenClose: function (isOpen: boolean) {
+                findDropdown: function ($select): HTMLElement {
+                    let dropdown: HTMLElement;
+                    let elements = $select.$element.find("ul");
+                    for (let i = 0; i < elements.length; i++) {
+                        if (elements[i].classList.contains("ui-select-choices")) {
+                            dropdown = elements[i];
+                            break;
+                        }
+                    }
+                    return dropdown;
+                },
+                onOpenClose: function (isOpen: boolean, $select, options) {
                     this.isOpen = isOpen;
+                    this.$select = $select;
+                    this.items = options;
+
+                    let dropdown = this.findDropdown($select);
+                    if (dropdown && options.length > this.maxItemsToRender) {
+                        let itemsContainer = dropdown.firstElementChild as HTMLElement;
+                        if (isOpen) {
+                            if (this.startingItem === 0) {
+                                itemsContainer.style.marginTop = "0";
+                                itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
+                                $select.activeIndex = 0;
+                            }
+                            angular.element(dropdown).on("scroll", this.onScroll);
+                        } else {
+                            angular.element(dropdown).off("scroll", this.onScroll);
+                        }
+                    }
+                },
+                onScroll: function (event) {
+                    let dropdown = this;
+                    if (!$scope.bpFieldSelectMulti.isScrolling) {
+                        //using requestAnimationFrame to throttle the event (see: https://developer.mozilla.org/en-US/docs/Web/Events/scroll)
+                        window.requestAnimationFrame(() => {
+                            let $select = $scope.bpFieldSelectMulti.$select;
+                            let items = $scope.bpFieldSelectMulti.items;
+                            if ($select.search !== "") {
+                                items = items.filter((item) => {
+                                    return item[$scope["to"].labelProp].toLowerCase().indexOf($select.search.toLowerCase()) !== -1;
+                                });
+                            }
+                            let itemsHeight = $scope.bpFieldSelectMulti.itemsHeight;
+                            let itemsContainer = dropdown.firstElementChild as HTMLElement;
+                            let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;
+
+                            let firstVisibleItem = Math.round(dropdown.scrollTop / itemsHeight);
+                            let lastVisibleItem = Math.round((dropdown.scrollTop + dropdown.offsetHeight) / itemsHeight);
+                            let visibleItems = lastVisibleItem - firstVisibleItem;
+                            let itemsToKeepOffscreen = Math.round((maxItemsToRender - visibleItems) / 2);
+
+                            let newStartingItem: number;
+                            if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                newStartingItem = 0;
+                            } else if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                newStartingItem = items.length - maxItemsToRender;
+                            } else {
+                                newStartingItem = firstVisibleItem - itemsToKeepOffscreen;
+                            }
+                            if (firstVisibleItem !== $scope.bpFieldSelectMulti.firstVisibleItem ||
+                                newStartingItem !== $scope.bpFieldSelectMulti.startingItem) {
+                                $scope.$applyAsync(() => {
+                                    let newIndex: number;
+                                    if (firstVisibleItem > $scope.bpFieldSelectMulti.firstVisibleItem) { // scrolling down
+                                        newIndex = lastVisibleItem - newStartingItem - 1;
+                                    } else { // scrolling up
+                                        newIndex = firstVisibleItem - newStartingItem;
+                                    }
+                                    $select.activeIndex = newIndex;
+                                    $scope.bpFieldSelectMulti.firstVisibleItem = firstVisibleItem;
+                                    $scope.bpFieldSelectMulti.startingItem = newStartingItem;
+                                    $select.items = items.slice(newStartingItem, newStartingItem + maxItemsToRender);
+                                });
+                            }
+
+                            let marginTop: number;
+                            if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                marginTop = 0;
+                            } else if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                marginTop = (items.length - maxItemsToRender) * itemsHeight;
+                            } else {
+                                marginTop = (firstVisibleItem - itemsToKeepOffscreen) * itemsHeight;
+                            }
+
+                            let marginBottom: number;
+                            if (lastVisibleItem + itemsToKeepOffscreen >= items.length) {
+                                marginBottom = 0;
+                            } else if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
+                                marginBottom = (items.length - maxItemsToRender) * itemsHeight;
+                            } else {
+                                marginBottom = (items.length - (lastVisibleItem + itemsToKeepOffscreen)) * itemsHeight;
+                            }
+
+                            itemsContainer.style.marginTop = marginTop.toString() + "px";
+                            itemsContainer.style.marginBottom = marginBottom.toString() + "px";
+
+                            $scope.bpFieldSelectMulti.isScrolling = false;
+                        });
+                    }
+                    $scope.bpFieldSelectMulti.isScrolling = true;
                 },
                 onHighlight: function (option, $select) {
                     let nextIndex = -1;
@@ -568,8 +665,10 @@ export function formlyConfig(
                     }
                 },
                 onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
-                    $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
-                    $select.open = this.isOpen; // force the dropdown open on remove
+                    if (this.isOpen) {
+                        $select.open = true; // force the dropdown to stay open on remove (if already open)
+                        $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
+                    }
                     options.validation.show = formControl.$invalid;
                     this.toggleScrollbar(true);
                 },
@@ -579,27 +678,38 @@ export function formlyConfig(
                     if ($scope["uiSelectContainer"]) {
                         $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
                     }
+
+                    let items = $scope.bpFieldSelectMulti.items;
+                    let startingItem = $scope.bpFieldSelectMulti.startingItem;
+                    let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;
+                    if (startingItem !== 0) { // user selected an item after scrolling
+                        $select.items = items.slice(startingItem, startingItem + maxItemsToRender);
+                    }
+
                     let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
                     if (nextItem === -1) {
                         nextItem = this.nextFocusableChoice($item, $select, direction.UP);
                     }
                     $select.activeIndex = nextItem;
-                    $timeout(() => {
-                        if ($scope["uiSelectContainer"]) {
-                            $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                            $scope["uiSelectContainer"].querySelector("input").focus();
+                    $scope.$applyAsync((scope) => {
+                        if (scope["uiSelectContainer"]) {
+                            scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                            scope["uiSelectContainer"].querySelector("input").focus();
                         }
-                    }, 100);
+                    });
                     this.toggleScrollbar();
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas
-                onMouseOver: function ($event) {
+                setUpDropdown: function ($event, $select) {
                     if ($scope["uiSelectContainer"]) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
                         if (elem && !elem.classList.contains("ps-child")) {
                             elem.classList.add("ps-child");
                         }
+                    }
+                    if ($select.items.length > this.maxItemsToRender) {
+                        $select.items = $select.items.slice(0, this.maxItemsToRender);
                     }
                 }
             };
@@ -682,7 +792,9 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             $scope.bpFieldNumber = {
@@ -822,7 +934,9 @@ export function formlyConfig(
             }
         },
         link: function($scope, $element, $attrs) {
-            primeValidation($element[0]);
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+            });
         },
         controller: ["$scope", function ($scope) {
             // make sure the values are of type Date!

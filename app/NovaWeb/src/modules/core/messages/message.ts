@@ -1,5 +1,8 @@
 ﻿export enum MessageType {
-    Error = 1, Info = 2, Warning = 3
+    Error = 1, 
+    Info = 2, 
+    Warning = 3, 
+    Lock = 4
 }
 
 export interface IMessage {

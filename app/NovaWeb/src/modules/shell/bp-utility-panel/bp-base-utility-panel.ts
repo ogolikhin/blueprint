@@ -54,9 +54,12 @@ export class BPBaseUtilityPanelController {
         }
 
         this.timeout = this.$q.defer<any>();
-        this.onSelectionChanged(artifact, subArtifact, this.timeout.promise).then(() => 
-            this.timeout = undefined
-        );
+        const selectionChangedResult = this.onSelectionChanged(artifact, subArtifact, this.timeout.promise);
+        if (selectionChangedResult) {
+            selectionChangedResult.then(() =>
+                this.timeout = undefined
+            );
+        }
     }
 
     protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

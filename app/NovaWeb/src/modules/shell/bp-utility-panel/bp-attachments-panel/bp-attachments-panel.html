@@ -5,14 +5,14 @@
         <div uib-dropdown>
             <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
-                <li>
+                <li ng-class="{'disabled': !$ctrl.canAddNewFile()}">
                     <label>
                         <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
-                        {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
+                        {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()">
-                    <a href>{{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}</a>
+                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canAddNewFile()}">
+                    <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
         </div>
@@ -71,17 +71,17 @@
     <p>{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</p>
     
     <div class="add-empty">
-        <p>A file attachment is a file that you upload and associate with a single artifact.</p>
-        <label class="btn btn-default" ng-class="{'disabled': $ctrl.fileCanNotBeAdded()}">
+        <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
+        <label class="btn btn-default" ng-class="{'disabled': !$ctrl.canAddNewFile()}">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
-            Add {{ $ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
+            {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
         
         <hr />
 
-        <p>A document reference is an existing document artifact that you can associate with one or more artifacts.</p>
-        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.fileCanNotBeAdded()}">
-            Add {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
+        <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
+        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canAddNewFile()}">
+            {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>
 </div>

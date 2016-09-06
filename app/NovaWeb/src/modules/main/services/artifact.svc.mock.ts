@@ -7,6 +7,8 @@ export class ArtifactServiceMock implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
+    public updateArtifact(artifact: Models.IArtifact) {}
+
     public static createArtifact(id: number, properties?: number): any {
         return new Models.Artifact({
             id: id,
@@ -21,6 +23,15 @@ export class ArtifactServiceMock implements IArtifactService {
             customPropertyValues: this.createPropertyValues(id, properties)
         });
     }
+
+    public static createLightArtifact(id: number, properties?: number): any {
+        return new Models.Artifact({
+            id: id,
+            version: 1,
+            lastSavedOn: '20160831T16:00:00'
+        });
+    }
+
     public static createSystemProperty(artifact: Models.IArtifact) {
         var result: Models.IPropertyValue[] = [];
         let id: number = Math.floor(Math.random() * 100);

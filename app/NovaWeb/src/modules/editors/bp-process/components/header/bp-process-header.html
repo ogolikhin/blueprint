@@ -1,13 +1,13 @@
-<div class="artifact-heading" ng-style="$ctrl.headingMinWidth">
-    <div class="icon" ng-class="$ctrl.iconClass" bp-tooltip="{{ $ctrl.typeDescription }}"></div>
+<div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
+    <div class="icon" ng-class="$ctrl.artifactClass" bp-tooltip="{{ $ctrl.artifactTypeDescription }}"></div>
     <div class="artifact-heading-group1">
         <div class="artifact-heading-group2">
-            <div class="name" bp-tooltip="{{ $ctrl.name }}" bp-tooltip-truncated="true">
-                {{ $ctrl.name }}
+            <div class="name" bp-tooltip="{{ $ctrl.artifactName }}" bp-tooltip-truncated="true">
+                {{ $ctrl.artifactName }}
             </div>
             <div class="indicators">
                 <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
-                <i class="lock-indicator fonticon2-lock" ng-if="$ctrl.isLocked" ng-class="{'self-locked': $ctrl.selfLocked}" bp-tooltip="{{ $ctrl.lockTooltip }}"> </i>
+                <i class="fonticon-lock self-locked" ng-if="$ctrl.selfLocked" bp-tooltip="Locked"> </i>
                 <!--TODO  please do not remove, I'll remove after testing-->
                 <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
@@ -16,13 +16,14 @@
         <ul class="breadcrumbs process-breadcrumbs" >
             <li>Placeholder 1</li>
             <li>Placeholder 2</li>
-            <li><a href="#">{{ $ctrl.name }}</a></li>
+            <li><a href="#">{{ $ctrl.artifactName }}</a></li>
         </ul>
-        <div class="type-id">{{ $ctrl.typeDescription }}</div>
+        <div class="type-id">{{ $ctrl.artifactTypeDescription }}</div>
     </div>
 </div>
 <div class="page-top-toolbar">
-    <bp-toggle class="bp-toggle" context="$ctrl.context"></bp-toggle>
+    <button class="btn btn-bluelight" bp-tooltip="Delete" ng-click="$ctrl.clickDelete()" ng-if="$ctrl.isDeleteButtonEnabled">Delete</button>
+    <bp-toggle class="btn bp-toggle" context="$ctrl.context"></bp-toggle>
     <button class="btn btn-bluelight" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>
     <button class="btn btn-bluelight" bp-tooltip="Save">Save</button>

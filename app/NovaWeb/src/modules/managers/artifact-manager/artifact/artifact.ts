@@ -2,7 +2,8 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
-import { ChangeSet, ChangeTypeEnum } from "../changeset";
+import { ChangeSetCollector } from "../changeset";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../interfaces";
 
 import { IStatefulArtifact, 
          IArtifactStates, 
@@ -19,7 +20,7 @@ export class StatefullArtifact implements IStatefulArtifact {
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
     public customProperties: IArtifactProperties; 
-    private changeset: ChangeSet;
+    private changesets: IChangeCollector;
 
 
     constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
@@ -28,7 +29,7 @@ export class StatefullArtifact implements IStatefulArtifact {
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
-        this.changeset = new ChangeSet();
+        this.changesets = new ChangeSetCollector();
 
         this.artifactState.observable
             .filter((it: IState) => !!it.lock)
@@ -122,16 +123,27 @@ export class StatefullArtifact implements IStatefulArtifact {
 
      private set(name: string, value: any) {
         if (name in this) {
-           this[name] = value;
-           this.changeset.add(ChangeTypeEnum.Update, name, value);
+           let oldValue = this[name];
+           let changeset = {
+               type: ChangeTypeEnum.Update,
+               key: name,
+               value: value              
+           } as IChangeSet;
+           this.changesets.add(changeset, oldValue);
+           
            this.lock(); 
         }
     }
 
     public discard(): ng.IPromise<IStatefulArtifact>   {
         let deferred = this.manager.$q.defer<IStatefulArtifact>();
-        this.customProperties.discard();
 
+        this.changesets.reset().forEach((it: IChangeSet) => {
+            this[it.key as string].value = it.value;
+        });
+
+        this.customProperties.discard();
+        deferred.resolve(this);
         return deferred.promise;
     }
 

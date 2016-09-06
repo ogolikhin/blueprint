@@ -1,6 +1,7 @@
 import { Models, Enums } from "../../../main/models";
 import { IStatefulArtifact, IArtifactProperties } from "../interfaces";
-import { ChangeSet, ChangeTypeEnum } from "../changeset";
+import { ChangeSetCollector } from "../changeset";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../interfaces";
 
 
 
@@ -10,11 +11,12 @@ export class CustomProperties implements IArtifactProperties  {
     private stateArtifact: IStatefulArtifact;
     //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
     private subject: Rx.Observable<Models.IPropertyValue>;
-    private changeset: ChangeSet;
+    private changeset: IChangeCollector;
 
     constructor(artifactState: IStatefulArtifact, properties?: Models.IPropertyValue[]) {
         this.stateArtifact = artifactState;
         this.properties = properties || [];
+        this.changeset = new ChangeSetCollector();
         this.subject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
 //        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
         // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {
@@ -48,15 +50,22 @@ export class CustomProperties implements IArtifactProperties  {
     public set(id: number, value: any): Models.IPropertyValue {
         let property = this.get(id);
         if (property) {
-            property.value = value;
-            this.changeset.add(ChangeTypeEnum.Update, name, value);
-            this.stateArtifact.lock();
+           let oldValue = property.value;
+           let changeset = {
+               type: ChangeTypeEnum.Update,
+               key: name,
+               value: property.value              
+           } as IChangeSet;
+           this.changeset.add(changeset, oldValue);
+           this.stateArtifact.lock();
         }
         return property;
     }
 
     public discard() {
-
+        this.changeset.reset().forEach((it: IChangeSet) => {
+            this.get(it.key as number).value = it.value;
+        });
         
     }
 }

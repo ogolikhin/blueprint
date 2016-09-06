@@ -1,43 +1,47 @@
-export enum ChangeTypeEnum {
-    Update,
-    Add,
-    Delete
-}
-export interface IChangeSet {
-    type: ChangeTypeEnum,
-    id: string | number;
-    value: any;
-}
+import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../interfaces";
 
-export class ChangeSet {
-    private changesets: IChangeSet[];
+export class ChangeSetCollector implements IChangeCollector {
+    private _collection: IChangeSet[];
 
     constructor() {
         this.reset();
     }
 
-    public add(type: ChangeTypeEnum, key: string | number, value: any) {
-        if (!angular.isArray(this.changesets)) {
-            this.changesets = [];
-        }
-                 
-        let changeset = this.changesets.filter((it: IChangeSet) => {
-            return it.id === key && type === ChangeTypeEnum.Update;
+    public get collection(): IChangeSet[] {
+        return this._collection || (this._collection = []);
+
+    }
+
+    public add(changeset: IChangeSet, oldValue?: any) {                 
+        let init = this.collection.filter((it: IChangeSet) => 
+            it.key === changeset.key && changeset.type === ChangeTypeEnum.Initial
+        )[0];
+        if (!init) {
+            this.collection.push({
+               type: ChangeTypeEnum.Initial,
+               key: name,
+               value: oldValue              
+           } as IChangeSet);
+        } 
+        let found = this.collection.filter((it: IChangeSet) => {
+            return it.key === changeset.key && changeset.type === ChangeTypeEnum.Update;
         })[0];
 
-        if (changeset) {
-            changeset.value = value;
+        if (found) {
+            found.value = changeset.value;
         } else {
-            this.changesets.push({
-                type: type,
-                id: name,
-                value: value
-            } as IChangeSet);
+            this.collection.push(changeset);
         }
     }
 
-    public reset() {
-        this.changesets = [];
+
+    public reset(): IChangeSet[] {
+        let initValues = this.collection.filter((it: IChangeSet) => 
+            it.type === ChangeTypeEnum.Initial
+        );
+        
+        this._collection = [];
+        return initValues;
     }
 
 }

@@ -18,6 +18,13 @@ export class MessageServiceMock implements IMessageService {
             this.addMessage(new Message(MessageType.Error, text as string));
         }
     }
+    public addWarning(msg: string): void {
+        if (!msg) {
+            return;
+        }
+
+        this.addMessage(new Message(MessageType.Warning, msg));
+    }
 
     public deleteMessageById(id: number) {
         let i = this.messages.length;

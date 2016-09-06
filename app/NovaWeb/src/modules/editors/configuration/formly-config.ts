@@ -567,17 +567,15 @@ export function formlyConfig(
                     if (dropdown) {
                         let itemsContainer = dropdown.firstElementChild as HTMLElement;
                         if (isOpen) {
-                            itemsContainer.style.marginTop = "0";
-                            itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
+                            if (this.startingItem === 0) {
+                                itemsContainer.style.marginTop = "0";
+                                itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
+                                $select.activeIndex = 0;
+                            }
                             angular.element(dropdown).on("scroll", this.onScroll);
                         } else {
-                            itemsContainer.style.marginTop = "0";
-                            itemsContainer.style.marginBottom = "0";
                             angular.element(dropdown).off("scroll", this.onScroll);
-                            // reset the options to the first page/cluster
-                            $select.items = options.slice(0, this.maxItemsToRender);
                         }
-                        $select.activeIndex = 0;
                     }
                 },
                 onScroll: function (event) {
@@ -667,8 +665,10 @@ export function formlyConfig(
                     }
                 },
                 onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
-                    $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
-                    $select.open = this.isOpen; // force the dropdown open on remove
+                    if (this.isOpen) {
+                        $select.open = true; // force the dropdown to stay open on remove (if already open)
+                        $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
+                    }
                     options.validation.show = formControl.$invalid;
                     this.toggleScrollbar(true);
                 },

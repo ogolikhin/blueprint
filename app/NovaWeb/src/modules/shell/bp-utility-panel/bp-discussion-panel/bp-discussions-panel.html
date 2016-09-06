@@ -26,14 +26,16 @@
                                      cancel-comment="$ctrl.cancelCommentClick()"
                                      artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
                                      delete-comment-thread="$ctrl.deleteCommentThread(discussion)"
-                                     discussion-edited="$ctrl.discussionEdited(discussion)">
+                                     discussion-edited="$ctrl.discussionEdited(discussion)"
+                                     email-discussions-enabled="$ctrl.emailDiscussionsEnabled">
         </bp-artifact-discussion-item>
         <div ng-if="discussion.expanded" ng-repeat="reply in discussion.replies" class="artifact-item-wrapper">
             <bp-discussion-reply-item reply-info="reply"
                                       artifact-id="$ctrl.subArtifact ? $ctrl.subArtifact.id : $ctrl.artifactId"
                                       can-create="$ctrl.canCreate"
                                       discussion-closed="discussion.isClosed"
-                                      delete-reply="$ctrl.deleteReply(discussion, reply)">
+                                      delete-reply="$ctrl.deleteReply(discussion, reply)"
+                                      email-discussions-enabled="$ctrl.emailDiscussionsEnabled">
             </bp-discussion-reply-item>
         </div>
         <bp-comment-edit ng-if="discussion.showAddReply"

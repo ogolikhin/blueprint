@@ -11,7 +11,7 @@
     z-index: 20000;
     float: left;
     min-width: 160px;
-    max-width: 400px;
+    max-width: 350px;
     padding: 5px 0;
     margin: 2px 0 0;
     list-style: none;
@@ -105,6 +105,11 @@
     &.arrow-right::after {
         right: 10px;
     }
+
+    .highlight {
+        background: #ffed28;
+        background: rgba(255, 237, 40, 0.4);
+    }
 }
 
 .rte-autocomplete > li.loading {
@@ -124,7 +129,9 @@
     font-weight: normal;
     line-height: 20px;
     color: $gray-darker;
-    white-space: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     word-break: break-all;
     text-decoration: none;
 }
@@ -149,7 +156,6 @@
     }
     .rte-autocomplete > .error > .message {
         vertical-align: middle;
-        max-width: 150px;
         display: inline-block;
         font-size: 1.2rem;
     }

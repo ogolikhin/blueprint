@@ -9,6 +9,7 @@
     "postinstall": "typings install",
     "dev": "webpack --config webpack/webpack.dev.js --watch --NODE_ENV=dev",
     "dev:nolint": "webpack --config webpack/webpack.dev.js --watch --debug --NODE_ENV=dev",
+    "dev:build": "webpack --config webpack/webpack.dev.js --debug --NODE_ENV=dev",
     "test": "karma start --NODE_ENV=test",
     "test:nolint": "karma start --debug --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",

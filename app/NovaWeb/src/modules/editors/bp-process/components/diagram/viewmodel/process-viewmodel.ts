@@ -478,25 +478,21 @@ export class ProcessViewModel implements IProcessViewModel {
     //}
 
     private getConfigurationSettings() {
-        // get configuration settings from scope and assign to viewmodel 
-        // properties
-        if (this._scope) {
-            this.isSpa = this._scope["isSpa"];
+        // get configuration settings from rootscope configuration object 
+        // and assign to viewmodel properties
+        if (this.isRootScopeConfigValid) {
+            let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
+            if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
+                this.shapeLimit = Number(shapeLimitVal);
+            } else {
+                this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
+            }
 
-            if (this.isRootScopeConfigValid) {
-                let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
-                if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
-                    this.shapeLimit = Number(shapeLimitVal);
-                } else {
-                    this.shapeLimit = this.DEFAULT_SHAPE_LIMIT;
-                }
-
-                let isSMBVal = this._rootScope.config.settings.StorytellerIsSMB;
-                if (isSMBVal.toLowerCase() === "true") {
-                    this.isSMB = true;
-                } else {
-                    this.isSMB = false;
-                }
+            let isSMBVal = this._rootScope.config.settings.StorytellerIsSMB;
+            if (isSMBVal.toLowerCase() === "true") {
+                this.isSMB = true;
+            } else {
+                this.isSMB = false;
             }
         }
     }

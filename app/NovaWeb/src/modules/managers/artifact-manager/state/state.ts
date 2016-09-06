@@ -59,7 +59,7 @@ export class ArtifactState implements IArtifactStates {
         return this.state;
     }
     
-    private set(value: any) {
+    public set(value: any) {
         angular.extend(this.state, value);
         this.subject.onNext(this.state);
     }

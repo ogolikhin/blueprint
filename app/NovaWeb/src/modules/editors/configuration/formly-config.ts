@@ -607,11 +607,13 @@ export function formlyConfig(
                             if (firstVisibleItem !== $scope.bpFieldSelectMulti.firstVisibleItem ||
                                 newStartingItem !== $scope.bpFieldSelectMulti.startingItem) {
                                 $scope.$applyAsync(() => {
+                                    let newIndex: number;
                                     if (firstVisibleItem > $scope.bpFieldSelectMulti.firstVisibleItem) { // scrolling down
-                                        $select.activeIndex = lastVisibleItem - newStartingItem - 1;
+                                        newIndex = lastVisibleItem - newStartingItem - 1;
                                     } else { // scrolling up
-                                        $select.activeIndex = firstVisibleItem - newStartingItem;
+                                        newIndex = firstVisibleItem - newStartingItem;
                                     }
+                                    $select.activeIndex = newIndex;
                                     $scope.bpFieldSelectMulti.firstVisibleItem = firstVisibleItem;
                                     $scope.bpFieldSelectMulti.startingItem = newStartingItem;
                                     $select.items = items.slice(newStartingItem, newStartingItem + maxItemsToRender);

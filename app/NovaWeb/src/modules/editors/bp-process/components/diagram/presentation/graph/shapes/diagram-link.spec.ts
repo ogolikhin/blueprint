@@ -8,22 +8,28 @@ import * as layout from "../layout";
 import {Connector} from "./connector";
 import {Label} from "../labels/label";
 import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
     let localScope;
     let processService;
     let container: HTMLElement;
+    let communicationManager: ICommunicationManager;
+    
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService
+        _processModelService_: IProcessService, 
+        _communicationManager_: ICommunicationManager
     ) => {
         processService = _processModelService_;
+        communicationManager = _communicationManager_;
         let wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -54,6 +60,7 @@ describe("DiagramLink unit tests", () => {
             let ud = 40;
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel);
 
             // act
@@ -80,6 +87,7 @@ describe("DiagramLink unit tests", () => {
             let ud = 40;
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel);
 
             // act

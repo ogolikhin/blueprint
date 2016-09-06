@@ -5,6 +5,7 @@ import { IProjectManager, ISelectionManager } from "../../services";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
+import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -24,7 +25,8 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope"];
+    static $inject = ["localization", "dialogService", "projectManager", "selectionManager",
+        "messageService", "$rootScope", "loadingOverlayService", "$timeout"];
 
     constructor(
         private localization: ILocalizationService,
@@ -32,8 +34,9 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService) {
-    }
+        private $rootScope: ng.IRootScopeService,
+        private loadingOverlayService: ILoadingOverlayService,
+        private $timeout: ng.ITimeoutService) {}
 
     execute(evt: any): void {
         if (!evt) {
@@ -80,6 +83,29 @@ class BPToolbarController implements IBPToolbarController {
                     backdrop: true,
                     css: "nova-tour"
                 });
+                break;
+            case `discardall`:
+                //Test Code: Display load screen for 0.4s (invisible), then popup result.
+                let discardLoadingId = this.loadingOverlayService.beginLoading();
+                let discardPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 500);
+                discardPromise.finally(() => {
+                    this.loadingOverlayService.endLoading(discardLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
+                break;
+            case `publishall`:
+                //Test Code: Display load screen for 5s, then popup result.
+                let publishLoadingId = this.loadingOverlayService.beginLoading();
+                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
+                publishPromise.finally(() => {
+                    this.loadingOverlayService.endLoading(publishLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
+                break;
+            case `refresh`:
+                //Test Code: Wait for 5s, then popup result. No loading screen (to see the difference)
+                let refreshPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
+                refreshPromise.finally(() => { this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`); });
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

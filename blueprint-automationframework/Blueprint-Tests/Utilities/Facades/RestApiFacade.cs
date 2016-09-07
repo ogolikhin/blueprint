@@ -218,11 +218,15 @@ namespace Utilities.Facades
             return response;
         }
 
-        private static BPRestRequest ConvertToRestRequest(IRestRequest restRequest)
+        private static BPRestRequest ConvertToRestRequest(string fileName, IRestRequest restRequest)
         {
             ThrowIf.ArgumentNull(restRequest, nameof(restRequest));
 
             var request = new BPRestRequest();
+            if (restRequest.Parameters.Exists(p => p.Type.Equals(ParameterType.RequestBody)) && restRequest.Parameters.Exists(p=>p.Value.Equals(fileName)))
+            {
+                request.ContentLength = ((byte[]) restRequest.Parameters.First(p => p.Type.Equals(ParameterType.RequestBody)).Value).ToArray().Length;
+            }
             if (restRequest.Files.Any())
             {
                 request.ContentLength = restRequest.Files[0].ContentLength + 180 + restRequest.Files[0].FileName.Length*2;
@@ -341,7 +345,6 @@ namespace Utilities.Facades
                 response = client.Execute(request);
 
                 _restResponse = ConvertToRestResponse(response);
-                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 // Derialization
@@ -456,7 +459,7 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-                _restRequest = ConvertToRestRequest(request);                    
+                _restRequest = ConvertToRestRequest(fileName, request);                    
                               
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
@@ -505,7 +508,6 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;
@@ -553,7 +555,6 @@ namespace Utilities.Facades
                     response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
-                _restRequest = ConvertToRestRequest(request);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;

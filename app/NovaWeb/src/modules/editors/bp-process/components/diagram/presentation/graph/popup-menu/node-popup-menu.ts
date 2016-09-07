@@ -246,7 +246,7 @@ export class NodePopupMenu {
     private removePopupOnMouseDown() {
         // listen for a mousedown event and remove the popup menu if it is still showing
         var mouseDown$: Rx.Observable<MouseEvent>;
-        mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, 'mousedown');
+        mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
         var mouseDownListener = mouseDown$.subscribe(event => {
             this.hidePopupMenu();
             mouseDownListener.dispose();

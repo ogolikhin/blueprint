@@ -50,7 +50,7 @@ export class CustomProperties implements IArtifactProperties  {
            let oldValue = property.value;
            let changeset = {
                type: ChangeTypeEnum.Update,
-               key: name,
+               key: id,
                value: property.value              
            } as IChangeSet;
            this.changeset.add(changeset, oldValue);

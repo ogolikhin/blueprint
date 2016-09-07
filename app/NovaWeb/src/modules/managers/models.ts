@@ -111,14 +111,9 @@ export interface IStatefulArtifactServices {
 }
 
 
-interface IProjectArtifact {
+export interface IProjectArtifact {
     artifact: IStatefulArtifact;
-    parent: IStatefulArtifact;
-    childern: IStatefulArtifact[];
+    parent: IProjectArtifact;
+    children: IProjectArtifact[];
 }
 
-
-interface IFullProgect {
-    childern: IStatefulArtifact[];
-
-}

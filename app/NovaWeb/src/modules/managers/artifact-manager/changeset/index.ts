@@ -12,7 +12,7 @@ export class ChangeSetCollector implements IChangeCollector {
 
     }
 
-    public add(changeset: IChangeSet, oldValue?: any) {                 
+    public add(changeset: IChangeSet, initValue?: any) {                 
         let init = this.collection.filter((it: IChangeSet) => 
             it.key === changeset.key && changeset.type === ChangeTypeEnum.Initial
         )[0];
@@ -20,7 +20,7 @@ export class ChangeSetCollector implements IChangeCollector {
             this.collection.push({
                type: ChangeTypeEnum.Initial,
                key: name,
-               value: oldValue              
+               value: initValue              
            } as IChangeSet);
         } 
         let found = this.collection.filter((it: IChangeSet) => {

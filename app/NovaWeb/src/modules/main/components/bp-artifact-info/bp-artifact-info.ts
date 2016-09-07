@@ -69,7 +69,7 @@ export class BpArtifactInfoController {
         this.artifactClass = null;
         this._artifactId = null;
         if (this.lockMessage) {
-            this.messageService.deleteMessageById(this.lockMessage.id)
+            this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
         }
     }

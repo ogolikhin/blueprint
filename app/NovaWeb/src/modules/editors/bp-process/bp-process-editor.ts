@@ -44,7 +44,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowManager: IWindowManager,
+        private windowManager: IWindowManager,
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
@@ -63,10 +63,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public $onInit() {
-        //super.$onInit();
-        this._subscribers = [
-            
-        ];
+        super.$onInit();
+        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this))
         
     }
 

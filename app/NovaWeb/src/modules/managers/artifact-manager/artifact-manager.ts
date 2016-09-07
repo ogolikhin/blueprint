@@ -1,6 +1,6 @@
 import { IMessageService } from "../../core/";
 import { Models } from "../../main/models";
-import { IArtifactManager, IStatefulArtifact, ISession, IStatefulArtifactServices } from "../models";
+import { IArtifactManager, IStatefulArtifact, ISession, IStatefulArtifactServices, IArtifactAttachmentsService } from "../models";
 import { StatefulArtifact } from "./artifact";
 
 
@@ -10,7 +10,8 @@ export class ArtifactManager  implements IArtifactManager {
         "$http", 
         "$q",
         "session",
-        "messageService"
+        "messageService",
+        "attachmentService"
     ];
 
     private artifactList: IStatefulArtifact[];
@@ -20,11 +21,13 @@ export class ArtifactManager  implements IArtifactManager {
         private $http: ng.IHttpService, 
         private $q: ng.IQService,
         private session: ISession,
-        private messageService: IMessageService) {
+        private messageService: IMessageService,
+        private attachmentService: IArtifactAttachmentsService) {
 
         this.services = {
             $q : this.$q,
-            messageService : this.messageService
+            messageService : this.messageService,
+            attachmentService: this.attachmentService
         } as IStatefulArtifactServices;
 
         this.artifactList = [];

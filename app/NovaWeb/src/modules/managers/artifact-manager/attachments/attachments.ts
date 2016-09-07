@@ -1,5 +1,8 @@
 import { Models, Enums } from "../../../main/models";
 import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IStatefulArtifact, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
+import { ChangeSetCollector } from "../changeset";
+
 import { 
     IIStatefulArtifact,
     IArtifactAttachments
@@ -9,11 +12,13 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
     private statefulArtifact: IIStatefulArtifact;
+    private changeset: IChangeCollector;
 
     constructor(statefulArtifact: IIStatefulArtifact) {
         this.attachments = [];
         this.statefulArtifact = statefulArtifact;
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
+        this.changeset = new ChangeSetCollector();
     }
 
     public initialize(attachments: IArtifactAttachment[]) {
@@ -37,7 +42,16 @@ export class ArtifactAttachments implements IArtifactAttachments {
 
         this.attachments.push(attachment);
 
-        // TODO: add changeset tracking
+        const changeset = {
+            type: ChangeTypeEnum.Add,
+            key: attachment.guid,
+            value: attachment
+        } as IChangeSet;
+        this.changeset.add(changeset);
+
+        // TODO: can locking be done implicitly?
+        // TODO: must propagate locking as a return value. if not locked, revert value.
+        this.statefulArtifact.lock();
 
         deferred.resolve(this.attachments);
         this.subject.onNext(this.attachments);

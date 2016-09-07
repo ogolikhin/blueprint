@@ -266,8 +266,8 @@ namespace ArtifactStore.Repositories
         private static void ThrowForbiddenException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
-                ? I18NHelper.FormatInvariant("User does not permissions for Project (Id:{0}).", projectId)
-                : I18NHelper.FormatInvariant("User does not permissions for Artifact (Id:{0}).", artifactId);
+                ? I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", projectId)
+                : I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 

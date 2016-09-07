@@ -18,6 +18,7 @@ import {NodeShapes} from "./shapes/node-shapes";
 import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 import {NodeLabelEditor} from "./node-label-editor";
+import {ProcessDeleteHelper} from "./process-delete-helper";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -35,6 +36,7 @@ export class ProcessGraph implements IProcessGraph {
     private transitionTimeOut: number = 400;
     private bottomBorderWidt: number = 6;
     private highlightedEdgeStates: any[] = [];
+    private deleteShapeHandler: string;
 
     public globalScope: IScopeContext;
 
@@ -51,14 +53,14 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     constructor(
-        private rootScope: any,
+        public rootScope: any,
         private scope: any,
         private htmlElement: HTMLElement,
         private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
         public viewModel: IProcessViewModel,
-        private messageService: IMessageService = null,
+        public messageService: IMessageService = null,
         private $log: ng.ILogService = null) {
 
         // Creates the graph inside the given container
@@ -126,6 +128,10 @@ export class ProcessGraph implements IProcessGraph {
             if (this.nodeLabelEditor != null) {
                 this.nodeLabelEditor.init();
             }
+
+            this.deleteShapeHandler = 
+               this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
+            
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -215,140 +221,6 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         this.notifyUpdateInModel(NodeChange.Update, id);
-    }
-
-    private canDeleteDecisionConditions(decisionId: number, targetIds: number[]): boolean {
-        let canDelete: boolean = true;
-        let errorMessage: string;
-
-        if (!targetIds || targetIds.length === 0) {
-            canDelete = false;
-        } else if (this.hasMinConditions(decisionId)) {
-            errorMessage = this.rootScope.config.labels["ST_Delete_CannotDelete_UD_AtleastTwoConditions"];
-            canDelete = false;
-        } else {
-            for (let targetId of targetIds) {
-                if (!this.viewModel.getBranchDestinationId(decisionId, targetId)) {
-                    canDelete = false;
-                }
-            }
-        }
-
-        if (!canDelete && errorMessage && this.messageService) {
-            this.messageService.addError(errorMessage);
-        }
-
-        return canDelete;
-    }
-
-    public deleteDecisionBranches(decisionId: number, targetIds: number[]): boolean {
-        if (!this.canDeleteDecisionConditions(decisionId, targetIds)) {
-            return false;
-        }
-
-        for (let targetId of targetIds) {
-            // delete the link connecting decision to target
-            let decisionToShapeLinkIndex = this.viewModel.getLinkIndex(decisionId, targetId);
-            let toBeRemovedLink = this.viewModel.links[decisionToShapeLinkIndex];
-
-            let scopeContext = this.getBranchScope(toBeRemovedLink, this.defaultNextIdsProvider);
-            this.reconnectExternalLinksInScope(scopeContext);
-
-            let shapeIdsToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
-
-            let indexOfMapping: number;
-            for (indexOfMapping = 0; indexOfMapping < this.viewModel.decisionBranchDestinationLinks.length; indexOfMapping++) {
-                let condition = this.viewModel.decisionBranchDestinationLinks[indexOfMapping];
-                if (condition.sourceId === decisionId && condition.orderindex === toBeRemovedLink.orderindex) {
-                    break;
-                }
-            }
-
-            this.viewModel.links.splice(decisionToShapeLinkIndex, 1);
-            this.viewModel.decisionBranchDestinationLinks.splice(indexOfMapping, 1);
-            this.deleteShapesAndLinksByIds(shapeIdsToDelete);
-        }
-
-        this.notifyUpdateInModel(NodeChange.Remove, decisionId);
-
-        return true;
-    }
-
-    private getConditionFromIdInScope(id: number, scopeContext: IScopeContext): IConditionContext {
-        for (let mapIndex = scopeContext.mappings.length - 1; mapIndex > -1; mapIndex--) {
-            let map = scopeContext.mappings[mapIndex];
-
-            if (map.shapeIdsInCondition[id]) {
-                return map;
-            }
-        }
-
-        return null;
-    }
-
-    private isInfiniteLoop(targetId: number, currentCondition: IConditionContext): boolean {
-        let mappingTargetId = targetId;
-
-        let mappingTargetCondition = this.globalScope.visitedIds[mappingTargetId].innerParentCondition();
-        if (!mappingTargetCondition) {
-            return false;
-        }
-
-        let mappingTargetConditionTargetCondition = this.globalScope.visitedIds[mappingTargetCondition.targetId].innerParentCondition();
-        if (!mappingTargetConditionTargetCondition) {
-            return false;
-        }
-
-        return mappingTargetConditionTargetCondition.decisionId === currentCondition.decisionId &&
-            mappingTargetConditionTargetCondition.orderindex === currentCondition.orderindex;
-    }
-
-    private reconnectExternalLinksInScope(scopeContext: IScopeContext) {
-        if (scopeContext.mappings.length === 0) {
-            return;
-        }
-
-        let originalDecisionId = scopeContext.mappings[0].decisionId;
-
-        for (let visitedId in scopeContext.visitedIds) {
-            if (scopeContext.visitedIds.hasOwnProperty(visitedId)) {
-                var id: number = Number(visitedId);
-
-                if (id === originalDecisionId) {
-                    continue;
-                }
-
-                let prevShapeIds: number[] = this.viewModel.getPrevShapeIds(id);
-                if (prevShapeIds.length <= 1) {
-                    continue;
-                }
-
-                let mapping: IConditionContext = this.getConditionFromIdInScope(id, scopeContext);
-                if (!mapping) {
-                    continue;
-                }
-
-                for (let prevShapeId of prevShapeIds) {
-                    let isExternal = !scopeContext.visitedIds[prevShapeId] && prevShapeId !== originalDecisionId;
-                    if (isExternal) {
-                        let link = this.getLink(prevShapeId, id);
-                        let newDestinationId = mapping.targetId;
-
-                        if (this.isInfiniteLoop(mapping.targetId, mapping)) {
-                            //if end shape's condition is coming back to this condition, then need to connect it back to the main flow.
-                            newDestinationId = this.layout.getConditionDestination(originalDecisionId).id;
-                        }
-
-                        link.destinationId = newDestinationId;
-
-                        let branchEndMappings: IProcessLink[] = this.viewModel.decisionBranchDestinationLinks.filter(link => link.destinationId === id);
-                        for (let decisionBranchDestinationLink of branchEndMappings) {
-                            decisionBranchDestinationLink.destinationId = Number(newDestinationId);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private buttonUpdated = (event) => {
@@ -538,6 +410,10 @@ export class ProcessGraph implements IProcessGraph {
         mxGraph.prototype.isCellSelectable = (cell) => {
             if (cell.isEdge()) {
                 return false;
+            } else if (cell.getNodeType) {
+                 if (cell.getNodeType() === NodeType.SystemTask && !this.viewModel.isUserToSystemProcess) {
+                    return false;
+                }
             }
             return true;
         };
@@ -577,6 +453,9 @@ export class ProcessGraph implements IProcessGraph {
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
         }
+
+        this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
+        
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -737,127 +616,21 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private canDeleteUserTask(userTaskId: number, previousShapeIds: number[], newDestinationId: number): boolean {
-        let errorMessage: string;
-        let canDelete: boolean = true;
-
-        if (!previousShapeIds || !newDestinationId) {
-            canDelete = false;
-        } else if (this.isLastInProcess(previousShapeIds, newDestinationId)) {
-            errorMessage = this.rootScope.config.labels["ST_Delete_CannotDelete_OnlyUserTask"];
-            canDelete = false;
-        } else if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId)) {
-            let decisionId = this.getConnectedDecisionId(previousShapeIds);
-
-            if (!this.canDeleteDecisionConditions(decisionId, [userTaskId])) {
-                canDelete = false;
-            }
-        } else if (this.isUserTaskBetweenTwoUserDecisions(userTaskId, previousShapeIds, newDestinationId)) {
-            errorMessage = this.rootScope.config.labels["ST_Delete_CannotDelete_UT_Between_Two_UD"];
-            canDelete = false;
-        }
-
-        if (!canDelete && errorMessage && this.messageService) {
-            this.messageService.addError(errorMessage);
-        }
-
-        return canDelete;
-    }
-
-    public deleteUserTask(userTaskId: number, postDeleteFunction: INotifyModelChanged = null): boolean {
-        let newDestinationId: number = this.viewModel.getFirstNonSystemShapeId(userTaskId);
-        let previousShapeIds: number[] = this.viewModel.getPrevShapeIds(userTaskId);
-
-        if (!this.canDeleteUserTask(userTaskId, previousShapeIds, newDestinationId)) {
-            return false;
-        }
-
-        this.deleteUserTaskInternal(userTaskId, previousShapeIds, newDestinationId);
-
-        if (postDeleteFunction) {
-            postDeleteFunction(NodeChange.Remove, userTaskId);
-        }
-
-        return true;
-    }
-
-    private deleteUserTaskInternal(userTaskId: number, previousShapeIds: number[], newDestinationId: number): void {
-        if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId)) {
-            let decisionId = this.getConnectedDecisionId(previousShapeIds);
-            this.deleteDecisionBranches(decisionId, [userTaskId]);
-        } else {
-            let scopeContext = this.getScope(userTaskId);
-            let shapesToBeDeletedIds: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
-
-            this.reconnectExternalLinksInScope(scopeContext);
-            this.updateSourcesWithDestinations(userTaskId, newDestinationId);
-            this.deleteShapesAndLinksByIds(shapesToBeDeletedIds);
-
-            for (let mapping of scopeContext.mappings) {
-                this.deleteBranchDestinationId(mapping.decisionId);
+    private deleteShape = () => {
+        let selectedNodes = this.getSelectedNodes();
+        if (selectedNodes.length > 0) {
+            let selectedNode = selectedNodes[0];
+            
+            if (selectedNode.getNodeType() === NodeType.UserTask) {
+                ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+            } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
+                ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
             }
         }
-    }
-
-    private getConnectedDecisionId(previousIds: number[]): number {
-        for (let previousId of previousIds) {
-            let id = Number(previousId);
-
-            if (this.viewModel.isDecision(id)) {
-                return id;
-            }
-        }
-
-        return null;
-    }
-
-    private isLastInProcess(previousShapeIds: number[], nextShapeId: number): boolean {
-        let newDestinationShapeType = this.viewModel.getShapeTypeById(nextShapeId);
-
-        for (let previousShapeId of previousShapeIds) {
-            let previousShapeType = this.viewModel.getShapeTypeById(previousShapeId);
-
-            if (previousShapeType === ProcessShapeType.PreconditionSystemTask &&
-                newDestinationShapeType === ProcessShapeType.End
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public isUserTaskBetweenTwoUserDecisions(userTaskId: number, previousIds: number[], nextShapeId: number): boolean {
-        let decisionId = this.getConnectedDecisionId(previousIds);
-
-        return decisionId &&
-            this.viewModel.getShapeTypeById(decisionId) === ProcessShapeType.UserDecision &&
-            this.viewModel.getShapeTypeById(nextShapeId) === ProcessShapeType.UserDecision;
-    }
-
-    public isLastUserTaskInCondition(userTaskId: number, previousShapeIds: number[], nextShapeId: number): boolean {
-        let decisionId = this.getConnectedDecisionId(previousShapeIds);
-        if (!decisionId) {
-            return false;
-        }
-
-        let destinationId = this.viewModel.getBranchDestinationId(decisionId, userTaskId);
-        return destinationId && destinationId === nextShapeId;
     }
 
     private hasMaxConditions(decisionId: number): boolean {
         return this.viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
-    }
-
-    private hasMinConditions(decisionId: number): boolean {
-        return this.viewModel.getNextShapeIds(decisionId).length <= ProcessGraph.MinConditions;
-    }
-
-    private deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[]) {
-        for (var i in shapesToBeDeletedIds) {
-            this.viewModel.shapes = this.viewModel.shapes.filter(shape => { return shape.id !== shapesToBeDeletedIds[i]; });
-            this.viewModel.links = this.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i]; });
-        }
     }
 
     public updateSourcesWithDestinations(shapeId: number, newDestinationId: number): SourcesAndDestinations {
@@ -901,69 +674,9 @@ export class ProcessGraph implements IProcessGraph {
         this.layout.updateBranchDestinationId(oldDestinationId, newDestinationId);
     }
 
-    private canDeleteDecision(decisionId: number): boolean {
-        let errorMessage: string;
-        let canDelete: boolean = true;
-
-        let decision = this.viewModel.getShapeById(decisionId);
-        if (decision == null) {
-            canDelete = false;
-        }
-
-        if (!canDelete && errorMessage && this.messageService) {
-            this.messageService.addError(errorMessage);
-        }
-
-        return canDelete;
-    }
-
-    public deleteDecision(decisionId: number, postDeleteFunction: INotifyModelChanged = null): boolean {
-        if (!this.canDeleteDecision(decisionId)) {
-            return false;
-        }
-
-        let scopeContext = this.getScope(decisionId);
-        let shapesToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
-        let firstOutgoingLink = this.getNextLinks(decisionId).reduce((a, b) => a.orderindex < b.orderindex ? a : b);
-
-        this.reconnectExternalLinksInScope(scopeContext);
-        this.updateSourcesWithDestinations(decisionId, firstOutgoingLink.destinationId);
-        this.deleteBranchDestinationId(decisionId);
-        this.deleteShapesAndLinksByIds(shapesToDelete);
-
-        let selectedShapeId: number = firstOutgoingLink.destinationId;
-
-        // if user decision is the last shape between precondition and end, replace it with new task pair
-        let preconditionId = this.viewModel.getPreconditionShapeId();
-        let endId = this.viewModel.getEndShapeId();
-        // filtering links explicitly here because link index in ProcessClientModel might be out-of-date
-        if (this.viewModel.links.filter(link => link.sourceId === preconditionId && link.destinationId === endId).length > 0) {
-            selectedShapeId = this.layout.insertTask([preconditionId], endId);
-            this.layout.createAutoInsertTaskMessage();
-        }
-
-        if (postDeleteFunction) {
-            postDeleteFunction(NodeChange.Remove, selectedShapeId);
-        }
-
-        return true;
-    }
-
     public notifyUpdateInModel: INotifyModelChanged = (nodeChange: NodeChange, selectedId: number) => {
-        this.rootScope.$broadcast("processModelUpdate", selectedId);
+        this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(selectedId);
         this.updateProcessChangedState(selectedId, nodeChange);
-    }
-
-    private deleteBranchDestinationId(decisionShapeId: number) {
-        if (this.viewModel.decisionBranchDestinationLinks != null) {
-            // select the last available branch destination as destination for new branch
-            for (let i = this.viewModel.decisionBranchDestinationLinks.length - 1; i > -1; i--) {
-                let condition = this.viewModel.decisionBranchDestinationLinks[i];
-                if (condition.sourceId === decisionShapeId) {
-                    this.viewModel.decisionBranchDestinationLinks.splice(i, 1);
-                }
-            }
-        }
     }
 
     public saveProcess() {
@@ -1070,13 +783,31 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private initSelection() {
+        //let that = this;
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
-            elements = elements.filter(e => e instanceof DiagramNode);
-            this.selectionListeners.forEach((listener: ISelectionListener) => {
-                listener(elements);
-            });
+            let elements = this.getSelectedNodes();
+            let deletable = elements.length > 0;
+            if (deletable) {
+                let element: IDiagramNode = elements[0];
+                deletable = element.getNodeType() === NodeType.UserDecision || 
+                            element.getNodeType() === NodeType.SystemDecision ||
+                            element.getNodeType() === NodeType.UserTask;
+            } 
+
+            this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
+
+            if (!!this.selectionListeners) {
+                this.selectionListeners.forEach((listener: ISelectionListener) => {
+                    listener(elements);
+                });
+            }
         });
+    }
+
+    private getSelectedNodes(): Array<IDiagramNode> {
+        var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
+        elements = elements.filter(e => e instanceof DiagramNode);
+        return elements;
     }
 
     private findConditionStart(context: IScopeContext, nextId: number): IConditionContext {
@@ -1127,7 +858,7 @@ export class ProcessGraph implements IProcessGraph {
         return context;
     }
 
-    private getLink(sourceId: number, destinationId: number): IProcessLink {
+    public getLink(sourceId: number, destinationId: number): IProcessLink {
         let index: number = this.viewModel.getLinkIndex(sourceId, destinationId);
         if (index && index > -1) {
             return this.viewModel.links[index];
@@ -1223,7 +954,7 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    private defaultNextIdsProvider: INextIdsProvider = (context) => {
+    public defaultNextIdsProvider: INextIdsProvider = (context) => {
         return this.viewModel.getNextShapeIds(context.id).map(id => Number(id));
     }
 

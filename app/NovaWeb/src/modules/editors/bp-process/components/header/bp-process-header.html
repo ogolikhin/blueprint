@@ -13,15 +13,14 @@
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>
-        <ul class="breadcrumbs process-breadcrumbs" >
-            <li>Placeholder 1</li>
-            <li>Placeholder 2</li>
-            <li><a href="#">{{ $ctrl.artifactName }}</a></li>
-        </ul>
-        <div class="type-id">{{ $ctrl.artifactTypeDescription }}</div>
+        <bp-breadcrumb          
+         name="{{ $ctrl.artifactName }}"
+         context="$ctrl.context"></bp-breadcrumb>
+         <div class="type-id"> {{$ctrl.artifactTypeDescription}} </div>
     </div>
 </div>
 <div class="page-top-toolbar">
+    <button class="btn btn-bluelight" bp-tooltip="Delete" ng-click="$ctrl.clickDelete()" ng-if="$ctrl.isDeleteButtonEnabled">Delete</button>
     <bp-toggle class="btn bp-toggle" context="$ctrl.context"></bp-toggle>
     <button class="btn btn-bluelight" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>

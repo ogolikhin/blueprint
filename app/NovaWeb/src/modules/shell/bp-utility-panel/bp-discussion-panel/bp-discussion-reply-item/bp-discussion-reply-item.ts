@@ -9,7 +9,8 @@ export class BPDiscussionReplyItem implements ng.IComponentOptions {
         artifactId: "=",
         canCreate: "=",
         discussionClosed: "=",
-        deleteReply: "&"
+        deleteReply: "&",
+        emailDiscussionsEnabled: "="
     };
 }
 

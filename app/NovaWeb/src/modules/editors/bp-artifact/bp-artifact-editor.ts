@@ -1,5 +1,6 @@
 import { ILocalizationService, IMessageService, Message, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
-import { IProjectManager, IWindowManager} from "../../main/services";
+import { IWindowManager, IMainWindow } from "../../main";
+import { IProjectManager } from "../../main/services";
 import { Enums, Models} from "../../main/models";
 
 import { BpBaseEditor} from "../bp-base-editor";
@@ -27,15 +28,18 @@ export class BpArtifactEditor extends BpBaseEditor {
         public localization: ILocalizationService,
         private projectManager: IProjectManager
     ) {
-        super(messageService, stateManager, windowManager);
+        super(messageService, stateManager);
         this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
         super.$onInit();
+        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
 
         this._subscribers.push(
-            this.stateManager.stateChange.filter(it => !!it.lock).distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
+            this.stateManager.stateChange
+                .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
+                .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
         );
     }
 
@@ -43,7 +47,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public $onChanges(obj: any) {
         try {
             this.model = {};
-            super.$onChanges(obj);
+            super.$onChanges(obj); 
         } catch (ex) {
             this.messageService.addError(ex.message);
         }
@@ -129,7 +133,6 @@ export class BpArtifactEditor extends BpBaseEditor {
             }
         } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             this.onUpdate(this.context);
-            this.messageService.addMessage(new Message(3, "Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
         } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
         } else {
@@ -137,6 +140,22 @@ export class BpArtifactEditor extends BpBaseEditor {
         }
 
     }
+
+    public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
+        // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+
+        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        if (pageBodyWrapper) {
+            let avaliableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
+
+            if (avaliableWidth < minimumWidth) {
+                pageBodyWrapper.classList.add("single-column-property");
+            } else {
+                pageBodyWrapper.classList.remove("single-column-property");
+            }
+        }
+    };
 
 
 

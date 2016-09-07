@@ -43,7 +43,6 @@ export class BPDiagramController extends BpBaseEditor{
 
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    private subscribers: Rx.IDisposable[];
     private artifact: Models.IArtifact;
 
     constructor(
@@ -66,7 +65,7 @@ export class BPDiagramController extends BpBaseEditor{
         super.$onInit();
 
         //use context reference as the last parameter on subscribe...
-        this.subscribers.push(
+        this._subscribers.push(
             //subscribe for current artifact change (need to distinct artifact)
             this.selectionManager.selectionObservable
                 .filter(this.clearSelectionFilter)

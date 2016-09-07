@@ -1,4 +1,4 @@
-import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../interfaces";
+import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../../models";
 
 export class ChangeSetCollector implements IChangeCollector {
     private _collection: IChangeSet[];

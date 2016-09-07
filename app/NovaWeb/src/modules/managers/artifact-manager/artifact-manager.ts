@@ -1,6 +1,6 @@
-import { Models } from "../../main/models";
 import { IMessageService } from "../../core/";
-import { IArtifactManager, IStatefulArtifact, ISession } from "./interfaces";
+import { Models } from "../../main/models";
+import { IArtifactManager, IStatefulArtifact, ISession } from "../models";
 import { StatefullArtifact  } from "./artifact";
 
 

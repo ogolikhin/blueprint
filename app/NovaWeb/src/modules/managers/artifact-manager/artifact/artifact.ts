@@ -3,7 +3,7 @@ import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../interfaces";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
 
 import { IStatefulArtifact, 
          IArtifactStates, 
@@ -11,7 +11,7 @@ import { IStatefulArtifact,
          IArtifactAttachments, 
          IArtifactManager, 
          IState,
-         } from "../interfaces";
+         } from "../../models";
 
 
 export class StatefullArtifact implements IStatefulArtifact {

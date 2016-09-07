@@ -5,7 +5,7 @@ import {
     IArtifactAttachments, 
     IArtifactAttachment, 
     IArtifactManager 
-} from "../interfaces";
+} from "../../models";
 
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];

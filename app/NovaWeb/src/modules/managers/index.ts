@@ -5,4 +5,4 @@ angular.module("bp.managers", [
     "bp.managers.artifact"
 ]);
 
-export { IArtifactManager } from  "./artifact-manager/interfaces"; 
+export { IArtifactManager } from  "./models"; 

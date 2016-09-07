@@ -1,9 +1,6 @@
 import { Models, Enums } from "../../../main/models";
-import { IStatefulArtifact, IArtifactProperties } from "../interfaces";
+import { IStatefulArtifact, IArtifactProperties, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
 import { ChangeSetCollector } from "../changeset";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../interfaces";
-
-
 
 export class CustomProperties implements IArtifactProperties  {
     

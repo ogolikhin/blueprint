@@ -335,19 +335,22 @@ $has-children-padding-before-arrow: 3px;
 
     .ag-row-loading .ag-cell .ag-group-contracted i,
     .ag-row-loading .ag-cell .ag-group-expanded i {
-        background: transparent !important;
+      background: transparent !important;
 
-        &::before {
-            -webkit-animation: spin 1.5s infinite linear;
-            -moz-animation: spin 1.5s infinite linear;
-            -o-animation: spin 1.5s infinite linear;
-            animation: spin 1.5s infinite linear;
-            animation-delay: .5s;
-            background: transparent !important;
-            content: '\e031';
-            font-family: 'Glyphicons Halflings';
-            visibility: hidden;
-        }
+      &::before {
+        -webkit-animation: spin 1.5s infinite linear;
+        -moz-animation: spin 1.5s infinite linear;
+        -o-animation: spin 1.5s infinite linear;
+        animation: spin 1.5s infinite linear;
+        animation-delay: .25s;
+        background: transparent !important;
+        content: '\e031';
+        font-family: 'Glyphicons Halflings';
+        opacity: 0;
+        -ms-transform-origin: 50% 50%; // IE 9
+        -webkit-transform-origin: 50% 50%;
+        transform-origin: 50% 50%;
+      }
     }
 
     .ag-cell.has-children {

@@ -1,7 +1,7 @@
 ﻿import {IEditorParameters} from "../artifact.state";
 
 export class ProcessState implements ng.ui.IState {
-    public template = "<bp-process-editor context='$content.context'></bp-process-editor>";
+    public template = require("./process.state.html");
     public params: IEditorParameters = { context: null };
     public controller = "processStateController";
     public controllerAs = "$content";

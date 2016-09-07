@@ -9,6 +9,7 @@
     "postinstall": "typings install",
     "dev": "webpack --config webpack/webpack.dev.js --watch --NODE_ENV=dev",
     "dev:nolint": "webpack --config webpack/webpack.dev.js --watch --debug --NODE_ENV=dev",
+    "dev:build": "webpack --config webpack/webpack.dev.js --debug --NODE_ENV=dev",
     "test": "karma start --NODE_ENV=test",
     "test:nolint": "karma start --debug --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
@@ -16,8 +17,8 @@
     "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
   },
   "dependencies": {
-    "ag-grid": "5.2.0",
-    "ag-grid-enterprise": "5.2.0",
+    "ag-grid": "5.3.1",
+    "ag-grid-enterprise": "5.3.1",
     "angular": "^1.5.7",
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",

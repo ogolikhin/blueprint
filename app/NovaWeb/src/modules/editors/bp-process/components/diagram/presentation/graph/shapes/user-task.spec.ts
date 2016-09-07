@@ -13,6 +13,7 @@ import {NodeType, ElementType} from "../models/";
 import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
 import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
 
 describe("UserTask test", () => {
 
@@ -24,20 +25,24 @@ describe("UserTask test", () => {
     let localScope, rootScope, processModelService, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;
     let msgService: IMessageService;
+    let communicationManager: ICommunicationManager;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
         _processModelService_: IProcessService,
-        messageService: IMessageService
+        messageService: IMessageService, 
+        _communicationManager_: ICommunicationManager
     ) => {
         rootScope = $rootScope;
         processModelService = _processModelService_;
+        communicationManager = _communicationManager_;
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -56,6 +61,7 @@ describe("UserTask test", () => {
 
         let processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel);
+        viewModel.communicationManager = communicationManager;
         viewModel.isReadonly = false;
     }));
 
@@ -363,6 +369,7 @@ describe("UserTask test", () => {
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
             processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
 
             graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel);
 
@@ -401,6 +408,7 @@ describe("UserTask test", () => {
 
             let testModel = createSystemDecisionForAddBranchTestModel();
             let processModel = new ProcessViewModel(testModel);
+            processModel.communicationManager = communicationManager;
             processGraph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, msgService);
 
         });

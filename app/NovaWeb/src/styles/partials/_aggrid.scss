@@ -26,10 +26,6 @@ $has-children-padding-before-arrow: 3px;
             }
         }
 
-        .ag-body {
-            padding-top: $aggrid-row-height;
-        }
-
         .ag-cell {
             height: $aggrid-row-height;
             overflow: visible;
@@ -339,19 +335,22 @@ $has-children-padding-before-arrow: 3px;
 
     .ag-row-loading .ag-cell .ag-group-contracted i,
     .ag-row-loading .ag-cell .ag-group-expanded i {
-        background: transparent !important;
+      background: transparent !important;
 
-        &::before {
-            -webkit-animation: spin 1.5s infinite linear;
-            -moz-animation: spin 1.5s infinite linear;
-            -o-animation: spin 1.5s infinite linear;
-            animation: spin 1.5s infinite linear;
-            animation-delay: .5s;
-            background: transparent !important;
-            content: '\e031';
-            font-family: 'Glyphicons Halflings';
-            visibility: hidden;
-        }
+      &::before {
+        -webkit-animation: spin 1.5s infinite linear;
+        -moz-animation: spin 1.5s infinite linear;
+        -o-animation: spin 1.5s infinite linear;
+        animation: spin 1.5s infinite linear;
+        //animation-delay: .25s;
+        background: transparent !important;
+        content: '\e031';
+        font-family: 'Glyphicons Halflings';
+        opacity: 0;
+        -ms-transform-origin: 50% 50%; // IE 9
+        -webkit-transform-origin: 50% 50%;
+        transform-origin: 50% 50%;
+      }
     }
 
     .ag-cell.has-children {
@@ -483,14 +482,15 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .artifact-picker {
-    .project-name{        
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 560px;
-    display: inline-block;
-    vertical-align: bottom;   
+    .project-name {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 560px;
+        vertical-align: bottom;
     }
+
     .fonticon2-search {
         margin-left: 10px;
 
@@ -499,14 +499,14 @@ $has-children-padding-before-arrow: 3px;
         }
     }
 
-    .grid-header {       
-        font-size: $font-size-normal;
-        text-align: left;
+    .grid-header {
         color: $brand-secondary;
+        font-size: $font-size-normal;
         font-weight: 600;
-        text-indent: 6px;
-        position: relative;
         margin-bottom: -25px;
+        position: relative;
+        text-align: left;
+        text-indent: 6px;
         z-index: 100;
 
         .navigate-back {
@@ -522,8 +522,8 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .form-control.upper-text {
-        margin-bottom: 15px;
         float: left;
+        margin-bottom: 15px;
         width: 95%;
     }
 }

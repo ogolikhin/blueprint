@@ -11,7 +11,8 @@ export class BPArtifactDiscussionItem implements ng.IComponentOptions {
         cancelComment: "&",
         artifactId: "=",
         deleteCommentThread: "&",
-        discussionEdited: "&"
+        discussionEdited: "&",
+        emailDiscussionsEnabled: "="
     };
 }
 

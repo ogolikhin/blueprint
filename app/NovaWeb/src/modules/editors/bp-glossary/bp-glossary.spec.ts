@@ -7,6 +7,7 @@ import { LocalizationServiceMock } from "../../core/localization/localization.mo
 import { BpGlossaryController } from "./bp-glossary";
 import { GlossaryServiceMock } from "./glossary.svc.mock";
 import { ISelectionManager, SelectionManager } from "./../../main/services/selection-manager";
+import { MessageServiceMock } from "../../core/messages/message.mock";
 
 describe("Component BP Glossary", () => {
 
@@ -27,6 +28,7 @@ describe("Component BP Glossary", () => {
         $provide.service("glossaryService", GlossaryServiceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(inject(() => {

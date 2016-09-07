@@ -1,3 +1,5 @@
+import { Models, Enums} from "../../../main/models"; 
+
 export interface IDiagram {
     id: number;
     diagramType: string;
@@ -6,6 +8,7 @@ export interface IDiagram {
     shapes: IShape[];
     connections: IConnection[];
     libraryVersion: number;
+    data?: any;
 }
 
 export interface IDiagramElement {

@@ -901,24 +901,18 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldInheritFrom",
         /* tslint:disable */
-        template: `<div class="input-group read-only-input">
-                    <table width="100%">
-                    <tr>
-                     <td>
-                     <div>   
-                        <ul class="breadcrumbs">
-                            <li>{{model[options.key].pathToProject[0]}}</li>
-                            <li ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
-                               {{item}}
-                            </li>   
-                            <li><a href= "#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></li>                           
-                        </ul>
+        template: `<div class="input-group inheritance-group">
+                    <div class="inheritance-path">
+                        <span>{{model[options.key].pathToProject[0]}}</span>
+                        <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                           {{item}}
+                        </span>   
+                        <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
                     </div>
-                    </td>
-                    <td width="1%"> 
-                    <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>  
-                    <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i> 
-                    </td></tr></table>             
+                    <div class="inheritance-tools">
+                        <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                        <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i>
+                    </div>             
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"]

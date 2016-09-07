@@ -2,7 +2,7 @@
 import "angular";
 import "angular-mocks";
 import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
-import { LoadingOverlayController } from "./loading-overlay";
+import { BPLoadingOverlayController } from "./bp-loading-overlay";
 import { ComponentTest } from "../../util/component.test";
 
 //The service and component are closely related, so we test both at the same time.
@@ -16,17 +16,17 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
-    var componentTest: ComponentTest<LoadingOverlayController>;
-    var layout = `<loading-overlay class="loading- overlay"></loading-overlay>`;
+    let componentTest: ComponentTest<BPLoadingOverlayController>;
+    let vm: BPLoadingOverlayController;
+    let layout = `<bp-loading-overlay class="loading-overlay"></bp-loading-overlay>`;
 
     beforeEach(() => {
-        componentTest = new ComponentTest<LoadingOverlayController>(layout, "loading-overlay");
+        //Arrange
+        componentTest = new ComponentTest<BPLoadingOverlayController>(layout, "loading-overlay");
+        vm = componentTest.createComponent({});
     });
 
     it("displays the overlay if beginLoading() is called", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
         loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
@@ -37,9 +37,6 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("hides the overlay at the beginning", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
         loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
@@ -50,11 +47,8 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("hides the overlay if endLoading() is called", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id = loadingOverlayService.beginLoading();
+        let id = loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
         loadingOverlayService.endLoading(id);
         componentTest.scope.$digest();
@@ -65,12 +59,9 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("supports multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id1 = loadingOverlayService.beginLoading();
-        var id2 = loadingOverlayService.beginLoading();
+        let id1 = loadingOverlayService.beginLoading();
+        let id2 = loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
 
         // Assert      
@@ -79,12 +70,9 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("hides the overlay only once every beginLoading() call has an endLoading() call", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id1 = loadingOverlayService.beginLoading();
-        var id2 = loadingOverlayService.beginLoading();
+        let id1 = loadingOverlayService.beginLoading();
+        let id2 = loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
         loadingOverlayService.endLoading(id1);
         componentTest.scope.$digest();
@@ -103,11 +91,8 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("throws an error if endLoading() is called twice - but still hides the overlay", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id = loadingOverlayService.beginLoading();
+        let id = loadingOverlayService.beginLoading();
         loadingOverlayService.endLoading(id);
         componentTest.scope.$digest();
 
@@ -124,12 +109,9 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id1 = loadingOverlayService.beginLoading();
-        var id2 = loadingOverlayService.beginLoading();
+        let id1 = loadingOverlayService.beginLoading();
+        let id2 = loadingOverlayService.beginLoading();
         loadingOverlayService.endLoading(id1);
         componentTest.scope.$digest();
 
@@ -145,12 +127,9 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     })));
 
     it("hides the overlay if dispose() is called, even with multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
-        //Arrange
-        var vm: LoadingOverlayController = componentTest.createComponent({});
-
         // Act
-        var id1 = loadingOverlayService.beginLoading();
-        var id2 = loadingOverlayService.beginLoading();
+        let id1 = loadingOverlayService.beginLoading();
+        let id2 = loadingOverlayService.beginLoading();
         loadingOverlayService.dispose();
 
         //Assert 2

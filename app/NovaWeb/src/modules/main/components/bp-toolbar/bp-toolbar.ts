@@ -25,8 +25,16 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager",
-        "messageService", "$rootScope", "loadingOverlayService", "$timeout", "$http"];
+    static $inject = [
+        "localization",
+        "dialogService",
+        "projectManager",
+        "selectionManager",
+        "messageService",
+        "$rootScope",
+        "loadingOverlayService",
+        "$timeout",
+        "$http"];
 
     constructor(
         private localization: ILocalizationService,

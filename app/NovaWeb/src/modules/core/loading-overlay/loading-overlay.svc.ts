@@ -23,7 +23,7 @@ export class LoadingOverlayService implements ILoadingOverlayService {
         this.initialize();
     }
 
-    private loadingIds: Array<number>;
+    private loadingIds: number[];
 
     public initialize = () => {
         this.loadingIds = new Array<number>();

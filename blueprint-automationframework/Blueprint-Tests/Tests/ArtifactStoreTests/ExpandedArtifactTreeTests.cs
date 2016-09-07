@@ -415,6 +415,7 @@ namespace ArtifactStoreTests
         // TODO: Add test with deleted but not published artifact with other user.
 
         [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/PyiCTuTx
         [TestRail(164558)]
         [Description("GetExpandedArtifactTree with a user that doesn't have access to the project.  Verify 403 Forbidden is returned with the correct error message.")]
         public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()

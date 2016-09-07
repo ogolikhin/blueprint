@@ -80,6 +80,8 @@
     <Compile Include="Impl\SvcShared.cs" />
     <Compile Include="IProjectRole.cs" />
     <Compile Include="ISvcShared.cs" />
+    <Compile Include="NovaModel\Impl\NovaFile.cs" />
+    <Compile Include="NovaModel\INovaFile.cs" />
     <Compile Include="ProjectRolePermissions.cs" />
     <Compile Include="RestPaths.cs" />
     <Compile Include="CommonConstants.cs" />

@@ -158,7 +158,7 @@ namespace Model.Impl
                 //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
                 //or we can determine RoleId by Permissions and ProjectId
                 //also we can use [Permissions] = 4623 - for Author
-                // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
+                // 4623 comes from: https://github.com/BlueprintSys/blueprint-current/blob/develop/Source/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
                 object[] valueArray = {
                         project.Id, role.RoleId, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
                             };

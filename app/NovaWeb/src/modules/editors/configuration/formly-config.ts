@@ -870,35 +870,55 @@ export function formlyConfig(
             </div>`
     });
 
+    //<span class="input-group-btn" >
+    //    <button type="button" class="btn btn-default" ng- click="bpFieldInheritFrom.delete($event)" > +</button>
+    //        < /span>
+
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable */
         template: `<div class="input-group">
                 <img ng-src="{{model[options.key]}}" width="64" height="64" style="border:1px solid grey" />
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.delete($event)">+</button>
-                </span>
+                <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>                  
             </div>`
         /* tslint:enable */
     });
 
+    //<input type="text"
+    //id = "{{::id}}"
+    //name = "{{::id}}"
+    //ng - model="model[options.key].pathToProject"
+    //ng - keyup="bpFieldText.keyup($event)"
+    //class="form-control read-only-input"
+    //enable = "false" />
+
+//    <label class="control-label" >
+//        <div bp- tooltip="{{ model[options.key].pathToProject }}" bp- tooltip - truncated="true" > {{ model[options.key].pathToProject }
+//} </div>
+//    < /label>                    
+//    < a href= "#" > {{model[options.key].actorPrefix }}{ { model[options.key].actorId } }:{ { model[options.key].actorName } } </a>
+
     formlyConfig.setType({
         name: "bpFieldInheritFrom",
         /* tslint:disable */
-        template: `<div class="input-group">
-                <input type="text"
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key].hasAccess ? model[options.key].path : 'Unauthorized'"
-                    ng-keyup="bpFieldText.keyup($event)"
-                    class="form-control read-only-input"
-                    enable="false" />
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.delete($event)">-</button>
-                </span>
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="bpFieldInheritFrom.change($event)">Change</button>
-                </span>
+        template: `<div class="input-group read-only-input">
+                    <table width="100%">
+                    <tr>
+                     <td>
+                     <div>   
+                        <ul class="breadcrumbs">
+                            <li>{{model[options.key].pathToProject[0]}}</li>
+                            <li ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                               {{item}}
+                            </li>   
+                            <li><a href= "#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></li>                           
+                        </ul>
+                    </div>
+                    </td>
+                    <td width="1%"> 
+                    <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>  
+                    <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i> 
+                    </td></tr></table>             
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"]

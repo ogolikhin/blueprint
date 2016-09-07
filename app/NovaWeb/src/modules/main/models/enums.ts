@@ -79,8 +79,7 @@ export enum ItemTypePredefined {
 }
 
 export enum PropertyTypePredefined {
-    ItemTypeId = -1, // for client use only 
-    ActorInheritance = -2, // for client use only
+    ItemTypeId = -1, // for client use only     
 
     None = 0,
     SystemGroup = 4096,
@@ -115,6 +114,7 @@ export enum PropertyTypePredefined {
     CreatedOn = 4125,
     LastEditedBy = 4126,
     LastEditedOn = 4127,
+    ActorInheritance = 4128,
     VisualizationGroup = 8192,
     X = 8193,
     Y = 8194,

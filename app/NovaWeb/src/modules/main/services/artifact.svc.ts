@@ -25,31 +25,8 @@ export class ArtifactService implements IArtifactService {
         };
 
         this.$http(request).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => {
-                //DEBUG
-                result.data.specificPropertyValues.push({
-                    propertyTypeId: 1,
-                    propertyTypeVersionId: 1,
-                    propertyTypePredefined: Models.PropertyTypePredefined.Image,
-                    isReuseReadOnly: false,
-                    value: "https://www.google.ca/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
-                }, {
-                    propertyTypeId: 1,
-                    propertyTypeVersionId: 1,
-                    propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
-                    isReuseReadOnly: false,
-                    value: {
-                        path: "Path",
-                        id: 1,
-                        name: "Actor Name",
-                        prefix: "ACT",
-                        hasAccess: true
-                    }
-                });
-                //END DEBUG
-
-                defer.resolve(result.data);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();
                     return;
@@ -64,10 +41,10 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
-    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {        
+    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {
         var defer = this.$q.defer<any>();
         let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
-        
+
         const request: ng.IRequestConfig = {
             url: rest,
             method: "GET",
@@ -85,7 +62,7 @@ export class ArtifactService implements IArtifactService {
             }
         );
         return defer.promise;
-    }    
+    }
 
 
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
@@ -115,7 +92,7 @@ export class ArtifactService implements IArtifactService {
     }
 
 
-    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact>  {
+    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<Models.IArtifact>();
 
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(

@@ -5,7 +5,8 @@ import {NodeType} from "../models/";
 export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
-   
+    private mouseDownSubscriber = null;
+
     public insertionPoint: MxCell = null;
 
     constructor(
@@ -90,6 +91,7 @@ export class NodePopupMenu {
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                    this.unsubscribeMouseDown();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -98,6 +100,7 @@ export class NodePopupMenu {
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
+                    this.unsubscribeMouseDown();
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -105,6 +108,7 @@ export class NodePopupMenu {
                 });
             } else {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                    this.unsubscribeMouseDown();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -112,6 +116,7 @@ export class NodePopupMenu {
                 });
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
+                    this.unsubscribeMouseDown();
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -120,6 +125,7 @@ export class NodePopupMenu {
             }
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+                this.unsubscribeMouseDown();
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -127,6 +133,7 @@ export class NodePopupMenu {
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+                this.unsubscribeMouseDown();
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -152,13 +159,20 @@ export class NodePopupMenu {
         this.menu = null;
     };
     
+    private unsubscribeMouseDown() {
+        if (this.mouseDownSubscriber) {
+            this.mouseDownSubscriber.dispose();
+            this.mouseDownSubscriber = null;
+        }
+    }
+ 
     private removePopupOnMouseDown() {
         // listen for a mousedown event and remove the popup menu if it is still showing
         var mouseDown$: Rx.Observable<MouseEvent>;
         mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
-        var mouseDownListener = mouseDown$.subscribe(event => {
+        this.mouseDownSubscriber = mouseDown$.subscribe(event => {
             this.hidePopupMenu();
-            mouseDownListener.dispose();
+            this.unsubscribeMouseDown();
         });
     }
 

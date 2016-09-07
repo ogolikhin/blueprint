@@ -39,7 +39,9 @@ export class PropertyEditor {
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
                 }
-                return this.locale.toNumber($value);
+                return {
+                    validValueIds: [this.locale.toNumber($value)]
+                };
 
             case Models.PrimitiveType.User:
                 //TODO: please implement on time of user editor field implementation

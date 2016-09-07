@@ -24,6 +24,9 @@ namespace ArtifactStoreTests
         private IGroup _authorsGroup = null;
         private IGroup _viewersGroup = null;
 
+        private IProjectRole _authorRole = null;
+        private IProjectRole _viewerRole = null;
+
         [SetUp]
         public void SetUp()
         {
@@ -40,8 +43,11 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Author);
-            _viewersGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Viewer);
+            _authorRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Edit | RolePermissions.Read);
+            _viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
+
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: _authorRole);
+            _viewersGroup.AssignRoleToProjectOrArtifact(_project, role: _viewerRole);
 
             Helper.AdminStore.AddSession(_authorUser);
             Helper.BlueprintServer.LoginUsingBasicAuthorization(_authorUser);
@@ -52,6 +58,8 @@ namespace ArtifactStoreTests
         public void TearDown()
         {
             Helper?.Dispose();
+            _authorRole.DeleteRole();
+            _viewerRole.DeleteRole();
         }
 
         [TestCase]

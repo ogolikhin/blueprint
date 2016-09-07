@@ -16,13 +16,13 @@ namespace Model
         Windows
     }
 
-    public enum ProjectRole
+    /*public enum ProjectRole
     {
         None = 0,
         Author = 1,
         ProjectAdministrator = 3,
         Viewer = 4
-    }
+    }*/
 
 
     public interface IGroup
@@ -72,8 +72,8 @@ namespace Model
         /// <param name="artifact">(optional)Artifact for which role assignment will be created.
         /// By defauld artifact is null. In this case role will be assigned for the whole project.</param>
         /// <param name="role">Role to assign.</param>
-        void AssignRoleToProjectOrArtifact(IProject project, IArtifactBase artifact = null,
-            ProjectRole role = ProjectRole.Author);
+        void AssignRoleToProjectOrArtifact(IProject project, IProjectRole role,
+            IArtifactBase artifact = null);
         #endregion Methods
     }
 }

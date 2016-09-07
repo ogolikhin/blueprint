@@ -141,10 +141,11 @@ namespace Model.Impl
 
 
         /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, IArtifact, ProjectRole)"/>
-        public void AssignRoleToProjectOrArtifact(IProject project, IArtifactBase artifact = null,
-            ProjectRole role = ProjectRole.Author)
+        public void AssignRoleToProjectOrArtifact(IProject project, IProjectRole role,
+            IArtifactBase artifact = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(role, nameof(role));
             if (artifact != null)
             {
                 Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
@@ -159,7 +160,7 @@ namespace Model.Impl
                 //also we can use [Permissions] = 4623 - for Author
                 // 4623 comes from /blueprint-current/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
                 object[] valueArray = {
-                        project.Id, (int)role, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
+                        project.Id, role.RoleId, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
                             };
                 string values = string.Join(",", objArraytoStringList(valueArray));
 

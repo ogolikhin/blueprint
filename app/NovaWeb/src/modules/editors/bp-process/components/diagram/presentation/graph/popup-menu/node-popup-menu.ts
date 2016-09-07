@@ -5,10 +5,10 @@ import {NodeType} from "../models/";
 export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
-    private initialScrollPosition: number[] = null;
-    private initialPopupPosition: number[] = null;
-    private diagramAbsoluteCoordinates: number[] = null;
-    private scrollTicking: boolean = false;
+    //private initialScrollPosition: number[] = null;
+    //private initialPopupPosition: number[] = null;
+    //private diagramAbsoluteCoordinates: number[] = null;
+    //private scrollTicking: boolean = false;
     
     public insertionPoint: MxCell = null;
 
@@ -53,80 +53,80 @@ export class NodePopupMenu {
         };
     }
 
-    private updatePositionOfPopupMenu = (x: number, y: number) => {
-        // calculates the movement relative to the last know measurement 
-        let compensatedX = this.initialScrollPosition["x"] - x;
-        let compensatedY = this.initialScrollPosition["y"] - y;
+    //private updatePositionOfPopupMenu = (x: number, y: number) => {
+    //    // calculates the movement relative to the last know measurement 
+    //    let compensatedX = this.initialScrollPosition["x"] - x;
+    //    let compensatedY = this.initialScrollPosition["y"] - y;
 
-        if (this.menu && this.menu["div"]) {
-            let menuDiv = <HTMLElement>this.menu["div"];
-            menuDiv.style.left = (this.initialPopupPosition["x"] + compensatedX) + "px";
-            menuDiv.style.top = (this.initialPopupPosition["y"] + compensatedY) + "px";
+    //    if (this.menu && this.menu["div"]) {
+    //        let menuDiv = <HTMLElement>this.menu["div"];
+    //        menuDiv.style.left = (this.initialPopupPosition["x"] + compensatedX) + "px";
+    //        menuDiv.style.top = (this.initialPopupPosition["y"] + compensatedY) + "px";
 
-            // hide the popup and remove the listener if near the edges of the diagram, 
-            // as otherwise it will go over other elements (e.g.the toolbar)
-            if (
-                (compensatedY < 0 && parseInt(menuDiv.style.top, 10) < this.diagramAbsoluteCoordinates["top"]) ||
-                (compensatedX > 0 && (parseInt(menuDiv.style.left, 10) + menuDiv.offsetWidth) > this.diagramAbsoluteCoordinates["right"]) ||
-                (compensatedX < 0 && parseInt(menuDiv.style.left, 10) < this.diagramAbsoluteCoordinates["left"])
-                // no need to check for the bottom edge
-            ) {
-                this.removeScrollHandler();
-            }
-        }
-    };
+    //        // hide the popup and remove the listener if near the edges of the diagram, 
+    //        // as otherwise it will go over other elements (e.g.the toolbar)
+    //        if (
+    //            (compensatedY < 0 && parseInt(menuDiv.style.top, 10) < this.diagramAbsoluteCoordinates["top"]) ||
+    //            (compensatedX > 0 && (parseInt(menuDiv.style.left, 10) + menuDiv.offsetWidth) > this.diagramAbsoluteCoordinates["right"]) ||
+    //            (compensatedX < 0 && parseInt(menuDiv.style.left, 10) < this.diagramAbsoluteCoordinates["left"])
+    //            // no need to check for the bottom edge
+    //        ) {
+    //            this.removeScrollHandler();
+    //        }
+    //    }
+    //};
 
-    private initScrollingPositionOfPopupMenu = () => {
-        // set the properties to be used for calculating the popup position when scrolling
+    //private initScrollingPositionOfPopupMenu = () => {
+    //    // set the properties to be used for calculating the popup position when scrolling
          
-        this.initialScrollPosition = [];
-        this.initialScrollPosition["x"] = this.htmlElement.scrollLeft;
-        this.initialScrollPosition["y"] = this.htmlElement.scrollTop;
+    //    this.initialScrollPosition = [];
+    //    this.initialScrollPosition["x"] = this.htmlElement.scrollLeft;
+    //    this.initialScrollPosition["y"] = this.htmlElement.scrollTop;
 
-        if (this.menu && this.menu["div"]) {
-            let menuDiv = <HTMLElement>this.menu["div"];
-            this.initialPopupPosition = [];
-            this.initialPopupPosition["x"] = parseInt(menuDiv.style.left, 10);
-            this.initialPopupPosition["y"] = parseInt(menuDiv.style.top, 10);
-        }
+    //    if (this.menu && this.menu["div"]) {
+    //        let menuDiv = <HTMLElement>this.menu["div"];
+    //        this.initialPopupPosition = [];
+    //        this.initialPopupPosition["x"] = parseInt(menuDiv.style.left, 10);
+    //        this.initialPopupPosition["y"] = parseInt(menuDiv.style.top, 10);
+    //    }
 
-        let containerBoundingClientRect = this.htmlElement.getBoundingClientRect();
-        this.diagramAbsoluteCoordinates = [];
-        // StoryTeller main viewport doesn't have scrollbars, otherwise we may need to compensate the following values
-        // ref: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-        this.diagramAbsoluteCoordinates["top"] = containerBoundingClientRect.top;
-        this.diagramAbsoluteCoordinates["right"] = containerBoundingClientRect.right;
-        this.diagramAbsoluteCoordinates["bottom"] = containerBoundingClientRect.bottom;
-        this.diagramAbsoluteCoordinates["left"] = containerBoundingClientRect.left;
-    };
+    //    let containerBoundingClientRect = this.htmlElement.getBoundingClientRect();
+    //    this.diagramAbsoluteCoordinates = [];
+    //    // StoryTeller main viewport doesn't have scrollbars, otherwise we may need to compensate the following values
+    //    // ref: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+    //    this.diagramAbsoluteCoordinates["top"] = containerBoundingClientRect.top;
+    //    this.diagramAbsoluteCoordinates["right"] = containerBoundingClientRect.right;
+    //    this.diagramAbsoluteCoordinates["bottom"] = containerBoundingClientRect.bottom;
+    //    this.diagramAbsoluteCoordinates["left"] = containerBoundingClientRect.left;
+    //};
 
-    private removeScrollHandler = () => {
-        // unregister of the scroll handler
-        this.htmlElement.removeEventListener("scroll", this.scrollHandler);
-        // reset the properties used for calculating the popup position when scrolling
-        this.initialScrollPosition = null;
-        this.initialPopupPosition = null;
-        this.diagramAbsoluteCoordinates = null;
-        this.scrollTicking = false;
-        // we make sure the popup menu is closed
-        this.hidePopupMenu();
-    };
+    //private removeScrollHandler = () => {
+    //    // unregister of the scroll handler
+    //    this.htmlElement.removeEventListener("scroll", this.scrollHandler);
+    //    // reset the properties used for calculating the popup position when scrolling
+    //    this.initialScrollPosition = null;
+    //    this.initialPopupPosition = null;
+    //    this.diagramAbsoluteCoordinates = null;
+    //    this.scrollTicking = false;
+    //    // we make sure the popup menu is closed
+    //    this.hidePopupMenu();
+    //};
 
-    private scrollHandler = (evt) => {
-        if (!this.menu["isMenuShowing"]()) { // the popup menu is hidden/destroyed, we self-unregister
-            this.removeScrollHandler();
-        } else {
-            if (!this.scrollTicking) {
-                // scroll events can fire at a high rate. We throttle the event using requestAnimationFrame
-                // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-                window.requestAnimationFrame(() => {
-                    this.updatePositionOfPopupMenu(evt.target.scrollLeft, evt.target.scrollTop);
-                    this.scrollTicking = false;
-                });
-            }
-            this.scrollTicking = true;
-        }
-    };
+    //private scrollHandler = (evt) => {
+    //    if (!this.menu["isMenuShowing"]()) { // the popup menu is hidden/destroyed, we self-unregister
+    //        this.removeScrollHandler();
+    //    } else {
+    //        if (!this.scrollTicking) {
+    //            // scroll events can fire at a high rate. We throttle the event using requestAnimationFrame
+    //            // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+    //            window.requestAnimationFrame(() => {
+    //                this.updatePositionOfPopupMenu(evt.target.scrollLeft, evt.target.scrollTop);
+    //                this.scrollTicking = false;
+    //            });
+    //        }
+    //        this.scrollTicking = true;
+    //    }
+    //};
 
     private isPopupTrigger = (me) => {
         

@@ -74,6 +74,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
+    public get isDocumentSpecificPropertyAvailable(): boolean {
+        return true;
+    }
+
     public get isRichTextPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }

@@ -5,13 +5,12 @@ import { PropertyContext} from "./bp-property-context";
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export class PropertyEditor {
-    
+
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
-    constructor(private localization: ILocalizationService)
-    {
+    constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
 
@@ -69,8 +68,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
-            //} else if (angular.isString($value.customValue)) {
-            //    return $value.customValue;
+                //} else if (angular.isString($value.customValue)) {
+                //    return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }
@@ -128,10 +127,10 @@ export class PropertyEditor {
                         if (custompropertyvalue) {
                             modelValue = custompropertyvalue.value || null;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
-                        } 
+                        }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
                         //Specific property
-                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {                            
+                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
                         if (specificpropertyvalue) {
@@ -155,11 +154,11 @@ export class PropertyEditor {
         return this._model;
     }
 
-    private GetActorStepOfValue(propertyValue: any): string {        
+    private GetActorStepOfValue(propertyValue: any): string {
         if (propertyValue) {
-            return this.localization.get("App_Properties_Actor_StepOf_Actor");            
+            return this.localization.get("App_Properties_Actor_StepOf_Actor");
         }
-        else {            
+        else {
             return this.localization.get("App_Properties_Actor_StepOf_System");
         }
     }
@@ -200,26 +199,26 @@ export class PropertyEditor {
 
         } else {
             switch (context.primitiveType) {
-                case Models.PrimitiveType.Text:                   
+                case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
-                        if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
-                            field.templateOptions["tinymceOption"] = {
-                                //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                    if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
+                        field.templateOptions["tinymceOption"] = {
+                            //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                        };
+                        //TODO: added just for testing
+                        if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                            field.templateOptions["tinymceOption"].mentions = {
+                                source: tinymceMentionsData,
+                                delay: 100,
+                                items: 5,
+                                queryBy: "fullname",
+                                insert: function (item) {
+                                    return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
+                                }
                             };
-                            //TODO: added just for testing
-                            if (true) { //here we need something to decide if the tinyMCE editor should have mentions
-                                field.templateOptions["tinymceOption"].mentions = {
-                                    source: tinymceMentionsData,
-                                    delay: 100,
-                                    items: 5,
-                                    queryBy: "fullname",
-                                    insert: function (item) {
-                                        return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
-                                    }
-                                };
-                            }
-                        }                                        
+                        }
+                    }
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";
@@ -255,6 +254,9 @@ export class PropertyEditor {
                 case Models.PrimitiveType.User:
                     //TODO needs to be changed to user selection
                     field.type = "bpFieldReadOnly";
+                    break;
+                case Models.PrimitiveType.DocumentFile:
+                    field.type = "bpDocumentFile";
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

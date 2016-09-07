@@ -849,7 +849,17 @@ export function formlyConfig(
             $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
         }]
     });
-
+    formlyConfig.setType({
+        name: "bpDocumentFile",
+        /* tslint:disable */
+        template: 
+        `<div class="thumb ext-ms-word">
+            <span class="input-group has-messages"><input type="text" \> <span class="icon fonticon-delete-filled"></span>
+            <button class="btn btn-bluelight" ng-disabled="true" bp-tooltip="Change">Change</button>
+            <button class="btn btn-primary" bp-tooltip="Download">Download</button>
+         </div>`
+        /* tslint:enable */
+        });
     formlyConfig.setType({
         name: "bpFieldDatepicker",
         /* tslint:disable */

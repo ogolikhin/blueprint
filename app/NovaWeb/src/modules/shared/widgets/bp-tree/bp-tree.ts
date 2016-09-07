@@ -271,9 +271,18 @@ export class BPTreeController implements IBPTreeController  {
             } else {
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
+                    let allColumnIds = [];
+                    this.options.columnDefs.forEach(function(columnDef) {
+                        allColumnIds.push(columnDef.field);
+                    });
+                    this.options.columnApi.autoSizeColumns(allColumnIds);
                     (<any>window).PerfectScrollbar.update(viewport);
                 } else {
-                    (<any>window).PerfectScrollbar.initialize(viewport);
+                    (<any>window).PerfectScrollbar.initialize(viewport, {
+                        minScrollbarLength: 20,
+                        scrollXMarginOffset: 4,
+                        scrollYMarginOffset: 4
+                    });
                 }
             }
         }

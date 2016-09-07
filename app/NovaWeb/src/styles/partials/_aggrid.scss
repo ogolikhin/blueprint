@@ -483,14 +483,15 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .artifact-picker {
-    .project-name{        
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 560px;
-    display: inline-block;
-    vertical-align: bottom;   
+    .project-name {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 560px;
+        vertical-align: bottom;
     }
+
     .fonticon2-search {
         margin-left: 10px;
 
@@ -499,14 +500,14 @@ $has-children-padding-before-arrow: 3px;
         }
     }
 
-    .grid-header {       
-        font-size: $font-size-normal;
-        text-align: left;
+    .grid-header {
         color: $brand-secondary;
+        font-size: $font-size-normal;
         font-weight: 600;
-        text-indent: 6px;
-        position: relative;
         margin-bottom: -25px;
+        position: relative;
+        text-align: left;
+        text-indent: 6px;
         z-index: 100;
 
         .navigate-back {
@@ -522,8 +523,8 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .form-control.upper-text {
-        margin-bottom: 15px;
         float: left;
+        margin-bottom: 15px;
         width: 95%;
     }
 }

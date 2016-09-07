@@ -5,6 +5,7 @@ using Model.Factories;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using Model.NovaModel;
 
 namespace Helper
 {
@@ -123,6 +124,49 @@ namespace Helper
             encoding = encoding ?? Encoding.Unicode;
             byte[] fileBytes = encoding.GetBytes(fileContents);
             IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileBytes);
+            return file;
+        }
+
+
+        /// <summary>
+        /// Asserts that the two Nova files are identical.
+        /// </summary>
+        /// <param name="file1">First file to compare.</param>
+        /// <param name="file2">Second file to compare.</param>
+        /// <param name="compareIds">(optional) Pass false if you don't want to include the File IDs in the comparisons.</param>
+        /// <param name="compareContentLenth">(optional) Pass false if you don't want to compare file content Length</param>
+        /// <exception cref="AssertionException">If file1 is not identical to file2.</exception>
+        public static void AssertNovaFilesAreIdentical(INovaFile file1, INovaFile file2, bool compareIds = true, bool compareContentLength = true)
+        {
+            ThrowIf.ArgumentNull(file1, nameof(file1));
+            ThrowIf.ArgumentNull(file2, nameof(file2));
+
+            Assert.AreEqual(file1.FileName, file2.FileName, "The file name of the files don't match!");
+
+            if (compareContentLength)
+            {
+                Assert.AreEqual(file1.ContentLength, file2.ContentLength, "The file content length of the files don't match!");
+            }
+
+            if (compareIds)
+            {
+                Assert.AreEqual(file1.Guid, file2.Guid, "The file Id of the files don't match!");
+            }
+        }
+
+
+        /// <summary>
+        /// Create a file consisting of a random byte array.
+        /// </summary>
+        /// <param name="fileSize">The size of the file being created.</param>
+        /// <param name="fakeFileName">The filename of the file being created.</param>
+        /// <param name="fileType">The mime filetype of the file being created.</param>
+        /// <returns>The created file.</returns>
+        public static INovaFile CreateNovaFileWithRandomByteArray(uint fileSize, string fakeFileName, string fileType)
+        {
+            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
+            byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
+            INovaFile file = FileFactory.CreateNovaFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
         }
     }

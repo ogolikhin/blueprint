@@ -11,10 +11,10 @@ class ExecutionEnvironmentDetectorMock {
 
 describe("Node Label Editor test", () => {
     
-    let w:any = window; 
+    let w: any = window; 
     w.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
-    let container: HTMLElement = document.createElement('DIV');
+    let container: HTMLElement = document.createElement("DIV");
     document.body.appendChild(container);
     let nodeLabelEditor: NodeLabelEditor = new NodeLabelEditor(container);
 
@@ -23,7 +23,7 @@ describe("Node Label Editor test", () => {
     afterEach(() => {
         label.onDispose();
         while (container.children[0] != null) {
-            container.removeChild(container.children[0])
+            container.removeChild(container.children[0]);
         }
     });
 

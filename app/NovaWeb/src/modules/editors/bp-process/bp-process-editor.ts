@@ -1,13 +1,14 @@
 ﻿// References to StorytellerDiagramDirective
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
-import {ICommunicationManager} from "../../main/services";
+import {ICommunicationManager} from "./";
 import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService, IStateManager} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause, IProjectManager} from "../../main";
 import {BpBaseEditor} from "../bp-base-editor";
+import {IDialogService} from "../../shared";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -39,7 +40,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "localization",
         "$timeout", 
         "projectManager",
-        "communicationManager"
+        "communicationManager",
+        "dialogService"
     ];
 
     constructor(
@@ -56,7 +58,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private localization: ILocalizationService,
         private $timeout: ng.ITimeoutService,
         private projectManager: IProjectManager,
-        private communicationManager: ICommunicationManager
+        private communicationManager: ICommunicationManager,
+        private dialogService: IDialogService
     ) {
        super(messageService, stateManager, windowManager);
 
@@ -99,7 +102,9 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.$log,
             this.processService,
             this.messageService,
-            this.communicationManager
+            this.communicationManager,
+            this.dialogService,
+            this.localization
         );
        
         let htmlElement = this.getHtmlElement();

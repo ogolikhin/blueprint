@@ -1,9 +1,10 @@
 ﻿import { Models, Enums } from "../../models";
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause, ICommunicationManager } from "../../services";
+import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { IArtifactService } from "../../services";
+import { ICommunicationManager } from "../../../editors/bp-process";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");

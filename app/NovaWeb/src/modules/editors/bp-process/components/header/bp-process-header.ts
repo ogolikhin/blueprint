@@ -1,8 +1,10 @@
-import { IProjectManager, IWindowManager, IArtifactService, ICommunicationManager } from "../../../../main/services";
+import { IProjectManager, IWindowManager, IArtifactService } from "../../../../main/services";
 import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import { IMessageService, ILocalizationService, IStateManager } from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IToolbarCommunication } from "./toolbar-communication";
+import { ICommunicationManager } from "../../"; 
+
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: Function = BpProcessHeaderController;

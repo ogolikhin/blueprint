@@ -426,17 +426,19 @@ namespace Model.Impl
             var path = RestPaths.Svc.FileStore.NOVAFILES;
             var restApi = new RestApiFacade(Address, tokenValue);
 
+            //TODO ask DEV which determine HTTP request content type. FileType?
+
             var response = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.POST,
-                file.FileName,
-                file.Content.ToArray(),
-                file.FileType,
-                useMultiPartMime,
-                additionalHeaders,
-                queryParameters,
-                expectedStatusCodes,
-                cookies);
+                resourcePath: path,
+                method: RestRequestMethod.POST,
+                fileName: file.FileName,
+                fileContent: file.Content.ToArray(),
+                contentType: file.FileType,
+                useMultiPartMime: useMultiPartMime,
+                additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
 
             file.ContentLength = restApi.ReqContentLength;
 

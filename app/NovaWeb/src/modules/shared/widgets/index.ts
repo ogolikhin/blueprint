@@ -12,6 +12,7 @@ import "./bp-compile-html";
 import "./bp-collapsible";
 import "./bp-file-upload";
 import "./bp-toggle";
+import "./bp-breadcrumb";
 
 angular.module("bp.widjets", [
     "bp.widjets.dialog",
@@ -27,7 +28,8 @@ angular.module("bp.widjets", [
     "bp.widjets.compilehtml",
     "bp.widjets.collapsible",
     "bp.widjets.fileupload",
-    "bp.widjets.toggle"
+    "bp.widjets.toggle",
+    "bp.widgets.breadcrumb"
 ]);
     
 export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";

@@ -51,7 +51,7 @@ export class UsecaseToDiagram {
         const flowGraph = new UsecaseFlowGraphBuilder().buildGraph(usecase);
         const result = calculator.arrangeGraph(flowGraph);
         const diagram = new FlowGraphDiagramBuilder().buildDiagram(result, usecase);
-
+        
         return diagram;
     }
 }

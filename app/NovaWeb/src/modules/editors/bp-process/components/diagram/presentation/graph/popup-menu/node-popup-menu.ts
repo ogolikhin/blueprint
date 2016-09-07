@@ -5,7 +5,7 @@ import {NodeType} from "../models/";
 export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
-    private mouseDownSubscriber = null;
+    private eventSubscriber: Rx.IDisposable = null;
 
     public insertionPoint: MxCell = null;
 
@@ -91,7 +91,7 @@ export class NodePopupMenu {
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
-                    this.unsubscribeMouseDown();
+                    this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -100,7 +100,7 @@ export class NodePopupMenu {
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
-                    this.unsubscribeMouseDown();
+                    this.disposeEventSubscriptions();
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -108,7 +108,7 @@ export class NodePopupMenu {
                 });
             } else {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
-                    this.unsubscribeMouseDown();
+                    this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -116,7 +116,7 @@ export class NodePopupMenu {
                 });
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
-                    this.unsubscribeMouseDown();
+                    this.disposeEventSubscriptions();
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -125,7 +125,7 @@ export class NodePopupMenu {
             }
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
-                this.unsubscribeMouseDown();
+                this.disposeEventSubscriptions();
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -133,7 +133,7 @@ export class NodePopupMenu {
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
-                this.unsubscribeMouseDown();
+                this.disposeEventSubscriptions();
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -145,10 +145,10 @@ export class NodePopupMenu {
         // the insertion point
         this.calcMenuOffsets(menu);
 
-        // remove the popup if a mousedown event is detected anywhere in the document 
+        // remove the popup if a mousedown or resize event is detected anywhere in the document 
         // this means that only one popup can be shown at a time
         
-        this.removePopupOnMouseDown();
+        this.removePopupOnMouseDownOrResize();
     };
     
     public hidePopupMenu = () => {
@@ -159,20 +159,23 @@ export class NodePopupMenu {
         this.menu = null;
     };
     
-    private unsubscribeMouseDown() {
-        if (this.mouseDownSubscriber) {
-            this.mouseDownSubscriber.dispose();
-            this.mouseDownSubscriber = null;
+    private disposeEventSubscriptions() {
+        if (this.eventSubscriber) {
+            this.eventSubscriber.dispose();
+            this.eventSubscriber = null;
         }
     }
  
-    private removePopupOnMouseDown() {
-        // listen for a mousedown event and remove the popup menu if it is still showing
-        var mouseDown$: Rx.Observable<MouseEvent>;
-        mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
-        this.mouseDownSubscriber = mouseDown$.subscribe(event => {
+    private removePopupOnMouseDownOrResize() {
+        // listen for a mousedown event or window resize event 
+        // and remove the popup menu if it is still showing
+
+        var mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
+        var windowResize$ = Rx.Observable.fromEvent<any>(window, "resize");
+
+        this.eventSubscriber = mouseDown$.merge(windowResize$).subscribe(event => {
             this.hidePopupMenu();
-            this.unsubscribeMouseDown();
+            this.disposeEventSubscriptions();
         });
     }
 

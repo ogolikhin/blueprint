@@ -33,7 +33,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)1048576, "1MB_File.txt", "text/plain")]
         [Description("POST a file using multipart mime. Verify that the file exists in FileStore.")]
-        public void BPPostFile_MultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
+        public void PostNovaFile_MultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -55,7 +55,8 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)1048576, "1MB_File.txt", "text/plain")]
         [Description("POST a file without using multipart mime. Verify that the file exists in FileStore.")]
-        public void BPPostFile_NoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
+        [Explicit(IgnoreReasons.TestBug)]
+        public void PostNovaFile_NoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -76,7 +77,7 @@ namespace FileStoreTests
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("POST a file with a future expiry time. Verify that the file exists in FileStore")]
         // TODO: need to find the way to add date in encoded format, currently not working
-        public void BPPostFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)
+        public void PostNovaFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -96,7 +97,7 @@ namespace FileStoreTests
 
         [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
         [Description("POST a file in chunks while using multipart mime. Verify that an unauthorized or bad exception is returned.")]
-        public void BPPostFile_UsingChunksMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        public void PostNovaFile_UsingChunksMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -111,7 +112,7 @@ namespace FileStoreTests
 
         [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
         [Description("POST a file in chunks without using multipart mime.Verify that an unauthorized or bad exception is returned.")]
-        public void BPPostFile_UsingChunksNoMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        public void PostNovaFile_UsingChunksNoMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);

@@ -44,6 +44,7 @@ namespace Utilities.Facades
     /// <summary>
     /// Stores some of the properties that get send in a REST request and re-packages them in
     /// our own implementation.
+    /// TODO: May need to remove it if there is a bug on PostNovaFile_MultiPartMime_FileExists test cases
     /// </summary>
     public class RestRequest
     {

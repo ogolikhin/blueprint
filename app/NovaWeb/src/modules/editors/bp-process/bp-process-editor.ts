@@ -28,6 +28,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     public static $inject: [string] = [
         "messageService", 
         "stateManager", 
+        "windowManager",
         "$rootScope",
         "$scope",
         "$element", 

@@ -162,6 +162,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         };
         this.manager.request<Models.IArtifact>(config).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
+            
             this.artifactState.initialize(artifact);
             this.customProperties.initialize(artifact);
             deferred.resolve(this);

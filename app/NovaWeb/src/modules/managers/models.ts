@@ -109,3 +109,16 @@ export interface IStatefulArtifactServices {
     messageService: IMessageService;
     attachmentService: IArtifactAttachmentsService;
 }
+
+
+interface IProjectArtifact {
+    artifact: IStatefulArtifact;
+    parent: IStatefulArtifact;
+    childern: IStatefulArtifact[];
+}
+
+
+interface IFullProgect {
+    childern: IStatefulArtifact[];
+
+}

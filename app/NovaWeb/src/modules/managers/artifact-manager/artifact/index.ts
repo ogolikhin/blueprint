@@ -1,1 +1,1 @@
-export { StatefullArtifact } from "./artifact";
+export { StatefulArtifact } from "./artifact";

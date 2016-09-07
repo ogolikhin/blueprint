@@ -1,7 +1,7 @@
 import { IMessageService } from "../../core/";
 import { Models } from "../../main/models";
 import { IArtifactManager, IStatefulArtifact, ISession, IStatefulArtifactServices } from "../models";
-import { StatefulArtifact  } from "./artifact";
+import { StatefulArtifact } from "./artifact";
 
 
 export class ArtifactManager  implements IArtifactManager {
@@ -22,8 +22,10 @@ export class ArtifactManager  implements IArtifactManager {
         private session: ISession,
         private messageService: IMessageService) {
 
-        this.services.$q = this.$q;
-        this.services.messageService = this.messageService;
+        this.services = {
+            $q : this.$q,
+            messageService : this.messageService
+        } as IStatefulArtifactServices;
 
         this.artifactList = [];
     }
@@ -45,7 +47,7 @@ export class ArtifactManager  implements IArtifactManager {
     }
     
     public add(artifact: Models.IArtifact): IStatefulArtifact {
-        let length = this.artifactList.push(new StatefullArtifact(this, artifact, this.services));
+        let length = this.artifactList.push(new StatefulArtifact(this, artifact, this.services));
         return this.artifactList[length - 1];
     }
 
@@ -67,7 +69,7 @@ export class ArtifactManager  implements IArtifactManager {
 
 
     public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
-        var defer = this.$q.defer<T>();
+        var defer = this.services.$q.defer<T>();
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {

@@ -44,16 +44,11 @@ namespace FileStore.Repositories
             var moqDbConnection = new Mock<DbConnection>();
 
             moqFSRepo.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
-
             moqFSRepo.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(file);
-
             moqFSRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>())).Returns(fileStreamContent.Take<byte>(125).ToArray<byte>());
-
             moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(legacyFileChunkSize);
 
             // Act
-
-
             FileStreamPushStream fsPushStream = new FileStreamPushStream();
 
             fsPushStream.Initialize(moqFSRepo.Object, moqConfigRepo.Object, file.FileId);
@@ -72,9 +67,7 @@ namespace FileStore.Repositories
             }
  
             // Assert
-
             Assert.IsTrue(originalContent.Equals(resultContent));
- 
         }
 
         private string GetRandomString(int length)
@@ -92,9 +85,7 @@ namespace FileStore.Repositories
                 result += path;
             }
 
-
             return result.Substring(0, length);
         }
-
     }
 }

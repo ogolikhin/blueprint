@@ -25,7 +25,7 @@ export interface IDialogSettings {
 export interface IDialogService {
     open(dialogSettings: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any>;
     alert(message: string, header?: string): ng.IPromise<any>;
-    confirm(message: string, header?: string): ng.IPromise<any>;
+    confirm(message: string, header?: string, css?: string): ng.IPromise<any>;
     dialogSettings: IDialogSettings;
 }
 
@@ -87,12 +87,13 @@ export class DialogService implements IDialogService {
         }).result;
     }
 
-    public confirm(message: string, header?: string) {
+    public confirm(message: string, header?: string, css?: string) {
         this.initialize({
             type: DialogTypeEnum.Confirm,
             header: header || this.localization.get("App_DialogTitle_Confirmation"),
+            css: css,
             message: message
-        });
+        } as IDialogSettings);
         return this.openInternal().result;
     }
 }

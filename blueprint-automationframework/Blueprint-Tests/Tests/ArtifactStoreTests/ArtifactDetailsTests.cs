@@ -50,9 +50,6 @@ namespace ArtifactStoreTests
              
             artifactDetails.AssertEquals(retrievedArtifact);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
-
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 

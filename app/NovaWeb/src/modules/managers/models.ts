@@ -1,8 +1,16 @@
 import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
-// import { IArtifactAttachment } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-export { ISession } from "../shell/login/session.svc";
+import { 
+    IArtifactAttachmentsResultSet, 
+    IArtifactAttachmentsService,
+    IArtifactAttachment 
+} from "../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
+export { ISession } from "../shell/login/session.svc";
+export { 
+    IArtifactAttachmentsResultSet, 
+    IArtifactAttachmentsService 
+};
 
 export interface IBlock<T> {
     value: ng.IPromise<T[]>;
@@ -17,7 +25,8 @@ export interface IState {
     dirty?: boolean;
     published?: boolean;
     lock?: Models.ILockResult;
-} 
+}
+
 export enum ChangeTypeEnum {
     Initial,
     Update,
@@ -37,19 +46,9 @@ export interface IChangeCollector {
 
 }
 
-// from artifact-attachments.svc
-export interface IArtifactAttachment {
-    userId: number;
-    userName: string;
-    fileName: string;
-    attachmentId: number;
-    uploadedDate: string;
-    guid?: string;
-}
-
-
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
     // list(): IArtifactAttachment[];
+    initialize(attachments: IArtifactAttachment[]);
     value: ng.IPromise<IArtifactAttachment[]>;
     observable: Rx.IObservable<IArtifactAttachment[]>;
     add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
@@ -63,7 +62,6 @@ export interface IArtifactProperties {
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     discard();
-
 }
 
 export interface IArtifactStates {
@@ -87,9 +85,13 @@ export interface IStatefulArtifact extends Models.IArtifact  {
     lock(): ng.IPromise<IState>;
 }
 
+// TODO: explore the possibility of using an internal interface for services
+export interface IIStatefulArtifact extends IStatefulArtifact {
+    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getDeferred<T>(): ng.IDeferred<T>;
+}
+
 export interface IArtifactManager {
-    $q: ng.IQService;
-    messages: IMessageService;
     currentUser: Models.IUserGroup;
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact): IStatefulArtifact;
@@ -102,4 +104,8 @@ export interface IArtifactManager {
     request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
 }
 
-
+export interface IStatefulArtifactServices {
+    $q: ng.IQService;
+    messageService: IMessageService;
+    attachmentService: IArtifactAttachmentsService;
+}

@@ -1,49 +1,31 @@
 import { Models, Enums } from "../../../main/models";
-import { IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { 
-    IStatefulArtifact, 
-    IArtifactAttachments, 
-    IArtifactAttachment, 
-    IArtifactManager 
+    IIStatefulArtifact,
+    IArtifactAttachments
 } from "../../models";
 
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
-    private state: IStatefulArtifact;
-    private manager: IArtifactManager;
+    private statefulArtifact: IIStatefulArtifact;
 
-    constructor(artifactState: IStatefulArtifact) {
+    constructor(statefulArtifact: IIStatefulArtifact) {
         this.attachments = [];
-        this.manager = artifactState.manager;
-        this.state = artifactState;
+        this.statefulArtifact = statefulArtifact;
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
+    }
+
+    public initialize(attachments: IArtifactAttachment[]) {
+        this.attachments = attachments;
+        this.subject.onNext(this.attachments);
     }
 
     // TODO: how would this work for subartifact attachments?
     public get value(): ng.IPromise<IArtifactAttachment[]> {
-        let subArtifactId = null;
-
-        const deferred = this.manager.$q.defer<IArtifactAttachment[]>();
-        const requestObj: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${this.state.id}/attachment`, 
-            method: "GET",
-            params: {
-                subartifactId: subArtifactId,
-                addDrafts: true
-            },
-            timeout: null
-        };
-
-        this.manager.request<Models.IArtifact>(requestObj).then((result: ng.IHttpPromiseCallbackArg<IArtifactAttachmentsResultSet>) => {
-            this.attachments = result.data.attachments;
-            deferred.resolve(this.attachments);
-        
-        }).catch((err) => {
-            deferred.reject(err);
+        return this.statefulArtifact.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+            return result.attachments;
         });
-
-        return deferred.promise;
     }
 
     public get observable(): Rx.IObservable<IArtifactAttachment[]> {
@@ -51,7 +33,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.manager.$q.defer<IArtifactAttachment[]>();
+        const deferred = this.statefulArtifact.getDeferred<IArtifactAttachment[]>();
 
         this.attachments.push(attachment);
 
@@ -68,7 +50,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.manager.$q.defer<IArtifactAttachment[]>();
+        const deferred = this.statefulArtifact.getDeferred<IArtifactAttachment[]>();
         const foundAttachmentIndex = this.attachments.indexOf(attachment);
         let deletedAttachment: IArtifactAttachment;
 

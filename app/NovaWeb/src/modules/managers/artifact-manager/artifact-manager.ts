@@ -1,7 +1,7 @@
 import { IMessageService } from "../../core/";
 import { Models } from "../../main/models";
-import { IArtifactManager, IStatefulArtifact, ISession } from "../models";
-import { StatefullArtifact  } from "./artifact";
+import { IArtifactManager, IStatefulArtifact, ISession, IStatefulArtifactServices } from "../models";
+import { StatefulArtifact  } from "./artifact";
 
 
 export class ArtifactManager  implements IArtifactManager {
@@ -14,12 +14,16 @@ export class ArtifactManager  implements IArtifactManager {
     ];
 
     private artifactList: IStatefulArtifact[];
+    private services: IStatefulArtifactServices;
 
     constructor(
         private $http: ng.IHttpService, 
-        public $q: ng.IQService,
+        private $q: ng.IQService,
         private session: ISession,
         private messageService: IMessageService) {
+
+        this.services.$q = this.$q;
+        this.services.messageService = this.messageService;
 
         this.artifactList = [];
     }
@@ -41,7 +45,7 @@ export class ArtifactManager  implements IArtifactManager {
     }
     
     public add(artifact: Models.IArtifact): IStatefulArtifact {
-        let length = this.artifactList.push(new StatefullArtifact(this, artifact));
+        let length = this.artifactList.push(new StatefullArtifact(this, artifact, this.services));
         return this.artifactList[length - 1];
     }
 

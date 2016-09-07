@@ -1,17 +1,17 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {IArtifactAttachments, ArtifactAttachments, IArtifactAttachmentsResultSet} from "./artifact-attachments.svc";
+import {IArtifactAttachmentsService, ArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "./artifact-attachments.svc";
 
 describe("Artifact Attachments Service", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("artifactAttachments", ArtifactAttachments);
+        $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("localization", LocalizationServiceMock);
     })); 
 
     it("get artifact attachments with default values", 
-        inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachments) => {
+        inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachmentsService) => {
 
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/attachment?addDrafts=true`)
@@ -59,7 +59,7 @@ describe("Artifact Attachments Service", () => {
     }));
 
     it("gets an error if artifact id is invalid", 
-        inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachments) => {
+        inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachmentsService) => {
 
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/0/attachment?addDrafts=true`)

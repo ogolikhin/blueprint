@@ -1,6 +1,6 @@
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "./artifact-attachments.svc";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "./artifact-attachments.svc";
 
-export class ArtifactAttachmentsMock implements IArtifactAttachments {
+export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
     public static $inject = ["$q"];
 
     public artifactHistory;

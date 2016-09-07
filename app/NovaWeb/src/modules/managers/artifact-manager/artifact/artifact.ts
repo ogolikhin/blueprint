@@ -11,25 +11,30 @@ import { IStatefulArtifact,
          IArtifactAttachments, 
          IArtifactManager, 
          IState,
-         } from "../../models";
+         IStatefulArtifactServices,
+         IIStatefulArtifact,
+         IArtifactAttachmentsResultSet
+} from "../../models";
 
 
-export class StatefullArtifact implements IStatefulArtifact {
+export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private artifact: Models.IArtifact;
     public manager: IArtifactManager;
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
     public customProperties: IArtifactProperties; 
     private changesets: IChangeCollector;
+    private services: IStatefulArtifactServices;
 
 
-    constructor(manager: IArtifactManager, artifact: Models.IArtifact) {
+    constructor(manager: IArtifactManager, artifact: Models.IArtifact, services: IStatefulArtifactServices) {
         this.manager = manager;
         this.artifact = artifact;
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
         this.changesets = new ChangeSetCollector();
+        this.services = services;
 
         this.artifactState.observable
             .filter((it: IState) => !!it.lock)
@@ -136,7 +141,7 @@ export class StatefullArtifact implements IStatefulArtifact {
     }
 
     public discard(): ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.manager.$q.defer<IStatefulArtifact>();
+        let deferred = this.services.$q.defer<IStatefulArtifact>();
 
         this.changesets.reset().forEach((it: IChangeSet) => {
             this[it.key as string].value = it.value;
@@ -148,7 +153,7 @@ export class StatefullArtifact implements IStatefulArtifact {
     }
 
     public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.manager.$q.defer<IStatefulArtifact>();
+        let deferred = this.services.$q.defer<IStatefulArtifact>();
 
         const config: ng.IRequestConfig = {
             url: `/svc/bpartifactstore/artifacts/${this.id}`,
@@ -180,7 +185,7 @@ export class StatefullArtifact implements IStatefulArtifact {
     // }
 
     public lock(): ng.IPromise<IState> {
-        let deferred = this.manager.$q.defer<IState>();
+        let deferred = this.services.$q.defer<IState>();
 
         const config: ng.IRequestConfig = {
             url: `/svc/shared/artifacts/lock`,
@@ -205,13 +210,29 @@ export class StatefullArtifact implements IStatefulArtifact {
                 this.load();
             }
         } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.manager.messages.addWarning("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
+            this.services.messageService.addWarning("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
             this.load();
         } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.manager.messages.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         } else {
-            this.manager.messages.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         }
 
+    }
+
+    public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
+        return this.services.attachmentService.getArtifactAttachments(this.id, null, true)
+            .then( (result: IArtifactAttachmentsResultSet) => {
+
+                // initialize attachments
+                this.attachments.initialize(result.attachments);
+
+                // TODO: initialize doc refs here 
+                return result;
+            });
+    }
+
+    public getDeferred<T>(): ng.IDeferred<T> {
+        return this.services.$q.defer<T>();
     }
 }

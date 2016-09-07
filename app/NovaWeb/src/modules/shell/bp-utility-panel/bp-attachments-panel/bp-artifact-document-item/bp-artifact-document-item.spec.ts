@@ -4,7 +4,7 @@ import "angular-mocks";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactDocumentItemController} from "./bp-artifact-document-item";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { ArtifactAttachments } from "../artifact-attachments.svc";
+import { ArtifactAttachmentsService } from "../artifact-attachments.svc";
 import { IMessageService } from "../../../../shell";
 
 
@@ -21,7 +21,7 @@ describe("Component BP Artifact Document Item", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("artifactAttachments", ArtifactAttachments);
+        $provide.service("artifactAttachments", ArtifactAttachmentsService);
     }));
 
     beforeEach(inject(() => {

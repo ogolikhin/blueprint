@@ -2,7 +2,7 @@
 import "angular";
 import "angular-mocks";
 import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
-import { BPLoadingOverlayController } from "./bp-loading-overlay";
+import { BpLoadingOverlayController } from "./bp-loading-overlay";
 import { ComponentTest } from "../../util/component.test";
 
 //The service and component are closely related, so we test both at the same time.
@@ -16,13 +16,13 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
-    let componentTest: ComponentTest<BPLoadingOverlayController>;
-    let vm: BPLoadingOverlayController;
+    let componentTest: ComponentTest<BpLoadingOverlayController>;
+    let vm: BpLoadingOverlayController;
     let layout = `<bp-loading-overlay class="loading-overlay"></bp-loading-overlay>`;
 
     beforeEach(() => {
         //Arrange
-        componentTest = new ComponentTest<BPLoadingOverlayController>(layout, "loading-overlay");
+        componentTest = new ComponentTest<BpLoadingOverlayController>(layout, "loading-overlay");
         vm = componentTest.createComponent({});
     });
 

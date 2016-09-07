@@ -115,10 +115,32 @@ class BPToolbarController implements IBPToolbarController {
             case `refreshall`:
                 //Test Code: Do an arbitrary REST call to AdminStore, then popup a message.
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-                this.$http.get(`svc/adminstore/licenses/transactions?days=50`).finally(() => {
+
+                this.$http.get(`svc/adminstore/licenses/transactions?days=50`)
+                .then(
+                    (response) => { console.log("two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("three"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("four"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("five"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .finally(() => {
                     this.loadingOverlayService.endLoading(refreshAllLoadingId);
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 });
+                
+                /*
+                this.$http.get(`svc/adminstore/licenses/transactions?days=50`).then(
+                    (success) => { console.log("call two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`);}
+                ).finally(() => {
+                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });*/
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

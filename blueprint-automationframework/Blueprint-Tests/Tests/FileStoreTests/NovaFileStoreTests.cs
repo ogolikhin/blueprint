@@ -39,12 +39,12 @@ namespace FileStoreTests
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
-            var storedFile = Helper.FileStore.NovaAddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddNovaFile(file, _user, useMultiPartMime: true);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.NovaGetFile(storedFile.Guid, _user);
+            var returnedFile = Helper.FileStore.GetNovaFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(storedFile, returnedFile);
         }
@@ -61,12 +61,12 @@ namespace FileStoreTests
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
-            var storedFile = Helper.FileStore.NovaAddFile(file, _user, useMultiPartMime: false);
+            var storedFile = Helper.FileStore.AddNovaFile(file, _user, useMultiPartMime: false);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.NovaGetFile(storedFile.Guid, _user);
+            var returnedFile = Helper.FileStore.GetNovaFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(storedFile, returnedFile);
         }
@@ -84,12 +84,12 @@ namespace FileStoreTests
             var futureDate = DateTime.Now.AddDays(1);
 
             // Execute: Add the file to Filestore.
-            var storedFile = Helper.FileStore.NovaAddFile(file, _user, expireTime: futureDate);
+            var storedFile = Helper.FileStore.AddNovaFile(file, _user, expireTime: futureDate);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.NovaGetFile(storedFile.Guid, _user);
+            var returnedFile = Helper.FileStore.GetNovaFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertNovaFilesAreIdentical(storedFile, returnedFile);
         }
@@ -105,7 +105,7 @@ namespace FileStoreTests
             Assert.Throws<Http405MethodNotAllowedException>(() =>
             {
                 // Execute: Add the file to Filestore.
-                Helper.FileStore.NovaAddFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize);
+                Helper.FileStore.AddNovaFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize);
             }, "FileStore should return a Http405MethodNotAllowedException error when PUT method is used by enabling Chunk option at the event of Adding File to FileStore.");
         }
 
@@ -119,7 +119,7 @@ namespace FileStoreTests
             Assert.Throws<Http405MethodNotAllowedException>(() =>
             {
                 // Execute: Add the file to Filestore.
-                Helper.FileStore.NovaAddFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
+                Helper.FileStore.AddNovaFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
             }, "FileStore should return a Http405MethodNotAllowedException error when PUT method is used by enabling Chunk option at the event of Adding File to FileStore.");
         }
     }

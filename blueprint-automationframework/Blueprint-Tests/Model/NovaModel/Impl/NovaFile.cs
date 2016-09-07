@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Model.NovaModel.Impl
@@ -10,10 +11,15 @@ namespace Model.NovaModel.Impl
         public Uri UriToFile { get; set; }
         #endregion JSON serialzied properties
 
+        [JsonIgnore]
         public string FileName { get; set; }
+        [JsonIgnore]
         public string FileType { get; set; }
+        [JsonIgnore]
         public DateTime LastModifiedDate { get; set; }
+        [JsonIgnore]
         public IEnumerable<byte> Content { get; set; }
+        [JsonIgnore]
         public long ContentLength { get; set; }
     }
 }

@@ -340,7 +340,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="INovaFile.NovaAddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
-        public INovaFile NovaAddFile(INovaFile file,
+        public INovaFile AddNovaFile(INovaFile file,
             IUser user,
             DateTime? expireTime = null,
             bool useMultiPartMime = false,
@@ -362,7 +362,7 @@ namespace Model.Impl
             }
 
             // Post the first chunk of the file.
-            INovaFile postedFile = NovaPostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+            INovaFile postedFile = PostNovaFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
 
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
@@ -375,7 +375,7 @@ namespace Model.Impl
                     rem = rem.Skip((int)chunkSize).ToArray();
 
                     // Put each subsequent chunk of the file.
-                    NovaPutFile(file, chunk, user, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+                    PutNovaFile(file, chunk, user, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
                     fileChunkList.AddRange(chunk);
                 } while (rem.Length > 0);
 
@@ -384,7 +384,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="INovaFile.NovaPostFile(INovaFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>
-        public INovaFile NovaPostFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+        public INovaFile PostNovaFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -458,8 +458,8 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="IFileStore.NovaPutFile(INovaFile, byte[], IUser, bool, List{HttpStatusCode}, bool)"/>
-        public INovaFile NovaPutFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
+        /// <seealso cref="IFileStore.PutNovaFile(INovaFile, byte[], IUser, bool, List{HttpStatusCode}, bool)"/>
+        public INovaFile PutNovaFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -503,10 +503,10 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="IFileStore.NovaGetFile(string, IUser, List{HttpStatusCode}, bool)"/>
-        public INovaFile NovaGetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IFileStore.GetNovaFile(string, IUser, List{HttpStatusCode}, bool)"/>
+        public INovaFile GetNovaFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            return NovaGetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes, sendAuthorizationAsCookie);
+            return GetNovaFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
         /// <summary>
@@ -518,7 +518,7 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.OK.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header.</param>
         /// <returns>The file that was requested.</returns>
-        private INovaFile NovaGetFile(string fileId,
+        private INovaFile GetNovaFile(string fileId,
             IUser user,
             RestRequestMethod webRequestMethod,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -570,8 +570,8 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="IFileStore.NovaDeleteFile(string, IUser, DateTime?, List{HttpStatusCode}, bool)"/>
-        public void NovaDeleteFile(string fileId,
+        /// <seealso cref="IFileStore.DeleteNovaFile(string, IUser, DateTime?, List{HttpStatusCode}, bool)"/>
+        public void DeleteNovaFile(string fileId,
             IUser user,
             DateTime? expireTime = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -665,7 +665,7 @@ namespace Model.Impl
                 // Delete all the files that were created.
                 foreach (var novaFile in NovaFiles.ToArray())
                 {
-                    NovaDeleteFile(novaFile.Guid, _user);
+                    DeleteNovaFile(novaFile.Guid, _user);
                 }
 
                 Files.Clear();

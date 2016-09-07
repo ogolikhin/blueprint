@@ -117,7 +117,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.Created.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The file that was added (including the file ID that FileStore gave it)</returns>
-        INovaFile NovaAddFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+        INovaFile AddNovaFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             uint chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.Created.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
-        INovaFile NovaPostFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+        INovaFile PostNovaFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.OK.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
-        INovaFile NovaPutFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
+        INovaFile PutNovaFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The file that was requested</returns>
-        INovaFile NovaGetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        INovaFile GetNovaFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Deletes a Nova file from the file store
@@ -164,7 +164,7 @@ namespace Model
         /// <param name="expireTime">(optional) The file expiry date/time; The time after which the file can be deleted</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        void NovaDeleteFile(string fileId, IUser user, DateTime? expireTime = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        void DeleteNovaFile(string fileId, IUser user, DateTime? expireTime = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
     }
 }

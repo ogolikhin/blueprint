@@ -45,7 +45,7 @@ namespace Utilities.Facades
     /// Stores some of the properties that get send in a REST request and re-packages them in
     /// our own implementation.
     /// </summary>
-    public class BPRestRequest
+    public class RestRequest
     {
         public long ContentLength { get; set; }
     }
@@ -62,7 +62,7 @@ namespace Utilities.Facades
         private readonly string _password;
         private readonly string _token;
         private RestResponse _restResponse = new RestResponse();
-        private BPRestRequest _restRequest = new BPRestRequest();
+        private RestRequest _restRequest = new RestRequest();
 
         #endregion Member variables
 
@@ -108,7 +108,7 @@ namespace Utilities.Facades
                 client.Authenticator = new HttpBasicAuthenticator(_username, _password);
             }
 
-            var request = new RestRequest(resourcePath, ConvertToMethod(method));
+            var request = new RestSharp.RestRequest(resourcePath, ConvertToMethod(method));
 
             if (_token != null)
             {
@@ -218,11 +218,16 @@ namespace Utilities.Facades
             return response;
         }
 
-        private static BPRestRequest ConvertToRestRequest(string fileName, IRestRequest restRequest)
+        /// <summary>
+        /// Converts an IRestRequest into our own RestRequest object.
+        /// </summary>
+        /// <param name="restRequest">The request from RestSharp.</param>
+        /// <returns>A RestRequest object.</returns>
+        private static RestRequest ConvertToRestRequest(string fileName, IRestRequest restRequest)
         {
             ThrowIf.ArgumentNull(restRequest, nameof(restRequest));
 
-            var request = new BPRestRequest();
+            var request = new RestRequest();
             if (restRequest.Parameters.Exists(p => p.Type.Equals(ParameterType.RequestBody)) && restRequest.Parameters.Exists(p=>p.Value.Equals(fileName)))
             {
                 request.ContentLength = ((byte[]) restRequest.Parameters.First(p => p.Type.Equals(ParameterType.RequestBody)).Value).ToArray().Length;

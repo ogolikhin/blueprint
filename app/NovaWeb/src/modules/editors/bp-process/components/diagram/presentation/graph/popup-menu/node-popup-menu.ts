@@ -5,11 +5,8 @@ import {NodeType} from "../models/";
 export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
-    private initialScrollPosition: number[] = null;
-    private initialPopupPosition: number[] = null;
-    private diagramAbsoluteCoordinates: number[] = null;
-    private scrollTicking: boolean = false;
-    
+    private eventSubscriber: Rx.IDisposable = null;
+
     public insertionPoint: MxCell = null;
 
     constructor(
@@ -52,82 +49,7 @@ export class NodePopupMenu {
             this.createPopupMenu(this.mxgraph, menu, cell, evt);
         };
     }
-
-    private updatePositionOfPopupMenu = (x: number, y: number) => {
-        // calculates the movement relative to the last know measurement 
-        let compensatedX = this.initialScrollPosition["x"] - x;
-        let compensatedY = this.initialScrollPosition["y"] - y;
-
-        if (this.menu && this.menu["div"]) {
-            let menuDiv = <HTMLElement>this.menu["div"];
-            menuDiv.style.left = (this.initialPopupPosition["x"] + compensatedX) + "px";
-            menuDiv.style.top = (this.initialPopupPosition["y"] + compensatedY) + "px";
-
-            // hide the popup and remove the listener if near the edges of the diagram, 
-            // as otherwise it will go over other elements (e.g.the toolbar)
-            if (
-                (compensatedY < 0 && parseInt(menuDiv.style.top, 10) < this.diagramAbsoluteCoordinates["top"]) ||
-                (compensatedX > 0 && (parseInt(menuDiv.style.left, 10) + menuDiv.offsetWidth) > this.diagramAbsoluteCoordinates["right"]) ||
-                (compensatedX < 0 && parseInt(menuDiv.style.left, 10) < this.diagramAbsoluteCoordinates["left"])
-                // no need to check for the bottom edge
-            ) {
-                this.removeScrollHandler();
-            }
-        }
-    };
-
-    private initScrollingPositionOfPopupMenu = () => {
-        // set the properties to be used for calculating the popup position when scrolling
-         
-        this.initialScrollPosition = [];
-        this.initialScrollPosition["x"] = this.htmlElement.scrollLeft;
-        this.initialScrollPosition["y"] = this.htmlElement.scrollTop;
-
-        if (this.menu && this.menu["div"]) {
-            let menuDiv = <HTMLElement>this.menu["div"];
-            this.initialPopupPosition = [];
-            this.initialPopupPosition["x"] = parseInt(menuDiv.style.left, 10);
-            this.initialPopupPosition["y"] = parseInt(menuDiv.style.top, 10);
-        }
-
-        let containerBoundingClientRect = this.htmlElement.getBoundingClientRect();
-        this.diagramAbsoluteCoordinates = [];
-        // StoryTeller main viewport doesn't have scrollbars, otherwise we may need to compensate the following values
-        // ref: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-        this.diagramAbsoluteCoordinates["top"] = containerBoundingClientRect.top;
-        this.diagramAbsoluteCoordinates["right"] = containerBoundingClientRect.right;
-        this.diagramAbsoluteCoordinates["bottom"] = containerBoundingClientRect.bottom;
-        this.diagramAbsoluteCoordinates["left"] = containerBoundingClientRect.left;
-    };
-
-    private removeScrollHandler = () => {
-        // unregister of the scroll handler
-        this.htmlElement.removeEventListener("scroll", this.scrollHandler);
-        // reset the properties used for calculating the popup position when scrolling
-        this.initialScrollPosition = null;
-        this.initialPopupPosition = null;
-        this.diagramAbsoluteCoordinates = null;
-        this.scrollTicking = false;
-        // we make sure the popup menu is closed
-        this.hidePopupMenu();
-    };
-
-    private scrollHandler = (evt) => {
-        if (!this.menu["isMenuShowing"]()) { // the popup menu is hidden/destroyed, we self-unregister
-            this.removeScrollHandler();
-        } else {
-            if (!this.scrollTicking) {
-                // scroll events can fire at a high rate. We throttle the event using requestAnimationFrame
-                // ref: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-                window.requestAnimationFrame(() => {
-                    this.updatePositionOfPopupMenu(evt.target.scrollLeft, evt.target.scrollTop);
-                    this.scrollTicking = false;
-                });
-            }
-            this.scrollTicking = true;
-        }
-    };
-
+   
     private isPopupTrigger = (me) => {
         
         // this handler determines whether to show the Insert Node popup menu in 
@@ -169,6 +91,7 @@ export class NodePopupMenu {
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                    this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -177,6 +100,7 @@ export class NodePopupMenu {
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
+                    this.disposeEventSubscriptions();
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -184,6 +108,7 @@ export class NodePopupMenu {
                 });
             } else {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                    this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -191,6 +116,7 @@ export class NodePopupMenu {
                 });
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
+                    this.disposeEventSubscriptions();
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint);
                         this.insertionPoint = null;
@@ -199,6 +125,7 @@ export class NodePopupMenu {
             }
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+                this.disposeEventSubscriptions();
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -206,6 +133,7 @@ export class NodePopupMenu {
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+                this.disposeEventSubscriptions();
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
                     this.insertionPoint = null;
@@ -217,25 +145,39 @@ export class NodePopupMenu {
         // the insertion point
         this.calcMenuOffsets(menu);
 
-        // This is an edge case where the user opens a popup menu by clicking on (+), starts scrolling the diagram,
-        // opens a different popup menu while the first one is still visible
-        // It is safe to be called even on first run as "Calling removeEventListener() with arguments that do not
-        // identify any currently registered EventListener on the EventTarget has no effect."
-        // ref: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-        this.removeScrollHandler();
-
-        this.initScrollingPositionOfPopupMenu();
-        // register the scroll handler
-        this.htmlElement.addEventListener("scroll", this.scrollHandler);
+        // remove the popup if a mousedown or resize event is detected anywhere in the document 
+        // this means that only one popup can be shown at a time
+        
+        this.removePopupOnMouseDownOrResize();
     };
-
+    
     public hidePopupMenu = () => {
         if (this.menu == null) {
             return;
         }
-
         this.menu.hideMenu();
+        this.menu = null;
     };
+    
+    private disposeEventSubscriptions() {
+        if (this.eventSubscriber) {
+            this.eventSubscriber.dispose();
+            this.eventSubscriber = null;
+        }
+    }
+ 
+    private removePopupOnMouseDownOrResize() {
+        // listen for a mousedown event or window resize event 
+        // and remove the popup menu if it is still showing
+
+        var mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
+        var windowResize$ = Rx.Observable.fromEvent<any>(window, "resize");
+
+        this.eventSubscriber = mouseDown$.merge(windowResize$).subscribe(event => {
+            this.hidePopupMenu();
+            this.disposeEventSubscriptions();
+        });
+    }
 
     private calcMenuOffsets(menu) {
         /*

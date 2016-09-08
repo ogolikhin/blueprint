@@ -339,7 +339,7 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="INovaFile.NovaAddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="INovaFile.AddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
         public INovaFile AddFile(INovaFile file,
             IUser user,
             DateTime? expireTime = null,

@@ -34,6 +34,7 @@ namespace Model.Impl
             Permissions = permissions;
         }
 
+        /// <seealso cref="IProjectRole.AddRoleToDatabase()"/>
         public void AddRoleToDatabase()
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -73,6 +74,7 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IProjectRole.DeleteRole()"/>
         public void DeleteRole()
         {
             string query = I18NHelper.FormatInvariant("UPDATE {0} SET Deleted='{1}' WHERE RoleId='{2}'", ROLES_TABLE, 1, RoleId);
@@ -80,11 +82,11 @@ namespace Model.Impl
         }
         #endregion Implements IProjectRole
 
-            /// <summary>
-            /// Converts the array of objects into a list of strings that are properly formatted and quoted for MS SQL to use.
-            /// </summary>
-            /// <param name="objArray">The array of objects to convert.</param>
-            /// <returns>A list of strings that MS SQL can use.</returns>
+        /// <summary>
+        /// Converts the array of objects into a list of strings that are properly formatted and quoted for MS SQL to use.
+        /// </summary>
+        /// <param name="objArray">The array of objects to convert.</param>
+        /// <returns>A list of strings that MS SQL can use.</returns>
         private static List<string> objArraytoStringList(object[] objArray)
         {
             List<string> strList = new List<string>();

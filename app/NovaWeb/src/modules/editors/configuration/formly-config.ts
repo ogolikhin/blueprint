@@ -3,19 +3,24 @@ import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
-import {ILocalizationService} from "../../core";
+import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
+import { FiletypeParser } from "../../shared/utils/filetypeparser";
+import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell";
 
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
-    $sce: ng.ISCEService
+    $sce: ng.ISCEService,
+    artifactAttachments: IArtifactAttachments,
+    $window: ng.IWindowService,
+    messageService: IMessageService
 ): void {
-/* tslint:enable */
+    /* tslint:enable */
 
     let datepickerAttributes: string[] = [
         "date-disabled",
@@ -50,12 +55,12 @@ export function formlyConfig(
 
     let datepickerNgModelAttrs = {};
 
-    angular.forEach(datepickerAttributes, function(attr) {
-        datepickerNgModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
+    angular.forEach(datepickerAttributes, function (attr) {
+        datepickerNgModelAttrs[Helper.toCamelCase(attr)] = { attribute: attr };
     });
 
-    angular.forEach(datepickerBindings, function(binding) {
-        datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
+    angular.forEach(datepickerBindings, function (binding) {
+        datepickerNgModelAttrs[Helper.toCamelCase(binding)] = { bound: binding };
     });
 
     let scrollIntoView = function (event) {
@@ -68,7 +73,7 @@ export function formlyConfig(
         }
     };
 
-    let blurOnKey = function(event: KeyboardEvent, keyCode?: number | number[]) {
+    let blurOnKey = function (event: KeyboardEvent, keyCode?: number | number[]) {
         let _keyCode: number[];
         if (!keyCode) {
             _keyCode = [13]; // 13 = Enter
@@ -92,7 +97,7 @@ export function formlyConfig(
         }
     };
 
-    let closeDropdownOnTab = function(event) {
+    let closeDropdownOnTab = function (event) {
         let key = event.keyCode || event.which;
         if (key === 9) { // 9 = Tab
             let escKey = document.createEvent("Events");
@@ -135,7 +140,7 @@ export function formlyConfig(
             </div>`,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
-        controller: ["$scope", function($scope) {
+        controller: ["$scope", function ($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
             let newValue: any;
 
@@ -146,13 +151,13 @@ export function formlyConfig(
                 scrollYMarginOffset: 4
             };
 
-            $scope.filterMultiChoice = function(item): boolean {
+            $scope.filterMultiChoice = function (item): boolean {
                 if (angular.isArray(currentModelVal)) {
                     return currentModelVal.indexOf(item.value) >= 0;
                 }
                 return false;
             };
-            
+
             switch ($scope.options.data.primitiveType) {
                 case PrimitiveType.Text:
                     if (currentModelVal) {
@@ -234,7 +239,7 @@ export function formlyConfig(
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         /*defaultOptions: {
          },*/
-        link: function($scope, $element, $attrs) {
+        link: function ($scope, $element, $attrs) {
             $scope.$applyAsync((scope) => {
                 scope["fc"].$setTouched();
             });
@@ -264,7 +269,7 @@ export function formlyConfig(
         wrapper: ["bpFieldLabel", "bootstrapHasError"],
         /*defaultOptions: {
          },*/
-        link: function($scope, $element, $attrs) {
+        link: function ($scope, $element, $attrs) {
             $scope.$applyAsync((scope) => {
                 scope["fc"].$setTouched();
             });
@@ -310,7 +315,7 @@ export function formlyConfig(
                 labelProp: "name"
             }
         },
-        link: function($scope, $element, $attrs) {
+        link: function ($scope, $element, $attrs) {
             $scope.$applyAsync((scope) => {
                 scope["fc"].$setTouched();
                 (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
@@ -323,11 +328,11 @@ export function formlyConfig(
             });
         },
         controller: ["$scope", function ($scope) {
-            let newCustomValueId = function(): number {
+            let newCustomValueId = function (): number {
                 return -1 * (Math.random() * 100 + 100); // not to conflict with special IDs like project (-1) or collections (-2)
             };
 
-            $scope.$on("$destroy", function() {
+            $scope.$on("$destroy", function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
                 }
@@ -361,7 +366,7 @@ export function formlyConfig(
                             });
 
                             let isDuplicate = false;
-                            $select.items.forEach(function(item) {
+                            $select.items.forEach(function (item) {
                                 if (item[$scope.to.labelProp] === search) {
                                     isDuplicate = true;
                                     return;
@@ -372,7 +377,7 @@ export function formlyConfig(
                                 //manually add user input and set selection
                                 customValueId = newCustomValueId();
                                 let userInputItem = {
-                                    value: {customValue: search},
+                                    value: { customValue: search },
                                     name: search,
                                     isCustom: true
                                 };
@@ -453,7 +458,7 @@ export function formlyConfig(
                 // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
                 requiredCustom: {
                     expression: function ($viewValue, $modelValue, $scope) {
-                        if ((<any> $scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
+                        if ((<any>$scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
                             if (angular.isArray($modelValue) && $modelValue.length === 0) {
                                 return false;
                             }
@@ -463,7 +468,7 @@ export function formlyConfig(
                 }
             }
         },
-        link: function($scope, $element, $attrs) {
+        link: function ($scope, $element, $attrs) {
             $scope.$applyAsync((scope) => {
                 scope["fc"].$setTouched();
                 (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
@@ -487,7 +492,7 @@ export function formlyConfig(
             });
             let lastHighlighted = -1;
 
-            $scope.$on("$destroy", function() {
+            $scope.$on("$destroy", function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
                     $scope["uiSelectContainer"].removeEventListener("click", scrollIntoView, true);
@@ -736,8 +741,8 @@ export function formlyConfig(
         defaultOptions: {
             validators: {
                 decimalPlaces: {
-                    expression: function($viewValue, $modelValue, $scope) {
-                        if (!(<any> $scope.options).data.isValidated) {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if (!(<any>$scope.options).data.isValidated) {
                             return true;
                         }
                         let value = $modelValue || $viewValue;
@@ -751,17 +756,17 @@ export function formlyConfig(
                     }
                 },
                 wrongFormat: {
-                    expression: function($viewValue, $modelValue, $scope) {
+                    expression: function ($viewValue, $modelValue, $scope) {
                         let value = $modelValue || $viewValue;
                         return !value ||
                             angular.isNumber(localization.current.toNumber(value, (
-                                <any> $scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null
+                                <any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null
                             ));
                     }
                 },
                 max: {
-                    expression: function($viewValue, $modelValue, $scope) {
-                        if (!(<any> $scope.options).data.isValidated) {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if (!(<any>$scope.options).data.isValidated) {
                             return true;
                         }
                         let max = localization.current.toNumber($scope.to.max);
@@ -775,8 +780,8 @@ export function formlyConfig(
                     }
                 },
                 min: {
-                    expression: function($viewValue, $modelValue, $scope) {
-                        if (!(<any> $scope.options).data.isValidated) {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if (!(<any>$scope.options).data.isValidated) {
                             return true;
                         }
                         let min = localization.current.toNumber($scope.to.min);
@@ -791,7 +796,7 @@ export function formlyConfig(
                 }
             }
         },
-        link: function($scope, $element, $attrs) {
+        link: function ($scope, $element, $attrs) {
             $scope.$applyAsync((scope) => {
                 scope["fc"].$setTouched();
             });
@@ -847,6 +852,53 @@ export function formlyConfig(
         controller: ["$scope", function ($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
             $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
+        }]
+    });
+    formlyConfig.setType({
+        name: "bpDocumentFile",
+        /* tslint:disable:max-line-length */
+        template:
+        `<div ng-if="hasFile"> 
+            <div class="thumb {{extension}}">
+                <span class="input-group has-messages">
+                <input type="text" value="{{fileName}}"\>
+                <span class="icon fonticon2-delete"></span>
+                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Change">Change</button>
+                <button class="btn btn-primary" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+            </div>
+         </div>
+         <div ng-if="!hasFile">
+            <div class="thumb fonticon2-attachment">
+                <span class="input-group has-messages">
+                <input type="text"\>
+                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+            </div>
+         </div>`,
+        /* tslint:enable:max-line-length */
+        controller: ["$scope", function ($scope) {
+            let currentModelVal = $scope.model[$scope.options.key];
+            if (currentModelVal != null) {
+                $scope.hasFile = true;
+                $scope.fileName = currentModelVal["fileName"];
+                $scope.extension = FiletypeParser.getFiletypeClass($scope.fileExtension);
+
+                $scope.downloadFile = () => {
+                    return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
+                        .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
+                            if (attachmentResultSet.attachments.length) {
+                                $window.open(
+                                    "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
+                                    + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
+                                    "_blank");
+                            } else {
+                                messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
+                            }
+                        });
+                };
+
+            } else {
+                $scope.hasFile = false;
+            }
         }]
     });
 

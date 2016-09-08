@@ -52,7 +52,6 @@ namespace Model.Factories
             IProjectRole role = new ProjectRole(1, "Author", string.Empty, RolePermissions.Edit);
             role.RoleId = (int)deployedRole;
             return role;
-            }
         }
     }
 }

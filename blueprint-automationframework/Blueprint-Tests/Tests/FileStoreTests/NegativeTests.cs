@@ -130,7 +130,7 @@ namespace FileStoreTests
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, userWithInvalidToken);
+                Helper.FileStore.GetFile(storedFile.Guid, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -161,7 +161,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.GetFileMetadata(storedFile.Id, userWithInvalidToken);
+                Helper.FileStore.GetFileMetadata(storedFile.Guid, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -192,7 +192,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                Helper.FileStore.DeleteFile(storedFile.Id, userWithInvalidToken);
+                Helper.FileStore.DeleteFile(storedFile.Guid, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -375,7 +375,7 @@ Content-Type: text/plain";
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, postFileType);
 
             // Assign a new default GUID instead of calling POST to get the GUID.
-            file.Id = (new Guid()).ToString();
+            file.Guid = (new Guid()).ToString();
 
             // Execute & Verify: Put a file chunk to FileStore with invalid multipart mime (i.e. the body doesn't contain multipart data).
             Assert.Throws<Http404NotFoundException>(() =>

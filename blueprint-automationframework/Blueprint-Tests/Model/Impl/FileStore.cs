@@ -142,7 +142,7 @@ namespace Model.Impl
             {
                 if (expireTime == null || expireTime <= DateTime.Now)
                 {
-                    Files.Remove(Files.First(i => i.Id == fileId));
+                    Files.Remove(Files.First(i => i.Guid == fileId));
                 }
             }
         }
@@ -216,7 +216,7 @@ namespace Model.Impl
                 expectedStatusCodes,
                 cookies);
 
-            file.Id = response.Content.Replace("\"", "");
+            file.Guid = response.Content.Replace("\"", "");
 
             Files.Add(file);
 
@@ -259,7 +259,7 @@ namespace Model.Impl
                         HttpUtility.UrlEncode(file.FileName, System.Text.Encoding.UTF8)));
             }
 
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.FileStore.FILES_id_, file.Id);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.FileStore.FILES_id_, file.Guid);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             restApi.SendRequestAndGetResponse(
@@ -327,7 +327,7 @@ namespace Model.Impl
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-                    Id = fileId,
+                    Guid = fileId,
                     LastModifiedDate =
                         DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
                             null),
@@ -340,7 +340,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="INovaFile.NovaAddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
-        public INovaFile AddNovaFile(INovaFile file,
+        public INovaFile AddFile(INovaFile file,
             IUser user,
             DateTime? expireTime = null,
             bool useMultiPartMime = false,
@@ -362,7 +362,7 @@ namespace Model.Impl
             }
 
             // Post the first chunk of the file.
-            INovaFile postedFile = PostNovaFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+            INovaFile postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
 
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
@@ -375,7 +375,7 @@ namespace Model.Impl
                     rem = rem.Skip((int)chunkSize).ToArray();
 
                     // Put each subsequent chunk of the file.
-                    PutNovaFile(file, chunk, user, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+                    PutFile(file, chunk, user, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
                     fileChunkList.AddRange(chunk);
                 } while (rem.Length > 0);
 
@@ -384,7 +384,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="INovaFile.NovaPostFile(INovaFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>
-        public INovaFile PostNovaFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+        public INovaFile PostFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -458,8 +458,8 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="IFileStore.PutNovaFile(INovaFile, byte[], IUser, bool, List{HttpStatusCode}, bool)"/>
-        public INovaFile PutNovaFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
+        /// <seealso cref="IFileStore.PutFile(INovaFile, byte[], IUser, bool, List{HttpStatusCode}, bool)"/>
+        public INovaFile PutFile(INovaFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -653,7 +653,7 @@ namespace Model.Impl
                 // Delete all the files that were created.
                 foreach (var file in Files.ToArray())
                 {
-                    DeleteFile(file.Id, _user);
+                    DeleteFile(file.Guid, _user);
                 }
 
                 if (NovaFiles.Count > 0)

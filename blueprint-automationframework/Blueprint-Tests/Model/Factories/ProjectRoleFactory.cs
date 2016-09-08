@@ -17,24 +17,22 @@ namespace Model.Factories
         public static IProjectRole CreateProjectRole (IProject project, RolePermissions permissions, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
-            string groupName;
             if (name == null)
             {
-                groupName = RandomGenerator.RandomAlphaNumeric(7);
-            }
-            else
-            {
-                groupName = name;
+                name = RandomGenerator.RandomAlphaNumeric(7);
             }
             string description = RandomGenerator.RandomAlphaNumeric(10);
-            IProjectRole role = new ProjectRole(project.Id, groupName, description, permissions);
+            IProjectRole role = new ProjectRole(project.Id, name, description, permissions);
             role.AddRoleToDatabase();
             return role;
         }
 
         [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
+        /// <summary>
+        /// These roles id are from DB - it will work only for project with Id=1 (what we have in DB after restoring from backup).
+        /// </summary>
         public enum DeployedProjectRole
-        {//these roles id are from DB - it will work only for project with Id=1 (what we have in DB after restoring from backup)
+        {//
             Author = 1,
             Collaborator = 2,
             ProjectAdministrator = 3,
@@ -50,33 +48,10 @@ namespace Model.Factories
         {
             //need to refactor!!!
             //it will work only for project with Id=1 (what we have in DB after restoring from backup)
+            ThrowIf.ArgumentNull(deployedRole, nameof(deployedRole));
             IProjectRole role = new ProjectRole(1, "Author", string.Empty, RolePermissions.Edit);
-            switch (deployedRole)
-            {
-                case DeployedProjectRole.Author:
-                    {
-                        role.RoleId = 1;
-                        return role;
-                    }
-                case DeployedProjectRole.Collaborator:
-                    {
-                        role.RoleId = 2;
-                        return role;
-                    }
-                case DeployedProjectRole.ProjectAdministrator:
-                    {
-                        role.RoleId = 3;
-                        return role;
-                    }
-                case DeployedProjectRole.Viewer:
-                    {
-                        role.RoleId = 4;
-                        return role;
-                    }
-                default:
-                    {
-                        return role;
-                    }
+            role.RoleId = (int)deployedRole;
+            return role;
             }
         }
     }

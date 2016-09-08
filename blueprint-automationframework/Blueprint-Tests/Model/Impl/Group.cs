@@ -140,7 +140,7 @@ namespace Model.Impl
         }
 
 
-        /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, IArtifact, ProjectRole)"/>
+        /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, ProjectRole, IArtifactBase)"/>
         public void AssignRoleToProjectOrArtifact(IProject project, IProjectRole role,
             IArtifactBase artifact = null)
         {

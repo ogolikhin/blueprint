@@ -14,6 +14,8 @@ import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
 import * as layout from "./layout";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../main/services";
+import {ProcessAddHelper} from "./process-add-helper";
+import {ShapesFactory} from "./shapes/shapes-factory";
 
 describe("Layout test", () => {
 
@@ -23,7 +25,8 @@ describe("Layout test", () => {
         processModelService,
         wrapper,
         container,
-        communicationManager: ICommunicationManager;
+        communicationManager: ICommunicationManager,
+        shapesFactoryService: ShapesFactory;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
@@ -79,6 +82,8 @@ describe("Layout test", () => {
         localScope["vm"] = {
             "$rootScope": rootScope
         };
+
+        shapesFactoryService = new ShapesFactory(rootScope);
     }));
 
     it("Test default process without system tasks", () => {
@@ -114,7 +119,7 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessEnd);
     });
 
-    xit("Test insert task", () => {
+    it("Test insert task", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);
@@ -128,7 +133,7 @@ describe("Layout test", () => {
 
         // Act
         graph.render(false, null);
-        graph.layout.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1],graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -158,7 +163,7 @@ describe("Layout test", () => {
         // Act
         graph.render(false, null);
 
-        graph.layout.insertUserDecision(graph.getNodeById("15").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -188,7 +193,7 @@ describe("Layout test", () => {
         // Act
         graph.render(false, null);
         
-        graph.layout.insertUserDecision(graph.getNodeById("25").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("25").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -244,7 +249,7 @@ describe("Layout test", () => {
         // Act
         graph.render(false, null);
 
-        graph.layout.insertSystemDecision(diagramLink);
+        ProcessAddHelper.insertSystemDecision(diagramLink, graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -290,8 +295,10 @@ describe("Layout test", () => {
 
         // Act
         graph.render(true, null);
-        graph.layout.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1]);
-        graph.layout.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0]);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1],
+            graph.layout, shapesFactoryService);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
+            graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -321,8 +328,10 @@ describe("Layout test", () => {
 
         // Act
         graph.render(true, null);
-        graph.layout.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0]);
-        graph.layout.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
+            graph.layout, shapesFactoryService);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1],
+            graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -350,7 +359,8 @@ describe("Layout test", () => {
 
         // Act
         graph.render(true, null);
-        graph.layout.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
+            graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -375,7 +385,8 @@ describe("Layout test", () => {
 
         // Act
         graph.render(true, null);
-        graph.layout.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1]);
+        ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
+            graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -396,7 +407,8 @@ describe("Layout test", () => {
 
         // Act
         graph.render(true, null);
-        graph.layout.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0]);
+        ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
+            graph.layout, shapesFactoryService);
         unregProcesssModelUpdate();
 
         //Assert
@@ -412,7 +424,9 @@ describe("Layout test", () => {
 
         // Act
         //Assert
-        expect(() => { graph.layout.insertUserDecision(graph.getNodeById("30")); }).toThrowError();
+        expect(() => {
+            ProcessAddHelper.insertUserDecision(graph.getNodeById("30"),
+                graph.layout, shapesFactoryService); }).toThrowError();
     });
 
     it("Insert task negative test.", () => {
@@ -424,7 +438,9 @@ describe("Layout test", () => {
 
         // Act
         //Assert
-        expect(() => { graph.layout.insertTaskWithUpdate(graph.getNodeById("30")); }).toThrowError();
+        expect(() => {
+            ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("30"),
+                graph.layout, shapesFactoryService); }).toThrowError();
     });
 
     it("Test setSystemTasksVisible method.", () => {
@@ -579,7 +595,8 @@ describe("Layout test", () => {
 
             // Act
             graph.render(true, null);
-            graph.layout.insertTaskWithUpdate(graph.getNodeById("80").getConnectableElement().edges[0]);
+            ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("80").getConnectableElement().edges[0],
+                graph.layout, shapesFactoryService);
             graph.layout.handleUserTaskDragDrop(20, graph.getNodeById("80").getConnectableElement().edges[0]);
             unregProcesssModelUpdate();
 
@@ -933,7 +950,7 @@ describe("Layout test", () => {
 
                 let ud: IDecision = processGraph.getMxGraphModel().getCell(udId.toString());
 
-                processGraph.layout.insertUserDecisionCondition(ud.model.id);
+                ProcessAddHelper.insertUserDecisionCondition(ud.model.id, processGraph.layout, shapesFactoryService);
 
                 let conditionDestinations = processModel.getBranchDestinationIds(ud.model.id);
 
@@ -952,7 +969,7 @@ describe("Layout test", () => {
                 let expectedConditions = 3;
 
                 // Act
-                graph.layout.insertUserDecisionCondition(decisionId);
+                ProcessAddHelper.insertUserDecisionCondition(decisionId, graph.layout, shapesFactoryService);
 
                 // Assert
                 expect(process.links.filter(link => link.sourceId === decisionId).length).toBe(expectedConditions);
@@ -970,7 +987,7 @@ describe("Layout test", () => {
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
                 processGraph.render(true, false);
 
-                processGraph.layout.insertSystemDecisionCondition(sdId);
+                ProcessAddHelper.insertSystemDecisionCondition(sdId, processGraph.layout, shapesFactoryService);
 
                 let conditionDestinations = processModel.getBranchDestinationIds(sdId);
 
@@ -990,7 +1007,7 @@ describe("Layout test", () => {
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
                 processGraph.render(true, false);
 
-                processGraph.layout.insertSystemDecisionCondition(sd1Id);
+                ProcessAddHelper.insertSystemDecisionCondition(sd1Id, processGraph.layout, shapesFactoryService);
 
                 let conditionDestinations = processModel.getBranchDestinationIds(sd1Id);
 
@@ -1008,7 +1025,7 @@ describe("Layout test", () => {
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel);
                 processGraph.render(true, false);
 
-                processGraph.layout.insertSystemDecisionCondition(sd2Id);
+                ProcessAddHelper.insertSystemDecisionCondition(sd2Id, processGraph.layout, shapesFactoryService);
 
                 let conditionDestinations = processModel.getBranchDestinationIds(sd2Id);
 
@@ -1040,7 +1057,7 @@ describe("Layout test", () => {
             // the limit is 5 shapes
             graph.viewModel.shapeLimit = 5;
             var spyInsertTask = spyOn(graph.layout, "insertTask");
-            graph.layout.insertTaskWithUpdate(edge);
+            ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
             unregProcesssModelUpdate();
 
             //Assert
@@ -1072,7 +1089,7 @@ describe("Layout test", () => {
             // we will add two extra shapes to trigger warning
             graph.viewModel.shapeLimit = 9;
             var spyInsertTask = spyOn(graph.layout, "insertTask");
-            graph.layout.insertTaskWithUpdate(edge);
+            ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
             unregProcesssModelUpdate();
 
             //Assert

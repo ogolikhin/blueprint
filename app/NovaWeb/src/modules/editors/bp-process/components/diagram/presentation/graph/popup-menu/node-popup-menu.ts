@@ -1,6 +1,7 @@
-﻿import {IDiagramNode} from "../models/";
+﻿import {IDiagramNode, INotifyModelChanged} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
-import {NodeType} from "../models/";
+import {NodeType, ILayout} from "../models/";
+import {ShapesFactory} from "./../shapes/shapes-factory";
 
 export class NodePopupMenu {
 
@@ -13,6 +14,8 @@ export class NodePopupMenu {
     public insertionPoint: MxCell = null;
 
     constructor(
+        private layout: ILayout,
+        private shapesFactoryService: ShapesFactory,
         private rootScope,
         private htmlElement: HTMLElement,
         private mxgraph: MxGraph, 
@@ -20,7 +23,8 @@ export class NodePopupMenu {
         private insertUserDecisionFn,
         private insertUserDecisionBranchFn,
         private insertSystemDecisionFn,
-        private insertSystemDecisionBranchFn ) {
+        private insertSystemDecisionBranchFn,
+        private postDeleteFunction: INotifyModelChanged = null) {
 
         this.init();
     }
@@ -170,7 +174,7 @@ export class NodePopupMenu {
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
-                        this.insertTaskFn(this.insertionPoint);
+                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService, this.postDeleteFunction);
                         this.insertionPoint = null;
                     }
                 });
@@ -178,36 +182,36 @@ export class NodePopupMenu {
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
-                        this.insertSystemDecisionFn(this.insertionPoint);
+                        this.insertSystemDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
             } else {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     if (this.insertTaskFn && this.insertionPoint) {
-                        this.insertTaskFn(this.insertionPoint);
+                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService,this.postDeleteFunction);
                         this.insertionPoint = null;
                     }
                 });
 
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
                     if (this.insertUserDecisionFn && this.insertionPoint) {
-                        this.insertUserDecisionFn(this.insertionPoint);
+                        this.insertUserDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
             }
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
-                if (this.insertUserDecisionBranchFn && this.insertionPoint) {
-                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
+                if (this.insertUserDecisionBranchFn && this.insertionPoint, this.layout, this.shapesFactoryService) {
+                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
                 }
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
-                    this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
+                    this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
                 }
             });

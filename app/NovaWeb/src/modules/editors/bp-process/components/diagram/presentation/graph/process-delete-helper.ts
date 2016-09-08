@@ -6,6 +6,8 @@ import {
 import {IProcessGraph} from "./models/";
 import {ProcessGraph} from "./process-graph";
 import {IMessageService} from "../../../../../../core/";
+import {ProcessAddHelper} from "./process-add-helper";
+import {ShapesFactory} from "./shapes/shapes-factory";
 
 export class ProcessDeleteHelper {
 
@@ -28,7 +30,7 @@ export class ProcessDeleteHelper {
     }
 
     public static deleteDecision(decisionId: number, postDeleteFunction: INotifyModelChanged = null,
-        processGraph: IProcessGraph): boolean {
+        processGraph: IProcessGraph, shapesFactoryService: ShapesFactory): boolean {
             
         if (!this.canDeleteDecision(decisionId, processGraph)) {
             return false;
@@ -50,7 +52,7 @@ export class ProcessDeleteHelper {
         let endId = processGraph.viewModel.getEndShapeId();
         // filtering links explicitly here because link index in ProcessClientModel might be out-of-date
         if (processGraph.viewModel.links.filter(link => link.sourceId === preconditionId && link.destinationId === endId).length > 0) {
-            selectedShapeId = processGraph.layout.insertTask([preconditionId], endId);
+            selectedShapeId = ProcessAddHelper.insertTask([preconditionId], endId, processGraph.layout, shapesFactoryService);
             processGraph.layout.createAutoInsertTaskMessage();
         }
 

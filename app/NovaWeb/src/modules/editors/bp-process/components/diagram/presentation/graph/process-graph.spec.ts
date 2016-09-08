@@ -788,7 +788,7 @@ describe("ProcessGraph", () => {
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph, shapesFactory);
 
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete);
@@ -817,7 +817,7 @@ describe("ProcessGraph", () => {
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph, shapesFactory);
 
             //Assert
             expect(processModel.shapes.length).not.toEqual(shapeLengthBeforeDelete);
@@ -849,7 +849,7 @@ describe("ProcessGraph", () => {
                 .reduce((a, b) => a.orderindex < b.orderindex ? a : b).destinationId;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph, shapesFactory);
 
             //Assert
             var linksContainingDecision = processModel.links.filter(a => a.sourceId === decisionShape.id || a.destinationId === decisionShape.id).length;
@@ -878,7 +878,7 @@ describe("ProcessGraph", () => {
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(otherDecisionShape.id, null, graph, shapesFactory);
 
             //Assert
 
@@ -906,7 +906,7 @@ describe("ProcessGraph", () => {
             let linkLengthBeforeDelete = processModel.links.length;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph, shapesFactory);
 
             //Assert
             expect(processModel.shapes.length).not.toEqual(shapeLengthBeforeDelete);
@@ -936,7 +936,7 @@ describe("ProcessGraph", () => {
                 .reduce((a, b) => a.orderindex < b.orderindex ? a : b).destinationId;
 
             //Act
-            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph);
+            ProcessDeleteHelper.deleteDecision(decisionShape.id, null, graph, shapesFactory);
 
             //Assert
             var linksContainingDecision = processModel.links.filter(a => a.sourceId === decisionShape.id || a.destinationId === decisionShape.id).length;
@@ -962,7 +962,7 @@ describe("ProcessGraph", () => {
             spyOn(messageServiceMock, "addMessage").and.callThrough();
 
             // Act
-            let result = ProcessDeleteHelper.deleteDecision(decisionId, test.action, graph);
+            let result = ProcessDeleteHelper.deleteDecision(decisionId, test.action, graph, shapesFactory);
 
             // Assert
             expect(result).toBe(true);

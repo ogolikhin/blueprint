@@ -10,6 +10,7 @@ export class PropertyEditor {
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
+    private _artifactId: number;
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
@@ -94,7 +95,7 @@ export class PropertyEditor {
 
         this._model = {};
         this._fields = [];
-
+        this._artifactId = artifact.id;
         if (artifact && angular.isArray(this.propertyContexts)) {
             var artifactOrSubArtifact = artifact;
             if (subArtifact) {
@@ -257,6 +258,7 @@ export class PropertyEditor {
                     break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
+                    field.templateOptions["artifactId"] = this._artifactId;
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

@@ -4,7 +4,7 @@
 }
 
 export enum PrimitiveType {
-    DocumentFile = -3, // for client use only
+    DocumentFile = 4129, // for client use only
 
     Text = 0,
     Number = 1,
@@ -79,7 +79,7 @@ export enum ItemTypePredefined {
 }
 
 export enum PropertyTypePredefined {
-    DocumentFile = -3,
+    DocumentFile = 4129,
 
     ItemTypeId = -1, // for client use only 
 

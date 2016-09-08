@@ -1,10 +1,11 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../core";
+﻿import {ILocalizationService, IMessageService, Message, MessageType} from "../../../../core";
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {ICommunicationManager} from "../../../../main/services";
+import {ICommunicationManager} from "../../../bp-process";
+import {IDialogService} from "../../../../shared";
 
 
 export class ProcessDiagram {
@@ -21,7 +22,9 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private communicationManager: ICommunicationManager) {
+        private communicationManager: ICommunicationManager,        
+        private dialogService: IDialogService,
+        private localization: ILocalizationService) {
 
         this.processModel = null;
     }
@@ -111,7 +114,9 @@ export class ProcessDiagram {
                             this.$scope,
                             this.htmlElement,
                             this.processService,
-                            processViewModel,
+                            this.processViewModel,
+                            this.dialogService,
+                            this.localization,
                             this.messageService,
                             this.$log);
         } catch (err) {

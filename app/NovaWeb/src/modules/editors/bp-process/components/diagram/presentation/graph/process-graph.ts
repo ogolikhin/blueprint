@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../../../../../../core/";
+﻿import {ILocalizationService, IMessageService} from "../../../../../../core/";
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";
@@ -19,6 +19,7 @@ import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {IDialogSettings, IDialogService} from "../../../../../../shared";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -59,7 +60,9 @@ export class ProcessGraph implements IProcessGraph {
         private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-        public viewModel: IProcessViewModel,
+        public viewModel: IProcessViewModel, 
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
         public messageService: IMessageService = null,
         private $log: ng.ILogService = null) {
 
@@ -619,13 +622,23 @@ export class ProcessGraph implements IProcessGraph {
     private deleteShape = () => {
         let selectedNodes = this.getSelectedNodes();
         if (selectedNodes.length > 0) {
-            let selectedNode = selectedNodes[0];
-            
-            if (selectedNode.getNodeType() === NodeType.UserTask) {
-                ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            }
+            let selectedNode: IDiagramNode = selectedNodes[0];
+            let dialogParameters = selectedNode.getDeleteDialogParameters();
+        
+            this.dialogService.open(<IDialogSettings>{
+                okButton: this.localization.get("App_Button_Ok"),
+                template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
+                header: this.localization.get("App_DialogTitle_Alert"),
+                message: dialogParameters.message
+            }).then((confirm: boolean) => {
+                if (confirm) {
+                    if (selectedNode.getNodeType() === NodeType.UserTask) {
+                        ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                    } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
+                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                    }
+                };
+            });
         }
     }
 
@@ -784,6 +797,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private initSelection() {
         //let that = this;
+        this.mxgraph.getSelectionModel().setSingleSelection(true);
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
             let elements = this.getSelectedNodes();
             let deletable = elements.length > 0;

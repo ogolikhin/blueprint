@@ -49,8 +49,8 @@ describe("DialogManager test", () => {
         let observer2 = new Observer2();
         let observerSpy1 = spyOn(observer1, "somePrivateFunc1");
         let observerSpy2 = spyOn(observer2, "somePrivateFunc2");
-        let h1 = dm.registerOpenDialogObserver(observer1.openDialog);
-        let h2 = dm.registerOpenDialogObserver(observer2.openDialog);
+        dm.registerOpenDialogObserver(observer1.openDialog);
+        dm.registerOpenDialogObserver(observer2.openDialog);
 
         // Act
         dm.openDialog(1, 0);
@@ -66,8 +66,8 @@ describe("DialogManager test", () => {
         let observer2 = new Observer2();
         let observerSpy1 = spyOn(observer1, "setGraph");
         let observerSpy2 = spyOn(observer2, "setGraph");
-        let h1 = dm.registerSetGraphObserver(observer1.setGraph);
-        let h2 = dm.registerSetGraphObserver(observer2.setGraph);
+        dm.registerSetGraphObserver(observer1.setGraph);
+        dm.registerSetGraphObserver(observer2.setGraph);
 
         // Act
         dm.setGraph(1);
@@ -84,7 +84,7 @@ describe("DialogManager test", () => {
         let observerSpy1 = spyOn(observer1, "setGraph");
         let observerSpy2 = spyOn(observer2, "setGraph");
         let h1 = dm.registerSetGraphObserver(observer1.setGraph);
-        let h2 = dm.registerSetGraphObserver(observer2.setGraph);
+        dm.registerSetGraphObserver(observer2.setGraph);
 
         dm.removeSetGraphObserver(h1);
 

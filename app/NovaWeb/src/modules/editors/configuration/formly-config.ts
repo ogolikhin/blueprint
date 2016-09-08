@@ -5,7 +5,7 @@ import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
 import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
-import { FiletypeParser } from "../../shared/utils/filetypeparser";
+import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell";
 
 

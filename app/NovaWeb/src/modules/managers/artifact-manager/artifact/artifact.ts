@@ -148,6 +148,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         });
 
         this.customProperties.discard();
+        this.attachments.discard();
+
         deferred.resolve(this);
         return deferred.promise;
     }
@@ -209,6 +211,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 // TODO: initialize doc refs here 
                 return result;
             });
+    }
+
+    public getServices(): IStatefulArtifactServices {
+        return this.services;
     }
 
 }

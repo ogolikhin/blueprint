@@ -38,7 +38,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulArtifact.getDeferred<IArtifactAttachment[]>();
+        const deferred = this.statefulArtifact.getServices().getDeferred<IArtifactAttachment[]>();
 
         this.attachments.push(attachment);
 
@@ -64,7 +64,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulArtifact.getDeferred<IArtifactAttachment[]>();
+        const deferred = this.statefulArtifact.getServices().getDeferred<IArtifactAttachment[]>();
         const foundAttachmentIndex = this.attachments.indexOf(attachment);
         let deletedAttachment: IArtifactAttachment;
 
@@ -85,5 +85,13 @@ export class ArtifactAttachments implements IArtifactAttachments {
         }
 
         return deferred.promise;
+    }
+
+    public discard() {
+        // TODO: implement discard.
+
+        // this.changeset.reset().forEach((it: IChangeSet) => {
+        //     this.get(it.key as number).value = it.value;
+        // });
     }
 }

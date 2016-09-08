@@ -60,6 +60,7 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
     add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
     remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
     update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
+    discard();
 }
 
 export interface IArtifactProperties {
@@ -94,6 +95,7 @@ export interface IStatefulArtifact extends Models.IArtifact  {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IStatefulArtifact {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getServices(): IStatefulArtifactServices;
 }
 
 export interface IArtifactManager {

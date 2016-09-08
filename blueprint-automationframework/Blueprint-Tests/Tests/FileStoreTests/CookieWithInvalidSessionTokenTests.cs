@@ -117,7 +117,7 @@ namespace FileStoreTests
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
+                Helper.FileStore.GetFile(storedFile.Guid, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "Did not throw HTTP Status Code 401 (Unauthorized) as expected");
         }
 
@@ -144,7 +144,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
+                Helper.FileStore.GetFileMetadata(storedFile.Guid, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because HEAD does not support authorization cookies!");
         }
 
@@ -171,7 +171,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
+                Helper.FileStore.DeleteFile(storedFile.Guid, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because DELETE does not support authorization cookies!");
         }
     }

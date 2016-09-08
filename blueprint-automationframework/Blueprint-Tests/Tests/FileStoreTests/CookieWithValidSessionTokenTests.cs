@@ -93,7 +93,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that an exception is not thrown
             Assert.DoesNotThrow(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _user, sendAuthorizationAsCookie: true);
+                Helper.FileStore.GetFile(storedFile.Guid, _user, sendAuthorizationAsCookie: true);
             }, "GET supports authentication cookies but threw an exception!");
         }
 
@@ -114,7 +114,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.GetFileMetadata(storedFile.Id, _user, sendAuthorizationAsCookie: true);
+                Helper.FileStore.GetFileMetadata(storedFile.Guid, _user, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because HEAD does not support authorization cookies!");
         }
 
@@ -135,7 +135,7 @@ namespace FileStoreTests
             // Execute & Verify: Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.FileStore.DeleteFile(storedFile.Id, _user, sendAuthorizationAsCookie: true);
+                Helper.FileStore.DeleteFile(storedFile.Guid, _user, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because DELETE does not support authorization cookies!");
         }
     }

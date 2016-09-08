@@ -51,7 +51,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -76,7 +76,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -100,7 +100,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -124,7 +124,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -144,7 +144,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -164,7 +164,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
@@ -186,7 +186,7 @@ namespace FileStoreTests
             // Verify: Assert that the file doesn't exist in FileStore.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _user);
+                Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, "The file still exists after it was deleted!");
         }
 
@@ -206,7 +206,7 @@ namespace FileStoreTests
             // Verify: Assert that the file doesn't exist in FileStore.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _user);
+                Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, "The file still exists after it was deleted!");
         }
     }

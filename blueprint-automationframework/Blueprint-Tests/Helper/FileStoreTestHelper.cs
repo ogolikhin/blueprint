@@ -37,7 +37,7 @@ namespace Helper
 
             if (compareIds)
             {
-                Assert.AreEqual(file1.Id, file2.Id,
+                Assert.AreEqual(file1.Guid, file2.Guid,
                     "The file Id of the files don't match!");
             }
         }
@@ -61,7 +61,7 @@ namespace Helper
 
             if (compareIds)
             {
-                Assert.AreEqual(file1.Id, file2.Id,
+                Assert.AreEqual(file1.Guid, file2.Guid,
                     "The file Id of the files don't match!");
             }
         }
@@ -89,7 +89,7 @@ namespace Helper
             FileStoreTestHelper.AssertFilesAreIdentical(file, addedFile, compareIds: false);
 
             // Verify that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = filestore.GetFile(addedFile.Id, user);
+            var returnedFile = filestore.GetFile(addedFile.Guid, user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(addedFile, returnedFile);
 

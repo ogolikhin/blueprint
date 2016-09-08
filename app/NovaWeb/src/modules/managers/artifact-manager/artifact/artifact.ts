@@ -128,8 +128,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
      private set(name: string, value: any) {
         if (name in this) {
-           let oldValue = this[name];
-           let changeset = {
+           const oldValue = this[name];
+           const changeset = {
                type: ChangeTypeEnum.Update,
                key: name,
                value: value              
@@ -141,7 +141,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public discard(): ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.services.$q.defer<IStatefulArtifact>();
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
 
         this.changesets.reset().forEach((it: IChangeSet) => {
             this[it.key as string].value = it.value;
@@ -153,7 +153,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.services.$q.defer<IStatefulArtifact>();
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
 
         this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
@@ -168,7 +168,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public lock(): ng.IPromise<IState> {
-        let deferred = this.services.$q.defer<IState>();
+        const deferred = this.services.getDeferred<IState>();
 
         this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
             let lock = result[0];

@@ -59,6 +59,8 @@ export class ArtifactManager  implements IArtifactManager {
         return this.artifactList.filter((artifact: IStatefulArtifact) => artifact.id === id)[0] || null;
     }
     
+    // TODO: make this generic so it can add any object of type IStatefulArtifact
+    //       ex: add(artifact: IStatefulArtifact)
     public add(artifact: Models.IArtifact): IStatefulArtifact {
         let length = this.artifactList.push(new StatefulArtifact(this, artifact, this.services));
         return this.artifactList[length - 1];

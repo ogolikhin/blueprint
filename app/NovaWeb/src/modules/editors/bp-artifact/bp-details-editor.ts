@@ -49,14 +49,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public get isSpecificPropertyAvailable(): boolean {
-        return this.context.type.predefinedType === 4110;
+        return this.context.type.predefinedType === Models.ItemTypePredefined.Document;
     }
 
     public get specificPropertiesHeading(): string {
-        if (this.context.type.predefinedType === 4110) {
-            return "File"
+        if (this.context.type.predefinedType === Models.ItemTypePredefined.Document) {
+            return this.localization.get("Nova_Document_File", "File");
         } else {
-            return this.context.type.name + " Properties";
+            return this.context.type.name + this.localization.get("Nova_Properties", " Properties");
         }
     }
 

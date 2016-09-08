@@ -856,7 +856,7 @@ export function formlyConfig(
     });
     formlyConfig.setType({
         name: "bpDocumentFile",
-        /* tslint:disable */
+        /* tslint:disable:max-line-length */
         template:
         `<div ng-if="hasFile"> 
             <div class="thumb {{extension}}">
@@ -870,11 +870,11 @@ export function formlyConfig(
          <div ng-if="!hasFile">
             <div class="thumb fonticon2-attachment">
                 <span class="input-group has-messages">
-                <input type="text" "\>
+                <input type="text"\>
                 <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Upload">Upload</button>
             </div>
          </div>`,
-        /* tslint:enable */
+        /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal != null) {

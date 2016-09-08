@@ -82,6 +82,15 @@ export interface IArtifactStates {
     observable: Rx.Observable<IState>;
 } 
 
+// TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
+// export interface IStatefulItem {  //extends Models.IArtifact  {
+//     customProperties: IArtifactProperties;
+//     attachments: IArtifactAttachments;
+//     relationships: any;
+//     docRefs: any;
+//     discard(): ng.IPromise<IStatefulArtifact>;
+// }
+
 export interface IStatefulArtifact extends Models.IArtifact  {
     manager: IArtifactManager;
     artifactState: IArtifactStates;
@@ -96,6 +105,17 @@ export interface IStatefulArtifact extends Models.IArtifact  {
 export interface IIStatefulArtifact extends IStatefulArtifact {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getServices(): IStatefulArtifactServices;
+}
+
+export interface IStatefulSubArtifact {
+    // TODO: 
+}
+
+export interface ISubArtifactCollection {
+    list(): IStatefulArtifact[];
+    add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
+    get(id: number): IStatefulSubArtifact;
+    remove(id: number): IStatefulSubArtifact;
 }
 
 export interface IArtifactManager {

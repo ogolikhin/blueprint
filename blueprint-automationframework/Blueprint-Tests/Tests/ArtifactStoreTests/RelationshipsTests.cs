@@ -35,14 +35,13 @@ namespace ArtifactStoreTests
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
 
-            _viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
+            _viewerRole = ProjectRoleFactory.GetDeployedProjectRole(ProjectRoleFactory.DeployedProjectRole.Viewer);
         }
 
         [TearDown]
         public void TearDown()
         {
             Helper?.Dispose();
-            _viewerRole.DeleteRole();
         }
 
         /// <summary>

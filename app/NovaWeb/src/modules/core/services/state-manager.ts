@@ -17,7 +17,7 @@ export interface IPropertyChangeSet {
     lookup: Enums.PropertyLookupEnum;
     id: string | number;
     value: any;
-    isValid: boolean;
+    isValid?: boolean;
 }
 
 export class ItemState {

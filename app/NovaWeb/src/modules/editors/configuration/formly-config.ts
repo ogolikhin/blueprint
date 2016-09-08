@@ -6,7 +6,7 @@ import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
 import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell";
+import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];

@@ -877,10 +877,11 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable */
-        template: `<div class="input-group">
-                <img ng-src="{{model[options.key]}}" width="64" height="64" style="border:1px solid grey" />
-                <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>                  
-            </div>`
+        template: `<div class="input-group inheritance-group">
+                    <img ng-src="{{model[options.key]}}" width="64" height="64" style="border:1px solid grey" />
+                    <i ng-show="model[options.key].length > 0" class="glyphicon glyphicon-trash image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-hide="model[options.key].length > 0" class="glyphicon glyphicon-plus image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                </div>`
         /* tslint:enable */
     });
 
@@ -902,16 +903,26 @@ export function formlyConfig(
         name: "bpFieldInheritFrom",
         /* tslint:disable */
         template: `<div class="input-group inheritance-group">
-                    <div class="inheritance-path">
-                        <span>{{model[options.key].pathToProject[0]}}</span>
-                        <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
-                           {{item}}
-                        </span>   
-                        <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
+                    <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
+                        <div ng-show="{{model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length < 38}}">
+                            <span>{{model[options.key].pathToProject[0]}}</span>
+                                <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                                  {{item}}
+                                </span>   
+                                <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
+                            </div>                                                
+                        <div ng-hide="{{model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' / ')}}">
+                            <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
+                        </div>
                     </div>
-                    <div class="inheritance-tools">
+                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">                       
+                    </div>
+                    <div class="inheritance-tools" ng-show="model[options.key].actorName.length > 0">
                         <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>
                         <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i>
+                    </div>             
+                    <div class="inheritance-tools" ng-hide="model[options.key].actorName.length > 0">
+                        <i class="glyphicon glyphicon-plus"  ng-click="bpFieldInheritFrom.delete($event)"></i>                        
                     </div>             
             </div>`,
         /* tslint:enable */

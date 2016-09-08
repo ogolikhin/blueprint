@@ -162,6 +162,7 @@ pagecontent, bp-properties-panel {
         margin: 6px 4px 0 0;
         padding: 0;
         width: #{$property-label-width - 4px};
+        vertical-align: top;
 
         div:first-child {
           flex-grow: 1;
@@ -809,6 +810,14 @@ pagecontent, bp-properties-panel {
 
     .formly-field-bpFieldImage {
       width: #{$property-width * .5};
+
+      .inheritance-group {        
+
+      .image-actor-group {        
+        font-size: $font-size-normal;        
+        margin: 5px 9px;        
+      }
+     }   
     }
 
     $property-inheritance-width: $property-width * 1.5; //change to 2.5 to span 3 columns instead of 2
@@ -824,19 +833,19 @@ pagecontent, bp-properties-panel {
         max-width: calc(100% - #{$property-label-width});
         min-width: $property-input-width;
 
-        .inheritance-path {
-          background: $gray-lightest;
+        .inheritance-path {          
           border-color: $gray-lighter;
+          background-color: $gray-lightest;
           border-width: 1px;
           flex-grow: 1;
           flex-shrink: 1;
           height: $property-min-height;
           line-height: $property-min-height;
-          min-width: $property-input-width;
+          min-width: $property-input-width - 30px;
           overflow: hidden;
           padding: 0 $property-padding-default;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          white-space: nowrap;          
 
           span {
             &::before {
@@ -849,15 +858,16 @@ pagecontent, bp-properties-panel {
               }
             }
           }
-        }
+        }        
 
         .inheritance-tools {
           flex-grow: 0;
           flex-shrink: 0;
+          margin: 5px 9px;
+          }
         }
-      }
-    }
-  }
+      }     
+    }    
 }
 
 .single-column-property .formly .formly-field label {

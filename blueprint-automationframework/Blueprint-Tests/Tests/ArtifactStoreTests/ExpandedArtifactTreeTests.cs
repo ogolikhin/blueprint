@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
@@ -79,15 +79,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
+            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             var otherTopLevelArtifacts = new List<IArtifact>();
@@ -97,7 +89,7 @@ namespace ArtifactStoreTests
             // Execute:
             List<INovaArtifact> artifacts = null;
 
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, bottomArtifact.Id),
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactChain.Last().Id),
                 "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
 
             // Verify:
@@ -127,15 +119,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
+            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -144,7 +128,7 @@ namespace ArtifactStoreTests
             // Execute:
             List<INovaArtifact> artifacts = null;
 
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, bottomArtifact.Id),
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactChain.Last().Id),
                 "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
 
             // Verify:
@@ -173,15 +157,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
+            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -211,15 +187,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
+            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -419,7 +387,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/jGQXI2zN
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/jGQXI2zN  it returns 403.
         [TestRail(164599)]
         [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact." +
             "Verify 404 Not Found is returned with the correct error message.")]
@@ -440,7 +408,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zNW2vU4L
         [TestRail(164600)]
         [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user." +
             "Verify a list of top level artifacts is returned and only one has children.")]
@@ -448,12 +415,10 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            var artifactChain = new List<IArtifact>();
+            BaseArtifactType[] artifactTypeChain = new BaseArtifactType[] { BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process };
+            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            artifactChain.Add(artifact);
-            artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            artifactChain.Add(artifact);
+            IArtifact artifact = artifactChain.Last();
             artifact.Delete();
 
             // Execute:
@@ -487,7 +452,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/PyiCTuTx
         [TestRail(164558)]
         [Description("GetExpandedArtifactTree with a user that doesn't have access to the project.  Verify 403 Forbidden is returned with the correct error message.")]
         public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()
@@ -510,7 +474,6 @@ namespace ArtifactStoreTests
         [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
         [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
         [TestCase(4, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // I'm getting a SQL error when assigning a role to an artifact.
         [TestRail(164559)]
         [Description("GetExpandedArtifactTree with a user that doesn't have access to the artifact.  Verify 403 Forbidden is returned with the correct error message.")]
         public void GetExpandedArtifactTree_UserWithoutPermissionToPublishedArtifact_403Forbidden(int artifactIndex, params BaseArtifactType[] artifactTypeChain)
@@ -518,15 +481,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
+            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             var otherTopLevelArtifacts = new List<IArtifact>();
@@ -540,15 +495,15 @@ namespace ArtifactStoreTests
             viewersGroup.AddUser(userWithoutPermission);
             viewersGroup.AssignRoleToProjectOrArtifact(_project, role: _viewerRole);
             // XXX: Next line fails with:  The INSERT statement conflicted with the FOREIGN KEY constraint "FK_RoleRoleAssignments". The conflict occurred in database "Blueprint", table "dbo.Roles", column 'RoleId'.
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, _noneRole, bottomArtifact);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, _noneRole, artifactChain[artifactIndex]);
             Helper.AdminStore.AddSession(userWithoutPermission);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain[artifactIndex].Id),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain.Last().Id),
                 "'GET {0}' should return 403 Forbidden when called by a user without permission to the artifact!", REST_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain[artifactIndex].Id);
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain.Last().Id);
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
                 "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
@@ -575,6 +530,46 @@ namespace ArtifactStoreTests
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
+        }
+
+        /// <summary>
+        /// Creates a chain of saved parent/child artifacts of the given artifact types.
+        /// </summary>
+        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
+        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
+        private List<IArtifact> CreateSavedArtifactChain(BaseArtifactType[] artifactTypeChain)
+        {
+            var artifactChain = new List<IArtifact>();
+            IArtifact bottomArtifact = null;
+
+            // Create artifact chain.
+            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            {
+                bottomArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, parent: bottomArtifact);
+                artifactChain.Add(bottomArtifact);
+            }
+
+            return artifactChain;
+        }
+
+        /// <summary>
+        /// Creates a chain of published parent/child artifacts of the given artifact types.
+        /// </summary>
+        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
+        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
+        private List<IArtifact> CreatePublishedArtifactChain(BaseArtifactType[] artifactTypeChain)
+        {
+            var artifactChain = new List<IArtifact>();
+            IArtifact bottomArtifact = null;
+
+            // Create artifact chain.
+            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            {
+                bottomArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent: bottomArtifact);
+                artifactChain.Add(bottomArtifact);
+            }
+
+            return artifactChain;
         }
 
         /// <summary>

@@ -155,14 +155,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact>   {
         let deferred = this.services.$q.defer<IStatefulArtifact>();
 
-        const config: ng.IRequestConfig = {
-            url: `/svc/bpartifactstore/artifacts/${this.id}`,
-            method: "GET",
-            timeout: timeout
-        };
-        this.manager.request<Models.IArtifact>(config).then((artifact: Models.IArtifact) => {
+        this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
-            
             this.artifactState.initialize(artifact);
             this.customProperties.initialize(artifact);
             deferred.resolve(this);
@@ -173,27 +167,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         
     }
 
-
-    // private loadSubArtifact(subArtifactId: number, timeout?: ng.IPromise<any>) {
-    //     const config: ng.IRequestConfig = {
-    //         url:  `/svc/bpartifactstore/artifacts/${this.id}/subartifacts/${subArtifactId}`,
-    //         method: "GET",
-    //         timeout: timeout
-    //     };
-    //     this.manager.request<Models.ISubArtifact>(config).then((artifact: Models.ISubArtifact) => {
-
-    //     });
-    // }
-
     public lock(): ng.IPromise<IState> {
         let deferred = this.services.$q.defer<IState>();
 
-        const config: ng.IRequestConfig = {
-            url: `/svc/shared/artifacts/lock`,
-            method: "post",
-            data: angular.toJson([this.id])
-        };
-        this.manager.request<Models.ILockResult>(config).then((lock: Models.ILockResult) => {
+        this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
+            let lock = result[0];
             this.artifactState.set({lock: lock} as IState);
             deferred.resolve(this.artifactState.get());
         }).catch((err) => {
@@ -233,7 +211,4 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             });
     }
 
-    public getDeferred<T>(): ng.IDeferred<T> {
-        return this.services.$q.defer<T>();
-    }
 }

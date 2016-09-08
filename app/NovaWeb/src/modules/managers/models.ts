@@ -6,8 +6,14 @@ import {
     IArtifactAttachment 
 } from "../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
+import {
+    IArtifactService,
+} from "../main/services/artifact.svc";
+
+
 export { ISession } from "../shell/login/session.svc";
 export { 
+    IArtifactService,
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService 
 };
@@ -88,7 +94,6 @@ export interface IStatefulArtifact extends Models.IArtifact  {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IStatefulArtifact {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getDeferred<T>(): ng.IDeferred<T>;
 }
 
 export interface IArtifactManager {
@@ -96,17 +101,14 @@ export interface IArtifactManager {
     list(): IStatefulArtifact[];
     add(artifact: Models.IArtifact): IStatefulArtifact;
     get(id: number): IStatefulArtifact;
-    // getObeservable(id: number): Rx.Observable<IStatefulArtifact>;
     remove(id: number): IStatefulArtifact;
-    // removeAll(); // when closing all projects
-    // refresh(id); // refresh lightweight artifact
-    // refreshAll(id);
-    request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
 }
 
 export interface IStatefulArtifactServices {
-    $q: ng.IQService;
+    //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
+    getDeferred<T>(): ng.IDeferred<T>;
     messageService: IMessageService;
+    artifactService: IArtifactService,
     attachmentService: IArtifactAttachmentsService;
 }
 

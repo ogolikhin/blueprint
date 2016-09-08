@@ -1,7 +1,15 @@
 import { IMessageService } from "../../core/";
 import { Models } from "../../main/models";
-import { IArtifactManager, IStatefulArtifact, ISession, IStatefulArtifactServices, IArtifactAttachmentsService } from "../models";
+import { 
+    IArtifactManager, 
+    IStatefulArtifact, 
+    ISession, 
+    IStatefulArtifactServices, 
+    IArtifactAttachmentsService,
+    IArtifactService,
+ } from "../models";
 import { StatefulArtifact } from "./artifact";
+import { StatefulArtifactServices } from "./services";
 
 
 export class ArtifactManager  implements IArtifactManager {
@@ -11,6 +19,7 @@ export class ArtifactManager  implements IArtifactManager {
         "$q",
         "session",
         "messageService",
+        "artifactService",
         "attachmentService"
     ];
 
@@ -22,13 +31,14 @@ export class ArtifactManager  implements IArtifactManager {
         private $q: ng.IQService,
         private session: ISession,
         private messageService: IMessageService,
+        private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService) {
 
-        this.services = {
-            $q : this.$q,
-            messageService : this.messageService,
-            attachmentService: this.attachmentService
-        } as IStatefulArtifactServices;
+        this.services = new StatefulArtifactServices( 
+            this.$q,
+            this.messageService,
+            this.artifactService,
+            this.attachmentService);
 
         this.artifactList = [];
     }
@@ -71,24 +81,5 @@ export class ArtifactManager  implements IArtifactManager {
     }
 
 
-    public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
-        var defer = this.services.$q.defer<T>();
-        this.$http(request).then(
-            (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                var error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
-            }
-        );
-        return defer.promise;
-
-    }
 
 }

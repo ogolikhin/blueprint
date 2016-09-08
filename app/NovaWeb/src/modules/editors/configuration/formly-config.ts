@@ -6,17 +6,17 @@ import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
 import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+//import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "$window", "messageService"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
     $sce: ng.ISCEService,
-    artifactAttachments: IArtifactAttachments,
+    //artifactAttachments: IArtifactAttachments,
     $window: ng.IWindowService,
     messageService: IMessageService
 ): void {
@@ -883,7 +883,7 @@ export function formlyConfig(
                 $scope.extension = FiletypeParser.getFiletypeClass($scope.fileExtension);
 
                 $scope.downloadFile = () => {
-                    return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
+                    /*return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
                         .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                             if (attachmentResultSet.attachments.length) {
                                 $window.open(
@@ -893,7 +893,8 @@ export function formlyConfig(
                             } else {
                                 messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
                             }
-                        });
+                        });*/
+                    return null
                 };
 
             } else {

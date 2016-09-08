@@ -394,7 +394,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(164560)]
         [Description("Create & publish an artifact, then delete & publish it.  GetExpandedArtifactTree with the ID of the deleted artifact.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_IdOfDeletedArtifact_404NotFound()
+        public void GetExpandedArtifactTree_IdOfDeletedAndPublishedArtifact_404NotFound()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -411,8 +411,73 @@ namespace ArtifactStoreTests
                 "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
         }
 
-        // TODO: Add test with deleted but not published artifact with same user.
-        // TODO: Add test with deleted but not published artifact with other user.
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/jGQXI2zN
+        [TestRail(164599)]
+        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact." +
+            "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactSameUser_404NotFound()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Delete();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifact.Id),
+                "'GET {0}' should return 404 Not Found when the ID of a deleted Artifact is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zNW2vU4L
+        [TestRail(164600)]
+        [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact as a different user." +
+            "Verify a list of top level artifacts is returned and only one has children.")]
+        public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
+        {
+            // Setup:
+            IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifactChain = new List<IArtifact>();
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            artifactChain.Add(artifact);
+            artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            artifactChain.Add(artifact);
+            artifact.Delete();
+
+            // Execute:
+            List<INovaArtifact> artifacts = null;
+
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
+                "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
+
+            // Verify:
+            VerifyArtifactTree(artifactChain, artifacts);
+        }
+
+        [TestCase]
+        [TestRail(164601)]
+        [Description("Create & save an artifact.  GetExpandedArtifactTree with the ID of the unpublished artifact (as a different user)." +
+            "Verify 404 Not Found is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_IdOfUnpublishArtifactOtherUser_404NotFound()
+        {
+            // Setup:
+            IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
+                "'GET {0}' should return 404 Not Found when the ID of an unpublished Artifact (saved by another user) is passed!", REST_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, _project.Id);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If the ID of a deleted Artifact is passed, we should get an error message of '{0}'!", expectedMessage);
+        }
 
         [TestCase]
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/PyiCTuTx
@@ -435,12 +500,13 @@ namespace ArtifactStoreTests
                 "If called by a user without permission to the project, we should get an error message of '{0}'!", expectedMessage);
         }
 
-        // TODO: Add cases where the user doesn't have access to different levels in the chain.
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
+        [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
+        [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
+        [TestCase(4, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
         [Explicit(IgnoreReasons.UnderDevelopment)]  // I'm getting a SQL error when assigning a role to an artifact.
         [TestRail(164559)]
         [Description("GetExpandedArtifactTree with a user that doesn't have access to the artifact.  Verify 403 Forbidden is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_UserWithoutPermissionToPublishedArtifact_403Forbidden(params BaseArtifactType[] artifactTypeChain)
+        public void GetExpandedArtifactTree_UserWithoutPermissionToPublishedArtifact_403Forbidden(int artifactIndex, params BaseArtifactType[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -470,24 +536,15 @@ namespace ArtifactStoreTests
             viewersGroup.AssignRoleToProjectOrArtifact(_project, bottomArtifact, ProjectRole.None);
             Helper.AdminStore.AddSession(userWithoutPermission);
 
-            /*
-            bottomArtifact.Lock();
-            NovaArtifactDetails artifactChanges = Helper.ArtifactStore.GetArtifactDetails(_user, bottomArtifact.Id);
-            artifactChanges.Permissions = 0;
-            Artifact.UpdateArtifact(bottomArtifact, _user, artifactChanges);
-            */
-
             // Execute:
-            List<INovaArtifact> artifacts = null;
-
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, bottomArtifact.Id),
-                "'GET {0}' should return 200 OK when called by a user with access to the project but without permission to the artifact!", REST_PATH);
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain[artifactIndex].Id),
+                "'GET {0}' should return 403 Forbidden when called by a user without permission to the artifact!", REST_PATH);
 
             // Verify:
-            VerifyArtifactTree(artifactChain, artifacts, artifactChain.Count - 1);
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactChain[artifactIndex].Id);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
-
-        // TODO: Test with a user trying to access an artifact that's saved but not published by a different user.
 
         #region Private functions
 

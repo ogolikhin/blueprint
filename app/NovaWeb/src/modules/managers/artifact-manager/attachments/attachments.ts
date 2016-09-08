@@ -3,7 +3,7 @@ import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "../../../she
 import { IStatefulArtifact, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
 import { ChangeSetCollector } from "../changeset";
 
-import { 
+import {
     IIStatefulArtifact,
     IArtifactAttachments
 } from "../../models";
@@ -71,7 +71,12 @@ export class ArtifactAttachments implements IArtifactAttachments {
         if (foundAttachmentIndex > -1) {
             deletedAttachment = this.attachments.splice(foundAttachmentIndex, 1)[0];
             
-            // TODO: add changeset tracking
+            const changeset = {
+                type: ChangeTypeEnum.Delete,
+                key: attachment.guid || attachment.attachmentId,
+                value: attachment
+            } as IChangeSet;
+            this.changeset.add(changeset);
 
             deferred.resolve(this.attachments);
             this.subject.onNext(this.attachments);

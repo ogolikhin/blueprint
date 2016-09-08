@@ -32,6 +32,9 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
+        private IProjectRole _viewerRole = null;
+        private IProjectRole _noneRole = null;
+
         #region Setup and Teardown
 
         [SetUp]
@@ -40,12 +43,16 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+
+            _viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
+            _noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
         }
 
         [TearDown]
         public void TearDown()
         {
             Helper?.Dispose();
+            _noneRole.DeleteRole();
         }
 
         #endregion Setup and Teardown
@@ -531,9 +538,9 @@ namespace ArtifactStoreTests
             IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
 
             viewersGroup.AddUser(userWithoutPermission);
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Viewer);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: _viewerRole);
             // XXX: Next line fails with:  The INSERT statement conflicted with the FOREIGN KEY constraint "FK_RoleRoleAssignments". The conflict occurred in database "Blueprint", table "dbo.Roles", column 'RoleId'.
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, bottomArtifact, ProjectRole.None);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, _noneRole, bottomArtifact);
             Helper.AdminStore.AddSession(userWithoutPermission);
 
             // Execute:

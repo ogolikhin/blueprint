@@ -84,6 +84,11 @@ pagecontent, bp-properties-panel {
         line-height: 1.5em;
         margin: 0;
       }
+
+      bp-item-type-icon {
+        display: block;
+        margin-top: 5px;
+      }
     }
 
     .artifact-heading-group1 {

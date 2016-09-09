@@ -37,12 +37,6 @@ class PageContentCtrl {
 
     public viewState: boolean;
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        scrollXMarginOffset: 4,
-        scrollYMarginOffset: 4
-    };
-
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [

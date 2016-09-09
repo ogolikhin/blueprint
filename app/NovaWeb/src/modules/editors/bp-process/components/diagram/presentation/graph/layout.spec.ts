@@ -119,7 +119,7 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessEnd);
     });
 
-    it("Test insert task", () => {
+    xit("Test insert task", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);

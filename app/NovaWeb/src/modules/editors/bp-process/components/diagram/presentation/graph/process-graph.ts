@@ -19,6 +19,7 @@ import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 
 export class ProcessGraph implements IProcessGraph {
@@ -173,14 +174,15 @@ export class ProcessGraph implements IProcessGraph {
         return this.htmlElement;
     }
 
-    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, label?: string, conditionDestinationId?: number) => number {
+    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, layout: ILayout,
+        shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
 
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
-                return this.layout.insertSystemDecisionCondition;
+                return ProcessAddHelper.insertSystemDecisionCondition;
             case ProcessShapeType.UserDecision:
-                return this.layout.insertUserDecisionCondition;
+                return ProcessAddHelper.insertUserDecisionCondition;
             default:
                 throw new Error(`Expected a decision type but found ${shapeType}`);
         }
@@ -220,7 +222,7 @@ export class ProcessGraph implements IProcessGraph {
         let id: number;
 
         for (let i: number = 0; i < newConditions.length; i++) {
-            id = insertMethod(decisionId, newConditions[i].label, newConditions[i].mergeNode.model.id);
+            id = insertMethod(decisionId, this.layout, this.shapesFactory, newConditions[i].label, newConditions[i].mergeNode.model.id);
         }
 
         this.notifyUpdateInModel(NodeChange.Update, id);
@@ -642,7 +644,8 @@ export class ProcessGraph implements IProcessGraph {
                     if (selectedNode.getNodeType() === NodeType.UserTask) {
                         ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
                     } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, 
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
                     }
                 };
             });

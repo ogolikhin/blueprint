@@ -12,7 +12,6 @@ import {CS_LEFT, CS_RIGHT, CS_VERTICAL} from "./shapes/connector-styles";
 import {ProcessLinkModel} from "../../../../models/processModels";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
-import * as layout from "./layout";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process"; 
 import { LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
 import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
@@ -64,7 +63,6 @@ describe("Layout test", () => {
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
-        layout.tempShapeId = 0;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;

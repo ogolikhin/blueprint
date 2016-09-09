@@ -20,8 +20,7 @@ export class NodePopupMenu {
         private insertUserDecisionFn,
         private insertUserDecisionBranchFn,
         private insertSystemDecisionFn,
-        private insertSystemDecisionBranchFn,
-        private postDeleteFunction: INotifyModelChanged = null) {
+        private insertSystemDecisionBranchFn) {
 
         this.init();
     }
@@ -97,7 +96,7 @@ export class NodePopupMenu {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
-                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService, this.postDeleteFunction);
+                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
@@ -114,7 +113,7 @@ export class NodePopupMenu {
                 menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
-                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService,this.postDeleteFunction);
+                        this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
@@ -130,10 +129,8 @@ export class NodePopupMenu {
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
                 this.disposeEventSubscriptions();
-                if (this.insertUserDecisionBranchFn && this.insertionPoint, this.layout, this.shapesFactoryService) {
-                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
-                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id);
+                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
                 }
             });

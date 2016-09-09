@@ -144,8 +144,7 @@ export interface ILayout {
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);
     getDefaultBranchLabel(decisionId: number): string;
-    getTempShapeId(): number;
-    setTempShapeId(id: number);
+    tempShapeId: number;
 }
 
 export interface ISourcesAndDestinations {

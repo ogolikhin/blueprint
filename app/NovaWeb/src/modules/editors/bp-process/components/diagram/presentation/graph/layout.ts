@@ -23,8 +23,6 @@ import {Connector} from "./shapes/connector";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
 
-export var tempShapeId: number = 0;
-
 
 export class Layout implements ILayout {
     private mxgraph: MxGraph = null;
@@ -33,6 +31,7 @@ export class Layout implements ILayout {
     private preprocessor: IGraphLayoutPreprocessor = null;
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
+    private _tempShapeId: number = 0;
 
     constructor(
         private processGraph: IProcessGraph,
@@ -56,13 +55,11 @@ export class Layout implements ILayout {
             this.rootScope,
             this.processGraph.getHtmlElement(),
             this.mxgraph,
-
             ProcessAddHelper.insertTaskWithUpdate,
             ProcessAddHelper.insertUserDecision,
             ProcessAddHelper.insertUserDecisionConditionWithUpdate,
             ProcessAddHelper.insertSystemDecision,
-            ProcessAddHelper.insertSystemDecisionConditionWithUpdate,
-            this.processGraph.notifyUpdateInModel);
+            ProcessAddHelper.insertSystemDecisionConditionWithUpdate);
 
         this.tempId = 0;
 
@@ -143,7 +140,7 @@ export class Layout implements ILayout {
 
                     // Add merging point for links with the same destination
                     var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewModel.id,
-                        this.viewModel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
+                        this.viewModel.projectId, --this.tempShapeId, destinationNode.column - 1, destinationNode.row);
 
                     var mergingPoint = new MergingPoint(mergingPointShape);
                     mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
@@ -213,11 +210,11 @@ export class Layout implements ILayout {
         return this.processGraph;
     }
 
-    public getTempShapeId(): number {
-        return tempShapeId;
+    get tempShapeId(): number {
+        return this._tempShapeId;
     }
-    public setTempShapeId(id: number) {
-        tempShapeId = id;
+    set tempShapeId(id: number) {
+        this._tempShapeId = id;
     }
 
     public scrollShapeToView(shapeId: string) {

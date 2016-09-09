@@ -4,7 +4,6 @@ import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "../process-graph";
 import {DiagramLink} from "./";
 import {IDiagramNode} from "../models/";
-import * as layout from "../layout";
 import {Connector} from "./connector";
 import {Label} from "../labels/label";
 import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
@@ -46,7 +45,6 @@ describe("DiagramLink unit tests", () => {
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
-        layout.tempShapeId = 0;
         
         $rootScope["config"] = {
             labels: {

@@ -836,8 +836,7 @@ pagecontent, bp-properties-panel {
       .inheritance-group {
         display: inline-flex;
         font-size: $font-size-normal;
-        min-width: calc(100% - #{$property-label-width});
-        max-width: calc(100% - #{$property-label-width});
+        width: calc(100% - #{$property-label-width});        
 
         .inheritance-path {          
           border-color: $gray-lighter;

@@ -204,8 +204,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 //if (this.itemState.isReadonly || this.itemState.lockedBy === LockedByEnum.OtherUser) {
                 //    field.type = "bpFieldReadOnly";
                 //}
-
-                field.type = "bpFieldReadOnly";
+                if (field.key !== "documentFile" &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {
+                    field.type = "bpFieldReadOnly";
+                }                
 
                 this.onFieldUpdate(field);                                
 

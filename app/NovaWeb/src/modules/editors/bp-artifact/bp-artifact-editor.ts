@@ -112,7 +112,9 @@ export class BpArtifactEditor extends BpBaseEditor {
                 });
 
                 if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    if (field.key !== "documentFile") {  
+                    if (field.key !== "documentFile"  &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {  
                         field.type = "bpFieldReadOnly";                     
                     }
                 }

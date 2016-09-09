@@ -111,6 +111,51 @@ pagecontent, bp-properties-panel {
     min-width: $property-width - $property-label-width;
     padding: 0 0 10px;
 
+    .formly-field-bpDocumentFile{
+        width: 100% !important;
+        .input-group-addon{
+          padding:0;
+          background-color: transparent;
+          border:none;
+          .icon{    
+            padding-top: 13px;
+            display: inline-block;
+            padding-right: 7px;
+            padding-left: 7px;
+          }
+        }
+        .thumb{
+          width:30px;
+          height:30px;
+          &.fonticon2-attachment{
+            padding-top: 10px;
+          }
+        }
+        .btn.btn-bp-small{
+          margin-left:5px;
+          padding:5px 9px;
+          min-width: 20px;
+        }
+        .form-control-wrapper
+        {
+          display: table-cell;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          padding:4px;
+          .form-control{
+            width:100%;
+            max-width:100%;
+            margin:2px; 
+            background-color: white;
+            background-image: none !important;
+            &:hover{
+              background-image: none !important; 
+            }
+          }
+        }
+    }
+
     // create "padding" to align un-even numbers of property groups
     &::after,
     &::before {

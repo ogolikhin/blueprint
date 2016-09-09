@@ -859,21 +859,37 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template:
         `<div ng-if="hasFile"> 
-            <div class="thumb {{extension}}">
-                <span class="input-group has-messages">
-                <input type="text" value="{{fileName}}"\>
-                <span class="icon fonticon2-delete"></span>
-                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Change">Change</button>
-                <button class="btn btn-primary" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
-            </div>
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb {{extension}}"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
+                </span>
+                <span class="input-group-addon">
+                    <span class="icon fonticon2-delete"></span>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+                </span>
+            </span>
          </div>
          <div ng-if="!hasFile">
-            <div class="thumb fonticon2-attachment">
-                <span class="input-group has-messages">
-                <input type="text"\>
-                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Upload">Upload</button>
-            </div>
-         </div>`,
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb fonticon2-attachment"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" " class="form-control" readonly/>
+                </span>    
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+                </span>
+            </span>
+          </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
             let currentModelVal = $scope.model[$scope.options.key];

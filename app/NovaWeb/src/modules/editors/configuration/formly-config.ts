@@ -7,6 +7,7 @@ import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { documentController } from "./controllers/document-field-controller";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
@@ -137,7 +138,41 @@ export function formlyConfig(
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>`,
+            </div>
+
+            <div ng-if="options.data.primitiveType == primitiveType.DocumentFile && hasFile"> 
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb {{extension}}"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
+                </span>
+                <span class="input-group-addon">
+                    <span class="icon fonticon2-delete"></span>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+                </span>
+            </span>
+         </div>
+         <div ng-if="options.data.primitiveType == primitiveType.DocumentFile && !hasFile">
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb fonticon2-attachment"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" " class="form-control" readonly/>
+                </span>    
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+                </span>
+            </span>
+          </div>`
+        ,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
@@ -211,6 +246,9 @@ export function formlyConfig(
                 case PrimitiveType.User:
                     newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
                     $scope.tooltip = newValue;
+                    break;
+                case PrimitiveType.DocumentFile:
+                    documentController($scope, localization, artifactAttachments, $window, messageService);
                     break;
                 default:
                     break;
@@ -892,29 +930,7 @@ export function formlyConfig(
           </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (currentModelVal != null) {
-                $scope.hasFile = true;
-                $scope.fileName = currentModelVal["fileName"];
-                $scope.extension = FiletypeParser.getFiletypeClass(currentModelVal["fileExtension"]);
-
-                $scope.downloadFile = () => {
-                    return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
-                        .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
-                            if (attachmentResultSet.attachments.length) {
-                                $window.open(
-                                    "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
-                                    + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
-                                    "_blank");
-                            } else {
-                                messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
-                            }
-                        });
-                };
-
-            } else {
-                $scope.hasFile = false;
-            }
+            documentController($scope, localization, artifactAttachments, $window, messageService);
         }]
     });
 

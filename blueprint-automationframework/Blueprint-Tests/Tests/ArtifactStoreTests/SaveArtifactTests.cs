@@ -107,7 +107,7 @@ namespace ArtifactStoreTests
         public void SaveArtifact_UserWithoutPermissions_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
@@ -126,7 +126,7 @@ namespace ArtifactStoreTests
         public void SaveArtifact_NonExistentProjectId_400BadRequest(int projectId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
             _project, _user, BaseArtifactType.Actor, artifact.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
@@ -413,22 +413,23 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 UpdateInvalidArtifact(requestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
+            }, "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
             RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
         [TestCase]
         [TestRail(164624)]
-        [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
-        public void UpdateArtifact_NotLockedByUser_409Conflict(/*string toChange, string changeTo*/)
+        [Description("Try to update an artifact which is not locked by current user. Verify 409 Conflict is returned.")]
+        public void UpdateArtifact_NotLockedByUser_409Conflict()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectCustomData, _user, BaseArtifactType.Actor);
 
-            Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user), "'PATCH {0}' should return 409 Conflict if the user didn't put lock",
+            Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user), "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first",
                     RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
@@ -443,7 +444,8 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifact">The artifact to update.</param>
         /// <param name="artifactType">The type of artifact.</param>
-        /// <param name="parentProperty">Parent property.</param>
+        /// <param name="propertyToChange">Property to change.</param>
+        /// <param name="value">The value to what property will be changed</param>
         private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
         {
             // Setup:
@@ -471,7 +473,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="propertyToChange">The property to change.</param>
         /// <param name="propertyName">Name of the property in which value will be changed.</param>
-        /// <param name="propertyValue">New property value.</param>
+        /// <param name="objectToUpadate">Object which property be changed.</param>
         private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpadate)
         {
             objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);

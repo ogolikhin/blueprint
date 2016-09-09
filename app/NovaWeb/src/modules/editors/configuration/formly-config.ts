@@ -138,40 +138,7 @@ export function formlyConfig(
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>
-
-            <div ng-if="options.data.primitiveType == primitiveType.DocumentFile && hasFile"> 
-            <span class="input-group has-messages">
-                <span class="input-group-addon">
-                    <div class="thumb {{extension}}"></div>
-                </span>
-                <span class="form-control-wrapper">
-                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
-                </span>
-                <span class="input-group-addon">
-                    <span class="icon fonticon2-delete"></span>
-                </span>
-                <span class="input-group-addon">
-                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
-                </span>
-                <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
-                </span>
-            </span>
-         </div>
-         <div ng-if="options.data.primitiveType == primitiveType.DocumentFile && !hasFile">
-            <span class="input-group has-messages">
-                <span class="input-group-addon">
-                    <div class="thumb fonticon2-attachment"></div>
-                </span>
-                <span class="form-control-wrapper">
-                    <input type="text" " class="form-control" readonly/>
-                </span>    
-                <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
-                </span>
-            </span>
-          </div>`
+            </div>`
         ,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
@@ -246,9 +213,6 @@ export function formlyConfig(
                 case PrimitiveType.User:
                     newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
                     $scope.tooltip = newValue;
-                    break;
-                case PrimitiveType.DocumentFile:
-                    documentController($scope, localization, artifactAttachments, $window, messageService);
                     break;
                 default:
                     break;

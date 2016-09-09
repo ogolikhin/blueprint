@@ -1,22 +1,26 @@
 import { Models, Enums } from "../../../main/models";
 import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
-import { IStatefulArtifact, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
 import { ChangeSetCollector } from "../changeset";
-
-import {
+import { 
+    IStatefulArtifact, 
+    ChangeTypeEnum, 
+    IChangeCollector, 
+    IChangeSet,
+    IStatefulSubArtifact, 
     IIStatefulArtifact,
+    IIStatefulSubArtifact,
     IArtifactAttachments
 } from "../../models";
 
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
-    private statefulArtifact: IIStatefulArtifact;
+    private statefulItem: IIStatefulArtifact | IIStatefulSubArtifact;
     private changeset: IChangeCollector;
 
-    constructor(statefulArtifact: IIStatefulArtifact) {
+    constructor(statefulArtifact: IIStatefulArtifact | IIStatefulSubArtifact) {
         this.attachments = [];
-        this.statefulArtifact = statefulArtifact;
+        this.statefulItem = statefulArtifact;
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector();
     }
@@ -28,7 +32,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
 
     // TODO: how would this work for subartifact attachments?
     public get value(): ng.IPromise<IArtifactAttachment[]> {
-        return this.statefulArtifact.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+        return this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
             return result.attachments;
         });
     }
@@ -38,7 +42,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulArtifact.getServices().getDeferred<IArtifactAttachment[]>();
+        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
         this.attachments.push(attachment);
 
@@ -51,7 +55,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
 
         // TODO: can locking be done implicitly?
         // TODO: must propagate locking as a return value. if not locked, revert value.
-        this.statefulArtifact.lock();
+        this.statefulItem.lock();
 
         deferred.resolve(this.attachments);
         this.subject.onNext(this.attachments);
@@ -64,7 +68,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulArtifact.getServices().getDeferred<IArtifactAttachment[]>();
+        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
         const foundAttachmentIndex = this.attachments.indexOf(attachment);
         let deletedAttachment: IArtifactAttachment;
 

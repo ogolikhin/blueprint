@@ -3,17 +3,22 @@ import { ArtifactState} from "../state";
 import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
-
-import { IStatefulArtifact, 
-         IArtifactStates, 
-         IArtifactProperties, 
-         IArtifactAttachments, 
-         IArtifactManager, 
-         IState,
-         IStatefulArtifactServices,
-         IIStatefulArtifact,
-         IArtifactAttachmentsResultSet
+import { StatefulSubArtifactCollection } from "../sub-artifact";
+import {
+    ChangeTypeEnum,
+    IChangeCollector,
+    IChangeSet,
+    IStatefulArtifact,
+    IStatefulSubArtifact,
+    ISubArtifactCollection,
+    IArtifactStates,
+    IArtifactProperties,
+    IArtifactAttachments,
+    IArtifactManager,
+    IState,
+    IStatefulArtifactServices,
+    IIStatefulArtifact,
+    IArtifactAttachmentsResultSet
 } from "../../models";
 
 
@@ -22,19 +27,21 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public manager: IArtifactManager;
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
-    public customProperties: IArtifactProperties; 
+    public customProperties: IArtifactProperties;
+    public subArtifactCollection: ISubArtifactCollection;
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
-
 
     constructor(manager: IArtifactManager, artifact: Models.IArtifact, services: IStatefulArtifactServices) {
         this.manager = manager;
         this.artifact = artifact;
         this.artifactState = new ArtifactState(this).initialize(artifact);
-        this.customProperties = new CustomProperties(this).initialize(artifact);
-        this.attachments = new ArtifactAttachments(this);
         this.changesets = new ChangeSetCollector();
         this.services = services;
+
+        this.customProperties = new CustomProperties(this).initialize(artifact);
+        this.attachments = new ArtifactAttachments(this);
+        this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
 
         this.artifactState.observable
             .filter((it: IState) => !!it.lock)

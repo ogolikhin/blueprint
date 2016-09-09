@@ -96,6 +96,7 @@ export interface IStatefulArtifact extends Models.IArtifact  {
     artifactState: IArtifactStates;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
+    subArtifactCollection: ISubArtifactCollection;
     discard(): ng.IPromise<IStatefulArtifact>;
     load(): ng.IPromise<IStatefulArtifact>;
     lock(): ng.IPromise<IState>;
@@ -106,13 +107,21 @@ export interface IIStatefulArtifact extends IStatefulArtifact {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getServices(): IStatefulArtifactServices;
 }
+export interface IIStatefulSubArtifact extends IStatefulSubArtifact {
+    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getServices(): IStatefulArtifactServices;
+}
 
-export interface IStatefulSubArtifact {
-    // TODO: 
+export interface IStatefulSubArtifact extends Models.ISubArtifact {
+    // TODO:
+    customProperties: IArtifactProperties;
+    attachments: IArtifactAttachments;
+    discard(): ng.IPromise<IStatefulArtifact>;
+    lock(): ng.IPromise<IState>;
 }
 
 export interface ISubArtifactCollection {
-    list(): IStatefulArtifact[];
+    list(): IStatefulSubArtifact[];
     add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
     get(id: number): IStatefulSubArtifact;
     remove(id: number): IStatefulSubArtifact;

@@ -5,6 +5,7 @@ import { IProjectManager, ISelectionManager } from "../../services";
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
+import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -24,7 +25,16 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
-    static $inject = ["localization", "dialogService", "projectManager", "selectionManager", "messageService", "$rootScope"];
+    static $inject = [
+        "localization",
+        "dialogService",
+        "projectManager",
+        "selectionManager",
+        "messageService",
+        "$rootScope",
+        "loadingOverlayService",
+        "$timeout",
+        "$http"];
 
     constructor(
         private localization: ILocalizationService,
@@ -32,8 +42,11 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager,
         private messageService: IMessageService,
-        private $rootScope: ng.IRootScopeService) {
-    }
+        private $rootScope: ng.IRootScopeService,
+        private loadingOverlayService: ILoadingOverlayService,
+        private $timeout: ng.ITimeoutService, //Used for testing, remove later
+        private $http: ng.IHttpService //Used for testing, remove later
+    ) { }
 
     execute(evt: any): void {
         if (!evt) {
@@ -80,6 +93,54 @@ class BPToolbarController implements IBPToolbarController {
                     backdrop: true,
                     css: "nova-tour"
                 });
+                break;
+            case `discardall`:
+                //Test Code: Display load screen for 0.4s (invisible), then popup result.
+                let discardLoadingId = this.loadingOverlayService.beginLoading();
+                let discardPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 500);
+                discardPromise.finally(() => {
+                    this.loadingOverlayService.endLoading(discardLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
+                break;
+            case `publishall`:
+                //Test Code: Display load screen for 5s, then popup result.
+                let publishLoadingId = this.loadingOverlayService.beginLoading();
+                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
+                publishPromise.finally(() => {
+                    this.loadingOverlayService.endLoading(publishLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
+                break;
+            case `refreshall`:
+                //Test Code: Do an arbitrary REST call to AdminStore, then popup a message.
+                let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
+
+                this.$http.get(`svc/adminstore/licenses/transactions?days=50`)
+                .then(
+                    (response) => { console.log("two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("three"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("four"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .then(
+                    (response) => { console.log("five"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
+                )
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });
+                
+                /*
+                this.$http.get(`svc/adminstore/licenses/transactions?days=50`).then(
+                    (success) => { console.log("call two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`);}
+                ).finally(() => {
+                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                });*/
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);

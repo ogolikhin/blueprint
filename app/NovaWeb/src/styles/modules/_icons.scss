@@ -84,3 +84,22 @@
 .icon-primitive-folder::before,
 .icon-folder::before { content: '\e80d'; } // ''
 .icon-document::before { content: '\e80e'; } // ''
+
+.thumb {
+       width: 40px;
+       height: 40px;
+   }
+
+.ext-image { background: url('images/filetypes/image.svg') center center no-repeat; }
+.ext-video { background: url('images/filetypes/video.svg') center center no-repeat; }
+.ext-sound { background: url('images/filetypes/sound.svg') center center no-repeat; }
+.ext-archive { background: url('images/filetypes/zip.svg') center center no-repeat; }
+.ext-ms-word { background: url('images/filetypes/ms-word.svg') center center no-repeat; }
+.ext-document { background: url('images/filetypes/document.svg') center center no-repeat; }
+.ext-code { background: url('images/filetypes/code.svg') center center no-repeat; }
+.ext-ms-excel { background: url('images/filetypes/ms-excel.svg') center center no-repeat; }
+.ext-ms-onenote { background: url('images/filetypes/ms-onenote.svg') center center no-repeat; }
+.ext-ms-powerpoint { background: url('images/filetypes/ms-powerpoint.svg') center center no-repeat; }
+.ext-ms-visio { background: url('images/filetypes/ms-visio.svg') center center no-repeat; }
+.ext-pdf { background: url('images/filetypes/pdf.svg') center center no-repeat; }
+.ext-web { background: url('images/filetypes/web.svg') center center no-repeat; }

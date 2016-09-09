@@ -1,8 +1,11 @@
-import { IProjectManager, IWindowManager, IArtifactService, ICommunicationManager } from "../../../../main/services";
+import { IProjectManager, IWindowManager, IArtifactService } from "../../../../main/services";
 import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import { IMessageService, ILocalizationService, IStateManager } from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IToolbarCommunication } from "./toolbar-communication";
+import { ICommunicationManager } from "../../"; 
+import { ILoadingOverlayService } from "../../../../core/loading-overlay";
+
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: Function = BpProcessHeaderController;
@@ -24,7 +27,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         $element: ng.IAugmentedJQuery,
         windowManager: IWindowManager,
         artifactService: IArtifactService,
-        communicationManager: ICommunicationManager 
+        communicationManager: ICommunicationManager,
+        loadingOverlayService: ILoadingOverlayService
     ) {
         super(
             $scope,
@@ -36,7 +40,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             $element,
             windowManager,
             artifactService,
-            communicationManager
+            communicationManager,
+            loadingOverlayService
         );
         this.isDeleteButtonEnabled = false;
         this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
@@ -44,11 +49,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public enableDeleteButton = (value: boolean) => {
-        setTimeout(() => {
-            this.$scope.$apply(() => {
-                this.isDeleteButtonEnabled = value;
-            }); 
-        }, 200);
+        this.$scope.$applyAsync((s) => {
+            this.isDeleteButtonEnabled = value;
+        });
     }
 
     private clickDelete() {

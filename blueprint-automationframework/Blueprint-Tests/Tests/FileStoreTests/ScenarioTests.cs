@@ -48,12 +48,12 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
 
             // Execute: Now delete the file.
-            Helper.FileStore.DeleteFile(storedFile.Id, _user);
+            Helper.FileStore.DeleteFile(storedFile.Guid, _user);
 
             const int maxAttempts = 5;
             const int sleepMs = 50;
@@ -64,7 +64,7 @@ namespace FileStoreTests
             ExceptionHelper.RetryIfExceptionNotThrown<Http404NotFoundException>(() =>
             {
                 returnedFile = null;
-                returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+                returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, maxAttempts, sleepMs, "The '{0}' file was found after we deleted it!", file.FileName);
 
             Assert.Null(returnedFile, "The '{0}' file was found after we deleted it!", file.FileName);

@@ -106,9 +106,17 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
+            Dictionary<string, string> queryParams = null;
+
+            if (includeChildren != null)
+            {
+                queryParams = new Dictionary<string, string> { { "includeChildren", includeChildren.Value.ToString() } };
+            }
+
             var novaArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes);
 
             var ret = novaArtifacts.ConvertAll(o => (INovaArtifact)o);

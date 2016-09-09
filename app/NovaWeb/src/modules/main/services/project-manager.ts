@@ -382,7 +382,7 @@ export class ProjectManager implements IProjectManager {
         if (subArtifact) {
             properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
         } else {
-            properties = this.getArtifactSystemPropertyTypes(artifact, itemType, _project.meta);
+            properties = this.getArtifactSystemPropertyTypes(_artifact, itemType, _project.meta);
         }
 
         
@@ -396,7 +396,7 @@ export class ProjectManager implements IProjectManager {
 
     }
 
-    private getArtifactSystemPropertyTypes(artifact: number | Models.IArtifact,
+    private getArtifactSystemPropertyTypes(artifact: Models.IArtifact,
         artifactType: Models.IItemType,
         projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
         let properties: Models.IPropertyType[] = [];
@@ -459,6 +459,18 @@ export class ProjectManager implements IProjectManager {
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
         });
+         switch (artifact.predefinedType) {
+             case Models.ItemTypePredefined.Document:
+                        properties.push({
+                            name: this.localization.get("Label_DocumentFile", "DocumentFile"), //TODO localize
+                            propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
+                            primitiveType: Models.PrimitiveType.DocumentFile,
+                 });
+                        break;
+             default:
+                 break;
+        }
+
         return properties;
     }
 

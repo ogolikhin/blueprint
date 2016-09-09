@@ -17,6 +17,7 @@ export interface IPropertyChangeSet {
     lookup: Enums.PropertyLookupEnum;
     id: string | number;
     value: any;
+    isValid?: boolean;
 }
 
 export class ItemState {
@@ -144,6 +145,7 @@ export class ItemState {
         })[0];
         if (_changeset) {
             _changeset.value = changeSet.value;
+            _changeset.isValid = changeSet.isValid;
         } else {
             this.changeSets.push(changeSet);
         }
@@ -190,6 +192,9 @@ export class ItemState {
     }
 
     private applyChangeSet(item: Models.IItem, changeSet: IPropertyChangeSet): Models.IItem{
+        if (!changeSet.isValid) {
+            throw new Error("App_Save_Artifact_Error_409_114");
+        }
         let propertyTypeId: number;
         let propertyValue: Models.IPropertyValue;
         switch (changeSet.lookup) {

@@ -273,11 +273,14 @@ namespace Model
             {
                 public const string FILES                           = "svc/filestore/files";
 
+                public const string NOVAFILES                       = "svc/bpfilestore/files";
                 /// <summary>
                 /// Delete/Get/Head/Put files in FileStore.  {0} = File GUID.
                 /// </summary>
                 public const string FILES_id_                       = "svc/filestore/files/{0}";
                 public const string STATUS                          = "svc/filestore/status";
+
+                public const string NOVAFILE_id_                   = "svc/bpfilestore/file/{0}";
 
                 public static class Status
                 {

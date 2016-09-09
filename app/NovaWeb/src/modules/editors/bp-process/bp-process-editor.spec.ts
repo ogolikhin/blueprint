@@ -1,6 +1,7 @@
 ﻿import {ProcessServiceMock} from "./services/process/process.svc.mock";
 import * as TestModels from "./models/test-model-factory";
-import {SelectionManager, CommunicationManager} from "../../main/services";
+import {SelectionManager} from "../../main/services";
+import {CommunicationManager} from "./";
 import {StateManagerMock} from "../../core/services/state-manager.mock";
 import {WindowResize} from "../../core/services/window-resize";
 import {MessageServiceMock} from "../../core/messages/message.mock";

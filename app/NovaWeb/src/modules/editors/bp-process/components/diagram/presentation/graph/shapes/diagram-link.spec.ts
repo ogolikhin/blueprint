@@ -8,28 +8,40 @@ import * as layout from "../layout";
 import {Connector} from "./connector";
 import {Label} from "../labels/label";
 import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
     let localScope;
     let processService;
     let container: HTMLElement;
-    let communicationManager: ICommunicationManager;
+    let communicationManager: ICommunicationManager,
+        dialogService: DialogService,
+        localization: LocalizationServiceMock;
     
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
         _processModelService_: IProcessService, 
-        _communicationManager_: ICommunicationManager
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock
     ) => {
         processService = _processModelService_;
         communicationManager = _communicationManager_;
+        dialogService = _dialogService_;
+        localization = _localization_;
         let wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -61,7 +73,8 @@ describe("DiagramLink unit tests", () => {
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel);
+
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processService,  processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
@@ -88,7 +101,7 @@ describe("DiagramLink unit tests", () => {
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel);
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);

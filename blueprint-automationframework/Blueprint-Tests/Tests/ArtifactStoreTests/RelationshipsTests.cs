@@ -20,6 +20,8 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private IGroup _authorsGroup = null;
 
+        private IProjectRole _viewerRole = null;
+
         [SetUp]
         public void SetUp()
         {
@@ -32,6 +34,8 @@ namespace ArtifactStoreTests
 
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+
+            _viewerRole = ProjectRoleFactory.GetDeployedProjectRole(ProjectRoleFactory.DeployedProjectRole.Viewer);
         }
 
         [TearDown]
@@ -532,7 +536,7 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, sourceArtifact, ProjectRole.Viewer);
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, _viewerRole, sourceArtifact);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.From, _user);

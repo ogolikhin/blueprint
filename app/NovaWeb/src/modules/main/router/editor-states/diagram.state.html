@@ -1,4 +1,10 @@
-<div class="page-heading">
-    <bp-artifact-info ></bp-artifact-info>
+<div class="page-content">
+    <div class="page-heading">
+        <bp-artifact-info></bp-artifact-info>
+    </div>
+    <div class="page-body-wrapper" perfect-scrollbar opts="$content.scrollOptions">
+        <div class="page-body">
+            <bp-diagram context="$content.context"></bp-diagram>
+        </div>
+    </div>
 </div>
-<bp-diagram context="$content.context"></bp-diagram>

@@ -3,7 +3,7 @@ import * as Enums from "../../../../../main/models/enums";
 import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
-import {ICommunicationManager} from "../../../../../main/services";
+import {ICommunicationManager} from "../../../";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;

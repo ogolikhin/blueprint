@@ -10,6 +10,8 @@ import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "../../main/models/enums";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {ArtifactAttachmentsMock} from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.mock";
 import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
 import {formlyConfig} from "./formly-config";
 
@@ -629,6 +631,8 @@ function createModule() {
     function setupFormly(ngModule) {
         ngModule
             .service("localization", LocalizationServiceMock)
+            .service("messageService", MessageServiceMock)
+            .service("artifactAttachments", ArtifactAttachmentsMock)
             .filter("bpEscapeAndHighlight", BpEscapeAndHighlightFilter.factory())
             .run(function () {
                 tinymce.baseURL = "../novaweb/libs/tinymce";

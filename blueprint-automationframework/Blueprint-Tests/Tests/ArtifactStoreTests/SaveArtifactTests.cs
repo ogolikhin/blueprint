@@ -373,6 +373,7 @@ namespace ArtifactStoreTests
 
         #region Custom data tests
 
+        [Category(Categories.CustomData)]
         [TestCase("Value\":10.0", "Value\":999.0")] //Insert value into Numeric field which is out of range
         [TestCase("Value\":\"20", "Value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(164595)]
@@ -393,6 +394,7 @@ namespace ArtifactStoreTests
             UpdateInvalidArtifact(requestBody, artifact.Id, _user);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase("Value\":10.0", "Value\":\"A\"")] //Insert String into Numeric field
         [TestCase("Value\":\"20", "Value\":\"A")] //Insert String into Date field
         [TestCase("validValueIds\":[22]", "validValueIds\":[0]")] //Insert non-existant choice

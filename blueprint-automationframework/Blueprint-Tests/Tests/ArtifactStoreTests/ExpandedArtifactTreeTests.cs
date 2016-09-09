@@ -387,7 +387,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/jGQXI2zN  it returns 403.
         [TestRail(164599)]
         [Description("Create & publish an artifact, then delete (but don't publish) it.  GetExpandedArtifactTree with the ID of the deleted artifact." +
             "Verify 404 Not Found is returned with the correct error message.")]

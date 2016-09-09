@@ -880,7 +880,7 @@ export function formlyConfig(
             if (currentModelVal != null) {
                 $scope.hasFile = true;
                 $scope.fileName = currentModelVal["fileName"];
-                $scope.extension = FiletypeParser.getFiletypeClass($scope.fileExtension);
+                $scope.extension = FiletypeParser.getFiletypeClass(currentModelVal["fileExtension"]);
 
                 $scope.downloadFile = () => {
                     return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)

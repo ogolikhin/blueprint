@@ -1,7 +1,8 @@
-import { IGlossaryDetails, IGlossaryService, IGlossaryTerm } from "./glossary.svc";
-import { ILocalizationService, IMessageService } from "../../core";
+import { IGlossaryService, IGlossaryTerm } from "./glossary.svc";
+import { ILocalizationService, IMessageService, IStateManager } from "../../core";
 import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
-import { IEditorContext, ItemTypePredefined } from "../../main/models/models";
+import { IEditorContext, IArtifact } from "../../main/models/models";
+import { BpBaseEditor} from "../bp-base-editor";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -11,7 +12,7 @@ export class BpGlossary implements ng.IComponentOptions {
     };
 }
 
-export class BpGlossaryController {
+export class BpGlossaryController extends BpBaseEditor {
     public static $inject: [string] = [
         "$element",
         "$log",
@@ -19,13 +20,14 @@ export class BpGlossaryController {
         "glossaryService",
         "selectionManager",
         "$sce",
-        "messageService"
+        "messageService",
+        "stateManager"
     ];
 
     private _context: IEditorContext;
     private subscribers: Rx.IDisposable[];
 
-    public glossary: IGlossaryDetails;
+    public glossary: IArtifact;
     public isLoading: boolean = true; 
 
     constructor(
@@ -35,7 +37,9 @@ export class BpGlossaryController {
         private glossaryService: IGlossaryService,
         private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService,
-        private messageService: IMessageService) {
+        messageService: IMessageService,
+        stateManager: IStateManager) {
+            super(messageService, stateManager);
     }
 
     public $onInit() {
@@ -58,11 +62,12 @@ export class BpGlossaryController {
                 this.isLoading = true;
                 this.glossary = null;
 
-                this.glossaryService.getGlossary(this._context.artifact.id).then((result: IGlossaryDetails) => {
-                    result.terms = result.terms.map((term: IGlossaryTerm) => {
-                        term.definition = this.$sce.trustAsHtml(term.definition);
+                this.glossaryService.getGlossary(this._context.artifact.id).then((result: IArtifact) => {
+                    result.subArtifacts = result.subArtifacts.map((term: IGlossaryTerm) => {
+                        term.description = this.$sce.trustAsHtml(term.description);
                         return term;
                     });
+                    this.stateManager.addChange(result);
 
                     this.glossary = result;
 
@@ -80,7 +85,7 @@ export class BpGlossaryController {
 
     private clearSelection() {
         if (this.glossary) {
-            this.glossary.terms = this.glossary.terms.map((t: IGlossaryTerm) => {
+            this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
                 t.selected = false;
                 return t;
             });
@@ -91,7 +96,7 @@ export class BpGlossaryController {
         if (term.selected) {
             return;
         }
-        this.glossary.terms = this.glossary.terms.map((t: IGlossaryTerm) => {
+        this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
             t.selected = t === term;
             return t;
         });
@@ -99,12 +104,7 @@ export class BpGlossaryController {
         const selection: ISelection = {
             source: SelectionSource.Editor,
             artifact: oldSelection.artifact,
-            subArtifact: {
-                id: term.id,
-                name: term.name,
-                predefinedType: ItemTypePredefined.Term,
-                prefix: "TR"
-            }
+            subArtifact: term
         };
         this.selectionManager.selection = selection;
     }

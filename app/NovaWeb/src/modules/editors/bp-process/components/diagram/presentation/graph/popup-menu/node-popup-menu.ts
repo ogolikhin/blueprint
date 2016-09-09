@@ -1,4 +1,4 @@
-﻿import {IDiagramNode, INotifyModelChanged} from "../models/";
+﻿import {IDiagramNode} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
 import {NodeType, ILayout} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";

@@ -2,7 +2,6 @@ import {IDiagramNode, IProcessShape,
     NodeChange, ProcessShapeType, IProcessLink
 } from "./models/";
 import {ILayout} from "./models/";
-import {IMessageService} from "../../../../../../core/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
@@ -13,7 +12,7 @@ export class ProcessAddHelper {
         // user task + system task
         if (layout.viewModel.isWithinShapeLimit(2)) {
             let sourcesAndDestinations = layout.getSourcesAndDestinations(edge);
-            let taskId = ProcessAddHelper.insertTask(sourcesAndDestinations.sourceIds,sourcesAndDestinations.destinationIds[0], layout, shapesFactoryService);
+            let taskId = ProcessAddHelper.insertTask(sourcesAndDestinations.sourceIds, sourcesAndDestinations.destinationIds[0], layout, shapesFactoryService);
 
             layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(taskId);
         }
@@ -55,7 +54,7 @@ export class ProcessAddHelper {
     public static insertUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
         var userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
         ProcessAddHelper.addShape(userTaskShape, layout);
-        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add,true);
+        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
 
         return userTaskShape.id;
     }
@@ -70,7 +69,7 @@ export class ProcessAddHelper {
     public static insertSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
         var systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
         ProcessAddHelper.addShape(systemTaskShape, layout);
-        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, true);
+        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 
         return systemTaskShape.id;
     }
@@ -83,13 +82,14 @@ export class ProcessAddHelper {
             let id = ProcessAddHelper.insertUserDecisionInternal(sourcesAndDestinations.sourceIds, sourcesAndDestinations.destinationIds[0],
                 layout, shapesFactoryService);
 
-            layout.updateProcessChangedState(id, NodeChange.Add,true);
+            layout.updateProcessChangedState(id, NodeChange.Add, false);
             layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(id);
         }
     }
 
     private static insertUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, shapesFactoryService: ShapesFactory): number {
-        var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id, layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
+        var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
+         layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
         ProcessAddHelper.addShape(userDecisionShape, layout);
 
         // update source decision references
@@ -127,7 +127,7 @@ export class ProcessAddHelper {
         let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId) : label;
 
         // add links
-        let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout,orderIndex, currentLabel);
+        let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, orderIndex, currentLabel);
         ProcessAddHelper.addLinkInfo(userTaskShapeId, systemTaskId, layout);
         ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
 
@@ -165,7 +165,7 @@ export class ProcessAddHelper {
     }
 
     public static insertUserDecisionConditionWithUpdate(decisionId: number, layout: ILayout,
-        shapesFactoryService: ShapesFactory, label?: string,conditionDestinationId?: number): number {
+        shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
         // insertUserDecisionCondition adds 2 shapes:
         // user task + system task
         if (layout.viewModel.isWithinShapeLimit(2)) {
@@ -201,7 +201,7 @@ export class ProcessAddHelper {
         var destinationId = link.destinationId;
         var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(--layout.tempShapeId, layout.viewModel.id, layout.viewModel.projectId, -1, -1);
         ProcessAddHelper.addShape(systemDecision, layout);
-        layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, true);
+        layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 
         layout.updateLink(sourceId, destinationId, systemDecision.id);
         ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id));

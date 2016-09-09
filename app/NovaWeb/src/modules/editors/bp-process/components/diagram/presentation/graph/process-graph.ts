@@ -637,7 +637,8 @@ export class ProcessGraph implements IProcessGraph {
                     if (selectedNode.getNodeType() === NodeType.UserTask) {
                         ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
                     } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, 
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
                     }
                 };
             });

@@ -38,6 +38,7 @@ namespace ArtifactStoreTests
 
         #region SaveArtifact tests
 
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.BusinessProcess)]
         [TestCase(BaseArtifactType.Document)]
@@ -67,21 +68,23 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
         [TestCase]
         [TestRail(154746)]
-        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 401 UnAuthorized is returned.")]
-        public void SaveArtifact_NoTokenHeader_401Unauthorized()
+        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]  
+        public void SaveArtifact_NoTokenHeader_400BadRequest()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
-                "'POST {0}' should return 401 UnAuthorized if no Session-Token header is passed!",
+            Assert.Throws<Http400BadRequestException>(() => artifact.Save(userWithNoToken),
+                "'POST {0}' should return 400 Bad request if no Session-Token header is passed!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
         [TestCase]
         [TestRail(154747)]
         [Description("Create & save an artifact but pass an unauthorized token.  Verify 401 Unauthorized is returned.")]
@@ -97,6 +100,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
         [TestCase]
         [TestRail(154748)]
         [Description("Create & save an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
@@ -114,6 +118,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
         [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(154749)]
@@ -477,7 +482,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user updating the artifact.</param>
         /// <returns>The body content returned from ArtifactStore.</returns>
-        protected string UpdateInvalidArtifact(string requestBody,
+        private string UpdateInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {

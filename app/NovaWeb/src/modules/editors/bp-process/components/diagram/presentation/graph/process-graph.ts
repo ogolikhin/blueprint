@@ -409,17 +409,24 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
 
-    private disableEdgeSelection() {
+   private disableEdgeSelection() {
         mxGraph.prototype.isCellSelectable = (cell) => {
-            if (cell.isEdge()) {
-                return false;
-            } else if (cell.getNodeType) {
-                 if (cell.getNodeType() === NodeType.SystemTask && !this.viewModel.isUserToSystemProcess) {
-                    return false;
+            var selectable: boolean = false; 
+            if (cell) {
+                if (cell.isEdge()) {
+                    selectable = false; 
+                } else if (cell.getNodeType &&
+                           cell.getNodeType() === NodeType.SystemTask &&
+                           !this.viewModel.isUserToSystemProcess) {
+                        
+                        selectable = false;
+                
+                } else {
+                    selectable = true;
                 }
             }
-            return true;
-        };
+            return selectable; 
+        }
     }
 
     public addSelectionListener(listener: ISelectionListener) {

@@ -385,7 +385,6 @@ export class ProjectManager implements IProjectManager {
             properties = this.getArtifactSystemPropertyTypes(_artifact, itemType, _project.meta);
         }
 
-        
         //add custom property types
         _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
             if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
@@ -459,16 +458,28 @@ export class ProjectManager implements IProjectManager {
             primitiveType: Models.PrimitiveType.Text,
             isRichText: true
         });
-         switch (artifact.predefinedType) {
-             case Models.ItemTypePredefined.Document:
-                        properties.push({
-                            name: this.localization.get("Label_DocumentFile", "DocumentFile"), //TODO localize
-                            propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
-                            primitiveType: Models.PrimitiveType.DocumentFile,
-                 });
-                        break;
-             default:
-                 break;
+
+        switch (artifact.predefinedType) {
+            case Models.ItemTypePredefined.Actor:
+                properties.push({
+                    name: this.localization.get("Label_ActorImage", "Image"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.Image,
+                    primitiveType: Models.PrimitiveType.Image,
+                }, {
+                    name: this.localization.get("Label_ActorInheritFrom", "Inherit from"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
+                    primitiveType: Models.PrimitiveType.ActorInheritance,
+                });
+                break;
+            case Models.ItemTypePredefined.Document:
+                properties.push({
+                    name: this.localization.get("Label_DocumentFile", "DocumentFile"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
+                    primitiveType: Models.PrimitiveType.DocumentFile,
+                });
+                break;
+            default:
+                break;
         }
 
         return properties;

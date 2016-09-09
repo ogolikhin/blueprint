@@ -859,28 +859,44 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template:
         `<div ng-if="hasFile"> 
-            <div class="thumb {{extension}}">
-                <span class="input-group has-messages">
-                <input type="text" value="{{fileName}}"\>
-                <span class="icon fonticon2-delete"></span>
-                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Change">Change</button>
-                <button class="btn btn-primary" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
-            </div>
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb {{extension}}"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
+                </span>
+                <span class="input-group-addon">
+                    <span class="icon fonticon2-delete"></span>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+                </span>
+            </span>
          </div>
          <div ng-if="!hasFile">
-            <div class="thumb fonticon2-attachment">
-                <span class="input-group has-messages">
-                <input type="text"\>
-                <button class="btn btn-bluelight" ng-disabled="false" bp-tooltip="Upload">Upload</button>
-            </div>
-         </div>`,
+            <span class="input-group has-messages">
+                <span class="input-group-addon">
+                    <div class="thumb fonticon2-attachment"></div>
+                </span>
+                <span class="form-control-wrapper">
+                    <input type="text" " class="form-control" readonly/>
+                </span>    
+                <span class="input-group-addon">
+                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+                </span>
+            </span>
+          </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
             let currentModelVal = $scope.model[$scope.options.key];
             if (currentModelVal != null) {
                 $scope.hasFile = true;
                 $scope.fileName = currentModelVal["fileName"];
-                $scope.extension = FiletypeParser.getFiletypeClass($scope.fileExtension);
+                $scope.extension = FiletypeParser.getFiletypeClass(currentModelVal["fileExtension"]);
 
                 $scope.downloadFile = () => {
                     return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
@@ -1041,6 +1057,66 @@ export function formlyConfig(
               <formly-transclude></formly-transclude>
             </div>`
     });
+
+    //<span class="input-group-btn" >
+    //    <button type="button" class="btn btn-default" ng- click="bpFieldInheritFrom.delete($event)" > +</button>
+    //        < /span>
+
+    formlyConfig.setType({
+        name: "bpFieldImage",
+        /* tslint:disable:max-line-length */
+        template: `<div class="input-group inheritance-group">
+                    <img ng-src="{{model[options.key]}}" class="actor-image" />
+                    <i ng-show="model[options.key].length > 0" class="glyphicon glyphicon-trash image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-hide="model[options.key].length > 0" class="glyphicon glyphicon-plus image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                </div>`
+        /* tslint:enable:max-line-length */
+    });
+
+    //<input type="text"
+    //id = "{{::id}}"
+    //name = "{{::id}}"
+    //ng - model="model[options.key].pathToProject"
+    //ng - keyup="bpFieldText.keyup($event)"
+    //class="form-control read-only-input"
+    //enable = "false" />
+
+//    <label class="control-label" >
+//        <div bp- tooltip="{{ model[options.key].pathToProject }}" bp- tooltip - truncated="true" > {{ model[options.key].pathToProject }
+//} </div>
+//    < /label>                    
+//    < a href= "#" > {{model[options.key].actorPrefix }}{ { model[options.key].actorId } }:{ { model[options.key].actorName } } </a>
+
+    formlyConfig.setType({
+        name: "bpFieldInheritFrom",
+        /* tslint:disable:max-line-length */
+        template: `<div class="input-group inheritance-group">
+                    <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
+                        <div ng-show="{{model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length < 38}}">
+                            <span>{{model[options.key].pathToProject[0]}}</span>
+                                <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                                  {{item}}
+                                </span>   
+                                <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
+                            </div>                                                
+                        <div ng-hide="{{model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' / ')}}">
+                            <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
+                        </div>
+                    </div>
+                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">                       
+                    </div>
+                    <div class="inheritance-tools" ng-show="model[options.key].actorName.length > 0">
+                        <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                        <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i>
+                    </div>             
+                    <div class="inheritance-tools" ng-hide="model[options.key].actorName.length > 0">
+                        <i class="glyphicon glyphicon-plus"  ng-click="bpFieldInheritFrom.delete($event)"></i>                        
+                    </div>             
+            </div>`,
+        /* tslint:enable:max-line-length */
+        wrapper: ["bpFieldLabel"]
+    });
+ 
     /* tslint:disable */
     /* not using this template yet
     formlyConfig.setWrapper({

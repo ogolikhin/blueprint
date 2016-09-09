@@ -4,6 +4,8 @@
 }
 
 export enum PrimitiveType {
+    ActorInheritance = -1, // for client use only
+
     DocumentFile = 4129, // for client use only
 
     Text = 0,
@@ -116,6 +118,7 @@ export enum PropertyTypePredefined {
     CreatedOn = 4125,
     LastEditedBy = 4126,
     LastEditedOn = 4127,
+    ActorInheritance = 4128,
     VisualizationGroup = 8192,
     X = 8193,
     Y = 8194,

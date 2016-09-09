@@ -41,10 +41,10 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
-    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {        
+    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {
         var defer = this.$q.defer<any>();
         let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
-        
+
         const request: ng.IRequestConfig = {
             url: rest,
             method: "GET",
@@ -62,7 +62,7 @@ export class ArtifactService implements IArtifactService {
             }
         );
         return defer.promise;
-    }    
+    }
 
 
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {

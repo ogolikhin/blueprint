@@ -111,6 +111,51 @@ pagecontent, bp-properties-panel {
     min-width: $property-width - $property-label-width;
     padding: 0 0 10px;
 
+    .formly-field-bpDocumentFile{
+        width: 100% !important;
+        .input-group-addon{
+          padding:0;
+          background-color: transparent;
+          border:none;
+          .icon{    
+            padding-top: 13px;
+            display: inline-block;
+            padding-right: 7px;
+            padding-left: 7px;
+          }
+        }
+        .thumb{
+          width:30px;
+          height:30px;
+          &.fonticon2-attachment{
+            padding-top: 10px;
+          }
+        }
+        .btn.btn-bp-small{
+          margin-left:5px;
+          padding:5px 9px;
+          min-width: 20px;
+        }
+        .form-control-wrapper
+        {
+          display: table-cell;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          padding:4px;
+          .form-control{
+            width:100%;
+            max-width:100%;
+            margin:2px; 
+            background-color: white;
+            background-image: none !important;
+            &:hover{
+              background-image: none !important; 
+            }
+          }
+        }
+    }
+
     // create "padding" to align un-even numbers of property groups
     &::after,
     &::before {
@@ -162,6 +207,7 @@ pagecontent, bp-properties-panel {
         margin: 6px 4px 0 0;
         padding: 0;
         width: #{$property-label-width - 4px};
+        vertical-align: top;
 
         div:first-child {
           flex-grow: 1;
@@ -806,7 +852,70 @@ pagecontent, bp-properties-panel {
         border-bottom-color: $brand-error !important;
       }
     }
-  }
+
+    .formly-field-bpFieldImage {
+      width: #{$property-width * .5};
+
+      .inheritance-group {   
+          
+      .actor-image {        
+        width: 64px;
+        height: 64px;
+        border: 1px solid grey;        
+      }               
+
+      .image-actor-group {        
+        font-size: $font-size-normal;        
+        margin: 5px 9px;        
+      }
+     }   
+    }
+
+    $property-inheritance-width: $property-width * 1.5; //change to 2.5 to span 3 columns instead of 2
+    .formly-field-bpFieldInheritFrom {
+      display: block;
+      max-width: $property-inheritance-width;
+      min-width: $property-input-width;
+      width: 100%;
+
+      .inheritance-group {
+        display: inline-flex;
+        font-size: $font-size-normal;
+        width: calc(100% - #{$property-label-width});        
+
+        .inheritance-path {          
+          border-color: $gray-lighter;
+          background-color: $gray-lightest;
+          border-width: 1px;
+          flex-grow: 1;
+          flex-shrink: 1;
+          height: $property-min-height;
+          line-height: $property-min-height;
+          min-width: $property-input-width - 30px;
+          @include text-ellipsis-flex-width(999px);                    
+          padding: 0 $property-padding-default;                
+
+          span {
+            &::before {
+              content: ' / ';
+            }
+
+            &:first-child {
+              &::before {
+                content: '';
+              }
+            }
+          }
+        }        
+
+        .inheritance-tools {
+          flex-grow: 0;
+          flex-shrink: 0;
+          margin: 5px 9px;
+          }
+        }
+      }     
+    }    
 }
 
 .single-column-property .formly .formly-field label {

@@ -103,6 +103,6 @@ export class DiagramService implements IDiagramService {
         if (itemType === ItemTypePredefined.UseCase) {
             return `/svc/bpartifactstore/usecase/${id}`;
         }
-        return `/svc/bpartifactstore/diagram/${id}?addDraft=true`;
+        return `/svc/bpartifactstore/diagram/${id}`;
     }
 }

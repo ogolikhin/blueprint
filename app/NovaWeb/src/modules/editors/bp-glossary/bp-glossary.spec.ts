@@ -8,6 +8,8 @@ import { BpGlossaryController } from "./bp-glossary";
 import { GlossaryServiceMock } from "./glossary.svc.mock";
 import { ISelectionManager, SelectionManager } from "./../../main/services/selection-manager";
 import { MessageServiceMock } from "../../core/messages/message.mock";
+import { StateManager } from "../../core/services/state-manager";
+import { SessionSvcMock } from "../../shell/login/mocks.spec";
 
 describe("Component BP Glossary", () => {
 
@@ -29,6 +31,8 @@ describe("Component BP Glossary", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("stateManager", StateManager);
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(inject(() => {
@@ -48,7 +52,7 @@ describe("Component BP Glossary", () => {
     it("should display data for a provided artifact id", inject(() => {
        //Assert
        expect(vm.glossary.id).toBe(263);
-       expect(vm.glossary.terms.length).toBe(4);
+       expect(vm.glossary.subArtifacts.length).toBe(4);
     }));
 
     it("should select a specified term", inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager) => {
@@ -58,7 +62,7 @@ describe("Component BP Glossary", () => {
 
        // Act
        selectionManager.clearSelection();
-       vm.selectTerm(vm.glossary.terms[2]);
+       vm.selectTerm(vm.glossary.subArtifacts[2]);
        $rootScope.$digest();
 
        //Assert

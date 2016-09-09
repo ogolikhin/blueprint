@@ -2,7 +2,8 @@ import "angular";
 import "angular-mocks";
 import "Rx";
 import { LocalizationServiceMock } from "../../core//localization/localization.mock";
-import { IGlossaryService, GlossaryService, IGlossaryDetails } from "./glossary.svc";
+import { IGlossaryService, GlossaryService } from "./glossary.svc";
+import { IArtifact } from "../../main/models/models";
 
 describe("Glossary Service", () => {
 
@@ -16,10 +17,10 @@ describe("Glossary Service", () => {
 
         // Arrange
         /* tslint:disable:max-line-length */
-        $httpBackend.expectGET("/svc/components/RapidReview/glossary/263?addDrafts=true")
+        $httpBackend.expectGET("/svc/bpartifactstore/glossary/263")
             .respond(200, {
                     "id": 263,
-                    "terms": [
+                    "subArtifacts": [
                         {
                             "id": 264,
                             "name": "fleek",
@@ -40,7 +41,7 @@ describe("Glossary Service", () => {
 
         // Act
         let error: any;
-        let data: IGlossaryDetails;
+        let data: IArtifact;
         glossaryService.getGlossary(263).then((response) => {
             data = response;
         }, (err) => {
@@ -51,7 +52,7 @@ describe("Glossary Service", () => {
         // Assert
         expect(error).toBeUndefined();
         expect(data.id).toBe(263);
-        expect(data.terms.length).toBe(2);
+        expect(data.subArtifacts.length).toBe(2);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -60,7 +61,7 @@ describe("Glossary Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, glossaryService: IGlossaryService) => {
 
         // Arrange
-        $httpBackend.expectGET("/svc/components/RapidReview/glossary/0?addDrafts=true")
+        $httpBackend.expectGET("/svc/bpartifactstore/glossary/0")
             .respond(404, {
                 statusCode: 404,
                 message: "Couldn't find the artifact"
@@ -68,7 +69,7 @@ describe("Glossary Service", () => {
 
         // Act
         let error: any;
-        let data: IGlossaryDetails;
+        let data: IArtifact;
         glossaryService.getGlossary(0).then( (response) => {
             data = response;
         }, (err) => {

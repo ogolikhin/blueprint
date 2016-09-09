@@ -11,7 +11,7 @@ export interface IEditorParameters {
 
 export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
-    public template = "<div ui-view></div>";
+    public template = "<div ui-view class='artifact-state'></div>";
     public controller = "artifactStateController";
     public reloadOnSearch = false;
 }

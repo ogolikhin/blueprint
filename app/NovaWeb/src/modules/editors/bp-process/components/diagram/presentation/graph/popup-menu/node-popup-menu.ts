@@ -151,7 +151,7 @@ export class NodePopupMenu {
         // remove the popup if a mousedown or resize event is detected anywhere in the document 
         // this means that only one popup can be shown at a time
         
-        this.removePopupOnMouseDownOrResize();
+        this.removePopupOnEvent();
     };
     
     public hidePopupMenu = () => {
@@ -168,15 +168,16 @@ export class NodePopupMenu {
             this.eventSubscriber = null;
         }
     }
- 
-    private removePopupOnMouseDownOrResize() {
-        // listen for a mousedown event or window resize event 
+  
+    private removePopupOnEvent() {
+        // listen for a mousedown, resize or scroll event 
         // and remove the popup menu if it is still showing
 
+        var containerScroll$ = Rx.Observable.fromEvent<any>(this.htmlElement, "scroll");
         var mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
         var windowResize$ = Rx.Observable.fromEvent<any>(window, "resize");
 
-        this.eventSubscriber = mouseDown$.merge(windowResize$).subscribe(event => {
+        this.eventSubscriber = mouseDown$.merge(windowResize$).merge(containerScroll$).subscribe(event => {
             this.hidePopupMenu();
             this.disposeEventSubscriptions();
         });

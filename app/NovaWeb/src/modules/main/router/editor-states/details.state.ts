@@ -1,4 +1,5 @@
 ﻿import {IEditorParameters} from "../artifact.state";
+import {BaseEditorStateController} from "./base-editor-state-controller";
 
 export class ArtifactDetailsState implements ng.ui.IState {
     public template = require("./details.state.html");
@@ -7,10 +8,8 @@ export class ArtifactDetailsState implements ng.ui.IState {
     public controllerAs = "$content";
 }
 
-export class DetailsStateController {
-    public static $inject = ["$state"];
-    public context;
-    constructor(private $state: angular.ui.IStateService) {
-        this.context = $state.params["context"];
+export class DetailsStateController extends BaseEditorStateController {
+    constructor($state: angular.ui.IStateService) {
+        super($state);
     }
 }

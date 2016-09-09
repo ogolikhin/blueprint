@@ -7,6 +7,7 @@ import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { documentController } from "./controllers/document-field-controller";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
@@ -137,7 +138,8 @@ export function formlyConfig(
             </div>
             <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
                 <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>`,
+            </div>`
+        ,
         /* tslint:enable */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
@@ -892,29 +894,7 @@ export function formlyConfig(
           </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (currentModelVal != null) {
-                $scope.hasFile = true;
-                $scope.fileName = currentModelVal["fileName"];
-                $scope.extension = FiletypeParser.getFiletypeClass(currentModelVal["fileExtension"]);
-
-                $scope.downloadFile = () => {
-                    return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
-                        .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
-                            if (attachmentResultSet.attachments.length) {
-                                $window.open(
-                                    "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
-                                    + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
-                                    "_blank");
-                            } else {
-                                messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
-                            }
-                        });
-                };
-
-            } else {
-                $scope.hasFile = false;
-            }
+            documentController($scope, localization, artifactAttachments, $window, messageService);
         }]
     });
 

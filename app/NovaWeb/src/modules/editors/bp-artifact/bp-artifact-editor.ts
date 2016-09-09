@@ -172,11 +172,14 @@ export class BpArtifactEditor extends BpBaseEditor {
             let changeSet: IPropertyChangeSet = {
                 lookup: context.lookup,
                 id: context.modelPropertyName,
-                value: value,
-                isValid: ($field.formControl as ng.IFormController).$valid
+                value: value
             };
             let state = this.stateManager.addChange(this.context.artifact, changeSet);
             
+            if ($scope.form) {
+                state.setValidationErrorsFlag($scope.form.$$parentForm.$invalid);
+            }
+
             this.stateManager.lockArtifact(state).catch((error: any) => {
                 if (error) {
                     this.messageService.addError(error);

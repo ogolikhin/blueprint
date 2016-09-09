@@ -848,10 +848,8 @@ pagecontent, bp-properties-panel {
           height: $property-min-height;
           line-height: $property-min-height;
           min-width: $property-input-width - 30px;
-          overflow: hidden;
-          padding: 0 $property-padding-default;
-          text-overflow: ellipsis;
-          white-space: nowrap;          
+          @include text-ellipsis-flex-width(999px);                    
+          padding: 0 $property-padding-default;                
 
           span {
             &::before {

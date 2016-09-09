@@ -258,6 +258,12 @@ export class PropertyEditor {
                     //TODO needs to be changed to user selection
                     field.type = "bpFieldReadOnly";
                     break;
+                case Models.PrimitiveType.Image:
+                    field.type = "bpFieldImage";
+                    break;
+                case Models.PrimitiveType.ActorInheritance:
+                    field.type = "bpFieldInheritFrom";
+                    break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
                     field.templateOptions["artifactId"] = this._artifactId;

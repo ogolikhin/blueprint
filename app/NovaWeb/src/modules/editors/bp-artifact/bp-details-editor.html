@@ -20,8 +20,8 @@
                     <formly-form model="$ctrl.model" fields="$ctrl.specificFields">
                     </formly-form>
                 </div>
-            </div>
-
+            </div>  
+                      
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}" ng-if="$ctrl.isCustomPropertyAvailable">
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
                 <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">

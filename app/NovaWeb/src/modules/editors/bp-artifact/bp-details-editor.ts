@@ -49,7 +49,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public get isSpecificPropertyAvailable(): boolean {
-        return this.context.type.predefinedType === Models.ItemTypePredefined.Document;
+        return this.context.type.predefinedType === Models.ItemTypePredefined.Document ||
+               this.context.type.predefinedType === Models.ItemTypePredefined.Actor;
     }
 
     public get specificPropertiesHeading(): string {
@@ -78,8 +79,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.specificFields = [];
         this.richTextFields = [];
     }
-
-
+    
     public onLoading(obj: any): boolean {
         return super.onLoading(obj);
     }
@@ -118,7 +118,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
-
     }
-
 }

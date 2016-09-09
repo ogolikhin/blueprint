@@ -20,7 +20,7 @@ angular.module("bp.widjets", [
     "bp.widjets.tree",
     "bp.widjets.treedraganddrop",
     "bp.widjets.inlineedit",
-    "bp.widjets.tooltip",
+    "bp.widjets.tooltip",    
     "bp.widjets.infinitescroll",
     "bp.widjets.select",
     "bp.widjets.itemicon",

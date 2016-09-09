@@ -148,6 +148,7 @@ namespace Model.ArtifactModel.Impl
             public string PropertyTypeId { get; set; }
             public string PropertyTypeVersionId { get; set; }
             public string PropertyTypePredefined { get; set; }
+            public object Value { get; set; }
         }
     }
 }

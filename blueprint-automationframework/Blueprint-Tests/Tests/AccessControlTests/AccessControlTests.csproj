@@ -89,6 +89,10 @@
       <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ArtifactStoreTests\ArtifactStoreTests.csproj">
+      <Project>{0C8BEEA3-5FCF-48C7-A42B-E4B92F623AA9}</Project>
+      <Name>ArtifactStoreTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TestCommon\TestCommon.csproj">
       <Project>{8a66038c-22fc-4c28-ba0d-714614a50418}</Project>
       <Name>TestCommon</Name>

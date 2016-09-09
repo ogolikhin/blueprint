@@ -5,7 +5,6 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
@@ -20,7 +19,7 @@ namespace ArtifactStoreTests
     public class SaveArtifactTests : TestBase
     {
         private IUser _user = null;
-        private IProject _project = null;
+        private IProject _project = null, _projectCustomData = null;
 
         [SetUp]
         public void SetUp()
@@ -28,6 +27,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _projectCustomData = ProjectFactory.GetProject(_user, "Custom Data");
         }
 
         [TearDown]
@@ -38,7 +38,6 @@ namespace ArtifactStoreTests
 
         #region SaveArtifact tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.BusinessProcess)]
         [TestCase(BaseArtifactType.Document)]
@@ -68,23 +67,21 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154746)]
-        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]
-        public void SaveArtifact_NoTokenHeader_400BadRequest()
+        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 401 UnAuthorized is returned.")]
+        public void SaveArtifact_NoTokenHeader_401Unauthorized()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
             IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() => artifact.Save(userWithNoToken),
-                "'POST {0}' should return 400 Bad Request if no Session-Token header is passed!",
+            Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
+                "'POST {0}' should return 401 UnAuthorized if no Session-Token header is passed!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154747)]
         [Description("Create & save an artifact but pass an unauthorized token.  Verify 401 Unauthorized is returned.")]
@@ -100,14 +97,14 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154748)]
         [Description("Create & save an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
         public void SaveArtifact_UserWithoutPermissions_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
@@ -117,22 +114,24 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(154749)]
-        [Description("Create & save an artifact with a non-existent Project ID.  Verify 404 Not Found is returned.")]
-        public void SaveArtifact_NonExistentProjectId_404NotFound(int projectId)
+        [Description("Create & save an artifact with a non-existent Project ID.  Verify 400 Bad Request is returned.")]
+        public void SaveArtifact_NonExistentProjectId_400BadRequest(int projectId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+
+            IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
+            _project, _user, BaseArtifactType.Actor, artifact.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
 
             // Replace ProjectId with a fake ID that shouldn't exist.
-            artifact.ProjectId = projectId;
+            fakeArtifact.ProjectId = projectId;
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => artifact.Save(),
-                "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!",
+            Assert.Throws<Http400BadRequestException>(() => fakeArtifact.Save(),
+                "'POST {0}' should return 400 Bad Request if the Project ID doesn't exist!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
@@ -149,7 +148,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
 
-            UpdateArtifact_CanGetArtifact(artifact, artifactType);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -161,7 +160,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
             // Execute & Verify:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
         }
 
         [TestCase]
@@ -355,20 +354,78 @@ namespace ArtifactStoreTests
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
-        // TODO: See if we can test any of the following 409 Conflict cases:
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(164531)]
+        [Description("Create & publish an artifact. Update the artifact property 'Name' with Empty space. Get the artifact. Verify the artifact returned has the same properties as the artifact we updated.")]
+        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
 
-        /*
-        409 Conflict
-        - (This condition will be removed later, see US 1991) a property value does not match constraints, e.g. min and max values, valid values, required etc, or incorrect.
-             - Text - required.
-             - Number - required, min, max.
-             - Date -  required, min, max.
-             - Choice - required, against valid values, not allow multiple choices.
-             - User - required, user or group exists.
-        - A property is read-only over the reuse.
-        - The artifact is not locked by the current user.
-        - The version of the artifact in the input NovaArtifact version does not match the current version of the artifact.
-        */
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
+        }
+
+        #region Custom data tests
+
+        [TestCase("Value\":10.0", "Value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase("Value\":\"20", "Value\":\"21")] //Insert value into Date field which is out of range
+        [TestRail(164595)]
+        [Description("Try to update an artifact properties with a value that out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            // Execute:
+            UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+        }
+
+        [TestCase("Value\":10.0", "Value\":\"A\"")] //Insert String into Numeric field
+        [TestCase("Value\":\"20", "Value\":\"A")] //Insert String into Date field
+        [TestCase("validValueIds\":[22]", "validValueIds\":[0]")] //Insert non-existant choice
+        [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0")] //Insert non-existant choice
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
+        public void UpdateArtifact_WrongType1InProperty_400BadRequest(string toChange, string changeTo)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
+            RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        [TestCase]
+        [TestRail(164624)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
+        public void UpdateArtifact_NotLockedByUser_409Conflict(/*string toChange, string changeTo*/)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectCustomData, _user, BaseArtifactType.Actor);
+
+            Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user), "'PATCH {0}' should return 409 Conflict if the user didn't put lock",
+                    RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        #endregion Custom Data
 
         #endregion UpdateArtifact tests
 
@@ -379,16 +436,13 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifact">The artifact to update.</param>
         /// <param name="artifactType">The type of artifact.</param>
-        private void UpdateArtifact_CanGetArtifact(IArtifact artifact, BaseArtifactType artifactType)
+        /// <param name="parentProperty">Parent property.</param>
+        private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
         {
             // Setup:
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            // Update the Id of the artifact with the value after the save.
-            artifact.Id = artifactDetails.Id;
-
-            // Change the Description so it can be updated.
-            artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+            SetProperty(propertyToChange, value, ref artifactDetails);
 
             NovaArtifactDetails updateResult = null;
 
@@ -405,37 +459,16 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
-        /*
         /// <summary>
-        /// Try to save a single invalid artifact to ArtifactStore.  Use this for testing cases where the save is expected to fail.
+        /// Set one primary property to specific value.
         /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be saved).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user saving the artifact.</param>
-        /// <returns>The ArtifactDetails returned from ArtifactStore.</returns>
-        private ArtifactDetails SaveInvalidArtifact(string requestBody,
-            int artifactId,
-            IUser user)
+        /// <param name="propertyToChange">The property to change.</param>
+        /// <param name="propertyName">Name of the property in which value will be changed.</param>
+        /// <param name="propertyValue">New property value.</param>
+        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpadate)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.POST,
-                requestBody,
-                contentType);
-
-            var artifactResult = JsonConvert.DeserializeObject<ArtifactDetails>(response.Content);
-
-            return artifactResult;
+            objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);
         }
-        */
 
         /// <summary>
         /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
@@ -444,7 +477,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactId">The ID of the artifact to save.</param>
         /// <param name="user">The user updating the artifact.</param>
         /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
+        protected string UpdateInvalidArtifact(string requestBody,
             int artifactId,
             IUser user)
         {

@@ -52,7 +52,8 @@ export class ProcessAddHelper {
     }
 
     public static insertUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
-        var userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
+        var userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
         ProcessAddHelper.addShape(userTaskShape, layout);
         layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
 
@@ -67,7 +68,8 @@ export class ProcessAddHelper {
     }
 
     public static insertSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
-        var systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
+        var systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
         ProcessAddHelper.addShape(systemTaskShape, layout);
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 
@@ -88,8 +90,9 @@ export class ProcessAddHelper {
     }
 
     private static insertUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, shapesFactoryService: ShapesFactory): number {
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
         var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
-         layout.viewModel.projectId, --layout.tempShapeId, -1, -1);
+         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
         ProcessAddHelper.addShape(userDecisionShape, layout);
 
         // update source decision references
@@ -199,7 +202,8 @@ export class ProcessAddHelper {
     private static insertSystemDecisionInternal(link: IProcessLink, layout: ILayout, shapesFactoryService: ShapesFactory): number {
         var sourceId = link.sourceId;
         var destinationId = link.destinationId;
-        var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(--layout.tempShapeId, layout.viewModel.id, layout.viewModel.projectId, -1, -1);
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
+        var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(layout.getTempShapeId(), layout.viewModel.id, layout.viewModel.projectId, -1, -1);
         ProcessAddHelper.addShape(systemDecision, layout);
         layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 

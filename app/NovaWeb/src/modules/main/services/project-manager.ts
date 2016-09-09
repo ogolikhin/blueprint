@@ -122,6 +122,8 @@ export class ProjectManager implements IProjectManager {
                                 
                                 this.artifactManager.add(_project);
                                 _project.artifacts.forEach((a) => {
+
+                                    // TODO: need to create different types of Stateful Artifacts (StatefulArtifact / StatefulProcessArtifact)
                                     this.artifactManager.add(a);
                                 });
                                 

@@ -139,7 +139,6 @@ export interface ILayout {
     createAutoInsertTaskMessage();
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
-    hidePopupMenu();
     viewModel: IProcessViewModel;
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);

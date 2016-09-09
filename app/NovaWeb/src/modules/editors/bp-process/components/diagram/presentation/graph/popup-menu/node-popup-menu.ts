@@ -1,4 +1,5 @@
-﻿import {IDiagramNode} from "../models/";
+﻿import {ILocalizationService, IMessageService} from "../../../../../../../core/";
+import {IDiagramNode} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
 import {NodeType, ILayout} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
@@ -13,7 +14,7 @@ export class NodePopupMenu {
     constructor(
         private layout: ILayout,
         private shapesFactoryService: ShapesFactory,
-        private rootScope,
+        private localization: ILocalizationService,
         private htmlElement: HTMLElement,
         private mxgraph: MxGraph, 
         private insertTaskFn,
@@ -93,7 +94,7 @@ export class NodePopupMenu {
             
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
-                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Task_Label"), null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
@@ -102,7 +103,7 @@ export class NodePopupMenu {
                 });
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
 
-                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_System_Decision_Label"], null, () => {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
@@ -110,7 +111,7 @@ export class NodePopupMenu {
                     }
                 });
             } else {
-                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Task_Label"], null, () => {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Task_Label"), null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
@@ -118,7 +119,7 @@ export class NodePopupMenu {
                     }
                 });
 
-                menu.addItem(this.rootScope.config.labels["ST_Popup_Menu_Add_User_Decision_Label"], null, () => {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
                     this.disposeEventSubscriptions();
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
@@ -127,7 +128,7 @@ export class NodePopupMenu {
                 });
             }
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
-            menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
                 this.disposeEventSubscriptions();
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
@@ -135,7 +136,7 @@ export class NodePopupMenu {
                 }
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
-            menu.addItem(this.rootScope.config.labels["ST_Decision_Modal_Add_Condition_Button_Label"], null, () => {
+            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
                 this.disposeEventSubscriptions();
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);

@@ -21,6 +21,8 @@ import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
+import {NodePopupMenu} from "./popup-menu/node-popup-menu";
+
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -39,7 +41,7 @@ export class ProcessGraph implements IProcessGraph {
     private bottomBorderWidt: number = 6;
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
-
+    private popupMenu: NodePopupMenu = null;
     public globalScope: IScopeContext;
 
     public static get MinConditions(): number {
@@ -100,6 +102,8 @@ export class ProcessGraph implements IProcessGraph {
 
         this.addMouseEventListener(this.mxgraph);
 
+        this.initializePopupMenu();
+
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);
 
@@ -124,7 +128,24 @@ export class ProcessGraph implements IProcessGraph {
         this.initializeGlobalScope();
   
     }
-    
+
+    private initializePopupMenu() {
+
+        // initialize a popup menu for the graph
+     
+        this.popupMenu = new NodePopupMenu(
+            this.layout,
+            this.shapesFactory,
+            this.localization,
+            this.htmlElement,
+            this.mxgraph,
+            ProcessAddHelper.insertTaskWithUpdate,
+            ProcessAddHelper.insertUserDecision,
+            ProcessAddHelper.insertUserDecisionConditionWithUpdate,
+            ProcessAddHelper.insertSystemDecision,
+            ProcessAddHelper.insertSystemDecisionConditionWithUpdate);
+    }
+
     public render(useAutolayout, selectedNodeId) {
         try {
             // uses layout object to draw a new diagram for process model
@@ -750,7 +771,7 @@ export class ProcessGraph implements IProcessGraph {
 
         this.logInfo("Enter setSystemTasksVisible, value = " + value);
 
-        this.layout.hidePopupMenu();
+        this.popupMenu.hidePopupMenu();
 
         graphModel.beginUpdate();
 

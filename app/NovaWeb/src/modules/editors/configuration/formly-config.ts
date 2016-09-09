@@ -876,13 +876,13 @@ export function formlyConfig(
 
     formlyConfig.setType({
         name: "bpFieldImage",
-        /* tslint:disable */
+        /* tslint:disable:max-line-length */
         template: `<div class="input-group inheritance-group">
-                    <img ng-src="{{model[options.key]}}" width="64" height="64" style="border:1px solid grey" />
+                    <img ng-src="{{model[options.key]}}" class="actor-image" />
                     <i ng-show="model[options.key].length > 0" class="glyphicon glyphicon-trash image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
                     <i ng-hide="model[options.key].length > 0" class="glyphicon glyphicon-plus image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
                 </div>`
-        /* tslint:enable */
+        /* tslint:enable:max-line-length */
     });
 
     //<input type="text"
@@ -901,7 +901,7 @@ export function formlyConfig(
 
     formlyConfig.setType({
         name: "bpFieldInheritFrom",
-        /* tslint:disable */
+        /* tslint:disable:max-line-length */
         template: `<div class="input-group inheritance-group">
                     <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
                         <div ng-show="{{model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length < 38}}">
@@ -925,7 +925,7 @@ export function formlyConfig(
                         <i class="glyphicon glyphicon-plus"  ng-click="bpFieldInheritFrom.delete($event)"></i>                        
                     </div>             
             </div>`,
-        /* tslint:enable */
+        /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"]
     });
  

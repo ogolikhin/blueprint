@@ -811,7 +811,13 @@ pagecontent, bp-properties-panel {
     .formly-field-bpFieldImage {
       width: #{$property-width * .5};
 
-      .inheritance-group {        
+      .inheritance-group {   
+          
+      .actor-image {        
+        width: 64px;
+        height: 64px;
+        border: 1px solid grey;        
+      }               
 
       .image-actor-group {        
         font-size: $font-size-normal;        

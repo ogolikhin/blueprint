@@ -13,7 +13,7 @@ namespace Model.Factories
 {
     public static class ProjectFactory
     {
-        private static string _address = GetOpenApiUrl();
+        public static string Address { get; } = GetOpenApiUrl();
 
         private static string GetOpenApiUrl()
         {
@@ -40,6 +40,24 @@ namespace Model.Factories
         }
 
         /// <summary>
+        /// Gets all projects on the Blueprint server.
+        /// </summary>
+        /// <param name="user">The user making the REST request.</param>
+        /// <returns>A list of projects that were found.</returns>
+        public static List<IProject> GetAllProjects(IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = RestPaths.OpenApi.PROJECTS;
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            return projects.ConvertAll(o => (IProject)o);
+        }
+
+        /// <summary>
         /// Get the project object with the name specified, or the first project from BP database.
         /// </summary>
         /// <param name="user">The user making the REST request.</param>
@@ -51,29 +69,23 @@ namespace Model.Factories
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
         public static IProject GetProject(IUser user, string projectName = null, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = RestPaths.OpenApi.PROJECTS;
-
-            RestApiFacade restApi = new RestApiFacade(_address, user.Token?.OpenApiToken);
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var projects = GetAllProjects(user);
 
             if (projects.Count == 0)
             {
-                Logger.WriteError("No project available on the test server {0}", _address);
+                Logger.WriteError("No project available on the test server {0}", Address);
                 throw new DataException("No project available on the test server");
             }
 
             // Get project from blueprint
-            Project prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
+            IProject prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
 
             // Create a project object in memeory using the constructor
-            IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};
+            IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};  // TODO: Do we need to make a copy of it?
 
             if (shouldRetrieveArtifactTypes)
             {
-                project.GetAllArtifactTypes(address: _address, user: user,
+                project.GetAllArtifactTypes(address: Address, user: user,
                     shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
             }
 

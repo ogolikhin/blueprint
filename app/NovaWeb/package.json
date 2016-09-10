@@ -14,7 +14,9 @@
     "test:nolint": "karma start --debug --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
     "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
+    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
+    "typings:u": "typings uninstall --global --save",
+    "typings:i": "typings install --global --save"
   },
   "dependencies": {
     "ag-grid": "5.3.1",

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -44,7 +43,7 @@ namespace ArtifactStoreTests
 
         #region SaveArtifact tests
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.BusinessProcess)]
         [TestCase(BaseArtifactType.Document)]
@@ -74,10 +73,10 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154746)]
-        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]  
+        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]
         public void SaveArtifact_NoTokenHeader_400BadRequest()
         {
             // Setup:
@@ -90,7 +89,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154747)]
         [Description("Create & save an artifact but pass an unauthorized token.  Verify 401 Unauthorized is returned.")]
@@ -106,7 +105,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase]
         [TestRail(154748)]
         [Description("Create & save an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
@@ -124,7 +123,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // Save Artifact is not implemented!!
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
         [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(154749)]

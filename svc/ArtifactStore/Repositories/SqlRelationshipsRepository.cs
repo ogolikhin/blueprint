@@ -1,4 +1,5 @@
-﻿using ArtifactStore.Models;
+﻿using ArtifactStore.Helpers;
+using ArtifactStore.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
@@ -50,15 +51,7 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
-            parameters.Add("@userId", userId);
-            parameters.Add("@addDrafts", addDrafts);
-            parameters.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<ItemLabel>("GetItemsLabels", parameters, commandType: CommandType.StoredProcedure));
-        }
+
 
         private async Task<string> GetItemDescription (int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
@@ -174,8 +167,9 @@ namespace ArtifactStore.Repositories
                 distinctItemIds.Add(result.DestinationProjectId);
             }
 
+            var itemInfoHelper = new ItemInfoHelper(ConnectionWrapper);
             var itemDetailsDictionary = (await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
-            var itemLabelsDictionary = (await GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
+            var itemLabelsDictionary = (await itemInfoHelper.GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
             PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };

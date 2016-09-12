@@ -10,6 +10,7 @@ using ServiceLibrary.Helpers;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
@@ -66,7 +67,7 @@ namespace ArtifactStore.Repositories
                 var orphanVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
-                if(orphanVersions.Any())
+                if (orphanVersions.Any())
                 {
                     var dicUserOrphanVersions = orphanVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
@@ -153,7 +154,7 @@ namespace ArtifactStore.Repositories
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
-                if(a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
+                if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
                     return maxIndexOrder + 1; // Collections folder comes after artifacts
                 if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.BaselineFolder)
                     return maxIndexOrder + 2; // Baseline and Reviews folder comes after Collections folder
@@ -169,7 +170,7 @@ namespace ArtifactStore.Repositories
             if (av.ParentId != av.VersionProjectId)
                 return av.ItemTypeId;
 
-            switch(av.ItemTypePredefined)
+            switch (av.ItemTypePredefined)
             {
                 case ItemTypePredefined.CollectionFolder:
                     return ServiceConstants.StubCollectionsItemTypeId;
@@ -206,7 +207,7 @@ namespace ArtifactStore.Repositories
             ArtifactVersion directAncestorUserVersion;
             dicUserArtifactVersions.TryGetValue(parentUserVersion.ParentId.GetValueOrDefault(), out directAncestorUserVersion);
 
-            if(directAncestorUserVersion == null)
+            if (directAncestorUserVersion == null)
             {
                 ArtifactVersion projectUserArtifactVersion;
                 dicUserArtifactVersions.TryGetValue(projectId, out projectUserArtifactVersion);
@@ -233,7 +234,7 @@ namespace ArtifactStore.Repositories
 
         private ArtifactVersion GetUserArtifactVersion(List<ArtifactVersion> headAndDraft)
         {
-            if(headAndDraft == null)
+            if (headAndDraft == null)
                 throw new ArgumentNullException(nameof(headAndDraft));
 
             if (headAndDraft.Count == 0)
@@ -286,8 +287,9 @@ namespace ArtifactStore.Repositories
 
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
-            var subArtifactsList = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToList();
             var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.ItemId);
+            var itemInfoHelper = new ItemInfoHelper(ConnectionWrapper);
+            var itemLabelsDictionary = (await itemInfoHelper.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
             foreach (var subArtifactEntry in subArtifactsDictionary)
             {
                 var subArtifact = subArtifactEntry.Value;
@@ -300,6 +302,11 @@ namespace ArtifactStore.Repositories
                         parentSubArtifact.Children = new List<SubArtifact>();
                     }
                     ((List<SubArtifact>)parentSubArtifact.Children).Add(subArtifact);
+                }
+                ItemLabel itemLabel;
+                if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.ItemId, out itemLabel))
+                {
+                    subArtifactEntry.Value.Label = itemLabel.Label;
                 }
             }
             var result = subArtifactsDictionary.Where(a => a.Value.ParentId == artifactId).Select(b => b.Value);

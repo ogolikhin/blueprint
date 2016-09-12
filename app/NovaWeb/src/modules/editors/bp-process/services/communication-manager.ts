@@ -1,6 +1,6 @@
-import {IModalDialogCommunication, ModalDialogCommunication} from "../../editors/bp-process/components/modal-dialogs/modal-dialog-communication";
-import {IToolbarCommunication, ToolbarCommunication} from "../../editors/bp-process/components/header/toolbar-communication";
-import {IProcessDiagramCommunication, ProcessDiagramCommunication} from "../../editors/bp-process/components/diagram/process-diagram-communication";
+import {IModalDialogCommunication, ModalDialogCommunication} from "../components/modal-dialogs/modal-dialog-communication";
+import {IToolbarCommunication, ToolbarCommunication} from "../components/header/toolbar-communication";
+import {IProcessDiagramCommunication, ProcessDiagramCommunication} from "../components/diagram/process-diagram-communication";
 
 export class ICommunicationManager {
     modalDialogManager: IModalDialogCommunication;

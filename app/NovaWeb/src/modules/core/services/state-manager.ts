@@ -26,6 +26,7 @@ export class ItemState {
     private _changesets: IPropertyChangeSet[];
     private _changedItem: Models.IArtifact;
     private _lock: Models.ILockResult;
+    private _hasValidationErrors: boolean;
     
     public itemType: Models.IItemType;
 
@@ -42,6 +43,7 @@ export class ItemState {
         delete this._changedItem;
         delete this._changesets;
         delete this._lock;
+        delete this._hasValidationErrors;
     }
 
     public get originItem(): Models.IArtifact {
@@ -128,6 +130,7 @@ export class ItemState {
                     id: -1,
                     displayName: value.info.lockOwnerLogin
                 };
+                this.originItem.lockedDateTime = value.info.utcLockedDateTime;
             }
             this.discardChanges();
             this._readonly = true;
@@ -221,6 +224,10 @@ export class ItemState {
     }
 
     public generateArtifactDelta(): Models.IArtifact {
+        if (this._hasValidationErrors) {
+            throw new Error("App_Save_Artifact_Error_409_114");
+        }
+
         let delta: Models.IArtifact = {} as Models.Artifact;
 
         //constant properties - just take from changed item
@@ -283,6 +290,10 @@ export class ItemState {
             delete this._changedItem;
         }
         return false;
+    }
+
+    public setValidationErrorsFlag(value: boolean) {
+        this._hasValidationErrors = value;
     }
 
     public getArtifact(): Models.IArtifact {

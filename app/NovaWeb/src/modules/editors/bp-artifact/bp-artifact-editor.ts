@@ -112,9 +112,12 @@ export class BpArtifactEditor extends BpBaseEditor {
                 });
 
                 if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    field.type = "bpFieldReadOnly";
+                    if (field.key !== "documentFile"  &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {  
+                        field.type = "bpFieldReadOnly";                     
+                    }
                 }
-
                 this.onFieldUpdate(field);
 
             });
@@ -175,6 +178,10 @@ export class BpArtifactEditor extends BpBaseEditor {
                 value: value
             };
             let state = this.stateManager.addChange(this.context.artifact, changeSet);
+            
+            if ($scope.form) {
+                state.setValidationErrorsFlag($scope.form.$$parentForm.$invalid);
+            }
 
             this.stateManager.lockArtifact(state).catch((error: any) => {
                 if (error) {

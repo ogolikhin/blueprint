@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../../../../../../core/";
+﻿import {ILocalizationService, IMessageService} from "../../../../../../core/";
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";
@@ -19,6 +19,8 @@ import {DiagramNode, DiagramLink, SystemDecision} from "./shapes/";
 import {ShapeInformation} from "./shapes/shape-information";
 import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {ProcessAddHelper} from "./process-add-helper";
+import {IDialogSettings, IDialogService} from "../../../../../../shared";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -29,7 +31,6 @@ export class ProcessGraph implements IProcessGraph {
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
-    private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     private executionEnvironmentDetector: any;
@@ -59,9 +60,12 @@ export class ProcessGraph implements IProcessGraph {
         private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-        public viewModel: IProcessViewModel,
+        public viewModel: IProcessViewModel, 
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
         public messageService: IMessageService = null,
-        private $log: ng.ILogService = null) {
+        private $log: ng.ILogService = null,
+        private shapesFactory: ShapesFactory = null) {
 
         // Creates the graph inside the given container
          
@@ -71,7 +75,10 @@ export class ProcessGraph implements IProcessGraph {
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
          
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.shapesFactory = new ShapesFactory(this.rootScope);
+
+        if (!shapesFactory) {
+            this.shapesFactory = new ShapesFactory(this.rootScope);
+        }
         
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);        
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
@@ -170,14 +177,15 @@ export class ProcessGraph implements IProcessGraph {
         return this.htmlElement;
     }
 
-    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, label?: string, conditionDestinationId?: number) => number {
+    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, layout: ILayout,
+        shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
 
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
-                return this.layout.insertSystemDecisionCondition;
+                return ProcessAddHelper.insertSystemDecisionCondition;
             case ProcessShapeType.UserDecision:
-                return this.layout.insertUserDecisionCondition;
+                return ProcessAddHelper.insertUserDecisionCondition;
             default:
                 throw new Error(`Expected a decision type but found ${shapeType}`);
         }
@@ -217,7 +225,7 @@ export class ProcessGraph implements IProcessGraph {
         let id: number;
 
         for (let i: number = 0; i < newConditions.length; i++) {
-            id = insertMethod(decisionId, newConditions[i].label, newConditions[i].mergeNode.model.id);
+            id = insertMethod(decisionId, this.layout, this.shapesFactory, newConditions[i].label, newConditions[i].mergeNode.model.id);
         }
 
         this.notifyUpdateInModel(NodeChange.Update, id);
@@ -406,17 +414,24 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
 
-    private disableEdgeSelection() {
-        mxGraph.prototype.isCellSelectable = (cell) => {
-            if (cell.isEdge()) {
-                return false;
-            } else if (cell.getNodeType) {
-                 if (cell.getNodeType() === NodeType.SystemTask && !this.viewModel.isUserToSystemProcess) {
-                    return false;
-                }
-            }
-            return true;
-        };
+   private disableEdgeSelection() {
+       mxGraph.prototype.isCellSelectable = (cell) => {
+           var selectable: boolean = false;
+           if (cell) {
+               if (cell.isEdge()) {
+                   selectable = false;
+               } else if (cell.getNodeType &&
+                   cell.getNodeType() === NodeType.SystemTask &&
+                   !this.viewModel.isUserToSystemProcess) {
+
+                   selectable = false;
+
+               } else {
+                   selectable = true;
+               }
+           }
+           return selectable;
+       };
     }
 
     public addSelectionListener(listener: ISelectionListener) {
@@ -619,13 +634,24 @@ export class ProcessGraph implements IProcessGraph {
     private deleteShape = () => {
         let selectedNodes = this.getSelectedNodes();
         if (selectedNodes.length > 0) {
-            let selectedNode = selectedNodes[0];
-            
-            if (selectedNode.getNodeType() === NodeType.UserTask) {
-                ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                ProcessDeleteHelper.deleteDecision(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            }
+            let selectedNode: IDiagramNode = selectedNodes[0];
+            let dialogParameters = selectedNode.getDeleteDialogParameters();
+        
+            this.dialogService.open(<IDialogSettings>{
+                okButton: this.localization.get("App_Button_Ok"),
+                template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
+                header: this.localization.get("App_DialogTitle_Alert"),
+                message: dialogParameters.message
+            }).then((confirm: boolean) => {
+                if (confirm) {
+                    if (selectedNode.getNodeType() === NodeType.UserTask) {
+                        ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                    } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
+                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, 
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                    }
+                };
+            });
         }
     }
 
@@ -784,6 +810,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private initSelection() {
         //let that = this;
+        this.mxgraph.getSelectionModel().setSingleSelection(true);
         this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
             let elements = this.getSelectedNodes();
             let deletable = elements.length > 0;

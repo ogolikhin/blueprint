@@ -182,6 +182,11 @@ $modal-open-project-height: 450px;
   }
 }
 
+.nova-login-confirm,
+.modal.nova-login {
+    z-index:18000 !important;
+}
+
 .modal.nova-login {
   .modal-header {
     background: $brand-secondary url('images/logo-storyteller-white.svg') center center no-repeat;

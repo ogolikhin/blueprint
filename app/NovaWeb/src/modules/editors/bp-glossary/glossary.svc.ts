@@ -1,22 +1,12 @@
 import { ILocalizationService } from "../../core";
-import { Models } from "../../main";
+import { IArtifact, ISubArtifact } from "../../main/models/models";
 
 export interface IGlossaryService {
-    getGlossary(id: number): ng.IPromise<IGlossaryDetails>;
+    getGlossary(id: number): ng.IPromise<IArtifact>;
 }
 
-export interface IGlossaryTerm {
-    id: number;
-    name: string;
-    definition: string;
-    typePrefix: string;
-    predefined: Models.ItemTypePredefined;
+export interface IGlossaryTerm extends ISubArtifact {
     selected?: boolean;
-}
-
-export interface IGlossaryDetails {
-    id: number;
-    terms: IGlossaryTerm[];
 }
 
 export class GlossaryService implements IGlossaryService {
@@ -26,7 +16,7 @@ export class GlossaryService implements IGlossaryService {
         "$log",
         "localization"];
 
-    private _glossary: Rx.BehaviorSubject<IGlossaryDetails>;
+    private _glossary: Rx.BehaviorSubject<IArtifact>;
 
     constructor(
         private $q: ng.IQService,
@@ -34,18 +24,18 @@ export class GlossaryService implements IGlossaryService {
         private $log: ng.ILogService,
         private localization: ILocalizationService) {
 
-        this._glossary = new Rx.BehaviorSubject<IGlossaryDetails>(null);
+        this._glossary = new Rx.BehaviorSubject<IArtifact>(null);
     }
 
-    public get glossary(): Rx.Observable<IGlossaryDetails> {
+    public get glossary(): Rx.Observable<IArtifact> {
         return this._glossary.asObservable();
     }
 
-    public getGlossary(id: number): ng.IPromise<IGlossaryDetails> {
-        const defer = this.$q.defer<IGlossaryDetails>();
+    public getGlossary(id: number): ng.IPromise<IArtifact> {
+        const defer = this.$q.defer<IArtifact>();
 
-        this.$http.get<IGlossaryDetails>("/svc/components/RapidReview/glossary/" + id + "?addDrafts=true")
-            .then((result: ng.IHttpPromiseCallbackArg<IGlossaryDetails>) => {
+        this.$http.get<IArtifact>("/svc/bpartifactstore/glossary/" + id)
+            .then((result: ng.IHttpPromiseCallbackArg<IArtifact>) => {
                 this._glossary.onNext(result.data);
                 defer.resolve(result.data);
 

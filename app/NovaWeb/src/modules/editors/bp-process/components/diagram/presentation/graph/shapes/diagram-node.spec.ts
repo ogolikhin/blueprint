@@ -8,7 +8,10 @@ import {ProcessType} from "../../../../../models/enums";
 import {DiagramNode} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {NodeChange} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../../main/services";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
 
 describe("DiagramNode", () => {
 
@@ -17,20 +20,29 @@ describe("DiagramNode", () => {
         let shapesFactory;
         let rootScope: ng.IRootScopeService; 
         var processModelMock: IProcessService;
-        let communicationManager: ICommunicationManager;
+        let communicationManager: ICommunicationManager,
+            dialogService: DialogService,
+            localization: LocalizationServiceMock;
         
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("processModelService", ProcessServiceMock);
             $provide.service("communicationManager", CommunicationManager);
+            $provide.service("$uibModal", ModalServiceMock);
+            $provide.service("dialogService", DialogService);
+            $provide.service("localization", LocalizationServiceMock);
         }));
 
         beforeEach(inject((
             _processModelService_: IProcessService,
             $rootScope: ng.IRootScopeService, 
-            _communicationManager_: ICommunicationManager
+            _communicationManager_: ICommunicationManager,
+            _dialogService_: DialogService,
+            _localization_: LocalizationServiceMock
         ) => {
             processModelMock = _processModelService_;
             communicationManager = _communicationManager_;
+            dialogService = _dialogService_;
+            localization = _localization_;
             rootScope = $rootScope;
 
             rootScope["config"] = {
@@ -79,7 +91,8 @@ describe("DiagramNode", () => {
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, container, processModelMock, processModel);
+                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
+                                         container, processModelMock, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 
@@ -321,7 +334,8 @@ describe("DiagramNode", () => {
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, container, processModelMock,  processModel);
+                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
+                                         container, processModelMock, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 

@@ -1,10 +1,12 @@
-﻿import {IMessageService, Message, MessageType} from "../../../../core";
+﻿import {ILocalizationService, IMessageService, Message, MessageType} from "../../../../core";
 import {IProcess} from "../../models/processModels";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
-import {ICommunicationManager} from "../../../../main/services";
+import {ICommunicationManager} from "../../../bp-process";
+import {IDialogService} from "../../../../shared";
+import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 
 
 export class ProcessDiagram {
@@ -13,6 +15,7 @@ export class ProcessDiagram {
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement; 
     private modelUpdateHandler: string;
+    private shapesFactory: ShapesFactory;
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -21,7 +24,9 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private communicationManager: ICommunicationManager) {
+        private communicationManager: ICommunicationManager,        
+        private dialogService: IDialogService,
+        private localization: ILocalizationService) {
 
         this.processModel = null;
     }
@@ -79,6 +84,8 @@ export class ProcessDiagram {
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
 
+        this.shapesFactory = new ShapesFactory(this.$rootScope);
+
         //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
@@ -111,9 +118,12 @@ export class ProcessDiagram {
                             this.$scope,
                             this.htmlElement,
                             this.processService,
-                            processViewModel,
+                            this.processViewModel,
+                            this.dialogService,
+                            this.localization,
                             this.messageService,
-                            this.$log);
+                            this.$log,
+                            this.shapesFactory);
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }

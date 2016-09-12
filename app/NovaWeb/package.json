@@ -14,7 +14,9 @@
     "test:nolint": "karma start --debug --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
     "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
+    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
+    "typings:u": "typings uninstall --global --save",
+    "typings:i": "typings install --global --save"
   },
   "dependencies": {
     "ag-grid": "5.3.1",
@@ -46,7 +48,7 @@
     "browser-sync-webpack-plugin": "^1.0.1",
     "compression-webpack-plugin": "^0.3.0",
     "copy-webpack-plugin": "^3.0.0",
-    "css-loader": "^0.24.0",
+    "css-loader": "^0.25.0",
     "del": "^2.2.0",
     "exports-loader": "^0.6.3",
     "extract-text-webpack-plugin": "^1.0.1",
@@ -58,7 +60,7 @@
     "imports-loader": "^0.6.5",
     "istanbul": "^0.4.2",
     "istanbul-instrumenter-loader": "^0.2.0",
-    "jasmine": "2.5.0",
+    "jasmine": "~2.5.0",
     "jquery": "^3.1.0",
     "karma": "^1.1.2",
     "karma-chrome-launcher": "^1.0.1",

@@ -43,9 +43,9 @@ namespace FileStoreTests
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
             // Execute: Delete file with future expiry date.
-            Helper.FileStore.DeleteFile(storedFile.Id, _user, DateTime.Now.AddDays(1));
+            Helper.FileStore.DeleteFile(storedFile.Guid, _user, DateTime.Now.AddDays(1));
 
-            var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFile(storedFile.Guid, _user);
 
             // Verify: Assert that the file still exists after deleting with a future expire time
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
@@ -60,12 +60,12 @@ namespace FileStoreTests
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
             // Execute: Delete the file immediately.
-            Helper.FileStore.DeleteFile(storedFile.Id, _user);
+            Helper.FileStore.DeleteFile(storedFile.Guid, _user);
 
             // Verify: Assert that the file was deleted.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _user);
+                Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, "The file still exists after it was deleted!");
         }
 
@@ -78,12 +78,12 @@ namespace FileStoreTests
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
             // Execute: Delete the file with an expiry date in the past.
-            Helper.FileStore.DeleteFile(storedFile.Id, _user, DateTime.Now.AddDays(-1));
+            Helper.FileStore.DeleteFile(storedFile.Guid, _user, DateTime.Now.AddDays(-1));
 
             // Verify: Assert that the file was deleted.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.FileStore.GetFile(storedFile.Id, _user);
+                Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, "The file still exists after it was deleted!");
         }
     }

@@ -70,6 +70,7 @@
     <Compile Include="DeleteTests.cs" />
     <Compile Include="HeadTests.cs" />
     <Compile Include="NonAsciiFilenames.cs" />
+    <Compile Include="NovaFileStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioTests.cs" />
     <Compile Include="StatusTests.cs" />

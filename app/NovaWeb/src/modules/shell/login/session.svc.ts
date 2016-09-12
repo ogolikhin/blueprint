@@ -173,7 +173,7 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
+                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm").then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(
                                     () => {

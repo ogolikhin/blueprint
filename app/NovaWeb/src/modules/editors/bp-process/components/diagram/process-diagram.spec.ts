@@ -3,13 +3,20 @@ import {IProcessService} from "../../services/process/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ProcessDiagram} from "./process-diagram";
-import {CommunicationManager} from "../../../../main/services";
+import {ICommunicationManager, CommunicationManager} from "../../../bp-process"; 
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../shared/widgets/bp-dialog";
 import * as TestModels from "../../models/test-model-factory";
+import { ModalServiceMock } from "../../../../shell/login/mocks.spec";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processModelService", ProcessServiceMock);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
     }));
     let rootScope: ng.IRootScopeService,
         scope,
@@ -18,6 +25,9 @@ describe("ProcessDiagram Tests", () => {
         log: ng.ILogService,
         processModelService: IProcessService,
         messageService: IMessageService;
+        let communicationManager: ICommunicationManager,
+            dialogService: DialogService,
+            localization: LocalizationServiceMock;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -28,7 +38,10 @@ describe("ProcessDiagram Tests", () => {
         $q: ng.IQService,
         $log: ng.ILogService,
         _processModelService_: IProcessService,
-        _messageService_: IMessageService) => {
+        _messageService_: IMessageService, 
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock) => {
 
         $rootScope["config"] = {
             settings: {
@@ -44,6 +57,9 @@ describe("ProcessDiagram Tests", () => {
         log = $log;
         processModelService = _processModelService_;
         messageService = _messageService_;
+        communicationManager = _communicationManager_;
+        dialogService = _dialogService_;
+        localization = _localization_;
 
 
         wrapper = document.createElement("DIV");
@@ -62,7 +78,9 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new CommunicationManager());
+            communicationManager,
+            dialogService,
+            localization);
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -87,7 +105,9 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new CommunicationManager());
+            communicationManager,
+            dialogService,
+            localization);
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -115,7 +135,9 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new CommunicationManager());
+            communicationManager,
+            dialogService,
+            localization);
         
 
         let error: Error;
@@ -139,7 +161,9 @@ describe("ProcessDiagram Tests", () => {
             log,
             processModelService,
             messageService,
-            new CommunicationManager());
+            communicationManager,
+            dialogService,
+            localization);
 
 
         let error: Error;

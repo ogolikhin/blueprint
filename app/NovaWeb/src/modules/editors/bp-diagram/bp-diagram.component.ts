@@ -11,8 +11,6 @@ import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { SelectionHelper } from "./impl/utils/selection-helper";
 import { BpBaseEditor} from "../bp-base-editor";
 
-
-
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: Function = BPDiagramController;
@@ -21,7 +19,7 @@ export class BPDiagram implements ng.IComponentOptions {
     };
 }
 
-export class BPDiagramController extends BpBaseEditor{
+export class BPDiagramController extends BpBaseEditor {
 
     public static $inject: [string] = [
         "messageService", 
@@ -145,21 +143,6 @@ export class BPDiagramController extends BpBaseEditor{
             });
         }
         
-    }
-
-
-    private getViewContainer($element: ng.IAugmentedJQuery): HTMLElement {
-        let htmlElement = null;
-        let childElements = this.$element.find("div");
-
-        for (let i = 0; i < childElements.length; i++) {
-            if (childElements[i].className.match(/diagram-container/)) {
-                htmlElement = childElements[i];
-                break;
-            }
-        }
-
-        return htmlElement;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

@@ -119,7 +119,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                     let cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
-                return Helper.escapeHTMLText(params.data.name);
+                return `<i></i><span>${Helper.escapeHTMLText(params.data.name)}</span>`;
             },
             padding: 20
         },

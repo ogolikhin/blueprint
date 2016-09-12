@@ -136,19 +136,21 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                let sanitizedName = Helper.escapeHTMLText(params.data.name);
+                let icon = "<i></i>";
+                let name = Helper.escapeHTMLText(params.data.name);
 
                 if (!this.projectView) {
                     if (params.data.itemTypeId === 1) {
                         const cell = params.eGridCell;
                         cell.addEventListener("keydown", this.onEnterKeyPressed);
                     }
+
                     let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
                     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                        sanitizedName = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>` + sanitizedName;
+                        icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>`;
                     }
                 }
-                return sanitizedName;
+                return `${icon}<span>${name}</span>`;
             },
             padding: 20
         },

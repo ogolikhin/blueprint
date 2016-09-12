@@ -71,13 +71,14 @@ export class ProjectExplorerController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                let sanitizedName = Helper.escapeHTMLText(params.data.name);
+                let icon = "<i ng-drag-handle></i>";
+                let name = Helper.escapeHTMLText(params.data.name);
 
                 let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    sanitizedName = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>` + sanitizedName;
+                    icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ng-drag-handle></bp-item-type-icon>`;
                 }
-                return sanitizedName;
+                return `${icon}<span>${name}</span>`;
             },
             padding: 20
         },

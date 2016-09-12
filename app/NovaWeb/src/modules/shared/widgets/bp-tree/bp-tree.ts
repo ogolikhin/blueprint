@@ -285,7 +285,6 @@ export class BPTreeController implements IBPTreeController  {
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
         let enableDragndrop: string;
-        let cancelDragndrop: string;
         if (this.enableDragndrop) {
             let node = params.node;
             let path = node.childIndex;
@@ -294,14 +293,12 @@ export class BPTreeController implements IBPTreeController  {
                 path = node.childIndex + "/" + path;
             }
             enableDragndrop = ` bp-tree-dragndrop="${path}"`;
-            cancelDragndrop = " ng-cancel-drag";
         } else {
             enableDragndrop = "";
-            cancelDragndrop = "";
         }
 
         let currentValue = this._innerRenderer(params) || params.value;
-        return `<span ${inlineEditing}${enableDragndrop}${cancelDragndrop}>${currentValue}</span>`;
+        return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
     /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {
@@ -347,11 +344,20 @@ export class BPTreeController implements IBPTreeController  {
         let self = this;
 
         let node = params.node;
+        let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
+        if (row) {
+            if (node.expanded) {
+                row.classList.remove("ag-row-group-contracted");
+                row.classList.add("ag-row-group-expanded");
+            } else {
+                row.classList.remove("ag-row-group-expanded");
+                row.classList.add("ag-row-group-contracted");
+            }
+        }
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
                 if (row) {
-                    row.className += " ag-row-loading";
+                    row.classList.add("ag-row-loading");
                 }
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children

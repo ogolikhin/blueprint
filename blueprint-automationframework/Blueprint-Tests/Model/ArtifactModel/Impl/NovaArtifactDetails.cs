@@ -106,26 +106,31 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// .
+        /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
         [SuppressMessage("Microsoft.Design", "CA1024:ChangeToProperty")]
         public ActorInheritanceValue GetActorInheritance()
         {
+            // Finding ActorInheritence among other properties
             CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
-                p => p.PropertyTypePredefined == (int)PropertyTypePredefined.ActorInheritance);
-            // Derialization
-            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritanceProperty.CustomPropertyValue);
+                p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+            if (actorInheritanceProperty == null)
+            {
+                return null;
+            }
+            // Deserialization
+            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritanceProperty.CustomPropertyValue.ToString());
 
-            ////try to serialize and compare
-            /*string serializeObject = JsonConvert.SerializeObject(result);
-            bool isJSONChanged = !(string.Equals(response.Content, serializeObject, StringComparison.OrdinalIgnoreCase));
+            // Try to serialize and compare with JSON from the server
+            string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
+            bool isJSONChanged = !(string.Equals(actorInheritanceProperty.CustomPropertyValue.ToString(), serializedObject, StringComparison.OrdinalIgnoreCase));
             if (isJSONChanged)
             {
-                    string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", typeof(T1).ToString());
+                    string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
                     throw new FormatException(msg);
-            }*/
-            ////
+            }
+            //
             return actorInheritanceValue;
         }
 
@@ -171,11 +176,20 @@ namespace Model.ArtifactModel.Impl
         public class CustomProperty
         {
             public string Name { get; set; }
-            public string CustomPropertyValue { get; set; }
+
+            [JsonProperty("value")]
+            //[JsonConverter()]
+            public object CustomPropertyValue { get; set; }
+
             public int PropertyTypeId { get; set; }
+
             public int PropertyTypeVersionId { get; set; }
-            public int PropertyTypePredefined { get; set; }
+
+            [JsonProperty("PropertyTypePredefined")]
+            public PropertyTypePredefined PropertyType { get; set; }
         }
+
+
 
         [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
         public enum PropertyTypePredefined

@@ -54,7 +54,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
 export interface ITreeNode {
     id: number;
     name: string;
-    type: number;
+    itemTypeId: number;
     hasChildren: boolean;
     parentNode?: ITreeNode;
     children?: ITreeNode[];

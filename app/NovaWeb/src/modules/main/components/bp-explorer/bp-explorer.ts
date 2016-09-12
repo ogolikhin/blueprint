@@ -42,7 +42,7 @@ export class ProjectExplorerController {
     // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
-        type: "type",
+        itemTypeId: "itemTypeId",
         name: "name",
         hasChildren: "hasChildren",
         artifacts: "children"

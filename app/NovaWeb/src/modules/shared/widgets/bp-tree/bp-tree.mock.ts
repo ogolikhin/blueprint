@@ -6,7 +6,7 @@ export class BPTreeControllerMock implements IBPTreeController {
         return {
             id: id,
             name: `Artifact ${id}`,
-            type: 1,
+            itemTypeId: 1,
         } as ITreeNode;
 
     }

@@ -183,4 +183,28 @@ namespace Model.ArtifactModel.Impl
             ActorInheritance = 4128
         }
     }
+
+    /// <summary>
+    /// This is the class returned by some ArtifactStore REST calls.
+    /// </summary>
+    public class NovaArtifactResponse : INovaArtifactResponse
+    {
+        #region Serialized JSON Properties
+
+        public int Id { get; set; }
+        public int ItemTypeId { get; set; }
+        public string Name { get; set; }
+        public int ParentId { get; set; }
+        public int ProjectId { get; set; }
+        public int Version { get; set; }
+        public NovaArtifactDetails.Identification CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string Description { get; set; }
+        public NovaArtifactDetails.Identification LastEditedBy { get; set; }
+        public DateTime? LastEditedOn { get; set; }
+        public int PredefinedType { get; set; }
+        public string Prefix { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
 }

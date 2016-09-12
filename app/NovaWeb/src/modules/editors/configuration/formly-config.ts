@@ -1045,10 +1045,13 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
-        template: `<div class="input-group inheritance-group">
+        template: `<div class="inheritance-group">
                     <img ng-src="{{model[options.key]}}" class="actor-image" />
-                    <i ng-show="model[options.key].length > 0" class="glyphicon glyphicon-trash image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
-                    <i ng-hide="model[options.key].length > 0" class="glyphicon glyphicon-plus image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
+                                                        ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
+                                    class="glyphicon glyphicon-plus image-actor-group" 
+                                    ng-click="bpFieldInheritFrom.delete($event)"></i>
                 </div>`
         /* tslint:enable:max-line-length */
     });
@@ -1079,18 +1082,25 @@ export function formlyConfig(
                                 </span>   
                                 <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
                             </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' / ')}}">
+                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}">
                             <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
                         </div>
-                    </div>
-                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">                       
-                    </div>
-                    <div class="inheritance-tools" ng-show="model[options.key].actorName.length > 0">
-                        <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>
-                        <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i>
-                    </div>             
-                    <div class="inheritance-tools" ng-hide="model[options.key].actorName.length > 0">
-                        <i class="glyphicon glyphicon-plus"  ng-click="bpFieldInheritFrom.delete($event)"></i>                        
+                    </div>    
+                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
+
+                    <div ng-show="model[options.key].actorName.length > 0">
+                        <div class="din">
+                            <span class="icon fonticon2-delete"  ng-click="bpFieldInheritFrom.delete($event)"
+                                bp-tooltip="Delete"></span>
+                        </div>   
+                         <div class="fr">
+                            <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change"
+                                    ng-click="bpFieldInheritFrom.change($event)">Change</button>
+                        </div>        
+                    </div>         
+                    <div ng-hide="model[options.key].actorName.length > 0">
+                         <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Select"
+                                ng-click="bpFieldInheritFrom.change($event)">Select</button>                       
                     </div>             
             </div>`,
         /* tslint:enable:max-line-length */

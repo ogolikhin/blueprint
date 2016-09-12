@@ -1105,7 +1105,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_View_OpenedInRe
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_User_Task_Label', 'en-US', N'UT')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_User_Task_Persona', 'en-US', N'User')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_System_Task_Label', 'en-US', N'ST')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_System_Task_Persona', 'en-US', N'Persona')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_System_Task_Persona', 'en-US', N'System')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_User_Decision_Label', 'en-US', N'UD')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_New_System_Decision_Label', 'en-US', N'SD')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_NEW_MERGE_NODE_NAME', 'en-US', N'M')

@@ -94,6 +94,11 @@ pagecontent, bp-properties-panel {
         line-height: 1.5em;
         margin: 0;
       }
+
+      bp-item-type-icon {
+        display: block;
+        margin-top: 5px;
+      }
     }
 
     .artifact-heading-group1 {
@@ -218,6 +223,18 @@ pagecontent, bp-properties-panel {
         margin: 0;
         padding: 0;
         text-align: left;
+      }
+    }
+
+    bp-item-type-icon {
+      display: block;
+      float: left;
+      left: 10px;
+      position: absolute;
+
+      img {
+        height: 12px;
+        width: 12px;
       }
     }
   }

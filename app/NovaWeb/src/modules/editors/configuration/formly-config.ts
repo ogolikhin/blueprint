@@ -233,6 +233,7 @@ export function formlyConfig(
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldText.keyup($event)"
+                    ng-trim="false"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -263,6 +264,7 @@ export function formlyConfig(
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-trim="false"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -774,7 +776,8 @@ export function formlyConfig(
                         }
                         let max = localization.current.toNumber($scope.to.max);
                         if (angular.isNumber(max)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            let value = localization.current.toNumber($modelValue || $viewValue,
+                                (<any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null);
                             if (angular.isNumber(value)) {
                                 return value <= max;
                             }
@@ -789,7 +792,8 @@ export function formlyConfig(
                         }
                         let min = localization.current.toNumber($scope.to.min);
                         if (angular.isNumber(min)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            let value = localization.current.toNumber($modelValue || $viewValue,
+                                (<any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null);
                             if (angular.isNumber(value)) {
                                 return value >= min;
                             }

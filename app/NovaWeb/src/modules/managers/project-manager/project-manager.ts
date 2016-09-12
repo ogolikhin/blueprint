@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../core";
 import { Project, ProjectArtifact } from "./project";
 import { IProjectArtifact, IStatefulArtifact } from "../models";
+import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models } from "../../main/models";
 import { IProjectService } from "./project-service";
@@ -83,7 +84,8 @@ export class ProjectManager  implements IProjectManager {
 
             } else {
 //                angular.extend(data, {projectId: data.id});
-                let statefulArtifact = this.artifactManager.add(data);
+                const statefulArtifact = new StatefulArtifact(data);
+                this.artifactManager.add(statefulArtifact);
                 project = new Project(statefulArtifact);
                 this.projectCollection.getValue().unshift(project);
                 this.loadProject(project);
@@ -170,7 +172,8 @@ export class ProjectManager  implements IProjectManager {
             this.projectService.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
                 .then((data: Models.IArtifact[]) => {
                     let children = data.map((it: Models.IArtifact) => {
-                        let statefulArtifact = this.artifactManager.add(it);
+                        const statefulArtifact = new StatefulArtifact(it);
+                        this.artifactManager.add(statefulArtifact);
                         
                         return new ProjectArtifact(statefulArtifact, projectArtifact);
                     });

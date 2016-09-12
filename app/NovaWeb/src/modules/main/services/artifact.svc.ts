@@ -67,7 +67,7 @@ export class ArtifactService implements IArtifactService {
 
     public getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]> {
         var defer = this.$q.defer<any>();
-        let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts`;
+        let rest = `/svc/artifactstore/artifacts/${artifactId}/subartifacts`;
 
         const request: ng.IRequestConfig = {
             url: rest,

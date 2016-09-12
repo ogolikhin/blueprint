@@ -9,6 +9,7 @@ import { ArtifactRelationshipsMock } from "./bp-relationships-panel/artifact-rel
 import { ArtifactAttachmentsMock } from "./bp-attachments-panel/artifact-attachments.mock";
 import { Models } from "../../main/services/project-manager";
 import { SelectionManager, SelectionSource } from "../../main/services/selection-manager";
+import { ProjectManagerMock } from "../../main/services/project-manager.mock";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
 
 describe("Component BPUtilityPanel", () => {
@@ -26,6 +27,7 @@ describe("Component BPUtilityPanel", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("projectManager", ProjectManagerMock);
     }));
 
     beforeEach(inject(() => {

@@ -28,6 +28,7 @@ export class BpArtifactInfoController {
     public artifactName: string;
     public artifactType: string;
     public artifactClass: string;
+    public artifactCustomIcon: number;
     public artifactTypeDescription: string;
     private _artifactId: number;
 
@@ -70,6 +71,7 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this.artifactCustomIcon = null;
         this._artifactId = null;
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -89,6 +91,9 @@ export class BpArtifactInfoController {
 
         if (state.itemType) {
             this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
+            if (state.itemType.iconImageId && angular.isNumber(state.itemType.iconImageId)) {
+                this.artifactCustomIcon = state.itemType.id;
+            }
         } else {
             this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
         }

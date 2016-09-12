@@ -58,6 +58,9 @@ export class ProjectRepository implements IProjectRepository {
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
+        if (projectId && projectId === artifactId) {
+            artifactId = null;
+        }
 
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`;
 

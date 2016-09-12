@@ -1,5 +1,6 @@
 ﻿import { Models} from "../../models";
-import { IProjectManager} from "../../services";
+//import { IProjectManager} from "../../services";
+import { IProjectManager} from "../../../managers";
 
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
@@ -97,11 +98,11 @@ export class ProjectExplorerController {
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
-        //if (!prms) {
-        //    return null;
-        //}
+        if (!prms) {
+            return null;
+        }
         //notify the repository to load the node children
-        this.projectManager.loadArtifact(prms as Models.IArtifact);
+        this.projectManager.loadArtifact(prms.id);
         return null;
     };
 
@@ -117,12 +118,12 @@ export class ProjectExplorerController {
     public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
-        if (artifact.hasChildren) {
+        if (artifact.children.length) {
             angular.extend(artifact, {
                 loaded: node.loaded,
                 open: node.open
             });
         };
-        return artifact;
+        return artifact.artifact;
     };
 }

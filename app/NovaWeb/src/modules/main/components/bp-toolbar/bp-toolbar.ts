@@ -1,7 +1,9 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
-import { IProjectManager, ISelectionManager } from "../../services";
+import { ISelectionManager } from "../../services";
+import { IProjectManager } from "../../../managers";
+
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
@@ -82,7 +84,7 @@ class BPToolbarController implements IBPToolbarController {
                     css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
                 }).then((project: Models.IProject) => {
                     if (project) {
-                        this.projectManager.loadProject(project);
+                        this.projectManager.add(project);
                     }
                 });
                 break;

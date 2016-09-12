@@ -20,7 +20,7 @@ export class ArtifactManager  implements IArtifactManager {
         "session",
         "messageService",
         "artifactService",
-        "attachmentService"
+        "artifactAttachments"
     ];
 
     private artifactList: IStatefulArtifact[];
@@ -32,7 +32,8 @@ export class ArtifactManager  implements IArtifactManager {
         private session: ISession,
         private messageService: IMessageService,
         private artifactService: IArtifactService,
-        private attachmentService: IArtifactAttachmentsService) {
+        private attachmentService: IArtifactAttachmentsService
+        ) {
 
         this.services = new StatefulArtifactServices( 
             this.$q,

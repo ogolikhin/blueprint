@@ -2,7 +2,8 @@
 import { ILocalizationService } from "../../../core";
 import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../shared";
 import { Models } from "../../models";
-import { IProjectManager } from "../../services";
+//import { IProjectManager } from "../../services";
+import { IProjectManager } from "../../../managers";
 
 
 export interface IOpenProjectController {

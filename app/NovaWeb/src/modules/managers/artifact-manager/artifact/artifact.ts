@@ -28,6 +28,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
     public customProperties: IArtifactProperties;
+    public spercilProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
@@ -127,6 +128,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     public get lastEditedBy(): Models.IUserGroup {
         return this.artifact.lastEditedBy;
+    }
+
+    public get hasChildren(): Models.IUserGroup {
+        return this.artifact.hasChildren;
     }
     
     public get readOnlyReuseSettings(): Enums.ReuseSettings {

@@ -143,10 +143,18 @@ export interface IStatefulArtifactServices {
     attachmentService: IArtifactAttachmentsService;
 }
 
-
 export interface IProjectArtifact {
     artifact: IStatefulArtifact;
     parent: IProjectArtifact;
-    children: IProjectArtifact[];
+    children?: IProjectArtifact[];
+    id: number;
+    name: string;
+    projectId: number;
+    parentId: number;
+    permissions: Enums.RolePermissions;
+    predefinedType: Models.ItemTypePredefined;
+    hasChildren?: boolean;
+    loaded?: boolean;
+    open: boolean;
 }
 

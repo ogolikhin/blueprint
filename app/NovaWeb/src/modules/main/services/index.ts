@@ -6,7 +6,7 @@ import { IWindowManager, WindowManager, IMainWindow, ResizeCause } from "./windo
 
 angular.module("bp.main.services", [])
     .service("projectRepository", ProjectRepository)
-    .service("projectManager", ProjectManager)
+//    .service("projectManager", ProjectManager)
     .service("selectionManager", SelectionManager)
     .service("artifactService", ArtifactService)
     .service("windowManager", WindowManager);

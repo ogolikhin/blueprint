@@ -1,16 +1,17 @@
 import { Models, Enums } from "../../main/models";
 import { IArtifactManager, IStatefulArtifact, IProjectArtifact } from "../models";
 
-export class Project implements IProjectArtifact { 
+export class ProjectArtifact implements IProjectArtifact {
     private _artifact: IStatefulArtifact;
     private _parent: IProjectArtifact;
     private _children: IProjectArtifact[];
 
     constructor(artifact: IStatefulArtifact, parent?: IProjectArtifact ) { //
         if (!artifact) {
-            throw new Error("Project_Not_Found");
+            throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
+        this.hasChildren = artifact.hasChildren;
     };
 
     public get artifact(): IStatefulArtifact {
@@ -24,7 +25,6 @@ export class Project implements IProjectArtifact {
     public get parent(): IProjectArtifact {
         return this._parent;
     }
-    
 
     public get id(): number {
         return this._artifact.id;
@@ -34,22 +34,38 @@ export class Project implements IProjectArtifact {
         return this._artifact.name;
     }
 
-    public get description(): string {
-        return this._artifact.description;
+    public get projectId() {
+        return this._artifact.projectId;
     }
 
-    public get itemTypeId(): number {
-        return this._artifact.itemTypeId;
+    public get parentId(): number {
+        return this._artifact.parentId;
     }
 
-    public get itemTypeVersionId(): number {
-        return this._artifact.itemTypeVersionId;
+    public get permissions(): Enums.RolePermissions {
+        return this._artifact.permissions;
     }
+
+    public get predefinedType(): Models.ItemTypePredefined {
+        return this._artifact.predefinedType;
+    }
+
+    public hasChildren: boolean;
+    public loaded: boolean;
+    public open: boolean;
+    
+} 
+
+export class Project extends ProjectArtifact { 
 
     public meta: Models.IProjectMeta;
 
+    public get description(): string {
+        return this.artifact.description;
+    }
+
     public get projectId() {
-        return this._artifact.id;
+        return this.artifact.id;
     }
 
     public get prefix(): string {
@@ -58,7 +74,6 @@ export class Project implements IProjectArtifact {
     public get parentId(): number {
         return -1;
     }
-    public lockedByUserId: number;
 
     public get permissions(): Enums.RolePermissions {
         return 4095;
@@ -68,18 +83,14 @@ export class Project implements IProjectArtifact {
         return Enums.ItemTypePredefined.Project;
     }
 
-    public get hasChildren() {
-        return this.children.length > 0;
-    }
-
-    public getArtifact(id: number, children?: IProjectArtifact[]): IStatefulArtifact {
-        let foundArtifact: IStatefulArtifact;
+    public getArtifact(id: number, children?: IProjectArtifact[]): IProjectArtifact {
+        let foundArtifact: IProjectArtifact;
         if (id === this.id) {
-            foundArtifact = this.artifact;
+            foundArtifact = this;
         } else {
             for (let i = 0, it: IProjectArtifact; !foundArtifact && (it = this.children[i++]); ) {
                 if (it.artifact.id === id) {
-                    foundArtifact = it.artifact;
+                    foundArtifact = it;
                 } else if (it.children.length) {
                     foundArtifact = this.getArtifact(id, it.children);
                 }

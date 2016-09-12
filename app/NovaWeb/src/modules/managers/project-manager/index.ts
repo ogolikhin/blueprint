@@ -1,4 +1,7 @@
-// import { ProjectManager } from "./project-manager";
+import { ProjectManager } from "./project-manager";
 
-// angular.module("bp.managres.project", [])
-//     .service("projectManager", ProjectManager);
+angular.module("bp.managers.project", [])
+     .service("projectManager", ProjectManager);
+
+export { Project } from "./project"
+export { IProjectManager } from "./project-manager"  

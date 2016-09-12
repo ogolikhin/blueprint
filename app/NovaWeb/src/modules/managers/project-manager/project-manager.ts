@@ -1,54 +1,55 @@
-﻿import "angular";
-import { ILocalizationService, IMessageService } from "../../core";
+﻿import { ILocalizationService, IMessageService } from "../../core";
+import { Project, ProjectArtifact } from "./project";
+import { IProjectArtifact, IStatefulArtifact } from "../models";
+
 import { IProjectRepository, Models } from "../../main/services/project-repository";
 //import { ISelectionManager, SelectionSource } from "./selection-manager";
 
 import { IArtifactManager } from "../../managers";
 
-export {Models}
-
 export interface IProjectManager {
     // eventManager
     initialize();
+    
     dispose();
 
-    projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
+    projectCollection: Rx.BehaviorSubject<Project[]>;
 
-    loadProject(project: Models.IProject): void;
+    add(data: Models.IProject);
+    remove(all?: boolean): void;
+
+//    loadProject(project: Models.IProject): void;
     
-    loadArtifact(project: Models.IArtifact): void;
+    loadArtifact(artifact: number | IProjectArtifact): void;
 
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
-    closeProject(all?: boolean): void;
-
     getProject(id: number);
 
-    getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
+    getArtifact(id: number, project?: Project): IProjectArtifact;
 
-    getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
+    // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
-    getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;    
+    // getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;    
 
-    getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[];
+    // getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[];
 
-    getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
+    // getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
-    updateArtifactName(artifact: Models.IArtifact);
+    // updateArtifactName(artifact: Models.IArtifact);
 }
 
 
-export class ProjectManager implements IProjectManager {
+export class ProjectManager  implements IProjectManager { 
 
-    private _projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
-    private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
+    private _projectCollection: Rx.BehaviorSubject<Project[]>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository", "selectionManager", "artifactManager"];
+    static $inject: [string] = ["localization", "messageService", "projectRepository", "artifactManager"];
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository,
-        private selectionManager: ISelectionManager,
+//        private selectionManager: ISelectionManager,
         private artifactManager: IArtifactManager
     ) {
     }
@@ -58,165 +59,52 @@ export class ProjectManager implements IProjectManager {
         if (this._projectCollection) {
             this._projectCollection.dispose();
         }
-        if (this._currentArtifact) {
-            this._currentArtifact.dispose();
-        }
     }
 
     public initialize = () => {
         //subscribe to event
         this.dispose();
-        this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
+        delete this._projectCollection ;
     }
 
-    public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
-        return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]));
+    public get projectCollection(): Rx.BehaviorSubject<Project[]> {
+        return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
     }
 
-    public loadProject = (project: Models.IProject) => {
-        try {
-            if (!project) {
+    public add(data: Models.IProject) {
+        let project: Project;
+        try {    
+            if (!data) {
                 throw new Error("Project_NotFound");
             }
-            let self = this;
-            var _projectCollection: Models.IProject[] = this.projectCollection.getValue();
-            var _project = this.getProject(project.id);
+            project = this.getProject(data.id);
+            if (project) {
+                //todo move project to first position
 
-            if (_project) {
-                _projectCollection = _projectCollection.filter(function (it) {
-                    return it !== _project;
-                });
-                _projectCollection.unshift(_project);
-                self.projectCollection.onNext(_projectCollection);
-                this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project};
             } else {
-                this._repository.getProjectMeta(project.id)
-                    .then((result: Models.IProjectMeta) => {
-                        if (angular.isArray(result.artifactTypes)) {
-                            //add specific types 
-                            result.artifactTypes.unshift(
-                                <Models.IItemType>{
-                                    id: -1,
-                                    name: this.localization.get("Label_Project"),
-                                    predefinedType: Models.ItemTypePredefined.Project,
-                                    customPropertyTypeIds: []
-                                },
-                                <Models.IItemType>{
-                                    id: -2,
-                                    name: this.localization.get("Label_Collections"),
-                                    predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                                    customPropertyTypeIds: []
-                                }
-                            );
-                        }
+//                angular.extend(data, {projectId: data.id});
+                let statefulArtifact = this.artifactManager.add(data);
+                project = new Project(statefulArtifact);
+                this.projectCollection.getValue().unshift(project);
+                this.loadProject(project);
 
-                        _project = angular.extend({}, project, {meta: result});
+            }
 
-                        this._repository.getArtifacts(_project.id)
-                            .then((data: Models.IArtifact[]) => {
-                                _project = new Models.Project(_project, {
-                                    artifacts: data,
-                                    loaded: true,
-                                    open: true
-                                });
-                                _projectCollection.unshift(_project);
-                                
-                                this.artifactManager.add(_project);
-                                _project.artifacts.forEach((a) => {
-                                    this.artifactManager.add(a);
-                                });
-                                
-                                self.projectCollection.onNext(_projectCollection);
-                                this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
-
-                            }).catch((error: any) => {
-                                
-                                this.messageService.addError(error);
-                            });
-
-                    }).catch((error: any) => {
-                        this.messageService.addError(error);
-                    });
-
-
-            } 
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Project_NotFound");
         }
     }
 
-    public loadArtifact = (artifact: Models.IArtifact) => {
+    public remove = (all: boolean = false) => {
         try {
-            let self = this;
-            if (artifact === null) {
-                return;
+            var project = this.projectCollection.getValue()[0] ;
+            if (!project) {
+                throw new Error("Project_NotFound");
             }
-            if (!artifact) {
-                throw new Error("Artifact_NotFound");
-            }
-
-            artifact = this.getArtifact(artifact.id);
-            if (!artifact) {
-                throw new Error("Artifact_NotFound");
-            }
-
-            this._repository.getArtifacts(artifact.projectId, artifact.id)
-                .then((result: Models.IArtifact[]) => {
-                    angular.extend(artifact, {
-                        artifacts: result,
-                        hasChildren: true,
-                        loaded: true,
-                        open: true
-                    });
-                    self.projectCollection.onNext(self.projectCollection.getValue());
-                    this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
-
-                }).catch((error: any) => {
-                    //ignore authentication errors here
-                    if (error) {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
-                    } else {
-                        angular.extend(artifact, {
-                            artifacts: null,
-                            hasChildren: true,
-                            loaded: false,
-                            open: false
-                        });
-                        self.projectCollection.onNext(self.projectCollection.getValue());
-                    }
-                });
-
-        } catch (ex) {
-            this.messageService.addError(ex["message"] || "Artifact_NotFound");
-            this.projectCollection.onNext(this.projectCollection.getValue());
-        }
-    }
-
-    public updateArtifactName(artifact: Models.IArtifact) {
-        let project = this.projectCollection.getValue().filter(function(it) {
-            return it.id === artifact.projectId;
-        })[0];
-        if (project) {
-            let art = project.artifacts.filter(function(it) {
-                return it.id === artifact.id;
-            })[0];
-            if (art) {
-                art.name = artifact.name;
-            }
-            this.projectCollection.onNext(this.projectCollection.getValue());
-        }
-    }
-
-    public closeProject = (all: boolean = false) => {
-        try {
-            var artifact = this.selectionManager.getExplorerSelectedArtifact();
-            if (!artifact) {
-                throw new Error("Artifact_NotFound");
-            }
-            let projectsToRemove: Models.IProject[] = [];
-            let _projectCollection = this.projectCollection.getValue().filter((it: Models.IProject) => {
+            let projectsToRemove: Project[] = [];
+            let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
                 let result = true;
-                if (all || it.id === artifact.projectId) {
+                if (all || it.id === project.projectId) {
                     projectsToRemove.push(it);
                     result = false;
                 }
@@ -227,42 +115,126 @@ export class ProjectManager implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-            this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: this.projectCollection.getValue()[0] || null };
+//            this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: this.projectCollection.getValue()[0] || null };
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Project_NotFound");
         }
 
     }
 
+
+    private loadProject = (project: Project) => {
+        
+        this._repository.getProjectMeta(project.id)
+            .then((metadata: Models.IProjectMeta) => {
+                if (angular.isArray(metadata.artifactTypes)) {
+                    //add specific types 
+                    metadata.artifactTypes.unshift(
+                        <Models.IItemType>{
+                            id: -1,
+                            name: this.localization.get("Label_Project"),
+                            predefinedType: Models.ItemTypePredefined.Project,
+                            customPropertyTypeIds: []
+                        },
+                        <Models.IItemType>{
+                            id: -2,
+                            name: this.localization.get("Label_Collections"),
+                            predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                            customPropertyTypeIds: []
+                        }
+                    );
+                }
+                project.meta = metadata;
+                //load project children
+                this.loadArtifact(project);
+
+        }).catch((error: any) => {
+            this.messageService.addError(error);
+        });
+
+    }
+
+    public loadArtifact = (artifact: number | IProjectArtifact) => {
+        let projectArtifact: IProjectArtifact;
+
+        try {
+            if (angular.isNumber(artifact)) {
+                projectArtifact = this.getArtifact(artifact);
+            } else {
+                projectArtifact = artifact;
+            }
+            if (!projectArtifact) {
+                throw new Error("Artifact_NotFound");
+            }
+
+            this._repository.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
+                .then((data: Models.IArtifact[]) => {
+                    let children = data.map((it: Models.IArtifact) => {
+                        let statefulArtifact = this.artifactManager.add(it);
+                        
+                        return new ProjectArtifact(statefulArtifact, projectArtifact);
+                    });
+                    projectArtifact.children.push(...children);
+                    projectArtifact.loaded = true;
+                    projectArtifact.open = true;
+//                    projectArtifact.hasChildren = true;
+
+                    this.projectCollection.onNext(this.projectCollection.getValue());
+                    //this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+
+                }).catch((error: any) => {
+                    //ignore authentication errors here
+                    if (error) {
+                        this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    } else {
+                        projectArtifact.children = [];
+                        projectArtifact.loaded = false;
+                        projectArtifact.open = false;
+                        //projectArtifact.hasChildren = false;                        
+                        this.projectCollection.onNext(this.projectCollection.getValue());
+                    }
+                });
+
+        } catch (ex) {
+            this.messageService.addError(ex["message"] || "Artifact_NotFound");
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        }
+    }
+
+    // public updateArtifactName(artifact: Models.IArtifact) {
+    //     let project = this.projectCollection.getValue().filter(function(it) {
+    //         return it.id === artifact.projectId;
+    //     })[0];
+    //     if (project) {
+    //         let art = project.artifacts.filter(function(it) {
+    //             return it.id === artifact.id;
+    //         })[0];
+    //         if (art) {
+    //             art.name = artifact.name;
+    //         }
+    //         this.projectCollection.onNext(this.projectCollection.getValue());
+    //     }
+    // }
+
+
     public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
         return this._repository.getFolders(id);
     }
 
-    public getProject(id: number) {
+    public getProject(id: number): Project {
         let project = this.projectCollection.getValue().filter(function (it) {
             return it.id === id;
         })[0];
         return project;
     }
 
-    public getArtifact(id: number, project?: Models.IArtifact): Models.IArtifact {
-        let foundArtifact: Models.IArtifact;
-        if (project) {
-            if (project.id === id) {
-                foundArtifact = project;
-            }
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]); ) {
-                if (it.id === id) {
-                    foundArtifact = it;
-                } else if (it.artifacts) {
-                    foundArtifact = this.getArtifact(id, it);
-                }
-            }
-        } else {
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]); ) {
-                foundArtifact = this.getArtifact(id, it);
-            }
+    public getArtifact(id: number, project?: Project): IProjectArtifact {
+        let foundArtifact: IProjectArtifact;
+        let projects  = this.projectCollection.getValue();
+        for (let i = 0, it: Project; !foundArtifact && (it = projects[i++]); ) {
+            foundArtifact = it.getArtifact(id);
         }
+        
         return foundArtifact;
     };
 
@@ -362,49 +334,49 @@ export class ProjectManager implements IProjectManager {
 
 
 
-    public getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
-        let _artifact: Models.IArtifact;
-        if (typeof artifact === "number") {
-            _artifact = this.getArtifact(artifact as number);
-        } else if (artifact) {
-            _artifact = artifact as Models.IArtifact;
-        }
-        if (!_artifact) {
-            throw new Error("Artifact_NotFound");
-        }
-        let _project = this.getProject(_artifact.projectId);
-        if (!_project) {
-            throw new Error("Project_NotFound");
-        }
-        if (!_project.meta) {
-            throw new Error("Project_MetaDataNotFound");
-        }
+    // public getArtifactPropertyTypes(artifact: number | IProjectArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
+    //     let _artifact: Models.IArtifact;
+    //     if (typeof artifact === "number") {
+    //         _artifact = this.getArtifact(artifact as number);
+    //     } else if (artifact) {
+    //         _artifact = artifact as Models.IArtifact;
+    //     }
+    //     if (!_artifact) {
+    //         throw new Error("Artifact_NotFound");
+    //     }
+    //     let _project = this.getProject(_artifact.projectId);
+    //     if (!_project) {
+    //         throw new Error("Project_NotFound");
+    //     }
+    //     if (!_project.meta) {
+    //         throw new Error("Project_MetaDataNotFound");
+    //     }
 
-        let properties: Models.IPropertyType[] = [];
-        let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
+    //     let properties: Models.IPropertyType[] = [];
+    //     let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
 
-        if (!itemType) {
-            throw new Error("ArtifactType_NotFound");
-        }
+    //     if (!itemType) {
+    //         throw new Error("ArtifactType_NotFound");
+    //     }
                 
         
-        //create list of system properties
-        if (subArtifact) {
-            properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
-        } else {
-            properties = this.getArtifactSystemPropertyTypes(artifact, itemType, _project.meta);
-        }
+    //     //create list of system properties
+    //     if (subArtifact) {
+    //         properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
+    //     } else {
+    //         properties = this.getArtifactSystemPropertyTypes(artifact, itemType, _project.meta);
+    //     }
 
         
-        //add custom property types
-        _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
-        return properties;
+    //     //add custom property types
+    //     _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+    //         if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+    //             properties.push(it);
+    //         }
+    //     });
+    //     return properties;
 
-    }
+    // }
 
     private getArtifactSystemPropertyTypes(artifact: number | Models.IArtifact,
         artifactType: Models.IItemType,

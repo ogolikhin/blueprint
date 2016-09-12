@@ -859,8 +859,8 @@ pagecontent, bp-properties-panel {
       .inheritance-group {   
           
       .actor-image {        
-        width: 64px;
-        height: 64px;
+        width: 90px;
+        height: 120px;
         border: 1px solid grey;        
       }               
 
@@ -871,7 +871,7 @@ pagecontent, bp-properties-panel {
      }   
     }
 
-    $property-inheritance-width: $property-width * 1.5; //change to 2.5 to span 3 columns instead of 2
+    $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
     .formly-field-bpFieldInheritFrom {
       display: block;
       max-width: $property-inheritance-width;
@@ -897,7 +897,7 @@ pagecontent, bp-properties-panel {
 
           span {
             &::before {
-              content: ' / ';
+              content: ' > ';
             }
 
             &:first-child {

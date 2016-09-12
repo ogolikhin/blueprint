@@ -8,6 +8,7 @@ import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
+import { actorController } from "./controllers/actor-field-controller";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
@@ -1090,21 +1091,24 @@ export function formlyConfig(
 
                     <div ng-show="model[options.key].actorName.length > 0">
                         <div class="din">
-                            <span class="icon fonticon2-delete"  ng-click="bpFieldInheritFrom.delete($event)"
+                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="bpFieldInheritFrom.delete($event)"
                                 bp-tooltip="Delete"></span>
                         </div>   
                          <div class="fr">
-                            <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change"
+                            <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
                                     ng-click="bpFieldInheritFrom.change($event)">Change</button>
                         </div>        
                     </div>         
                     <div ng-hide="model[options.key].actorName.length > 0">
-                         <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Select"
-                                ng-click="bpFieldInheritFrom.change($event)">Select</button>                       
+                         <button class="btn btn-primary btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
+                                ng-click="selectBaseActor()">Select</button>                       
                     </div>             
             </div>`,
         /* tslint:enable:max-line-length */
-        wrapper: ["bpFieldLabel"]
+        wrapper: ["bpFieldLabel"],
+        controller: ["$scope", function ($scope) {
+            actorController($scope, localization, artifactAttachments, $window, messageService);
+        }]
     });
  
     /* tslint:disable */

@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Model.ArtifactModel.Impl.PredefinedProperties;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -102,6 +105,30 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        /// <summary>
+        /// .
+        /// </summary>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        [SuppressMessage("Microsoft.Design", "CA1024:ChangeToProperty")]
+        public ActorInheritanceValue GetActorInheritance()
+        {
+            CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
+                p => p.PropertyTypePredefined == (int)PropertyTypePredefined.ActorInheritance);
+            // Derialization
+            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritanceProperty.CustomPropertyValue);
+
+            ////try to serialize and compare
+            /*string serializeObject = JsonConvert.SerializeObject(result);
+            bool isJSONChanged = !(string.Equals(response.Content, serializeObject, StringComparison.OrdinalIgnoreCase));
+            if (isJSONChanged)
+            {
+                    string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", typeof(T1).ToString());
+                    throw new FormatException(msg);
+            }*/
+            ////
+            return actorInheritanceValue;
+        }
+
         public class Identification
         {
             [JsonProperty("id")]
@@ -144,9 +171,16 @@ namespace Model.ArtifactModel.Impl
         public class CustomProperty
         {
             public string Name { get; set; }
-            public string PropertyTypeId { get; set; }
-            public string PropertyTypeVersionId { get; set; }
-            public string PropertyTypePredefined { get; set; }
+            public string CustomPropertyValue { get; set; }
+            public int PropertyTypeId { get; set; }
+            public int PropertyTypeVersionId { get; set; }
+            public int PropertyTypePredefined { get; set; }
+        }
+
+        [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
+        public enum PropertyTypePredefined
+        {
+            ActorInheritance = 4128
         }
     }
 }

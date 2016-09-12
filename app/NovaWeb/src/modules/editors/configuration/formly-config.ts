@@ -6,7 +6,7 @@ import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
 import {ILocalizationService, IMessageService} from "../../core";
 import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
 
 
@@ -17,7 +17,7 @@ export function formlyConfig(
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
     $sce: ng.ISCEService,
-    artifactAttachments: IArtifactAttachments,
+    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService
 ): void {

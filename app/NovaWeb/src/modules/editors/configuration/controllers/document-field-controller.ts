@@ -1,5 +1,5 @@
 ﻿import "angular"
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { ILocalizationService, IMessageService } from "../../../core";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
@@ -7,7 +7,7 @@ documentController.$inject = ["localization", "artifactAttachments", "$window", 
 export function documentController(
     $scope: any,
     localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachments,
+    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService) {
     let currentModelVal = $scope.model[$scope.options.key];

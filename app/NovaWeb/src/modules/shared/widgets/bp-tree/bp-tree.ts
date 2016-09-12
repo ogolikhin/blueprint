@@ -1,6 +1,5 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
-import { Helper } from "../../utils/helper";
 import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";
 
@@ -108,7 +107,8 @@ export class BPTreeController implements IBPTreeController  {
     private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
-   
+
+    private _innerRenderer: Function;
 
     constructor(private localization: ILocalizationService, private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
@@ -124,15 +124,8 @@ export class BPTreeController implements IBPTreeController  {
             this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (!gridCol.cellRendererParams ||
-                        (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
-                        (gridCol.cellRendererParams && !angular.isFunction(gridCol.cellRendererParams.innerRenderer))
-                    ) {
-                        if (!gridCol.cellRendererParams) {
-                            gridCol.cellRendererParams = {};
-                            gridCol.cellRendererParams.padding = 20;
-                        }
-
+                    if (gridCol.cellRendererParams && angular.isFunction(gridCol.cellRendererParams.innerRenderer)) {
+                        this._innerRenderer = gridCol.cellRendererParams.innerRenderer;
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
                 }
@@ -289,7 +282,6 @@ export class BPTreeController implements IBPTreeController  {
     };
     /* tslint:disable */
     private innerRenderer = (params: any) => {
-        let currentValue = params.value;
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
         let enableDragndrop: string;
@@ -308,7 +300,8 @@ export class BPTreeController implements IBPTreeController  {
             cancelDragndrop = "";
         }
 
-        return `<span ${inlineEditing}${enableDragndrop}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
+        let currentValue = this._innerRenderer(params) || params.value;
+        return `<span ${inlineEditing}${enableDragndrop}${cancelDragndrop}>${currentValue}</span>`;
     };
     /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {

@@ -57,7 +57,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
         $scope.$on("$destroy", () => {
             this.columns[0].cellClass = null;
-            // this.columns[0].cellRendererParams = null;
+            this.columns[0].cellRendererParams = null;
             this.columns = null;
             this.doSelect = null;
             this.doSync = null;
@@ -133,22 +133,24 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             return css;
         },
         cellRenderer: "group",
-        /*cellRendererParams: {
+        cellRendererParams: {
             innerRenderer: (params) => {
                 let sanitizedName = Helper.escapeHTMLText(params.data.name);
 
-                if (params.data.type === 1) {
-                    const cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onEnterKeyPressed);
-                }
-                let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    sanitizedName = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>` + sanitizedName;
+                if (!this.projectView) {
+                    if (params.data.type === 1) {
+                        const cell = params.eGridCell;
+                        cell.addEventListener("keydown", this.onEnterKeyPressed);
+                    }
+                    let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                    if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                        sanitizedName = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>` + sanitizedName;
+                    }
                 }
                 return sanitizedName;
             },
             padding: 20
-        },*/
+        },
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true

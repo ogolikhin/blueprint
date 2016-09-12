@@ -1,8 +1,7 @@
 ﻿import { Models} from "../../models";
-import { IProjectManager} from "../../services";
+import { IProjectManager, ISelectionManager, SelectionSource } from "../../services";
 
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -43,7 +42,7 @@ export class ProjectExplorerController {
     // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
-        itemTypeId: "type",
+        type: "type",
         name: "name",
         hasChildren: "hasChildren",
         artifacts: "children"
@@ -70,6 +69,18 @@ export class ProjectExplorerController {
         },
         
         cellRenderer: "group",
+        cellRendererParams: {
+            innerRenderer: (params) => {
+                let sanitizedName = Helper.escapeHTMLText(params.data.name);
+
+                let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    sanitizedName = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>` + sanitizedName;
+                }
+                return sanitizedName;
+            },
+            padding: 20
+        },
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true

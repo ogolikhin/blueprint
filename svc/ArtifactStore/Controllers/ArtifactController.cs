@@ -8,6 +8,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Linq;
 
 namespace ArtifactStore.Controllers
 {
@@ -73,6 +74,21 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
+        }
+
+        /// <summary>
+        /// Get sub artifact tree of the artifact.
+        /// </summary>
+        /// <remarks>
+        /// Returns tree of subartifacts
+        /// </remarks>
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/subartifacts"), SessionRequired]
+        [ActionName("GetSubArtifactTreeAsync")]
+        public async Task<List<SubArtifact>> GetSubArtifactTreeAsync(int artifactId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return (await ArtifactRepository.GetSubArtifactTreeAsync(artifactId, session.UserId)).ToList();
         }
 
         /// <summary>

@@ -273,6 +273,40 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
+        #region GetSubArtifactTreeAsync
+        private async Task<IEnumerable<SubArtifact>> GetSubArtifacts(int artifactId, int userId, int revisionId, bool includeDrafts)
+        {
+            var getSubArtifactsDraftPrm = new DynamicParameters();
+            getSubArtifactsDraftPrm.Add("@artifactId", artifactId);
+            getSubArtifactsDraftPrm.Add("@userId", userId);
+            getSubArtifactsDraftPrm.Add("@revisionId", revisionId);
+            getSubArtifactsDraftPrm.Add("@includeDrafts", includeDrafts);
+            return (await ConnectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
+        }
+
+        public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
+        {
+            var subArtifactsList = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToList();
+            var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.ItemId);
+            foreach (var subArtifactEntry in subArtifactsDictionary)
+            {
+                var subArtifact = subArtifactEntry.Value;
+                var parentSubArtifactId = subArtifact.ParentId;
+                SubArtifact parentSubArtifact;
+                if (parentSubArtifactId != artifactId && subArtifactsDictionary.TryGetValue(parentSubArtifactId, out parentSubArtifact))
+                {
+                    if (parentSubArtifact.Children == null)
+                    {
+                        parentSubArtifact.Children = new List<SubArtifact>();
+                    }
+                    ((List<SubArtifact>)parentSubArtifact.Children).Add(subArtifact);
+                }
+            }
+            var result = subArtifactsDictionary.Where(a => a.Value.ParentId == artifactId).Select(b => b.Value);
+            return result;
+        }
+        #endregion
+
         #region GetProjectOrArtifactChildrenAsync
 
         public virtual async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren, int userId)

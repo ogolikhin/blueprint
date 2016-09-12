@@ -33,7 +33,6 @@ export class ProcessGraph implements IProcessGraph {
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
-    private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     private executionEnvironmentDetector: any;
@@ -67,7 +66,8 @@ export class ProcessGraph implements IProcessGraph {
         private dialogService: IDialogService,
         private localization: ILocalizationService,
         public messageService: IMessageService = null,
-        private $log: ng.ILogService = null) {
+        private $log: ng.ILogService = null,
+        private shapesFactory: ShapesFactory = null) {
 
         // Creates the graph inside the given container
          
@@ -77,7 +77,10 @@ export class ProcessGraph implements IProcessGraph {
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
          
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.shapesFactory = new ShapesFactory(this.rootScope);
+
+        if (!shapesFactory) {
+            this.shapesFactory = new ShapesFactory(this.rootScope);
+        }
         
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);        
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;

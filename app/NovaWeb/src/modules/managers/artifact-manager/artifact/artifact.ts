@@ -9,12 +9,10 @@ import {
     IChangeCollector,
     IChangeSet,
     IStatefulArtifact,
-    IStatefulSubArtifact,
     ISubArtifactCollection,
     IArtifactStates,
     IArtifactProperties,
     IArtifactAttachments,
-    IArtifactManager,
     IState,
     IStatefulArtifactServices,
     IIStatefulArtifact,
@@ -24,7 +22,6 @@ import {
 
 export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private artifact: Models.IArtifact;
-    public manager: IArtifactManager;
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
     public customProperties: IArtifactProperties;
@@ -33,8 +30,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
 
-    constructor(manager: IArtifactManager, artifact: Models.IArtifact, services: IStatefulArtifactServices) {
-        this.manager = manager;
+    constructor(artifact: Models.IArtifact, services?: IStatefulArtifactServices) {
         this.artifact = artifact;
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
@@ -48,6 +44,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             .filter((it: IState) => !!it.lock)
             .distinctUntilChanged()
             .subscribeOnNext(this.onLockChanged, this);
+    }
+
+    public initServices(services: IStatefulArtifactServices) {
+        this.services = services;
     }
 
     //TODO. 
@@ -210,7 +210,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         } else {
             this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         }
-
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
@@ -228,5 +227,4 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public getServices(): IStatefulArtifactServices {
         return this.services;
     }
-
 }

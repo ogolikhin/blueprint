@@ -92,11 +92,11 @@ export interface IArtifactStates {
 // }
 
 export interface IStatefulArtifact extends Models.IArtifact  {
-    manager: IArtifactManager;
     artifactState: IArtifactStates;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     subArtifactCollection: ISubArtifactCollection;
+    initServices(services: IStatefulArtifactServices);
     discard(): ng.IPromise<IStatefulArtifact>;
     load(): ng.IPromise<IStatefulArtifact>;
     lock(): ng.IPromise<IState>;
@@ -130,7 +130,7 @@ export interface ISubArtifactCollection {
 export interface IArtifactManager {
     currentUser: Models.IUserGroup;
     list(): IStatefulArtifact[];
-    add(artifact: Models.IArtifact): IStatefulArtifact;
+    add(artifact: IStatefulArtifact);
     get(id: number): IStatefulArtifact;
     remove(id: number): IStatefulArtifact;
 }
@@ -139,7 +139,7 @@ export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
     messageService: IMessageService;
-    artifactService: IArtifactService,
+    artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
 }
 

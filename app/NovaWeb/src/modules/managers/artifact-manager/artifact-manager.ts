@@ -1,6 +1,7 @@
 import { IMessageService } from "../../core/";
 import { Models } from "../../main/models";
-import { 
+import { StatefulArtifactServices } from "./services";
+import {
     IArtifactManager, 
     IStatefulArtifact, 
     ISession, 
@@ -8,8 +9,6 @@ import {
     IArtifactAttachmentsService,
     IArtifactService,
  } from "../models";
-import { StatefulArtifact } from "./artifact";
-import { StatefulArtifactServices } from "./services";
 
 
 export class ArtifactManager  implements IArtifactManager {
@@ -60,9 +59,9 @@ export class ArtifactManager  implements IArtifactManager {
         return this.artifactList.filter((artifact: IStatefulArtifact) => artifact.id === id)[0] || null;
     }
     
-    public add(artifact: Models.IArtifact): IStatefulArtifact {
-        let length = this.artifactList.push(new StatefulArtifact(this, artifact, this.services));
-        return this.artifactList[length - 1];
+    public add(artifact: IStatefulArtifact) {
+        artifact.initServices(this.services);
+        this.artifactList.push(artifact);
     }
 
     public remove(id: number): IStatefulArtifact {

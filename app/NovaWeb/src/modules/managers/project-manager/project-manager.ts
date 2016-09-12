@@ -2,7 +2,8 @@
 import { Project, ProjectArtifact } from "./project";
 import { IProjectArtifact, IStatefulArtifact } from "../models";
 
-import { IProjectRepository, Models } from "../../main/services/project-repository";
+import { Models } from "../../main/models";
+import { IProjectService } from "./project-service";
 //import { ISelectionManager, SelectionSource } from "./selection-manager";
 
 import { IArtifactManager } from "../../managers";
@@ -44,12 +45,11 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository", "artifactManager"];
+    static $inject: [string] = ["localization", "messageService", "projectService", "artifactManager"];
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private _repository: IProjectRepository,
-//        private selectionManager: ISelectionManager,
+        private projectService: IProjectService,
         private artifactManager: IArtifactManager
     ) {
     }
@@ -125,7 +125,7 @@ export class ProjectManager  implements IProjectManager {
 
     private loadProject = (project: Project) => {
         
-        this._repository.getProjectMeta(project.id)
+        this.projectService.getProjectMeta(project.id)
             .then((metadata: Models.IProjectMeta) => {
                 if (angular.isArray(metadata.artifactTypes)) {
                     //add specific types 
@@ -167,7 +167,7 @@ export class ProjectManager  implements IProjectManager {
                 throw new Error("Artifact_NotFound");
             }
 
-            this._repository.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
+            this.projectService.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
                 .then((data: Models.IArtifact[]) => {
                     let children = data.map((it: Models.IArtifact) => {
                         let statefulArtifact = this.artifactManager.add(it);
@@ -218,7 +218,7 @@ export class ProjectManager  implements IProjectManager {
 
 
     public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
-        return this._repository.getFolders(id);
+        return this.projectService.getFolders(id);
     }
 
     public getProject(id: number): Project {

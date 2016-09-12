@@ -126,7 +126,6 @@ export class Project extends ProjectArtifact {
     };
 
 
-
     public getArtifactTypes(id?: number): Models.IItemType[] {
 
         let itemTypes: Models.IItemType[] = [];

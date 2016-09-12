@@ -21,7 +21,14 @@ export interface IProjectNode {
     hasChildren: boolean;
     children?: IProjectNode[];
 }
-
+export interface ISubArtifactNode {
+    itemId: number;
+    parentId: number;
+    itemTypeId: number;
+    name: string;
+    label: string;
+    children: ISubArtifactNode[];
+}
 export interface ITrace {
     traceType?: TraceType;
     traceId: number;

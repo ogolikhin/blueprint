@@ -6,6 +6,7 @@ export interface IArtifactService {
     getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
+    getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -64,7 +65,27 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
+    public getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]> {
+        var defer = this.$q.defer<any>();
+        let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts`;
 
+        const request: ng.IRequestConfig = {
+            url: rest,
+            method: "GET",
+            timeout: timeout
+        };
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifactNode[]>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
         var defer = this.$q.defer<any>();
 

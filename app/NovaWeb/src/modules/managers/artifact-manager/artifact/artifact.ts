@@ -130,7 +130,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.artifact.lastEditedBy;
     }
 
-    public get hasChildren(): Models.IUserGroup {
+    public get hasChildren(): boolean {
         return this.artifact.hasChildren;
     }
     

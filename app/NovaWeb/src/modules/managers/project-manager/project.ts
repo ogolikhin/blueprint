@@ -83,19 +83,45 @@ export class Project extends ProjectArtifact {
         return Enums.ItemTypePredefined.Project;
     }
 
-    public getArtifact(id: number, children?: IProjectArtifact[]): IProjectArtifact {
+
+    // public getArtifact(id: number, project?: Models.IArtifact): Models.IArtifact {
+    //     let foundArtifact: Models.IArtifact;
+    //     if (project) {
+    //         if (project.id === id) {
+    //             foundArtifact = project;
+    //         }
+    //         for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]); ) {
+    //             if (it.id === id) {
+    //                 foundArtifact = it;
+    //             } else if (it.artifacts) {
+    //                 foundArtifact = this.getArtifact(id, it);
+    //             }
+    //         }
+    //     } else {
+    //         for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]); ) {
+    //             foundArtifact = this.getArtifact(id, it);
+    //         }
+    //     }
+    //     return foundArtifact;
+    // };
+
+
+    public getArtifact(id: number, item?: IProjectArtifact): IProjectArtifact {
         let foundArtifact: IProjectArtifact;
-        if (id === this.id) {
+        if (!item) {
+            item = this;
+        }
+        if (item.id === id) {
             foundArtifact = this;
-        } else {
-            for (let i = 0, it: IProjectArtifact; !foundArtifact && (it = this.children[i++]); ) {
-                if (it.artifact.id === id) {
+        } else if (item.children) {
+            for (let i = 0, it: IProjectArtifact; !foundArtifact && (it = item.children[i++]); ) {
+                if (it.id === id) {
                     foundArtifact = it;
                 } else if (it.children.length) {
-                    foundArtifact = this.getArtifact(id, it.children);
+                    foundArtifact = this.getArtifact(id, it);
                 }
             }
-        }
+        } 
         return foundArtifact;
     };
 

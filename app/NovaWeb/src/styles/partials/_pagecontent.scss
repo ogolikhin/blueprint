@@ -215,6 +215,18 @@ pagecontent, bp-properties-panel {
         text-align: left;
       }
     }
+
+    bp-item-type-icon {
+      display: block;
+      float: left;
+      left: 10px;
+      position: absolute;
+
+      img {
+        height: 12px;
+        width: 12px;
+      }
+    }
   }
 
   .utility-panel-content {

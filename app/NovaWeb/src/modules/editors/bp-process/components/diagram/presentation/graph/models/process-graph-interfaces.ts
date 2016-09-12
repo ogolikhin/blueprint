@@ -95,6 +95,7 @@ export interface IProcessGraph {
     endNode: IDiagramNode;
     messageService: IMessageService;
     rootScope: any;
+    isUserSystemProcess: boolean;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;

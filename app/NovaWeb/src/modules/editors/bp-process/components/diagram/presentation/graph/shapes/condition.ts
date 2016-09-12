@@ -1,4 +1,4 @@
-﻿import {IProcessLink} from "../../../../../models/processModels";
+﻿import {IProcessLink} from "../../../../../models/process-models";
 import {ICondition, IDiagramNode} from "../models/";
 
 

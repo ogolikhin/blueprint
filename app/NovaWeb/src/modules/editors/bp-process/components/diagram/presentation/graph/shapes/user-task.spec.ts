@@ -1,7 +1,7 @@
 ﻿import {UserTask, SystemTask, SystemDecision} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
-import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/processModels";
+import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/process-models";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
 import {IProcessService} from "../../../../../services/process/process.svc";

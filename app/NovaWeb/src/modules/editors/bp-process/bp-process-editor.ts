@@ -63,7 +63,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     ) {
        super(messageService, stateManager, windowManager);
 
-        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager);
+        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {

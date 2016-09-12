@@ -49,7 +49,7 @@ export class ProcessGraph implements IProcessGraph {
         return 10;
     }
 
-    public get IsUserSystemProcess() {
+    public get isUserSystemProcess(): boolean {
         return this.viewModel.isUserToSystemProcess;
     }
 

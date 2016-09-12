@@ -154,7 +154,7 @@ namespace Model.ArtifactModel.Impl
 
         #region Delete methods
 
-        protected List<DeleteArtifactResult> DeletedArtifactResults { get; private set; }
+        public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
 
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -224,7 +224,6 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-            artifaceBaseToDelete.DeletedArtifactResults = new List<DeleteArtifactResult>();
 
             foreach (var deletedArtifactResult in artifactResults)
             {

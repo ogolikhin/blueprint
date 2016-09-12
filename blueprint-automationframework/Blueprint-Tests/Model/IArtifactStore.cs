@@ -20,6 +20,16 @@ namespace Model
     public interface IArtifactStore : IDisposable
     {
         /// <summary>
+        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
+        /// (Runs: DELETE {server}/svc/bpartifactstore/artifacts/{artifactId})
+        /// </summary>
+        /// <param name="artifact">The artifact to delete.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Checks if the ArtifactStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>

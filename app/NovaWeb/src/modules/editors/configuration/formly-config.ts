@@ -773,7 +773,8 @@ export function formlyConfig(
                         }
                         let max = localization.current.toNumber($scope.to.max);
                         if (angular.isNumber(max)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            let value = localization.current.toNumber($modelValue || $viewValue,
+                                (<any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null);
                             if (angular.isNumber(value)) {
                                 return value <= max;
                             }
@@ -788,7 +789,8 @@ export function formlyConfig(
                         }
                         let min = localization.current.toNumber($scope.to.min);
                         if (angular.isNumber(min)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
+                            let value = localization.current.toNumber($modelValue || $viewValue,
+                                (<any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null);
                             if (angular.isNumber(value)) {
                                 return value >= min;
                             }

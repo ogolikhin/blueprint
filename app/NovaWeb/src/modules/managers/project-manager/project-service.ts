@@ -8,12 +8,11 @@ export interface IProjectService {
 }
 
 export class ProjectService implements IProjectService {
-    static $inject: [string] = ["$q", "$http", "$log"];
+    static $inject: [string] = ["$q", "$http"];
 
     constructor(
         private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService) {
+        private $http: ng.IHttpService) {
     }
 
     public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {

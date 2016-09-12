@@ -4,14 +4,14 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
 import {ILocalizationService, IMessageService} from "../../core";
-import {Helper} from "../../shared";
+import {Helper, IDialogService} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService", "dialogService"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -20,7 +20,8 @@ export function formlyConfig(
     $sce: ng.ISCEService,
     artifactAttachments: IArtifactAttachments,
     $window: ng.IWindowService,
-    messageService: IMessageService
+    messageService: IMessageService,
+    dialogService: IDialogService
 ): void {
     /* tslint:enable */
 
@@ -1091,12 +1092,12 @@ export function formlyConfig(
 
                     <div ng-show="model[options.key].actorName.length > 0">
                         <div class="din">
-                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="bpFieldInheritFrom.delete($event)"
+                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="deleteBaseActor()"
                                 bp-tooltip="Delete"></span>
                         </div>   
                          <div class="fr">
                             <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
-                                    ng-click="bpFieldInheritFrom.change($event)">Change</button>
+                                    ng-click="selectBaseActor()">Change</button>
                         </div>        
                     </div>         
                     <div ng-hide="model[options.key].actorName.length > 0">
@@ -1107,7 +1108,7 @@ export function formlyConfig(
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, artifactAttachments, $window, messageService);
+            actorController($scope, localization, artifactAttachments, $window, messageService, dialogService);
         }]
     });
  

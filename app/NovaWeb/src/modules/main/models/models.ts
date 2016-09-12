@@ -131,6 +131,14 @@ export interface IPropertyValue {
     value: any;
 }
 
+export interface IActorInheritancePropertyValue {
+    pathToProject: string[]
+    actorName: string;
+    actorPrefix: string;
+    actorId: number;
+    hasAccess: boolean;    
+}
+
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];

@@ -46,7 +46,8 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
-        this.isReadonly = dialogModel.isReadonly;
+        // Temporary hardcoded for the read-only USs
+        this.isReadonly = true; //dialogModel.isReadonly;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
 

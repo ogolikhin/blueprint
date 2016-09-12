@@ -57,4 +57,3 @@ export class ContextualHelpDirective implements ng.IDirective {
         }
     };
 }
-//angular.module("bp.editors.process").directive("contextualHelp", ContextualHelpDirective.factory());

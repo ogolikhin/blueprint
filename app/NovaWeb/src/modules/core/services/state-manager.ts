@@ -130,6 +130,7 @@ export class ItemState {
                     id: -1,
                     displayName: value.info.lockOwnerLogin
                 };
+                this.originItem.lockedDateTime = value.info.utcLockedDateTime;
             }
             this.discardChanges();
             this._readonly = true;

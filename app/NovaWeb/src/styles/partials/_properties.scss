@@ -111,19 +111,40 @@ pagecontent, bp-properties-panel {
     min-width: $property-width - $property-label-width;
     padding: 0 0 10px;
 
+    .form-control-wrapper{
+        display: table-cell;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding:4px;
+
+        .form-control{
+            width:100%;
+            max-width:100%;
+            margin:2px;
+            background-color: white;
+            background-image: none !important;
+            &:hover{
+              background-image: none !important;
+            }
+          }
+    }
+
     .formly-field-bpDocumentFile{
         width: 100% !important;
         .input-group-addon{
           padding:0;
           background-color: transparent;
           border:none;
-          .icon{    
+
+          .icon{
             padding-top: 13px;
             display: inline-block;
-            padding-right: 7px;
-            padding-left: 7px;
+            padding-right: $padding-smaller;
+            padding-left: $padding-smaller;
           }
         }
+
         .thumb{
           width:30px;
           height:30px;
@@ -854,30 +875,48 @@ pagecontent, bp-properties-panel {
     }
 
     .formly-field-bpFieldImage {
-      width: #{$property-width * .5};
+      width: #{$property-width * .4};
 
       .inheritance-group {   
-          
+      .icon{
+        display: inline-block;
+        padding-left: $padding-smaller;
+      }
+
       .actor-image {        
         width: 90px;
         height: 120px;
-        border: 1px solid grey;        
+        border: 1px solid $gray-lightest;
       }               
 
       .image-actor-group {        
         font-size: $font-size-normal;        
-        margin: 5px 9px;        
+        margin: 5px 9px;
+        &.glyphicon-plus{
+          background-color: $blue-light;
+          color: $white;
+          padding: 4px 3px 4px 4px;
+          border-radius: 2px;
+        }
       }
      }   
     }
 
     $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
     .formly-field-bpFieldInheritFrom {
+      padding-top: 38px;
       display: block;
       max-width: $property-inheritance-width;
       min-width: $property-input-width;
       width: 100%;
-
+      .din{
+        display: inline-block;
+        padding-top: 10px;
+        padding-right: 2px;
+      }
+      .fr{
+        float:right;
+      }
       .inheritance-group {
         display: inline-flex;
         font-size: $font-size-normal;
@@ -893,7 +932,9 @@ pagecontent, bp-properties-panel {
           line-height: $property-min-height;
           min-width: $property-input-width - 30px;
           @include text-ellipsis-flex-width(999px);                    
-          padding: 0 $property-padding-default;                
+          padding: 0 $property-padding-default;
+          margin-top: 2px;
+          margin-right: 8px;
 
           span {
             &::before {

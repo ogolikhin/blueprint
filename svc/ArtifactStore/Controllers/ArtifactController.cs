@@ -83,11 +83,11 @@ namespace ArtifactStore.Controllers
         /// Returns tree of subartifacts
         /// </remarks>
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/subartifacts"), NoSessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/subartifacts"), SessionRequired]
         [ActionName("GetSubArtifactTreeAsync")]
         public async Task<List<SubArtifact>> GetSubArtifactTreeAsync(int artifactId)
         {
-            var session = new Session { UserId = 1 }; //Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return (await ArtifactRepository.GetSubArtifactTreeAsync(artifactId, session.UserId)).ToList();
         }
 

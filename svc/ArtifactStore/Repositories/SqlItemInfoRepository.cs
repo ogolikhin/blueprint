@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Helpers
 {
-    public class ItemInfoHelper
+    internal class ItemInfoHelper
     {
         private ISqlConnectionWrapper _connectionWrapper;
         public ItemInfoHelper(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }
-        public async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
+        internal async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));

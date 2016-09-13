@@ -14,7 +14,7 @@ namespace ArtifactStore.Repositories
         internal int ItemTypeId;
     }
 
-    public class ItemLabel
+    internal class ItemLabel
     {
         internal int ItemId { get; set; }
         internal string Label { get; set; }

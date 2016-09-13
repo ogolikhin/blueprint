@@ -262,7 +262,9 @@ export interface ILockResult {
 export interface IVersionInfo {
     artifactId?: number;
     utcLockedDateTime?: Date;
+    lockOwnerId?: number;
     lockOwnerLogin?: string;
+    lockOwnerDisplayName?: string;
     projectId?: number;
     versionId?: number;
     revisionId?: number;

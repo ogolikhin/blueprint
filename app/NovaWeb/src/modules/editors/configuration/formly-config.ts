@@ -236,6 +236,7 @@ export function formlyConfig(
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldText.keyup($event)"
+                    ng-trim="false"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -266,6 +267,7 @@ export function formlyConfig(
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-trim="false"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>

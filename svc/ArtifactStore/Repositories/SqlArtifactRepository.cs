@@ -17,7 +17,7 @@ namespace ArtifactStore.Repositories
     public class SqlArtifactRepository : ISqlArtifactRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly SqlItemInfoRepository itemInfoRepository;
+        private readonly SqlItemInfoRepository _itemInfoRepository;
 
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -27,7 +27,7 @@ namespace ArtifactStore.Repositories
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
-            itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
+            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
         #region GetProjectOrArtifactChildrenAsync
@@ -290,7 +290,7 @@ namespace ArtifactStore.Repositories
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
             var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.ItemId);
-            var itemLabelsDictionary = (await itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
+            var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
             foreach (var subArtifactEntry in subArtifactsDictionary)
             {
                 var subArtifact = subArtifactEntry.Value;

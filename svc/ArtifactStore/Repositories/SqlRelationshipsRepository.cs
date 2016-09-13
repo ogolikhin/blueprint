@@ -13,6 +13,7 @@ namespace ArtifactStore.Repositories
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly SqlItemInfoRepository _itemInfoRepository;
         public SqlRelationshipsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -20,6 +21,7 @@ namespace ArtifactStore.Repositories
         internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
+            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
         private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts)
@@ -167,9 +169,8 @@ namespace ArtifactStore.Repositories
                 distinctItemIds.Add(result.DestinationProjectId);
             }
 
-            var itemInfoHelper = new ItemInfoHelper(ConnectionWrapper);
             var itemDetailsDictionary = (await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
-            var itemLabelsDictionary = (await itemInfoHelper.GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
+            var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
             PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };

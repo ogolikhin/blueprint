@@ -111,7 +111,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\ItemInfoHelper.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Models\Artifact.cs" />
@@ -147,6 +146,7 @@
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
+    <Compile Include="Repositories\SqlItemInfoRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
   </ItemGroup>

@@ -869,7 +869,7 @@ export function formlyConfig(
                     <div class="thumb {{extension}}"></div>
                 </span>
                 <span class="form-control-wrapper">
-                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
+                    <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
                 </span>
                 <span class="input-group-addon">
                     <span class="icon fonticon2-delete"></span>

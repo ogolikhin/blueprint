@@ -24,6 +24,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectId: number;
     public projectView: boolean = false;
     public projectName: string;
+    private project: Models.IProject;
 
 
     static $inject = [
@@ -50,11 +51,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     ) {
         super($uibModalInstance, dialogSettings);
         dialogService.dialogSettings.okButton = "OK";
-        let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
-        if (_project) {
-            this.projectId = _project.id;
-            this.projectName = _project.name;
-        }
+        let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        this.updateCurrentProjectInfo(project);       
         $scope.$on("$destroy", () => {
             this.columns[0].cellClass = null;
             this.columns[0].cellRendererParams = null;
@@ -167,8 +165,11 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {
+                .then((nodes: Models.IArtifact[]) => {                    
                     const filtered = nodes.filter(this.filterCollections);
+                    filtered.forEach((value: Models.IArtifact) => {
+                        value.parent = prms || this.project;
+                    });                   
                     self.tree.reload(filtered, artifactId);
                 }, (error) => {
                 });
@@ -186,6 +187,14 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
+    private updateCurrentProjectInfo(project: Models.IProject) {
+        this.project = project;
+        if (project) {
+            this.projectName = project.name;
+            this.projectId = project.id;
+        }
+    }
+
     public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
         let self = this;
         if (!this.projectView) {
@@ -197,7 +206,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 this.projectId = item.id;
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
-                        this.projectName = project.name;
+                        this.updateCurrentProjectInfo(project);
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);

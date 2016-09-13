@@ -14,13 +14,30 @@ export function actorController(
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService) {
-    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];    
+    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];       
 
-    $scope.deleteBaseActor = () => {
-        currentModelVal.actorName = "";
-        currentModelVal.actorId = undefined;
-        currentModelVal.pathToProject = [];
+
+    $scope.deleteBaseActor = () => {    
+        deleteBaseActor();
     };
+
+    function deleteBaseActor() {
+        currentModelVal = null;
+        $scope.model[$scope.options.key] = null;
+    }
+
+    function getArtifactPath(artifact: Models.IArtifact): string[] {
+        if (!artifact) {
+            return [];
+        }
+        let currentArtifact = artifact.parent;
+        let path: string[] = [];
+        while (currentArtifact) {
+            path.unshift(currentArtifact.name);
+            currentArtifact = currentArtifact.parent;
+        }
+        return path;
+    }
 
     function setBaseActor() {
         const dialogSettings = <IDialogSettings>{
@@ -36,20 +53,24 @@ export function actorController(
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {
+            if (artifact) {                
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
-                    pathToProject: []
+                    pathToProject: getArtifactPath(artifact)
+                    
                 };
-                //currentModelVal.pathToProject = [];
+                currentModelVal = $scope.model[$scope.options.key];                
             }
         });
     }
 
     $scope.selectBaseActor = () => {
+        if (currentModelVal != null) {
+            deleteBaseActor();
+        }
         setBaseActor();
     };
 }

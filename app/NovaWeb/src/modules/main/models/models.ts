@@ -80,6 +80,8 @@ export interface IArtifact extends IItem {
     //for client use
     artifacts?: IArtifact[];
     loaded?: boolean;
+    // for artifact picker use
+    parent?: IArtifact;
 }
 export interface IOption {
     id: number;

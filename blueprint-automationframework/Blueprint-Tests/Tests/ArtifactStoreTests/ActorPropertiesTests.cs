@@ -19,6 +19,7 @@ namespace ArtifactStoreTests
 
         private int actorInheritedFromOtherActorId = 8;
         private int parentActorId = 9;
+        private string customDataProjectName = "Custom Data";
 
         [SetUp]
         public void SetUp()
@@ -33,6 +34,9 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #region Custom data tests
+
+        [Category(Categories.CustomData)]
         [Test]
         [TestRail(165800)]
         [Description("Gets ArtifactDetails for the actor with non-empty Inherited From field. Verify the inherited from object has expected information.")]
@@ -43,6 +47,9 @@ namespace ArtifactStoreTests
 
             actorInheritance = artifactDetails.GetActorInheritance();
             Assert.AreEqual(parentActorId, actorInheritance.ActorId, "Inherited From artifact should have id {0}, but it has id {1}", parentActorId, actorInheritance.ActorId);
+            Assert.AreEqual(customDataProjectName, actorInheritance.PathToProject[0], "PathToProject[0] - name of project which contains Inherited From actor.");
         }
+
+        #endregion Custom Data
     }
 }

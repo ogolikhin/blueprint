@@ -115,16 +115,19 @@ namespace Model.ArtifactModel.Impl
             // Finding ActorInheritence among other properties
             CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+
             if (actorInheritanceProperty == null)
             {
                 return null;
             }
+
             // Deserialization
-            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritanceProperty.CustomPropertyValue.ToString());
+            string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
+            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
 
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
-            bool isJSONChanged = !(string.Equals(actorInheritanceProperty.CustomPropertyValue.ToString(), serializedObject, StringComparison.OrdinalIgnoreCase));
+            bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
             if (isJSONChanged)
             {
                     string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
@@ -178,7 +181,6 @@ namespace Model.ArtifactModel.Impl
             public string Name { get; set; }
 
             [JsonProperty("value")]
-            //[JsonConverter()]
             public object CustomPropertyValue { get; set; }
 
             public int PropertyTypeId { get; set; }

@@ -1,5 +1,5 @@
-<div class="toggle-container">
-    <input ng-repeat-start="option in $ctrl.options" id="processType{{option.id}}" value="{{option.value}}" type="radio" name="processTypes" ng-checked="option.isChecked" />
+<div class="toggle-container" ng-if="$ctrl.options && $ctrl.options.length > 0">
+    <input ng-repeat-start="option in $ctrl.options" id="processType{{option.id}}" value="{{option.value}}" type="radio" name="toggleOptions" ng-checked="option.isChecked" ng-disabled="!option.isEnabled" />
     <label ng-repeat-end for="processType{{option.id}}" class="icon-container">
         <i class="{{option.iconClass}}"></i>
     </label>

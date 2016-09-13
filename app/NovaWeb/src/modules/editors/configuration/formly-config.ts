@@ -9,6 +9,7 @@ import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
+import { actorImageController } from "./controllers/actor-image-controller";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService", "dialogService"];
@@ -1048,14 +1049,18 @@ export function formlyConfig(
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
         template: `<div class="inheritance-group">
-                    <img ng-src="{{model[options.key]}}" class="actor-image" />
+                    <img ng-if="model[options.key]" ng-src="{{model[options.key]}}" class="actor-image" />
+                    <span ng-if="!model[options.key]" class="actor-image"></span>
                     <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
                                                         ng-click="bpFieldInheritFrom.delete($event)"></i>
                     <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
-                                    class="glyphicon glyphicon-plus image-actor-group" 
-                                    ng-click="bpFieldInheritFrom.delete($event)"></i>
-                </div>`
+                                    bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="0"
+                                    class="glyphicon glyphicon-plus image-actor-group"></i>
+                </div>`,
         /* tslint:enable:max-line-length */
+        controller: ["$scope", function ($scope) {
+            actorImageController($scope, localization, artifactAttachments, $window, messageService);
+        }]
     });
 
     //<input type="text"
@@ -1084,7 +1089,7 @@ export function formlyConfig(
                                 </span>   
                                 <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
                             </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}">
+                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
                             <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
                         </div>
                     </div>    

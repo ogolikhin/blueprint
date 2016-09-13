@@ -888,7 +888,12 @@ pagecontent, bp-properties-panel {
         height: 120px;
         border: 1px solid $gray-lightest;
       }               
-
+      span.actor-image{
+        background: url('images/icons/user-default.svg') left 30px no-repeat;
+        display: inline-block;
+        background-color: $gray;
+        vertical-align:middle;
+      }
       .image-actor-group {        
         font-size: $font-size-normal;        
         margin: 5px 9px;
@@ -935,7 +940,12 @@ pagecontent, bp-properties-panel {
           padding: 0 $property-padding-default;
           margin-top: 2px;
           margin-right: 8px;
+          max-width: 404px;
 
+          .path-wrapper{
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           span {
             &::before {
               content: ' > ';

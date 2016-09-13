@@ -15,6 +15,7 @@ namespace ArtifactStoreTests
     public class DeleteArtifactTests : TestBase
     {
         private IUser _user = null;
+        private IUser _user2 = null;
         private IProject _project = null;
 
         [SetUp]
@@ -22,6 +23,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens, null);
             _project = ProjectFactory.GetProject(_user);
         }
 
@@ -66,11 +68,37 @@ namespace ArtifactStoreTests
         #endregion 401 Unauthorized tests
 
         #region 403 Forbidden tests
-        // DeleteArtifact_xxxx_403Forbidden()
+
+        [TestCase(BaseArtifactType.Actor)]
+        public void DeleteArtifact_UserDoesNotHavePermissionToDelete_Http403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user2),
+                "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+        }
+
         #endregion 403 Forbidden tests
 
         #region 404 Not Found tests
-        // DeleteArtifact_xxxx_404NotFound()
+
+        [TestCase(BaseArtifactType.Actor)]
+        public void DeleteArtifact_ArtifactDoesNotExist_Http404NotFoundException(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 404 Not Found when trying to delete an artifact that has already been deleted!");
+        }
+
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests

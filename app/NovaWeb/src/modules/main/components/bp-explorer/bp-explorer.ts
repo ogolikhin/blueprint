@@ -76,7 +76,10 @@ export class ProjectExplorerController {
 
                 let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ng-drag-handle></bp-item-type-icon>`;
+                    icon = `<bp-item-type-icon
+                                item-type-id="${artifactType.id}"
+                                item-type-icon="${artifactType.iconImageId}"
+                                ng-drag-handle></bp-item-type-icon>`;
                 }
                 return `${icon}<span>${name}</span>`;
             },

@@ -152,7 +152,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     if (projectID && isProjectLoaded !== -1) {
                         let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
                         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                            icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>`;
+                            icon = `<bp-item-type-icon
+                                item-type-id="${artifactType.id}"
+                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
                         }
                     }
                 }

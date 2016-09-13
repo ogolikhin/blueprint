@@ -8,6 +8,7 @@ import {Helper} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
+import { actorController } from "./controllers/actor-field-controller";
 
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
@@ -232,6 +233,7 @@ export function formlyConfig(
                     name="{{::id}}"
                     ng-model="model[options.key]"
                     ng-keyup="bpFieldText.keyup($event)"
+                    ng-trim="false"
                     class="form-control" />
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -262,6 +264,7 @@ export function formlyConfig(
                     id="{{::id}}"
                     name="{{::id}}"
                     ng-model="model[options.key]"
+                    ng-trim="false"
                     class="form-control"></textarea>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -1045,10 +1048,13 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
-        template: `<div class="input-group inheritance-group">
+        template: `<div class="inheritance-group">
                     <img ng-src="{{model[options.key]}}" class="actor-image" />
-                    <i ng-show="model[options.key].length > 0" class="glyphicon glyphicon-trash image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
-                    <i ng-hide="model[options.key].length > 0" class="glyphicon glyphicon-plus image-actor-group"  ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
+                                                        ng-click="bpFieldInheritFrom.delete($event)"></i>
+                    <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
+                                    class="glyphicon glyphicon-plus image-actor-group" 
+                                    ng-click="bpFieldInheritFrom.delete($event)"></i>
                 </div>`
         /* tslint:enable:max-line-length */
     });
@@ -1079,22 +1085,32 @@ export function formlyConfig(
                                 </span>   
                                 <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
                             </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' / ')}}">
+                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}">
                             <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
                         </div>
-                    </div>
-                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">                       
-                    </div>
-                    <div class="inheritance-tools" ng-show="model[options.key].actorName.length > 0">
-                        <i class="glyphicon glyphicon-trash"  ng-click="bpFieldInheritFrom.delete($event)"></i>
-                        <i class="glyphicon glyphicon-pencil"  ng-click="bpFieldInheritFrom.change($event)"></i>
-                    </div>             
-                    <div class="inheritance-tools" ng-hide="model[options.key].actorName.length > 0">
-                        <i class="glyphicon glyphicon-plus"  ng-click="bpFieldInheritFrom.delete($event)"></i>                        
+                    </div>    
+                    <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
+
+                    <div ng-show="model[options.key].actorName.length > 0">
+                        <div class="din">
+                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="bpFieldInheritFrom.delete($event)"
+                                bp-tooltip="Delete"></span>
+                        </div>   
+                         <div class="fr">
+                            <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
+                                    ng-click="bpFieldInheritFrom.change($event)">Change</button>
+                        </div>        
+                    </div>         
+                    <div ng-hide="model[options.key].actorName.length > 0">
+                         <button class="btn btn-primary btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
+                                ng-click="selectBaseActor()">Select</button>                       
                     </div>             
             </div>`,
         /* tslint:enable:max-line-length */
-        wrapper: ["bpFieldLabel"]
+        wrapper: ["bpFieldLabel"],
+        controller: ["$scope", function ($scope) {
+            actorController($scope, localization, artifactAttachments, $window, messageService);
+        }]
     });
  
     /* tslint:disable */

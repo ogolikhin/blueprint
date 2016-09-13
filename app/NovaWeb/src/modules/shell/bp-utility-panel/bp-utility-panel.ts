@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { ISelectionManager, Models, ISelection, SelectionSource } from "../../main";
+import { ISelectionManager, Models, ISelection, SelectionSource, IProjectManager } from "../../main";
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
@@ -21,12 +21,14 @@ export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "selectionManager",
+        "projectManager",
         "$element"
     ];
 
     private _subscribers: Rx.IDisposable[];
     private _currentItem: string;
     private _currentItemClass: string;
+    private _currentItemIcon: number;
 
     public get currentItem() { 
         return this._currentItem;
@@ -36,10 +38,18 @@ export class BPUtilityPanelController {
         return this._currentItemClass;
     }
 
+    public get currentItemIcon() {
+        return this._currentItemIcon;
+    }
+
     constructor(
         private localization: ILocalizationService,
         private selectionManager: ISelectionManager,
+        private projectManager: IProjectManager,
         private $element: ng.IAugmentedJQuery) {
+        this._currentItem = null;
+        this._currentItemClass = null;
+        this._currentItemIcon = null;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -85,9 +95,16 @@ export class BPUtilityPanelController {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                this._currentItemIcon = artifactType.id;
+            } else {
+                this._currentItemIcon = null;
+            }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
+            this._currentItemIcon = null;
         }
     }
 

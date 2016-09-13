@@ -87,13 +87,13 @@ export class BPLocale  {
         let rx = new RegExp(expression, "g");
         if (rx.test(stringValue)) {
             stringValue = stringValue.replace(new RegExp(ts, "g"), "");
-            if (stringValue.indexOf(this.decimalSeparator) > 0) {
-                let parts = stringValue.split(this.decimalSeparator);
-                let numberValue = parseInt(parts[0], 10);
-                numberValue += parseFloat("0." + parts[1]) * (numberValue < 0 ?  -1 : 1);
-                return numberValue;
+            if (this.decimalSeparator !== ".") {
+                stringValue = stringValue.replace(new RegExp(ds), ".");
+            }
+            if (stringValue.indexOf(".") > 0) {
+                return parseFloat(stringValue);
             } else {
-                return parseInt(stringValue.replace(new RegExp(ts, "g"), ""), 10);
+                return parseInt(stringValue, 10);
             }
         } else {
             return null;

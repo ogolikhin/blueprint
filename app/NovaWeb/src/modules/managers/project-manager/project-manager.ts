@@ -5,7 +5,7 @@ import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models } from "../../main/models";
 import { IProjectService } from "./project-service";
-//import { ISelectionManager, SelectionSource } from "./selection-manager";
+import { ISelectionManager, SelectionSource } from "../selection-manager";
 
 import { IArtifactManager } from "../../managers";
 
@@ -46,12 +46,13 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
 
-    static $inject: [string] = ["localization", "messageService", "projectService", "artifactManager"];
+    static $inject: [string] = ["localization", "messageService", "projectService", "artifactManager", "selectionManager2"];
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private projectService: IProjectService,
-        private artifactManager: IArtifactManager
+        private artifactManager: IArtifactManager,
+        private selectionManager: ISelectionManager
     ) {
     }
 
@@ -183,7 +184,8 @@ export class ProjectManager  implements IProjectManager {
 //                    projectArtifact.hasChildren = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    //this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+                    // this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+                    this.selectionManager.setArtifact(projectArtifact.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

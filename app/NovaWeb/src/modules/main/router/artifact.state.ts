@@ -1,7 +1,7 @@
 ﻿import "angular";
 import * as Models from "../models/models";
 import {IProjectManager, ISelectionManager, } from "../";
-import {SelectionSource} from "../services/selection-manager";
+import {SelectionSource} from "../../managers/selection-manager";
 import {ILocalizationService} from "../../core";
 import {MessageService} from "../../shell";
 

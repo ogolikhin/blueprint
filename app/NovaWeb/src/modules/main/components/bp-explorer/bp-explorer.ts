@@ -3,7 +3,9 @@
 import { IProjectManager} from "../../../managers";
 
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
+import { ISelectionManager, SelectionSource } from "../../../managers/selection-manager";
+import { IStatefulArtifact } from "../../../managers/models";
+import { StatefulArtifact } from "../../../managers/artifact-manager/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -15,7 +17,7 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     private _selectedArtifactId: number;
     private _subscribers: Rx.IDisposable[]; 
-    public static $inject: [string] = ["projectManager", "selectionManager"];
+    public static $inject: [string] = ["projectManager", "selectionManager2"];
     constructor(
         private projectManager: IProjectManager,
         private selectionManager: ISelectionManager) { }
@@ -28,7 +30,9 @@ export class ProjectExplorerController {
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
             this.selectionManager.selectionObservable
-                .filter(s => s != null && s.source === SelectionSource.Explorer)
+                .filter(s => {
+                    return s != null && s.source === SelectionSource.Explorer
+                })
                 .map(s => s.artifact)
                 .distinctUntilChanged()
                 .subscribeOnNext(this.onSelectArtifact, this),
@@ -108,14 +112,10 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-
-        this.selectionManager.selection = {
-            source: SelectionSource.Explorer,
-            artifact: this.doSync(node)
-        };
+        this.selectionManager.setArtifact(this.doSync(node), SelectionSource.Explorer);
     };
 
-    public doSync = (node: ITreeNode): Models.IArtifact => {
+    public doSync = (node: ITreeNode): IStatefulArtifact => {
         //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
         if (artifact.children.length) {

@@ -10,4 +10,3 @@ angular.module("bp.managers", [
 
 export { IArtifactManager } from  "./models";
 export { IProjectManager } from  "./project-manager";
-  

@@ -480,8 +480,7 @@ export class ProcessGraph implements IProcessGraph {
                 previousStyle: null,
                 mouseDown: function (sender, me) {
                     let cell = graph.getCellAt(me.graphX, me.graphY);
-                    var tmp = sender.view.getState(cell);
-                    this.currentState = tmp;
+                    this.currentState = sender.view.getState(cell);;
                     if (this.currentState != null) {
                         this.onMouseLeave(sender, me.getEvent(), this.currentState);
                         this.onMouseDown(sender, me.getEvent(), this.currentState);

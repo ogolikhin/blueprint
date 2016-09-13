@@ -226,7 +226,6 @@ export class SubArtifactEditorModalOpener {
         return retArr;
     }
 
-    // #TODO: templateUrl must be changed
     public open = (size, htmlFileName: string, ctrl: any, dialogModel: any, windowClass: string) => {
         this.$uibModal.open(<ModalSettings>{
             okButton: this.localization.get("App_Button_Ok"),
@@ -238,9 +237,7 @@ export class SubArtifactEditorModalOpener {
             windowClass: windowClass,
             size: size,
             resolve: {
-                dialogModel: () => {
-                    return dialogModel;
-                }
+                dialogModel: () => dialogModel
             }
         });
     }

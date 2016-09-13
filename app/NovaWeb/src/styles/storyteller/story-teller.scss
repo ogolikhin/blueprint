@@ -317,7 +317,7 @@ bp-process-type-toggle {
             width: 42px;
             height: 25px;
             margin: 0;
-            cursor: hand;
+            cursor: pointer;
 
             i {
                 position: relative;
@@ -333,6 +333,7 @@ bp-process-type-toggle {
 
          input[type=radio] + .icon-container {
             background-color: transparent;
+            cursor: default;
 
             i {
                 color: $gray-lighter;

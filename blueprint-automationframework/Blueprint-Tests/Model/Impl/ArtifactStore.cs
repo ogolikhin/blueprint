@@ -443,26 +443,36 @@ namespace Model.Impl
 
             var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
 
-            // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
-            foreach (INovaArtifactResponse deletedArtifact in deletedArtifacts)
+            if (restApi.StatusCode == HttpStatusCode.OK)
             {
-                Logger.WriteDebug("'DELETE {0}' returned following artifact Id: {1}",
-                    path, deletedArtifact.Id);
-
-                ArtifactBase artifaceBaseToDelete = artifact as ArtifactBase;
-
-                // Hack: This is needed until we can refactor ArtifactBase better.
-                DeleteArtifactResult deletedArtifactResult = new DeleteArtifactResult
+                // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
+                foreach (INovaArtifactResponse deletedArtifact in deletedArtifacts)
                 {
-                    ArtifactId = deletedArtifact.Id,
-                    ResultCode = HttpStatusCode.OK
-                };
+                    Logger.WriteDebug("'DELETE {0}' returned following artifact Id: {1}",
+                        path, deletedArtifact.Id);
 
-                artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+                    ArtifactBase artifaceBaseToDelete = artifact as ArtifactBase;
 
-                if (deletedArtifact.Id == artifact.Id)
-                {
-                    artifact.IsMarkedForDeletion = true;
+                    // Hack: This is needed until we can refactor ArtifactBase better.
+                    DeleteArtifactResult deletedArtifactResult = new DeleteArtifactResult
+                    {
+                        ArtifactId = deletedArtifact.Id,
+                        ResultCode = HttpStatusCode.OK
+                    };
+
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifact.Id == artifact.Id)
+                    {
+                        if (artifact.IsPublished)
+                        {
+                            artifact.IsMarkedForDeletion = true;
+                        }
+                        else
+                        {
+                            artifact.IsDeleted = true;
+                        }
+                    }
                 }
             }
 

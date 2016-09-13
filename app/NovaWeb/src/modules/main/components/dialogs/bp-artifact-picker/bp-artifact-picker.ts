@@ -145,9 +145,17 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         cell.addEventListener("keydown", this.onEnterKeyPressed);
                     }
 
-                    let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
-                    if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                        icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>`;
+                    //TODO: for now it display custom icons just for already loaded projects
+                    let projectID = params.data.projectId;
+                    let loadedProjects = this.manager.projectCollection.getValue();
+                    let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
+                    if (projectID && isProjectLoaded !== -1) {
+                        let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                            icon = `<bp-item-type-icon
+                                item-type-id="${artifactType.id}"
+                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                        }
                     }
                 }
                 return `${icon}<span>${name}</span>`;

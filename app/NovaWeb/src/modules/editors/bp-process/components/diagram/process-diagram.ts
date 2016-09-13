@@ -122,10 +122,14 @@ export class ProcessDiagram {
 
     private processTypeChanged = (processType: number) => {
         this.processViewModel.processType = <ProcessType>processType;
-        this.modelUpdate(undefined);
+        this.recreateProcessGraph();
     }
 
     private modelUpdate = (selectedNodeId: number) => {
+        this.recreateProcessGraph(selectedNodeId);
+    }
+
+    private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
     }

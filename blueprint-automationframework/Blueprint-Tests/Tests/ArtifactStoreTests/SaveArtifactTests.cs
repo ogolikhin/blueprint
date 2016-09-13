@@ -407,8 +407,8 @@ namespace ArtifactStoreTests
         private const string UserValueIncorrectFormat   = "The value for the property CU-User Required is invalid.";
 
         [Category(Categories.CustomData)]
-        [TestCase("Value\":10.0", "Value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
-        [TestCase("Value\":\"20", "Value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
+        [TestCase("value\":10.0", "value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
+        [TestCase("value\":\"20", "value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
         [TestCase("validValueIds\":[22]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
         [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
         [TestRail(164561)]
@@ -423,11 +423,12 @@ namespace ArtifactStoreTests
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
-            requestBody = requestBody.Replace(toChange, changeTo);
+            
+            string  modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
 
             // Execute & Verify:
-            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateInvalidArtifact(requestBody, artifact.Id, _user),
+            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateInvalidArtifact(modifiedRequestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 

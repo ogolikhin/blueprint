@@ -13,12 +13,19 @@ import {LocalizationServiceMock} from "../../core/localization/localization.mock
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ArtifactAttachmentsMock} from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.mock";
 import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
+import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
 import {formlyConfig} from "./formly-config";
+import { SettingsService } from "../../core";
 
 let moduleName = createModule();
 
 describe("Formly", () => {
     beforeEach(angular.mock.module(moduleName));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("settings", SettingsService);
+        $provide.service("dialogService", DialogServiceMock);     
+    }));    
 
     afterEach(() => {
         angular.element("body").empty();

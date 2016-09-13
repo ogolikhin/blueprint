@@ -127,8 +127,8 @@ export class ItemState {
         } else {
             if (value.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.originItem.lockedByUser = {
-                    id: -1,
-                    displayName: value.info.lockOwnerLogin
+                    id: value.info.lockOwnerId,
+                    displayName: value.info.lockOwnerDisplayName
                 };
                 this.originItem.lockedDateTime = value.info.utcLockedDateTime;
             }

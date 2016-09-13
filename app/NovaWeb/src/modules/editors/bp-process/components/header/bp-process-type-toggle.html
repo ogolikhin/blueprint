@@ -1,10 +1,6 @@
 <div class="toggle-container">
-    <input id="business" value="business" type="radio" name="processTypes" />
-    <label for="business" class="icon-container">
-        <i class="fonticon2-user-user"></i>
-    </label>
-    <input id="userToSystem" value="userToSystem" type="radio" name="processTypes" />
-    <label for="userToSystem" class="icon-container">
-        <i class="fonticon2-user-system"></i>
+    <input ng-repeat-start="option in $ctrl.options" id="processType{{option.id}}" value="{{option.value}}" type="radio" name="processTypes" ng-checked="option.isChecked" />
+    <label ng-repeat-end for="processType{{option.id}}" class="icon-container">
+        <i class="{{option.iconClass}}"></i>
     </label>
 </div>

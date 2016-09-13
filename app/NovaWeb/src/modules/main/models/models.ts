@@ -28,7 +28,7 @@ export interface ISubArtifactNode {
     displayName: string;
     predefinedType: ItemTypePredefined;
     hasChildren: boolean;
-    children: ISubArtifactNode[];
+    children?: ISubArtifactNode[];
 }
 export interface ITrace {
     traceType?: TraceType;

@@ -305,12 +305,12 @@ namespace ArtifactStore.Repositories
                     parentSubArtifact.HasChildren = true;
                 }
             }
-            var areLabelsDisplayNames = subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
+            var areLabelsDisplayNames = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Flow
-                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step;
+                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step);
 
-            if (subArtifactsDictionary.Count > 0 && areLabelsDisplayNames) {
+            if (areLabelsDisplayNames) {
                 var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
                     ItemLabel itemLabel;

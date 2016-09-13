@@ -97,8 +97,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             Assert.DoesNotThrow(() => artifact.Delete(_user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "Failed to delete a published artifact!");
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
@@ -115,8 +114,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             Assert.DoesNotThrow(() => artifact.Delete(_user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "Failed to delete a published artifact!");
 
             artifact.Publish(_user);
 
@@ -126,19 +124,20 @@ namespace ArtifactStoreTests
         }
 
         [TestRail(165820)]
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Actor, 0)]
+        [TestCase(BaseArtifactType.Actor, int.MaxValue)]
         [Description("Create and publish an artifact.  Attempt to delete the artifact after changing the artifact Id to a " +
                      "non existent Id. Verify that HTTP 404 Not Found Exception is thrown.")]
-        public void DeleteArtifact_NonExistentArtifact_404NotFound(BaseArtifactType artifactType)
+        public void DeleteArtifact_NonExistentArtifact_404NotFound(BaseArtifactType artifactType, int nonExistentArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
 
             // Save original artifact Id
             var originalId = artifact.Id;
 
             // Replace artifact Id with non-existent Id
-            artifact.Id = int.MaxValue;
+            artifact.Id = nonExistentArtifactId;
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),

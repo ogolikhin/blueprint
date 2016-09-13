@@ -34,13 +34,14 @@ export function actorImageController(
             backdrop: false
         };
 
-        let artifactAttachmentsList: IArtifactAttachmentsResultSet = {
-            attachments: []
-        }
+        //let artifactAttachmentsList: IArtifactAttachmentsResultSet = {
+        //    artifactId: 
+        //    attachments: []
+        //}
 
-        const curNumOfAttachments: number = artifactAttachmentsList
-            && artifactAttachmentsList.attachments
-            && artifactAttachmentsList.attachments.length || 0;
+        //const curNumOfAttachments: number = artifactAttachmentsList
+        //    && artifactAttachmentsList.attachments
+        //    && artifactAttachmentsList.attachments.length || 0;
 
         let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
         let maxNumberAttachments: number = 1;
@@ -55,7 +56,7 @@ export function actorImageController(
         const dialogData: IUploadStatusDialogData = {
             files: files,
             maxAttachmentFilesize: maxAttachmentFilesize,
-            maxNumberAttachments: maxNumberAttachments - curNumOfAttachments
+            maxNumberAttachments: 1
         };
 
         dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {

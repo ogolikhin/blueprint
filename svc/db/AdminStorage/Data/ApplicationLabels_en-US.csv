@@ -198,8 +198,6 @@ Artifact_Lock_DoesNotExist, "Artifact doesn't exists aor moved to different loca
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
 
-
-
 Label_Name,"Name"
 Label_Type,"Type"
 Label_CreatedBy,"Created by"
@@ -209,7 +207,6 @@ Label_LastEditOn,"Last edited on"
 Label_Description,"Description"
 Label_Project,"Project"
 Label_Collections,"Collections"
-
 
 Diagram_OldFormat_Message,"This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it."
 
@@ -268,16 +265,16 @@ ST_View_OpenedInReadonly_Message, "Storyteller has been opened in read-only mode
 ST_New_User_Task_Label, "UT"
 ST_New_User_Task_Persona, "User"
 ST_New_System_Task_Label, "ST"
-ST_New_System_Task_Persona, "Persona"
+ST_New_System_Task_Persona, "System"
 ST_New_User_Decision_Label, "UD"
 ST_New_System_Decision_Label, "SD"
 ST_NEW_MERGE_NODE_NAME, "M"
 ST_Decision_Modal_Add_Condition_Button_Label, "Add Condition"
 ST_Popup_Menu_Add_User_Task_Label, "Add User Task"
 ST_Popup_Menu_Add_System_Decision_Label, "Add System Decision Point"
-ST_Popup_Menu_Add_User_Decision_Label ,"Add User Decision Point"
-
-
+ST_Popup_Menu_Add_User_Decision_Label,"Add User Decision Point"
+ST_ProcessType_BusinessProcess_Label, "Business Process"
+ST_ProcessType_UserToSystemProcess_Label, "User-To-System Process"
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"

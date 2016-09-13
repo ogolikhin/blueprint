@@ -1,4 +1,5 @@
 import {ICommunicationManager} from "../../";
+import {ILocalizationService} from "../../../../core/localization";
 
 export class BpProcessTypeToggle implements ng.IComponentOptions {
     public template: string = require("./bp-process-type-toggle.html");
@@ -12,11 +13,13 @@ export class BpProcessTypeToggle implements ng.IComponentOptions {
 export interface IProcessTypeToggleOption {
     id: number;
     iconClass: string;
+    tooltip: string;
 }
 
 export class BpProcessTypeToggleController implements ng.IComponentController {
     public static $inject: [string] = [
-        "communicationManager"
+        "communicationManager",
+        "localization"
     ];
 
     public options: IProcessTypeToggleOption[];
@@ -24,11 +27,12 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
     public isProcessTypeToggleEnabled: boolean;
 
     constructor(
-        private communicationManager: ICommunicationManager
+        private communicationManager: ICommunicationManager,
+        private localization: ILocalizationService
     ) {
         this.options = [
-            { id: 1, iconClass: "fonticon2-user-user" },
-            { id: 2, iconClass: "fonticon2-user-system" }
+            { id: 1, iconClass: "fonticon2-user-user", tooltip: this.localization.get("ST_ProcessType_BusinessProcess_Label") },
+            { id: 2, iconClass: "fonticon2-user-system", tooltip: this.localization.get("ST_ProcessType_UserToSystemProcess_Label") }
         ];
     }
 

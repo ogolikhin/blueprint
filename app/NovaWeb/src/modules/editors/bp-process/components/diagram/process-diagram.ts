@@ -104,7 +104,7 @@ export class ProcessDiagram {
         this.processViewModel
             .communicationManager
             .toolbarCommunicationManager
-            .enableProcessTypeToggle(!this.processViewModel.isReadonly, this.processViewModel.processType);
+            .enableProcessTypeToggle(!this.processViewModel.isReadonly && !this.processViewModel.isHistorical, this.processViewModel.processType);
         
         this.toggleProcessTypeHandler = 
             this.processViewModel

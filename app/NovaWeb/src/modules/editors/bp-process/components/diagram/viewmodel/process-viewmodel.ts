@@ -230,7 +230,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isUserToSystemProcess(): boolean {
-        return this.propertyValues["clientType"].value === ProcessEnums.ProcessType.UserToSystemProcess;
+        return this.processType === ProcessEnums.ProcessType.UserToSystemProcess;
     }
 
     public resetLock() {

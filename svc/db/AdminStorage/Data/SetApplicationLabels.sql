@@ -255,6 +255,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Task_Label', 'en-US', N'Add User Task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_System_Decision_Label', 'en-US', N'Add System Decision Point')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Decision_Label', 'en-US', N'Add User Decision Point')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_BusinessProcess_Label', 'en-US', N'Business Process')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-To-System Process')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')

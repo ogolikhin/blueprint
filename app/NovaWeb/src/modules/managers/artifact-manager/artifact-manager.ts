@@ -36,15 +36,12 @@ export class ArtifactManager  implements IArtifactManager {
 
         this.services = new StatefulArtifactServices( 
             this.$q,
+            this.session,
             this.messageService,
             this.artifactService,
             this.attachmentService);
 
         this.artifactList = [];
-    }
-
-    public get currentUser(): Models.IUserGroup {
-        return this.session.currentUser;
     }
 
     public get messages(): IMessageService {

@@ -1,8 +1,6 @@
 import { IMessageService } from "../../../core/";
 import { IStatefulArtifactServices } from "../../models";
 import { 
-    IArtifactManager, 
-    IStatefulArtifact, 
     ISession, 
     IArtifactAttachmentsService,
     IArtifactService,
@@ -13,6 +11,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
 
 
     constructor(private $q: ng.IQService,
+                private _session: ISession,
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService) {
@@ -23,7 +22,10 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
         return this.$q.defer<T>();
     }
 
+    public get session(): ISession {
+        return this._session;
 
+    }
     public get messageService(): IMessageService {
         return this._messageService;
 

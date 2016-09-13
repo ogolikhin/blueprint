@@ -9,10 +9,10 @@ import {
 import {
     IArtifactService,
 } from "../main/services/artifact.svc";
+import { ISession } from "../shell/login/session.svc";
 
-
-export { ISession } from "../shell/login/session.svc";
 export { 
+    ISession,
     IArtifactService,
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService 
@@ -128,7 +128,6 @@ export interface ISubArtifactCollection {
 }
 
 export interface IArtifactManager {
-    currentUser: Models.IUserGroup;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
     get(id: number): IStatefulArtifact;
@@ -139,6 +138,7 @@ export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
     messageService: IMessageService;
+    session: ISession;
     artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
 }

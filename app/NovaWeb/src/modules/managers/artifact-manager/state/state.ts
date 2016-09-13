@@ -1,13 +1,13 @@
 import { Models, Enums } from "../../../main/models";
-import { IStatefulArtifact, IArtifactStates, IState } from "../../models";
+import { IIStatefulArtifact, IArtifactStates, IState } from "../../models";
 
 export class ArtifactState implements IArtifactStates {
-    private statefullArtifact: IStatefulArtifact;
+    private statefullArtifact: IIStatefulArtifact;
     private state: IState;
     private subject: Rx.BehaviorSubject<IState>;
 
 
-    constructor(artifact: IStatefulArtifact, state?: IState) {
+    constructor(artifact: IIStatefulArtifact, state?: IState) {
         this.statefullArtifact = artifact; 
         this.state = angular.extend({
             readonly: false,
@@ -22,9 +22,9 @@ export class ArtifactState implements IArtifactStates {
         if (artifact) {
             if (artifact.lockedByUser) {
                 this.state.lock = {
-                    result: artifact.lockedByUser.id === this.statefullArtifact.manager.currentUser.id ? 
+                    result: artifact.lockedByUser.id === this.statefullArtifact.getServices().session.currentUser.id ? 
                             Enums.LockResultEnum.Success : 
-                            Enums.LockResultEnum.AlreadyLocked,
+                            Enums.LockResultEnum.AlreadyLocked, 
                     info: {
                         lockOwnerLogin: artifact.lockedByUser.displayName,
                         utcLockedDateTime: artifact.lockedDateTime

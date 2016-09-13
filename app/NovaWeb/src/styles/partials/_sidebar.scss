@@ -12,6 +12,7 @@ bp-sidebar-layout {
     background: $body-bg-color;
     display: block;
     height: 100%;
+    overflow: hidden;
     position: relative;
     width: 100%;
   }
@@ -43,8 +44,7 @@ bp-sidebar-layout {
   .sidebar {
     background: $white;
     display: block;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: none;
     height: 100%;
     position: relative;
     transition: all .4s ease;

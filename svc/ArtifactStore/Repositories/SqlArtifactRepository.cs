@@ -289,7 +289,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
-            var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.ItemId);
+            var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.Id);
             var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
             foreach (var subArtifactEntry in subArtifactsDictionary)
             {
@@ -303,11 +303,21 @@ namespace ArtifactStore.Repositories
                         parentSubArtifact.Children = new List<SubArtifact>();
                     }
                     ((List<SubArtifact>)parentSubArtifact.Children).Add(subArtifact);
+                    parentSubArtifact.HasChildren = true;
                 }
-                ItemLabel itemLabel;
-                if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.ItemId, out itemLabel))
-                {
-                    subArtifactEntry.Value.Label = itemLabel.Label;
+            }
+            var areLabelsDisplayNames = subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
+                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition
+                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Flow
+                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step;
+
+            if (subArtifactsDictionary.Count > 0 && areLabelsDisplayNames) {
+                foreach (var subArtifactEntry in subArtifactsDictionary) {
+                    ItemLabel itemLabel;
+                    if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
+                    {
+                        subArtifactEntry.Value.DisplayName = itemLabel.Label;
+                    }
                 }
             }
             var result = subArtifactsDictionary.Where(a => a.Value.ParentId == artifactId).Select(b => b.Value);

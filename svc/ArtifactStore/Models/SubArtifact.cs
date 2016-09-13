@@ -7,16 +7,18 @@ namespace ArtifactStore.Models
     public class SubArtifact
     {
         [JsonProperty]
-        public int ItemId { get; set; }
+        public int Id { get; set; }
         [JsonProperty]
         public int ParentId { get; set; }
         [JsonProperty]
         public int ItemTypeId { get; set; }
         [JsonProperty]
-        public string Name { get; set; }
+        public string DisplayName { get; set; }
         [JsonProperty]
-        public string Label { get; set; }
+        public ItemTypePredefined PredefinedType { get; set; }
         [JsonProperty]
+        public bool HasChildren { get; set; } = false;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<SubArtifact> Children { get; set; }
     }
 }

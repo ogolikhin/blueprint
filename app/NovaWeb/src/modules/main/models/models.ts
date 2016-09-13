@@ -22,11 +22,12 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 export interface ISubArtifactNode {
-    itemId: number;
+    id: number;
     parentId: number;
     itemTypeId: number;
-    name: string;
-    label: string;
+    displayName: string;
+    predefinedType: ItemTypePredefined;
+    hasChildren: boolean;
     children: ISubArtifactNode[];
 }
 export interface ITrace {

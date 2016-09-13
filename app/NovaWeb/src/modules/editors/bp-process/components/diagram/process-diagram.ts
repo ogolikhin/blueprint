@@ -101,9 +101,21 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         }
 
-        this.processViewModel.communicationManager.toolbarCommunicationManager.enableProcessTypeToggle(!this.processViewModel.isReadonly, this.processViewModel.processType);
-        this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager.registerToggleProcessTypeObserver(this.processTypeChanged);
-        this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
+        this.processViewModel
+            .communicationManager
+            .toolbarCommunicationManager
+            .enableProcessTypeToggle(!this.processViewModel.isReadonly, this.processViewModel.processType);
+        
+        this.toggleProcessTypeHandler = 
+            this.processViewModel
+            .communicationManager
+            .toolbarCommunicationManager
+            .registerToggleProcessTypeObserver(this.processTypeChanged);
+        this.modelUpdateHandler = 
+            this.processViewModel
+            .communicationManager
+            .processDiagramCommunication
+            .registerModelUpdateObserver(this.modelUpdate);
         
         return this.processViewModel;
     }

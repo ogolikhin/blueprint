@@ -21,6 +21,7 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
 
     public options: IProcessTypeToggleOption[];
     public currentProcessType: number;
+    public isProcessTypeToggleEnabled: boolean;
 
     constructor(
         private communicationManager: ICommunicationManager
@@ -51,5 +52,7 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
                 this.currentProcessType = option.id;
             }
         }
+
+        this.isProcessTypeToggleEnabled = status.value;
     }
 }

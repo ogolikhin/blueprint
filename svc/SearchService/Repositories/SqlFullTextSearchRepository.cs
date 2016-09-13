@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
+﻿using System.Data;
 using System.Linq;
 using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
@@ -34,10 +32,13 @@ namespace SearchService.Repositories
             prm.Add("@itemTypeIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ItemTypeIds));
             prm.Add("@page", page);
             prm.Add("@pageSize", pageSize);
+            prm.Add("@maxItems", WebApiConfig.MaxItems);
+            prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
 
-            var queryResult = await ConnectionWrapper.QueryMultipleAsync<FullTextSearchItem, int>("SearchFullText", prm, commandType: CommandType.StoredProcedure);
+            var queryResult = await ConnectionWrapper.QueryMultipleAsync<FullTextSearchItem, FullTextSearchTypeItem, int>("SearchFullText", prm, commandType: CommandType.StoredProcedure);
             result.FullTextSearchItems = queryResult.Item1;
-            result.TotalCount = queryResult.Item2.ElementAt(0);
+            result.FullTextSearchTypeItems = queryResult.Item2;
+            result.TotalCount = queryResult.Item3.ElementAt(0);
 
             return result;
         }

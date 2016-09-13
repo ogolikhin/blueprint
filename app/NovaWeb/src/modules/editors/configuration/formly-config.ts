@@ -3,15 +3,16 @@ import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
-import {ILocalizationService, IMessageService} from "../../core";
-import {Helper} from "../../shared";
+import {ILocalizationService, IMessageService, ISettingsService} from "../../core";
+import {Helper, IDialogService} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
+import { actorImageController } from "./controllers/actor-image-controller";
 
-
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
+    "messageService", "dialogService", "settings"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -20,7 +21,9 @@ export function formlyConfig(
     $sce: ng.ISCEService,
     artifactAttachments: IArtifactAttachments,
     $window: ng.IWindowService,
-    messageService: IMessageService
+    messageService: IMessageService,
+    dialogService: IDialogService,
+    settingsService: ISettingsService
 ): void {
     /* tslint:enable */
 
@@ -869,7 +872,7 @@ export function formlyConfig(
                     <div class="thumb {{extension}}"></div>
                 </span>
                 <span class="form-control-wrapper">
-                    <input type="text" value="{{fileName}}" class="form-control" readonly/>
+                    <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
                 </span>
                 <span class="input-group-addon">
                     <span class="icon fonticon2-delete"></span>
@@ -1049,14 +1052,22 @@ export function formlyConfig(
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
         template: `<div class="inheritance-group">
-                    <img ng-src="{{model[options.key]}}" class="actor-image" />
+                    <img ng-if="model[options.key]" ng-src="{{model[options.key]}}" class="actor-image" />
+                    <span ng-if="!model[options.key]" class="actor-image"></span>
                     <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
                                                         ng-click="bpFieldInheritFrom.delete($event)"></i>
-                    <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
-                                    class="glyphicon glyphicon-plus image-actor-group" 
-                                    ng-click="bpFieldInheritFrom.delete($event)"></i>
-                </div>`
+                    <label>
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" 
+                            class="file-input glyphicon glyphicon-plus image-actor-group">  
+                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
+                                    class="glyphicon glyphicon-plus image-actor-group"></i>
+                    </label>                
+                                  
+                </div>`,
         /* tslint:enable:max-line-length */
+        controller: ["$scope", function ($scope) {
+            actorImageController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
+        }]
     });
 
     //<input type="text"
@@ -1085,7 +1096,7 @@ export function formlyConfig(
                                 </span>   
                                 <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
                             </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}">
+                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
                             <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
                         </div>
                     </div>    
@@ -1093,12 +1104,12 @@ export function formlyConfig(
 
                     <div ng-show="model[options.key].actorName.length > 0">
                         <div class="din">
-                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="bpFieldInheritFrom.delete($event)"
+                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="deleteBaseActor()"
                                 bp-tooltip="Delete"></span>
                         </div>   
                          <div class="fr">
                             <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
-                                    ng-click="bpFieldInheritFrom.change($event)">Change</button>
+                                    ng-click="selectBaseActor()">Change</button>
                         </div>        
                     </div>         
                     <div ng-hide="model[options.key].actorName.length > 0">
@@ -1109,7 +1120,7 @@ export function formlyConfig(
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, artifactAttachments, $window, messageService);
+            actorController($scope, localization, artifactAttachments, $window, messageService, dialogService);
         }]
     });
  

@@ -2,7 +2,7 @@ import {IDiagramNode, IProcessShape,
     NodeChange, ProcessShapeType, IProcessLink
 } from "./models/";
 import {ILayout} from "./models/";
-import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
+import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
 

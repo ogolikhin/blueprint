@@ -1,7 +1,7 @@
 ﻿import {IMessageService} from "../../../../../../core/";
-import {IProcessShape, IProcessLink} from "../../../../models/processModels";
-import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
-import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/processModels";
+import {IProcessShape, IProcessLink} from "../../../../models/process-models";
+import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
+import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";
 import {ProcessType, ProcessShapeType} from "../../../../models/enums";
 import {NodeType, NodeChange} from "./models/";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";

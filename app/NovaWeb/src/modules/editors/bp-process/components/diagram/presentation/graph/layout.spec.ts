@@ -9,7 +9,7 @@ import * as TestModels from "../../../../models/test-model-factory";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";
 import {IDiagramNode, IDecision} from "./models/";
 import {CS_LEFT, CS_RIGHT, CS_VERTICAL} from "./shapes/connector-styles";
-import {ProcessLinkModel} from "../../../../models/processModels";
+import {ProcessLinkModel} from "../../../../models/process-models";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process"; 

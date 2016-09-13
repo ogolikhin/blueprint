@@ -1,7 +1,7 @@
 ﻿import {ProcessEnd} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
-import {ProcessModel, ProcessShapeModel} from "../../../../../models/processModels";
+import {ProcessModel, ProcessShapeModel} from "../../../../../models/process-models";
 import {ProcessShapeType} from "../../../../../models/enums";
 import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";

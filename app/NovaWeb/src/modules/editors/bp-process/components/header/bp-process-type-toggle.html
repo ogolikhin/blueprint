@@ -1,0 +1,6 @@
+<div class="toggle-container" ng-class="{'disabled': !$ctrl.isProcessTypeToggleEnabled}" ng-if="$ctrl.options && $ctrl.options.length > 0">
+    <input ng-repeat-start="option in $ctrl.options" id="processType{{option.id}}" ng-value="{{option.id}}" type="radio" name="toggleOptions" ng-model="$ctrl.currentProcessType" ng-change="$ctrl.processTypeChanged()" ng-disabled="!$ctrl.isProcessTypeToggleEnabled" />
+    <label ng-repeat-end for="processType{{option.id}}" class="icon-container" bp-tooltip="{{option.tooltip}}">
+        <i class="{{option.iconClass}}"></i>
+    </label>
+</div>

@@ -1,4 +1,5 @@
-﻿import {BpProcessHeader} from "./components/header/bp-process-header";
+﻿import {BpProcessTypeToggle} from "./components/header/bp-process-type-toggle";
+import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process/process.svc";
 import * as ProcessModels from "./models/process-models";
@@ -8,6 +9,7 @@ import {ContextualHelpDirective} from "./components/modal-dialogs/contextual-hel
 import {ClearTextDirective} from "./components/modal-dialogs/clear-text";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
+    .component("bpProcessTypeToggle", new BpProcessTypeToggle())
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
     .service("processService", ProcessService)

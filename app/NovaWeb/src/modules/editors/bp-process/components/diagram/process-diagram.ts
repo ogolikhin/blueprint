@@ -1,4 +1,5 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType} from "../../../../core";
+import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -8,12 +9,12 @@ import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 
-
 export class ProcessDiagram {
     public processModel: IProcess;
     public processViewModel: IProcessViewModel = null;
     private graph: IProcessGraph = null;
-    private htmlElement: HTMLElement; 
+    private htmlElement: HTMLElement;
+    private toggleProcessTypeHandler: string;
     private modelUpdateHandler: string;
     private shapesFactory: ShapesFactory;
     constructor(
@@ -24,7 +25,7 @@ export class ProcessDiagram {
         private $log: ng.ILogService,
         private processService: IProcessService,
         private messageService: IMessageService,
-        private communicationManager: ICommunicationManager,        
+        private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService) {
 
@@ -63,6 +64,7 @@ export class ProcessDiagram {
         if (!this.validProcessId(processId)) {
             throw new Error("Process id '" + processId + "' is invalid.");
         }
+        
         if (htmlElement) {
             // okay 
         } else {
@@ -75,7 +77,6 @@ export class ProcessDiagram {
     }
 
     private onLoad(process: IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
-
         this.resetBeforeLoad();
         
         this.processModel = process;
@@ -93,17 +94,42 @@ export class ProcessDiagram {
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
             this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
-            this.processViewModel.communicationManager = this.communicationManager; 
+            this.processViewModel.communicationManager = this.communicationManager;
         } else {
             this.processViewModel.updateProcessGraphModel(process);
+            this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
             this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         }
+
+        this.processViewModel
+            .communicationManager
+            .toolbarCommunicationManager
+            .enableProcessTypeToggle(!this.processViewModel.isReadonly && !this.processViewModel.isHistorical, this.processViewModel.processType);
+        
+        this.toggleProcessTypeHandler = 
+            this.processViewModel
+            .communicationManager
+            .toolbarCommunicationManager
+            .registerToggleProcessTypeObserver(this.processTypeChanged);
         this.modelUpdateHandler = 
-           this.processViewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver(this.modelUpdate);
+            this.processViewModel
+            .communicationManager
+            .processDiagramCommunication
+            .registerModelUpdateObserver(this.modelUpdate);
+        
         return this.processViewModel;
     }
 
+    private processTypeChanged = (processType: number) => {
+        this.processViewModel.processType = <ProcessType>processType;
+        this.recreateProcessGraph();
+    }
+
     private modelUpdate = (selectedNodeId: number) => {
+        this.recreateProcessGraph(selectedNodeId);
+    }
+
+    private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
     }
@@ -144,13 +170,15 @@ export class ProcessDiagram {
     }
 
     public destroy() {
+        this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
         this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         
         // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
-        } 
+        }
+
         if (this.processViewModel != null) {
             this.processViewModel.destroy();
             this.processViewModel = null;

@@ -46,7 +46,8 @@ namespace SearchService.Controllers
                 TotalCount = results.TotalCount,
                 TotalPages = totalPages,
                 PageSize = pageSize,
-                Results = results.FullTextSearchItems
+                SearchResults = results.FullTextSearchItems,
+                TypeResults = results.FullTextSearchTypeItems
             });
         }
 

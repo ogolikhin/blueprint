@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService} from "../../../../../../../core/";
+﻿import {ILocalizationService} from "../../../../../../../core/";
 import {IDiagramNode} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
 import {NodeType, ILayout} from "../models/";

@@ -68,7 +68,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this))
+        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
         
     }
 

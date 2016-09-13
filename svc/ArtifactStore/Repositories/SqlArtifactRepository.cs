@@ -290,7 +290,6 @@ namespace ArtifactStore.Repositories
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
             var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.Id);
-            var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
             foreach (var subArtifactEntry in subArtifactsDictionary)
             {
                 var subArtifact = subArtifactEntry.Value;
@@ -312,6 +311,7 @@ namespace ArtifactStore.Repositories
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step;
 
             if (subArtifactsDictionary.Count > 0 && areLabelsDisplayNames) {
+                var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
                     ItemLabel itemLabel;
                     if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))

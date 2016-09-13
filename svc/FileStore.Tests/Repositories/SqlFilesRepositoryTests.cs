@@ -291,5 +291,33 @@ namespace FileStore.Repositories
         }
 
         #endregion DeleteFile
+
+        #region Make Permanent
+
+        [TestMethod]
+        public async Task MakePermanent_Returns_NumberEffectedRows()
+        {
+            // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
+            var guid = Guid.NewGuid();
+            var numberEffectedRows = 2;
+
+            cxn.SetupExecuteScalarAsync(
+                "MakeFilePermanent",
+                new Dictionary<string, object> { { "FileId", guid }},
+                numberEffectedRows);
+
+            // Act
+            var rows = await repository.MakeFilePermanent(guid);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(numberEffectedRows, rows);
+        }
+
+        #endregion
     }
 }

@@ -12,3 +12,4 @@
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\ReadFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\UpdateFileHead.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\ReadChunkContent.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\MakeFilePermanent.sql" ) ) #>

@@ -80,6 +80,10 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
+    public getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]> {
+        return this.$q.resolve({});
+    } 
+
     public static createArtifact(artifactId: number, projectId?: number, children?: number): Models.IArtifact {
         let artifact = {
             id: artifactId,

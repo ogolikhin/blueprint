@@ -1,7 +1,6 @@
 ﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+import { Models} from "../../../main";
 import { ISession } from "../../../shell";
-import { IArtifactAttachmentsResultSet, IArtifactAttachmentsService, IArtifactDocRef } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { IDialogSettings, IDialogService } from "../../../shared";
@@ -9,6 +8,16 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ISelectionManager } from "../../../managers/selection-manager";
+import { 
+    IArtifactAttachmentsResultSet, 
+    IArtifactAttachmentsService, 
+    IArtifactDocRef, 
+    IStatefulArtifact,
+    IStatefulSubArtifact,
+    IArtifactAttachment,
+    
+} from "../../../managers/artifact-manager";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -22,7 +31,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "selectionManager",
+        "selectionManager2",
         "stateManager",
         "session",
         "artifactAttachments",
@@ -30,7 +39,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "dialogService"
     ];
 
-    public artifactAttachmentsList: IArtifactAttachmentsResultSet;
+    // public artifactAttachmentsList: IArtifactAttachmentsResultSet;
+    public attachmentsList: IArtifactAttachment[];
+    public docRefList: IArtifactDocRef[];
+
+    public artifact: IStatefulArtifact;
+    public subArtifact: IStatefulSubArtifact;
+
     public categoryFilter: number;
     public isLoading: boolean = false;
     public filesToUpload: any;
@@ -68,14 +83,14 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             if (artifact) {
-                this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
-                    artifactName: artifact.name,
-                    artifactId: artifact.id,
-                    userId: this.session.currentUser.id,
-                    userName: this.session.currentUser.displayName,
-                    itemTypePrefix: artifact.prefix,
-                    referencedDate: new Date().toISOString()
-                });
+                // this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
+                //     artifactName: artifact.name,
+                //     artifactId: artifact.id,
+                //     userId: this.session.currentUser.id,
+                //     userName: this.session.currentUser.displayName,
+                //     itemTypePrefix: artifact.prefix,
+                //     referencedDate: new Date().toISOString()
+                // });
             }
         });
     }
@@ -90,10 +105,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload")
             };
 
-            const curNumOfAttachments: number = this.artifactAttachmentsList 
-                    && this.artifactAttachmentsList.attachments 
-                    && this.artifactAttachmentsList.attachments.length || 0;
-            
+            const curNumOfAttachments: number = this.attachmentsList && this.attachmentsList.length || 0;
             let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
             let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
 
@@ -115,14 +127,16 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
                 if (uploadList) {
                     uploadList.map((uploadedFile: any) => {
-                        this.artifactAttachmentsList.attachments.push({
-                            userId: this.session.currentUser.id,
-                            userName: this.session.currentUser.displayName,
-                            fileName: uploadedFile.name,
-                            attachmentId: null,
-                            guid: uploadedFile.guid,
-                            uploadedDate: null
-                        });
+
+                        // TODO: implement adding attachments to artifact/subArtifact
+                        // this.artifactAttachmentsList.attachments.push({
+                        //     userId: this.session.currentUser.id,
+                        //     userName: this.session.currentUser.displayName,
+                        //     fileName: uploadedFile.name,
+                        //     attachmentId: null,
+                        //     guid: uploadedFile.guid,
+                        //     uploadedDate: null
+                        // });
                     });
                 }
             }).finally(() => {
@@ -135,22 +149,42 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         openUploadStatus();
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        this.artifactAttachmentsList = null;
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        // this.artifactAttachmentsList = null;
+        this.attachmentsList = [];
 
-        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-            return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
-                .then((result: IArtifactAttachmentsResultSet) => {
-                    this.artifactIsDeleted = false;
-                    this.artifactAttachmentsList = result;
-                }, (error) => {
-                    if (error && error.statusCode === 404) {
-                        this.artifactIsDeleted = true;
-                    }
-                });
+        this.artifact = artifact;
+        this.subArtifact = subArtifact;
+
+        let attachmentSubscriber: Rx.IDisposable;
+        let docRefSubscriber: Rx.IDisposable;
+
+        if (subArtifact) {
+
         } else {
-            this.artifactAttachmentsList = null;
+            let promise = this.artifact.attachments.value;
+            attachmentSubscriber = this.artifact.attachments.observable.subscribe((attachments: IArtifactAttachment[]) => {
+                this.attachmentsList = attachments;
+            });
+
+            // TODO: docRefSubscriber here
+
+            // artifact.attachments.value.then( (result) => {});
         }
+
+        // if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+        //     return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
+        //         .then((result: IArtifactAttachmentsResultSet) => {
+        //             this.artifactIsDeleted = false;
+        //             this.artifactAttachmentsList = result;
+        //         }, (error) => {
+        //             if (error && error.statusCode === 404) {
+        //                 this.artifactIsDeleted = true;
+        //             }
+        //         });
+        // } else {
+        //     this.artifactAttachmentsList = null;
+        // }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 

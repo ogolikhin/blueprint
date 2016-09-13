@@ -1,6 +1,8 @@
-import { ISelectionManager, Models} from "../../main";
+import { Models} from "../../main";
 import { IStateManager, ItemState } from "../../core";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
+import { IStatefulArtifact, IStatefulSubArtifact } from "../../managers/artifact-manager";
+import { ISelectionManager } from "../../managers/selection-manager";
 
 export class BPBaseUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
@@ -48,7 +50,7 @@ export class BPBaseUtilityPanelController {
         this.itemState = state;
     }
 
-    private selectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    private selectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         if (this.timeout) {
             this.timeout.resolve();
         }

@@ -241,6 +241,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
+            VerifyArtifactIsDeleted(targetArtifact);
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
@@ -268,6 +269,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
+            VerifyArtifactIsDeleted(targetArtifact);
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 

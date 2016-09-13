@@ -1,9 +1,10 @@
 ﻿import { ILocalizationService, IMessageService } from "../../core";
-import { Project, ProjectArtifact } from "./project";
-import { IProjectArtifact, IStatefulArtifact } from "../models";
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
+import { Project, ArtifactNode } from "./project";
+import { IArtifactNode, IStatefulArtifact } from "../models";
+import { StatefulArtifact } from "../artifact-manager/artifact";
 
-import { Models } from "../../main/models";
+import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
 import { ISelectionManager, SelectionSource } from "../selection-manager";
 
@@ -22,19 +23,20 @@ export interface IProjectManager {
 
 //    loadProject(project: Models.IProject): void;
     
-    loadArtifact(artifact: number | IProjectArtifact): void;
-
+    loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     getProject(id: number);
+    getArtifactNode(id: number): IArtifactNode;
+    getArtifact(id: number): IStatefulArtifact;
 
-    getArtifact(id: number, project?: Project): IProjectArtifact;
+    
 
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
     getArtifactType(artifact: number | IStatefulArtifact): Models.IItemType;    
 
-    // getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[];
+    getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[];
 
     // getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
@@ -77,7 +79,6 @@ export class ProjectManager  implements IProjectManager {
         this.dispose();
         delete this._projectCollection ;
     }
-
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
     }
@@ -93,7 +94,13 @@ export class ProjectManager  implements IProjectManager {
                 //todo move project to first position
 
             } else {
-                angular.extend(data, {hasChildren: true});
+                angular.extend(data, {
+                    projectId: data.id,
+                    prefix: "PR",
+                    permissions: 4095,
+                    predefinedType: Enums.ItemTypePredefined.Project,
+                    hasChildren: true
+                });
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(data);
                 this.artifactManager.add(statefulArtifact);
                 project = new Project(statefulArtifact);
@@ -157,7 +164,7 @@ export class ProjectManager  implements IProjectManager {
                 }
                 project.meta = metadata;
                 //load project children
-                this.loadArtifact(project);
+                this.loadArtifact(project.id);
 
         }).catch((error: any) => {
             this.messageService.addError(error);
@@ -165,43 +172,38 @@ export class ProjectManager  implements IProjectManager {
 
     }
 
-    public loadArtifact = (artifact: number | IProjectArtifact) => {
-        let projectArtifact: IProjectArtifact;
+    public loadArtifact = (id: number) => {
+        let node: IArtifactNode;
 
         try {
-            if (angular.isNumber(artifact)) {
-                projectArtifact = this.getArtifact(artifact);
-            } else {
-                projectArtifact = artifact;
-            }
-            if (!projectArtifact) {
+            node = this.getArtifactNode(id);
+            if (!node) {
                 throw new Error("Artifact_NotFound");
             }
 
-            this.projectService.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
+            this.projectService.getArtifacts(node.projectId, node.artifact.id)
                 .then((data: Models.IArtifact[]) => {
-                    projectArtifact.children = data.map((it: Models.IArtifact) => {
+                    node.children = data.map((it: Models.IArtifact) => {
                         const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                         this.artifactManager.add(statefulArtifact);
-                        
-                        return new ProjectArtifact(statefulArtifact, projectArtifact);
+                        return new ArtifactNode(statefulArtifact);
                     });
-                    projectArtifact.loaded = true;
-                    projectArtifact.open = true;
+                    node.loaded = true;
+
+                    node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    // this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
-                    this.selectionManager.setArtifact(projectArtifact.artifact, SelectionSource.Explorer);
+                    this.selectionManager.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {
                         this.messageService.addError(error["message"] || "Artifact_NotFound");
                     } else {
-                        projectArtifact.children = [];
-                        projectArtifact.loaded = false;
-                        projectArtifact.open = false;
-                        //projectArtifact.hasChildren = false;                        
+                        node.children = [];
+                        node.loaded = false;
+                        node.open = false;
+                        //node.hasChildren = false;                        
                         this.projectCollection.onNext(this.projectCollection.getValue());
                     }
                 });
@@ -239,15 +241,20 @@ export class ProjectManager  implements IProjectManager {
         return project;
     }
 
-    public getArtifact(id: number, project?: Project): IProjectArtifact {
-        let foundArtifact: IProjectArtifact;
+    public getArtifactNode(id: number): IArtifactNode {
+        let found: IArtifactNode;
         let projects  = this.projectCollection.getValue();
-        for (let i = 0, it: Project; !foundArtifact && (it = projects[i++]); ) {
-            foundArtifact = it.getArtifact(id);
+        for (let i = 0, it: Project; !found && (it = projects[i++]); ) {
+            found = it.getNode(id);
         }
-        
-        return foundArtifact;
+        return found;
     };
+
+    public getArtifact(id: number): IStatefulArtifact {
+        let found = this.getArtifactNode(id);
+        return found ? found.artifact : null;
+    };
+
 
     public getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact {
         let foundArtifact: Models.ISubArtifact;
@@ -345,53 +352,47 @@ export class ProjectManager  implements IProjectManager {
 
 
 
-    // public getArtifactPropertyTypes(artifact: number | IProjectArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
-    //     let _artifact: Models.IArtifact;
-    //     if (typeof artifact === "number") {
-    //         _artifact = this.getArtifact(artifact as number);
-    //     } else if (artifact) {
-    //         _artifact = artifact as Models.IArtifact;
-    //     }
-    //     if (!_artifact) {
-    //         throw new Error("Artifact_NotFound");
-    //     }
-    //     let _project = this.getProject(_artifact.projectId);
-    //     if (!_project) {
-    //         throw new Error("Project_NotFound");
-    //     }
-    //     if (!_project.meta) {
-    //         throw new Error("Project_MetaDataNotFound");
-    //     }
+    public getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[] {
 
-    //     let properties: Models.IPropertyType[] = [];
-    //     let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
+        if (!id) {
+            throw new Error("Artifact_NotFound");
+        }
 
-    //     if (!itemType) {
-    //         throw new Error("ArtifactType_NotFound");
-    //     }
-                
-        
-    //     //create list of system properties
-    //     if (subArtifact) {
-    //         properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
-    //     } else {
-    //         properties = this.getArtifactSystemPropertyTypes(artifact, itemType, _project.meta);
-    //     }
+        let node = this.getArtifactNode(id);
+        if (!node) {
+            throw new Error("Artifact_NotFound");
+        }
+        let project = this.getProject(node.projectId);
+        if (!project) {
+            throw new Error("Project_NotFound");
+        }
+        let itemtype = project.getArtifactType(node.id);
+        let properties: Models.IPropertyType[] = [];
 
         
-    //     //add custom property types
-    //     _project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-    //         if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-    //             properties.push(it);
-    //         }
-    //     });
-    //     return properties;
+        //create list of system properties
+        if (subArtifact) {
+            properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
+        } else {
+            properties = this.getArtifactSystemPropertyTypes(node.artifact, itemtype, project.meta );
+        }
 
-    // }
+        
+        //add custom property types
+        project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (itemtype.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(it);
+            }
+        });
+        return properties;
 
-    private getArtifactSystemPropertyTypes(artifact: number | Models.IArtifact,
-        artifactType: Models.IItemType,
+    }
+
+    private getArtifactSystemPropertyTypes(
+        artifact: IStatefulArtifact, 
+        artifactType: Models.IItemType, 
         projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
+        
         let properties: Models.IPropertyType[] = [];
 
         //add system properties  
@@ -456,35 +457,20 @@ export class ProjectManager  implements IProjectManager {
     }
 
 
-    public getArtifactType(it: number | IStatefulArtifact): Models.IItemType {
-        if (!it) {
+    public getArtifactType(id: number): Models.IItemType {
+        if (!id) {
             throw new Error("Artifact_NotFound");
         }
-        let artifact: IStatefulArtifact;
 
-        if (angular.isNumber(it)) {
-            artifact = this.getArtifact(it);
+        let node = this.getArtifactNode(id);
+        if (!node) {
+            throw new Error("Artifact_NotFound");
         }
+        let project = this.getProject(node.projectId);
         if (!project) {
             throw new Error("Project_NotFound");
         }
-        if (!project.meta) {
-            throw new Error("Project_MetaDataNotFound");
-        }
-        if (subArtifact) {
-            let _subArtifactType: Models.IItemType = project.meta.subArtifactTypes.filter((it: Models.IItemType) => {
-                return it.id === subArtifact.itemTypeId;
-            })[0];
-
-            return _subArtifactType;
-        }
-
-        let _artifactType: Models.IItemType = project.meta.artifactTypes.filter((it: Models.IItemType) => {
-            return it.id === artifact.itemTypeId;
-        })[0];
-
-        return _artifactType;
-
+        return project.getArtifactType(node.id);
     }    
 
     public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {

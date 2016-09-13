@@ -142,10 +142,9 @@ export interface IStatefulArtifactServices {
     attachmentService: IArtifactAttachmentsService;
 }
 
-export interface IProjectArtifact {
+export interface IArtifactNode {
     artifact: IStatefulArtifact;
-    parent: IProjectArtifact;
-    children?: IProjectArtifact[];
+    children?: IArtifactNode[];
     id: number;
     name: string;
     projectId: number;

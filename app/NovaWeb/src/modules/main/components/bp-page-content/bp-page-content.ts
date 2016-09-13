@@ -62,10 +62,7 @@ class PageContentCtrl {
             }
 
             // _context.artifact = artifact;
-             _context.type = this.projectManager.getArtifactType(_context.artifact);
-
-            this.stateManager.addItem(_context.artifact, _context.type);
-
+//             _context.type = this.projectManager.getArtifactType(artifact.id);
             this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
@@ -82,13 +79,13 @@ class PageContentCtrl {
     }
 
     public onContentSelected($event: MouseEvent) {
-        if ($event.target && $event.target["tagName"] !== "BUTTON") {
-            if (this.context) {
-                this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
-            } else {
-                this.selectionManager.clearSelection();
-            }
-        }
+        // if ($event.target && $event.target["tagName"] !== "BUTTON") {
+        //     if (this.context) {
+        //         this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
+        //     } else {
+        //         this.selectionManager.clearSelection();
+        //     }
+        // }
     }
 
     private onAvailableAreaResized() {

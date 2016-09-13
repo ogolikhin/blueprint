@@ -1,27 +1,20 @@
 import { Models, Enums } from "../../main/models";
-import { IArtifactManager, IStatefulArtifact, IProjectArtifact } from "../models";
+import { IArtifactManager, IStatefulArtifact, IArtifactNode } from "../models";
 
-export class ProjectArtifact implements IProjectArtifact {
+export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;
-    private _parent: IProjectArtifact;
-    public children: IProjectArtifact[];
+    public children: IArtifactNode[];
 
-    constructor(artifact: IStatefulArtifact, parent?: IProjectArtifact ) { //
+    constructor(artifact: IStatefulArtifact ) { //
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
-        this._parent = parent;
         this.hasChildren = artifact.hasChildren;
     };
 
     public get artifact(): IStatefulArtifact {
         return this._artifact;
-    }
-
-
-    public get parent(): IProjectArtifact {
-        return this._parent;
     }
 
     public get id(): number {
@@ -54,31 +47,13 @@ export class ProjectArtifact implements IProjectArtifact {
     
 } 
 
-export class Project extends ProjectArtifact { 
+
+export class Project extends ArtifactNode { 
 
     public meta: Models.IProjectMeta;
 
     public get description(): string {
         return this.artifact.description;
-    }
-
-    public get projectId() {
-        return this.artifact.id;
-    }
-
-    public get prefix(): string {
-        return "PR";
-    }
-    public get parentId(): number {
-        return -1;
-    }
-
-    public get permissions(): Enums.RolePermissions {
-        return 4095;
-    }
-
-    public get predefinedType(): Models.ItemTypePredefined {
-        return Enums.ItemTypePredefined.Project;
     }
 
 
@@ -104,19 +79,19 @@ export class Project extends ProjectArtifact {
     // };
 
 
-    public getArtifact(id: number, item?: IProjectArtifact): IProjectArtifact {
-        let foundArtifact: IProjectArtifact;
+    public getNode(id: number, item?: IArtifactNode): IArtifactNode {
+        let found: IArtifactNode;
         if (!item) {
             item = this;
         }
         if (item.id === id) {
-            foundArtifact = item;
+            found = item;
         } else if (item.children) {
-            for (let i = 0, it: IProjectArtifact; !foundArtifact && (it = item.children[i++]); ) {
-                foundArtifact = this.getArtifact(id, it);
+            for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]); ) {
+                found = this.getNode(id, it);
             }
         } 
-        return foundArtifact;
+        return found;
     };
 
 
@@ -145,4 +120,22 @@ export class Project extends ProjectArtifact {
         }
         return propertyTypes;
     }
+
+    public getArtifactType(id: number): Models.IItemType {
+        if (!id) {
+            throw new Error("Artifact_NotFound");
+        }
+        if (!this.meta) {
+            throw new Error("Project_MetaDataNotFound");
+        }
+        let node = this.getNode(id);
+        
+        let artifactType: Models.IItemType = this.meta.artifactTypes.filter((it: Models.IItemType) => {
+            return it.id === node.artifact.itemTypeId;
+        })[0];
+
+        return artifactType;
+
+    }    
+    
 }

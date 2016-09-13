@@ -4,7 +4,7 @@
     ILocalizationService,
     IProjectManager,
     IMessageService,
-    IStateManager,
+    ISelectionManager,
     IWindowManager,
     Models,
     Enums
@@ -20,16 +20,16 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
+    public static $inject: [string] = ["messageService", "selectionManager2", "windowManager", "localization", "projectManager"];
 
     constructor(
         messageService: IMessageService,
-        stateManager: IStateManager,
+        selectionManager: ISelectionManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
         projectManager: IProjectManager
     ) {
-        super(messageService, stateManager, windowManager, localization, projectManager);
+        super(messageService, selectionManager, windowManager, localization, projectManager);
     }
 
     public activeTab: number;
@@ -51,10 +51,10 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     }
 
 
-    public onLoading(obj: any): boolean {
+    public onLoading(): boolean {
         this.systemFields = [];
         this.noteFields = [];
-        return super.onLoading(obj);
+        return super.onLoading();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {

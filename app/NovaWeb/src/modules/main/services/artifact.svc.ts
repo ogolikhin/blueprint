@@ -63,6 +63,8 @@ export class ArtifactService implements IArtifactService {
         );
         return defer.promise;
     }
+
+
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
         var defer = this.$q.defer<any>();
 

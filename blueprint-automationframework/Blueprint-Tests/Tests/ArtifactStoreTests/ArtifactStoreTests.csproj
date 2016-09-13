@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActorPropertiesTests.cs" />
     <Compile Include="ArtifactDetailsTests.cs" />
     <Compile Include="ArtifactHistoryTests.cs" />
     <Compile Include="AttachmentTests.cs" />

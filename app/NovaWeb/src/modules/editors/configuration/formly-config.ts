@@ -3,7 +3,7 @@ import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
-import {ILocalizationService, IMessageService} from "../../core";
+import {ILocalizationService, IMessageService, ISettingsService} from "../../core";
 import {Helper, IDialogService} from "../../shared";
 import { FiletypeParser } from "../../shared/utils/filetypeParser";
 import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
@@ -11,8 +11,8 @@ import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 
-
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService", "dialogService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
+    "messageService", "dialogService", "settings"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -22,7 +22,8 @@ export function formlyConfig(
     artifactAttachments: IArtifactAttachments,
     $window: ng.IWindowService,
     messageService: IMessageService,
-    dialogService: IDialogService
+    dialogService: IDialogService,
+    settingsService: ISettingsService
 ): void {
     /* tslint:enable */
 
@@ -1053,13 +1054,17 @@ export function formlyConfig(
                     <span ng-if="!model[options.key]" class="actor-image"></span>
                     <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
                                                         ng-click="bpFieldInheritFrom.delete($event)"></i>
-                    <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
-                                    bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="0"
+                    <label>
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" 
+                            class="file-input glyphicon glyphicon-plus image-actor-group">  
+                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
                                     class="glyphicon glyphicon-plus image-actor-group"></i>
+                    </label>                
+                                  
                 </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            actorImageController($scope, localization, artifactAttachments, $window, messageService);
+            actorImageController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
         }]
     });
 

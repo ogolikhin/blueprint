@@ -887,8 +887,16 @@ pagecontent, bp-properties-panel {
         width: 90px;
         height: 120px;
         border: 1px solid $gray-lightest;
-      }               
-      span.actor-image{
+      }
+        .actor-image ~ label{
+          display: inline-block;
+          width:auto;
+          vertical-align:middle;
+          input{
+            display:none;
+          }
+        }
+        span.actor-image{
         background: url('images/icons/user-default.svg') left 30px no-repeat;
         display: inline-block;
         background-color: $gray;

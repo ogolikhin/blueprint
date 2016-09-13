@@ -1,5 +1,6 @@
 ﻿using ArtifactStore.Repositories;
 using Dapper;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Data;
@@ -7,10 +8,15 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Helpers
 {
-    internal class ItemInfoHelper
+    internal class SqlItemInfoRepository
     {
-        private ISqlConnectionWrapper _connectionWrapper;
-        public ItemInfoHelper(ISqlConnectionWrapper connectionWrapper)
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
+
+        internal SqlItemInfoRepository()
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        {
+        }
+        internal SqlItemInfoRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

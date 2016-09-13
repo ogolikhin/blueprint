@@ -152,6 +152,13 @@ namespace FileStore.Repositories
             return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFileChunk", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure));
         }
 
+        public async Task<int> MakeFilePermanent(Guid guid)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@FileId", guid);
+            return (await ConnectionWrapper.ExecuteScalarAsync<int>("MakeFilePermanent", prm, commandTimeout: _commandTimeout, commandType: CommandType.StoredProcedure));
+        }
+
         public File GetFileInfo(Guid fileId)
         {
             var prm = new DynamicParameters();

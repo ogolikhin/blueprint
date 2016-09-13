@@ -6,6 +6,7 @@ import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
+import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 
 
 export class ProcessDiagram {
@@ -14,6 +15,7 @@ export class ProcessDiagram {
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement; 
     private modelUpdateHandler: string;
+    private shapesFactory: ShapesFactory;
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -82,6 +84,8 @@ export class ProcessDiagram {
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
 
+        this.shapesFactory = new ShapesFactory(this.$rootScope);
+
         //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
@@ -118,7 +122,8 @@ export class ProcessDiagram {
                             this.dialogService,
                             this.localization,
                             this.messageService,
-                            this.$log);
+                            this.$log,
+                            this.shapesFactory);
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }

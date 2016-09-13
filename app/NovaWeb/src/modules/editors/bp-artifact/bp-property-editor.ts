@@ -5,13 +5,13 @@ import { PropertyContext} from "./bp-property-context";
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
 export class PropertyEditor {
-    
+
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
-    constructor(private localization: ILocalizationService)
-    {
+    private _artifactId: number;
+    constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
 
@@ -39,7 +39,9 @@ export class PropertyEditor {
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
                 }
-                return this.locale.toNumber($value);
+                return {
+                    validValueIds: [this.locale.toNumber($value)]
+                };
 
             case Models.PrimitiveType.User:
                 //TODO: please implement on time of user editor field implementation
@@ -69,8 +71,8 @@ export class PropertyEditor {
                     return v;
                 });
                 return context.isMultipleAllowed ? values : values[0];
-            //} else if (angular.isString($value.customValue)) {
-            //    return $value.customValue;
+                //} else if (angular.isString($value.customValue)) {
+                //    return $value.customValue;
             } else if (angular.isNumber($value)) {
                 return $value;
             }
@@ -95,7 +97,7 @@ export class PropertyEditor {
 
         this._model = {};
         this._fields = [];
-
+        this._artifactId = artifact.id;
         if (artifact && angular.isArray(this.propertyContexts)) {
             var artifactOrSubArtifact = artifact;
             if (subArtifact) {
@@ -108,7 +110,7 @@ export class PropertyEditor {
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
                         if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName] || null;
+                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName];
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
                                 artifact.readOnlyReuseSettings &&
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
@@ -126,12 +128,12 @@ export class PropertyEditor {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (custompropertyvalue) {
-                            modelValue = custompropertyvalue.value || null;
+                            modelValue = custompropertyvalue.value;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
-                        } 
+                        }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
                         //Specific property
-                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {                            
+                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
                         if (specificpropertyvalue) {
@@ -139,7 +141,11 @@ export class PropertyEditor {
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
                             } else {
-                                modelValue = specificpropertyvalue.value || null;
+                                if (specificpropertyvalue.value == null && specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
+                                    modelValue = { fileName: null, fileExtension: null };
+                                } else {
+                                    modelValue = specificpropertyvalue.value;
+                                }
                             }
                             propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
@@ -155,11 +161,11 @@ export class PropertyEditor {
         return this._model;
     }
 
-    private GetActorStepOfValue(propertyValue: any): string {        
+    private GetActorStepOfValue(propertyValue: any): string {
         if (propertyValue) {
-            return this.localization.get("App_Properties_Actor_StepOf_Actor");            
+            return this.localization.get("App_Properties_Actor_StepOf_Actor");
         }
-        else {            
+        else {
             return this.localization.get("App_Properties_Actor_StepOf_System");
         }
     }
@@ -200,26 +206,26 @@ export class PropertyEditor {
 
         } else {
             switch (context.primitiveType) {
-                case Models.PrimitiveType.Text:                   
+                case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
-                        if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
-                            field.templateOptions["tinymceOption"] = {
-                                //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                    if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
+                        field.templateOptions["tinymceOption"] = {
+                            //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
+                        };
+                        //TODO: added just for testing
+                        if (true) { //here we need something to decide if the tinyMCE editor should have mentions
+                            field.templateOptions["tinymceOption"].mentions = {
+                                source: tinymceMentionsData,
+                                delay: 100,
+                                items: 5,
+                                queryBy: "fullname",
+                                insert: function (item) {
+                                    return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
+                                }
                             };
-                            //TODO: added just for testing
-                            if (true) { //here we need something to decide if the tinyMCE editor should have mentions
-                                field.templateOptions["tinymceOption"].mentions = {
-                                    source: tinymceMentionsData,
-                                    delay: 100,
-                                    items: 5,
-                                    queryBy: "fullname",
-                                    insert: function (item) {
-                                        return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
-                                    }
-                                };
-                            }
-                        }                                        
+                        }
+                    }
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";
@@ -255,6 +261,16 @@ export class PropertyEditor {
                 case Models.PrimitiveType.User:
                     //TODO needs to be changed to user selection
                     field.type = "bpFieldReadOnly";
+                    break;
+                case Models.PrimitiveType.Image:
+                    field.type = "bpFieldImage";
+                    break;
+                case Models.PrimitiveType.ActorInheritance:
+                    field.type = "bpFieldInheritFrom";
+                    break;
+                case Models.PrimitiveType.DocumentFile:
+                    field.type = "bpDocumentFile";
+                    field.templateOptions["artifactId"] = this._artifactId;
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

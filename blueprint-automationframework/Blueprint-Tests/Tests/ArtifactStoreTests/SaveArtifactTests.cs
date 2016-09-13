@@ -1,11 +1,12 @@
-﻿using Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
@@ -21,13 +22,17 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         private IProject _project = null;
+        private List<IProject> _allProjects = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+
+            _allProjects = ProjectFactory.GetAllProjects(_user);
+            _project = _allProjects.First();
+            _project.GetAllArtifactTypes(ProjectFactory.Address, _user);
         }
 
         [TearDown]
@@ -108,6 +113,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
@@ -149,7 +155,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
 
-            UpdateArtifact_CanGetArtifact(artifact, artifactType);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -161,7 +167,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
             // Execute & Verify:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
         }
 
         [TestCase]
@@ -355,40 +361,134 @@ namespace ArtifactStoreTests
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
-        // TODO: See if we can test any of the following 409 Conflict cases:
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(164531)]
+        [Description("Create & publish an artifact. Update the artifact property 'Name' with Empty space. Get the artifact. Verify the artifact returned has the same properties as the artifact we updated.")]
+        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
 
-        /*
-        409 Conflict
-        - (This condition will be removed later, see US 1991) a property value does not match constraints, e.g. min and max values, valid values, required etc, or incorrect.
-             - Text - required.
-             - Number - required, min, max.
-             - Date -  required, min, max.
-             - Choice - required, against valid values, not allow multiple choices.
-             - User - required, user or group exists.
-        - A property is read-only over the reuse.
-        - The artifact is not locked by the current user.
-        - The version of the artifact in the input NovaArtifact version does not match the current version of the artifact.
-        */
+            // Execute & Verify:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
+        }
+
+        #region Custom data tests
+
+        [Category(Categories.CustomData)]
+        [TestCase("Value\":10.0", "Value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase("Value\":\"20", "Value\":\"21")] //Insert value into Date field which is out of range
+        [TestRail(164595)]
+        [Description("Try to update an artifact properties with a value that out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            // Execute:
+            string resultContent = null;
+            Assert.DoesNotThrow(() => resultContent = UpdateInvalidArtifact(requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        private const string NumberValueIncorrectFormat = "The property CU-Number Required with Min & Max was supplied a value in an incorrect format.";
+        private const string DateValueIncorrectFormat   = "The property CU-Date Required with Min & Max was supplied a value in an incorrect format.";
+        private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
+        private const string UserValueIncorrectFormat   = "The value for the property CU-User Required is invalid.";
+
+        [Category(Categories.CustomData)]
+        [TestCase("Value\":10.0", "Value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
+        [TestCase("Value\":\"20", "Value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
+        [TestCase("validValueIds\":[22]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
+        [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
+        public void UpdateArtifact_WrongType1InProperty_400BadRequest(string toChange, string changeTo, string expectedError)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateInvalidArtifact(requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+        }
+
+        [TestCase]
+        [Category(Categories.CustomData)]
+        [TestRail(164624)]
+        [Description("Try to update an artifact which is not locked by current user. Verify 409 Conflict is returned.")]
+        public void UpdateArtifact_NotLockedByUser_409Conflict()
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user),
+                "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedError = "The artifact is not locked.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+        }
+
+        #endregion Custom Data
 
         #endregion UpdateArtifact tests
 
         #region Private functions
 
         /// <summary>
+        /// Gets the custom data project.
+        /// </summary>
+        /// <returns>The custom data project.</returns>
+        private IProject GetCustomDataProject()
+        {
+            const string customDataProjectName = "Custom Data";
+
+            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
+                "No project was found named '{0}'!", customDataProjectName);
+            
+            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
+            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
+
+            return projectCustomData;
+        }
+
+        /// <summary>
         /// Common code for UpdateArtifact_PublishedArtifact_CanGetArtifact and UpdateArtifact_UnpublishedArtifact_CanGetArtifact tests.
         /// </summary>
         /// <param name="artifact">The artifact to update.</param>
         /// <param name="artifactType">The type of artifact.</param>
-        private void UpdateArtifact_CanGetArtifact(IArtifact artifact, BaseArtifactType artifactType)
+        /// <param name="propertyToChange">Property to change.</param>
+        /// <param name="value">The value to what property will be changed</param>
+        private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
         {
             // Setup:
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            // Update the Id of the artifact with the value after the save.
-            artifact.Id = artifactDetails.Id;
-
-            // Change the Description so it can be updated.
-            artifactDetails.Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+            SetProperty(propertyToChange, value, ref artifactDetails);
 
             NovaArtifactDetails updateResult = null;
 
@@ -405,37 +505,16 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
-        /*
         /// <summary>
-        /// Try to save a single invalid artifact to ArtifactStore.  Use this for testing cases where the save is expected to fail.
+        /// Set one primary property to specific value.
         /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be saved).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user saving the artifact.</param>
-        /// <returns>The ArtifactDetails returned from ArtifactStore.</returns>
-        private ArtifactDetails SaveInvalidArtifact(string requestBody,
-            int artifactId,
-            IUser user)
+        /// <param name="propertyName">Name of the property in which value will be changed.</param>
+        /// <param name="propertyValue">The value to set the property to.</param>
+        /// <param name="objectToUpadate">Object that contains the property to be changed.</param>
+        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpadate)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.POST,
-                requestBody,
-                contentType);
-
-            var artifactResult = JsonConvert.DeserializeObject<ArtifactDetails>(response.Content);
-
-            return artifactResult;
+            objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);
         }
-        */
 
         /// <summary>
         /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.

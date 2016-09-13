@@ -10,6 +10,11 @@ pagecontent, bp-properties-panel {
   //transition: all .4s ease;
   width: 100%;
 
+  .page-content-wrapper {
+    height: 100%;
+    width: 100%;
+  }
+
   .page-content {
     display: flex;
     flex-flow: column nowrap;
@@ -21,7 +26,7 @@ pagecontent, bp-properties-panel {
     flex-shrink: 0;
     font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
     min-width: $page-body-min-width;
-    padding-top: 15px;
+    margin: 15px 20px 0;
     white-space: nowrap;
 
     &::after {
@@ -34,7 +39,7 @@ pagecontent, bp-properties-panel {
   .page-body-wrapper {
     min-width: $page-body-min-width;
     overflow: hidden !important;
-    padding: 0 20px 10px;
+    margin: 0 20px 10px;
     z-index: 0;
   }
 
@@ -42,6 +47,11 @@ pagecontent, bp-properties-panel {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+  }
+
+  .artifact-state {
+    height: 100%;
+    width: 100%;
   }
 
   //$page-top-toolbar-width: 420px; // this value changes whenever the number of buttons (and their labels) in the toolbar changes
@@ -83,6 +93,11 @@ pagecontent, bp-properties-panel {
         font-size: 24px;
         line-height: 1.5em;
         margin: 0;
+      }
+
+      bp-item-type-icon {
+        display: block;
+        margin-top: 5px;
       }
     }
 
@@ -208,6 +223,18 @@ pagecontent, bp-properties-panel {
         margin: 0;
         padding: 0;
         text-align: left;
+      }
+    }
+
+    bp-item-type-icon {
+      display: block;
+      float: left;
+      left: 10px;
+      position: absolute;
+
+      img {
+        height: 12px;
+        width: 12px;
       }
     }
   }

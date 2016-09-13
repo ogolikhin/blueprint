@@ -67,6 +67,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public propertyMap = {
         id: "id",
+        itemTypeId: "itemTypeId",
         type: "type",
         name: "name",
         hasChildren: "hasChildren"
@@ -86,12 +87,12 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     private isItemSelectable(item: Models.IArtifact): boolean {
+        if (this.projectView) {
+            return false;
+        }
+
         if (this.dialogData && this.dialogData.ItemTypePredefines && this.dialogData.ItemTypePredefines.length > 0) {
-            if (this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0) {
-                return true;
-            }else {
-                return false;
-            }
+            return this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0;
         } else {
             return true;
         }
@@ -124,9 +125,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 }
             } else {
                if (params.data.type === 0) {
-                    css.push("is-folder");
+                   css.push("is-folder");
                } else if (params.data.type === 1) {
-                  css.push("is-project");
+                   css.push("is-project");
                }
             }
 
@@ -135,13 +136,21 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                const sanitizedName = Helper.escapeHTMLText(params.data.name);
+                let icon = "<i></i>";
+                let name = Helper.escapeHTMLText(params.data.name);
 
-                if (params.data.type === 1) {
-                    const cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onEnterKeyPressed);
+                if (!this.projectView) {
+                    if (params.data.itemTypeId === 1) {
+                        const cell = params.eGridCell;
+                        cell.addEventListener("keydown", this.onEnterKeyPressed);
+                    }
+
+                    let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                    if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                        icon = `<bp-item-type-icon item-type-id="${artifactType.id}" ></bp-item-type-icon>`;
+                    }
                 }
-                return sanitizedName;
+                return `${icon}<span>${name}</span>`;
             },
             padding: 20
         },
@@ -224,6 +233,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public getProjects() {
         this.projectView = true;
+        this._selectedItem = undefined;
         this.doLoad(null);
     }
 }

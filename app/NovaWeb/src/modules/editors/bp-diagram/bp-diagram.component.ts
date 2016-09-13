@@ -1,14 +1,15 @@
 import "angular";
 import "angular-sanitize";
 import { IStencilService } from "./impl/stencil.svc";
+import { ILocalizationService, IStateManager, IMessageService } from "../../core";
+import { Models } from "../../main";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { Models } from "../../main";
 import { ISelectionManager, ISelection } from "../../main/services/selection-manager";
 import { IDiagramElement } from "./impl/models";
-import { ILocalizationService } from "../../core";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { SelectionHelper } from "./impl/utils/selection-helper";
+import { BpBaseEditor} from "../bp-base-editor";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -18,8 +19,11 @@ export class BPDiagram implements ng.IComponentOptions {
     };
 }
 
-export class BPDiagramController {
+export class BPDiagramController extends BpBaseEditor {
+
     public static $inject: [string] = [
+        "messageService", 
+        "stateManager", 
         "$element",
         "$q",
         "$sanitize",
@@ -37,10 +41,11 @@ export class BPDiagramController {
 
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    private subscribers: Rx.IDisposable[];
     private artifact: Models.IArtifact;
 
     constructor(
+        public messageService: IMessageService,
+        public stateManager: IStateManager,
         private $element: ng.IAugmentedJQuery,
         private $q: ng.IQService,
         private $sanitize: any,
@@ -50,17 +55,20 @@ export class BPDiagramController {
         private localization: ILocalizationService,
         private $rootScope: ng.IRootScopeService,
         private $log: ng.ILogService) {
+            super(messageService, stateManager);
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
     public $onInit() {
+        super.$onInit();
+
         //use context reference as the last parameter on subscribe...
-        this.subscribers = [
+        this._subscribers.push(
             //subscribe for current artifact change (need to distinct artifact)
             this.selectionManager.selectionObservable
                 .filter(this.clearSelectionFilter)
-                .subscribeOnNext(this.clearSelection, this),
-        ];
+                .subscribeOnNext(this.clearSelection, this)
+        );
         this.$element.on("click", this.stopPropagation);
     }
 
@@ -71,27 +79,22 @@ export class BPDiagramController {
                && !selection.subArtifact;
     }
 
-    public $onChanges(changesObj) {
-        if (changesObj.context) {
-            let editorContext = <Models.IEditorContext>changesObj.context.currentValue;
-            this.artifact = editorContext.artifact as Models.IArtifact;
-            
-            if (this.artifact) {
-                this.onArtifactChanged();
-            }
-        }
-    }
-
     public $onDestroy() {
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
         this.$element.off("click", this.stopPropagation);
 
         if (this.diagramView) {
             this.diagramView.destroy();
         }
     }
-    
-    private onArtifactChanged = () => {
+
+    public onLoading(obj: any): boolean {
+        this.isLoading = true;
+        this.artifact = (obj.context.currentValue as Models.IEditorContext).artifact;
+        return !!this.artifact;
+    }
+
+    public onUpdate(context: Models.IEditorContext) {
         this.$element.css("height", "100%");
         this.$element.css("width", "");
         this.$element.css("background-color", "transparent");
@@ -103,18 +106,18 @@ export class BPDiagramController {
         if (this.cancelationToken) {
            this.cancelationToken.resolve();
         }
-
-        this.isLoading = true;
-
         if (this.artifact !== null && this.diagramService.isDiagram(this.artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+                
+                this.stateManager.addChange(diagram.data);
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
                     this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
+                    
                     this.isBrokenOrOld = false;
 
                     if (this.diagramView) {
@@ -139,6 +142,7 @@ export class BPDiagramController {
                 this.isLoading = false;
             });
         }
+        
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

@@ -5,7 +5,7 @@ import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
-import {PropertyLookupEnum} from "../../../main/models/enums";
+import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -74,6 +74,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
+
     public get isRichTextPropertyAvailable(): boolean {
         return this.richTextFields && this.richTextFields.length > 0;
     }
@@ -200,16 +201,16 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                this.onFieldUpdate(field);
+                //if (this.itemState.isReadonly || this.itemState.lockedBy === LockedByEnum.OtherUser) {
+                //    field.type = "bpFieldReadOnly";
+                //}
+                if (field.key !== "documentFile" &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {
+                    field.type = "bpFieldReadOnly";
+                }                
 
-                // if (this.itemState && this.itemState.isReadOnly) {
-                //     field.type = "bpFieldReadOnly";
-                // }
-                // if (this.itemState && this.itemState.isLocked) {
-                //     field.type = "bpFieldReadOnly";
-                // }
-
-                field.type = "bpFieldReadOnly";
+                this.onFieldUpdate(field);                                
 
             });
         } catch (ex) {

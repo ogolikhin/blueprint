@@ -4,6 +4,7 @@ import { IMessageService, ILocalizationService, IStateManager } from "../../../.
 import { IDialogService } from "../../../../shared";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
+import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -26,7 +27,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         $element: ng.IAugmentedJQuery,
         windowManager: IWindowManager,
         artifactService: IArtifactService,
-        communicationManager: ICommunicationManager 
+        communicationManager: ICommunicationManager,
+        loadingOverlayService: ILoadingOverlayService
     ) {
         super(
             $scope,
@@ -38,7 +40,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             $element,
             windowManager,
             artifactService,
-            communicationManager
+            communicationManager,
+            loadingOverlayService
         );
         this.isDeleteButtonEnabled = false;
         this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;

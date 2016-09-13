@@ -5,6 +5,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IMessageService} from "../../../../../../../core/";
+import {SourcesAndDestinations} from "../../../../../models/processModels";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -133,14 +134,6 @@ export interface ILayout {
     getNodeById(id: string): IDiagramNode;
     updateBranchDestinationId(oldDestinationId: number, newDestinationId: number);
     updateProcessChangedState(id: number, change: NodeChange, redraw: boolean);
-    insertTask(sourceIds: number[], destinationId: number): number;
-    insertTaskWithUpdate(edge: MxCell);
-    insertSystemDecision(connector: IDiagramLink);
-    insertSystemDecisionCondition(decisionId: number, label?: string, conditionDestinationId?: number): number;
-    insertSystemDecisionConditionWithUpdate(decisionId: number, label?: string, conditionDestinationId?: number);
-    insertUserDecision(edge: MxCell);
-    insertUserDecisionCondition(decisionId: number, label?: string, conditionDestinationId?: number): number;
-    insertUserDecisionConditionWithUpdate(decisionId: number, label?: string, conditionDestinationId?: number);
     handleUserTaskDragDrop(userTaskShapeId: number, edge: MxCell);
     isValidForDrop(userTaskShapeId: number, edge: MxCell): boolean;
     getConditionDestination(decisionId: number): IProcessShape;
@@ -148,6 +141,12 @@ export interface ILayout {
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
     hidePopupMenu();
+    viewModel: IProcessViewModel;
+    getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
+    updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);
+    getDefaultBranchLabel(decisionId: number): string;
+    getTempShapeId(): number;
+    setTempShapeId(id: number);
 }
 
 export interface ISourcesAndDestinations {

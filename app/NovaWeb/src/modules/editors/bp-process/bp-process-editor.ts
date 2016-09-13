@@ -47,7 +47,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     constructor(
         messageService: IMessageService,
         stateManager: IStateManager,
-        windowManager: IWindowManager,
+        private windowManager: IWindowManager,
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
@@ -61,16 +61,14 @@ export class BpProcessEditorController extends BpBaseEditor {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService
     ) {
-       super(messageService, stateManager, windowManager);
+       super(messageService, stateManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {
-        //super.$onInit();
-        this._subscribers = [
-            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this)
-        ];
+        super.$onInit();
+        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this))
         
     }
 

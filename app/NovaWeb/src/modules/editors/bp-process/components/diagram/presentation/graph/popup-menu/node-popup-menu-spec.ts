@@ -3,13 +3,17 @@ import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-vi
 import {NodeType} from "../models/";
 import {NodePopupMenu} from "./node-popup-menu";
 import {BpMxGraphModel} from "../bp-mxgraph-model";
+import {ShapesFactory} from "./../shapes/shapes-factory";
+import {ILayout} from "./../models/";
 
 describe("Popup Menu test", () => {
-    var mxgraph: MxGraph;
-    var localScope, rootScope;
-    var htmlElement: HTMLElement;
-    var processModel: IProcess;
-    var viewModel: IProcessViewModel;
+    let mxgraph: MxGraph;
+    let localScope, rootScope;
+    let htmlElement: HTMLElement;
+    let processModel: IProcess;
+    let viewModel: IProcessViewModel;
+    let shapesFactory: ShapesFactory;
+    let layout: ILayout;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         // inject any services that are required
@@ -40,7 +44,7 @@ describe("Popup Menu test", () => {
         viewModel.isSpa = true;
 
         mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());  
-
+        shapesFactory = new ShapesFactory(rootScope);
     }));
 
     function insertTask(edge: MxCell) {
@@ -70,6 +74,8 @@ describe("Popup Menu test", () => {
         // Act
      
         var popupMenu = new NodePopupMenu(
+            layout,
+            shapesFactory,
             rootScope,
             htmlElement,
             mxgraph,
@@ -109,6 +115,8 @@ describe("Popup Menu test", () => {
 
         // Act
         var popupMenu = new NodePopupMenu(
+            layout,
+            shapesFactory,
             rootScope,
             htmlElement,
             mxgraph,
@@ -152,6 +160,8 @@ describe("Popup Menu test", () => {
         // Act
       
         var popupMenu = new NodePopupMenu(
+            layout,
+            shapesFactory,
             rootScope,
             htmlElement,
             mxgraph,

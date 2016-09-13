@@ -18,34 +18,30 @@ namespace ArtifactStoreTests
     public class DiscussionsTests : TestBase
     {
         private IUser _authorUser = null;
-        private IUser _viewerUser = null;
         private IUser _adminUser = null;
         private IProject _project = null;
         private IGroup _authorsGroup = null;
-        private IGroup _viewersGroup = null;
+
+        private IProjectRole _authorRole = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            _viewersGroup = Helper.CreateGroupAndAddToDatabase();
 
             _authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
             _authorsGroup.AddUser(_authorUser);
-
-            _viewerUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _viewersGroup.AddUser(_viewerUser);
-
+            
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
 
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Author);
-            _viewersGroup.AssignRoleToProjectOrArtifact(_project, role: ProjectRole.Viewer);
+            _authorRole = ProjectRoleFactory.GetDeployedProjectRole(ProjectRoleFactory.DeployedProjectRole.Author);
+
+            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: _authorRole);
 
             Helper.AdminStore.AddSession(_authorUser);
             Helper.BlueprintServer.LoginUsingBasicAuthorization(_authorUser);
-            Helper.AdminStore.AddSession(_viewerUser);
         }
 
         [TearDown]

@@ -114,7 +114,7 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
-                Assert.DoesNotThrow(() => { Helper.FileStore.GetFile(file.Id, _user); },
+                Assert.DoesNotThrow(() => { Helper.FileStore.GetFile(file.Guid, _user); },
                     "GetFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
             }
         }
@@ -134,7 +134,7 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
-                Assert.DoesNotThrow(() => { Helper.FileStore.DeleteFile(file.Id, _user); },
+                Assert.DoesNotThrow(() => { Helper.FileStore.DeleteFile(file.Guid, _user); },
                     "DeleteFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
             }
         }
@@ -154,7 +154,7 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
-                Assert.DoesNotThrow(() => { Helper.FileStore.GetFileMetadata(file.Id, _user); },
+                Assert.DoesNotThrow(() => { Helper.FileStore.GetFileMetadata(file.Guid, _user); },
                     "GetFileMetadata should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
             }
         }
@@ -209,7 +209,7 @@ namespace FileStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.GetFile(file.Id, _user); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.GetFile(file.Guid, _user); },
                     "GetFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
@@ -226,7 +226,7 @@ namespace FileStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.DeleteFile(file.Id, _user); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.DeleteFile(file.Guid, _user); },
                     "DeleteFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
@@ -243,7 +243,7 @@ namespace FileStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.GetFileMetadata(file.Id, _user); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.FileStore.GetFileMetadata(file.Guid, _user); },
                     "GetFileMetadata should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }

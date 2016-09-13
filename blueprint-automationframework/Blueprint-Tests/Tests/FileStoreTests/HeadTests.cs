@@ -41,7 +41,7 @@ namespace FileStoreTests
             var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
             // Execute: Get file meta-data.
-            var returnedFile = Helper.FileStore.GetFileMetadata(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFileMetadata(storedFile.Guid, _user);
 
             // Verify: Assert that the meta-data is the same as the file that we added.
             FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);

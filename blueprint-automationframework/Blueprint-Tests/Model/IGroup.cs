@@ -16,15 +16,6 @@ namespace Model
         Windows
     }
 
-    public enum ProjectRole
-    {
-        None = 0,
-        Author = 1,
-        ProjectAdministrator = 3,
-        Viewer = 4
-    }
-
-
     public interface IGroup
     {
         #region Properties
@@ -66,14 +57,14 @@ namespace Model
         void DeleteGroup();
 
         /// <summary>
-        /// Assigns specified role in the specified project to the Group.
+        /// Assigns specified role for the specified project or artifact to the Group.
         /// </summary>
         /// <param name="project">Project for which role assignment will be created.</param>
+        /// <param name="role">Role to assign.</param>
         /// <param name="artifact">(optional)Artifact for which role assignment will be created.
         /// By defauld artifact is null. In this case role will be assigned for the whole project.</param>
-        /// <param name="role">Role to assign.</param>
-        void AssignRoleToProjectOrArtifact(IProject project, IArtifactBase artifact = null,
-            ProjectRole role = ProjectRole.Author);
+        void AssignRoleToProjectOrArtifact(IProject project, IProjectRole role,
+            IArtifactBase artifact = null);
         #endregion Methods
     }
 }

@@ -67,9 +67,9 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Asserts that this NovaArtifact object is equal to the specified ArtifactDetails.
+        /// Asserts that this NovaArtifact object is equal to the specified ArtifactBase.
         /// </summary>
-        /// <param name="artifact">The ArtifactDetails to compare against.</param>
+        /// <param name="artifact">The ArtifactBase to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public void AssertEquals(INovaArtifactBase artifact)
         {
@@ -78,16 +78,26 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(Id, artifact.Id, "The Id parameters don't match!");
             Assert.AreEqual(Name, artifact.Name, "The Name parameters don't match!");
             Assert.AreEqual(ParentId, artifact.ParentId, "The ParentId parameters don't match!");
-            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions parameters don't match!");
-            Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex parameters don't match!");
             Assert.AreEqual(ItemTypeId, artifact.ItemTypeId, "The ItemTypeId parameters don't match!");
-            Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime parameters don't match!");
             Assert.AreEqual(ProjectId, artifact.ProjectId, "The ProjectId parameters don't match!");
             Assert.AreEqual(Version, artifact.Version, "The Version parameters don't match!");
-
-            Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
         }
 
+        /// <summary>
+        /// Asserts that this NovaArtifact object is equal to the specified ArtifactDetails.
+        /// </summary>
+        /// <param name="artifact">The ArtifactDetails to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(INovaArtifactDetails artifact)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            AssertEquals(artifact as INovaArtifactBase);
+            Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime parameters don't match!");
+            Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex parameters don't match!");
+            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions parameters don't match!");
+            Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
+        }
     }
     
 }

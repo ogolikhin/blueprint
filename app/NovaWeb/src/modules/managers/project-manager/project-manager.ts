@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../core";
 import { Project, ProjectArtifact } from "./project";
 import { IProjectArtifact, IStatefulArtifact } from "../models";
-import { StatefulArtifact } from "../artifact-manager/artifact";
+import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 
 import { Models } from "../../main/models";
 import { IProjectService } from "./project-service";
@@ -46,13 +46,22 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
 
-    static $inject: [string] = ["localization", "messageService", "projectService", "artifactManager", "selectionManager2"];
+    static $inject: [string] = [
+        "localization", 
+        "messageService", 
+        "projectService", 
+        "artifactManager", 
+        "selectionManager2",
+        "statefulArtifactFactory"
+    ];
+
     constructor(
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private projectService: IProjectService,
         private artifactManager: IArtifactManager,
-        private selectionManager: ISelectionManager
+        private selectionManager: ISelectionManager,
+        private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
     }
 
@@ -85,7 +94,7 @@ export class ProjectManager  implements IProjectManager {
 
             } else {
                 angular.extend(data, {hasChildren: true});
-                const statefulArtifact = new StatefulArtifact(data);
+                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(data);
                 this.artifactManager.add(statefulArtifact);
                 project = new Project(statefulArtifact);
                 this.projectCollection.getValue().unshift(project);
@@ -172,7 +181,7 @@ export class ProjectManager  implements IProjectManager {
             this.projectService.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
                 .then((data: Models.IArtifact[]) => {
                     projectArtifact.children = data.map((it: Models.IArtifact) => {
-                        const statefulArtifact = new StatefulArtifact(it);
+                        const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                         this.artifactManager.add(statefulArtifact);
                         
                         return new ProjectArtifact(statefulArtifact, projectArtifact);

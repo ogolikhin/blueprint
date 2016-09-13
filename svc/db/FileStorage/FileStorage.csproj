@@ -93,6 +93,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.4.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Procedures\MakeFilePermanent.sql" />
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\MigrationLog.sql" />

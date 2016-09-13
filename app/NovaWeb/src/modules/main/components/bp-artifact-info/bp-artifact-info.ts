@@ -214,7 +214,7 @@ export class BpArtifactInfoController {
                         if (error) {
                             if (error.statusCode === 400) {
                                 if (error.errorCode === 114) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_114");
+                                    message = this.localization.get("App_Save_Artifact_Error_400_114");
                                 } else {
                                     message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
                                 }
@@ -225,6 +225,10 @@ export class BpArtifactInfoController {
                                     message = this.localization.get("App_Save_Artifact_Error_409_116");
                                 } else if (error.errorCode === 117) {
                                     message = this.localization.get("App_Save_Artifact_Error_409_117");
+                                } else if (error.errorCode === 111) {
+                                    message = this.localization.get("App_Save_Artifact_Error_409_111");
+                                } else if (error.errorCode === 115) {
+                                    message = this.localization.get("App_Save_Artifact_Error_409_115");
                                 } else {
                                     message = this.localization.get("App_Save_Artifact_Error_409");
                                 }

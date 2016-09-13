@@ -225,7 +225,7 @@ export class ItemState {
 
     public generateArtifactDelta(): Models.IArtifact {
         if (this._hasValidationErrors) {
-            throw new Error("App_Save_Artifact_Error_409_114");
+            throw new Error("App_Save_Artifact_Error_400_114");
         }
 
         let delta: Models.IArtifact = {} as Models.Artifact;

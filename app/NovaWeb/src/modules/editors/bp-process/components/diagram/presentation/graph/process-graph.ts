@@ -22,7 +22,7 @@ import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
-
+import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -33,8 +33,7 @@ export class ProcessGraph implements IProcessGraph {
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
-    private selectionListeners: Array<ISelectionListener> = [];
-    private unsubscribeToolbarEvents = [];
+    private selectionHelper: ProcessGraphSelectionHelper = null;
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
     private bottomBorderWidt: number = 6;
@@ -82,7 +81,8 @@ export class ProcessGraph implements IProcessGraph {
             this.shapesFactory = new ShapesFactory(this.rootScope);
         }
         
-        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);        
+        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
+       
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
         this.init();
     }
@@ -102,34 +102,38 @@ export class ProcessGraph implements IProcessGraph {
 
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
-
-        this.addMouseEventListener(this.mxgraph);
-
-        this.initializePopupMenu();
-
+        // #DEBUG
+        // this.addMouseEventListener(this.mxgraph);
+        
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);
 
         //Selection logic
+
+        this.selectionHelper = new ProcessGraphSelectionHelper(this.mxgraph);
+
+        // add selection event handlers
+        this.selectionHelper.addSelectionListener((elements) => {
+            this.highlightNodeEdges(elements);
+        });
+        this.selectionHelper.addSelectionListener((elements) => {
+            this.setDeletable(elements);
+        });
+        
+        this.selectionHelper.initSelection();
+
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
-        this.initSelection();
-         
+       
+        this.initializePopupMenu();
+
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
              this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
-
-        this.disableEdgeSelection();
-
-        // add a selection listener to highlight node edges
-        this.addSelectionListener((elements) => {
-            this.highlightNodeEdges(elements);
-        });
-
+     
         this.initializeGlobalScope();
-  
     }
 
     private initializePopupMenu() {
@@ -260,66 +264,6 @@ export class ProcessGraph implements IProcessGraph {
         }
     };
 
-    /*private subscribeToToolbarEvents() {
-        // subscribe to toolbar commands using the event bus 
-
-        // Note:the event bus is implemented as a decorator to the 
-        // rootscope and is accessible through local scopes
-
-        if (this.scope.subscribe) {
-
-            if (this.unsubscribeToolbarEvents.length > 0) {
-                // remove previous event listeners 
-                this.removeToolbarEventListeners();
-            }
-
-            this.unsubscribeToolbarEvents.push(
-                this.scope.subscribe("Toolbar:Delete", (event, target: IDiagramNode) => {
-                    if (target) {
-
-                        if (this.viewModel.status && this.viewModel.status.isReadOnly) {
-                            var message = new Message(MessageType.Error, this.rootScope["config"].labels["ST_View_OpenedInReadonly_Message"]);
-                            this.messageService.addMessage(message);
-                            return;
-                        }
-
-                        if (target.getNodeType() === NodeType.UserTask) {
-                            this.deleteUserTask(target.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
-                        } else if (target.getNodeType() === NodeType.UserDecision || target.getNodeType() === NodeType.SystemDecision) {
-                            this.deleteDecision(target.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id));
-                        }
-                    }
-                })
-            );
-            this.unsubscribeToolbarEvents.push(
-                this.scope.subscribe("Toolbar:SaveProcess", (event, target) => {
-                    this.saveProcess();
-                })
-            );
-            this.unsubscribeToolbarEvents.push(
-                this.scope.subscribe("Toolbar:PublishProcess", (event, target) => {
-                    this.publishProcess();
-                })
-            );
-            this.unsubscribeToolbarEvents.push(
-                this.scope.subscribe("Toolbar:DiscardChanges", (event, target) => {
-                    this.discardChanges();
-                })
-            );
-        }
-    }*/
-
-    private removeToolbarEventListeners() {
-
-        if (this.unsubscribeToolbarEvents.length > 0) {
-            for (var i = 0; i < this.unsubscribeToolbarEvents.length; i++) {
-                this.unsubscribeToolbarEvents[i]();
-                this.unsubscribeToolbarEvents[i] = null;
-            }
-        }
-        this.unsubscribeToolbarEvents = [];
-    }
-
     private initializeGraphContainer() {
 
         mxEvent.disableContextMenu(this.htmlElement);
@@ -434,43 +378,14 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
-
-   private disableEdgeSelection() {
-       mxGraph.prototype.isCellSelectable = (cell) => {
-           var selectable: boolean = false;
-           if (cell) {
-               if (cell.isEdge()) {
-                   selectable = false;
-               } else if (cell.getNodeType &&
-                   cell.getNodeType() === NodeType.SystemTask &&
-                   !this.viewModel.isUserToSystemProcess) {
-
-                   selectable = false;
-
-               } else {
-                   selectable = true;
-               }
-           }
-           return selectable;
-       };
-    }
-
-    public addSelectionListener(listener: ISelectionListener) {
-        if (listener != null) {
-            this.selectionListeners.push(listener);
-        }
-    }
+ 
 
     public destroy() {
-
-        this.selectionListeners = null;
-
+        
         if (this.viewModel.isSpa) {
             window.removeEventListener("resize", this.resizeWrapper, true);
         }
         window.removeEventListener("buttonUpdated", this.buttonUpdated);
-
-        this.removeToolbarEventListeners();        
 
         // remove graph
         this.mxgraph.getModel().clear();
@@ -726,47 +641,6 @@ export class ProcessGraph implements IProcessGraph {
         this.updateProcessChangedState(selectedId, nodeChange);
     }
 
-    public saveProcess() {
-        // #TODO: implement this function later 
-
-        //this.processService.save().then((result: IProcess) => {
-        //    this.rootScope.$broadcast("processSaved", result);
-        //}).catch(() => {
-
-        //});
-    }
-
-    public publishProcess() {
-          
-        // business logic to publish the current process
-        
-        // #TODO: implement this function later 
-
-        //this.artifactVersionControlService.publish(this.viewModel,
-        //    this.viewModel.isChanged).then((result: boolean) => {
-        //        this.viewModel.isChanged = false;
-        //        this.viewModel.resetLock();
-
-        //        this.viewModel.status.hasEverBeenPublished = true;
-        //        this.viewModel.isChanged = false;
-        //    });
-    }
-
-    public discardChanges() {
-         
-        // business logic to discard changes
-         
-        // #TODO: implement this function later 
-
-        //this.artifactVersionControlService.discardArtifactChanges([
-        //    {
-        //        artifactId: this.viewModel.id,
-        //        status: this.viewModel.status
-        //    }]).then(() => {
-        //        this.rootScope.$broadcast("processChangesDiscarded");
-        //    });
-    }
-
     public setSystemTasksVisible(value: boolean) {
         var cells = this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent());
         var edges = this.mxgraph.getChildEdges(this.mxgraph.getDefaultParent());
@@ -828,30 +702,7 @@ export class ProcessGraph implements IProcessGraph {
         let ver = parseInt(myBrowser.version, 10);
         this.isIe11 = (myBrowser.msie && (ver === 11));
     }
-
-    private initSelection() {
-        //let that = this;
-        this.mxgraph.getSelectionModel().setSingleSelection(true);
-        this.mxgraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            let elements = this.getSelectedNodes();
-            let deletable = elements.length > 0;
-            if (deletable) {
-                let element: IDiagramNode = elements[0];
-                deletable = element.getNodeType() === NodeType.UserDecision || 
-                            element.getNodeType() === NodeType.SystemDecision ||
-                            element.getNodeType() === NodeType.UserTask;
-            } 
-
-            this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
-
-            if (!!this.selectionListeners) {
-                this.selectionListeners.forEach((listener: ISelectionListener) => {
-                    listener(elements);
-                });
-            }
-        });
-    }
-
+    
     private getSelectedNodes(): Array<IDiagramNode> {
         var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
         elements = elements.filter(e => e instanceof DiagramNode);
@@ -1156,6 +1007,21 @@ export class ProcessGraph implements IProcessGraph {
             return true;
         }
         return false;
+    }
+
+    private setDeletable(elements: Array<IDiagramNode>) {
+        // notify if selected shape is deletable
+        if (elements) {
+            let deletable = elements.length > 0;
+            if (deletable) {
+                let element: IDiagramNode = elements[0];
+                deletable = element.getNodeType() === NodeType.UserDecision ||
+                    element.getNodeType() === NodeType.SystemDecision ||
+                    element.getNodeType() === NodeType.UserTask;
+            }
+
+            this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
+        }
     }
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {

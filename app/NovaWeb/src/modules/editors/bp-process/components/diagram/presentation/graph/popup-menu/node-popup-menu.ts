@@ -151,8 +151,8 @@ export class NodePopupMenu {
 
         // remove the popup if a mousedown or resize event is detected anywhere in the document 
         // this means that only one popup can be shown at a time
-        
-        this.removePopupOnEvent();
+        // #DEBUG
+        //this.removePopupOnEvent();
     };
     
     public hidePopupMenu = () => {

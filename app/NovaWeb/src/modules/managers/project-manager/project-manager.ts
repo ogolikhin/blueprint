@@ -32,7 +32,7 @@ export interface IProjectManager {
 
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
-    // getArtifactType(artifact: number | Models.IArtifact, project?: number | Models.IProject): Models.IItemType;    
+    getArtifactType(artifact: number | IStatefulArtifact): Models.IItemType;    
 
     // getArtifactPropertyTypes(artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[];
 
@@ -84,7 +84,7 @@ export class ProjectManager  implements IProjectManager {
                 //todo move project to first position
 
             } else {
-//                angular.extend(data, {projectId: data.id});
+                angular.extend(data, {hasChildren: true});
                 const statefulArtifact = new StatefulArtifact(data);
                 this.artifactManager.add(statefulArtifact);
                 project = new Project(statefulArtifact);
@@ -124,7 +124,6 @@ export class ProjectManager  implements IProjectManager {
         }
 
     }
-
 
     private loadProject = (project: Project) => {
         
@@ -172,16 +171,14 @@ export class ProjectManager  implements IProjectManager {
 
             this.projectService.getArtifacts(projectArtifact.projectId, projectArtifact.artifact.id)
                 .then((data: Models.IArtifact[]) => {
-                    let children = data.map((it: Models.IArtifact) => {
+                    projectArtifact.children = data.map((it: Models.IArtifact) => {
                         const statefulArtifact = new StatefulArtifact(it);
                         this.artifactManager.add(statefulArtifact);
                         
                         return new ProjectArtifact(statefulArtifact, projectArtifact);
                     });
-                    projectArtifact.children.push(...children);
                     projectArtifact.loaded = true;
                     projectArtifact.open = true;
-//                    projectArtifact.hasChildren = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
                     // this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
@@ -450,12 +447,14 @@ export class ProjectManager  implements IProjectManager {
     }
 
 
-    public getArtifactType(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, project?: Models.IProject): Models.IItemType {
-        if (!artifact) {
+    public getArtifactType(it: number | IStatefulArtifact): Models.IItemType {
+        if (!it) {
             throw new Error("Artifact_NotFound");
         }
-        if (!project) {
-            project = this.getProject(artifact.projectId);
+        let artifact: IStatefulArtifact;
+
+        if (angular.isNumber(it)) {
+            artifact = this.getArtifact(it);
         }
         if (!project) {
             throw new Error("Project_NotFound");

@@ -1,5 +1,7 @@
 import { Models} from "../../models";
-import { IProjectManager, IWindowManager, ISelectionManager, SelectionSource} from "../../services";
+import { IWindowManager } from "../../services";
+import { IProjectManager, ISelectionManager, SelectionSource} from "../../../managers";
+import { IStatefulArtifact } from "../../../managers/models";
 
 import { IMessageService, IStateManager } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
@@ -22,7 +24,7 @@ class PageContentCtrl {
         "messageService",
         "projectManager",
         "diagramService",
-        "selectionManager",
+        "selectionManager2",
         "stateManager",
         "windowManager"];
     constructor(private $state: ng.ui.IStateService,
@@ -41,7 +43,7 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
+            this.selectionManager.artifactObservable.subscribeOnNext(this.selectContext, this),
             this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
@@ -51,7 +53,7 @@ class PageContentCtrl {
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private selectContext(artifact: Models.IArtifact) {
+    private selectContext(artifact: IStatefulArtifact) {
         let _context: IEditorContext = {};
         try {
             if (!artifact) {
@@ -59,8 +61,8 @@ class PageContentCtrl {
                 return;
             }
 
-            _context.artifact = artifact;
-            _context.type = this.projectManager.getArtifactType(_context.artifact);
+            // _context.artifact = artifact;
+             _context.type = this.projectManager.getArtifactType(_context.artifact);
 
             this.stateManager.addItem(_context.artifact, _context.type);
 

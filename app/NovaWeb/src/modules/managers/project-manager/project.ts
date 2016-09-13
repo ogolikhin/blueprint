@@ -4,13 +4,14 @@ import { IArtifactManager, IStatefulArtifact, IProjectArtifact } from "../models
 export class ProjectArtifact implements IProjectArtifact {
     private _artifact: IStatefulArtifact;
     private _parent: IProjectArtifact;
-    private _children: IProjectArtifact[];
+    public children: IProjectArtifact[];
 
     constructor(artifact: IStatefulArtifact, parent?: IProjectArtifact ) { //
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
+        this._parent = parent;
         this.hasChildren = artifact.hasChildren;
     };
 
@@ -18,9 +19,6 @@ export class ProjectArtifact implements IProjectArtifact {
         return this._artifact;
     }
 
-    public get children(): IProjectArtifact[] {
-        return this._children || (this._children = []);
-    }
 
     public get parent(): IProjectArtifact {
         return this._parent;
@@ -112,14 +110,10 @@ export class Project extends ProjectArtifact {
             item = this;
         }
         if (item.id === id) {
-            foundArtifact = this;
+            foundArtifact = item;
         } else if (item.children) {
             for (let i = 0, it: IProjectArtifact; !foundArtifact && (it = item.children[i++]); ) {
-                if (it.id === id) {
-                    foundArtifact = it;
-                } else if (it.children.length) {
-                    foundArtifact = this.getArtifact(id, it);
-                }
+                foundArtifact = this.getArtifact(id, it);
             }
         } 
         return foundArtifact;

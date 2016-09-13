@@ -48,11 +48,15 @@ export class ProjectExplorerController {
     // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
-        itemTypeId: "type",
         name: "name",
+        itemTypeId: "type",
         hasChildren: "hasChildren",
-        artifacts: "children"
+        parentNode: "parentNode",
+        children: "children",
+        loaded: "loaded",
+        open: "open"
     }; 
+
 
     public columns = [{
         headerName: "",
@@ -118,7 +122,7 @@ export class ProjectExplorerController {
     public doSync = (node: ITreeNode): IStatefulArtifact => {
         //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
-        if (artifact.children.length) {
+        if (artifact.children && artifact.children.length) {
             angular.extend(artifact, {
                 loaded: node.loaded,
                 open: node.open

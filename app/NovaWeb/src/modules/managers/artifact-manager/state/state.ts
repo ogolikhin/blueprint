@@ -22,7 +22,7 @@ export class ArtifactState implements IArtifactStates {
         if (artifact) {
             if (artifact.lockedByUser) {
                 this.state.lock = {
-                    result: artifact.lockedByUser.id === this.statefullArtifact.getServices().session.currentUser.id ? 
+                    result: artifact.lockedByUser.id === 1 ? // this.statefullArtifact.getServices().session.currentUser.id ? 
                             Enums.LockResultEnum.Success : 
                             Enums.LockResultEnum.AlreadyLocked, 
                     info: {

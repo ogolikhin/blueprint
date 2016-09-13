@@ -37,9 +37,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
         this.services = new StatefulArtifactServices( 
             this.$q,
+            this.session,
             this.messageService,
             this.artifactService,
-            this.session,
             this.attachmentService);
     }
 

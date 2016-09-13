@@ -30,7 +30,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
 
-    constructor(artifact: Models.IArtifact, services?: IStatefulArtifactServices) {
+    constructor(artifact: Models.IArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
@@ -44,10 +44,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             .filter((it: IState) => !!it.lock)
             .distinctUntilChanged()
             .subscribeOnNext(this.onLockChanged, this);
-    }
-
-    public initServices(services: IStatefulArtifactServices) {
-        this.services = services;
     }
 
     //TODO. 

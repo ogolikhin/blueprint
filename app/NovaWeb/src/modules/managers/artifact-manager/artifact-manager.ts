@@ -1,46 +1,25 @@
 import { IMessageService } from "../../core/";
-import { Models } from "../../main/models";
-import { StatefulArtifactServices } from "./services";
+// import { Models } from "../../main/models";
+// import { StatefulArtifactServices } from "./services";
 import {
     IArtifactManager, 
     IStatefulArtifact, 
-    ISession, 
-    IStatefulArtifactServices, 
-    IArtifactAttachmentsService,
-    IArtifactService,
+    // ISession, 
+    // IStatefulArtifactServices, 
+    // IArtifactAttachmentsService,
+    // IArtifactService
  } from "../models";
 
 
 export class ArtifactManager  implements IArtifactManager {
 
     public static $inject = [
-        "$http", 
-        "$q",
-        "session",
         "messageService",
-        "artifactService",
-        "artifactAttachments"
     ];
 
     private artifactList: IStatefulArtifact[];
-    private services: IStatefulArtifactServices;
 
-    constructor(
-        private $http: ng.IHttpService, 
-        private $q: ng.IQService,
-        private session: ISession,
-        private messageService: IMessageService,
-        private artifactService: IArtifactService,
-        private attachmentService: IArtifactAttachmentsService
-        ) {
-
-        this.services = new StatefulArtifactServices( 
-            this.$q,
-            this.session,
-            this.messageService,
-            this.artifactService,
-            this.attachmentService);
-
+    constructor(private messageService: IMessageService) {
         this.artifactList = [];
     }
 
@@ -57,7 +36,6 @@ export class ArtifactManager  implements IArtifactManager {
     }
     
     public add(artifact: IStatefulArtifact) {
-        artifact.initServices(this.services);
         this.artifactList.push(artifact);
     }
 
@@ -76,7 +54,4 @@ export class ArtifactManager  implements IArtifactManager {
     public update(id: number) {
         // TODO: 
     }
-
-
-
 }

@@ -96,7 +96,6 @@ export interface IStatefulArtifact extends Models.IArtifact  {
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     subArtifactCollection: ISubArtifactCollection;
-    initServices(services: IStatefulArtifactServices);
     discard(): ng.IPromise<IStatefulArtifact>;
     load(): ng.IPromise<IStatefulArtifact>;
     lock(): ng.IPromise<IState>;

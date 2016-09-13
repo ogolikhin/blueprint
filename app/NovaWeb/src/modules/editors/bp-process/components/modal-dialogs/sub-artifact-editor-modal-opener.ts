@@ -1,11 +1,19 @@
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./base-modal-dialog-controller";
-import {SubArtifactDialogModel} from "./sub-artifact-dialog-model";
-import {UserStoryDialogModel} from "./user-story-dialog-model";
-import {SubArtifactDecisionDialogModel} from "./sub-artifact-decision-dialog-model";
-
+import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
+import {UserStoryDialogModel} from "./models/user-story-dialog-model";
+import {SubArtifactDecisionDialogModel} from "./models/sub-artifact-decision-dialog-model";
+import {IProcessGraph, IDiagramNode, ICondition, IDecision} from "../diagram/presentation/graph/models/process-graph-interfaces";
+import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
+import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
+import {IProcessShape, NodeType} from "../diagram/presentation/graph/models/";
+import {IModalDialogModel} from "./models/modal-dialog-model-interface";
+import {IUserTask, IUserStoryProperties, ILabel, ISystemTask, IProcessLink} from "../diagram/presentation/graph/models/";
+import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
+import {ModalProcessViewModel} from "./models/modal-process-view-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
+import {ILocalizationService} from "../../../../core";
 
 export class SubArtifactEditorModalOpener {
 
@@ -16,18 +24,27 @@ export class SubArtifactEditorModalOpener {
     public getGraph: () => any;
     private setGraphHandler: string;
     private openDialogCallerHandler: string;
+    private setModalProcessViewModelHandler: string;
+    private modalProcessViewModel: ModalProcessViewModel;
 
     constructor(private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
         private $rootScope: ng.IRootScopeService,
-        private dialogCommunication: IModalDialogCommunication
+        private dialogCommunication: IModalDialogCommunication,
+        private localization: ILocalizationService
     ) {
         this.setGraphHandler = dialogCommunication.registerSetGraphObserver(this.setGraph);
         this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
+        this.setModalProcessViewModelHandler = dialogCommunication.registerModalProcessViewModelObserver(this.setModalProcessViewModel);
     }
 
     private setGraph = (graph) => {
         this.getGraph = graph;
+        this.modalProcessViewModel = new ModalProcessViewModel(this.getGraph().viewModel); 
+    }
+
+    private setModalProcessViewModel = (setModalProcessViewModel) => {
+        setModalProcessViewModel(this.modalProcessViewModel);
     }
 
     private openDialogCaller = (args: any[]) => {
@@ -62,48 +79,35 @@ export class SubArtifactEditorModalOpener {
             }
 
         } catch (err) {
-            // log error
+            window.console.log(err);
         }
     };
-    //TODO: replace signature
-    //public getSubArtifactDialogModel(shapeId: number, graph: ProcessGraph, propertiesMw: Shell.IPropertiesMw): SubArtifactDialogModel {
-    public getSubArtifactDialogModel(shapeId: number, graph: any): SubArtifactDialogModel {
+
+    public getSubArtifactDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDialogModel {
         var userTaskDialogModel = new SubArtifactDialogModel();
         userTaskDialogModel.subArtifactId = shapeId;
         var node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
-        // TODO: replace definitions:
-        //var userTaskNode: UserTask;
-        //var systemTaskNode: SystemTask;
-        var userTaskNode: any;
-        var systemTaskNode: any;
-        // TODO: replace code:
-        // if (node.getNodeType() === NodeType.UserTask) {
-        if (node.getNodeType() === 7) {
-            // TODO: replace code:
-            // userTaskNode = <UserTask>node;
-            userTaskNode = node;
+        var userTaskNode: UserTask;
+        var systemTaskNode: SystemTask;
+        if (node.getNodeType() === NodeType.UserTask) {
+            userTaskNode = <UserTask>node;
             let nextNodes = userTaskNode.getNextSystemTasks(graph);
             if (nextNodes) {
-                systemTaskNode = nextNodes[0];
+                systemTaskNode = nextNodes[0] as SystemTask;
             }
             userTaskDialogModel.isUserTask = true;
-        // TODO: replace code:
-        // } else if (node.getNodeType() === NodeType.SystemTask) {
-        } else if (node.getNodeType() === 5) {
-            // TODO: replace code:
-            // systemTaskNode = <SystemTask>node;
-            // userTaskNode = <UserTask>systemTaskNode.getUserTask(graph);
-            systemTaskNode = node;
-            userTaskNode = systemTaskNode.getUserTask(graph);
+        } else if (node.getNodeType() === NodeType.SystemTask) {
+            systemTaskNode = <SystemTask>node;
+            userTaskNode = <UserTask>systemTaskNode.getUserTask(graph);
             userTaskDialogModel.isUserTask = false;
         } else {
             return;
         }
         userTaskDialogModel.isSystemTask = !userTaskDialogModel.isUserTask;
         userTaskDialogModel.originalUserTask = userTaskNode;
-        userTaskDialogModel.clonedUserTask = this.cloneNode(userTaskDialogModel.originalUserTask);
+        userTaskDialogModel.clonedUserTask = userTaskDialogModel.originalUserTask.cloneUserTask();
         userTaskDialogModel.originalSystemTask = systemTaskNode;
-        userTaskDialogModel.clonedSystemTask = this.cloneNode(userTaskDialogModel.originalSystemTask);
+        userTaskDialogModel.clonedSystemTask = userTaskDialogModel.originalSystemTask.cloneSystemTask();
 
         // set dialog model isReadonly property to enable/disable input controls
         userTaskDialogModel.isReadonly = this.isReadonly;
@@ -112,48 +116,33 @@ export class SubArtifactEditorModalOpener {
         return userTaskDialogModel;
     }
 
-    //TODO: replace signature
-    // public getUserSystemDecisionDialogModel(shapeId: number, graph: ProcessGraph): SubArtifactDecisionDialogModel {
-    public getUserSystemDecisionDialogModel(shapeId: number, graph: any): SubArtifactDecisionDialogModel {
+    public getUserSystemDecisionDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDecisionDialogModel {
         let node = graph.getNodeById(shapeId.toString());
 
-        // TODO: replace code:
-        //if (node == null || (node.getNodeType() !== NodeType.UserDecision && node.getNodeType() !== NodeType.SystemDecision)) {
-        if (node == null || (node.getNodeType() !== 6 && node.getNodeType() !== 4)) {
+        if (node == null || (node.getNodeType() !== NodeType.UserDecision && node.getNodeType() !== NodeType.SystemDecision)) {
             return null;
         }
 
         let dialogModel: SubArtifactDecisionDialogModel = new SubArtifactDecisionDialogModel();
-        // TODO: replace definitions:
-        // let systemTasks: SystemTask[] = [];
-        let systemTasks: any[] = [];
+        let systemTasks: SystemTask[] = [];
 
         dialogModel.graph = graph;
         dialogModel.originalExistingNodes = systemTasks;
-        // TODO: replace code:
-        // dialogModel.clonedExistingNodes = <IDiagramNode[]>this.cloneArray(dialogModel.originalExistingNodes);
-        dialogModel.clonedExistingNodes = <any[]>this.cloneArray(dialogModel.originalExistingNodes);
+        dialogModel.clonedExistingNodes = <IDiagramNode[]>this.cloneArray(dialogModel.originalExistingNodes);
 
         dialogModel.conditions = [];
 
         // cloning decision
-        // TODO: replace code:
-        // dialogModel.originalDecision = <IDecision>node;
-        dialogModel.originalDecision = <any>node;
+        dialogModel.originalDecision = <IDecision>node;
         dialogModel.clonedDecision = this.cloneNode(dialogModel.originalDecision);
 
         // populate existing conditions
         let decisionId: number = node.model.id;
-        // TODO: replace code:
-        // let outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
-        let outgoingLinks: any[] = dialogModel.graph.getNextLinks(decisionId);
+        let outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
 
         for (let index = 0; index < outgoingLinks.length; index++) {
-            // TODO: replace definitions:
-            // let outgoingLink: IProcessLink = outgoingLinks[index];
-            // let mergePoint: IDiagramNode = null;
-            let outgoingLink: any = outgoingLinks[index];
-            let mergePoint: any = null;
+            let outgoingLink: IProcessLink = outgoingLinks[index];
+            let mergePoint: IDiagramNode = null;
 
             // We do not display change merge node option for first branch
             if (index !== 0) {
@@ -161,11 +150,8 @@ export class SubArtifactEditorModalOpener {
                 mergePoint = graph.getNodeById(mergeNodeId);
             }
 
-            // TODO: replace definitions:
-            // let validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
-            // let condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
-            let validMergeNodes: any[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
-            let condition: any = Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            let validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
+            let condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
             dialogModel.conditions.push(condition);
         }
         
@@ -182,20 +168,16 @@ export class SubArtifactEditorModalOpener {
         return dialogModel;
     }
 
-    //TODO: replace signature
-    // private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph) {
-    private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: any) {
+    private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
         this.open("",
-            "SubArtifactEditorModalTemplate.html",
-            "SubArtifactEditorModalController",
+            "sub-artifact-editor-modal-template.html",
+            SubArtifactEditorModalController,
             this.getSubArtifactDialogModel(shapeId, graph),
             "storyteller-modal");
     }
 
     // @todo: replace with proper controller / template
-    //TODO: replace signature
-    // private openUserSystemDecisionDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph) {
-    private openUserSystemDecisionDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: any) {
+    private openUserSystemDecisionDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
         this.open("",
             "SubArtifactDecisionEditorModalTemplate.html",
             "SubArtifactDecisionEditorModalController",
@@ -203,24 +185,16 @@ export class SubArtifactEditorModalOpener {
             "storyteller-modal");
     }
 
-    //TODO: replace signature
-    // public getUserStoryDialogModel(shapeId: number, graph: ProcessGraph): UserStoryDialogModel {
-    public getUserStoryDialogModel(shapeId: number, graph: any): UserStoryDialogModel {
+    public getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
         let userStoryDialogModel = new UserStoryDialogModel();
         userStoryDialogModel.subArtifactId = shapeId;
         let node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
-        // TODO: replace definitions:
-        // let userTaskNode = <UserTask>node;
-        let userTaskNode = node;
-        userStoryDialogModel.previousSytemTasks = userTaskNode.getPreviousSystemTasks(graph);
-        userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph);
+        let userTaskNode = <UserTask>node;
+        userStoryDialogModel.previousSytemTasks = userTaskNode.getPreviousSystemTasks(graph) as SystemTask[];
+        userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph) as SystemTask[];
         userStoryDialogModel.originalUserTask = userTaskNode;
-        userStoryDialogModel.clonedUserTask = this.cloneNode(userStoryDialogModel.originalUserTask);
-        // #TODO: processService should not be used here to get state 
-        //if (this.$scope.$parent["vm"].processModelService) {
-        //    userStoryDialogModel.isUserSystemProcess = this.$scope.$parent["vm"].processModelService.isUserToSystemProcess();
-        //}
-        userStoryDialogModel.isUserSystemProcess = graph.IsUserSystemProcess;
+        userStoryDialogModel.clonedUserTask = userStoryDialogModel.originalUserTask.cloneUserTask();
+        userStoryDialogModel.isUserSystemProcess = graph.isUserSystemProcess;
 
         // set dialog model isReadonly property to enable/disable input controls
         userStoryDialogModel.isReadonly = this.isReadonly;
@@ -229,9 +203,7 @@ export class SubArtifactEditorModalOpener {
         return userStoryDialogModel;
     }
 
-    //TODO: replace signature
-    // private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: ProcessGraph) {
-    private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: any) {
+    private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
 
         this.open("",
             "UserStoryPreviewTemplate.html",
@@ -242,25 +214,30 @@ export class SubArtifactEditorModalOpener {
 
     public cloneNode = (node): any => {
         //return angular.extend({}, model);
-        return jQuery.extend(true, {}, node);
+        //return angular.copy(node);
+        return JSON.parse(JSON.stringify(node));
     }
 
     public cloneArray = (arr: any[]): any[] => {
-        return jQuery.extend(true, [], arr);
+        let retArr: any[] = [];
+        for (let node of arr) {
+            retArr.push(this.cloneNode(node));
+        } 
+        return retArr;
     }
-    // #TODO: templateUrl must be changed
-    public open = (size, htmlFileName: string, controllerClassName: string, dialogModel: any, windowClass: string) => {
+
+    public open = (size, htmlFileName: string, ctrl: any, dialogModel: any, windowClass: string) => {
         this.$uibModal.open(<ModalSettings>{
+            okButton: this.localization.get("App_Button_Ok"),
             animation: this.animationsEnabled,
-            templateUrl: `/Areas/Web/App/Components/Storyteller/Dialogs/${htmlFileName}`,
-            controller: controllerClassName,
+            template: require(`./${htmlFileName}`),
+            //templateUrl: `./${htmlFileName}`,
+            controller: ctrl,
             controllerAs: "vm",
             windowClass: windowClass,
             size: size,
             resolve: {
-                dialogModel: () => {
-                    return dialogModel;
-                }
+                dialogModel: () => dialogModel
             }
         });
     }
@@ -268,6 +245,7 @@ export class SubArtifactEditorModalOpener {
     public onDestroy = () => {
         this.dialogCommunication.removeSetGraphObserver(this.setGraphHandler);
         this.dialogCommunication.removeOpenDialogObserver(this.openDialogCallerHandler);
+        this.dialogCommunication.removeModalProcessViewModelObserver(this.setModalProcessViewModelHandler);
     }
 
 }

@@ -5,7 +5,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IMessageService} from "../../../../../../../core/";
-import {SourcesAndDestinations} from "../../../../../models/processModels";
+import {SourcesAndDestinations} from "../../../../../models/process-models";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -96,6 +96,7 @@ export interface IProcessGraph {
     endNode: IDiagramNode;
     messageService: IMessageService;
     rootScope: any;
+    isUserSystemProcess: boolean;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;

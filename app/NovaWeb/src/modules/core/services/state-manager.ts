@@ -127,8 +127,8 @@ export class ItemState {
         } else {
             if (value.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.originItem.lockedByUser = {
-                    id: -1,
-                    displayName: value.info.lockOwnerLogin
+                    id: value.info.lockOwnerId,
+                    displayName: value.info.lockOwnerDisplayName
                 };
                 this.originItem.lockedDateTime = value.info.utcLockedDateTime;
             }
@@ -225,7 +225,7 @@ export class ItemState {
 
     public generateArtifactDelta(): Models.IArtifact {
         if (this._hasValidationErrors) {
-            throw new Error("App_Save_Artifact_Error_409_114");
+            throw new Error("App_Save_Artifact_Error_400_114");
         }
 
         let delta: Models.IArtifact = {} as Models.Artifact;

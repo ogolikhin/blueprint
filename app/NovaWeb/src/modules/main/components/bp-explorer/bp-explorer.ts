@@ -1,8 +1,7 @@
 ﻿import { Models} from "../../models";
-import { IProjectManager} from "../../services";
+import { IProjectManager, ISelectionManager, SelectionSource } from "../../services";
 
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, SelectionSource } from "./../../services/selection-manager";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -43,7 +42,7 @@ export class ProjectExplorerController {
     // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
-        itemTypeId: "type",
+        itemTypeId: "itemTypeId",
         name: "name",
         hasChildren: "hasChildren",
         artifacts: "children"
@@ -70,6 +69,22 @@ export class ProjectExplorerController {
         },
         
         cellRenderer: "group",
+        cellRendererParams: {
+            innerRenderer: (params) => {
+                let icon = "<i ng-drag-handle></i>";
+                let name = Helper.escapeHTMLText(params.data.name);
+
+                let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    icon = `<bp-item-type-icon
+                                item-type-id="${artifactType.id}"
+                                item-type-icon="${artifactType.iconImageId}"
+                                ng-drag-handle></bp-item-type-icon>`;
+                }
+                return `${icon}<span>${name}</span>`;
+            },
+            padding: 20
+        },
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true

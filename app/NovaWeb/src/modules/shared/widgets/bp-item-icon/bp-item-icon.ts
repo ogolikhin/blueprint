@@ -1,13 +1,26 @@
 ﻿export interface IBPItemTypeIconController {
-    predefinedType: string;
+    itemTypeId: string;
+    itemTypeIcon?: string;
     getImageSource(): string;
 }
 
 export class BPItemTypeIconController implements IBPItemTypeIconController {
-    public predefinedType: string;
+    public itemTypeId: string;
+    public itemTypeIcon: string;
 
     public getImageSource() {
-        return "/Shared/api/itemTypes/" + parseInt(this.predefinedType, 10) + "/icon";
+        let imgUrl: string;
+
+        if (this.itemTypeId && !isNaN(Number(this.itemTypeId))) {
+            imgUrl = "/shared/api/itemTypes/" + parseInt(this.itemTypeId, 10).toString() + "/icon";
+            if (this.itemTypeIcon && !isNaN(Number(this.itemTypeIcon))) {
+                imgUrl += "?" + parseInt(this.itemTypeIcon, 10).toString();
+            }
+        } else {
+            imgUrl = "";
+        }
+
+        return imgUrl;
     }
 }
 
@@ -16,7 +29,8 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public controller: Function = BPItemTypeIconController;
     public transclude: boolean = true;
     public bindings: any = {     
-        predefinedType: "@"
+        itemTypeId: "@",
+        itemTypeIcon: "@"
     };
 }
 

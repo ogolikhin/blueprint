@@ -24,6 +24,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectId: number;
     public projectView: boolean = false;
     public projectName: string;
+    private project: Models.IProject;
 
 
     static $inject = [
@@ -50,11 +51,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     ) {
         super($uibModalInstance, dialogSettings);
         dialogService.dialogSettings.okButton = "OK";
-        let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
-        if (_project) {
-            this.projectId = _project.id;
-            this.projectName = _project.name;
-        }
+        let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        this.updateCurrentProjectInfo(project);       
         $scope.$on("$destroy", () => {
             this.columns[0].cellClass = null;
             this.columns[0].cellRendererParams = null;
@@ -67,6 +65,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public propertyMap = {
         id: "id",
+        itemTypeId: "itemTypeId",
         type: "type",
         name: "name",
         hasChildren: "hasChildren"
@@ -86,12 +85,12 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     private isItemSelectable(item: Models.IArtifact): boolean {
+        if (this.projectView) {
+            return false;
+        }
+
         if (this.dialogData && this.dialogData.ItemTypePredefines && this.dialogData.ItemTypePredefines.length > 0) {
-            if (this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0) {
-                return true;
-            }else {
-                return false;
-            }
+            return this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0;
         } else {
             return true;
         }
@@ -124,9 +123,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 }
             } else {
                if (params.data.type === 0) {
-                    css.push("is-folder");
+                   css.push("is-folder");
                } else if (params.data.type === 1) {
-                  css.push("is-project");
+                   css.push("is-project");
                }
             }
 
@@ -135,13 +134,29 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                const sanitizedName = Helper.escapeHTMLText(params.data.name);
+                let icon = "<i></i>";
+                let name = Helper.escapeHTMLText(params.data.name);
 
-                if (params.data.type === 1) {
-                    const cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onEnterKeyPressed);
+                if (!this.projectView) {
+                    if (params.data.itemTypeId === 1) {
+                        const cell = params.eGridCell;
+                        cell.addEventListener("keydown", this.onEnterKeyPressed);
+                    }
+
+                    //TODO: for now it display custom icons just for already loaded projects
+                    let projectID = params.data.projectId;
+                    let loadedProjects = this.manager.projectCollection.getValue();
+                    let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
+                    if (projectID && isProjectLoaded !== -1) {
+                        let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                            icon = `<bp-item-type-icon
+                                item-type-id="${artifactType.id}"
+                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                        }
+                    }
                 }
-                return sanitizedName;
+                return `${icon}<span>${name}</span>`;
             },
             padding: 20
         },
@@ -158,8 +173,11 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {
+                .then((nodes: Models.IArtifact[]) => {                    
                     const filtered = nodes.filter(this.filterCollections);
+                    filtered.forEach((value: Models.IArtifact) => {
+                        value.parent = prms || this.project;
+                    });                   
                     self.tree.reload(filtered, artifactId);
                 }, (error) => {
                 });
@@ -177,6 +195,14 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
+    private updateCurrentProjectInfo(project: Models.IProject) {
+        this.project = project;
+        if (project) {
+            this.projectName = project.name;
+            this.projectId = project.id;
+        }
+    }
+
     public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
         let self = this;
         if (!this.projectView) {
@@ -188,7 +214,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 this.projectId = item.id;
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
-                        this.projectName = project.name;
+                        this.updateCurrentProjectInfo(project);
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);
@@ -224,6 +250,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public getProjects() {
         this.projectView = true;
+        this._selectedItem = undefined;
         this.doLoad(null);
     }
 }

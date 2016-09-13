@@ -1,4 +1,4 @@
-﻿import {IProcessLinkModel} from "../../../../../models/processModels";
+﻿import {IProcessLinkModel} from "../../../../../models/process-models";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {NodeType} from "../models/";
 import {CS_VERTICAL, CS_RIGHT, CS_LEFT} from "./connector-styles";

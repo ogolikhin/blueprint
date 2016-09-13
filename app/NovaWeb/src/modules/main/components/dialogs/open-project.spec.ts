@@ -69,8 +69,8 @@ describe("Open Project.", () => {
         var cellRendererProject = columns[0].cellRendererParams.innerRenderer(paramsMockProject);
 
         // Assert
-        expect(cellRenderer).toEqual("artifact");
-        expect(cellRendererFolder).toEqual("folder");
+        expect(cellRenderer).toContain("artifact");
+        expect(cellRendererFolder).toContain("folder");
         expect(cellRendererProject).toContain("project");
         expect(cellRendererProject).not.toContain("<button");
     });

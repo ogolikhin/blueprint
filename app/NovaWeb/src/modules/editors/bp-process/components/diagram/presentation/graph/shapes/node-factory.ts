@@ -1,6 +1,6 @@
 ﻿import {ProcessShapeType} from "../../../../../models/enums";
-import {IProcessShape} from "../../../../../models/processModels";
-import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/processModels";
+import {IProcessShape} from "../../../../../models/process-models";
+import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/process-models";
 import {IDiagramNode} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessStart} from "./process-start";

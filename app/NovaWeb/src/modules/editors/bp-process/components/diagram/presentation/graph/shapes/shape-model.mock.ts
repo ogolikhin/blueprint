@@ -5,7 +5,7 @@ import {
     ISystemTaskShape,
     IArtifactReferenceLink,
     ITaskFlags
-} from "../../../../../models/processModels";
+} from "../../../../../models/process-models";
 import {ProcessShapeType} from "../../../../../models/enums";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 

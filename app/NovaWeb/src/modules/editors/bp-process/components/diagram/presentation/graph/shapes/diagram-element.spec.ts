@@ -1,7 +1,7 @@
 ﻿import {ElementType} from "../models/";
 import {DiagramElement, DiagramNodeElement, DiagramNode, UserTask} from "./";
 import {ShapeModelMock} from "./shape-model.mock";
-import {ProcessShapeModel} from "../../../../../models/processModels";
+import {ProcessShapeModel} from "../../../../../models/process-models";
 import {ShapesFactory} from "./shapes-factory";
 
 describe("DiagramElement", () => {

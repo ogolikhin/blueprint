@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/processModels";
+﻿import {IProcessShape} from "../../../../../models/process-models";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
 import {IDecision, ISystemTask} from "../models/";

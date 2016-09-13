@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
 import { ISelectionManager, Models} from "../../../main";
 import { ISession } from "../../../shell";
-import { IArtifactAttachmentsResultSet, IArtifactAttachmentsService, IArtifactDocRef } from "./artifact-attachments.svc";
+import { IArtifactAttachmentsResultSet, IArtifactAttachmentsService, IArtifactDocRef } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { IDialogSettings, IDialogService } from "../../../shared";

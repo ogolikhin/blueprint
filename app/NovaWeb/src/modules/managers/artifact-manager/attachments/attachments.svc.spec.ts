@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {IArtifactAttachmentsService, ArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "./artifact-attachments.svc";
+import {IArtifactAttachmentsService, ArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "./attachments.svc";
 
 describe("Artifact Attachments Service", () => {
 

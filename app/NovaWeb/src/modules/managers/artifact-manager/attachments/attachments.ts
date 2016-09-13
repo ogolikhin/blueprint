@@ -1,12 +1,12 @@
-import { Models, Enums } from "../../../main/models";
-import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./";
+// import { Models, Enums } from "../../../main/models";
 import { ChangeSetCollector } from "../changeset";
 import { 
-    IStatefulArtifact, 
+    // IStatefulArtifact, 
     ChangeTypeEnum, 
     IChangeCollector, 
     IChangeSet,
-    IStatefulSubArtifact, 
+    // IStatefulSubArtifact, 
     IIStatefulArtifact,
     IIStatefulSubArtifact,
     IArtifactAttachments

@@ -129,7 +129,7 @@ export class BpArtifactInfoController {
                 name =  name || state.originItem.lockedByUser.displayName || "";
                 let msg = name ? "Locked by " + name : "Locked "; 
                 if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date);
+                    msg += " on " + this.localization.current.formatShortDateTime(date) + ".";
                 }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;

@@ -1,10 +1,10 @@
 ﻿import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
-import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/processModels";
-import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/processModels";
-import {IArtifactReference, IArtifactReferenceLink} from "../../../../../models/processModels";
-import {IPropertyValueInformation, IProcessShape} from "../../../../../models/processModels";
-import {ISystemTaskShape, IUserTaskShape} from "../../../../../models/processModels";
+import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
+import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";
+import {IArtifactReference, IArtifactReferenceLink} from "../../../../../models/process-models";
+import {IPropertyValueInformation, IProcessShape} from "../../../../../models/process-models";
+import {ISystemTaskShape, IUserTaskShape} from "../../../../../models/process-models";
 import {IdGenerator} from "./id-generator";
 
 export interface IPropertyNameConstantsInformation {

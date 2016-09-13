@@ -1,5 +1,5 @@
 ﻿import {IHashMap} from "../../../../../../main/models/models";
-import {IProcessShape, IProcessLink} from "../../../../models/processModels";
+import {IProcessShape, IProcessLink} from "../../../../models/process-models";
 import {ProcessShapeType} from "../../../../models/enums";
 import {IProcessGraphModel} from "../../viewmodel/process-graph-model";
 

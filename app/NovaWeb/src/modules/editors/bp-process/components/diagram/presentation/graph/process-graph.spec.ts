@@ -3,7 +3,7 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 import {ProcessServiceMock} from "../../../../services/process/process.svc.mock";
 import {IProcessService} from "../../../../services/process/process.svc";
 import * as Enums from "../../../../models/enums";
-import * as ProcessModels from "../../../../models/processModels";
+import * as ProcessModels from "../../../../models/process-models";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
@@ -71,14 +71,14 @@ describe("ProcessGraph", () => {
         shapesFactory = new ShapesFactory(rootScope);
     }));
 
-    describe("IsUserSystemProcess", () => {
+    describe("isUserSystemProcess", () => {
         it("returns false for no process", () => {
             // Arrange
             // Act
             let graph = createGraph(TestModels.createDefaultProcessModel());
 
             // Assert
-            expect(graph.IsUserSystemProcess).toBe(false);
+            expect(graph.isUserSystemProcess).toBe(false);
         });
 
         it("returns false for business process", () => {
@@ -90,7 +90,7 @@ describe("ProcessGraph", () => {
             let graph = createGraph(process);
 
             // Assert
-            expect(graph.IsUserSystemProcess).toBe(false);
+            expect(graph.isUserSystemProcess).toBe(false);
         });
 
         it("returns false for system-to-system process", () => {
@@ -102,7 +102,7 @@ describe("ProcessGraph", () => {
             let graph = createGraph(process);
 
             // Assert
-            expect(graph.IsUserSystemProcess).toBe(false);
+            expect(graph.isUserSystemProcess).toBe(false);
         });
 
         it("returns true for user-to-system process", () => {
@@ -114,7 +114,7 @@ describe("ProcessGraph", () => {
             let graph = createGraph(process);
 
             // Assert
-            expect(graph.IsUserSystemProcess).toBe(true);
+            expect(graph.isUserSystemProcess).toBe(true);
         });
     });
 

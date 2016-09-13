@@ -540,6 +540,7 @@ margin-top: 72px;
         width: auto; /* ie doesn't support initial */
         width: initial;
         max-width: 90%;
+        position: relative;
 
         .fonticon-close {
             position: absolute;

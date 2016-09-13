@@ -1,6 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType} from "../../../../core";
 import {ProcessType} from "../../models/enums";
-import {IProcess} from "../../models/processModels";
+import {IProcess} from "../../models/process-models";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";

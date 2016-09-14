@@ -212,6 +212,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         } else {
             if (item && item.type === Models.ProjectNodeType.Project) {
                 this.projectId = item.id;
+                self.tree.reload(null);
+                self.tree.showLoading();
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
                         this.updateCurrentProjectInfo(project);
@@ -227,7 +229,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 );
             }
         }
-    }
+    };
 
     private filterCollections(node: Models.IItem) {
         if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {

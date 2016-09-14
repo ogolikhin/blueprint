@@ -1106,7 +1106,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_MetaDataNo
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_NotFound', 'en-US', N'Couldn''t find the artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ArtifactType_NotFound', 'en-US', N'Couldn''t find the artifact type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AlreadyLocked', 'en-US', N'Artifact locked by another user')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'Artifact doesn''t exists aor moved to different location')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'Artifact does not exist or has been moved to different location')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AccessDenied', 'en-US', N'Cannot establish the artifact lock. Access denied.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Failure', 'en-US', N'Cannot establish the artifact lock due to general failure')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')

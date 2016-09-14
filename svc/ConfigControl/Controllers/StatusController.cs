@@ -55,15 +55,17 @@ namespace ConfigControl.Controllers
         {
             if (preAuthorizedKey == null)
             {
-                ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
+                //ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
+                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
 
-                if (shorterServiceStatus.NoErrors)
+                if (serviceStatus.NoErrors)
                 {
-                    return Ok(shorterServiceStatus);
+                    return Ok(serviceStatus);
                 }
                 else
                 {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, shorterServiceStatus);
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
                     return ResponseMessage(response);
                 }
 

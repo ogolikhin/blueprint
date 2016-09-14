@@ -64,26 +64,28 @@ namespace FileStore.Controllers
             // Refactoring for shorter status as per US955
             if (preAuthorizedKey == null)
             {
-                ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
-
-                if (shorterServiceStatus.NoErrors)
+                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
+             
+                if (serviceStatus.NoErrors)
                 {
-                    return Ok(shorterServiceStatus);
+                    return Ok(serviceStatus);
                 }
                 else
                 {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, shorterServiceStatus);
+                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
                     return ResponseMessage(response);
                 }
-                
+               
+
             }
             else {
                 if (preAuthorizedKey != _preAuthorizedKey)
                 {
                     var unauthorizedMessage = "Unauthorized";
                     var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
-                    var response1 = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
-                    return ResponseMessage(response1);
+                    var response = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
+                    return ResponseMessage(response);
                 }
 
                 ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();

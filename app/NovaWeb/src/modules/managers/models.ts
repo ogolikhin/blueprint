@@ -83,40 +83,33 @@ export interface IArtifactStates {
 } 
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
-// export interface IStatefulItem {  //extends Models.IArtifact  {
-//     customProperties: IArtifactProperties;
-//     attachments: IArtifactAttachments;
-//     relationships: any;
-//     docRefs: any;
-//     discard(): ng.IPromise<IStatefulArtifact>;
-// }
-
-export interface IStatefulArtifact extends Models.IArtifact  {
+export interface IStatefulItem extends Models.IArtifact  {
     artifactState: IArtifactStates;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
-    subArtifactCollection: ISubArtifactCollection;
+    // docRefs: any;
+    // relationships: any;
     discard(): ng.IPromise<IStatefulArtifact>;
-    load(): ng.IPromise<IStatefulArtifact>;
     lock(): ng.IPromise<IState>;
+}
+
+export interface IIStatefulItem extends IStatefulItem  {
+    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getServices(): IStatefulArtifactServices;
+}
+
+export interface IStatefulArtifact extends IStatefulItem  {
+    subArtifactCollection: ISubArtifactCollection;
+    load(): ng.IPromise<IStatefulArtifact>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
-export interface IIStatefulArtifact extends IStatefulArtifact {
-    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getServices(): IStatefulArtifactServices;
+export interface IIStatefulArtifact extends IIStatefulItem {
 }
-export interface IIStatefulSubArtifact extends IStatefulSubArtifact {
-    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getServices(): IStatefulArtifactServices;
+export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
 
-export interface IStatefulSubArtifact extends Models.ISubArtifact {
-    // TODO:
-    customProperties: IArtifactProperties;
-    attachments: IArtifactAttachments;
-    discard(): ng.IPromise<IStatefulArtifact>;
-    lock(): ng.IPromise<IState>;
+export interface IStatefulSubArtifact extends IStatefulItem {
 }
 
 export interface ISubArtifactCollection {

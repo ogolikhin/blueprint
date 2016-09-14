@@ -9,14 +9,14 @@ import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-up
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ISelectionManager } from "../../../managers/selection-manager";
+import { IStatefulItem } from "../../../managers/models";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService, 
     IArtifactDocRef, 
     IStatefulArtifact,
     IStatefulSubArtifact,
-    IArtifactAttachment,
-    
+    IArtifactAttachment
 } from "../../../managers/artifact-manager";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
@@ -39,10 +39,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "dialogService"
     ];
 
-    // public artifactAttachmentsList: IArtifactAttachmentsResultSet;
     public attachmentsList: IArtifactAttachment[];
     public docRefList: IArtifactDocRef[];
-    public item: IStatefulArtifact | IStatefulSubArtifact;
+    public item: IStatefulItem;
 
     public categoryFilter: number;
     public isLoading: boolean = false;
@@ -150,7 +149,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         
         if (this.item) {
             this.isLoading = true;
-            this.item.attachments.get(true).then((attachments: IArtifactAttachment[]) => {
+            this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
                 this.attachmentsList = attachments;
             }).finally(() => {
                 this.isLoading = false;
@@ -176,13 +175,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    /* tslint:disable:no-unused-variable */
     public canAddNewFile() {
         return !this.artifactIsDeleted &&
             !(this.itemState && this.itemState.isReadonly);
     }
-    /* tslint:disable:no-unused-variable */
 
+    /* tslint:disable:no-unused-variable */
     private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
         this.isLoading = true;
         return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
@@ -193,4 +191,5 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 this.isLoading = false;
             });
     }
+    /* tslint:enable:no-unused-variable */
 }

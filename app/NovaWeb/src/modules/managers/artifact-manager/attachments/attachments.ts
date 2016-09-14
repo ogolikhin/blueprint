@@ -2,11 +2,10 @@ import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./";
 // import { Models, Enums } from "../../../main/models";
 import { ChangeSetCollector } from "../changeset";
 import { 
-    // IStatefulArtifact, 
     ChangeTypeEnum, 
     IChangeCollector, 
     IChangeSet,
-    // IStatefulSubArtifact, 
+    IIStatefulItem,
     IIStatefulArtifact,
     IIStatefulSubArtifact,
     IArtifactAttachments
@@ -15,7 +14,7 @@ import {
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
-    private statefulItem: IIStatefulArtifact | IIStatefulSubArtifact;
+    private statefulItem: IIStatefulItem;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
 
@@ -31,7 +30,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
         this.subject.onNext(this.attachments);
     }
 
-    public get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]> {
+    // refresh = true: turn lazy loading off, always reload
+    public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
         if (this.isLoaded && !refresh) {

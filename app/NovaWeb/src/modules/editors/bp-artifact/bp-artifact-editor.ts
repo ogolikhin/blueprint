@@ -168,34 +168,35 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public doSave(state: ItemState): void { }
 
-    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        try {
-            //here we need to update original model
-            let context = $field.data as PropertyContext;
-            if (!context) {
-                return;
-            }
-            let value = this.editor.convertToModelValue($field, $value);
-            let changeSet: IPropertyChangeSet = {
-                lookup: context.lookup,
-                id: context.modelPropertyName,
-                value: value
-            };
-            let state = this.stateManager.addChange(this.context.artifact, changeSet);
-            
-            if ($scope.form) {
-                state.setValidationErrorsFlag($scope.form.$$parentForm.$invalid);
-            }
-
-            this.stateManager.lockArtifact(state).catch((error: any) => {
-                if (error) {
-                    this.messageService.addError(error);
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+        $scope.$applyAsync(() => {
+            try {
+                //here we need to update original model
+                let context = $field.data as PropertyContext;
+                if (!context) {
+                    return;
                 }
-            });
+                let value = this.editor.convertToModelValue($field, $value);
+                let changeSet: IPropertyChangeSet = {
+                    lookup: context.lookup,
+                    id: context.modelPropertyName,
+                    value: value
+                };
+                let state = this.stateManager.addChange(this.context.artifact, changeSet);
 
-        } catch (err) {
-            this.messageService.addError(err);
-        }
+                if ($scope["form"]) {
+                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                }
+
+                this.stateManager.lockArtifact(state).catch((error: any) => {
+                    if (error) {
+                        this.messageService.addError(error);
+                    }
+                });
+            } catch (err) {
+                this.messageService.addError(err);
+            }
+        });
     };
 
 }

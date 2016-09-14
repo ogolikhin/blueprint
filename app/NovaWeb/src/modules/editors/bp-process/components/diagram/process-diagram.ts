@@ -101,10 +101,11 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
         }
 
+        let isProcessTypeToggleEnabled = !this.processViewModel.isReadonly && !this.processViewModel.isHistorical;
         this.processViewModel
             .communicationManager
             .toolbarCommunicationManager
-            .enableProcessTypeToggle(!this.processViewModel.isReadonly && !this.processViewModel.isHistorical, this.processViewModel.processType);
+            .enableProcessTypeToggle(isProcessTypeToggleEnabled, this.processViewModel.processType);
         
         this.toggleProcessTypeHandler = 
             this.processViewModel

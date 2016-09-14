@@ -9,7 +9,7 @@ export class BpProcessTypeToggle implements ng.IComponentOptions {
 }
 
 export interface IProcessTypeToggleOption {
-    id: ProcessType;
+    type: ProcessType;
     iconClass: string;
     tooltip: string;
 }
@@ -30,12 +30,12 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
     ) {
         this.options = [
             { 
-                id: ProcessType.BusinessProcess, 
+                type: ProcessType.BusinessProcess, 
                 iconClass: "fonticon2-user-user", 
                 tooltip: this.localization.get("ST_ProcessType_BusinessProcess_Label")
             },
             { 
-                id: ProcessType.UserToSystemProcess, 
+                type: ProcessType.UserToSystemProcess, 
                 iconClass: "fonticon2-user-system", 
                 tooltip: this.localization.get("ST_ProcessType_UserToSystemProcess_Label") 
             }
@@ -54,15 +54,15 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
         this.communicationManager.toolbarCommunicationManager.toggleProcessType(this.currentProcessType);
     }
 
-    private onEnableProcessTypeToggle = (status: any) => {
+    private onEnableProcessTypeToggle = (processTypeToggleState: any) => {
         for (let i = 0; i < this.options.length; i++) {
             let option = this.options[i];
             
-            if (option.id === status.processType) {
-                this.currentProcessType = option.id;
+            if (option.type === processTypeToggleState.processType) {
+                this.currentProcessType = option.type;
             }
         }
 
-        this.isProcessTypeToggleEnabled = status.value;
+        this.isProcessTypeToggleEnabled = processTypeToggleState.isEnabled;
     }
 }

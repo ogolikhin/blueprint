@@ -42,8 +42,8 @@ describe("BpProcessTypeToggle", () => {
         });
 
         it("results in options containing all relevant process types", () => {
-            expect(_controller.options.filter(o => o.id === ProcessType.BusinessProcess).length).toBe(1);
-            expect(_controller.options.filter(o => o.id === ProcessType.UserToSystemProcess).length).toBe(1);
+            expect(_controller.options.filter(o => o.type === ProcessType.BusinessProcess).length).toBe(1);
+            expect(_controller.options.filter(o => o.type === ProcessType.UserToSystemProcess).length).toBe(1);
         });
 
         it("results in options having correct tooltips", () => {
@@ -52,8 +52,8 @@ describe("BpProcessTypeToggle", () => {
             let userSystemProcessTooltip = _localization.get("ST_ProcessType_UserToSystemProcess_Label");
 
             // assert
-            expect(_controller.options.filter(o => o.id === ProcessType.BusinessProcess)[0].tooltip).toBe(businessProcessTooltip);
-            expect(_controller.options.filter(o => o.id === ProcessType.UserToSystemProcess)[0].tooltip).toBe(userSystemProcessTooltip);
+            expect(_controller.options.filter(o => o.type === ProcessType.BusinessProcess)[0].tooltip).toBe(businessProcessTooltip);
+            expect(_controller.options.filter(o => o.type === ProcessType.UserToSystemProcess)[0].tooltip).toBe(userSystemProcessTooltip);
         });
 
         it("results in currentProcessType being undefined", () => {

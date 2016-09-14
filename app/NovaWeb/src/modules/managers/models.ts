@@ -4,7 +4,7 @@ import {
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
     IArtifactAttachment 
-} from "../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+} from "./artifact-manager";
 
 import {
     IArtifactService,

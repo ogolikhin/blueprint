@@ -129,22 +129,19 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessEnd);
     });
 
-    xit("Test insert task", () => {
+    it("Test insert task", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
 
-        let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
-
         // Act
         graph.render(false, null);
-        ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1],graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+        ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
         expect(graph.getNodeById("10").getNodeType()).toEqual(NodeType.ProcessStart);
@@ -157,24 +154,23 @@ describe("Layout test", () => {
         expect(graph.getNodeById("25").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 5);
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessEnd);
         expect(graph.getNodeById("30").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 6);
+
     });
 
-    xit("Test insert user decision in the middle of the diagram", () => {
+    it("Test insert user decision in the middle of the diagram", () => {
         // Arrange
         var testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-        var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
 
         // Act
         graph.render(false, null);
 
         ProcessAddHelper.insertUserDecision(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);        
 
         //Assert
         expect(graph.getNodeById("10").getNodeType()).toEqual(NodeType.ProcessStart);
@@ -189,23 +185,21 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 6);
     });
 
-    xit("Test insert user decision at the end of the diagram", () => {
+    it("Test insert user decision at the end of the diagram", () => {
         // Arrange
         let processModel = setProcessViewModel(TestModels.createDefaultProcessModel());
         var graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                     container, processModelService,  processModel, dialogService, localization);
-
-        let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
+            container, processModelService, processModel, dialogService, localization);
+        graph.layout.setTempShapeId(0);
 
         // Act
         graph.render(false, null);
         
         ProcessAddHelper.insertUserDecision(graph.getNodeById("25").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
         let node = graph.getNodeById("-1");
@@ -243,16 +237,11 @@ describe("Layout test", () => {
         expect(node.getY()).toEqual(GRAPH_TOP);
     });
 
-    xit("Test insert System decision in the middle of the diagram", () => {
+    it("Test insert System decision in the middle of the diagram", () => {
         // Arrange
         let testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-        let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
 
         let link = new ProcessLinkModel(0, 20, 25);
         let diagramLink = new DiagramLink(link, null);
@@ -261,7 +250,10 @@ describe("Layout test", () => {
         graph.render(false, null);
 
         ProcessAddHelper.insertSystemDecision(diagramLink, graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
         expect(graph.getNodeById("10").getNodeType()).toEqual(NodeType.ProcessStart);
@@ -282,8 +274,9 @@ describe("Layout test", () => {
         let processModel = setProcessViewModel(testModel);
 
         // Act
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-        graph.render(false, null);
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.layout.setTempShapeId(0);
+        graph.render(true, null);
 
         //Assert
         expect(graph.getNodeById("-1").getNodeType()).toEqual(NodeType.MergingPoint);
@@ -292,25 +285,28 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 8);
     });
 
-    xit("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the previous subtree", () => {
+    it("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the previous subtree", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
         let processModel = setProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-
-        var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.layout.setTempShapeId(0);
 
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1],
             graph.layout, shapesFactoryService);
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
+
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
             graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
 
@@ -325,25 +321,28 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 15);
     });
 
-    xit("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the next subtree", () => {
+    it("Test rendering large model with inserting two new user decisions: should not change Y position of branch in the next subtree", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
         let processModel = setProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-
-        var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.layout.setTempShapeId(0);
 
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
             graph.layout, shapesFactoryService);
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
+
         ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1],
             graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
 
@@ -356,23 +355,21 @@ describe("Layout test", () => {
         expect(graph.getNodeById("30").getX()).toEqual(GRAPH_LEFT + GRAPH_COLUMN_WIDTH * 15);
     });
 
-    xit("Gap between precondition and next user task is same as between any other system task and next user task", () => {
+    it("Gap between precondition and next user task is same as between any other system task and next user task", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
         let processModel = setProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-
-        var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-            graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-            graph.render(true, null);
-        });
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.layout.setTempShapeId(0);
 
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
             graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+
+        graph.destroy();
+        graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+        graph.render(true, null);
 
         //Assert
 
@@ -386,11 +383,11 @@ describe("Layout test", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
         let processModel = setProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
             graph.render(true, selectedNodeId);
         });
 
@@ -408,11 +405,11 @@ describe("Layout test", () => {
         // Arrange
         var testModel = TestModels.createLargeTestModel();
         let processModel = setProcessViewModel(testModel);
-        var graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+        var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
 
         var unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
             graph.render(true, selectedNodeId);
         });
 
@@ -1049,27 +1046,24 @@ describe("Layout test", () => {
 
     describe("Test shape limit", () => {
 
-        xit("Should not insert additional shapes when limit is reached", () => {
+        it("Should not insert additional shapes when limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
             processModel.communicationManager = communicationManager;
             var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
 
-            let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-                graph.destroy();
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-                graph.render(true, null);
-            });
-
             // Act
             graph.render(false, null);
             let edge = graph.getNodeById("15").getConnectableElement().edges[1];
             // the limit is 5 shapes
             graph.viewModel.shapeLimit = 5;
-            var spyInsertTask = spyOn(graph.layout, "insertTask");
+            var spyInsertTask = spyOn(ProcessAddHelper, "insertTask");
             ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
-            unregProcesssModelUpdate();
+
+            graph.destroy();
+            graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+            graph.render(true, null);
 
             //Assert
             var msg = msgService.messages;
@@ -1079,18 +1073,12 @@ describe("Layout test", () => {
 
         });
 
-        xit("Should show a warning when eighty percent of the limit is reached", () => {
+        it("Should show a warning when eighty percent of the limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
             processModel.communicationManager = communicationManager;
             var graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
-
-            let unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
-                graph.destroy();
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
-                graph.render(true, null);
-            });
 
             // Act
             graph.render(false, null);
@@ -1099,9 +1087,12 @@ describe("Layout test", () => {
             // the limit is 9 shapes
             // we will add two extra shapes to trigger warning
             graph.viewModel.shapeLimit = 9;
-            var spyInsertTask = spyOn(graph.layout, "insertTask");
+            var spyInsertTask = spyOn(ProcessAddHelper, "insertTask");
             ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
-            unregProcesssModelUpdate();
+
+            graph.destroy();
+            graph = new ProcessGraph(rootScope, localScope, container, processModelService, processModel, dialogService, localization);
+            graph.render(true, null);
 
             //Assert
             var msg = msgService.messages;

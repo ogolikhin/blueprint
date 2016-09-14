@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -17,7 +16,6 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         private IUser _userWithNoAccess = null;
-        private IUser _userWithLock = null;
         private IProject _project = null;
 
         [SetUp]
@@ -26,7 +24,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _userWithNoAccess = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens, null);
-            _userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
         }
 
@@ -69,21 +66,35 @@ namespace ArtifactStoreTests
         #region 401 Unauthorized tests
 
         [TestRail(165823)]
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Actor, "4f2cfd40d8994b8b812534b51711100d")]
+        [TestCase(BaseArtifactType.Actor, "BADTOKEN")]
         [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have authorization " +
                      "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
-        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
+        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType, string invalidAccessControlToken)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Replace the valid AccessControlToken with an invalid token
-            var invalidAccessControlToken = Guid.NewGuid().ToString("N");
             _user.SetToken(invalidAccessControlToken);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 401 Unauthorized when a user trying to delete an artifact does not have authorization to delete!");
+        }
+
+        [TestRail(165843)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create an artifact and publish. Attempt to delete the artifact with a missing token header. " +
+                     "Verify that HTTP 401 Unauthorized exception is thrown.")]
+        public void DeleteArtifact_MissingTokenHeader_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, null),
+                "We should get a 401 Unauthorized when the token header is missing when trying to delete!");
         }
 
         #endregion 401 Unauthorized tests
@@ -180,10 +191,13 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _userWithLock, artifactType);
+            IUser userWithLock = null;
+            userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, userWithLock, artifactType);
 
             // Lock artifact to prevent other users from deleting
-            artifact.Lock(_userWithLock);
+            artifact.Lock(userWithLock);
 
             // Execute & Verify:
             Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),

@@ -5,7 +5,7 @@ import {
     IArtifactAttachmentsService,
     IArtifactService,
  } from "../../models";
-import {IProjectManager } from "../../project-manager";
+import { IMetaDataService } from "../";
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
     constructor(private $q: ng.IQService,
@@ -13,8 +13,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
-                private _projectManager: IProjectManager) {
-
+                private _metaDataService: IMetaDataService) {
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -23,11 +22,10 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
 
     public get session(): ISession {
         return this._session;
-
     }
+
     public get messageService(): IMessageService {
         return this._messageService;
-
     }
     public get artifactService(): IArtifactService {
         return this._artifactService;
@@ -36,8 +34,9 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get attachmentService(): IArtifactAttachmentsService {
         return this._attachmentService;
     }
-    public get projectManager(): IProjectManager {
-        return this._projectManager;
+
+    public get metaDataService(): IMetaDataService {
+        return this._metaDataService;
     }
     
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {

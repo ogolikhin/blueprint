@@ -3,7 +3,8 @@ import { Models, Enums } from "../main/models";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
-    IArtifactAttachment 
+    IArtifactAttachment,
+    IMetaDataService
 } from "./artifact-manager";
 
 import { IProjectManager } from  "./project-manager";
@@ -129,7 +130,7 @@ export interface IStatefulArtifactServices {
     session: ISession;
     artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
-    projectManager: IProjectManager;
+    metaDataService: IMetaDataService;
 }
 
 export interface IArtifactNode {

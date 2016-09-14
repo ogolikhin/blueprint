@@ -1,1 +1,3 @@
-export { IMetaData, MetaData } from "./metadata"; 
+export { IMetaDataService, MetaDataService } from "./metadata.svc"; 
+export { IMetaData, MetaData } from "./metadata";
+ 

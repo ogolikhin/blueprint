@@ -10,11 +10,12 @@ import {
     IArtifactAttachmentsService,
 } from "./attachments";
 
-import { IMetaData } from "./metadata";
+import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
 
 angular.module("bp.managers.artifact", ["bp.managers.selection"])
     .service("artifactManager", ArtifactManager )
     .service("artifactAttachments", ArtifactAttachmentsService)
+    .service("metaDataService", MetaDataService)
     .service("statefulArtifactFactory", StatefulArtifactFactory);
 
 export {
@@ -30,5 +31,7 @@ export {
     IArtifactDocRef,
     IArtifactAttachmentsResultSet,
     IArtifactAttachmentsService,
-    IMetaData
+    IMetaData,
+    MetaDataService,
+    IMetaDataService
 };

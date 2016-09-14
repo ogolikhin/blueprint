@@ -1,5 +1,5 @@
 import { Models, Enums } from "../../main/models";
-import { IArtifactManager, IStatefulArtifact, IArtifactNode } from "../models";
+import { IStatefulArtifact, IArtifactNode } from "../models";
 
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;

@@ -4,17 +4,19 @@
 -- --------------------------------------------------
 -- Migration 7.4.0.0
 -- --------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0) 
+IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0) 
 	set noexec on
 Print 'Migrating 7.4.0.0 ...'
 -- --------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"RemoveDboAssociations.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_FileStorage_Maintenance.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.4.0';
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.4.0';
 GO
 set noexec off
 -- --------------------------------------------------

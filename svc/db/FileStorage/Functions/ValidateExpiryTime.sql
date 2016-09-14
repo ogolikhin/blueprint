@@ -7,11 +7,11 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ValidateExpiryTime]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-DROP FUNCTION [dbo].[ValidateExpiryTime]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[ValidateExpiryTime]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [FileStore].[ValidateExpiryTime]
 GO
 
-CREATE FUNCTION [dbo].[ValidateExpiryTime]
+CREATE FUNCTION [FileStore].[ValidateExpiryTime]
 (
 	--CurrentTime needs to be a parameter for InsertFileHead usage, to have stored time and expire time equal if set to expire now.	
 	@currentTime AS datetime,

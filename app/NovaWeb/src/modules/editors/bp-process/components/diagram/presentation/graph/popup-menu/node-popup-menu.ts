@@ -8,9 +8,9 @@ export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
     private eventSubscriber: Rx.IDisposable = null;
-
+  
     public insertionPoint: MxCell = null;
-
+    
     constructor(
         private layout: ILayout,
         private shapesFactoryService: ShapesFactory,
@@ -37,14 +37,23 @@ export class NodePopupMenu {
     // hook the mxPopupMenu popup() function 
    
     private installPopupMenuHandlers() {
+        const defined = o => o ? true : false; 
+        let nodePopupInstance = this;
 
         this.mxgraph.popupMenuHandler["isPopupTrigger"] = this.isPopupTrigger;
         this.mxgraph.popupMenuHandler["popup"] = function (x, y, cell, evt) {
+            nodePopupInstance.unsubscribeHidePopupEvents(); 
+            if (defined(nodePopupInstance.insertionPoint)) { 
+                window["mxPopupMenu"].prototype.popup.apply(this, arguments);
+                // ==> calls the factoryMethod and returns here
 
-            return window["mxPopupMenu"].prototype.popup.apply(this, arguments);
+                // hide the popup if events are detected elsewhere in the UI
+                nodePopupInstance.subscribeHidePopupEvents();
+            }
         };
-
+        
         this.mxgraph.popupMenuHandler.factoryMethod = (menu, cell, evt) => {
+            
             // Do not open menu for non image elements
             if (evt.srcElement && evt.srcElement.nodeName !== "image") {
                 return;
@@ -56,7 +65,7 @@ export class NodePopupMenu {
    
     private isPopupTrigger = (me) => {
         
-        // this handler determines whether to show the Insert Node popup menu in 
+        // this handler determines whether to show the popup menu in 
         // response to a left mouse button click
         
         // Note:  me param is the mxMouseEvent 
@@ -70,7 +79,7 @@ export class NodePopupMenu {
             if (me.sourceState && me.sourceState.cell &&
                 me.evt["InsertNodeIcon"] === true) {
                 
-                 // if the source of the trigger is an Add Task/Decision icon then 
+                 // if the source of the trigger is an insert node icon then 
                  // show the popup menu
                  
                 this.insertionPoint = me.sourceState.cell;
@@ -87,24 +96,22 @@ export class NodePopupMenu {
     };
 
     public createPopupMenu = (graph, menu, cell, evt) => {
+
+        // apply business rules for showing the popup menu options
+       
         if ((<any>this.insertionPoint).edge) {
-            
-            // check if the edge is connected to a a user decision node 
-            // if it is then do not show 'Add Decision Point' menu option 
-            
+
             if (this.isSourceNodeOfType(this.insertionPoint, NodeType.UserDecision) ||
                 this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
-                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Task_Label"), null, () => {
-                    this.disposeEventSubscriptions();
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Task_Label"), null, () => {                  
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
-
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
-                    this.disposeEventSubscriptions();
+                   
                     if (this.insertSystemDecisionFn && this.insertionPoint) {
                         this.insertSystemDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
@@ -112,7 +119,7 @@ export class NodePopupMenu {
                 });
             } else {
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Task_Label"), null, () => {
-                    this.disposeEventSubscriptions();
+                   
                     if (this.insertTaskFn && this.insertionPoint) {
                         this.insertTaskFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
@@ -120,16 +127,16 @@ export class NodePopupMenu {
                 });
 
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
-                    this.disposeEventSubscriptions();
+                    
                     if (this.insertUserDecisionFn && this.insertionPoint) {
                         this.insertUserDecisionFn(this.insertionPoint, this.layout, this.shapesFactoryService);
                         this.insertionPoint = null;
                     }
                 });
             }
+
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
             menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
-                this.disposeEventSubscriptions();
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
@@ -137,7 +144,6 @@ export class NodePopupMenu {
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
             menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
-                this.disposeEventSubscriptions();
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
@@ -149,12 +155,29 @@ export class NodePopupMenu {
         // the insertion point
         this.calcMenuOffsets(menu);
 
-        // remove the popup if a mousedown or resize event is detected anywhere in the document 
-        // this means that only one popup can be shown at a time
-        // #DEBUG
-        //this.removePopupOnEvent();
     };
     
+    private subscribeHidePopupEvents() {
+        // listen for a mousedown, resize or scroll event 
+        // and hide the popup menu if it is still showing
+
+        var containerScroll$ = Rx.Observable.fromEvent<any>(this.htmlElement, "scroll");
+        var mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
+        var windowResize$ = Rx.Observable.fromEvent<any>(window, "resize");
+         
+        this.eventSubscriber = mouseDown$.merge(windowResize$).merge(containerScroll$).subscribe(event => {
+            this.hidePopupMenu();
+            this.unsubscribeHidePopupEvents();
+        });
+    }
+
+    private unsubscribeHidePopupEvents() {
+        if (this.eventSubscriber) {
+            this.eventSubscriber.dispose();
+            this.eventSubscriber = null;
+        }
+    }
+
     public hidePopupMenu = () => {
         if (this.menu == null) {
             return;
@@ -163,27 +186,6 @@ export class NodePopupMenu {
         this.menu = null;
     };
     
-    private disposeEventSubscriptions() {
-        if (this.eventSubscriber) {
-            this.eventSubscriber.dispose();
-            this.eventSubscriber = null;
-        }
-    }
-  
-    private removePopupOnEvent() {
-        // listen for a mousedown, resize or scroll event 
-        // and remove the popup menu if it is still showing
-
-        var containerScroll$ = Rx.Observable.fromEvent<any>(this.htmlElement, "scroll");
-        var mouseDown$ = Rx.Observable.fromEvent<MouseEvent>(document, "mousedown");
-        var windowResize$ = Rx.Observable.fromEvent<any>(window, "resize");
-
-        this.eventSubscriber = mouseDown$.merge(windowResize$).merge(containerScroll$).subscribe(event => {
-            this.hidePopupMenu();
-            this.disposeEventSubscriptions();
-        });
-    }
-
     private calcMenuOffsets(menu) {
         /*
          * adjust the x,y offset of the popup menu so that the menu appears

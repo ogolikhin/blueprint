@@ -821,8 +821,21 @@ pagecontent, bp-properties-panel {
         width: 90px;
         height: 120px;
         border: 1px solid $gray-lightest;
-      }               
-
+      }
+        .actor-image ~ label{
+          display: inline-block;
+          width:auto;
+          vertical-align:middle;
+          input{
+            display:none;
+          }
+        }
+        span.actor-image{
+        background: url('images/icons/user-default.svg') left 30px no-repeat;
+        display: inline-block;
+        background-color: $gray;
+        vertical-align:middle;
+      }
       .image-actor-group {        
         font-size: $font-size-normal;        
         margin: 5px 9px;
@@ -864,12 +877,19 @@ pagecontent, bp-properties-panel {
           flex-shrink: 1;
           height: $property-min-height;
           line-height: $property-min-height;
-          min-width: $property-input-width - 30px;
+          min-width: $property-input-width - 90px;
           @include text-ellipsis-flex-width(999px);
           padding: 0 $property-padding-default;
           margin-top: 2px;
           margin-right: 8px;
-
+          max-width: 404px;
+          ~ div{
+              display:flex;
+          }
+          .path-wrapper{
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           span {
             &::before {
               content: ' > ';

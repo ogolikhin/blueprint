@@ -24,6 +24,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public projectId: number;
     public projectView: boolean = false;
     public projectName: string;
+    private project: Models.IProject;
 
 
     static $inject = [
@@ -49,16 +50,17 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private dialogData: IArtifactPickerFilter
     ) {
         super($uibModalInstance, dialogSettings);
-        dialogService.dialogSettings.okButton = "OK";
-        let _project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
-        if (_project) {
-            this.projectId = _project.id;
-            this.projectName = _project.name;
-        }
+        dialogService.dialogSettings.okButton = localization.get("App_Button_Ok");
+        let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        this.updateCurrentProjectInfo(project);       
+
         $scope.$on("$destroy", () => {
             this.columns[0].cellClass = null;
-            this.columns[0].cellRendererParams = null;
+            this.columns[0].cellRendererParams.innerRenderer = null;
             this.columns = null;
+
+            this.tree = null;
+
             this.doSelect = null;
             this.doSync = null;
             this.doLoad = null;
@@ -168,16 +170,18 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }];
 
     public doLoad = (prms: any): any[] => {
-        let self = this;
         if (!this.projectView) {
             let artifactId = null;
             if (prms) {
                 artifactId = prms.id;
             }
             this.projectRepository.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {
+                .then((nodes: Models.IArtifact[]) => {                    
                     const filtered = nodes.filter(this.filterCollections);
-                    self.tree.reload(filtered, artifactId);
+                    filtered.forEach((value: Models.IArtifact) => {
+                        value.parent = prms || this.project;
+                    });                   
+                    this.reloadTree(filtered, artifactId);
                 }, (error) => {
                 });
             return null;
@@ -186,7 +190,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
             this.projectRepository.getFolders(id)
                 .then((nodes: Models.IProjectNode[]) => {                  
-                    self.tree.reload(nodes, id);
+                    this.reloadTree(nodes, id);
                 }, (error) => {
                 });
 
@@ -194,23 +198,39 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
+    private reloadTree = (data?: any[], nodeId?: number) => {
+        if (this.tree) {
+            this.tree.reload(data, nodeId);
+        }
+    };
+
+    private updateCurrentProjectInfo(project: Models.IProject) {
+        this.project = project;
+        if (project) {
+            this.projectName = project.name;
+            this.projectId = project.id;
+        }
+    }
+
     public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
-        let self = this;
         if (!this.projectView) {
+            let self = this;
             this.$scope.$applyAsync((s) => {
                 self.setSelectedItem(item);
             });
         } else {
             if (item && item.type === Models.ProjectNodeType.Project) {
                 this.projectId = item.id;
+                this.reloadTree(null);
+                this.tree.showLoading();
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
-                        this.projectName = project.name;
+                        this.updateCurrentProjectInfo(project);
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);
                                 this.projectView = false;
-                                self.tree.reload(filtered);
+                                this.reloadTree(filtered);
                             }, (error) => {
 
                             });
@@ -218,13 +238,11 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 );
             }
         }
-    }
+    };
 
-    private filterCollections(node: Models.IItem) {
-        if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
-            return true;
-        }
-    }
+    private filterCollections = (node: Models.IItem) => {
+        return node.predefinedType !== Models.ItemTypePredefined.CollectionFolder;
+    };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         if (!this.projectView) {
@@ -234,7 +252,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     loaded: node.loaded,
                     open: node.open
                 });
-            };
+            }
             return artifact;
         }
     };

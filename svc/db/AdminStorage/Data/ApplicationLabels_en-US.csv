@@ -230,6 +230,7 @@ Property_Suffix_Or_Later," or later."
 Property_Suffix_Or_Earlier," or earlier."
 Property_Suffix_Or_Greater," or greater."
 Property_Suffix_Or_Less," or less."
+Property_Actor_Section_Name,"Actor Properties"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"
@@ -305,6 +306,8 @@ ST_User_Story_Businessrules_Tab_Label, "Business Rules"
 ST_User_Story_Title_Label, "User Story Title"
 ST_Publish_User_Story, "Publish User Story"
 ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
+ST_ProcessType_BusinessProcess_Label, "Business Process mode"
+ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"

@@ -10,6 +10,7 @@
     Enums
 } from "./bp-artifact-editor";
 import { IArtifactService } from "../../main/services";
+import { IDialogService } from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -23,7 +24,7 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService"];
+        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
 
     constructor(
         messageService: IMessageService,
@@ -31,7 +32,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         windowManager: IWindowManager,
         localization: ILocalizationService,
         projectManager: IProjectManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private dialogService: IDialogService
     ) {
         super(messageService, stateManager, windowManager, localization, projectManager);
     }
@@ -56,6 +58,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.context.type.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
+        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else {
             return this.context.type.name + this.localization.get("Nova_Properties", " Properties");
         }
@@ -89,9 +93,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             delete context.artifact.lockedByUser;
             delete context.artifact.lockedDateTime;
-            context.artifact = angular.extend({}, context.artifact, it);
-            this.stateManager.addChange(context.artifact);
+
+//            context.artifact = angular.extend({}, context.artifact, it);
+            let state = this.stateManager.addChange(angular.extend({}, context.artifact, it));
+            context.artifact = state.originItem;
             this.onUpdate(context);
+            if (state.moved) {
+                this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            }
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

@@ -503,6 +503,12 @@ namespace ArtifactStoreTests
             IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
             updateResult.AssertEquals(artifactDetails);
 
+            //wrapped artifact name with html format to compared with the updated artifact with Artifact.UpdateArtifact
+            if (artifact.Name.Any())
+            {
+                artifact.Name = StringUtilities.WrapInHTML(artifact.Name);
+            }
+
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 

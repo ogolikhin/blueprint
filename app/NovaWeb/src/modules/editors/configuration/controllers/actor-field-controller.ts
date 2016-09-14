@@ -53,7 +53,10 @@ export function actorController(
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {                
+            if (artifact) {   
+                if (currentModelVal != null) {
+                    deleteBaseActor();
+                }             
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
@@ -67,10 +70,7 @@ export function actorController(
         });
     }
 
-    $scope.selectBaseActor = () => {
-        if (currentModelVal != null) {
-            deleteBaseActor();
-        }
+    $scope.selectBaseActor = () => {        
         setBaseActor();
     };
 }

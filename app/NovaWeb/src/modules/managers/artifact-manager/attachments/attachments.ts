@@ -17,6 +17,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
     private statefulItem: IIStatefulArtifact | IIStatefulSubArtifact;
     private changeset: IChangeCollector;
+    private isLoaded: boolean;
 
     constructor(statefulArtifact: IIStatefulArtifact | IIStatefulSubArtifact) {
         this.attachments = [];
@@ -30,65 +31,69 @@ export class ArtifactAttachments implements IArtifactAttachments {
         this.subject.onNext(this.attachments);
     }
 
-    // TODO: how would this work for subartifact attachments?
-    public get value(): ng.IPromise<IArtifactAttachment[]> {
-        return this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
-            return result.attachments;
-        });
+    public get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]> {
+        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
+
+        if (this.isLoaded && !refresh) {
+            deferred.resolve(this.attachments);
+            this.subject.onNext(this.attachments);
+        } else {
+            this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+                deferred.resolve(result.attachments);
+                this.isLoaded = true;
+            });
+        }
+
+        return deferred.promise;
     }
 
     public get observable(): Rx.IObservable<IArtifactAttachment[]> {
         return this.subject.asObservable();
     }
 
-    public add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
-
-        this.attachments.push(attachment);
-
-        const changeset = {
-            type: ChangeTypeEnum.Add,
-            key: attachment.guid,
-            value: attachment
-        } as IChangeSet;
-        this.changeset.add(changeset);
-
-        // TODO: can locking be done implicitly?
-        // TODO: must propagate locking as a return value. if not locked, revert value.
-        this.statefulItem.lock();
-
-        deferred.resolve(this.attachments);
-        this.subject.onNext(this.attachments);
-
-        return deferred.promise;
+    public add(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
+        if (attachments) {
+            attachments.map((attachment: IArtifactAttachment) => {
+                this.attachments.push(attachment); 
+                const changeset = {
+                    type: ChangeTypeEnum.Add,
+                    key: attachment.guid,
+                    value: attachment
+                } as IChangeSet;
+                this.changeset.add(changeset);
+                this.statefulItem.lock();
+            });
+            this.subject.onNext(this.attachments);
+        }
+        
+        return this.attachments;
     }
 
-    public update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
+    public update(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
         throw Error("operation not supported");
     }
 
-    public remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
-        const foundAttachmentIndex = this.attachments.indexOf(attachment);
-        let deletedAttachment: IArtifactAttachment;
+    public remove(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
+        if (attachments) {
+            attachments.map((attachment: IArtifactAttachment) => {
+                const foundAttachmentIndex = this.attachments.indexOf(attachment);
+                let deletedAttachment: IArtifactAttachment;
 
-        if (foundAttachmentIndex > -1) {
-            deletedAttachment = this.attachments.splice(foundAttachmentIndex, 1)[0];
-            
-            const changeset = {
-                type: ChangeTypeEnum.Delete,
-                key: attachment.guid || attachment.attachmentId,
-                value: attachment
-            } as IChangeSet;
-            this.changeset.add(changeset);
-
-            deferred.resolve(this.attachments);
+                if (foundAttachmentIndex > -1) {
+                    deletedAttachment = this.attachments.splice(foundAttachmentIndex, 1)[0];
+                    
+                    const changeset = {
+                        type: ChangeTypeEnum.Delete,
+                        key: attachment.guid || attachment.attachmentId,
+                        value: attachment
+                    } as IChangeSet;
+                    this.changeset.add(changeset);
+                }
+            });
             this.subject.onNext(this.attachments);
-        } else {
-            deferred.reject("Attachment not found");
         }
 
-        return deferred.promise;
+        return this.attachments;
     }
 
     public discard() {

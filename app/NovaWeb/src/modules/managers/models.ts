@@ -19,11 +19,12 @@ export {
 };
 
 export interface IBlock<T> {
-    value: ng.IPromise<T[]>;
-    observable: Rx.IObservable<T[]>;
-    add(T): ng.IPromise<T[]>;
-    remove(T): ng.IPromise<T[]>;
-    update(T): ng.IPromise<T[]>;
+    observable: Rx.IObservable<T>;
+    get(refresh?: boolean): ng.IPromise<T>;
+    add(T): T;
+    remove(T): T;
+    update(T): T;
+    discard();
 }
 
 export interface IState {
@@ -52,14 +53,13 @@ export interface IChangeCollector {
 
 }
 
-export interface IArtifactAttachments extends IBlock<IArtifactAttachment> {
-    // list(): IArtifactAttachment[];
+export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
     initialize(attachments: IArtifactAttachment[]);
-    value: ng.IPromise<IArtifactAttachment[]>;
     observable: Rx.IObservable<IArtifactAttachment[]>;
-    add(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
-    remove(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
-    update(attachment: IArtifactAttachment): ng.IPromise<IArtifactAttachment[]>;
+    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
+    add(attachments: IArtifactAttachment[]);
+    remove(attachments: IArtifactAttachment[]);
+    update(attachments: IArtifactAttachment[]);
     discard();
 }
 

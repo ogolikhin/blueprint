@@ -42,9 +42,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     // public artifactAttachmentsList: IArtifactAttachmentsResultSet;
     public attachmentsList: IArtifactAttachment[];
     public docRefList: IArtifactDocRef[];
-
-    public artifact: IStatefulArtifact;
-    public subArtifact: IStatefulSubArtifact;
+    public item: IStatefulArtifact | IStatefulSubArtifact;
 
     public categoryFilter: number;
     public isLoading: boolean = false;
@@ -150,26 +148,21 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        // this.artifactAttachmentsList = null;
         this.attachmentsList = [];
-
-        this.artifact = artifact;
-        this.subArtifact = subArtifact;
-
-        let attachmentSubscriber: Rx.IDisposable;
-        let docRefSubscriber: Rx.IDisposable;
-
-        if (subArtifact) {
-
-        } else {
-            let promise = this.artifact.attachments.value;
-            attachmentSubscriber = this.artifact.attachments.observable.subscribe((attachments: IArtifactAttachment[]) => {
+        this.item = subArtifact || artifact;
+        
+        if (this.item) {
+            this.isLoading = true;
+            this.item.attachments.get(true).then((attachments: IArtifactAttachment[]) => {
                 this.attachmentsList = attachments;
+            }, (error) => {
+                this.attachmentsList = [];
+            }).finally(() => {
+                this.isLoading = false;
             });
 
             // TODO: docRefSubscriber here
-
-            // artifact.attachments.value.then( (result) => {});
+            // this.docRefSubscriber = this.item.docRefs...
         }
 
         // if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {

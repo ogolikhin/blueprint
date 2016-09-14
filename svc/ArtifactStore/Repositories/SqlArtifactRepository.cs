@@ -305,14 +305,26 @@ namespace ArtifactStore.Repositories
                     parentSubArtifact.HasChildren = true;
                 }
             }
-            var areLabelsDisplayNames = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
+            var isUseCase = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Flow
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step);
 
-            if (areLabelsDisplayNames) {
+            if (isUseCase) {
                 var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
+                    //filter out flow subartifacts
+                    if (subArtifactEntry.Value.PredefinedType == ItemTypePredefined.Flow)
+                    {
+                        SubArtifact parent;
+                        var children = subArtifactEntry.Value.Children;
+                        if (subArtifactsDictionary.TryGetValue(subArtifactEntry.Value.ParentId, out parent))
+                        {
+                            ((List<SubArtifact>)parent.Children).Remove(subArtifactEntry.Value);
+                            ((List<SubArtifact>)parent.Children).AddRange(children);
+                        }
+                    }
+                    //populate label as display names.
                     ItemLabel itemLabel;
                     if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
                     {

@@ -392,13 +392,6 @@ namespace Model.Impl
 
             var queryParameters = new Dictionary<string, string>();
 
-            /*
-            if (expireTime.HasValue)
-            {
-                queryParameters.Add("expired", expireTime.Value.ToStringInvariant("o"));
-            }
-            */
-
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();
 
@@ -425,13 +418,13 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
+            // TODO: Investigate why passing valid expiredDate to this POST FileStore call doesn't set exiredDate colmn value on Files DB table
             var path = expireTime.HasValue ?
-
                 I18NHelper.FormatInvariant("{0}/?expired={1}.333Z", RestPaths.Svc.FileStore.NOVAFILES,expireTime.Value.ToStringInvariant("o").Remove(expireTime.Value.ToStringInvariant().Length)) 
                 : RestPaths.Svc.FileStore.NOVAFILES;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            //TODO ask DEV which determine HTTP request content type. FileType?
+            // TODO: ask DEV which determine HTTP request content type. FileType?
 
             var response = restApi.SendRequestAndGetResponse(
                 resourcePath: path,

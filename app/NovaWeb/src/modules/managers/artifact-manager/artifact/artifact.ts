@@ -28,7 +28,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public customProperties: IArtifactProperties;
     public spercilProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
-    public metaData: IMetaData;
+    public metadata: IMetaData;
     
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
@@ -39,7 +39,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
         this.services = services;
-        this.metaData = new MetaData(this);
+        this.metadata = new MetaData(this);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);

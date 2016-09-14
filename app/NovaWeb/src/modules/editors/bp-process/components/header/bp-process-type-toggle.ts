@@ -1,17 +1,15 @@
 import {ICommunicationManager} from "../../";
 import {ILocalizationService} from "../../../../core/localization";
+import {ProcessType} from "../../models/enums";
 
 export class BpProcessTypeToggle implements ng.IComponentOptions {
     public template: string = require("./bp-process-type-toggle.html");
     public controller: Function = BpProcessTypeToggleController;
     public controllerAs: string = "$ctrl";
-    public bindings: any = {
-        options: "<"
-    };
 }
 
 export interface IProcessTypeToggleOption {
-    id: number;
+    id: ProcessType;
     iconClass: string;
     tooltip: string;
 }
@@ -23,7 +21,7 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
     ];
 
     public options: IProcessTypeToggleOption[];
-    public currentProcessType: number;
+    public currentProcessType: ProcessType;
     public isProcessTypeToggleEnabled: boolean;
 
     constructor(
@@ -31,8 +29,16 @@ export class BpProcessTypeToggleController implements ng.IComponentController {
         private localization: ILocalizationService
     ) {
         this.options = [
-            { id: 1, iconClass: "fonticon2-user-user", tooltip: this.localization.get("ST_ProcessType_BusinessProcess_Label") },
-            { id: 2, iconClass: "fonticon2-user-system", tooltip: this.localization.get("ST_ProcessType_UserToSystemProcess_Label") }
+            { 
+                id: ProcessType.BusinessProcess, 
+                iconClass: "fonticon2-user-user", 
+                tooltip: this.localization.get("ST_ProcessType_BusinessProcess_Label")
+            },
+            { 
+                id: ProcessType.UserToSystemProcess, 
+                iconClass: "fonticon2-user-system", 
+                tooltip: this.localization.get("ST_ProcessType_UserToSystemProcess_Label") 
+            }
         ];
     }
 

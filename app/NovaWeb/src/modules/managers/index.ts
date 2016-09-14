@@ -3,9 +3,9 @@ import "./project-manager";
 import "./selection-manager";
 
 angular.module("bp.managers", [
-    "bp.managers.artifact",
     "bp.managers.selection",
-    "bp.managers.project"
+    "bp.managers.project",
+    "bp.managers.artifact"
 ]);
 
 export { IArtifactManager } from  "./artifact-manager";

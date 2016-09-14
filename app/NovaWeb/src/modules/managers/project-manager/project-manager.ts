@@ -53,7 +53,6 @@ export class ProjectManager  implements IProjectManager {
         "messageService", 
         "projectService", 
         "artifactManager", 
-        "selectionManager2",
         "statefulArtifactFactory"
     ];
 
@@ -62,7 +61,6 @@ export class ProjectManager  implements IProjectManager {
         private messageService: IMessageService,
         private projectService: IProjectService,
         private artifactManager: IArtifactManager,
-        private selectionManager: ISelectionManager,
         private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
     }

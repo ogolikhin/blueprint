@@ -83,18 +83,13 @@ export class BpArtifactInfoController {
     }
 
     private updateProperties(artifact: IStatefulArtifact) {
+        
         this.artifactName = artifact.name || "";
         this._artifactId = artifact.id;
-        artifact.meta.get().then({
-            this.artifactType 
+        artifact.metadata.getItemType(artifact.id).then((it: Models.IItemType) => {
+            this.artifactType = it.name || Models.ItemTypePredefined[it.predefinedType] || "";
+            this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         })
-        if (state.itemType) {
-            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
-        } else {
-            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
-        }
-
-        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
 
@@ -115,15 +110,15 @@ export class BpArtifactInfoController {
                 break;
             case Enums.LockedByEnum.OtherUser:
                 let name = "";
-                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (state.lock && state.lock.info) {
-                    name = state.lock.info.lockOwnerLogin;
-                }
-                name =  name || state.originItem.lockedByUser.displayName || "";
-                let msg = name ? "Locked by " + name : "Locked "; 
-                if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date);
-                }
+                // let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+                // if (state.lock && state.lock.info) {
+                //     name = state.lock.info.lockOwnerLogin;
+                // }
+                // name =  name || state.originItem.lockedByUser.displayName || "";
+                // let msg = name ? "Locked by " + name : "Locked "; 
+                // if (date) {
+                //     msg += " on " + this.localization.current.formatShortDateTime(date);
+                // }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:

@@ -24,7 +24,7 @@ export class ArtifactManager  implements IArtifactManager {
 
     public static $inject = [
         "messageService",
-        "selectionService"
+        "selectionManager2"
     ];
 
     private artifactList: IStatefulArtifact[];

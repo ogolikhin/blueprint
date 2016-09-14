@@ -7,6 +7,8 @@ import {
 } from "./artifact-manager";
 
 import { IProjectManager } from  "./project-manager";
+import { IMetaData } from  "./artifact-manager";
+
 
 import { IArtifactService } from "../main/services/artifact.svc";
 import { ISession } from "../shell/login/session.svc";
@@ -101,6 +103,7 @@ export interface IIStatefulItem extends IStatefulItem  {
 export interface IStatefulArtifact extends IStatefulItem  {
     subArtifactCollection: ISubArtifactCollection;
     load(): ng.IPromise<IStatefulArtifact>;
+    metadata: IMetaData;
 }
 
 // TODO: explore the possibility of using an internal interface for services

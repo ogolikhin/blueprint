@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -64,7 +65,25 @@ namespace ArtifactStoreTests
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
-        // DeleteArtifact_xxxx_401Unauthorized()
+
+        [TestRail(165823)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create an artifact. Attempt to delete the artifact with a user that does not have authorization " +
+                     "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
+        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Replace the valid AccessControlToken with an invalid token
+            var invalidAccessControlToken = Guid.NewGuid().ToString("N");
+            _user.SetToken(invalidAccessControlToken);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 401 Unauthorized when a user trying to delete an artifact does not have authorization to delete!");
+        }
+
         #endregion 401 Unauthorized tests
 
         #region 403 Forbidden tests
@@ -73,7 +92,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor)]
         [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission " +
                      "to delete. Verify that HTTP 403 Forbidden exception is thrown.")]
-        public void DeleteArtifact_UserDoesNotHavePermissionToDelete_Http403Forbidden(BaseArtifactType artifactType)
+        public void DeleteArtifact_UserDoesNotHavePermissionToDelete_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);

@@ -34,6 +34,8 @@ namespace ArtifactStoreTests
         #region 200 OK Tests
 
         [TestCase(BaseArtifactType.Actor)]
+        [TestRail(165856)]
+        [Description("Create & save a single artifact.  Publish the artifact.  Verify publish is successful and that artifact version is now 1.")]
         public void PublishArtifact_SingleSavedArtifact_ArtifactHasVersion1(BaseArtifactType artifactType)
         {
             // Setup:
@@ -57,5 +59,25 @@ namespace ArtifactStoreTests
         }
 
         #endregion 200 OK Tests
+
+        #region 400 Bad Request tests
+        //public void PublishArtifact_xxxx_400BadRequest()
+        #endregion 400 Bad Request tests
+
+        #region 401 Unauthorized tests
+        //public void PublishArtifact_xxxx_401Unauthorized()
+        #endregion 401 Unauthorized tests
+
+        #region 403 Forbidden tests
+        //public void PublishArtifact_xxxx_403Forbidden()
+        #endregion 403 Forbidden tests
+
+        #region 404 Not Found tests
+        //public void PublishArtifact_xxxx_404NotFound()
+        #endregion 404 Not Found tests
+
+        #region 409 Conflict tests
+        //public void PublishArtifact_xxxx_409Conflict()
+        #endregion 409 Conflict tests
     }
 }

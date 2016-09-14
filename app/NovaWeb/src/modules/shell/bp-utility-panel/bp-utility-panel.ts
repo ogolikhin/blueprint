@@ -102,11 +102,12 @@ export class BPUtilityPanelController {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
             this._currentItemType = item.itemTypeId;
-            let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
-            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                this._currentItemIcon = artifactType.iconImageId;
-            } else {
-                this._currentItemIcon = null;
+            this._currentItemIcon = null;
+            if (!(item as Models.Project)) {
+                let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    this._currentItemIcon = artifactType.iconImageId;
+                }
             }
         } else {
             this._currentItem = null;

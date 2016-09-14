@@ -17,6 +17,7 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         private IUser _userWithNoAccess = null;
+        private IUser _userWithLock = null;
         private IProject _project = null;
 
         [SetUp]
@@ -25,6 +26,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _userWithNoAccess = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens, null);
+            _userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
         }
 
@@ -68,7 +70,7 @@ namespace ArtifactStoreTests
 
         [TestRail(165823)]
         [TestCase(BaseArtifactType.Actor)]
-        [Description("Create an artifact. Attempt to delete the artifact with a user that does not have authorization " +
+        [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have authorization " +
                      "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
         public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
         {
@@ -170,7 +172,24 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
-        // DeleteArtifact_xxxx_409Conflict()
+
+        [TestRail(165824)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create an artifact and publish. Lock artifact. Attempt to delete the artifact with another user that does not have the " +
+                     "lock on the artifact. Verify that HTTP 409 Conflict exception is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _userWithLock, artifactType);
+
+            // Lock artifact to prevent other users from deleting
+            artifact.Lock(_userWithLock);
+
+            // Execute & Verify:
+            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 409 Conflict when a user tries to delete an artifact that another user has locked!");
+        }
+
         #endregion 409 Conflict tests
     }
 }

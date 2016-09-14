@@ -34,7 +34,7 @@ export interface IProjectManager {
 
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
 
-    getArtifactType(artifact: number | IStatefulArtifact): Models.IItemType;    
+    getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
 
     getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[];
 
@@ -96,6 +96,7 @@ export class ProjectManager  implements IProjectManager {
             } else {
                 angular.extend(data, {
                     projectId: data.id,
+                    itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
                     permissions: 4095,
                     predefinedType: Enums.ItemTypePredefined.Project,
@@ -193,7 +194,7 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    this.selectionManager.setArtifact(node.artifact, SelectionSource.Explorer);
+                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
@@ -457,7 +458,7 @@ export class ProjectManager  implements IProjectManager {
     }
 
 
-    public getArtifactType(id: number): Models.IItemType {
+    public getArtifactItemType(id: number): Models.IItemType {
         if (!id) {
             throw new Error("Artifact_NotFound");
         }

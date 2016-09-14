@@ -5,16 +5,15 @@ import {
     IArtifactAttachmentsService,
     IArtifactService,
  } from "../../models";
-
+import {IProjectManager } from "../../project-manager";
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
-
-
     constructor(private $q: ng.IQService,
                 private _session: ISession,
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
-                private _attachmentService: IArtifactAttachmentsService) {
+                private _attachmentService: IArtifactAttachmentsService,
+                private _projectManager: IProjectManager) {
 
     }
 
@@ -36,6 +35,9 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     
     public get attachmentService(): IArtifactAttachmentsService {
         return this._attachmentService;
+    }
+    public get projectManager(): IProjectManager {
+        return this._projectManager;
     }
     
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {

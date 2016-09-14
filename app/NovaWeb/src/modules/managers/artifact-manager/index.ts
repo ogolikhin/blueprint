@@ -1,5 +1,5 @@
 
-import { ArtifactManager } from "./artifact-manager";
+import { IArtifactManager, ArtifactManager, ISelectionManager,  ISelection,  SelectionSource } from "./artifact-manager";
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
 import { IStatefulArtifact, IStatefulSubArtifact } from "../models";
 import {
@@ -19,7 +19,10 @@ angular.module("bp.managers.artifact", [])
 export {
     IStatefulArtifact,
     IStatefulSubArtifact,
-    ArtifactManager,
+    IArtifactManager,
+    ISelectionManager,  
+    ISelection,  
+    SelectionSource,    
     StatefulArtifactFactory,
     ArtifactAttachmentsService,
     IArtifactAttachment,

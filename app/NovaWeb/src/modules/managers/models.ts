@@ -6,9 +6,9 @@ import {
     IArtifactAttachment 
 } from "./artifact-manager";
 
-import {
-    IArtifactService,
-} from "../main/services/artifact.svc";
+import { IProjectManager } from  "./project-manager";
+
+import { IArtifactService } from "../main/services/artifact.svc";
 import { ISession } from "../shell/login/session.svc";
 
 export { 
@@ -119,13 +119,6 @@ export interface ISubArtifactCollection {
     remove(id: number): IStatefulSubArtifact;
 }
 
-export interface IArtifactManager {
-    list(): IStatefulArtifact[];
-    add(artifact: IStatefulArtifact);
-    get(id: number): IStatefulArtifact;
-    remove(id: number): IStatefulArtifact;
-}
-
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
@@ -133,6 +126,7 @@ export interface IStatefulArtifactServices {
     session: ISession;
     artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
+    projectManager: IProjectManager;
 }
 
 export interface IArtifactNode {

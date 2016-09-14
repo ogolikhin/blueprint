@@ -2,6 +2,7 @@ import { IMessageService } from "../../../core";
 import { Models } from "../../../main/models";
 import { StatefulArtifactServices } from "../services";
 import { StatefulArtifact } from "./artifact";
+import { IProjectManager } from "../../project-manager";
 import {
     IStatefulArtifact, 
     ISession, 
@@ -22,7 +23,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "session",
         "messageService",
         "artifactService",
-        "artifactAttachments"
+        "artifactAttachments",
+        "projectManager"
     ];
 
     private services: IStatefulArtifactServices;
@@ -32,7 +34,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private session: ISession,
         private messageService: IMessageService,
         private artifactService: IArtifactService,
-        private attachmentService: IArtifactAttachmentsService
+        private attachmentService: IArtifactAttachmentsService,
+        private projectManager: IProjectManager
         ) {
 
         this.services = new StatefulArtifactServices( 
@@ -40,7 +43,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.session,
             this.messageService,
             this.artifactService,
-            this.attachmentService);
+            this.attachmentService,
+            this.projectManager);
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {

@@ -4,6 +4,7 @@ import { ArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection } from "../sub-artifact";
+import { IMetaData, MetaData } from "../metadata";
 import {
     ChangeTypeEnum,
     IChangeCollector,
@@ -27,15 +28,18 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public customProperties: IArtifactProperties;
     public spercilProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
+    public metaData: IMetaData;
+    
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
+
 
     constructor(artifact: Models.IArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
         this.services = services;
-
+        this.metaData = new MetaData(this);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);

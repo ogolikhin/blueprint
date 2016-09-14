@@ -1,8 +1,7 @@
 import { IMessageService } from "../../core/";
-// import { Models } from "../../main/models";
-// import { StatefulArtifactServices } from "./services";
+import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager/selection-manager";
+
 import {
-    IArtifactManager, 
     IStatefulArtifact, 
     // ISession, 
     // IStatefulArtifactServices, 
@@ -10,21 +9,35 @@ import {
     // IArtifactService
  } from "../models";
 
+export { ISelectionManager, ISelection,  SelectionSource }
+
+export interface IArtifactManager {
+    list(): IStatefulArtifact[];
+    add(artifact: IStatefulArtifact);
+    get(id: number): IStatefulArtifact;
+    remove(id: number): IStatefulArtifact;
+    messages: IMessageService;
+    selection: ISelectionManager;
+}
 
 export class ArtifactManager  implements IArtifactManager {
 
     public static $inject = [
         "messageService",
+        "selectionService"
     ];
 
     private artifactList: IStatefulArtifact[];
 
-    constructor(private messageService: IMessageService) {
+    constructor(private messageService: IMessageService, private selectionService: ISelectionManager) {
         this.artifactList = [];
     }
 
     public get messages(): IMessageService {
         return this.messageService;
+    }
+    public get selection(): ISelectionManager {
+        return this.selectionService;
     }
 
     public list(): IStatefulArtifact[] {

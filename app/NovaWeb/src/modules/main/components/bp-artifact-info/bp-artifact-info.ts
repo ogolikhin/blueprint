@@ -1,11 +1,16 @@
 ﻿import { Models, Enums } from "../../models";
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
+import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { IArtifactService } from "../../services";
 import { ICommunicationManager } from "../../../editors/bp-process";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
+
+import { IArtifactManager } from "../../../managers";
+import { IStatefulArtifact } from "../../../managers/models";
+
+
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -16,7 +21,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["$scope","projectManager", "localization", "stateManager", "messageService",
+    static $inject: [string] = ["$scope", "artifactManager", "localization", "messageService",
         "dialogService", "$element", "windowManager", "artifactService", "communicationManager", "loadingOverlayService"];
     private _subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
@@ -33,9 +38,8 @@ export class BpArtifactInfoController {
 
     constructor(
         public $scope: ng.IScope,
-        private projectManager: IProjectManager,
+        private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
-        private stateManager: IStateManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private $element: ng.IAugmentedJQuery,
@@ -50,7 +54,8 @@ export class BpArtifactInfoController {
     public $onInit() {
         this._subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.stateManager.stateChange.subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
+            // this.stateManager.stateChange.subscribeOnNext(this.onStateChange, this),
         ];
     }
 
@@ -75,6 +80,63 @@ export class BpArtifactInfoController {
             this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
         }
+    }
+
+    private updateProperties(artifact: IStatefulArtifact) {
+        this.artifactName = artifact.name || "";
+        this._artifactId = artifact.id;
+        artifact.meta.get().then({
+            this.artifactType 
+        })
+        if (state.itemType) {
+            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
+        } else {
+            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
+        }
+
+        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
+
+        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
+
+        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+
+        this.isReadonly = artifact.artifactState.readonly;
+        this.isChanged = artifact.artifactState.dirty;
+        switch (artifact.artifactState.locked) {
+            case Enums.LockedByEnum.CurrentUser:
+                this.selfLocked = true;
+                break;
+            case Enums.LockedByEnum.OtherUser:
+                let name = "";
+                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+                if (state.lock && state.lock.info) {
+                    name = state.lock.info.lockOwnerLogin;
+                }
+                name =  name || state.originItem.lockedByUser.displayName || "";
+                let msg = name ? "Locked by " + name : "Locked "; 
+                if (date) {
+                    msg += " on " + this.localization.current.formatShortDateTime(date);
+                }
+                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+                break;
+            default:
+                break;
+
+        }
+        
+    }
+
+    private onSelectArtifact = (artifact: IStatefulArtifact) => {
+        // so, just need to do an extra check if the component has created
+        this.initProperties();
+        
     }
 
     private onStateChange(state: ItemState) {
@@ -183,56 +245,56 @@ export class BpArtifactInfoController {
     }
 
     //TODO: move the save logic to a more appropriate place
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            let state: ItemState = this.stateManager.getState(this._artifactId);
-            let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
-            this.artifactService.updateArtifact(artifactDelta)
-                .then((artifact: Models.IArtifact) => {
-                        let oldArtifact = state.getArtifact();
-                        if (artifact.version) {
-                            state.updateArtifactVersion(artifact.version);
-                        }
-                        if (artifact.lastSavedOn) {
-                            state.updateArtifactSavedTime(artifact.lastSavedOn);
-                        }
-                        this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
-                        state.finishSave();
-                        this.isChanged = false;
-                        this.projectManager.updateArtifactName(state.getArtifact());
-                    }, (error) => {
-                        let message: string;
-                        if (error) {
-                            if (error.statusCode === 400) {
-                                if (error.errorCode === 114) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_114");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                                }
-                            } else if (error.statusCode === 404) {
-                                message = this.localization.get("App_Save_Artifact_Error_404");
-                            } else if (error.statusCode === 409) {
-                                if (error.errorCode === 116) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_116");
-                                } else if (error.errorCode === 117) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_117");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_409");
-                                }
+    // public saveChanges() {
+    //     let overlayId: number = this.loadingOverlayService.beginLoading();
+    //     try {
+    //         let state: ItemState = this.stateManager.getState(this._artifactId);
+    //         let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
+    //         this.artifactService.updateArtifact(artifactDelta)
+    //             .then((artifact: Models.IArtifact) => {
+    //                     let oldArtifact = state.getArtifact();
+    //                     if (artifact.version) {
+    //                         state.updateArtifactVersion(artifact.version);
+    //                     }
+    //                     if (artifact.lastSavedOn) {
+    //                         state.updateArtifactSavedTime(artifact.lastSavedOn);
+    //                     }
+    //                     this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
+    //                     state.finishSave();
+    //                     this.isChanged = false;
+    //                     this.projectManager.updateArtifactName(state.getArtifact());
+    //                 }, (error) => {
+    //                     let message: string;
+    //                     if (error) {
+    //                         if (error.statusCode === 400) {
+    //                             if (error.errorCode === 114) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_114");
+    //                             } else {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
+    //                             }
+    //                         } else if (error.statusCode === 404) {
+    //                             message = this.localization.get("App_Save_Artifact_Error_404");
+    //                         } else if (error.statusCode === 409) {
+    //                             if (error.errorCode === 116) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_116");
+    //                             } else if (error.errorCode === 117) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_117");
+    //                             } else {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409");
+    //                             }
 
-                            } else {
-                                message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                            }
-                        }
-                        this.messageService.addError(message);
-                    }
-                ).finally(() => this.loadingOverlayService.endLoading(overlayId));
-        } catch (Error) {
-            this.messageService.addError(this.localization.get(Error));
-            this.loadingOverlayService.endLoading(overlayId);
-        }
-    }
+    //                         } else {
+    //                             message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
+    //                         }
+    //                     }
+    //                     this.messageService.addError(message);
+    //                 }
+    //             ).finally(() => this.loadingOverlayService.endLoading(overlayId));
+    //     } catch (Error) {
+    //         this.messageService.addError(this.localization.get(Error));
+    //         this.loadingOverlayService.endLoading(overlayId);
+    //     }
+    // }
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{

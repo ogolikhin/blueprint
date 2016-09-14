@@ -1,11 +1,9 @@
 ﻿import { Models} from "../../models";
-//import { IProjectManager} from "../../services";
-import { IProjectManager} from "../../../managers";
-
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-import { ISelectionManager, SelectionSource } from "../../../managers/selection-manager";
+
+import { IProjectManager} from "../../../managers";
+import { IArtifactManager, SelectionSource } from "../../../managers/artifact-manager";
 import { IStatefulArtifact } from "../../../managers/models";
-import { StatefulArtifact } from "../../../managers/artifact-manager/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -17,10 +15,10 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     private _selectedArtifactId: number;
     private _subscribers: Rx.IDisposable[]; 
-    public static $inject: [string] = ["projectManager", "selectionManager2"];
+    public static $inject: [string] = ["projectManager", "artifactManager"];
     constructor(
         private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager) { }
+        private artifactManager: IArtifactManager) { }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -29,7 +27,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -110,7 +108,7 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.selectionManager.setArtifact(this.doSync(node), SelectionSource.Explorer);
+        this.artifactManager.selection.setArtifact(this.doSync(node), SelectionSource.Explorer);
     };
 
     public doSync = (node: ITreeNode): IStatefulArtifact => {

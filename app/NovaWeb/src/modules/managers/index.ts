@@ -8,6 +8,6 @@ angular.module("bp.managers", [
     "bp.managers.project"
 ]);
 
-export { IArtifactManager } from  "./models";
+export { IArtifactManager } from  "./artifact-manager";
 export { IProjectManager } from  "./project-manager";
-export { ISelectionManager, ISelection,  SelectionSource } from  "./selection-manager";
+//export { ISelectionManager, ISelection,  SelectionSource } from  "./selection-manager";

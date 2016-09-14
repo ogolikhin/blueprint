@@ -135,8 +135,6 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
-
-      
     }
 
     public $onInit = () => {
@@ -171,9 +169,11 @@ export class BPTreeController implements IBPTreeController  {
 
     public $onDestroy = () => {
         this.selectedRow = null;
-        this.reload(null);
+        this.bpRef = null;
+        //this.reload(null);
         this.updateViewport(null, true);
 
+        this.options.api.destroy();
     };
 
     /* tslint:disable */
@@ -354,8 +354,6 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
-    public that = this;
-
     private rowGroupOpened = (params: any) => {
         console.log("rowGroupOpened");
         let self = this;
@@ -394,26 +392,24 @@ export class BPTreeController implements IBPTreeController  {
         if (!node) {
             return;
         }
-        var self = this;
 
         node.setSelected(true, true);
 
-        if (angular.isFunction(self.onSelect)) {
-            self.onSelect({ item: node.data });
+        if (angular.isFunction(this.onSelect)) {
+            this.onSelect({ item: node.data });
         }
     };
 
     private cellFocused = (params: any) => {
-        var self = this;
-        var model = self.options.api.getModel();
+        var model = this.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
-        self.rowSelected(selectedRow);
+        this.rowSelected(selectedRow);
     };
     
     private rowClicked = (params: any) => {
-        var self = this;
+        let self = this;
 
-        self.clickTimeout = self.$timeout(function () {
+        this.clickTimeout = this.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }

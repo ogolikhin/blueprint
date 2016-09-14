@@ -50,13 +50,17 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private dialogData: IArtifactPickerFilter
     ) {
         super($uibModalInstance, dialogSettings);
-        dialogService.dialogSettings.okButton = "OK";
+        dialogService.dialogSettings.okButton = localization.get("App_Button_Ok");
         let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
         this.updateCurrentProjectInfo(project);       
+
         $scope.$on("$destroy", () => {
             this.columns[0].cellClass = null;
-            this.columns[0].cellRendererParams = null;
+            this.columns[0].cellRendererParams.innerRenderer = null;
             this.columns = null;
+
+            this.tree = null;
+
             this.doSelect = null;
             this.doSync = null;
             this.doLoad = null;
@@ -166,7 +170,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }];
 
     public doLoad = (prms: any): any[] => {
-        let self = this;
         if (!this.projectView) {
             let artifactId = null;
             if (prms) {
@@ -178,7 +181,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     filtered.forEach((value: Models.IArtifact) => {
                         value.parent = prms || this.project;
                     });                   
-                    self.tree.reload(filtered, artifactId);
+                    this.reloadTree(filtered, artifactId);
                 }, (error) => {
                 });
             return null;
@@ -187,11 +190,17 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
             this.projectRepository.getFolders(id)
                 .then((nodes: Models.IProjectNode[]) => {                  
-                    self.tree.reload(nodes, id);
+                    this.reloadTree(nodes, id);
                 }, (error) => {
                 });
 
             return null;
+        }
+    };
+
+    private reloadTree = (data?: any[], nodeId?: number) => {
+        if (this.tree) {
+            this.tree.reload(data, nodeId);
         }
     };
 
@@ -204,16 +213,16 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
-        let self = this;
         if (!this.projectView) {
+            let self = this;
             this.$scope.$applyAsync((s) => {
                 self.setSelectedItem(item);
             });
         } else {
             if (item && item.type === Models.ProjectNodeType.Project) {
                 this.projectId = item.id;
-                self.tree.reload(null);
-                self.tree.showLoading();
+                this.reloadTree(null);
+                this.tree.showLoading();
                 this.projectRepository.getProject(this.projectId).then(
                     (project: Models.IProject) => {
                         this.updateCurrentProjectInfo(project);
@@ -221,7 +230,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);
                                 this.projectView = false;
-                                self.tree.reload(filtered);
+                                this.reloadTree(filtered);
                             }, (error) => {
 
                             });
@@ -231,11 +240,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
-    private filterCollections(node: Models.IItem) {
-        if (node.predefinedType !== Models.ItemTypePredefined.CollectionFolder) {
-            return true;
-        }
-    }
+    private filterCollections = (node: Models.IItem) => {
+        return node.predefinedType !== Models.ItemTypePredefined.CollectionFolder;
+    };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         if (!this.projectView) {
@@ -245,7 +252,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     loaded: node.loaded,
                     open: node.open
                 });
-            };
+            }
             return artifact;
         }
     };

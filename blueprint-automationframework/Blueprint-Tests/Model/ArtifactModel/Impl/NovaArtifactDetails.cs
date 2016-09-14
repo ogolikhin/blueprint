@@ -207,19 +207,55 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public int Id { get; set; }
-        public int ItemTypeId { get; set; }
-        public string Name { get; set; }
-        public int ParentId { get; set; }
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
         public NovaArtifactDetails.Identification CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public string Description { get; set; }
+        public int Id { get; set; }
+        public int ItemTypeId { get; set; }
         public NovaArtifactDetails.Identification LastEditedBy { get; set; }
         public DateTime? LastEditedOn { get; set; }
+        public string Name { get; set; }
+        public double OrderIndex { get; set; }
+        public int ParentId { get; set; }
         public int PredefinedType { get; set; }
         public string Prefix { get; set; }
+        public int ProjectId { get; set; }
+        public int Version { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public class NovaProject : INovaProject
+    {
+        #region Serialized JSON Properties
+
+        public string Description { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    /// <summary>
+    /// This class is returned by Nova Publish.
+    /// </summary>
+    public class NovaPublishResponse : INovaPublishResponse
+    {
+        #region Serialized JSON Properties
+
+        /// <summary>
+        /// The artifacts that were published.
+        /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
+        public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
+
+        /// <summary>
+        /// The projects where the published artifacts exist.
+        /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaProject, NovaProject>))]
+        public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
         #endregion Serialized JSON Properties
     }

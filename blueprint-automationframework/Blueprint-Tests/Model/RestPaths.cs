@@ -132,6 +132,11 @@ namespace Model
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string STATUS                          = "svc/artifactstore/status";
 
+                public static class Artifacts
+                {
+                    public const string PUBLISH = "svc/bpartifactstore/artifacts/publish";                  // XXX: For some reason they decided to put this call in blueprint-current!
+                }
+
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";

@@ -74,6 +74,7 @@
     <Compile Include="ExpandedArtifactTreeTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />
     <Compile Include="ProjectTests.cs" />
+    <Compile Include="PublishArtifactTests.cs" />
     <Compile Include="RelationshipsTests.cs" />
     <Compile Include="SaveArtifactTests.cs" />
     <Compile Include="StatusTests.cs" />

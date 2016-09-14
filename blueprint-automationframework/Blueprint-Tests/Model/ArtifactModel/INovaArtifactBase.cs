@@ -71,8 +71,30 @@ namespace Model.ArtifactModel
         string Description { get; set; }
         Identification LastEditedBy { get; set; }
         DateTime? LastEditedOn { get; set; }
+        double OrderIndex { get; set; }
         int PredefinedType { get; set; }
         string Prefix { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public interface INovaProject
+    {
+        #region Serialized JSON Properties
+
+        string Description { get; set; }
+        int Id { get; set; }
+        string Name { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public interface INovaPublishResponse
+    {
+        #region Serialized JSON Properties
+
+        List<INovaArtifactResponse> Artifacts { get; }
+        List<INovaProject> Projects { get; }
 
         #endregion Serialized JSON Properties
     }

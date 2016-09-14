@@ -7,7 +7,8 @@
     IStateManager,
     IWindowManager,
     Models,
-    Enums
+    Enums,
+    Message
 } from "./bp-artifact-editor";
 import { IArtifactService } from "../../main/services";
 
@@ -89,9 +90,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
             delete context.artifact.lockedByUser;
             delete context.artifact.lockedDateTime;
-            context.artifact = angular.extend({}, context.artifact, it);
-            this.stateManager.addChange(context.artifact);
+
+//            context.artifact = angular.extend({}, context.artifact, it);
+            let state = this.stateManager.addChange(angular.extend({}, context.artifact, it));
+            context.artifact = state.originItem;
             this.onUpdate(context);
+            if (state.moved) {
+                this.messageService.addMessage(new Message(1, "Artifact_Lock_DoesNotExist"));
+            }
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

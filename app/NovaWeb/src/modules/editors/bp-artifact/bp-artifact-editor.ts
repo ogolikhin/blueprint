@@ -132,9 +132,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     private onLockChanged(state: ItemState) {
         let lock = state.lock;
         if (lock.result === Enums.LockResultEnum.Success) {
-            if (lock.info.versionId !== state.originItem.version) {
-                this.onLoad(this.context);
-            }
+            this.onLoad(this.context);
         } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             if (lock.info.versionId !== state.originItem.version) {
                 this.onLoad(this.context);

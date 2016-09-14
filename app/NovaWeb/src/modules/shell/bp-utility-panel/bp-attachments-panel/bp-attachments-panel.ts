@@ -121,21 +121,18 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
-                // TODO: add state manager handling
-
                 if (uploadList) {
-                    uploadList.map((uploadedFile: any) => {
-
-                        // TODO: implement adding attachments to artifact/subArtifact
-                        // this.artifactAttachmentsList.attachments.push({
-                        //     userId: this.session.currentUser.id,
-                        //     userName: this.session.currentUser.displayName,
-                        //     fileName: uploadedFile.name,
-                        //     attachmentId: null,
-                        //     guid: uploadedFile.guid,
-                        //     uploadedDate: null
-                        // });
+                    const newAttachments = uploadList.map((uploadedFile: any) => {
+                        return <IArtifactAttachment>{
+                            userId: this.session.currentUser.id,
+                            userName: this.session.currentUser.displayName,
+                            fileName: uploadedFile.name,
+                            attachmentId: null,
+                            guid: uploadedFile.guid,
+                            uploadedDate: null
+                        };
                     });
+                    this.attachmentsList = this.item.attachments.add(newAttachments);
                 }
             }).finally(() => {
                 if (callback) {
@@ -155,8 +152,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             this.isLoading = true;
             this.item.attachments.get(true).then((attachments: IArtifactAttachment[]) => {
                 this.attachmentsList = attachments;
-            }, (error) => {
-                this.attachmentsList = [];
             }).finally(() => {
                 this.isLoading = false;
             });

@@ -96,9 +96,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
         return this.attachments;
     }
 
+    // TODO: implement discard
     public discard() {
-        // TODO: implement discard.
-
         // this.changeset.reset().forEach((it: IChangeSet) => {
         //     this.get(it.key as number).value = it.value;
         // });

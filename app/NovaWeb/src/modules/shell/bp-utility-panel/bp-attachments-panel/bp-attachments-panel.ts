@@ -81,14 +81,16 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             if (artifact) {
-                // this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
-                //     artifactName: artifact.name,
-                //     artifactId: artifact.id,
-                //     userId: this.session.currentUser.id,
-                //     userName: this.session.currentUser.displayName,
-                //     itemTypePrefix: artifact.prefix,
-                //     referencedDate: new Date().toISOString()
-                // });
+                const newDoc = <IArtifactDocRef>{
+                    artifactName: artifact.name,
+                    artifactId: artifact.id,
+                    userId: this.session.currentUser.id,
+                    userName: this.session.currentUser.displayName,
+                    itemTypePrefix: artifact.prefix,
+                    referencedDate: new Date().toISOString()
+                };
+
+                this.docRefList = this.item.docRefs.add([newDoc]);
             }
         });
     }

@@ -318,9 +318,10 @@ bp-process-type-toggle {
             height: 25px;
             margin: 0;
             cursor: pointer;
+            position: relative;
 
             i {
-                position: relative;
+                position: absolute;
                 top: 14px;
                 left: 12px;
                 color: $blue-light;

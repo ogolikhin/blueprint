@@ -1,6 +1,7 @@
 import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
-import { ArtifactAttachments } from "../attachments";
+import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
+import { IDocumentRefs, DocumentRefs } from "../";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection } from "../sub-artifact";
@@ -13,7 +14,6 @@ import {
     ISubArtifactCollection,
     IArtifactStates,
     IArtifactProperties,
-    IArtifactAttachments,
     IState,
     IStatefulArtifactServices,
     IIStatefulArtifact,
@@ -25,14 +25,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private artifact: Models.IArtifact;
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
+    public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
-    public spercilProperties: IArtifactProperties;
+    public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
     public metadata: IMetaData;
     
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
-
 
     constructor(artifact: Models.IArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
@@ -42,6 +42,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.metadata = new MetaData(this);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
+        this.docRefs = new DocumentRefs(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
 
         this.artifactState.observable
@@ -215,11 +216,12 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         return this.services.attachmentService.getArtifactAttachments(this.id, null, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
-
-                // initialize attachments
+                // load attachments
                 this.attachments.initialize(result.attachments);
 
-                // TODO: initialize doc refs here 
+                // load docRefs
+                this.docRefs.initialize(result.documentReferences);
+
                 return result;
             });
     }

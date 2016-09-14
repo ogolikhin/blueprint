@@ -35,6 +35,7 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     public initialize(docrefs: IArtifactDocRef[]) {
+        this.isLoaded = true;
         this.docrefs = docrefs;
         this.subject.onNext(this.docrefs);
     }

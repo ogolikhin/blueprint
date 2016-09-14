@@ -1,14 +1,16 @@
 import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
+// import { IProjectManager } from  "./project-manager";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
-    IArtifactAttachment,
-    IMetaDataService
+    // IArtifactAttachment,
+    IDocumentRefs,
+    IMetaDataService,
+    IArtifactAttachments,
+    IMetaData
 } from "./artifact-manager";
 
-import { IProjectManager } from  "./project-manager";
-import { IMetaData } from  "./artifact-manager";
 
 
 import { IArtifactService } from "../main/services/artifact.svc";
@@ -56,16 +58,6 @@ export interface IChangeCollector {
 
 }
 
-export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
-    initialize(attachments: IArtifactAttachment[]);
-    observable: Rx.IObservable<IArtifactAttachment[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
-    add(attachments: IArtifactAttachment[]);
-    remove(attachments: IArtifactAttachment[]);
-    update(attachments: IArtifactAttachment[]);
-    discard();
-}
-
 export interface IArtifactProperties {
     initialize(artifact: Models.IArtifact): IArtifactProperties; 
     observable: Rx.Observable<Models.IPropertyValue>;
@@ -90,7 +82,7 @@ export interface IStatefulItem extends Models.IArtifact  {
     artifactState: IArtifactStates;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
-    // docRefs: any;
+    docRefs: IDocumentRefs;
     // relationships: any;
     discard(): ng.IPromise<IStatefulArtifact>;
     lock(): ng.IPromise<IState>;

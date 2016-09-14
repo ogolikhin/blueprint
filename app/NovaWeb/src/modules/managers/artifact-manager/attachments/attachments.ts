@@ -2,14 +2,24 @@ import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./";
 // import { Models, Enums } from "../../../main/models";
 import { ChangeSetCollector } from "../changeset";
 import { 
+    IBlock,
     ChangeTypeEnum, 
     IChangeCollector, 
     IChangeSet,
     IIStatefulItem,
     IIStatefulArtifact,
-    IIStatefulSubArtifact,
-    IArtifactAttachments
+    IIStatefulSubArtifact
 } from "../../models";
+
+export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
+    initialize(attachments: IArtifactAttachment[]);
+    observable: Rx.IObservable<IArtifactAttachment[]>;
+    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
+    add(attachments: IArtifactAttachment[]);
+    remove(attachments: IArtifactAttachment[]);
+    update(attachments: IArtifactAttachment[]);
+    discard();
+}
 
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
@@ -26,6 +36,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public initialize(attachments: IArtifactAttachment[]) {
+        this.isLoaded = true;
         this.attachments = attachments;
         this.subject.onNext(this.attachments);
     }

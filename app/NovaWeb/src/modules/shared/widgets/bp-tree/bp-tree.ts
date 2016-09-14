@@ -74,7 +74,9 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
-   
+    showLoading();
+    showNoRows();
+    hideOverlays();
 }
 
 
@@ -159,8 +161,8 @@ export class BPTreeController implements IBPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
-            onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,
+            onViewportChanged: this.updateViewport,
+            onModelUpdated: this.updateViewport,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
 
         };
@@ -170,7 +172,7 @@ export class BPTreeController implements IBPTreeController  {
     public $onDestroy = () => {
         this.selectedRow = null;
         this.reload(null);
-        this.perfectScrollbars(null, true);
+        this.updateViewport(null, true);
 
     };
 
@@ -255,9 +257,24 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
-    private perfectScrollbars = (params?: any, remove?: boolean) => {
-        let viewport = this.$element[0].querySelector(".ag-body-viewport");
+    public showLoading = () => {
+        this.options.api.showLoadingOverlay();
+    };
 
+    public showNoRows = () => {
+        this.options.api.showNoRowsOverlay();
+    };
+
+    public hideOverlays = () => {
+        this.options.api.hideOverlay();
+    };
+
+    private updateViewport = (params?: any, remove?: boolean) => {
+        if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
+            this.hideOverlays();
+        }
+
+        let viewport = this.$element[0].querySelector(".ag-body-viewport");
         if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
             if (remove) {
                 (<any>window).PerfectScrollbar.destroy(viewport);

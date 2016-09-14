@@ -78,8 +78,8 @@ export class DialogService implements IDialogService {
     public alert(message: string, header?: string) {
         this.initialize({
             type: DialogTypeEnum.Alert,
-            header: header || this.localization.get("App_DialogTitle_Alert"),
-            message : message,
+            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Alert"),
+            message: this.localization.get(message) || message,
             cancelButton: null,
         });
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
@@ -90,9 +90,9 @@ export class DialogService implements IDialogService {
     public confirm(message: string, header?: string, css?: string) {
         this.initialize({
             type: DialogTypeEnum.Confirm,
-            header: header || this.localization.get("App_DialogTitle_Confirmation"),
+            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Confirmation"),
             css: css,
-            message: message
+            message: this.localization.get(message) || message
         } as IDialogSettings);
         return this.openInternal().result;
     }
@@ -127,7 +127,7 @@ export class BaseDialogController implements IDialogController {
     };
 
     public cancel() {
-        this.$instance.close(false);
+        this.$instance.dismiss("cancel");
     };
 }
 

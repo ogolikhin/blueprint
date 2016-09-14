@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/processModels";
+﻿import {IProcessShape} from "../../../../../models/process-models";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";

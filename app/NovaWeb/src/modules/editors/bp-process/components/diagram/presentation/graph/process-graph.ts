@@ -50,7 +50,7 @@ export class ProcessGraph implements IProcessGraph {
         return 10;
     }
 
-    public get IsUserSystemProcess() {
+    public get isUserSystemProcess(): boolean {
         return this.viewModel.isUserToSystemProcess;
     }
 
@@ -415,14 +415,9 @@ export class ProcessGraph implements IProcessGraph {
                 currentState: null,
                 previousStyle: null,
                 mouseDown: function (sender, me) {
-                    if (this.currentState === null) {
-                        var tmp = sender.view.getState(me.getCell());
-                        this.currentState = tmp;
-                        if (this.currentState != null) {
-                            this.onMouseLeave(sender, me.getEvent(), this.currentState);
-                            this.onMouseDown(sender, me.getEvent(), this.currentState);
-                        }
-                    } else {
+                    let cell = graph.getCellAt(me.graphX, me.graphY);
+                    this.currentState = sender.view.getState(cell);;
+                    if (this.currentState != null) {
                         this.onMouseLeave(sender, me.getEvent(), this.currentState);
                         this.onMouseDown(sender, me.getEvent(), this.currentState);
                     }

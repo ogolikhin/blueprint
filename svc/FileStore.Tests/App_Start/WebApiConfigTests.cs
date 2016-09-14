@@ -22,7 +22,8 @@ namespace FileStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(7, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(8, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertAction<FilesController>("MakePermanent", HttpMethod.Put, "files/makepermanent/id");
             config.AssertAction<FilesController>("GetFileHead", HttpMethod.Head, "files/1");
             config.AssertAction<FilesController>("GetFileContent", HttpMethod.Get, "files/1");
             config.AssertAction<FilesController>("PostFile", HttpMethod.Post, "files");

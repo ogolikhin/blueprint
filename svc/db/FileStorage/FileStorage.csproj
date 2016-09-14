@@ -48,6 +48,7 @@
     <Content Include="Functions\ValidateExpiryTime.sql" />
     <Content Include="Jobs\Blueprint_FileStorage_Maintenance.sql" />
     <Content Include="Migration\7.3.0.0\ModifyAutogrowth.sql" />
+    <Content Include="Migration\7.4.0.0\RemoveDboAssociations.sql" />
     <Content Include="Procedures.sql">
       <DependentUpon>Procedures.tt</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -93,8 +94,11 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.4.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Procedures\MakeFilePermanent.sql" />
     <Content Include="Scripts\CompatibilityLevel.sql" />
+    <Content Include="Scripts\CreateSchemas.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
+    <Content Include="Scripts\MigrateSchema.sql" />
     <Content Include="Tables\MigrationLog.sql" />
   </ItemGroup>
   <ItemGroup>

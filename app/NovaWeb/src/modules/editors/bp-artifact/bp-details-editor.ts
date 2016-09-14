@@ -7,10 +7,10 @@
     IStateManager,
     IWindowManager,
     Models,
-    Enums,
-    Message
+    Enums
 } from "./bp-artifact-editor";
 import { IArtifactService } from "../../main/services";
+import { IDialogService } from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -24,7 +24,7 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService"];
+        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
 
     constructor(
         messageService: IMessageService,
@@ -32,7 +32,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         windowManager: IWindowManager,
         localization: ILocalizationService,
         projectManager: IProjectManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private dialogService: IDialogService
     ) {
         super(messageService, stateManager, windowManager, localization, projectManager);
     }
@@ -57,11 +58,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.context.type.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
-        }
-        else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
-        }
-        else {
+        } else {
             return this.context.type.name + this.localization.get("Nova_Properties", " Properties");
         }
     }
@@ -100,7 +99,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             context.artifact = state.originItem;
             this.onUpdate(context);
             if (state.moved) {
-                this.messageService.addMessage(new Message(1, "Artifact_Lock_DoesNotExist"));
+                this.dialogService.alert("Artifact_Lock_DoesNotExist");
             }
         }).catch((error: any) => {
             //ignore authentication errors here

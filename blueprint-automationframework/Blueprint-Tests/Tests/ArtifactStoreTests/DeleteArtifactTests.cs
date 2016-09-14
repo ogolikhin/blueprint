@@ -64,7 +64,39 @@ namespace ArtifactStoreTests
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
-        // DeleteArtifact_xxxx_401Unauthorized()
+
+        [TestRail(165823)]
+        [TestCase(BaseArtifactType.Actor, "4f2cfd40d8994b8b812534b51711100d")]
+        [TestCase(BaseArtifactType.Actor, "BADTOKEN")]
+        [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have authorization " +
+                     "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
+        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType, string invalidAccessControlToken)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Replace the valid AccessControlToken with an invalid token
+            _user.SetToken(invalidAccessControlToken);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 401 Unauthorized when a user trying to delete an artifact does not have authorization to delete!");
+        }
+
+        [TestRail(165843)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create an artifact and publish. Attempt to delete the artifact with a missing token header. " +
+                     "Verify that HTTP 401 Unauthorized exception is thrown.")]
+        public void DeleteArtifact_MissingTokenHeader_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, null),
+                "We should get a 401 Unauthorized when the token header is missing when trying to delete!");
+        }
+
         #endregion 401 Unauthorized tests
 
         #region 403 Forbidden tests
@@ -73,7 +105,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor)]
         [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission " +
                      "to delete. Verify that HTTP 403 Forbidden exception is thrown.")]
-        public void DeleteArtifact_UserDoesNotHavePermissionToDelete_Http403Forbidden(BaseArtifactType artifactType)
+        public void DeleteArtifact_UserDoesNotHavePermissionToDelete_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -151,7 +183,27 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
-        // DeleteArtifact_xxxx_409Conflict()
+
+        [TestRail(165824)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create an artifact and publish. Lock artifact. Attempt to delete the artifact with another user that does not have the " +
+                     "lock on the artifact. Verify that HTTP 409 Conflict exception is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IUser userWithLock = null;
+            userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, userWithLock, artifactType);
+
+            // Lock artifact to prevent other users from deleting
+            artifact.Lock(userWithLock);
+
+            // Execute & Verify:
+            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 409 Conflict when a user tries to delete an artifact that another user has locked!");
+        }
+
         #endregion 409 Conflict tests
     }
 }

@@ -79,7 +79,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             var otherTopLevelArtifacts = new List<IArtifact>();
@@ -119,7 +119,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -157,7 +157,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -187,7 +187,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = CreateSavedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -415,7 +415,7 @@ namespace ArtifactStoreTests
             // Setup:
             IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
             BaseArtifactType[] artifactTypeChain = new BaseArtifactType[] { BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process };
-            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             IArtifact artifact = artifactChain.Last();
             artifact.Delete();
@@ -480,7 +480,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = CreatePublishedArtifactChain(artifactTypeChain);
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
             var otherTopLevelArtifacts = new List<IArtifact>();
@@ -529,46 +529,6 @@ namespace ArtifactStoreTests
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
-        }
-
-        /// <summary>
-        /// Creates a chain of saved parent/child artifacts of the given artifact types.
-        /// </summary>
-        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
-        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        private List<IArtifact> CreateSavedArtifactChain(BaseArtifactType[] artifactTypeChain)
-        {
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
-
-            return artifactChain;
-        }
-
-        /// <summary>
-        /// Creates a chain of published parent/child artifacts of the given artifact types.
-        /// </summary>
-        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
-        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        private List<IArtifact> CreatePublishedArtifactChain(BaseArtifactType[] artifactTypeChain)
-        {
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
-
-            // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
-            {
-                bottomArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent: bottomArtifact);
-                artifactChain.Add(bottomArtifact);
-            }
-
-            return artifactChain;
         }
 
         /// <summary>

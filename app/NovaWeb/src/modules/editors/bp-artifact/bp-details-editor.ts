@@ -57,7 +57,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.context.type.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
-        } else {
+        }
+        else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
+        }
+        else {
             return this.context.type.name + this.localization.get("Nova_Properties", " Properties");
         }
     }

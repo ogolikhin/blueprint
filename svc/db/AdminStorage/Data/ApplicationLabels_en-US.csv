@@ -230,6 +230,7 @@ Property_Suffix_Or_Later," or later."
 Property_Suffix_Or_Earlier," or earlier."
 Property_Suffix_Or_Greater," or greater."
 Property_Suffix_Or_Less," or less."
+Property_Actor_Section_Name,"Actor Properties"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"

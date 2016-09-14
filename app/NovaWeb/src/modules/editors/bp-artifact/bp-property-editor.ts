@@ -106,11 +106,13 @@ export class PropertyEditor {
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
+                    let isModelSet: boolean = false;
 
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
                         if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName] || null;
+                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName];
+                            isModelSet = true;
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
                                 artifact.readOnlyReuseSettings &&
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
@@ -128,7 +130,8 @@ export class PropertyEditor {
                             return value.propertyTypeId === propertyContext.modelPropertyName as number;
                         })[0];
                         if (custompropertyvalue) {
-                            modelValue = custompropertyvalue.value || null;
+                            modelValue = custompropertyvalue.value;
+                            isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
@@ -141,12 +144,17 @@ export class PropertyEditor {
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
                             } else {
-                                modelValue = specificpropertyvalue.value || null;
+                                if (specificpropertyvalue.value == null && specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
+                                    modelValue = { fileName: null, fileExtension: null };
+                                } else {
+                                    modelValue = specificpropertyvalue.value;
+                                }
                             }
+                            isModelSet = true;
                             propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
-                    if (angular.isDefined(modelValue)) {
+                    if (isModelSet) {
                         let field = this.createPropertyField(propertyContext);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
@@ -283,7 +291,11 @@ export class PropertyEditor {
 
         }
         if (field.templateOptions.disabled) {
-            field.type = "bpFieldReadOnly";
+            field.templateOptions["isReadOnly"] = true;
+            if (field.type !== "bpFieldImage" &&
+                field.type !== "bpFieldInheritFrom") {
+                field.type = "bpFieldReadOnly";
+            }
         }
         return field;
     }

@@ -31,7 +31,6 @@ export class ProcessGraph implements IProcessGraph {
     //public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;    
     private isIe11: boolean;
-    private shapesFactory: ShapesFactory;
     private selectionListeners: Array<ISelectionListener> = [];
     private unsubscribeToolbarEvents = [];
     private executionEnvironmentDetector: any;
@@ -50,7 +49,7 @@ export class ProcessGraph implements IProcessGraph {
         return 10;
     }
 
-    public get IsUserSystemProcess() {
+    public get isUserSystemProcess(): boolean {
         return this.viewModel.isUserToSystemProcess;
     }
 
@@ -65,7 +64,8 @@ export class ProcessGraph implements IProcessGraph {
         private dialogService: IDialogService,
         private localization: ILocalizationService,
         public messageService: IMessageService = null,
-        private $log: ng.ILogService = null) {
+        private $log: ng.ILogService = null,
+        private shapesFactory: ShapesFactory = null) {
 
         // Creates the graph inside the given container
          
@@ -75,7 +75,10 @@ export class ProcessGraph implements IProcessGraph {
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
          
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.shapesFactory = new ShapesFactory(this.rootScope);
+
+        if (!shapesFactory) {
+            this.shapesFactory = new ShapesFactory(this.rootScope);
+        }
         
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);        
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
@@ -476,14 +479,9 @@ export class ProcessGraph implements IProcessGraph {
                 currentState: null,
                 previousStyle: null,
                 mouseDown: function (sender, me) {
-                    if (this.currentState === null) {
-                        var tmp = sender.view.getState(me.getCell());
-                        this.currentState = tmp;
-                        if (this.currentState != null) {
-                            this.onMouseLeave(sender, me.getEvent(), this.currentState);
-                            this.onMouseDown(sender, me.getEvent(), this.currentState);
-                        }
-                    } else {
+                    let cell = graph.getCellAt(me.graphX, me.graphY);
+                    this.currentState = sender.view.getState(cell);;
+                    if (this.currentState != null) {
                         this.onMouseLeave(sender, me.getEvent(), this.currentState);
                         this.onMouseDown(sender, me.getEvent(), this.currentState);
                     }

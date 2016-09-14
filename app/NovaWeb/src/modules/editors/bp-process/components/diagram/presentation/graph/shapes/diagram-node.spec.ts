@@ -3,7 +3,7 @@ import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessGraph} from "../process-graph";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapesFactory} from "./shapes-factory";
-import {ProcessModel, ProcessShapeModel, IPropertyValueInformation, IHashMapOfPropertyValues} from "../../../../../models/processModels";
+import {ProcessModel, ProcessShapeModel, IPropertyValueInformation, IHashMapOfPropertyValues} from "../../../../../models/process-models";
 import {ProcessType} from "../../../../../models/enums";
 import {DiagramNode} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";

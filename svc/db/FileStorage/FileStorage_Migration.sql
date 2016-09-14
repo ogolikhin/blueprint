@@ -301,11 +301,8 @@ GO
 /******************************************************************************************************************************
 Name:			GetStatus
 
-Description: 
+Description:    Returns the version of the database.
 			
-Change History:
-Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
@@ -315,7 +312,7 @@ GO
 CREATE PROCEDURE [dbo].[GetStatus]
 AS
 BEGIN
-       SELECT TOP 1 COUNT(*) FROM [dbo].[Files];       
+       SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;       
 END
 
 GO
@@ -1097,6 +1094,38 @@ BEGIN
 	FROM [dbo].[FileChunks]
 	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
+END
+
+GO
+/******************************************************************************************************************************
+Name:			[MakeFilePermanent]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2016/09/13		Alexander Utkin		    Initial
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MakeFilePermanent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MakeFilePermanent]
+GO
+
+CREATE PROCEDURE [dbo].[MakeFilePermanent]
+( 
+    @FileId uniqueidentifier
+)
+AS
+BEGIN
+
+	UPDATE 
+		[dbo].[Files]
+    SET
+		[ExpiredTime] = NULL
+	WHERE 
+		[FileId] = @FileId;
+
+	SELECT @@ROWCOUNT
 END
 
 GO

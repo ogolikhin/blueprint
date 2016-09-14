@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/processModels";
+﻿import {IProcessShape} from "../../../../../models/process-models";
 import {IProcessGraph} from "../models/";
 import {IUserTaskChildElement, IUserTask} from "../models/";
 import {NodeType} from "../models/";

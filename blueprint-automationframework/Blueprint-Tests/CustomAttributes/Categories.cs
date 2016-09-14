@@ -22,6 +22,12 @@ namespace CustomAttributes
         public const string ConcurrentTest = "ConcurrentTest";
 
         public const string ConfigControl = "ConfigControl";
+
+        /// <summary>
+        /// This tests runs with predefined data project "Custom Data".
+        /// </summary>
+        public const string CustomData = "CustomData";
+
         public const string FileStore = "FileStore";
 
         /// <summary>

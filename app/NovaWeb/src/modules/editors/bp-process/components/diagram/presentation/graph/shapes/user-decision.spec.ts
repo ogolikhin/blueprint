@@ -3,7 +3,7 @@ import {ProcessGraph} from "../process-graph";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
 import {IProcessService} from "../../../../../services/process/process.svc";
-import * as ProcessModels from "../../../../../models/processModels";
+import * as ProcessModels from "../../../../../models/process-models";
 import {UserDecision} from "./";
 import {NodeChange} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 

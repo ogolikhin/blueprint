@@ -111,6 +111,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                     onChange: this.onValueChange.bind(this)
                 });
 
+                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
                 if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
                     if (field.key !== "documentFile"  &&
                         field.type !== "bpFieldImage" &&
@@ -131,11 +132,14 @@ export class BpArtifactEditor extends BpBaseEditor {
     private onLockChanged(state: ItemState) {
         let lock = state.lock;
         if (lock.result === Enums.LockResultEnum.Success) {
+            this.onLoad(this.context);
+        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             if (lock.info.versionId !== state.originItem.version) {
                 this.onLoad(this.context);
+            } else {
+                this.onUpdate(this.context);
             }
-        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.onUpdate(this.context);
+
         } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
         } else {

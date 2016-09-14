@@ -43,7 +43,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
         function stopEditing() {
             var editSpan = containerCell.querySelector(".ag-group-inline-edit") as HTMLElement;
-            var valueSpan = containerCell.querySelector(".ag-group-value") as HTMLElement;
+            var valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
             if (self.editing && editSpan && valueSpan) {
                 var input = editSpan.querySelector("input") as HTMLInputElement;
                 input.removeEventListener("blur", stopEditing);
@@ -52,10 +52,10 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 var newValue = input.value.trim();
                 // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                 if (newValue !== "" && newValue.charCodeAt(0) > 32) {
-                    valueSpan.querySelector("span").textContent = newValue;
+                    valueSpan.textContent = newValue;
                     self.selectedNode.data.name = newValue;
                 } else {
-                    valueSpan.querySelector("span").textContent = currentValue;
+                    valueSpan.textContent = currentValue;
                 }
                 var parentSpan = editSpan.parentElement;
                 parentSpan.removeChild(editSpan);
@@ -73,7 +73,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
         function inlineEdit() {
             self.selectedNode = Controller.options.api.getSelectedNodes()[0];
-            var valueSpan = containerCell.querySelector(".ag-group-value") as HTMLElement;
+            var valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
             containerRow = Helper.findAncestorByCssClass(span, "ag-row");
             gridBody = Helper.findAncestorByCssClass(span, "ag-body");
             if (!self.editing && valueSpan) {
@@ -90,7 +90,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 editSpan.appendChild(input);
 
                 valueSpan.style.display = "none";
-                containerCell.firstChild.insertBefore(editSpan, valueSpan);
+                valueSpan.parentElement.insertBefore(editSpan, valueSpan);
 
                 input.addEventListener("blur", stopEditing);
                 input.addEventListener("keydown", inputEventHandler);

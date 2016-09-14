@@ -954,6 +954,17 @@ export function formlyConfig(
                 }
             },
             validators: {
+                minDateSQL: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let minDate = scope["minDateSQL"];
+
+                        if (date && minDate) {
+                            return date.getTime() >= minDate.getTime();
+                        }
+                        return true;
+                    }
+                },
                 minDate: {
                     expression: function($viewValue, $modelValue, scope) {
                         if (!(<any> scope.options).data.isValidated) {
@@ -1010,6 +1021,9 @@ export function formlyConfig(
                     $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
                 }
             }
+            // see http://stackoverflow.com/questions/3310569/what-is-the-significance-of-1-1-1753-in-sql-server
+            $scope.minDateSQL = localization.current.toDate("1753-01-01", true);
+            $scope.to["minDateSQL"] = localization.current.formatDate($scope.minDateSQL, localization.current.shortDateFormat);
 
             $scope.bpFieldDatepicker = {
                 opened: false,
@@ -1146,6 +1160,7 @@ export function formlyConfig(
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("minDateSQL", "minDateSQL", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small for SQL");
     formlyValidationMessages.addTemplateOptionValueMessage("requiredCustom", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     formlyValidationMessages.addTemplateOptionValueMessage("required", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     /* tslint:enable */

@@ -571,6 +571,19 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
         });
 
+        it("should fail if the date is less than 1753-01-01 (SQL starting date), even if validation is not required", function () {
+            compileAndSetupStuff({model: {datepickerNotVal: "1752-10-10"}});
+
+            let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[1];
+            let fieldScope = angular.element(fieldNode).isolateScope();
+
+            expect((<any>fieldScope).fc.$valid).toBeFalsy();
+            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+            expect((<any>fieldScope).fc.$error.maxDate).toBeUndefined();
+            expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
+            expect((<any>fieldScope).fc.$error.minDateSQL).toBeTruthy();
+        });
+
         it("should fail if the date is empty", function () {
             compileAndSetupStuff({model: {datepicker: ""}});
 

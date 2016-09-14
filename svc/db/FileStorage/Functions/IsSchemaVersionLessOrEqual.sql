@@ -7,11 +7,11 @@ Change History:
 Date			Name					Change
 
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-DROP FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[IsSchemaVersionLessOrEqual]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [FileStore].[IsSchemaVersionLessOrEqual]
 GO
 
-CREATE FUNCTION [dbo].[IsSchemaVersionLessOrEqual]
+CREATE FUNCTION [FileStore].[IsSchemaVersionLessOrEqual]
 (
 	@value AS nvarchar(max)
 )
@@ -31,7 +31,7 @@ BEGIN
 END;
 
 DECLARE @schemaVersion AS nvarchar(max);
-SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
+SELECT TOP(1) @schemaVersion = [SchemaVersion] FROM [FileStore].[DbVersionInfo] WHERE ([SchemaVersion] IS NOT NULL);
 DECLARE @schemaVersion1 AS int = CAST(PARSENAME(@schemaVersion, 1) AS int);
 DECLARE @schemaVersion2 AS int = CAST(PARSENAME(@schemaVersion, 2) AS int);
 DECLARE @schemaVersion3 AS int = CAST(PARSENAME(@schemaVersion, 3) AS int);

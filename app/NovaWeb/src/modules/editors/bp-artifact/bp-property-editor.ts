@@ -139,6 +139,7 @@ export class PropertyEditor {
                         let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
+                        isModelSet = true;
                         if (specificpropertyvalue) {
                             if (artifactOrSubArtifact.predefinedType === Enums.ItemTypePredefined.Step &&
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
@@ -149,8 +150,7 @@ export class PropertyEditor {
                                 } else {
                                     modelValue = specificpropertyvalue.value;
                                 }
-                            }
-                            isModelSet = true;
+                            }                            
                             propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }

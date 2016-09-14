@@ -8,9 +8,8 @@ export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
     private eventSubscriber: Rx.IDisposable = null;
-  
-    public insertionPoint: MxCell = null;
-    
+    private insertionPoint: MxCell;
+     
     constructor(
         private layout: ILayout,
         private shapesFactoryService: ShapesFactory,
@@ -37,51 +36,55 @@ export class NodePopupMenu {
     // hook the mxPopupMenu popup() function 
    
     private installPopupMenuHandlers() {
-        const defined = o => o ? true : false; 
-        let nodePopupInstance = this;
-
-        this.mxgraph.popupMenuHandler["isPopupTrigger"] = this.isPopupTrigger;
-        this.mxgraph.popupMenuHandler["popup"] = function (x, y, cell, evt) {
-            nodePopupInstance.unsubscribeHidePopupEvents(); 
-            if (defined(nodePopupInstance.insertionPoint)) { 
-                window["mxPopupMenu"].prototype.popup.apply(this, arguments);
-                // ==> calls the factoryMethod and returns here
-
-                // hide the popup if events are detected elsewhere in the UI
-                nodePopupInstance.subscribeHidePopupEvents();
-            }
-        };
-        
-        this.mxgraph.popupMenuHandler.factoryMethod = (menu, cell, evt) => {
-            
-            // Do not open menu for non image elements
-            if (evt.srcElement && evt.srcElement.nodeName !== "image") {
-                return;
-            }
-            this.menu = menu;
-            this.createPopupMenu(this.mxgraph, menu, cell, evt);
-        };
+        this.mxgraph.popupMenuHandler["isPopupTrigger"] = mxUtils.bind(this, this.isPopupTrigger);
+        this.mxgraph.popupMenuHandler["popup"] = this.handlePopup;
+        this.mxgraph.popupMenuHandler.factoryMethod = mxUtils.bind(this, this.popupFactoryMethod);
     }
    
-    private isPopupTrigger = (me) => {
-        
+    private handlePopup(x, y, cell, evt) {
+        // 'this' is mxPopupMenuHandler 
+
+        window["mxPopupMenu"].prototype.popup.apply(this, arguments);
+
+        // ==> calls the factoryMethod and returns here
+    }
+
+    private popupFactoryMethod (menu, cell, evt) {
+        // 'this' is NodePopupMenu 
+
+        this.unsubscribeHidePopupEvents(); 
+     
+        // Do not open menu for non image elements
+        if (evt.srcElement && evt.srcElement.nodeName !== "image") {
+            return;
+        }
+
+        this.menu = menu;
+        this.createPopupMenu(this.mxgraph, menu, cell, evt);
+
+        // hide the popup if events are detected elsewhere in the UI
+        this.subscribeHidePopupEvents();
+    }
+
+    private isPopupTrigger(me) {
+      
         // this handler determines whether to show the popup menu in 
         // response to a left mouse button click
         
-        // Note:  me param is the mxMouseEvent 
-       
-        var isPopupTrigger = false;
-        this.insertionPoint = null;
+        // 'me' param is the mxMouseEvent 
+        // 'this' is NodePopupMenu 
 
+        var isPopupTrigger = false;
+     
         if (mxEvent.isRightMouseButton(me.evt)) {
             isPopupTrigger = false;
         } else if (mxEvent.isLeftMouseButton(me.evt)) {
             if (me.sourceState && me.sourceState.cell &&
                 me.evt["InsertNodeIcon"] === true) {
                 
-                 // if the source of the trigger is an insert node icon then 
-                 // show the popup menu
-                 
+                // if the source of the trigger has been marked as an 
+                // insertion point in ProcessCellRenderer then show
+                // the popup menu
                 this.insertionPoint = me.sourceState.cell;
                 isPopupTrigger = true;
 
@@ -94,8 +97,8 @@ export class NodePopupMenu {
         return isPopupTrigger;
 
     };
-
-    public createPopupMenu = (graph, menu, cell, evt) => {
+    
+    public createPopupMenu(graph, menu, cell, evt) {
 
         // apply business rules for showing the popup menu options
        

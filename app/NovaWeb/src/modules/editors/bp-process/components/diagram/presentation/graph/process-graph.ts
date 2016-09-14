@@ -2,7 +2,7 @@
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";
-import {ISelectionListener, INextIdsProvider} from "./models/";
+import {INextIdsProvider} from "./models/";
 import {IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement} from "./models/";
 import {IProcessShape, IProcessLink} from "./models/";
@@ -103,7 +103,7 @@ export class ProcessGraph implements IProcessGraph {
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
          
-        this.addMouseEventListener(this.mxgraph);
+       //this.addMouseEventListener(this.mxgraph);
         
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);
@@ -416,7 +416,7 @@ export class ProcessGraph implements IProcessGraph {
                 previousStyle: null,
                 mouseDown: function (sender, me) {
                     let cell = graph.getCellAt(me.graphX, me.graphY);
-                    this.currentState = sender.view.getState(cell);;
+                    this.currentState = sender.view.getState(cell);
                     if (this.currentState != null) {
                         this.onMouseLeave(sender, me.getEvent(), this.currentState);
                         this.onMouseDown(sender, me.getEvent(), this.currentState);

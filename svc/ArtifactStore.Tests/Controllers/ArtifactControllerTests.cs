@@ -25,8 +25,9 @@ namespace ArtifactStore.Controllers
             var children = new List<Artifact>();
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId)).ReturnsAsync(children);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -50,8 +51,9 @@ namespace ArtifactStore.Controllers
             var children = new List<Artifact>();
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId)).ReturnsAsync(children);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -75,8 +77,9 @@ namespace ArtifactStore.Controllers
             var rootChildren = new List<Artifact>();
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId)).ReturnsAsync(rootChildren);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -99,8 +102,9 @@ namespace ArtifactStore.Controllers
             const int projectId = 10;
             const int artifactId = 0;
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };

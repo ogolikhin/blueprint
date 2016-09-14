@@ -109,7 +109,6 @@ describe("State Manager:", () => {
             projectId: 1,
             customPropertyValues: [
                 {
-                    name: '',
                     propertyTypeId: 1,
                     propertyTypePredefined: 300,
                     propertyTypeVersionId: 1,
@@ -143,7 +142,6 @@ describe("State Manager:", () => {
             projectId: 1,
             customPropertyValues: [
                 {
-                    name: '',
                     propertyTypeId: 1,
                     propertyTypePredefined: 300,
                     propertyTypeVersionId: 1,
@@ -175,14 +173,12 @@ describe("State Manager:", () => {
             projectId: 1,
             customPropertyValues: [
                 {
-                    name: '',
                     propertyTypeId: 1,
                     propertyTypePredefined: 300,
                     propertyTypeVersionId: 1,
                     value: undefined
                 },
                 {
-                    name: '',
                     propertyTypeId: 2,
                     propertyTypePredefined: 301,
                     propertyTypeVersionId: 1,

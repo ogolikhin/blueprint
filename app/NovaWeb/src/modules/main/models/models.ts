@@ -134,7 +134,6 @@ export interface IPropertyType {
     disabled?: boolean;
 }
 export interface IPropertyValue {
-    name: string;
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;

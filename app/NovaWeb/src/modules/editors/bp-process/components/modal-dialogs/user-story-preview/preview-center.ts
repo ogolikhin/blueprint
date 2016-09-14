@@ -2,7 +2,7 @@
 import {IArtifactProperty, IProcess, IProcessShape} from "../../../models/process-models";
 import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
-import {IArtifactService} from "../../../../../main/services/";
+import {IArtifactService, IProjectManager} from "../../../../../main/services/";
 
 import {Models} from "../../../../../main";
 
@@ -29,6 +29,7 @@ export class PreviewCenterController {
         "$scope",
         "$rootScope",
         "artifactService",
+        "projectManager",
         "$sce"
     ];
 
@@ -97,6 +98,7 @@ export class PreviewCenterController {
         private $scope: ng.IScope,
         private $rootScope: ng.IRootScopeService,
         private artifactService: IArtifactService,
+        private projectManager: IProjectManager,
         private $sce: ng.ISCEService) {
 
         this.isReadonly = $scope.$parent["vm"].isReadonly;
@@ -119,17 +121,18 @@ export class PreviewCenterController {
 
             this.artifactService.getArtifact(userStoryId).then((it: Models.IArtifact) => {
                 it.customPropertyValues.forEach((property) => {
-                    if (property.name === "ST-Title") {
+                    let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
+                    if (propertyType.name === "ST-Title") {
                         this.title = this.$sce.trustAsHtml(property.value);
-                    } else if (property.name === "ST-Acceptance Criteria") {
+                    } else if (propertyType.name === "ST-Acceptance Criteria") {
                         this.acceptanceCriteria = this.$sce.trustAsHtml(property.value);
-                    } else if (property.name === "ST-Business Rules") {
+                    } else if (propertyType.name === "ST-Business Rules") {
                         this.centerTask.userStoryProperties.businessRules = property.value;
-                    } else if (property.name === "ST-Non-Functional Requirements") {
+                    } else if (propertyType.name === "ST-Non-Functional Requirements") {
                         this.centerTask.userStoryProperties.nfr = property.value;
                     }
                 });
-            })
+            });
             //Only request for revision Id when is +ve number
             //if (this.processModelService &&
             //    this.processModelService.processModel &&

@@ -36,28 +36,24 @@ export class ArtifactServiceMock implements IArtifactService {
         var result: Models.IPropertyValue[] = [];
         let id: number = Math.floor(Math.random() * 100);
         result.push({
-            name: '',
             propertyTypeId: id,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
             value: "Creator"
         });       
         result.push({
-            name: '',
             propertyTypeId: id + 1,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             value: new Date()
         });       
         result.push({
-            name: '',
             propertyTypeId: id + 2,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             value: "Editor"
         });       
         result.push({
-            name: '',
             propertyTypeId: id + 3,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
@@ -81,7 +77,6 @@ export class ArtifactServiceMock implements IArtifactService {
         var result: Models.IPropertyValue[] = [];
         for (var i = 0; i < (count || 0); i++) {
             result.push({
-                name: '',
                 propertyTypeId: id + i,
                 propertyTypeVersionId: id * 10,
                 propertyTypePredefined: id / 5,

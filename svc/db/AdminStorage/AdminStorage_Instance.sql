@@ -1202,6 +1202,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Nonf
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Businessrules_Tab_Label', 'en-US', N'Business Rules')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Title_Label', 'en-US', N'User Story Title')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Publish_User_Story', 'en-US', N'Publish User Story')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions', 'en-US', N'#mention artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')

@@ -304,6 +304,7 @@ ST_User_Story_Nonfunctionals_Tab_Label, "Nonfunctionals"
 ST_User_Story_Businessrules_Tab_Label, "Business Rules"
 ST_User_Story_Title_Label, "User Story Title"
 ST_Publish_User_Story, "Publish User Story"
+ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"

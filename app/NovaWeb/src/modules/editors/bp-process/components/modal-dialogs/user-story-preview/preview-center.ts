@@ -28,7 +28,8 @@ export class PreviewCenterController {
         "$window",
         "$scope",
         "$rootScope",
-        "artifactService"
+        "artifactService",
+        "$sce"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -67,7 +68,7 @@ export class PreviewCenterController {
 
     public strIsNotEmpty = (value: string): boolean => {
         //todo: Settings of tinymce should be changed
-        if (value && $(value).text().trim().replace("\u200B", "").length > 0) {
+        if (value && value.trim().replace("\u200B", "").length > 0) {
             return true;
         }
         return false;
@@ -95,7 +96,8 @@ export class PreviewCenterController {
         private $window: ng.IWindowService,
         private $scope: ng.IScope,
         private $rootScope: ng.IRootScopeService,
-        private artifactService: IArtifactService) {
+        private artifactService: IArtifactService,
+        private $sce: ng.ISCEService) {
 
         this.isReadonly = $scope.$parent["vm"].isReadonly;
 
@@ -118,9 +120,9 @@ export class PreviewCenterController {
             this.artifactService.getArtifact(userStoryId).then((it: Models.IArtifact) => {
                 it.customPropertyValues.forEach((property) => {
                     if (property.name === "ST-Title") {
-                        this.title = property.value;
+                        this.title = this.$sce.trustAsHtml(property.value);
                     } else if (property.name === "ST-Acceptance Criteria") {
-                        this.acceptanceCriteria = property.value;
+                        this.acceptanceCriteria = this.$sce.trustAsHtml(property.value);
                     } else if (property.name === "ST-Business Rules") {
                         this.centerTask.userStoryProperties.businessRules = property.value;
                     } else if (property.name === "ST-Non-Functional Requirements") {

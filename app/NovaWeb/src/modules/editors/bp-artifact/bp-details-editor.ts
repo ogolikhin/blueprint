@@ -1,4 +1,6 @@
-﻿import {
+﻿import { Models, Enums } from "../../main";
+
+import {
     BpArtifactEditor,
     ILocalizationService, 
     IProjectManager, 
@@ -7,9 +9,8 @@
     IMessageService,  
     IWindowManager, 
     PropertyContext, 
-    Models, 
-    Enums 
 } from "./bp-artifact-editor";
+
 import { IArtifactService } from "../../main/services";
 import { IDialogService } from "../../shared";
 
@@ -63,7 +64,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
-        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+        } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else {
             return this.artifact.name + this.localization.get("Nova_Properties", " Properties");
@@ -95,9 +96,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             // context.artifact = angular.extend({}, context.artifact, it);
             // this.stateManager.addChange(context.artifact);
             this.onUpdate();
-            if (state.moved) {
-                this.dialogService.alert("Artifact_Lock_DoesNotExist");
-            }
+            // if (state.moved) {
+            //     this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            //}
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

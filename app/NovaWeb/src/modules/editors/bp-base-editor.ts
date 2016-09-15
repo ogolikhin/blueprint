@@ -1,7 +1,7 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
 import { IStatefulArtifact } from "../managers/models";
-import { Models, Enums } from "../main";
+import { Models, Enums } from "../main/models";
 
 export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
 
@@ -30,16 +30,16 @@ export class BpBaseEditor {
     }
 
     public $onChanges(obj: any) {
-        try {
+        // try {
             
             this.artifact = this.artifactManager.selection.getArtifact();
 
             if (this.onLoading()) {
                 this.onLoad();
             }
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-        }
+        // } catch (ex) {
+        //     this.messageService.addError(ex.message);
+        // }
     }
 
     public $onDestroy() {

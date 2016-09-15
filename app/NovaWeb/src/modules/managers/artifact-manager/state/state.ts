@@ -41,7 +41,7 @@ export class ArtifactState implements IArtifactStates {
     }    
 
 
-    public get locked(): Enums.LockedByEnum {
+    public get lockedBy(): Enums.LockedByEnum {
         if (this.state.lock) {
                 switch (this.state.lock.result) {
                     case Enums.LockResultEnum.Success:
@@ -66,7 +66,7 @@ export class ArtifactState implements IArtifactStates {
 
     public get readonly(): boolean {
         return this.state.readonly ||
-               this.locked === Enums.LockedByEnum.OtherUser ||
+               this.lockedBy === Enums.LockedByEnum.OtherUser ||
                (this.statefullArtifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
     

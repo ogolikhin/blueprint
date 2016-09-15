@@ -1,9 +1,9 @@
 ﻿import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 
-import { IProjectManager} from "../../../managers";
-import { IArtifactManager, SelectionSource } from "../../../managers/artifact-manager";
-import { IStatefulArtifact } from "../../../managers/models";
+import { IProjectManager, IArtifactManager} from "../../../managers";
+import { SelectionSource } from "../../../managers/artifact-manager";
+import { IStatefulArtifact, IArtifactNode } from "../../../managers/models";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -75,8 +75,7 @@ export class ProjectExplorerController {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
                 let name = Helper.escapeHTMLText(params.data.name);
-
-                let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
+                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemType();
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifactType.id}"

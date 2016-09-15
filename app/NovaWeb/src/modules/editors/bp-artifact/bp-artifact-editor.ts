@@ -1,13 +1,12 @@
 import { ILocalizationService, Message, IPropertyChangeSet } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
-
+//import { Models, Enums } from "../../main";
 import { 
+    Models, Enums, 
     IArtifactManager, 
     IProjectManager, 
     IStatefulArtifact, 
     IMessageService,
-    Models, 
-    Enums, 
     BpBaseEditor 
 } from "../bp-base-editor";
 
@@ -64,7 +63,8 @@ export class BpArtifactEditor extends BpBaseEditor {
             this.model = {};
             super.$onChanges(obj); 
         } catch (ex) {
-            this.messageService.addError(ex.message);
+            this.messageService.addError(ex);
+            throw ex;
         }
     }
 
@@ -91,48 +91,44 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
     public onUpdate() {
-        try {
-            super.onUpdate();
-            if ( !this.editor) {
-                return;
-            }
-            this.clearFields();
-
-            // let artifact: Models.IArtifact;
-            // this.artifactState = this.stateManager.getState(context.artifact.id);
-
-            // if (this.artifactState) {
-            //     artifact = this.artifactState.getArtifact();
-            // } else {
-            //     throw Error("Artifact_Not_Found");
-            // }
-            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(this.artifact.id).map((it: Models.IPropertyType) => {
-                return new PropertyContext(it);
-            });
-
-
-            this.model = this.editor.load(this.artifact, undefined);
-
-            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                //add property change handler to each field
-                angular.extend(field.templateOptions, {
-                    onChange: this.onValueChange.bind(this)
-                });
-
-                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    if (field.key !== "documentFile"  &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {  
-                        field.type = "bpFieldReadOnly";                     
-                    }
-                }
-                this.onFieldUpdate(field);
-
-            });
-        } catch (ex) {
-            this.messageService.addError(ex);
+        super.onUpdate();
+        if ( !this.editor) {
+            return;
         }
+        this.clearFields();
+
+        // let artifact: Models.IArtifact;
+        // this.artifactState = this.stateManager.getState(context.artifact.id);
+
+        // if (this.artifactState) {
+        //     artifact = this.artifactState.getArtifact();
+        // } else {
+        //     throw Error("Artifact_Not_Found");
+        // }
+        this.editor.propertyContexts = this.artifact.metadata.getArtifactPropertyTypes(this.artifact.id).map((it: Models.IPropertyType) => {
+            return new PropertyContext(it);
+        });
+
+
+        this.model = this.editor.load(this.artifact, undefined);
+
+        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+            //add property change handler to each field
+            angular.extend(field.templateOptions, {
+                onChange: this.onValueChange.bind(this)
+            });
+
+            field.templateOptions["isReadOnly"] = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+            if (this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
+                if (field.key !== "documentFile"  &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {  
+                    field.type = "bpFieldReadOnly";                     
+                }
+            }
+            this.onFieldUpdate(field);
+
+        });
 
         this.setArtifactEditorLabelsWidth();
     }
@@ -170,17 +166,18 @@ export class BpArtifactEditor extends BpBaseEditor {
                     id: context.modelPropertyName,
                     value: value
                 };
-                let state = this.stateManager.addChange(this.context.artifact, changeSet);
+//                this.artifact.setValue()
+                // let state = this.stateManager.addChange(this.context.artifact, changeSet);
 
-                if ($scope["form"]) {
-                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
-                }
+                // if ($scope["form"]) {
+                //     state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                // }
 
-                this.stateManager.lockArtifact(state).catch((error: any) => {
-                    if (error) {
-                        this.messageService.addError(error);
-                    }
-                });
+                // this.stateManager.lockArtifact(state).catch((error: any) => {
+                //     if (error) {
+                //         this.messageService.addError(error);
+                //     }
+                // });
             } catch (err) {
                 this.messageService.addError(err);
             }

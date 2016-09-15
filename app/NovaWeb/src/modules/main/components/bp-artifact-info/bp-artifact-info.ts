@@ -112,7 +112,7 @@ export class BpArtifactInfoController {
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
-        switch (artifact.artifactState.locked) {
+        switch (artifact.artifactState.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;

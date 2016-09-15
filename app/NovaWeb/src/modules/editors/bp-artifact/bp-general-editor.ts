@@ -1,4 +1,5 @@
 ﻿import {
+    Models, Enums, 
     BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
@@ -6,8 +7,6 @@
     IMessageService,
     IArtifactManager,
     IWindowManager,
-    Models,
-    Enums
 } from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {

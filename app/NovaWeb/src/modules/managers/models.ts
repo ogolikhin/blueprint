@@ -70,7 +70,7 @@ export interface IArtifactStates {
     initialize(artifact: Models.IArtifact): IArtifactStates; 
     get(): IState;
     set(value: any): void;
-    locked: Enums.LockedByEnum;
+    lockedBy: Enums.LockedByEnum;
     readonly: boolean;
     dirty: boolean;
     published: boolean;

@@ -35,46 +35,52 @@ export class MetaDataService implements IMetaDataService {
     }
 
     private load(projectId?: number): ng.IPromise<ProjectMetaData> {
-        var defer = this.$q.defer<ProjectMetaData>();
+        let deferred = this.$q.defer<ProjectMetaData>();
+        let metadata = this.get(projectId);
+        if (metadata) {
+            deferred.resolve(metadata);
+        } else {
+            let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
 
-        let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
-
-        this.$http.get<Models.IProjectMeta>(url).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
-                if (angular.isArray(result.data.artifactTypes)) {
+            this.$http.get<Models.IProjectMeta>(url).then(
+                (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
+                    if (angular.isArray(result.data.artifactTypes)) {
+                        //add specific types 
+                        result.data.artifactTypes.unshift(
+                            <Models.IItemType>{
+                                id: -1,
+                                name: this.localization.get("Label_Project"),
+                                predefinedType: Models.ItemTypePredefined.Project,
+                                customPropertyTypeIds: []
+                            },
+                            <Models.IItemType>{
+                                id: -2,
+                                name: this.localization.get("Label_Collections"),
+                                predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                                customPropertyTypeIds: []
+                            }
+                        );
+                    }
                     
-                    //add specific types 
-                    result.data.artifactTypes.unshift(
-                        <Models.IItemType>{
-                            id: -1,
-                            name: this.localization.get("Label_Project"),
-                            predefinedType: Models.ItemTypePredefined.Project,
-                            customPropertyTypeIds: []
-                        },
-                        <Models.IItemType>{
-                            id: -2,
-                            name: this.localization.get("Label_Collections"),
-                            predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                            customPropertyTypeIds: []
-                        }
-                    );
+                    deferred.resolve(new ProjectMetaData(projectId, result.data));
+                },
+                (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                    if (!errResult) {
+                        deferred.reject();
+                        return;
+                    }
+                    var error = {
+                        statusCode: errResult.status,
+                        message: "Project_NotFound"
+                    };
+                    deferred.reject(error);
                 }
                 
-                defer.resolve(new ProjectMetaData(projectId, result.data));
-            },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                var error = {
-                    statusCode: errResult.status,
-                    message: "Project_NotFound"
-                };
-                defer.reject(error);
-            }
-        );
-        return defer.promise;
+            );
+
+        }
+
+        return deferred.promise;
     }
 
     public get(projectId: number): ProjectMetaData {
@@ -102,7 +108,7 @@ export class MetaDataService implements IMetaDataService {
     
 
     public getArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType {
-        let itemType: Models.IItemType;
+        let itemType = {} as  Models.IItemType;
         let metadata = this.get(projectId);
         if (metadata) {
             itemType = metadata.data.artifactTypes.filter((it: Models.IItemType) => {

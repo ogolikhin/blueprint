@@ -203,6 +203,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Diagram_OldFormat_Message', 'en-US', N'This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Details_FieldNameError', 'en-US', N'The field name isn''t specified')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Today', 'en-US', N'Today')

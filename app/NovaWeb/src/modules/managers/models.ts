@@ -1,7 +1,6 @@
 import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
 // import { IProjectManager } from  "./project-manager";
-import { IArtifactHistoryService, IArtifactHistoryVersion, IArtifactHistory } from  "./artifact-manager/history";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
@@ -21,8 +20,7 @@ export {
     ISession,
     IArtifactService,
     IArtifactAttachmentsResultSet, 
-    IArtifactAttachmentsService,
-    IArtifactHistoryService
+    IArtifactAttachmentsService 
 };
 
 export interface IBlock<T> {
@@ -81,6 +79,7 @@ export interface IArtifactStates {
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
 export interface IStatefulItem extends Models.IArtifact  {
+    artifactState: IArtifactStates;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     docRefs: IDocumentRefs;
@@ -95,16 +94,13 @@ export interface IIStatefulItem extends IStatefulItem  {
 }
 
 export interface IStatefulArtifact extends IStatefulItem  {
-    artifactState: IArtifactStates;
-    history: IArtifactHistory;
     subArtifactCollection: ISubArtifactCollection;
     load(): ng.IPromise<IStatefulArtifact>;
     metadata: IMetaData;
 }
 
+// TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
-    getArtifactHistory(artifactId: number, limit?: number, offset?: number, 
-        userId?: string, asc?: boolean, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -126,7 +122,6 @@ export interface IStatefulArtifactServices {
     session: ISession;
     artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
-    historyService: IArtifactHistoryService;
     metaDataService: IMetaDataService;
 }
 

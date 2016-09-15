@@ -1,7 +1,6 @@
 import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
-import { IArtifactHistory, ArtifactHistory, IArtifactHistoryVersion } from "../history";
 import { IDocumentRefs, DocumentRefs } from "../";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
@@ -27,7 +26,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactStates;
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
-    public history: IArtifactHistory;
     public customProperties: IArtifactProperties;
     public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
@@ -45,7 +43,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
-        this.history = new ArtifactHistory(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
 
         this.artifactState.observable
@@ -227,13 +224,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
                 return result;
             });
-    }
-
-    public getArtifactHistory(artifactId: number, limit: number = 10, offset: number = 0, 
-        userId: string = null, asc: boolean = false, 
-        timeout: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
-
-        return this.services.historyService.getArtifactHistory(artifactId, limit, offset, userId, asc, timeout);
     }
 
     public getServices(): IStatefulArtifactServices {

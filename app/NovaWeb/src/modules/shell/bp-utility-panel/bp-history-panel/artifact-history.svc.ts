@@ -1,15 +1,9 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { Models } from "../../../main";
 
-export interface IArtifactHistoryService {
+export interface IArtifactHistory {
     artifactHistory: ng.IPromise<IArtifactHistoryVersion[]>;
-    getArtifactHistory(
-        artifactId: number, 
-        limit?: number, 
-        offset?: number, 
-        userId?: string, 
-        asc?: boolean, 
-        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]>;
+    getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 
 export interface IArtifactHistoryVersion {
@@ -26,7 +20,7 @@ export interface IArtifactHistoryResultSet {
     artifactId: number;
 }
 
-export class ArtifactHistoryService implements IArtifactHistoryService {
+export class ArtifactHistory implements IArtifactHistory {
     static $inject: [string] = [
         "$q",
         "$http",

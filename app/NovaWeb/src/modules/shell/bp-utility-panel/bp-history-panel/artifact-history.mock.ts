@@ -1,7 +1,7 @@
-import { IArtifactHistoryService, IArtifactHistoryVersion } from "./history.svc";
+import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 import { Models } from "../../../main";
 
-export class ArtifactHistoryMock implements IArtifactHistoryService {
+export class ArtifactHistoryMock implements IArtifactHistory {
 
     public static $inject = ["$q"];
 

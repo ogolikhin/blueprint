@@ -4,7 +4,6 @@ import {
     ISession, 
     IArtifactAttachmentsService,
     IArtifactService,
-    IArtifactHistoryService
  } from "../../models";
 import { IMetaDataService } from "../";
 
@@ -14,7 +13,6 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
-                private _historyService: IArtifactHistoryService,
                 private _metaDataService: IMetaDataService) {
     }
 
@@ -29,17 +27,12 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get messageService(): IMessageService {
         return this._messageService;
     }
-
     public get artifactService(): IArtifactService {
         return this._artifactService;
     }
     
     public get attachmentService(): IArtifactAttachmentsService {
         return this._attachmentService;
-    }
-    
-    public get historyService(): IArtifactHistoryService {
-        return this._historyService;
     }
 
     public get metaDataService(): IMetaDataService {

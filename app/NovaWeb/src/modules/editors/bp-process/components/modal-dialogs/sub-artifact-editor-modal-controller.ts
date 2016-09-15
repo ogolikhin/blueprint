@@ -46,7 +46,6 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
-        // Temporary hardcoded for the read-only USs
         this.isReadonly = dialogModel.isReadonly;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
@@ -245,17 +244,13 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             this.isShowMore = !this.isShowMore;
 
         } else if (type === "info") {
-            this.$scope.$applyAsync((s) => {
-                this.isShowMore = true;
-                this.showMoreActiveTab[0] = true;
-                this.showMoreActiveTab[1] = false;
-            });
+            this.isShowMore = true;
+            this.showMoreActiveTab[0] = true;
+            this.showMoreActiveTab[1] = false;
         } else if (type === "include") {
-            this.$scope.$applyAsync((s) => {
-                this.isShowMore = true;
-                this.showMoreActiveTab[0] = false;
-                this.showMoreActiveTab[1] = true;
-            });
+            this.isShowMore = true;
+            this.showMoreActiveTab[0] = false;
+            this.showMoreActiveTab[1] = true;
         }
         event.stopPropagation();
     }

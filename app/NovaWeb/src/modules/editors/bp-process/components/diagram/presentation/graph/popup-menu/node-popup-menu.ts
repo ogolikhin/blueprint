@@ -8,7 +8,7 @@ export class NodePopupMenu {
 
     private menu: MxPopupMenu = null;
     private eventSubscriber: Rx.IDisposable = null;
-    private insertionPoint: MxCell;
+    public insertionPoint: MxCell;
      
     constructor(
         private layout: ILayout,

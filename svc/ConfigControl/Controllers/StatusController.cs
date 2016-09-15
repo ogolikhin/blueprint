@@ -53,37 +53,19 @@ namespace ConfigControl.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
             if (preAuthorizedKey == null)
             {
-                //ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
-                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
                 serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
-
-                if (serviceStatus.NoErrors)
-                {
-                    return Ok(serviceStatus);
-                }
-                else
-                {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                    return ResponseMessage(response);
-                }
-
             }
-            else {
-                // As per design , we do not expose this end point. hence there is not validation for pre authrized key
-
-                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
-
-                if (serviceStatus.NoErrors)
-                {
-                    return Ok(serviceStatus);
-                }
-                else
-                {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                    return ResponseMessage(response);
-                }
+            if (serviceStatus.NoErrors)
+            {
+                return Ok(serviceStatus);
+            }
+            else
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
             }
         }
 

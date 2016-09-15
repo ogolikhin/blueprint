@@ -55,44 +55,29 @@ namespace AdminStore.Controllers
         {
             //Check pre-authorized key
             // Refactoring for shorter status as per US955
+
+            if (preAuthorizedKey != null && preAuthorizedKey != _preAuthorizedKey)
+            {
+                var unauthorizedMessage = "Unauthorized";
+                var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
+                var unauthorizedResponse = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
+                return ResponseMessage(unauthorizedResponse);
+
+            }
+
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
             if (preAuthorizedKey == null)
             {
-                //ShorterServiceStatus shorterServiceStatus = await _statusControllerHelper.GetShorterStatus();
-                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
                 serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
-
-                if (serviceStatus.NoErrors)
-                {
-                    return Ok(serviceStatus);
-                }
-                else
-                {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                    return ResponseMessage(response);
-                }
-
             }
-            else {
-                if (preAuthorizedKey != _preAuthorizedKey)
-                {
-                    var unauthorizedMessage = "Unauthorized";
-                    var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
-                    var response = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
-                    return ResponseMessage(response);
-                }
 
-                ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
-
-                if (serviceStatus.NoErrors)
-                {
-                    return Ok(serviceStatus);
-                }
-                else
-                {
-                    var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                    return ResponseMessage(response);
-                }
+            if (serviceStatus.NoErrors)
+            {
+                return Ok(serviceStatus);
             }
+
+            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+            return ResponseMessage(response);
         }
 
         /// <summary>

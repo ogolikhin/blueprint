@@ -29,11 +29,13 @@ namespace ArtifactStore.Controllers
         public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactRepository = instanceRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IServiceLogRepository log) : base(log)
         {
             ArtifactRepository = instanceRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         /// <summary>

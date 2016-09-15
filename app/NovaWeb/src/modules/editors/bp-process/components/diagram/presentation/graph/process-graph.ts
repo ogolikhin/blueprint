@@ -103,7 +103,7 @@ export class ProcessGraph implements IProcessGraph {
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
          
-       //this.addMouseEventListener(this.mxgraph);
+        this.addMouseEventListener(this.mxgraph);
         
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);

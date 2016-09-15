@@ -1118,7 +1118,7 @@ export function formlyConfig(
 
                     <div ng-show="model[options.key].actorName.length > 0">
                         <div class="din">
-                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="deleteBaseActor()"
+                            <span class="icon fonticon2-delete" ng-click="!to.isReadOnly && deleteBaseActor()"
                                 bp-tooltip="Delete"></span>
                         </div>   
                          <div class="fr">

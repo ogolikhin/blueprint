@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 -- --------------------------------------------------
 -- Set the DB
 -- --------------------------------------------------
@@ -939,7 +939,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Document_Picker_Title', 'en-US', N'Add Document Reference')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Filesize_Error', 'en-US', N'The file exceeds')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Attachments_Error', 'en-US', N'The artifact has the maximum number of attachments.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Have_Wrong_Type', 'en-US', N'The attachment has wrong file type.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Error', 'en-US', N'Upload error.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Empty', 'en-US', N'There are no files to upload.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Total_Failed', 'en-US', N'Total items failed:')
@@ -980,6 +979,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Sys
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Additional_Properties_Label', 'en-US', N'Additional Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_StepOf_Actor', 'en-US', N'Actor (Input)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_StepOf_System', 'en-US', N'System (Expected Outcome)')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_InheritancePicker_Title', 'en-US', N'Select Actor')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_SameBaseActor_ErrorMessage', 'en-US', N'Actor cannot be set as its own parent')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_200', 'en-US', N'The artifact has been saved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400', 'en-US', N'An error has occurred and the artifact is no longer valid. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact cannot be saved because it has been deleted or moved. Please Refresh All.')
@@ -1049,7 +1050,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_MetaDataNo
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_NotFound', 'en-US', N'Couldn''t find the artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ArtifactType_NotFound', 'en-US', N'Couldn''t find the artifact type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AlreadyLocked', 'en-US', N'Artifact locked by another user')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'Artifact doesn''t exists aor moved to different location')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'The artifact has been deleted or moved.<br />The explorer will now be refreshed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AccessDenied', 'en-US', N'Cannot establish the artifact lock. Access denied.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Failure', 'en-US', N'Cannot establish the artifact lock due to general failure')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')
@@ -1061,6 +1062,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Diagram_OldFormat_Message', 'en-US', N'This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Details_FieldNameError', 'en-US', N'The field name isn''t specified')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Today', 'en-US', N'Today')
@@ -1136,6 +1138,15 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_S
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions_Includes', 'en-US', N'#mention or include artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Helper_Text', 'en-US', N'The system will be [Response]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Decision_Label', 'en-US', N'Add User Decision Point')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Given_Label', 'en-US', N'Given')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Then_Label', 'en-US', N'Then')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_When_Label', 'en-US', N'When')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Acceptance_Criteria_Label', 'en-US', N'Acceptance Criteria')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Nonfunctionals_Tab_Label', 'en-US', N'Nonfunctionals')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Businessrules_Tab_Label', 'en-US', N'Business Rules')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Title_Label', 'en-US', N'User Story Title')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Publish_User_Story', 'en-US', N'Publish User Story')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions', 'en-US', N'#mention artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_BusinessProcess_Label', 'en-US', N'Business Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-System Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')

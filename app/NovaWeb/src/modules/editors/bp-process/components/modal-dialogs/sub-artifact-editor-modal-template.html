@@ -41,8 +41,8 @@
                     <i ng-click="vm.showMore('include', $event)" class="fonticon-include-active" ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}" title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>
                 </label>
                 <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="vm.isShowMore">
-                    <uib-tabset>
-                        <uib-tab active="vm.showMoreActiveTab[0]">
+                    <uib-tabset active="vm.showMoreActiveTabIndex">
+                        <uib-tab index="0">
                             <uib-tab-heading>
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
                             </uib-tab-heading>
@@ -58,7 +58,7 @@
                                 <!--<label for="user_task_description" class="nova-label"><i class="fonticon-storyteller-description"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}</label>-->
                             </div>
                         </uib-tab>
-                        <uib-tab active="vm.showMoreActiveTab[1]">
+                        <uib-tab index="1">
                             <uib-tab-heading>
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
                             </uib-tab-heading>
@@ -136,8 +136,8 @@
                     <i ng-click="vm.showMore('include', $event)" class="fonticon-include-active" ng-class="{'available': dialogModel.clonedSystemTask.associatedArtifact}" title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>
                 </label>
                 <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="vm.isShowMore">
-                    <uib-tabset>
-                        <uib-tab active="vm.showMoreActiveTab[0]">
+                    <uib-tabset active="vm.showMoreActiveTabIndex">
+                        <uib-tab index="0">
                             <uib-tab-heading>
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
                             </uib-tab-heading>
@@ -153,7 +153,7 @@
                                 <!--<label for="system_task_description" class="nova-label"><i class="fonticon-storyteller-description"></i>{{::$root.config.labels['ST_Description_Label']}}</label>-->
                             </div>
                         </uib-tab>
-                        <uib-tab active="vm.showMoreActiveTab[1]">
+                        <uib-tab index="1">
                             <uib-tab-heading>
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
                             </uib-tab-heading>

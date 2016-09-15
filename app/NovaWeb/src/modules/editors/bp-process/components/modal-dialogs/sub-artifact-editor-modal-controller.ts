@@ -1,22 +1,20 @@
 import {BaseModalDialogController, IModalScope} from "./base-modal-dialog-controller";
-import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {IArtifactReference} from "../../models/process-models";
 import {IModalProcessViewModel} from "./models/modal-process-view-model";
 import {ICommunicationManager} from "../../services/communication-manager";
-import {IUserTask, IUserStoryProperties, ILabel, ISystemTask, IProcessLink} from "../diagram/presentation/graph/models/";
 
 export class SubArtifactEditorModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     private isShowMore: boolean = false;
-    private showMoreActiveTab: boolean[] = [true, false];
+    private showMoreActiveTabIndex: number = 0;
     private isIncludeNoResults: boolean = false;
     private isIncludeBadRequest: boolean = false;
     private isIncludeResultsVisible: boolean;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
-    private actionPlaceHolderText : string;
+    private actionPlaceHolderText: string;
     private systemNamePlaceHolderText: string;
     private isProjectOnlySearch: boolean = true;
     private searchIncludesDelay: ng.IPromise<any>;
@@ -130,8 +128,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
     }
 
     private changeIncludeField(): void {
-        //  this.isIncludeResultsVisible = false;
-        this.clearFileds();          
+        this.clearFileds();
     }
 
     private cancelIncludeSearchTimer(): void {
@@ -139,7 +136,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.isLoadingIncludes = false;
     }
 
-    private clearFileds() {           
+    private clearFileds() {
         this.cancelIncludeSearchTimer();
         this.isIncludeBadRequest = false;
         this.isIncludeNoResults = false;
@@ -154,7 +151,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         if (model.typePrefix === "<Inaccessible>") {
             msg = this.$rootScope["config"].labels["ST_Artifact_Inaccessible"];
         } else {
-            msg = model.typePrefix + model.id + ': ' + model.name;
+            msg = model.typePrefix + model.id + ": " + model.name;
         }
 
         return msg;
@@ -173,13 +170,16 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         if (process.id === this.modalProcessViewModel.processViewModel.id) {
             return false;
         }
+
         //show all if viewValue is null/'underfined' or empty string
         if (!viewValue) {
             return true;
         }
+
         if ((`${process.typePrefix}${process.id}: ${process.name}`).toLowerCase().indexOf(viewValue.toLowerCase()) > -1) {
             return true;
         }
+
         return false;
     }
 
@@ -191,8 +191,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         if (this.dialogModel.clonedUserTask) {
             if (this.dialogModel.clonedUserTask.action) {
                 this.actionOnFocus();
-            }
-            else {
+            } else {
                 this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"] + " " + this.dialogModel.clonedUserTask.label;
             }
         }
@@ -206,9 +205,9 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         if (this.dialogModel.clonedSystemTask) {
             if (this.dialogModel.clonedSystemTask.action) {
                 this.systemNameOnFocus();
-            }
-            else {
-                this.systemNamePlaceHolderText = (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
+            } else {
+                this.systemNamePlaceHolderText = 
+                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
             }
         }
     }
@@ -249,28 +248,26 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         // select tab
         if (type === "label") {
             this.isShowMore = !this.isShowMore;
-
         } else if (type === "info") {
             this.isShowMore = true;
-            this.showMoreActiveTab[0] = true;
-            this.showMoreActiveTab[1] = false;
+            this.showMoreActiveTabIndex = 0;
         } else if (type === "include") {
             this.isShowMore = true;
-            this.showMoreActiveTab[0] = false;
-            this.showMoreActiveTab[1] = true;
+            this.showMoreActiveTabIndex = 1;
         }
+
         event.stopPropagation();
     }
 
     public getActiveHeader(): string {
         if (this.dialogModel.isSystemTask) {
             return this.dialogModel.clonedSystemTask.label;
-        }
-        else if (this.dialogModel.isUserTask) {
+        } 
+        
+        if (this.dialogModel.isUserTask) {
             return this.dialogModel.clonedUserTask.label;
         }
+
         return null;
     }
 }
-
-//angular.module("Storyteller").controller("SubArtifactEditorModalController", SubArtifactEditorModalController);

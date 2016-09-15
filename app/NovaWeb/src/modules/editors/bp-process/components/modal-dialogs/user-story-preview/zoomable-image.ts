@@ -26,7 +26,7 @@ export class ZoomableImageDirective implements ng.IDirective {
     public replace = true;
     public template = `<div class="zoomable-image">
                             <i ng-click="zoomImage()" ng-if="enableZoom" class="fonticon-zoom"></i>
-                            <img ng-click="!enableZoom || zoomImage()" ng-class="{'zoomable' : enableZoom }" src="{{ imageSrc }}" alt="{{ imageAlt }}" />
+                            <img ng-click="!enableZoom || zoomImage()" ng-class="{'zoomable' : enableZoom }" ng-src="{{ imageSrc }}" alt="{{ imageAlt }}" />
                         </div>`;
 
     constructor(private $uibModal: angular.ui.bootstrap.IModalService) { }
@@ -54,7 +54,7 @@ export class ZoomableImageDirective implements ng.IDirective {
                 },
                 template: `<div class="image-preview">
                                 <i class="fonticon-close" ng-click="vm.cancel()"></i>
-                                <img src="{{ vm.imageAttributes.image }}" alt="{{ vm.imageAttributes.alt }}" />
+                                <img ng-src="{{ vm.imageAttributes.image }}" alt="{{ vm.imageAttributes.alt }}" />
                             </div>`,
             });
         }

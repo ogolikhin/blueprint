@@ -26,13 +26,14 @@
                         <i class="fonticon-nonfunctional fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}
                     </uib-tab-heading>
                     <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <textarea name="user_story_nonfunc_requirements"
+                        <div ng-bind-html="centerCtrl.nonfunctionalRequirements"></div>
+                        <!--<textarea name="user_story_nonfunc_requirements"
                                   rich-text-box-inline-traces
                                   project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"
                                   tinymce-style="font-size: 14px;"
                                   ng-disabled="centerCtrl.isReadonly"
                                   ng-class="centerCtrl.nonfunctionalRequirements ? 'tabs-textarea nova-form-control input-is-dirty' : 'tabs-textarea nova-form-control'"
-                                  ng-model="centerCtrl.centerTask.userStoryProperties.nfr.value"></textarea>
+                                  ng-model="centerCtrl.centerTask.userStoryProperties.nfr.value"></textarea>-->
                         <label for="user_story_nonfunc_requirements" class="nova-label"></label>
                     </div>
                 </uib-tab>
@@ -41,13 +42,14 @@
                         <i class="fonticon-bp-business-rule fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}
                     </uib-tab-heading>
                     <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <textarea name="user_story_business_rules"
+                        <div ng-bind-html="centerCtrl.businessRules"></div>
+                        <!--<textarea name="user_story_business_rules"
                                   rich-text-box-inline-traces
                                   project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"
                                   tinymce-style="font-size: 14px;"
                                   ng-disabled="centerCtrl.isReadonly"
                                   ng-class="centerCtrl.businessRules ? 'tabs-textarea nova-form-control input-is-dirty' : 'tabs-textarea nova-form-control'"
-                                  ng-model="centerCtrl.centerTask.userStoryProperties.businessRules.value"></textarea>
+                                  ng-model="centerCtrl.centerTask.userStoryProperties.businessRules.value"></textarea>-->
                         <label for="user_story_business_rules" class="nova-label"></label>
                     </div>
                 </uib-tab>

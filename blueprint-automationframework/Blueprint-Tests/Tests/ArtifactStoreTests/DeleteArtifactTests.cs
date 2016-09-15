@@ -320,12 +320,84 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserDoesNotHavePermissionToDelete_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser userWithNoAccess = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens, null);
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
+            // Create a user without permission to the artifact.
+            IUser userWithoutPermission = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+
+            IProjectRole viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
+            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
+                _project,
+                RolePermissions.Delete |
+                RolePermissions.Edit |
+                RolePermissions.CanReport |
+                RolePermissions.Comment |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.Read |
+                RolePermissions.Reuse |
+                RolePermissions.Share |
+                RolePermissions.Trace);
+
+            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
+            authorsGroup.AddUser(userWithoutPermission);
+            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
+
+            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
+            viewersGroup.AddUser(userWithoutPermission);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: viewerRole, artifact: artifact);
+
+            Helper.AdminStore.AddSession(userWithoutPermission);
+
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithNoAccess),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutPermission),
                 "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+        }
+
+        [TestRail(165844)]
+        [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
+        [Description("User attempts to delete a parent artifact when they do not have permission to delete the child. " +
+             "Verify 403 Forbidden is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteParentArtifactWithoutPermissionToDeleteChildArtifact_403Forbidden(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
+        {
+            // Setup:
+            var artifactChain = new List<IArtifact>();
+
+            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType));
+            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, artifactChain.First()));
+
+            // Create a user without permission to the artifact.
+            IUser userWithoutPermission = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+
+            IProjectRole viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
+            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
+                _project,
+                RolePermissions.Delete |
+                RolePermissions.Edit |
+                RolePermissions.CanReport |
+                RolePermissions.Comment |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.Read |
+                RolePermissions.Reuse |
+                RolePermissions.Share |
+                RolePermissions.Trace);
+
+            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
+            authorsGroup.AddUser(userWithoutPermission);
+            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
+
+            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
+            viewersGroup.AddUser(userWithoutPermission);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: viewerRole, artifact: artifactChain.Last());
+
+            Helper.AdminStore.AddSession(userWithoutPermission);
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), userWithoutPermission),
+                "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
         }
 
         #endregion 403 Forbidden tests
@@ -408,6 +480,31 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 409 Conflict when a user tries to delete an artifact that another user has locked!");
+        }
+
+        [TestRail(165844)]
+        [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
+        [Description("Create an artifact and child and publish both artifacts. Lock child with another user. Attempt to delete the parent artifact " +
+             "with the user that does not have the lock on the child artifact. Verify that HTTP 409 Conflict exception is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteArtifactWithChildLockedByAnotherUser_409Conflict(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
+        {
+            // Setup:
+            IUser userWithLock = null;
+            userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            var artifactChain = new List<IArtifact>();
+
+            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType));
+            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, artifactChain.First()));
+
+            artifactChain.Last().Lock(userWithLock);
+
+            // Execute & Verify:
+            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
+                "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
+
+            // Discard the lock so teardown will succeed
+            artifactChain.Last().Discard(userWithLock);
         }
 
         #endregion 409 Conflict tests

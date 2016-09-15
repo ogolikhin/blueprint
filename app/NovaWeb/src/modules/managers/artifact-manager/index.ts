@@ -17,7 +17,7 @@ import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
 angular.module("bp.managers.artifact", [])
     .service("artifactManager", ArtifactManager )
     .service("artifactAttachments", ArtifactAttachmentsService)
-    .service("metaDataService", MetaDataService)
+    .service("metadataService", MetaDataService)
     .service("statefulArtifactFactory", StatefulArtifactFactory);
 
 

@@ -11,35 +11,23 @@ import { ISelectionManager, SelectionSource } from "../selection-manager";
 import { IArtifactManager } from "../../managers";
 
 export interface IProjectManager {
-    // eventManager
-    initialize();
-    
-    dispose();
-
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
+    // eventManager
+    initialize();
+    dispose();
     add(data: Models.IProject);
     remove(all?: boolean): void;
-
-//    loadProject(project: Models.IProject): void;
-    
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
-
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
 
-    
-
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
-
-    getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
-
-    getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[];
-
+    // getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
+    // getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[];
     // getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
-
     // updateArtifactName(artifact: Models.IArtifact);
 }
 
@@ -77,6 +65,7 @@ export class ProjectManager  implements IProjectManager {
         this.dispose();
         delete this._projectCollection ;
     }
+
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
     }
@@ -104,26 +93,31 @@ export class ProjectManager  implements IProjectManager {
                 this.artifactManager.add(statefulArtifact);
                 project = new Project(statefulArtifact);
                 this.projectCollection.getValue().unshift(project);
-                this.loadProject(project);
+                this.loadArtifact(project.id);
 
             }
 
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "Project_NotFound");
+            this.messageService.addError(ex);
+            throw ex;
         }
     }
 
     public remove = (all: boolean = false) => {
         try {
-            var project = this.projectCollection.getValue()[0] ;
-            if (!project) {
-                throw new Error("Project_NotFound");
+            let projectId: number = 0;
+            if (!all) {
+                let artifact = this.artifactManager.selection.getArtifact();
+                if (artifact) {
+                    projectId = artifact.projectId;    
+                } 
             }
             let projectsToRemove: Project[] = [];
             let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
                 let result = true;
-                if (all || it.id === project.projectId) {
+                if (all || it.id === projectId) {
                     projectsToRemove.push(it);
+                    this.artifactManager.removeAll(it.projectId);
                     result = false;
                 }
                 return result;
@@ -133,41 +127,11 @@ export class ProjectManager  implements IProjectManager {
             }
 
             this.projectCollection.onNext(_projectCollection);
-//            this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: this.projectCollection.getValue()[0] || null };
+            this.artifactManager.selection.setArtifact((this.projectCollection.getValue()[0] || {} as Project).artifact, SelectionSource.Explorer);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "Project_NotFound");
+            this.messageService.addError(ex);
+            throw ex;
         }
-
-    }
-
-    private loadProject = (project: Project) => {
-        
-        this.projectService.getProjectMeta(project.id)
-            .then((metadata: Models.IProjectMeta) => {
-                if (angular.isArray(metadata.artifactTypes)) {
-                    //add specific types 
-                    metadata.artifactTypes.unshift(
-                        <Models.IItemType>{
-                            id: -1,
-                            name: this.localization.get("Label_Project"),
-                            predefinedType: Models.ItemTypePredefined.Project,
-                            customPropertyTypeIds: []
-                        },
-                        <Models.IItemType>{
-                            id: -2,
-                            name: this.localization.get("Label_Collections"),
-                            predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                            customPropertyTypeIds: []
-                        }
-                    );
-                }
-                project.meta = metadata;
-                //load project children
-                this.loadArtifact(project.id);
-
-        }).catch((error: any) => {
-            this.messageService.addError(error);
-        });
 
     }
 
@@ -263,234 +227,26 @@ export class ProjectManager  implements IProjectManager {
         return foundArtifact;
     };
 
-    public getSubArtifactSystemPropertyTypes(subArtifact: Models.ISubArtifact): Models.IPropertyType[] {
-        let properties: Models.IPropertyType[] = [];
 
-        if (!subArtifact) {
-            return properties;
-        }
+    // public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {
+    //     let _project: Models.IProject;
+    //     if (typeof project === "number") {
+    //         _project = this.getProject(project as number);
+    //     } else if (project) {
+    //         _project = project as Models.IProject;
+    //     }
+    //     if (!_project) {
+    //         throw new Error("Project_NotFound");
+    //     }
+    //     if (!_project.meta) {
+    //         throw new Error("Project_MetaDataNotLoaded");
+    //     }
 
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_Name"),
-            propertyTypePredefined: Models.PropertyTypePredefined.Name,
-            primitiveType: Models.PrimitiveType.Text,
-            isRequired: true
-        });
+    //     let propertyType: Models.IPropertyType = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
+    //         return it.id === propertyTypeId;
+    //     })[0];
 
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_Description"),
-            propertyTypePredefined: Models.PropertyTypePredefined.Description,
-            primitiveType: Models.PrimitiveType.Text,
-            isRichText: true
-        });
+    //     return propertyType;
 
-        if (subArtifact.predefinedType === Models.ItemTypePredefined.Step) {
-           properties.push(<Models.IPropertyType>{
-               name: "Step Of",
-               propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
-               primitiveType: Models.PrimitiveType.Choice,               
-           });
-        }
-
-        if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.SBShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UIShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UCDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.PROShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.GDConnector ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.DDConnector ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.SBConnector ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UIConnector ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.BPConnector ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UCDConnector) {
-
-            properties.push(<Models.IPropertyType>{
-                name: "Label",
-                propertyTypePredefined: Models.PropertyTypePredefined.Label,
-                primitiveType: Models.PrimitiveType.Text,
-                isRichText: true
-            });
-        }
-
-        if (subArtifact.predefinedType === Models.ItemTypePredefined.GDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.DDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.SBShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UIShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.UCDShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.PROShape ||
-            subArtifact.predefinedType === Models.ItemTypePredefined.BPShape) {
-
-            properties.push(<Models.IPropertyType>{
-                name: "X",
-                propertyTypePredefined: Models.PropertyTypePredefined.X,
-                primitiveType: Models.PrimitiveType.Number
-            });
-
-            properties.push(<Models.IPropertyType>{
-                name: "Y",
-                propertyTypePredefined: Models.PropertyTypePredefined.Y,
-                primitiveType: Models.PrimitiveType.Number
-            });
-
-            properties.push(<Models.IPropertyType>{
-                name: "Width",
-                propertyTypePredefined: Models.PropertyTypePredefined.Width,
-                primitiveType: Models.PrimitiveType.Number
-            });
-
-            properties.push(<Models.IPropertyType>{
-                name: "Height",
-                propertyTypePredefined: Models.PropertyTypePredefined.Height,
-                primitiveType: Models.PrimitiveType.Number
-            });
-        }
-        return properties;
-    }
-
-
-
-    public getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[] {
-
-        if (!id) {
-            throw new Error("Artifact_NotFound");
-        }
-
-        let node = this.getArtifactNode(id);
-        if (!node) {
-            throw new Error("Artifact_NotFound");
-        }
-        let project = this.getProject(node.projectId);
-        if (!project) {
-            throw new Error("Project_NotFound");
-        }
-        let itemtype = project.getArtifactType(node.id);
-        let properties: Models.IPropertyType[] = [];
-
-        
-        //create list of system properties
-        if (subArtifact) {
-            properties = this.getSubArtifactSystemPropertyTypes(subArtifact);
-        } else {
-            properties = this.getArtifactSystemPropertyTypes(node.artifact, itemtype, project.meta );
-        }
-
-        
-        //add custom property types
-        project.meta.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (itemtype.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
-        return properties;
-
-    }
-
-    private getArtifactSystemPropertyTypes(
-        artifact: IStatefulArtifact, 
-        artifactType: Models.IItemType, 
-        projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
-        
-        let properties: Models.IPropertyType[] = [];
-
-        //add system properties  
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_Name"),
-            propertyTypePredefined: Models.PropertyTypePredefined.Name,
-            primitiveType: Models.PrimitiveType.Text,
-            isRequired: true
-        });
-
-
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_Type"),
-            propertyTypePredefined: Models.PropertyTypePredefined.ItemTypeId,
-            primitiveType: Models.PrimitiveType.Choice,
-            validValues: function (meta: Models.IProjectMeta) {
-                return meta.artifactTypes.filter((it: Models.IItemType) => {
-                    return (artifactType && (artifactType.predefinedType === it.predefinedType));
-                });
-            } (projectMeta).map(function (it) {
-                return <Models.IOption>{
-                    id: it.id,
-                    value: it.name
-                };
-            }),
-            isRequired: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_CreatedBy"),
-            propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
-            primitiveType: Models.PrimitiveType.User,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_CreatedOn"),
-            propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
-            primitiveType: Models.PrimitiveType.Date,
-            stringDefaultValue: "Never published", 
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_LastEditBy"),
-            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
-            primitiveType: Models.PrimitiveType.User,
-            disabled: true
-        });
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_LastEditOn"),
-            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
-            primitiveType: Models.PrimitiveType.Date,
-            dateDefaultValue: "",
-            disabled: true
-        });
-
-        properties.push(<Models.IPropertyType>{
-            name: this.localization.get("Label_Description"),
-            propertyTypePredefined: Models.PropertyTypePredefined.Description,
-            primitiveType: Models.PrimitiveType.Text,
-            isRichText: true
-        });
-        return properties;
-    }
-
-
-    public getArtifactItemType(id: number): Models.IItemType {
-        if (!id) {
-            throw new Error("Artifact_NotFound");
-        }
-
-        let node = this.getArtifactNode(id);
-        if (!node) {
-            throw new Error("Artifact_NotFound");
-        }
-        let project = this.getProject(node.projectId);
-        if (!project) {
-            throw new Error("Project_NotFound");
-        }
-        return project.getArtifactType(node.id);
-    }    
-
-    public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {
-        let _project: Models.IProject;
-        if (typeof project === "number") {
-            _project = this.getProject(project as number);
-        } else if (project) {
-            _project = project as Models.IProject;
-        }
-        if (!_project) {
-            throw new Error("Project_NotFound");
-        }
-        if (!_project.meta) {
-            throw new Error("Project_MetaDataNotLoaded");
-        }
-
-        let propertyType: Models.IPropertyType = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
-            return it.id === propertyTypeId;
-        })[0];
-
-        return propertyType;
-
-    }
+    // }
 }

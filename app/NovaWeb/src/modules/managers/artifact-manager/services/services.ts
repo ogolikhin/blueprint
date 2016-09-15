@@ -13,7 +13,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
-                private _metaDataService: IMetaDataService) {
+                private _metadataService: IMetaDataService) {
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -36,7 +36,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     }
 
     public get metaDataService(): IMetaDataService {
-        return this._metaDataService;
+        return this._metadataService;
     }
     
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {

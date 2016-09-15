@@ -58,10 +58,10 @@ class BPToolbarController implements IBPToolbarController {
         var element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
             case `projectclose`:
-                this.projectManager.closeProject();
+                this.projectManager.remove();
                 break;
             case `projectcloseall`:
-                this.projectManager.closeProject(true);
+                this.projectManager.remove(true);
                 break;
             case `deleteartifact`:
                 this.dialogService.open(<IDialogSettings>{

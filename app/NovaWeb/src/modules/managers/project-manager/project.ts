@@ -56,29 +56,6 @@ export class Project extends ArtifactNode {
         return this.artifact.description;
     }
 
-
-    // public getArtifact(id: number, project?: Models.IArtifact): Models.IArtifact {
-    //     let foundArtifact: Models.IArtifact;
-    //     if (project) {
-    //         if (project.id === id) {
-    //             foundArtifact = project;
-    //         }
-    //         for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]); ) {
-    //             if (it.id === id) {
-    //                 foundArtifact = it;
-    //             } else if (it.artifacts) {
-    //                 foundArtifact = this.getArtifact(id, it);
-    //             }
-    //         }
-    //     } else {
-    //         for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]); ) {
-    //             foundArtifact = this.getArtifact(id, it);
-    //         }
-    //     }
-    //     return foundArtifact;
-    // };
-
-
     public getNode(id: number, item?: IArtifactNode): IArtifactNode {
         let found: IArtifactNode;
         if (!item) {

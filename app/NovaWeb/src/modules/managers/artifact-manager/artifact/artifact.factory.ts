@@ -24,7 +24,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "messageService",
         "artifactService",
         "artifactAttachments",
-        "metaDataService"
+        "metadataService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -35,7 +35,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private messageService: IMessageService,
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
-        private metaDataService: IMetaDataService
+        private metadataService: IMetaDataService
         ) {
 
         this.services = new StatefulArtifactServices( 
@@ -44,7 +44,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.messageService,
             this.artifactService,
             this.attachmentService,
-            this.metaDataService);
+            this.metadataService);
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {

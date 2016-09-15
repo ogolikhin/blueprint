@@ -36,7 +36,7 @@ namespace ArtifactStoreTests
         #region Custom data tests
 
         [Category(Categories.CustomData)]
-        [Test]
+        [TestCase]
         [TestRail(165855)]
         [Description("GetSubartifacts for Use Case from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUseCase_ReturnsCorrectSubArtifactsList()

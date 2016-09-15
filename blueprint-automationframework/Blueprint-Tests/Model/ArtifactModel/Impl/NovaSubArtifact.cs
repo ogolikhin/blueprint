@@ -28,14 +28,5 @@ namespace Model.ArtifactModel.Impl
         public List<INovaSubArtifact> Children { get; set; } = new List<INovaSubArtifact>();
 
         #endregion Serialized JSON Properties
-
-        #region Constructors
-
-        public NovaSubArtifact() : base()
-        {
-            //base constructor
-        }
-
-        #endregion Constructors
     }
 }

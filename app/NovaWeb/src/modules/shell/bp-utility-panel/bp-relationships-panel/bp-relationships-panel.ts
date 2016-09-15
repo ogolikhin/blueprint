@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService, IStateManager } from "../../../core";
-import { ISelectionManager, Models, Relationships } from "../../../main";
+import { Relationships } from "../../../main";
+import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -28,7 +29,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public static $inject: [string] = [
         "$q",
         "localization",
-        "selectionManager",
+        "artifactManager",
         "stateManager",
         "artifactRelationships"
     ];
@@ -46,12 +47,12 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     constructor(
         $q: ng.IQService,
         private localization: ILocalizationService,
-        protected selectionManager: ISelectionManager,
+        protected artifactManager: IArtifactManager,
         protected stateManager: IStateManager,
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, stateManager, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           
@@ -71,7 +72,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    protected onSelectionChanged (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {     
+    protected onSelectionChanged (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {     
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             return this.getRelationships(artifact.id, subArtifact ? subArtifact.id : null, timeout)
@@ -118,5 +119,4 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = actorInherits;
         this.documentReferences = documentReferences;
     }
-
 }

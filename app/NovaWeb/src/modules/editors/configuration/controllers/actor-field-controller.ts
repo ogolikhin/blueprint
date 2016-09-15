@@ -45,7 +45,7 @@ export function actorController(
             template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
-            header: localization.get("App_UP_Attachments_Document_Picker_Title")
+            header: localization.get("App_Properties_Actor_InheritancePicker_Title")
         };
 
         const dialogData: IArtifactPickerFilter = {
@@ -53,7 +53,10 @@ export function actorController(
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {                
+            if (artifact) {   
+                if (currentModelVal != null) {
+                    deleteBaseActor();
+                }             
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
@@ -67,10 +70,7 @@ export function actorController(
         });
     }
 
-    $scope.selectBaseActor = () => {
-        if (currentModelVal != null) {
-            deleteBaseActor();
-        }
+    $scope.selectBaseActor = () => {        
         setBaseActor();
     };
 }

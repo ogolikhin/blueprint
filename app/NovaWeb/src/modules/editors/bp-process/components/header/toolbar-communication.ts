@@ -7,7 +7,7 @@ export interface IToolbarCommunication {
 
     registerEnableProcessTypeToggleObserver(observer: any);
     removeEnableProcessTypeToggleObserver(observer: any);
-    enableProcessTypeToggle(value: boolean, processType: number);
+    enableProcessTypeToggle(isEnabled: boolean, processType: number);
 
     registerClickDeleteObserver(observer: any);
     removeClickDeleteObserver(observer: any);
@@ -57,8 +57,8 @@ export class ToolbarCommunication implements IToolbarCommunication {
         this.setEnableProcessTypeToggleSubject.disposeObserver(observer);
     }
 
-    public enableProcessTypeToggle(value: boolean, processType: number) {
-        this.setEnableProcessTypeToggleSubject.notify({ value, processType });
+    public enableProcessTypeToggle(isEnabled: boolean, processType: number) {
+        this.setEnableProcessTypeToggleSubject.notify({ isEnabled, processType });
     }
 
     // Click delete

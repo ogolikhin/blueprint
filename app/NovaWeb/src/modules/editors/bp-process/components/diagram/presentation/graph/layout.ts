@@ -149,6 +149,8 @@ export class Layout implements ILayout {
         finally {
 
             graphModel.endUpdate();
+
+            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
             
             for (i in this.viewModel.shapes) {
                 var thisShape: IProcessShape = this.viewModel.shapes[i];
@@ -172,8 +174,6 @@ export class Layout implements ILayout {
                     edgeGeo.state = this.getEdgeCellState(edgeGeo.edge);
                 }
             }
-
-            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
 
             // Set vertices z-order on top in case some of them are overlaped by edges
             this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));

@@ -47,12 +47,14 @@
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
                             </uib-tab-heading>
                             <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                                <textarea name="user_task_description" 
+                                <!--Temporary replace the rich box-->
+                                <div ng-bind-html="dialogModel.clonedUserTask.description"></div>
+                                <!--<textarea name="user_task_description" 
                                           rich-text-box-inline-traces 
                                           project-id="{{ vm.isProjectOnlySearch ? vm.processModelService.processModel.projectId : '' }}" 
                                           ng-disabled="vm.isReadonly"
                                           ng-class="dialogModel.clonedUserTask.description ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
-                                          ng-model="dialogModel.clonedUserTask.description"></textarea>
+                                          ng-model="dialogModel.clonedUserTask.description"></textarea>-->
                                 <!--<label for="user_task_description" class="nova-label"><i class="fonticon-storyteller-description"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}</label>-->
                             </div>
                         </uib-tab>

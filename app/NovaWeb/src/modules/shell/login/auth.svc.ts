@@ -1,8 +1,7 @@
 ﻿import "angular";
 import { SessionTokenHelper } from "./session.token.helper";
-import { ILocalizationService, ISettingsService } from "../../core";
+import { ILocalizationService, ISettingsService, IHttpInterceptorConfig } from "../../core";
 import { Helper } from "../../shared";
-import { IHttpInterceptorConfig } from "../error/http-error-interceptor";
 
 export interface IUser {
     id: number;

@@ -40,6 +40,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public customFields: AngularFormly.IFieldConfigurationObject[];
+    public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
     private selectedArtifact: Models.IArtifact;
@@ -63,6 +64,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public $onDestroy() {
         delete this.itemState;
         delete this.systemFields;
+        delete this.specificFields;
         delete this.customFields;
         delete this.richTextFields;
         super.$onDestroy();        
@@ -71,6 +73,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public get isSystemPropertyAvailable(): boolean {
         return this.systemFields && this.systemFields.length > 0;
     }
+
+    public get isSpecificPropertyAvailable(): boolean {
+        return this.specificFields && this.specificFields.length > 0;
+    }
+
     public get isCustomPropertyAvailable(): boolean {
         return this.customFields && this.customFields.length > 0;
     }
@@ -85,6 +92,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.model = {};
             this.systemFields = [];
             this.customFields = [];
+            this.specificFields = [];
             this.richTextFields = [];         
             if (artifact) {
                 return this.onLoad(artifact, subArtifact, timeout);
@@ -237,7 +245,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } else if (PropertyLookupEnum.Custom === propertyContext.lookup) {
             this.customFields.push(field);
         } else if (PropertyLookupEnum.Special === propertyContext.lookup) {
-            this.systemFields.push(field);
+            this.specificFields.push(field);
         }
 
     }
@@ -262,5 +270,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
     };
 
+    public get specificPropertiesHeading(): string {
+        if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Document) {
+            return this.localization.get("Nova_Document_File", "File");
+        } else if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Actor) {
+            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
+        } else {
+            return this.selectedArtifact.predefinedType + this.localization.get("Nova_Properties", " Properties");
+        }
+    }
 }
 

@@ -48,8 +48,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
-        this.isReadonly = dialogModel.isReadonly;
-        dialogModel.clonedUserTask.description = this.$sce.trustAsHtml(dialogModel.clonedUserTask.description);
+        this.isReadonly = this.dialogModel.isReadonly;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
 
@@ -61,6 +60,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.systemNameOnBlur();
 
         this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
+        //dialogModel.clonedUserTask.description = this.$sce.trustAsHtml(dialogModel.clonedUserTask.description);
 
         // Only get processes once per controller
         //let processesPromise: ng.IPromise<IArtifactReference[]>;
@@ -111,6 +111,10 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.setNextNode(this.modalProcessViewModel);
     }
     
+    private getDescription() {
+        return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+    }
+
     private setModalProcessViewModel = (modalProcessViewModel) => {
         this.modalProcessViewModel = modalProcessViewModel;
     }

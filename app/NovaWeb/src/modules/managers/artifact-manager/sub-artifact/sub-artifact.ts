@@ -1,17 +1,17 @@
-import { Models, Enums } from "../../../main/models";
-import { ArtifactState} from "../state";
-import { ArtifactAttachments } from "../attachments";
-import { CustomProperties } from "../properties";
+import { Models } from "../../../main/models";
+// import { ArtifactState} from "../state";
+import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
+import { IDocumentRefs } from "../docrefs";
+// import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
+// import { IArtifactManager } from "../";
 import {
     ChangeTypeEnum,
     IChangeCollector,
     IChangeSet,
     IStatefulArtifact,
-    IArtifactStates,
+    // IArtifactStates,
     IArtifactProperties,
-    IArtifactAttachments,
-    IArtifactManager,
     IState,
     IStatefulArtifactServices,
     IIStatefulArtifact,
@@ -27,6 +27,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     private services: IStatefulArtifactServices;
 
     public attachments: IArtifactAttachments;
+    public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
 
 

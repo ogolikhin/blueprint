@@ -1,15 +1,14 @@
 import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
-import { ArtifactAttachments } from "../attachments";
+import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
+import { IArtifactManager } from "../";
 import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
 
 import { IStatefulArtifact, 
          IArtifactStates, 
          IArtifactProperties, 
-         IArtifactAttachments, 
-         IArtifactManager, 
          IState,
          IStatefulArtifactServices,
          IIStatefulArtifact,

@@ -1,8 +1,10 @@
 ﻿import { ILocalizationService, IStateManager } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+import { Models} from "../../../main";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
+// import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
+import { IArtifactHistoryVersion, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { ISelectionManager } from "../../../managers/selection-manager";
 
 interface ISortOptions {
     value: boolean;
@@ -21,13 +23,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "artifactHistory",
-        "selectionManager",
+        "selectionManager2",
         "stateManager"
     ];
 
     private loadLimit: number = 10;
-    private artifactId: number;
+    // private artifactId: number;
+    private artifact: IStatefulArtifact;
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
@@ -38,7 +40,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     constructor(
         $q: ng.IQService,
         private localization: ILocalizationService,
-        private artifactHistory: IArtifactHistory,
         protected selectionManager: ISelectionManager,
         protected stateManager: IStateManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
@@ -70,19 +71,24 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        if (artifact == null) {
-            this.artifactHistoryList = [];
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        this.artifactHistoryList = [];
+        this.artifact = artifact;
+        if (this.artifact == null) {
             return super.onSelectionChanged(artifact, subArtifact, timeout);
         }
-        if (this.artifactId !== artifact.id) {
-            this.artifactHistoryList = [];
-            this.artifactId = artifact.id;
-            return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
-                .then( (list: IArtifactHistoryVersion[]) => {
-                    this.artifactHistoryList = list;
-                });
+
+        if (this.artifact) {
+            return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
         }
+
+        // if (this.artifactId !== artifact.id) {
+        //     this.artifactId = artifact.id;
+        //     return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
+        //         .then( (list: IArtifactHistoryVersion[]) => {
+        //             this.artifactHistoryList = list;
+        //         });
+        // }
     }
 
     public loadMoreHistoricalVersions(): ng.IPromise<IArtifactHistoryVersion[]> {
@@ -120,13 +126,30 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         string, asc: boolean,
         timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
 
-        this.isLoading = true;
-        return this.artifactHistory.getArtifactHistory(this.artifactId, limit, offset, userId, asc, timeout)
-            .then( (list: IArtifactHistoryVersion[]) => {
-                return list;
-            })
-            .finally( () => {
-                this.isLoading = false;
-            });
+        return null;
+        // this.isLoading = true;
+        // return this.artifactHistory.getArtifactHistory(this.artifactId, limit, offset, userId, asc, timeout)
+        //     .then( (list: IArtifactHistoryVersion[]) => {
+        //         return list;
+        //     })
+        //     .finally( () => {
+        //         this.isLoading = false;
+        //     });
     }
+
+    // private getHistoricalVersions(
+    //     limit: number,
+    //     offset: number, userId:
+    //     string, asc: boolean,
+    //     timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
+
+    //     this.isLoading = true;
+    //     return this.artifactHistory.getArtifactHistory(this.artifactId, limit, offset, userId, asc, timeout)
+    //         .then( (list: IArtifactHistoryVersion[]) => {
+    //             return list;
+    //         })
+    //         .finally( () => {
+    //             this.isLoading = false;
+    //         });
+    // }
 }

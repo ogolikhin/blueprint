@@ -10,7 +10,6 @@ import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
-import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
 import {ArtifactRelationships} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
@@ -50,7 +49,6 @@ angular.module("app.shell",
     .service("sessionTokenInterceptor", SessionTokenInterceptor)
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
-    .service("artifactHistory", ArtifactHistory)
     .service("artifactRelationships", ArtifactRelationships)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("mentionService", MentionService)

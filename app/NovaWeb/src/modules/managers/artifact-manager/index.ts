@@ -12,7 +12,7 @@ import {
 
 import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
 
-angular.module("bp.managers.artifact", ["bp.managers.selection"])
+angular.module("bp.managers.artifact", [])
     .service("artifactManager", ArtifactManager )
     .service("artifactAttachments", ArtifactAttachmentsService)
     .service("metaDataService", MetaDataService)

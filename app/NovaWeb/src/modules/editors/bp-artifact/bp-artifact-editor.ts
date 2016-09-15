@@ -1,35 +1,49 @@
-import { ILocalizationService, IMessageService, Message, IPropertyChangeSet } from "../../core";
+import { ILocalizationService, Message, IPropertyChangeSet } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
-import { IStatefulArtifact } from "../../managers/models";
-import { IProjectManager, ISelectionManager } from "../../managers";
-import { Enums, Models} from "../../main/models";
 
-import { BpBaseEditor} from "../bp-base-editor";
+import { 
+    IArtifactManager, 
+    IProjectManager, 
+    IStatefulArtifact, 
+    IMessageService,
+    Models, 
+    Enums, 
+    BpBaseEditor 
+} from "../bp-base-editor";
+
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
 
-export { ILocalizationService, IProjectManager, IMessageService, ISelectionManager, IWindowManager, PropertyContext, Models, Enums, Message }
+export { 
+    ILocalizationService, 
+    IProjectManager, 
+    IArtifactManager, 
+    IStatefulArtifact,
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
+    Models, 
+    Enums, 
+    Message 
+}
 
 export class BpArtifactEditor extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "selectionManager2", "windowManager", "localization", "projectManager"];
+    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization", "projectManager"];
 
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
-//    public artifactState: ItemState;
-
-    public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public selectionManager: ISelectionManager,
+        public artifactManager: IArtifactManager,
         public windowManager: IWindowManager,
         public localization: ILocalizationService,
         private projectManager: IProjectManager
     ) {
-        super(messageService, selectionManager);
+        super(messageService, artifactManager);
         this.editor = new PropertyEditor(this.localization);
     }
 

@@ -1,18 +1,15 @@
 ﻿import {
     BpArtifactEditor,
-    PropertyContext,
-    ILocalizationService,
-    IProjectManager,
-    IMessageService,
-    ISelectionManager,
-    IWindowManager,
-    Models,
-    Enums
+    ILocalizationService, 
+    IProjectManager, 
+    IArtifactManager, 
+//    IStatefulArtifact,
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
+    Models, 
+    Enums 
 } from "./bp-artifact-editor";
-import { IArtifactService } from "../../main/services";
-
-import { IStatefulArtifact } from "../../managers/models";
-
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -26,17 +23,16 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "selectionManager2", "windowManager", "localization", "projectManager", "artifactService"];
+        "messageService", "artifactManager", "windowManager", "localization", "projectManager"];
 
     constructor(
         messageService: IMessageService,
-        selectionManager: ISelectionManager,
+        artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        projectManager: IProjectManager,
-        private artifactService: IArtifactService
+        projectManager: IProjectManager
     ) {
-        super(messageService, selectionManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization, projectManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

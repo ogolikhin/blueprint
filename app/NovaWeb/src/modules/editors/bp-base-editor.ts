@@ -1,18 +1,20 @@
 ﻿import { IMessageService } from "../core";
-import { ISelectionManager,  } from "../managers";
+import { IArtifactManager, IProjectManager } from "../managers";
 import { IStatefulArtifact } from "../managers/models";
-import { Models } from "../main";
+import { Models, Enums } from "../main";
+
+export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
 
 export class BpBaseEditor {
     public static $inject: [string] = ["messageService", "selectionManager2"];
 
     protected _subscribers: Rx.IDisposable[];
     public artifact: IStatefulArtifact;
-    public isLoading: boolean;
+    public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public selectionManager: ISelectionManager
+        public artifactManager: IArtifactManager
         
     ) {
     }
@@ -30,7 +32,7 @@ export class BpBaseEditor {
     public $onChanges(obj: any) {
         try {
             
-            this.artifact = this.selectionManager.getArtifact();
+            this.artifact = this.artifactManager.selection.getArtifact();
 
             if (this.onLoading()) {
                 this.onLoad();

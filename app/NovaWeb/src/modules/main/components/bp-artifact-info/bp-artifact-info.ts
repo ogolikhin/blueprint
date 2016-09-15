@@ -110,6 +110,7 @@ export class BpArtifactInfoController {
                 break;
             case Enums.LockedByEnum.OtherUser:
                 let name = "";
+                let msg = "";
                 // let date = this.localization.current.toDate(state.originItem.lockedDateTime);
                 // if (state.lock && state.lock.info) {
                 //     name = state.lock.info.lockOwnerLogin;
@@ -134,59 +135,59 @@ export class BpArtifactInfoController {
         
     }
 
-    private onStateChange(state: ItemState) {
-        this.initProperties();
-        if (!state) {
-            return;
-        }
-        let artifact = state.getArtifact(); 
+    // private onStateChange(state: ItemState) {
+    //     this.initProperties();
+    //     if (!state) {
+    //         return;
+    //     }
+    //     let artifact = state.getArtifact(); 
 
-        this.artifactName = artifact.name || "";
-        this._artifactId = artifact.id;
+    //     this.artifactName = artifact.name || "";
+    //     this._artifactId = artifact.id;
 
-        if (state.itemType) {
-            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
-        } else {
-            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
-        }
+    //     if (state.itemType) {
+    //         this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
+    //     } else {
+    //         this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
+    //     }
 
-        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
+    //     this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
+    //     this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+    //     this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
 
-        this.isReadonly = state.isReadonly;
-        this.isChanged = state.isChanged;
-        switch (state.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
-                this.selfLocked = true;
-                break;
-            case Enums.LockedByEnum.OtherUser:
-                let name = "";
-                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (state.lock && state.lock.info) {
-                    name = state.lock.info.lockOwnerLogin;
-                }
-                name =  name || state.originItem.lockedByUser.displayName || "";
-                let msg = name ? "Locked by " + name : "Locked "; 
-                if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date);
-                }
-                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
-                break;
-            default:
-                break;
+    //     this.isReadonly = state.isReadonly;
+    //     this.isChanged = state.isChanged;
+    //     switch (state.lockedBy) {
+    //         case Enums.LockedByEnum.CurrentUser:
+    //             this.selfLocked = true;
+    //             break;
+    //         case Enums.LockedByEnum.OtherUser:
+    //             let name = "";
+    //             let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+    //             if (state.lock && state.lock.info) {
+    //                 name = state.lock.info.lockOwnerLogin;
+    //             }
+    //             name =  name || state.originItem.lockedByUser.displayName || "";
+    //             let msg = name ? "Locked by " + name : "Locked "; 
+    //             if (date) {
+    //                 msg += " on " + this.localization.current.formatShortDateTime(date);
+    //             }
+    //             this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+    //             break;
+    //         default:
+    //             break;
 
-        }
-    }
+    //     }
+    // }
 
 
     public get artifactHeadingMinWidth() {

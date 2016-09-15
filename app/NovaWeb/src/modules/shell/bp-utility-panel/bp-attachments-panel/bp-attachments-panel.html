@@ -61,11 +61,11 @@
    	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Documents_Only') }}</div>
 </div>
 
-<div ng-if="$ctrl.isLoading" class="app-loading">
+<div ng-if="$ctrl.isLoadingAttachments || $ctrl.isLoadingDocRefs" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
-<div ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.isLoading"
+<div ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.isLoadingAttachments && !$ctrl.isLoadingDocRefs"
     class="empty-state">
 
     <p>{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</p>

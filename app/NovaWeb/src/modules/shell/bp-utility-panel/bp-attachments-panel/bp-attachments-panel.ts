@@ -11,7 +11,7 @@ import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/c
 import { ISelectionManager } from "../../../managers/selection-manager";
 import { IStatefulItem } from "../../../managers/models";
 import { 
-    IArtifactAttachmentsResultSet, 
+    // IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService, 
     IArtifactDocRef, 
     IStatefulArtifact,
@@ -44,7 +44,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public item: IStatefulItem;
 
     public categoryFilter: number;
-    public isLoading: boolean = false;
+    public isLoadingAttachments: boolean = false;
+    public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
 
     private artifactIsDeleted: boolean = false;
@@ -80,14 +81,16 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             if (artifact) {
-                // this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
-                //     artifactName: artifact.name,
-                //     artifactId: artifact.id,
-                //     userId: this.session.currentUser.id,
-                //     userName: this.session.currentUser.displayName,
-                //     itemTypePrefix: artifact.prefix,
-                //     referencedDate: new Date().toISOString()
-                // });
+                const newDoc = <IArtifactDocRef>{
+                    artifactName: artifact.name,
+                    artifactId: artifact.id,
+                    userId: this.session.currentUser.id,
+                    userName: this.session.currentUser.displayName,
+                    itemTypePrefix: artifact.prefix,
+                    referencedDate: new Date().toISOString()
+                };
+
+                this.docRefList = this.item.docRefs.add([newDoc]);
             }
         });
     }
@@ -144,20 +147,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        this.attachmentsList = [];
         this.item = subArtifact || artifact;
         
-        if (this.item) {
-            this.isLoading = true;
-            this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
-                this.attachmentsList = attachments;
-            }).finally(() => {
-                this.isLoading = false;
-            });
-
-            // TODO: docRefSubscriber here
-            // this.docRefSubscriber = this.item.docRefs...
-        }
+        this.getAttachments();
 
         // if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
         //     return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
@@ -175,21 +167,52 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
+    private getAttachments() {
+        this.attachmentsList = [];
+
+        if (this.item) {
+            this.isLoadingAttachments = true;
+            this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
+                this.attachmentsList = attachments;
+                
+                // TODO: optimize the following later
+                // get doc refs here because they're included in attachments payload
+                this.getDocRefs();
+            }).finally(() => {
+                this.isLoadingAttachments = false;
+            });
+        }
+    }
+
+    private getDocRefs() {
+        this.docRefList = [];
+
+        if (this.item) {
+            this.isLoadingDocRefs = true;
+            // don't refresh because they were already retrieved with attachments
+            this.item.docRefs.get(false).then((docrefs: IArtifactDocRef[]) => {
+                this.docRefList = docrefs;
+            }).finally(() => {
+                this.isLoadingDocRefs = false;
+            });
+        }
+    }
+
     public canAddNewFile() {
         return !this.artifactIsDeleted &&
             !(this.itemState && this.itemState.isReadonly);
     }
 
     /* tslint:disable:no-unused-variable */
-    private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
-        this.isLoading = true;
-        return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
-            .then( (result: IArtifactAttachmentsResultSet) => {
-                return result;
-            })
-            .finally( () => {
-                this.isLoading = false;
-            });
-    }
+    // private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
+    //     this.isLoadingAttachments = true;
+    //     return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
+    //         .then( (result: IArtifactAttachmentsResultSet) => {
+    //             return result;
+    //         })
+    //         .finally( () => {
+    //             this.isLoadingAttachments = false;
+    //         });
+    // }
     /* tslint:enable:no-unused-variable */
 }

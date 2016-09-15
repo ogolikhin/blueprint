@@ -4,13 +4,11 @@ import {
     BpArtifactEditor,
     ILocalizationService, 
     IArtifactManager, 
-//    IStatefulArtifact,
     IMessageService,  
     IWindowManager, 
     PropertyContext, 
 } from "./bp-artifact-editor";
 
-import { IArtifactService } from "../../main/services";
 import { IDialogService } from "../../shared";
 
 
@@ -25,14 +23,13 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "artifactManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
+        "messageService", "artifactManager", "windowManager", "localization", "dialogService"];
 
     constructor(
         messageService: IMessageService,
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        private artifactService: IArtifactService,
         private dialogService: IDialogService
     ) {
         super(messageService, artifactManager, windowManager, localization);

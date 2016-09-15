@@ -2,7 +2,7 @@
 import { IMessageService, IWindowVisibility, IStateManager, ILocalizationService } from "../../core";
 import { IUser, ISession } from "../../shell";
 import { Models, Enums } from "../models";
-import { IProjectManager } from "../services";
+import { IProjectManager } from "../../managers";
 
 
 

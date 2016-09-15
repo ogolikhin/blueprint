@@ -78,8 +78,7 @@ export class ProjectManager  implements IProjectManager {
             }
             project = this.getProject(data.id);
             if (project) {
-                //todo move project to first position
-
+                this.artifactManager.selection.setArtifact(project.artifact, SelectionSource.Explorer);
             } else {
                 angular.extend(data, {
                     projectId: data.id,

@@ -13,7 +13,6 @@ import {
 
 
 
-import { IArtifactService } from "../main/services/artifact.svc";
 import { ISession } from "../shell/login/session.svc";
 
 export { 

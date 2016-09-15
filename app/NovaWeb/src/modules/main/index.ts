@@ -74,9 +74,6 @@ export {
     Relationships
 } from "./models";
 export {
-    IProjectRepository, ProjectRepository,
-    IArtifactService, ArtifactService,
-    IProjectManager, ProjectManager,
     ISelectionManager, SelectionManager, ISelection, SelectionSource,
     IWindowManager, WindowManager, IMainWindow, ResizeCause
 } from "./services";

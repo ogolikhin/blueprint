@@ -63,7 +63,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     ) {
        super(messageService, stateManager);
 
-        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener($scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
+       this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
+           $scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {
@@ -134,8 +135,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         if (this.processDiagram && this.processDiagram.resize) {
             if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
                 this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
-            } 
-            else {
+            } else {
                 this.processDiagram.resize(0, 0);
             }
         }

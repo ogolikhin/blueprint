@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-import { ISelectionManager, Models, ISelection, SelectionSource } from "../../main";
+import { Models } from "../../main";
+import { IArtifactManager, SelectionSource, ISelection, IStatefulItem } from "../../managers/artifact-manager";
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
@@ -20,7 +21,7 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "selectionManager",
+        "artifactManager",
         "$element"
     ];
 
@@ -38,17 +39,20 @@ export class BPUtilityPanelController {
 
     constructor(
         private localization: ILocalizationService,
-        private selectionManager: ISelectionManager,
+        private artifactManager: IArtifactManager,
         private $element: ng.IAugmentedJQuery) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        const selectionObservable = this.selectionManager.selectionObservable
+        const selectionObservable = this.artifactManager.selection.selectionObservable
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
-        const selectedItemSubscriber: Rx.IDisposable = this.selectionManager.selectedItemObservable
+        const selectedItemSubscriber: Rx.IDisposable = this.artifactManager.selection.selectionObservable
+            .map((selection: ISelection) => {
+                return selection.subArtifact || selection.artifact;
+            })
             .distinctUntilChanged()
             .subscribe(this.onItemChanged);
 
@@ -81,7 +85,7 @@ export class BPUtilityPanelController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
-    private onItemChanged = (item: Models.IItem) => {
+    private onItemChanged = (item: IStatefulItem) => {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
@@ -121,7 +125,7 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
                 selection.source === SelectionSource.Editor &&
-                this.selectionManager.getExplorerSelectedArtifact().predefinedType === ItemTypePredefined.UseCaseDiagram))) {
+                this.artifactManager.selection.getArtifact(SelectionSource.Explorer).predefinedType === ItemTypePredefined.UseCaseDiagram))) {
 
             this.showPanel(PanelType.Properties);
         } else {

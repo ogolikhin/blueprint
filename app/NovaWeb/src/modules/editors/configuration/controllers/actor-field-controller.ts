@@ -45,7 +45,7 @@ export function actorController(
             template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
-            header: localization.get("App_UP_Attachments_Document_Picker_Title")
+            header: localization.get("App_Properties_Actor_InheritancePicker_Title")
         };
 
         const dialogData: IArtifactPickerFilter = {

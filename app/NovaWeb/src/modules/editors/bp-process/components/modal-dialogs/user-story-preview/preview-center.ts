@@ -116,6 +116,8 @@ export class PreviewCenterController {
 
         this.centerTask = $scope["centerCtrl"].userTaskModel;
 
+        $scope["centerCtrl"].isReadonly = "disabled";
+
         this.when = PreviewCenterController.getTaskLabelNameValue(this.centerTask.label, PreviewCenterController.getTaskLabel(this.centerTask));
 
         this.previousSystemTask = $scope["centerCtrl"].previousSystemTask;
@@ -132,9 +134,11 @@ export class PreviewCenterController {
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
                         this.acceptanceCriteria = this.$sce.trustAsHtml(property.value);
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
-                        this.centerTask.userStoryProperties.businessRules = property.value;
+
+                        this.businessRules = this.$sce.trustAsHtml(property.value);
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
-                        this.centerTask.userStoryProperties.nfr = property.value;
+
+                        this.nonfunctionalRequirements = this.$sce.trustAsHtml(property.value);
                     }
                 });
             });

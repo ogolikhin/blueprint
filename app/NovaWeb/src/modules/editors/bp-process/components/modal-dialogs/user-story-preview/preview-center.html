@@ -7,11 +7,11 @@
 <div class="modal-body storyteller-gwt_modal-body">
     <div class="storyteller-gwt-section">
         <label class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Title_Label']}}</label>
-        <p ng-bind-html="centerCtrl.title" />
+        <p ng-bind-html="centerCtrl.getTitle()" />
     </div>
     <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt-section">
         <label class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Acceptance_Criteria_Label']}}</label>
-        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.acceptanceCriteria" /></div>
+        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.getAcceptanceCriteria()" /></div>
     </div>
     <div class="storyteller-gwt-section storyteller-gwt-nfr-br">
         <label class="storyteller-label_show-hide" ng-click="centerCtrl.showMore('label', $event)" ng-class="{'show' : centerCtrl.isTabsVisible  }">
@@ -26,7 +26,7 @@
                         <i class="fonticon-nonfunctional fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}
                     </uib-tab-heading>
                     <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <div ng-bind-html="centerCtrl.nonfunctionalRequirements"></div>
+                        <div ng-bind-html="centerCtrl.getNonFunctionalRequirements()"></div>
                         <!--<textarea name="user_story_nonfunc_requirements"
                                   rich-text-box-inline-traces
                                   project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"
@@ -42,7 +42,7 @@
                         <i class="fonticon-bp-business-rule fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}
                     </uib-tab-heading>
                     <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <div ng-bind-html="centerCtrl.businessRules"></div>
+                        <div ng-bind-html="centerCtrl.getBusinessRules()"></div>
                         <!--<textarea name="user_story_business_rules"
                                   rich-text-box-inline-traces
                                   project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"

@@ -10,9 +10,10 @@ import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../.
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
+import { ISelectionManager } from "../../main/services";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
-    "messageService", "dialogService", "settings"];
+    "messageService", "dialogService", "settings", "selectionManager"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -23,7 +24,8 @@ export function formlyConfig(
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
-    settingsService: ISettingsService
+    settingsService: ISettingsService,
+    selectionManager: ISelectionManager
 ): void {
     /* tslint:enable */
 
@@ -1065,18 +1067,23 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
-        template: `<div class="inheritance-group">
-                    <img ng-if="model[options.key]" ng-src="{{model[options.key]}}" class="actor-image" />
-                    <span ng-if="!model[options.key]" class="actor-image"></span>
+        template: `<div class="inheritance-group inheritance-group-wrapper">
+                    <span class="actor-image-wrapper">
+                        <label ng-if="model[options.key]">
+                            <img ng-src="{{model[options.key]}}"/>
+                            <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                                ng-disabled="to.isReadOnly">
+                        </label>    
+                        <span ng-if="!model[options.key]"></span>
+                    </span>
                     <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
-                                                        ng-click="bpFieldInheritFrom.delete($event)"></i>
+                       ng-click="onActorImageDelete(to.isReadOnly)" ng-class="{disabled: to.isReadOnly}"></i>
                     <label>
-                        <input bp-file-upload="onFileSelect(files, callback)" type="file" 
-                            class="file-input glyphicon glyphicon-plus image-actor-group">  
-                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                             ng-disabled="to.isReadOnly">  
+                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
                                     class="glyphicon glyphicon-plus image-actor-group"></i>
-                    </label>                
-                                  
+                    </label>
                 </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
@@ -1103,15 +1110,16 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="input-group inheritance-group">
                     <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
-                        <div ng-show="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}">
+                        <div ng-show="{{model[options.key].pathToProject.length > 0 
+                            && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}">
                             <span>{{model[options.key].pathToProject[0]}}</span>
-                                <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
-                                  {{item}}
-                                </span>   
-                                <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
-                            </div>                                                
+                            <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                              {{item}}
+                            </span>   
+                            <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
+                        </div>                                                
                         <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
-                            <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
+                            <a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
                         </div>
                     </div>    
                     <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
@@ -1134,7 +1142,7 @@ export function formlyConfig(
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, artifactAttachments, $window, messageService, dialogService);
+            actorController($scope, localization, $window, messageService, dialogService, selectionManager);
         }]
     });
  

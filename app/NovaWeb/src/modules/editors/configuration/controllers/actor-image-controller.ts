@@ -5,6 +5,7 @@ import { Helper } from "../../../shared/utils/helper";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
 actorImageController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService", "settingsService"];
 export function actorImageController(
@@ -21,8 +22,9 @@ export function actorImageController(
         $scope.actorId =  currentModelVal["actorId"];
     }
 
-    const maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
+    const maxAttachmentFilesizeDefault: number = 1048576; // 1 MB
     const maxNumberAttachmentsDefault: number = 1;
+    const allowedExtensions = ['png', 'jpg', 'jpeg'];
 
     function chooseActorImage(files: File[], callback?: Function) {
         const dialogSettings = <IDialogSettings>{
@@ -34,45 +36,36 @@ export function actorImageController(
             backdrop: false
         };
 
-        //let artifactAttachmentsList: IArtifactAttachmentsResultSet = {
-        //    artifactId: 
-        //    attachments: []
-        //}
-
-        //const curNumOfAttachments: number = artifactAttachmentsList
-        //    && artifactAttachmentsList.attachments
-        //    && artifactAttachmentsList.attachments.length || 0;
-
         let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
-        let maxNumberAttachments: number = 1;
+        let maxNumberAttachments: number = maxNumberAttachmentsDefault;
 
         if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
             maxNumberAttachments = maxNumberAttachmentsDefault;
         }
+
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
             maxAttachmentFilesize = maxAttachmentFilesizeDefault;
         }
 
         const dialogData: IUploadStatusDialogData = {
             files: files,
-            maxAttachmentFilesize: maxAttachmentFilesize,
-            maxNumberAttachments: 1
+            maxAttachmentFilesize: maxAttachmentFilesizeDefault,
+            maxNumberAttachments: maxNumberAttachmentsDefault,
+            allowedExtentions: allowedExtensions
         };
 
-        dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
+
+        let ds = dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 // TODO: add state manager handling
 
-                if (uploadList) {
-                    uploadList.map((uploadedFile: any) => {
-                        // artifactAttachmentsList.attachments.push({
-                        //     userId: session.currentUser.id,
-                        //     userName: session.currentUser.displayName,
-                        //     fileName: uploadedFile.name,
-                        //     attachmentId: null,
-                        //     guid: uploadedFile.guid,
-                        //     uploadedDate: null
-                        // });
-                    });
+                if (uploadList && uploadList.length > 0) {
+                    let image = uploadList[0];
+                    var reader = new FileReader();
+                    reader.readAsDataURL(image.file)
+
+                    reader.onload = function(e) {
+                        $scope.model.image = e.target['result'];
+                    }
                 }
             }).finally(() => {
                 if (callback) {
@@ -85,12 +78,11 @@ export function actorImageController(
         chooseActorImage(files, callback);
     };
 
-    $scope.deleteActorImage = () => {
-
-    };
-
-    $scope.selectActorImage = () => {
-
+    $scope.onActorImageDelete = (isReadOnly: boolean) => {
+        if(isReadOnly && isReadOnly === true){
+            return ;
+        }
+        $scope.model.image = null;
     };
 
 }

@@ -97,7 +97,18 @@ export class PreviewCenterController {
         }
         return label;
     }
-
+    public getTitle() {
+        return this.$sce.trustAsHtml(this.title);
+    }
+    public getAcceptanceCriteria() {
+        return this.$sce.trustAsHtml(this.acceptanceCriteria);
+    }
+    public getBusinessRules() {
+        return this.$sce.trustAsHtml(this.businessRules);
+    }
+    public getNonFunctionalRequirements() {
+        return this.$sce.trustAsHtml(this.nonfunctionalRequirements);
+    }
     constructor(
         private $window: ng.IWindowService,
         private $scope: ng.IScope,
@@ -116,6 +127,8 @@ export class PreviewCenterController {
 
         this.centerTask = $scope["centerCtrl"].userTaskModel;
 
+        $scope["centerCtrl"].isReadonly = "disabled";
+
         this.when = PreviewCenterController.getTaskLabelNameValue(this.centerTask.label, PreviewCenterController.getTaskLabel(this.centerTask));
 
         this.previousSystemTask = $scope["centerCtrl"].previousSystemTask;
@@ -128,13 +141,13 @@ export class PreviewCenterController {
                 it.customPropertyValues.forEach((property) => {
                     let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
                     if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
-                        this.title = this.$sce.trustAsHtml(property.value);
+                        this.title = property.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
-                        this.acceptanceCriteria = this.$sce.trustAsHtml(property.value);
+                        this.acceptanceCriteria = property.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
-                        this.centerTask.userStoryProperties.businessRules = property.value;
+                        this.businessRules = property.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
-                        this.centerTask.userStoryProperties.nfr = property.value;
+                        this.nonfunctionalRequirements = property.value;
                     }
                 });
             });

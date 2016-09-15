@@ -477,7 +477,7 @@ export class ProjectManager implements IProjectManager {
                     propertyTypePredefined: Models.PropertyTypePredefined.Image,
                     primitiveType: Models.PrimitiveType.Image,
                 }, {
-                    name: this.localization.get("Label_ActorInheritFrom", "Inherit from"), //TODO localize
+                    name: this.localization.get("Label_ActorInheritFrom", "Inherits from"), //TODO localize
                     propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
                     primitiveType: Models.PrimitiveType.ActorInheritance,
                 });

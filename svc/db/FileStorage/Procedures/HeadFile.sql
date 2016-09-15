@@ -8,11 +8,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[HeadFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[HeadFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [FileStore].[HeadFile]
 GO
 
-CREATE PROCEDURE [dbo].[HeadFile]
+CREATE PROCEDURE [FileStore].[HeadFile]
 (
 	@FileId uniqueidentifier
 )
@@ -27,7 +27,7 @@ BEGIN
 	,[FileName]
 	,[FileType]
 	,[FileSize]
-	FROM [dbo].[Files]
+	FROM [FileStore].[Files]
 	WHERE [FileId] = @FileId
 END
 

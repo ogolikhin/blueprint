@@ -22,14 +22,7 @@
                 <li><a href="#" id="ProjectCloseAll" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a></li>
             </ul>
         </li>
-         <li>
-            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-relationship-right"></i>
-                </div>
-                <span>Go to</span>
-            </a>
-        </li>
+        <li class="separator"></li>
         <li uib-dropdown>
             <a href="#" uib-dropdown-toggle>
                 <div class="icon-container">
@@ -43,20 +36,21 @@
                 <li><a href="#" ng-click="$ctrl.execute($event)">Process</a></li>
             </ul>
         </li>
-        <li>
-            <a href="#" id="discardAll" ng-click="$ctrl.execute($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-discard-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span>
-            </a>
-        </li>
+
         <li>
             <a href="#" id="publishAll" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-publish-line"></i>
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" id="discardAll" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-discard-line"></i>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span>
             </a>
         </li>
         <li>
@@ -67,7 +61,6 @@
                 <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
             </a>
         </li>
-        <li class="separator"></li>
         <li>
             <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
@@ -76,11 +69,23 @@
                 <span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span>
             </a>
         </li>
-       
+        <li class="separator"></li>
+        <li>
+            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-relationship-right"></i>
+                </div>
+                <span>Go to</span>
+            </a>
+        </li>
     </ul>
     <ul class="nav navbar-nav nav-right">
         <li>
-            <a href="#" id="tour" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-tour"></i><span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
+            <a href="#" id="tour" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-tour-1"></i><span>
+                </div>
+                <span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
         </li>
     </ul>
     <ul class="nav navbar-nav nav-right" ng-show="$ctrl.currentArtifact">

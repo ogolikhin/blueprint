@@ -21,5 +21,8 @@ namespace ServiceLibrary.Helpers
         public const int StubProjectItemTypeId = -1;
         public const int StubCollectionsItemTypeId = -2;
         public const int StubBaselinesAndReviewsItemTypeId = -3;
+
+        public const string DefaultDBSchema = "[dbo]";
+        public const string FileStoreDBSchema = "[FileStore]";
     }
 }

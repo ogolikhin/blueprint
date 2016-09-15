@@ -1,6 +1,6 @@
 ﻿import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel} from "../../../../../models/processModels";
+import {IProcessLinkModel} from "../../../../../models/process-models";
 import {NodeType, NodeChange, ElementType} from "../models/";
 import {Label, LabelStyle} from "../labels/label";
 import {DiagramElement} from "./diagram-element";

@@ -12,10 +12,10 @@ console.log({backend: backend});
 
 var url = require('url'),
    proxy = require('proxy-middleware');
-var proxyOptions = url.parse(backend + '/svc');
-proxyOptions.route = '/svc';
-var loginProxyOptions = url.parse(backend + '/Login/WinLogin.aspx');
-loginProxyOptions.route = '/Login/WinLogin.aspx';
+var svcProxyOptions = url.parse(backend + '/svc');
+svcProxyOptions.route = '/svc';
+var sharedProxyOptions = url.parse(backend + '/shared');
+sharedProxyOptions.route = '/shared';
 
 var del = require('del');
 del(['dist/*']);
@@ -96,7 +96,7 @@ module.exports = {
             port: 8000,
             server: {
                 baseDir: 'dist',
-                middleware: [proxy(proxyOptions), proxy(loginProxyOptions)]
+                middleware: [proxy(svcProxyOptions), proxy(sharedProxyOptions)]
             },
             ui: false,
             online: false,

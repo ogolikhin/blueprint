@@ -1,4 +1,4 @@
-﻿import {IProcess, ProcessModel} from "../../../../../models/processModels";
+﻿import {IProcess, ProcessModel} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../models/";
 import {NodePopupMenu} from "./node-popup-menu";

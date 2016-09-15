@@ -45,7 +45,7 @@ describe("Project Explorer Test", () => {
 
         expect(explorer.propertyMap).toBeDefined();
         expect(explorer.propertyMap["id"]).toEqual("id");
-        expect(explorer.propertyMap["itemTypeId"]).toEqual("type");
+        expect(explorer.propertyMap["itemTypeId"]).toEqual("itemTypeId");
         expect(explorer.propertyMap["name"]).toEqual("name");
         expect(explorer.propertyMap["hasChildren"]).toEqual("hasChildren");
         expect(explorer.propertyMap["artifacts"]).toEqual("children");

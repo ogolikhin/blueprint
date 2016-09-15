@@ -1,7 +1,11 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
+<<<<<<< HEAD
 import { Models } from "../../main";
 import { IArtifactManager, SelectionSource, ISelection, IStatefulItem } from "../../managers/artifact-manager";
+=======
+import { ISelectionManager, Models, ISelection, SelectionSource, IProjectManager } from "../../main";
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
@@ -21,13 +25,20 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
+<<<<<<< HEAD
         "artifactManager",
+=======
+        "selectionManager",
+        "projectManager",
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
         "$element"
     ];
 
     private _subscribers: Rx.IDisposable[];
     private _currentItem: string;
     private _currentItemClass: string;
+    private _currentItemType: number;
+    private _currentItemIcon: number;
 
     public get currentItem() { 
         return this._currentItem;
@@ -37,10 +48,27 @@ export class BPUtilityPanelController {
         return this._currentItemClass;
     }
 
+    public get currentItemType() {
+        return this._currentItemType;
+    }
+
+    public get currentItemIcon() {
+        return this._currentItemIcon;
+    }
+
     constructor(
         private localization: ILocalizationService,
+<<<<<<< HEAD
         private artifactManager: IArtifactManager,
+=======
+        private selectionManager: ISelectionManager,
+        private projectManager: IProjectManager,
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
         private $element: ng.IAugmentedJQuery) {
+        this._currentItem = null;
+        this._currentItemClass = null;
+        this._currentItemType = null;
+        this._currentItemIcon = null;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -89,9 +117,19 @@ export class BPUtilityPanelController {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            this._currentItemType = item.itemTypeId;
+            this._currentItemIcon = null;
+            if (item.predefinedType !== ItemTypePredefined.Project) {
+                let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    this._currentItemIcon = artifactType.iconImageId;
+                }
+            }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
+            this._currentItemType = null;
+            this._currentItemIcon = null;
         }
     }
 

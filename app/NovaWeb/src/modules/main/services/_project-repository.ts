@@ -6,6 +6,7 @@ export interface IProjectRepository {
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
     getProject(id?: number): ng.IPromise<Models.IProjectNode>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
+    getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]>;
 }
 
 export class ProjectRepository implements IProjectRepository {
@@ -109,6 +110,27 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
+    public getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifactNode[]> {
+        var defer = this.$q.defer<any>();
+        let rest = `/svc/artifactstore/artifacts/${artifactId}/subartifacts`;
+
+        const request: ng.IRequestConfig = {
+            url: rest,
+            method: "GET",
+            timeout: timeout
+        };
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifactNode[]>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
 
 }
 

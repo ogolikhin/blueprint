@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/processModels";
+﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -44,7 +44,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public userStoryProperties: IUserStoryProperties;
 
-    constructor(model: IUserTaskShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
+    constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
         super(model, NodeType.UserTask);
 
         this.rootScope = rootScope;
@@ -54,6 +54,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.userStoryProperties = new UserStoryProperties();
 
         this.initChildElements();
+    }
+
+    public cloneUserTask(): UserTask {
+        let userTask = new UserTask(this.model, this.rootScope, this.nodeFactorySettings, this.shapesFactoryService);
+        userTask.label = this.label;
+        userTask.persona = this.persona;
+        userTask.objective = this.objective;
+        userTask.action = this.action;
+        userTask.description = this.description;
+        userTask.associatedArtifact = this.associatedArtifact;
+        return userTask;
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {

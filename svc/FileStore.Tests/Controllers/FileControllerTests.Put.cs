@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using File = FileStore.Models.File;
 using sl = ServiceLibrary.Repositories.ConfigControl;
+using System.Threading;
 
 namespace FileStore.Controllers
 {
@@ -205,6 +206,128 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
+
+        [TestCategory("FileStoreTests.Put.MakePermanent")]
+        [TestMethod]
+        public async Task MakePermanent_ExceptionThrows_InternalServerError()
+        {
+            var guid = Guid.NewGuid();
+            var filesRepositoryMock = new Mock<IFilesRepository>();
+            var streamRepositoryMock = new Mock<IFileStreamRepository>();
+            var configRepositoryMock = new Mock<IConfigRepository>();
+            var logRepository = new Mock<sl.IServiceLogRepository>();
+
+            filesRepositoryMock.Setup(m => m.MakeFilePermanent(It.IsAny<Guid>())).Throws(new NullReferenceException());
+
+            var controller = new FilesController(filesRepositoryMock.Object,
+                streamRepositoryMock.Object,
+                configRepositoryMock.Object,
+                logRepository.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            // Act
+            var actionResult = await controller.MakePermanent(guid.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
+
+        [TestCategory("FileStoreTests.Put.MakePermanent")]
+        [TestMethod]
+        public async Task MakePermanent_ExceptionThrows_BadRequest()
+        {
+            var guid = "broken-guid";
+            var filesRepositoryMock = new Mock<IFilesRepository>();
+            var streamRepositoryMock = new Mock<IFileStreamRepository>();
+            var configRepositoryMock = new Mock<IConfigRepository>();
+            var logRepository = new Mock<sl.IServiceLogRepository>();
+
+            var controller = new FilesController(filesRepositoryMock.Object,
+                streamRepositoryMock.Object,
+                configRepositoryMock.Object,
+                logRepository.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            // Act
+            var actionResult = await controller.MakePermanent(guid.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
+
+        [TestCategory("FileStoreTests.Put.MakePermanent")]
+        [TestMethod]
+        public async Task MakePermanent_Returns_Ok()
+        {
+            var guid = Guid.NewGuid();
+            var filesRepositoryMock = new Mock<IFilesRepository>();
+            var streamRepositoryMock = new Mock<IFileStreamRepository>();
+            var configRepositoryMock = new Mock<IConfigRepository>();
+            var logRepository = new Mock<sl.IServiceLogRepository>();
+
+            filesRepositoryMock.Setup(m => m.MakeFilePermanent(It.IsAny<Guid>())).ReturnsAsync(1);
+
+            var controller = new FilesController(filesRepositoryMock.Object,
+                streamRepositoryMock.Object,
+                configRepositoryMock.Object,
+                logRepository.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            // Act
+            var actionResult = await controller.MakePermanent(guid.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
+        }
+
+        [TestCategory("FileStoreTests.Put.MakePermanent")]
+        [TestMethod]
+        public async Task MakePermanent_Returns_NotFound()
+        {
+            var guid = Guid.NewGuid();
+            var filesRepositoryMock = new Mock<IFilesRepository>();
+            var streamRepositoryMock = new Mock<IFileStreamRepository>();
+            var configRepositoryMock = new Mock<IConfigRepository>();
+            var logRepository = new Mock<sl.IServiceLogRepository>();
+
+            filesRepositoryMock.Setup(m => m.MakeFilePermanent(It.IsAny<Guid>())).ReturnsAsync(0);
+
+            var controller = new FilesController(filesRepositoryMock.Object,
+                streamRepositoryMock.Object,
+                configRepositoryMock.Object,
+                logRepository.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            // Act
+            var actionResult = await controller.MakePermanent(guid.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
     }
 }

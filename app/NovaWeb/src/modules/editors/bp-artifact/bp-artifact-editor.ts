@@ -119,6 +119,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                     onChange: this.onValueChange.bind(this)
                 });
 
+<<<<<<< HEAD
                 // if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
                 //     if (field.key !== "documentFile"  &&
                 //         field.type !== "bpFieldImage" &&
@@ -126,6 +127,16 @@ export class BpArtifactEditor extends BpBaseEditor {
                 //         field.type = "bpFieldReadOnly";                     
                 //     }
                 // }
+=======
+                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
+                    if (field.key !== "documentFile"  &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {  
+                        field.type = "bpFieldReadOnly";                     
+                    }
+                }
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
                 this.onFieldUpdate(field);
 
             });
@@ -136,6 +147,28 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.setArtifactEditorLabelsWidth();
     }
 
+<<<<<<< HEAD
+=======
+    private onLockChanged(state: ItemState) {
+        let lock = state.lock;
+        if (lock.result === Enums.LockResultEnum.Success) {
+            this.onLoad(this.context);
+        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+            if (lock.info.versionId !== state.originItem.version) {
+                this.onLoad(this.context);
+            } else {
+                this.onUpdate(this.context);
+            }
+
+        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        } else {
+            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+        }
+
+    }
+
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
         const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
@@ -154,6 +187,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
 
+<<<<<<< HEAD
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         try {
             //here we need to update original model
@@ -178,10 +212,39 @@ export class BpArtifactEditor extends BpBaseEditor {
             //         this.messageService.addError(error);
             //     }
             // });
+=======
+    public doSave(state: ItemState): void { }
 
-        } catch (err) {
-            this.messageService.addError(err);
-        }
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+        $scope.$applyAsync(() => {
+            try {
+                //here we need to update original model
+                let context = $field.data as PropertyContext;
+                if (!context) {
+                    return;
+                }
+                let value = this.editor.convertToModelValue($field, $value);
+                let changeSet: IPropertyChangeSet = {
+                    lookup: context.lookup,
+                    id: context.modelPropertyName,
+                    value: value
+                };
+                let state = this.stateManager.addChange(this.context.artifact, changeSet);
+
+                if ($scope["form"]) {
+                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                }
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
+
+                this.stateManager.lockArtifact(state).catch((error: any) => {
+                    if (error) {
+                        this.messageService.addError(error);
+                    }
+                });
+            } catch (err) {
+                this.messageService.addError(err);
+            }
+        });
     };
 
 }

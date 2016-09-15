@@ -1,4 +1,4 @@
-﻿import {ISystemTaskShape} from "../../../../../models/processModels";
+﻿import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
@@ -11,6 +11,7 @@ import {DiagramNodeElement} from "./diagram-element";
 import {NodeFactorySettings} from "./node-factory";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
+import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -36,6 +37,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private linkButton: Button;
     private mockupButton: Button;
     private rootScope: ng.IRootScopeService;
+    private dialogManager: IModalDialogCommunication;
 
     public callout: DiagramNodeElement;
 
@@ -43,7 +45,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         model: ISystemTaskShape,
         rootScope: any,
         private defaultPersonaValue: string,
-        nodeFactorySettings: NodeFactorySettings = null,
+        private nodeFactorySettings: NodeFactorySettings = null,
         private shapesFactory: ShapesFactory
     ) {
         super(model, NodeType.SystemTask);
@@ -51,6 +53,15 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.rootScope = rootScope;
 
         this.initButtons(model.id.toString(), nodeFactorySettings);
+    }
+
+    public cloneSystemTask(): SystemTask {
+        let systemTask = new SystemTask(this.model, this.rootScope, this.defaultPersonaValue, this.nodeFactorySettings, this.shapesFactory);
+        systemTask.label = this.label;
+        systemTask.action = this.action;
+        systemTask.description = this.description;
+        systemTask.associatedArtifact = this.associatedArtifact;
+        return systemTask;
     }
 
     private initChildElements(justCreated: boolean) {
@@ -311,6 +322,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
+        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
 
         var mxGraph = graph.getMxGraph();
 
@@ -449,6 +461,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     private openDialog(dialogType: ModalDialogType) {
+        this.dialogManager.openDialog(this.model.id, dialogType);
+        
         // #TODO implement new mechanism for opening modal dialogs
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,

@@ -30,7 +30,7 @@ IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 -- Add Step 1 - Delete expired files from FileStorage
 SET @cmd = N'
 -- Delete files
-DELETE FROM [dbo].[Files] Where ExpiredTime <= GETDATE()'
+DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 

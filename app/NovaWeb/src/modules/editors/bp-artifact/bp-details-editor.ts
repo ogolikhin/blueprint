@@ -10,6 +10,11 @@
     Models, 
     Enums 
 } from "./bp-artifact-editor";
+<<<<<<< HEAD
+=======
+import { IArtifactService } from "../../main/services";
+import { IDialogService } from "../../shared";
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -23,14 +28,24 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
+<<<<<<< HEAD
         "messageService", "artifactManager", "windowManager", "localization", "projectManager"];
+=======
+        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
 
     constructor(
         messageService: IMessageService,
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
+<<<<<<< HEAD
         projectManager: IProjectManager
+=======
+        projectManager: IProjectManager,
+        private artifactService: IArtifactService,
+        private dialogService: IDialogService
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
     ) {
         super(messageService, artifactManager, windowManager, localization, projectManager);
     }
@@ -59,6 +74,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
+        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else {
             return this.artifact.name + this.localization.get("Nova_Properties", " Properties");
             //TODO:: return this.artifact.type.name + this.localization.get("Nova_Properties", " Properties");
@@ -83,6 +100,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     public onLoad() {
         this.isLoading = true;
+<<<<<<< HEAD
         
         this.artifact.load().then((it: Models.IArtifact) => {
             // delete context.artifact.lockedByUser;
@@ -90,6 +108,19 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             // context.artifact = angular.extend({}, context.artifact, it);
             // this.stateManager.addChange(context.artifact);
             this.onUpdate();
+=======
+        this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
+            delete context.artifact.lockedByUser;
+            delete context.artifact.lockedDateTime;
+
+//            context.artifact = angular.extend({}, context.artifact, it);
+            let state = this.stateManager.addChange(angular.extend({}, context.artifact, it));
+            context.artifact = state.originItem;
+            this.onUpdate(context);
+            if (state.moved) {
+                this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            }
+>>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

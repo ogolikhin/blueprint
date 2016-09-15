@@ -1,11 +1,7 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
-<<<<<<< HEAD
 import { Models } from "../../main";
 import { IArtifactManager, SelectionSource, ISelection, IStatefulItem } from "../../managers/artifact-manager";
-=======
-import { ISelectionManager, Models, ISelection, SelectionSource, IProjectManager } from "../../main";
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
@@ -25,12 +21,7 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-<<<<<<< HEAD
         "artifactManager",
-=======
-        "selectionManager",
-        "projectManager",
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
         "$element"
     ];
 
@@ -58,12 +49,7 @@ export class BPUtilityPanelController {
 
     constructor(
         private localization: ILocalizationService,
-<<<<<<< HEAD
         private artifactManager: IArtifactManager,
-=======
-        private selectionManager: ISelectionManager,
-        private projectManager: IProjectManager,
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
         private $element: ng.IAugmentedJQuery) {
         this._currentItem = null;
         this._currentItemClass = null;

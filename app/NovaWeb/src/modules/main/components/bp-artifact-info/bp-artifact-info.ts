@@ -90,26 +90,15 @@ export class BpArtifactInfoController {
         
         this.artifactName = artifact.name || "";
         this._artifactId = artifact.id;
-<<<<<<< HEAD
-        artifact.metadata.getItemType(artifact.id).then((it: Models.IItemType) => {
-            this.artifactType = it.name || Models.ItemTypePredefined[it.predefinedType] || "";
-            this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
-        })
-=======
-
-        if (state.itemType) {
-            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
-            if (state.itemType.iconImageId && angular.isNumber(state.itemType.iconImageId)) {
-                this.artifactTypeIcon = state.itemType.iconImageId;
-            }
-        } else {
-            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
-        }
-
         this.artifactTypeId = artifact.itemTypeId;
-        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
-
+        artifact.metadata.getItemType(artifact.id).then((itemType: Models.IItemType) => {
+            this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+            if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
+                this.artifactTypeIcon = itemType.iconImageId;
+            }
+            
+            this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
+        });
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
 
         this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
@@ -129,7 +118,6 @@ export class BpArtifactInfoController {
                 break;
             case Enums.LockedByEnum.OtherUser:
                 let name = "";
-<<<<<<< HEAD
                 let msg = "";
                 // let date = this.localization.current.toDate(state.originItem.lockedDateTime);
                 // if (state.lock && state.lock.info) {
@@ -140,17 +128,6 @@ export class BpArtifactInfoController {
                 // if (date) {
                 //     msg += " on " + this.localization.current.formatShortDateTime(date);
                 // }
-=======
-                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (state.lock && state.lock.info) {
-                    name = state.lock.info.lockOwnerLogin;
-                }
-                name =  name || state.originItem.lockedByUser.displayName || "";
-                let msg = name ? "Locked by " + name : "Locked "; 
-                if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date) + ".";
-                }
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:
@@ -272,7 +249,6 @@ export class BpArtifactInfoController {
     }
 
     //TODO: move the save logic to a more appropriate place
-<<<<<<< HEAD
     // public saveChanges() {
     //     let overlayId: number = this.loadingOverlayService.beginLoading();
     //     try {
@@ -296,7 +272,7 @@ export class BpArtifactInfoController {
     //                     if (error) {
     //                         if (error.statusCode === 400) {
     //                             if (error.errorCode === 114) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_114");
+    //                                 message = this.localization.get("App_Save_Artifact_Error_400_114");
     //                             } else {
     //                                 message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
     //                             }
@@ -307,6 +283,10 @@ export class BpArtifactInfoController {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409_116");
     //                             } else if (error.errorCode === 117) {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409_117");
+    //                             } else if (error.errorCode === 111) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_111");
+    //                             } else if (error.errorCode === 115) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_115");
     //                             } else {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409");
     //                             }
@@ -323,62 +303,6 @@ export class BpArtifactInfoController {
     //         this.loadingOverlayService.endLoading(overlayId);
     //     }
     // }
-=======
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            let state: ItemState = this.stateManager.getState(this._artifactId);
-            let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
-            this.artifactService.updateArtifact(artifactDelta)
-                .then((artifact: Models.IArtifact) => {
-                        let oldArtifact = state.getArtifact();
-                        if (artifact.version) {
-                            state.updateArtifactVersion(artifact.version);
-                        }
-                        if (artifact.lastSavedOn) {
-                            state.updateArtifactSavedTime(artifact.lastSavedOn);
-                        }
-                        this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
-                        state.finishSave();
-                        this.isChanged = false;
-                        this.projectManager.updateArtifactName(state.getArtifact());
-                    }, (error) => {
-                        let message: string;
-                        if (error) {
-                            if (error.statusCode === 400) {
-                                if (error.errorCode === 114) {
-                                    message = this.localization.get("App_Save_Artifact_Error_400_114");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                                }
-                            } else if (error.statusCode === 404) {
-                                message = this.localization.get("App_Save_Artifact_Error_404");
-                            } else if (error.statusCode === 409) {
-                                if (error.errorCode === 116) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_116");
-                                } else if (error.errorCode === 117) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_117");
-                                } else if (error.errorCode === 111) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_111");
-                                } else if (error.errorCode === 115) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_115");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_409");
-                                }
-
-                            } else {
-                                message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                            }
-                        }
-                        this.messageService.addError(message);
-                    }
-                ).finally(() => this.loadingOverlayService.endLoading(overlayId));
-        } catch (Error) {
-            this.messageService.addError(this.localization.get(Error));
-            this.loadingOverlayService.endLoading(overlayId);
-        }
-    }
->>>>>>> 03732e396eaba1d83ae1ca287b9e08c095c9bf41
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{

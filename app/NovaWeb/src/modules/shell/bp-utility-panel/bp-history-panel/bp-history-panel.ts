@@ -1,5 +1,6 @@
 ﻿import { ILocalizationService, IStateManager } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+import { Models} from "../../../main";
+import { IArtifactManager } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -22,7 +23,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "selectionManager",
+        "artifactManager",
         "stateManager"
     ];
 
@@ -39,11 +40,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         private localization: ILocalizationService,
         private artifactHistory: IArtifactHistory,
-        protected selectionManager: ISelectionManager,
+        protected artifactManager: IArtifactManager,
         protected stateManager: IStateManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, stateManager, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },

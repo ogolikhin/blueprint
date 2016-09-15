@@ -27,6 +27,7 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
     }
 
     public saveData() {
+        alert("Publishing user story has not been migrated over yet");
         //this.artifactUtilityService.updateTextProperty(
         //    this.dialogModel.clonedUserTask.userStoryId, [this.dialogModel.clonedUserTask.userStoryProperties.nfr, this.dialogModel.clonedUserTask.userStoryProperties.businessRules]);
     }

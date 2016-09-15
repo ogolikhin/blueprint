@@ -1,4 +1,3 @@
-import { Models} from "../../main";
 import { IStateManager, ItemState } from "../../core";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
 import { IStatefulArtifact, IStatefulSubArtifact } from "../../managers/artifact-manager";
@@ -64,7 +63,7 @@ export class BPBaseUtilityPanelController {
         }
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         return this.$q.resolve();
     }
 }

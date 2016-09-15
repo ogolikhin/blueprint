@@ -313,7 +313,7 @@ namespace ArtifactStore.Repositories
             if (isUseCase) {
                 var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
-                    //filter out flow subartifacts
+                    //filter out flow subartifacts and append children of flow to children of flow's parent.
                     if (subArtifactEntry.Value.PredefinedType == ItemTypePredefined.Flow)
                     {
                         SubArtifact parent;

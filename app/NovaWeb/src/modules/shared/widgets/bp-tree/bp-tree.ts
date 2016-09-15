@@ -1,6 +1,5 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
-import { Helper } from "../../utils/helper";
 import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";
 
@@ -55,7 +54,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
 export interface ITreeNode {
     id: number;
     name: string;
-    type: number;
+    itemTypeId: number;
     hasChildren: boolean;
     parentNode?: ITreeNode;
     children?: ITreeNode[];
@@ -75,7 +74,9 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
-   
+    showLoading();
+    showNoRows();
+    hideOverlays();
 }
 
 
@@ -108,7 +109,8 @@ export class BPTreeController implements IBPTreeController  {
     private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
-   
+
+    private _innerRenderer: Function;
 
     constructor(private localization: ILocalizationService, private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
@@ -124,15 +126,8 @@ export class BPTreeController implements IBPTreeController  {
             this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (!gridCol.cellRendererParams ||
-                        (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
-                        (gridCol.cellRendererParams && !angular.isFunction(gridCol.cellRendererParams.innerRenderer))
-                    ) {
-                        if (!gridCol.cellRendererParams) {
-                            gridCol.cellRendererParams = {};
-                            gridCol.cellRendererParams.padding = 20;
-                        }
-
+                    if (gridCol.cellRendererParams && angular.isFunction(gridCol.cellRendererParams.innerRenderer)) {
+                        this._innerRenderer = gridCol.cellRendererParams.innerRenderer;
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
                 }
@@ -140,8 +135,6 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
-
-      
     }
 
     public $onInit = () => {
@@ -166,8 +159,8 @@ export class BPTreeController implements IBPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
-            onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,
+            onViewportChanged: this.updateViewport,
+            onModelUpdated: this.updateViewport,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
 
         };
@@ -176,9 +169,11 @@ export class BPTreeController implements IBPTreeController  {
 
     public $onDestroy = () => {
         this.selectedRow = null;
-        this.reload(null);
-        this.perfectScrollbars(null, true);
+        this.bpRef = null;
+        //this.reload(null);
+        this.updateViewport(null, true);
 
+        this.options.api.destroy();
     };
 
     /* tslint:disable */
@@ -265,9 +260,24 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
-    private perfectScrollbars = (params?: any, remove?: boolean) => {
-        let viewport = this.$element[0].querySelector(".ag-body-viewport");
+    public showLoading = () => {
+        this.options.api.showLoadingOverlay();
+    };
 
+    public showNoRows = () => {
+        this.options.api.showNoRowsOverlay();
+    };
+
+    public hideOverlays = () => {
+        this.options.api.hideOverlay();
+    };
+
+    private updateViewport = (params?: any, remove?: boolean) => {
+        if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
+            this.hideOverlays();
+        }
+
+        let viewport = this.$element[0].querySelector(".ag-body-viewport");
         if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
             if (remove) {
                 (<any>window).PerfectScrollbar.destroy(viewport);
@@ -292,11 +302,9 @@ export class BPTreeController implements IBPTreeController  {
     };
     /* tslint:disable */
     private innerRenderer = (params: any) => {
-        let currentValue = params.value;
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
         let enableDragndrop: string;
-        let cancelDragndrop: string;
         if (this.enableDragndrop) {
             let node = params.node;
             let path = node.childIndex;
@@ -305,13 +313,12 @@ export class BPTreeController implements IBPTreeController  {
                 path = node.childIndex + "/" + path;
             }
             enableDragndrop = ` bp-tree-dragndrop="${path}"`;
-            cancelDragndrop = " ng-cancel-drag";
         } else {
             enableDragndrop = "";
-            cancelDragndrop = "";
         }
 
-        return `<span ${inlineEditing}${enableDragndrop}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
+        let currentValue = this._innerRenderer(params) || params.value;
+        return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
     /* tslint:enable */
     private getNodeChildDetails(node: ITreeNode) {
@@ -350,18 +357,25 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
-    public that = this;
-
     private rowGroupOpened = (params: any) => {
         console.log("rowGroupOpened");
         let self = this;
 
         let node = params.node;
+        let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
+        if (row) {
+            if (node.expanded) {
+                row.classList.remove("ag-row-group-contracted");
+                row.classList.add("ag-row-group-expanded");
+            } else {
+                row.classList.remove("ag-row-group-expanded");
+                row.classList.add("ag-row-group-contracted");
+            }
+        }
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
                 if (row) {
-                    row.className += " ag-row-loading";
+                    row.classList.add("ag-row-loading");
                 }
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children
@@ -381,26 +395,24 @@ export class BPTreeController implements IBPTreeController  {
         if (!node) {
             return;
         }
-        var self = this;
 
         node.setSelected(true, true);
 
-        if (angular.isFunction(self.onSelect)) {
-            self.onSelect({ item: node.data });
+        if (angular.isFunction(this.onSelect)) {
+            this.onSelect({ item: node.data });
         }
     };
 
     private cellFocused = (params: any) => {
-        var self = this;
-        var model = self.options.api.getModel();
+        var model = this.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
-        self.rowSelected(selectedRow);
+        this.rowSelected(selectedRow);
     };
     
     private rowClicked = (params: any) => {
-        var self = this;
+        let self = this;
 
-        self.clickTimeout = self.$timeout(function () {
+        this.clickTimeout = this.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }

@@ -1,5 +1,5 @@
 ﻿import {IHashMap} from "../../../../../../main/models/models";
-import {IProcessShape, TreeShapeRef} from "../../../../models/processModels";
+import {IProcessShape, TreeShapeRef} from "../../../../models/process-models";
 import {IProcessGraphModel} from "../../viewmodel/process-graph-model";
 import {IGraphLayoutPreprocessor} from "./models/";
 

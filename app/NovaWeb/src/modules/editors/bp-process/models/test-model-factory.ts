@@ -1,5 +1,5 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
-import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel} from "./processModels";
+import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel} from "./process-models";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
 
 export function createProcessModel(id: number = 1, type: ProcessType = ProcessType.BusinessProcess): ProcessModel {

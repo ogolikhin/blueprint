@@ -33,6 +33,8 @@ export class BpArtifactInfoController {
     public artifactName: string;
     public artifactType: string;
     public artifactClass: string;
+    public artifactTypeId: number;
+    public artifactTypeIcon: number;
     public artifactTypeDescription: string;
     private _artifactId: number;
 
@@ -67,6 +69,8 @@ export class BpArtifactInfoController {
     private initProperties() {
         this.artifactName = null;
         this.artifactType = null;
+        this.artifactTypeId = null;
+        this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
         this.isLegacy = false;
         this.isReadonly = false;
@@ -86,11 +90,15 @@ export class BpArtifactInfoController {
         
         this.artifactName = artifact.name || "";
         this._artifactId = artifact.id;
-        artifact.metadata.getItemType(artifact.id).then((it: Models.IItemType) => {
-            this.artifactType = it.name || Models.ItemTypePredefined[it.predefinedType] || "";
+        this.artifactTypeId = artifact.itemTypeId;
+        artifact.metadata.getItemType(artifact.id).then((itemType: Models.IItemType) => {
+            this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+            if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
+                this.artifactTypeIcon = itemType.iconImageId;
+            }
+            
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
-        })
-
+        });
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
 
         this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
@@ -110,6 +118,7 @@ export class BpArtifactInfoController {
                 break;
             case Enums.LockedByEnum.OtherUser:
                 let name = "";
+                let msg = "";
                 // let date = this.localization.current.toDate(state.originItem.lockedDateTime);
                 // if (state.lock && state.lock.info) {
                 //     name = state.lock.info.lockOwnerLogin;
@@ -134,59 +143,59 @@ export class BpArtifactInfoController {
         
     }
 
-    private onStateChange(state: ItemState) {
-        this.initProperties();
-        if (!state) {
-            return;
-        }
-        let artifact = state.getArtifact(); 
+    // private onStateChange(state: ItemState) {
+    //     this.initProperties();
+    //     if (!state) {
+    //         return;
+    //     }
+    //     let artifact = state.getArtifact(); 
 
-        this.artifactName = artifact.name || "";
-        this._artifactId = artifact.id;
+    //     this.artifactName = artifact.name || "";
+    //     this._artifactId = artifact.id;
 
-        if (state.itemType) {
-            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
-        } else {
-            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
-        }
+    //     if (state.itemType) {
+    //         this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
+    //     } else {
+    //         this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
+    //     }
 
-        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
+    //     this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
+    //     this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+    //     this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+    //         artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
 
-        this.isReadonly = state.isReadonly;
-        this.isChanged = state.isChanged;
-        switch (state.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
-                this.selfLocked = true;
-                break;
-            case Enums.LockedByEnum.OtherUser:
-                let name = "";
-                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (state.lock && state.lock.info) {
-                    name = state.lock.info.lockOwnerLogin;
-                }
-                name =  name || state.originItem.lockedByUser.displayName || "";
-                let msg = name ? "Locked by " + name : "Locked "; 
-                if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date);
-                }
-                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
-                break;
-            default:
-                break;
+    //     this.isReadonly = state.isReadonly;
+    //     this.isChanged = state.isChanged;
+    //     switch (state.lockedBy) {
+    //         case Enums.LockedByEnum.CurrentUser:
+    //             this.selfLocked = true;
+    //             break;
+    //         case Enums.LockedByEnum.OtherUser:
+    //             let name = "";
+    //             let date = this.localization.current.toDate(state.originItem.lockedDateTime);
+    //             if (state.lock && state.lock.info) {
+    //                 name = state.lock.info.lockOwnerLogin;
+    //             }
+    //             name =  name || state.originItem.lockedByUser.displayName || "";
+    //             let msg = name ? "Locked by " + name : "Locked "; 
+    //             if (date) {
+    //                 msg += " on " + this.localization.current.formatShortDateTime(date);
+    //             }
+    //             this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+    //             break;
+    //         default:
+    //             break;
 
-        }
-    }
+    //     }
+    // }
 
 
     public get artifactHeadingMinWidth() {
@@ -263,7 +272,7 @@ export class BpArtifactInfoController {
     //                     if (error) {
     //                         if (error.statusCode === 400) {
     //                             if (error.errorCode === 114) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_114");
+    //                                 message = this.localization.get("App_Save_Artifact_Error_400_114");
     //                             } else {
     //                                 message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
     //                             }
@@ -274,6 +283,10 @@ export class BpArtifactInfoController {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409_116");
     //                             } else if (error.errorCode === 117) {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409_117");
+    //                             } else if (error.errorCode === 111) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_111");
+    //                             } else if (error.errorCode === 115) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_115");
     //                             } else {
     //                                 message = this.localization.get("App_Save_Artifact_Error_409");
     //                             }

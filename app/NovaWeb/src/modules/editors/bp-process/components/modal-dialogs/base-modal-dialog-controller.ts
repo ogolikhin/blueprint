@@ -1,4 +1,4 @@
-import {IModalDialogModel} from "./modal-dialog-model";
+import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 
 export interface IModalScope extends ng.IScope {
     dialogModel: IModalDialogModel;

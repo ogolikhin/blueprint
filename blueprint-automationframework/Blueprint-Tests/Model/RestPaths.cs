@@ -139,6 +139,7 @@ namespace Model
                     public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
                     public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
+                    public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
 
                     public static class Discussions_id_
                     {

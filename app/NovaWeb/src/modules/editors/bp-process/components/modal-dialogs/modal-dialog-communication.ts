@@ -3,12 +3,16 @@ import {CommunicationWrapper, ICommunicationWrapper} from "./communication-wrapp
 
 export interface IModalDialogCommunication {
     registerSetGraphObserver(observer: any);
-    removeSetGraphObserver(observer: any);
+    removeSetGraphObserver(handler: string);
     setGraph(func: any);
 
     registerOpenDialogObserver(observer: any);
-    removeOpenDialogObserver(observer: any);
+    removeOpenDialogObserver(handler: string);
     openDialog(id: number, dialogType: ModalDialogType);
+
+    registerModalProcessViewModelObserver(observer: any);
+    removeModalProcessViewModelObserver(handler: string);
+    setModalProcessViewModel(modalProcessViewModel: any);
 
     onDestroy();
 }
@@ -16,6 +20,7 @@ export interface IModalDialogCommunication {
 export class ModalDialogCommunication implements IModalDialogCommunication {
     private setGraphSubject: ICommunicationWrapper; 
     private openDialogSubject: ICommunicationWrapper;
+    private setModalProcessViewModelSubject: ICommunicationWrapper;
 
     constructor() {
 
@@ -24,6 +29,7 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
         // Create observables
         this.setGraphSubject = new CommunicationWrapper();
         this.openDialogSubject = new CommunicationWrapper();
+        this.setModalProcessViewModelSubject = new CommunicationWrapper();
     };
 
     // 1. Set graph object  
@@ -52,9 +58,23 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
         this.openDialogSubject.notify(arguments);
     }
 
+    // 3. Set ModalProcessViewModel object
+    public registerModalProcessViewModelObserver(observer: any) {
+        return this.setModalProcessViewModelSubject.subscribe(observer);
+    }
+    
+    public removeModalProcessViewModelObserver(handler: string) {
+        this.setModalProcessViewModelSubject.disposeObserver(handler);
+    }
+    
+    public setModalProcessViewModel(modalProcessViewModel: any){
+        this.setModalProcessViewModelSubject.notify(modalProcessViewModel);
+    }
+
     public onDestroy() {
         this.setGraphSubject.dispose();
         this.openDialogSubject.dispose();
+        this.setModalProcessViewModelSubject.dispose();
     }
 }
 

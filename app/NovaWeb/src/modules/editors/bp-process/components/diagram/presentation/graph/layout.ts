@@ -1,7 +1,7 @@
 ﻿import {IMessageService} from "../../../../../../core/";
-import {IProcessShape, IProcessLink} from "../../../../models/processModels";
-import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/processModels";
-import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/processModels";
+import {IProcessShape, IProcessLink} from "../../../../models/process-models";
+import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
+import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";
 import {ProcessType, ProcessShapeType} from "../../../../models/enums";
 import {NodeType, NodeChange} from "./models/";
 import {GRAPH_LEFT, GRAPH_TOP, GRAPH_COLUMN_WIDTH, GRAPH_ROW_HEIGHT} from "./models/";
@@ -166,6 +166,8 @@ export class Layout implements ILayout {
         finally {
 
             graphModel.endUpdate();
+
+            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
             
             for (i in this.viewModel.shapes) {
                 var thisShape: IProcessShape = this.viewModel.shapes[i];
@@ -189,8 +191,6 @@ export class Layout implements ILayout {
                     edgeGeo.state = this.getEdgeCellState(edgeGeo.edge);
                 }
             }
-
-            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
 
             // Set vertices z-order on top in case some of them are overlaped by edges
             this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));

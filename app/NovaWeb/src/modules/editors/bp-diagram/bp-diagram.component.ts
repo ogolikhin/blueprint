@@ -1,15 +1,23 @@
 import "angular";
 import "angular-sanitize";
 import { IStencilService } from "./impl/stencil.svc";
-import { ILocalizationService, IStateManager, IMessageService } from "../../core";
-import { Models } from "../../main";
+import { ILocalizationService } from "../../core";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { ISelectionManager, ISelection } from "../../main/services/selection-manager";
+import { ISelection } from "../../managers/artifact-manager";
 import { IDiagramElement } from "./impl/models";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { SelectionHelper } from "./impl/utils/selection-helper";
-import { BpBaseEditor} from "../bp-base-editor";
+
+import { 
+    IArtifactManager, 
+    IProjectManager, 
+    IStatefulArtifact, 
+    IMessageService,
+    Models, 
+    Enums, 
+    BpBaseEditor 
+} from "../bp-base-editor";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -23,13 +31,12 @@ export class BPDiagramController extends BpBaseEditor {
 
     public static $inject: [string] = [
         "messageService", 
-        "stateManager", 
+        "artifactManager", 
         "$element",
         "$q",
         "$sanitize",
         "stencilService",
         "diagramService",
-        "selectionManager",
         "localization",
         "$rootScope",
         "$log"
@@ -41,21 +48,19 @@ export class BPDiagramController extends BpBaseEditor {
 
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
-    private artifact: Models.IArtifact;
 
     constructor(
         public messageService: IMessageService,
-        public stateManager: IStateManager,
+        public artifactManager: IArtifactManager,
         private $element: ng.IAugmentedJQuery,
         private $q: ng.IQService,
         private $sanitize: any,
         private stencilService: IStencilService,
         private diagramService: IDiagramService,
-        private selectionManager: ISelectionManager,
         private localization: ILocalizationService,
         private $rootScope: ng.IRootScopeService,
         private $log: ng.ILogService) {
-            super(messageService, stateManager);
+            super(messageService, artifactManager);
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
@@ -65,7 +70,7 @@ export class BPDiagramController extends BpBaseEditor {
         //use context reference as the last parameter on subscribe...
         this._subscribers.push(
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.selectionObservable
+            this.artifactManager.selection.selectionObservable
                 .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this)
         );
@@ -88,13 +93,7 @@ export class BPDiagramController extends BpBaseEditor {
         }
     }
 
-    public onLoading(obj: any): boolean {
-        this.isLoading = true;
-        this.artifact = (obj.context.currentValue as Models.IEditorContext).artifact;
-        return !!this.artifact;
-    }
-
-    public onUpdate(context: Models.IEditorContext) {
+    public onUpdate() {
         this.$element.css("height", "100%");
         this.$element.css("width", "");
         this.$element.css("background-color", "transparent");
@@ -109,8 +108,6 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.artifact !== null && this.diagramService.isDiagram(this.artifact.predefinedType)) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
-                
-                this.stateManager.addChange(diagram.data);
 
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
@@ -148,10 +145,11 @@ export class BPDiagramController extends BpBaseEditor {
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
             const selectionHelper = new SelectionHelper();
-            this.selectionManager.selection = selectionHelper.getEffectiveSelection(
-                this.artifact,
-                elements,
-                diagramType);
+            //TODO: (DL)
+            // this.artifactManager.selection.getSubArtifact = selectionHelper.getEffectiveSelection(
+            //     this.artifact,
+            //     elements,
+            //     diagramType);
         });
     }
 

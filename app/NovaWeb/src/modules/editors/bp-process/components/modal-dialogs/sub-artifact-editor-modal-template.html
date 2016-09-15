@@ -5,8 +5,8 @@
     <h3 class="modal-title" style="display: inline-block">{{vm.getActiveHeader()}}</h3>
     <h3 ng-if="!vm.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>{{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
     <div class="contextual-help-container contextual-help-modal-container">
-        <div ng-if="dialogModel.isUserTask"><contextual-help image-src={{'/Areas/Web/Style/images/Storyteller/contextual-help/usertask.png'}}></contextual-help></div>
-        <div ng-if="dialogModel.isSystemTask"><contextual-help image-src={{'/Areas/Web/Style/images/Storyteller/contextual-help/systemtask.png'}}></contextual-help></div>
+        <div ng-if="dialogModel.isUserTask"><contextual-help image-src={{'/novaweb/static/bp-process/images/contextual-help/usertask.png'}}></contextual-help></div>
+        <div ng-if="dialogModel.isSystemTask"><contextual-help image-src={{'/novaweb/static/bp-process/images/contextual-help/systemtask.png'}}></contextual-help></div>
     </div>
 </div>
 <div class="modal-body storyteller-modal-body">
@@ -47,12 +47,14 @@
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
                             </uib-tab-heading>
                             <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                                <textarea name="user_task_description" 
+                                <!--Temporary replace the rich box-->
+                                <div ng-bind-html="dialogModel.clonedUserTask.description"></div>
+                                <!--<textarea name="user_task_description" 
                                           rich-text-box-inline-traces 
                                           project-id="{{ vm.isProjectOnlySearch ? vm.processModelService.processModel.projectId : '' }}" 
                                           ng-disabled="vm.isReadonly"
                                           ng-class="dialogModel.clonedUserTask.description ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
-                                          ng-model="dialogModel.clonedUserTask.description"></textarea>
+                                          ng-model="dialogModel.clonedUserTask.description"></textarea>-->
                                 <!--<label for="user_task_description" class="nova-label"><i class="fonticon-storyteller-description"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}</label>-->
                             </div>
                         </uib-tab>
@@ -211,7 +213,7 @@
 </div>
 
 <div class="modal-footer storyteller-modal-footer">
-    <button class="btn btn-default" type="button" ng-click="vm.cancel()">{{::$root.config.labels['Cancel']}}</button>
-    <button class="btn button-brand-secondary" type="button" ng-click="vm.ok()" ng-disabled="vm.isReadonly">{{::$root.config.labels['OK']}}</button>
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
+    <button class="btn button-brand-secondary" type="button" ng-click="vm.ok()" ng-disabled="vm.isReadonly">{{::$root.config.labels['App_Button_Ok']}}</button>
     <!--<button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="vm.openPropertyFloatWindow($event)"></button>-->
 </div>

@@ -86,7 +86,7 @@ describe("Artifact Picker", () => {
         // Assert
         expect(controller.propertyMap).toBeDefined();
         expect(controller.propertyMap["id"]).toEqual("id");
-        expect(controller.propertyMap["type"]).toEqual("type");
+        expect(controller.propertyMap["itemTypeId"]).toEqual("itemTypeId");
         expect(controller.propertyMap["name"]).toEqual("name");
         expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
     }));
@@ -142,7 +142,7 @@ describe("Artifact Picker", () => {
         $rootScope.$digest();
         // Act
         controller.projectView = false;
-        controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
+        controller.doSelect(({ id: 1, name: "Project 1", itemTypeId: 1 } as ITreeNode));
         $rootScope.$digest();
         // Assert
         expect(isReloadCalled).toEqual(0);
@@ -159,18 +159,18 @@ describe("Artifact Picker", () => {
         $rootScope.$digest();
         // Act
         controller.projectView = true;
-        controller.doSelect(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
+        controller.doSelect(({ id: 1, name: "Project 1", type: 1 }));
         $rootScope.$digest();
 
         // Assert
-        expect(isReloadCalled).toEqual(1);
+        expect(isReloadCalled).toEqual(2); // we call reload(null) first to empty the tree and then we reload the project
     }));
 
     it("doSync (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         // Arrange
         controller.projectView = false;
         // Act
-        var result = controller.doSync(({ id: 1, name: "Project 1", type: 1 } as ITreeNode));
+        var result = controller.doSync(({ id: 1, name: "Project 1", itemTypeId: 1, hasChildren: false } as ITreeNode));
         $rootScope.$digest();
 
         // Assert
@@ -282,7 +282,7 @@ describe("Artifact Picker", () => {
         $rootScope.$digest();
         // Act
         controller.projectView = false;
-        controller.doSelect({ id: 1, name: "artifact 1", type: 1, predefinedType: Models.ItemTypePredefined.Document });
+        controller.doSelect({ id: 1, name: "artifact 1", itemTypeId: 1, predefinedType: Models.ItemTypePredefined.Document });
         $rootScope.$digest();
         // Assert
         expect(controller.selectedItem).toBeDefined();

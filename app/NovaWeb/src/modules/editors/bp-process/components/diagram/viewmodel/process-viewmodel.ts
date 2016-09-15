@@ -7,6 +7,7 @@ import {ICommunicationManager} from "../../../";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
+    processType: ProcessEnums.ProcessType;
     isLocked: boolean;
     isLockedByMe: boolean;
     isHistorical: boolean;
@@ -220,8 +221,16 @@ export class ProcessViewModel implements IProcessViewModel {
     //    return process.propertyValues[propertyName].value;
     //}
 
+    public get processType(): ProcessEnums.ProcessType {
+        return this.propertyValues["clientType"].value;
+    }
+
+    public set processType(value: ProcessEnums.ProcessType) {
+        this.propertyValues["clientType"].value = value;
+    }
+
     public get isUserToSystemProcess(): boolean {
-        return this.propertyValues["clientType"].value === ProcessEnums.ProcessType.UserToSystemProcess;
+        return this.processType === ProcessEnums.ProcessType.UserToSystemProcess;
     }
 
     public resetLock() {

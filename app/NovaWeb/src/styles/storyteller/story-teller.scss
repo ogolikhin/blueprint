@@ -223,7 +223,6 @@
 .file-upload_emptied img, .file-upload_preview img {
     margin: 0 auto;
     max-width: 100%;
-    vertical-align: middle;
     display: block;
 }
 .file-upload_emptied {
@@ -239,9 +238,6 @@
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-
-    button.button-white {
-    }
 
     .buttons-container-inner {
         vertical-align: top;
@@ -287,6 +283,70 @@
             font-size: 12px;
             border: none;
             height: auto;
+        }
+    }
+}
+
+bp-process-type-toggle {
+    display: inline-block;
+    vertical-align: middle;
+    overflow: hidden;
+
+    .toggle-container {
+        display: flex;
+        flex-direction: row;
+        margin: 0 10px 0;
+        border: solid 1px $blue-light;
+        border-radius: 4px;
+
+        input[type=radio] {
+            visibility: hidden;
+            width: 0px;
+            height: 0px;
+        }
+
+        input[type=radio]:checked + .icon-container {
+            background-color: $blue-light;
+        }
+
+        input[type=radio]:checked + .icon-container i {
+            color: $white;
+        }
+
+        .icon-container {
+            width: 42px;
+            height: 25px;
+            margin: 0;
+            cursor: pointer;
+            position: relative;
+
+            i {
+                position: absolute;
+                top: 14px;
+                left: 12px;
+                color: $blue-light;
+            }
+        }
+    }
+
+    .toggle-container.disabled {
+        border-color: $gray;
+
+         input[type=radio] + .icon-container {
+            background-color: transparent;
+            cursor: default;
+
+            i {
+                color: $gray-lighter;
+            }
+        }
+
+         input[type=radio]:checked + .icon-container {
+            background-color: $gray;
+            
+            i {
+                color: $gray-lighter;
+            }
         }
     }
 }
@@ -482,6 +542,7 @@ margin-top: 72px;
         width: auto; /* ie doesn't support initial */
         width: initial;
         max-width: 90%;
+        position: relative;
 
         .fonticon-close {
             position: absolute;

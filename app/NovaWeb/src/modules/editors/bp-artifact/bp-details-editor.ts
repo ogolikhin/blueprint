@@ -1,18 +1,17 @@
 ﻿import {
     BpArtifactEditor,
-    PropertyContext,
-    ILocalizationService,
-    IProjectManager,
-    IMessageService,
-    ISelectionManager,
-    IWindowManager,
-    Models,
-    Enums
+    ILocalizationService, 
+    IProjectManager, 
+    IArtifactManager, 
+//    IStatefulArtifact,
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
+    Models, 
+    Enums 
 } from "./bp-artifact-editor";
 import { IArtifactService } from "../../main/services";
-
-import { IStatefulArtifact } from "../../managers/models";
-
+import { IDialogService } from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -26,17 +25,18 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "selectionManager2", "windowManager", "localization", "projectManager", "artifactService"];
+        "messageService", "artifactManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
 
     constructor(
         messageService: IMessageService,
-        selectionManager: ISelectionManager,
+        artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
         projectManager: IProjectManager,
-        private artifactService: IArtifactService
+        private artifactService: IArtifactService,
+        private dialogService: IDialogService
     ) {
-        super(messageService, selectionManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization, projectManager);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -63,6 +63,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public get specificPropertiesHeading(): string {
         if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
+        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else {
             return this.artifact.name + this.localization.get("Nova_Properties", " Properties");
             //TODO:: return this.artifact.type.name + this.localization.get("Nova_Properties", " Properties");
@@ -87,13 +89,15 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     public onLoad() {
         this.isLoading = true;
-        
         this.artifact.load().then((it: Models.IArtifact) => {
             // delete context.artifact.lockedByUser;
             // delete context.artifact.lockedDateTime;
             // context.artifact = angular.extend({}, context.artifact, it);
             // this.stateManager.addChange(context.artifact);
             this.onUpdate();
+            if (state.moved) {
+                this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            }
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

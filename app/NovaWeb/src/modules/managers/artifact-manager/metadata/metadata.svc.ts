@@ -2,10 +2,12 @@ import { ILocalizationService } from "../../../core";
 import { Models } from "../../../main/models";
 
 export interface IMetaDataService {
-    getArtifactItemType(projectId, itemTypeId: number): Models.IItemType;
     get(projectId?: number);
     add(projectId?: number);
     remove(projectId?: number);
+    getArtifactItemType(itemTypeId: number, projectId: number): Models.IItemType;
+    getArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[];
+    getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[]
 }
 
 
@@ -92,14 +94,14 @@ export class MetaDataService implements IMetaDataService {
         });
 
     }
-    public remove(id: number) {
+    public remove(projectId: number) {
         this.collection = this.collection.filter((it: ProjectMetaData) => {
-            return it.id !== id;
+            return it.id !== projectId;
         });
     }
     
 
-    public getArtifactItemType(projectId, itemTypeId: number): Models.IItemType {
+    public getArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType {
         let itemType: Models.IItemType;
         let metadata = this.get(projectId);
         if (metadata) {
@@ -110,4 +112,225 @@ export class MetaDataService implements IMetaDataService {
         
         return itemType;
     }
+
+
+    public getArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+
+//        let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
+        let projectMeta = this.get(projectId);
+        let itemType = this.getArtifactItemType(projectId, itemTypeId);        
+
+        properties = this.getArtifactSystemPropertyTypes(projectMeta, itemType);
+        //add custom property types
+        properties.push(this.getCustomPropertyTypes(projectMeta, itemType));
+        return properties;
+
+    }
+
+    public getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+
+        let projectMeta = this.get(projectId);
+        let itemType = this.getArtifactItemType(projectId, itemTypeId);        
+        
+        properties = this.getSubArtifactSystemPropertyTypes(itemType);
+        //add custom property types
+        properties.push(this.getCustomPropertyTypes(projectMeta, itemType));
+
+        return properties;
+
+    }
+
+
+    private getArtifactSystemPropertyTypes(projectMeta: ProjectMetaData, itemType: Models.IItemType): Models.IPropertyType[] {
+        // artifactType: Models.IItemType,
+        // projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+
+        //add system properties  
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Name"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Name,
+            primitiveType: Models.PrimitiveType.Text,
+            isRequired: true
+        });
+
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Type"),
+            propertyTypePredefined: Models.PropertyTypePredefined.ItemTypeId,
+            primitiveType: Models.PrimitiveType.Choice,
+            validValues: function (data: Models.IProjectMeta) {
+                return data.artifactTypes.filter((it: Models.IItemType) => {
+                    return (itemType && (itemType.predefinedType === it.predefinedType));
+                });
+            } (projectMeta.data).map(function (it) {
+                return <Models.IOption>{
+                    id: it.id,
+                    value: it.name
+                };
+            }),
+            isRequired: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_CreatedBy"),
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
+            primitiveType: Models.PrimitiveType.User,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_CreatedOn"),
+            propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            stringDefaultValue: "Never published", 
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_LastEditBy"),
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
+            primitiveType: Models.PrimitiveType.User,
+            disabled: true
+        });
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_LastEditOn"),
+            propertyTypePredefined: Models.PropertyTypePredefined.LastEditedOn,
+            primitiveType: Models.PrimitiveType.Date,
+            dateDefaultValue: "",
+            disabled: true
+        });
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Description"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            primitiveType: Models.PrimitiveType.Text,
+            isRichText: true
+        });
+
+        switch (itemType.predefinedType) {
+            case Models.ItemTypePredefined.Actor:
+                properties.push({
+                    name: this.localization.get("Label_ActorImage", "Image"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.Image,
+                    primitiveType: Models.PrimitiveType.Image,
+                }, {
+                    name: this.localization.get("Label_ActorInheritFrom", "Inherit from"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
+                    primitiveType: Models.PrimitiveType.ActorInheritance,
+                });
+                break;
+            case Models.ItemTypePredefined.Document:
+                properties.push({
+                    name: this.localization.get("Label_DocumentFile", "DocumentFile"), //TODO localize
+                    propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
+                    primitiveType: Models.PrimitiveType.DocumentFile,
+                });
+                break;
+            default:
+                break;
+        }
+
+        return properties;
+    }
+
+    private getSubArtifactSystemPropertyTypes(itemType: Models.IItemType): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+
+        if (!itemType) {
+            return properties;
+        }
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Name"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Name,
+            primitiveType: Models.PrimitiveType.Text,
+            isRequired: true
+        });
+
+        properties.push(<Models.IPropertyType>{
+            name: this.localization.get("Label_Description"),
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            primitiveType: Models.PrimitiveType.Text,
+            isRichText: true
+        });
+
+        if (itemType.predefinedType === Models.ItemTypePredefined.Step) {
+           properties.push(<Models.IPropertyType>{
+               name: "Step Of",
+               propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
+               primitiveType: Models.PrimitiveType.Choice,               
+           });
+        }
+
+        if (itemType.predefinedType === Models.ItemTypePredefined.GDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.DDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.SBShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.UIShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.PROShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.BPShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.GDConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.DDConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.SBConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.UIConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.BPConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.UCDConnector) {
+
+            properties.push(<Models.IPropertyType>{
+                name: "Label",
+                propertyTypePredefined: Models.PropertyTypePredefined.Label,
+                primitiveType: Models.PrimitiveType.Text,
+                isRichText: true
+            });
+        }
+
+        if (itemType.predefinedType === Models.ItemTypePredefined.GDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.DDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.SBShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.UIShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.PROShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.BPShape) {
+
+            properties.push(<Models.IPropertyType>{
+                name: "X",
+                propertyTypePredefined: Models.PropertyTypePredefined.X,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Y",
+                propertyTypePredefined: Models.PropertyTypePredefined.Y,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Width",
+                propertyTypePredefined: Models.PropertyTypePredefined.Width,
+                primitiveType: Models.PrimitiveType.Number
+            });
+
+            properties.push(<Models.IPropertyType>{
+                name: "Height",
+                propertyTypePredefined: Models.PropertyTypePredefined.Height,
+                primitiveType: Models.PrimitiveType.Number
+            });
+        }
+        return properties;
+    }
+
+    private getCustomPropertyTypes(projectMeta: ProjectMetaData, itemType: Models.IItemType): Models.IPropertyType[] {
+        let properties: Models.IPropertyType[] = [];
+        projectMeta.data.propertyTypes.forEach((it: Models.IPropertyType) => {
+            if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                properties.push(it);
+            }
+        });
+        return properties;
+    }
+
+
+
+
+
 }

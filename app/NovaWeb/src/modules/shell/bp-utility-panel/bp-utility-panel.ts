@@ -28,6 +28,8 @@ export class BPUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
     private _currentItem: string;
     private _currentItemClass: string;
+    private _currentItemType: number;
+    private _currentItemIcon: number;
 
     public get currentItem() { 
         return this._currentItem;
@@ -37,10 +39,22 @@ export class BPUtilityPanelController {
         return this._currentItemClass;
     }
 
+    public get currentItemType() {
+        return this._currentItemType;
+    }
+
+    public get currentItemIcon() {
+        return this._currentItemIcon;
+    }
+
     constructor(
         private localization: ILocalizationService,
         private artifactManager: IArtifactManager,
         private $element: ng.IAugmentedJQuery) {
+        this._currentItem = null;
+        this._currentItemClass = null;
+        this._currentItemType = null;
+        this._currentItemIcon = null;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -87,9 +101,19 @@ export class BPUtilityPanelController {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            this._currentItemType = item.itemTypeId;
+            this._currentItemIcon = null;
+            if (item.predefinedType !== ItemTypePredefined.Project) {
+                let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    this._currentItemIcon = artifactType.iconImageId;
+                }
+            }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
+            this._currentItemType = null;
+            this._currentItemIcon = null;
         }
     }
 

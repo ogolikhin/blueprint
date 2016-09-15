@@ -1,35 +1,49 @@
-import { ILocalizationService, IMessageService, Message, IPropertyChangeSet } from "../../core";
+import { ILocalizationService, Message, IPropertyChangeSet } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
-import { IStatefulArtifact } from "../../managers/models";
-import { IProjectManager, ISelectionManager } from "../../managers";
-import { Enums, Models} from "../../main/models";
 
-import { BpBaseEditor} from "../bp-base-editor";
+import { 
+    IArtifactManager, 
+    IProjectManager, 
+    IStatefulArtifact, 
+    IMessageService,
+    Models, 
+    Enums, 
+    BpBaseEditor 
+} from "../bp-base-editor";
+
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
 
-export { ILocalizationService, IProjectManager, IMessageService, ISelectionManager, IWindowManager, PropertyContext, Models, Enums, Message }
+export { 
+    ILocalizationService, 
+    IProjectManager, 
+    IArtifactManager, 
+    IStatefulArtifact,
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
+    Models, 
+    Enums, 
+    Message 
+}
 
 export class BpArtifactEditor extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "selectionManager2", "windowManager", "localization", "projectManager"];
+    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization", "projectManager"];
 
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
-//    public artifactState: ItemState;
-
-    public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public selectionManager: ISelectionManager,
+        public artifactManager: IArtifactManager,
         public windowManager: IWindowManager,
         public localization: ILocalizationService,
         private projectManager: IProjectManager
     ) {
-        super(messageService, selectionManager);
+        super(messageService, artifactManager);
         this.editor = new PropertyEditor(this.localization);
     }
 
@@ -105,13 +119,14 @@ export class BpArtifactEditor extends BpBaseEditor {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                // if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                //     if (field.key !== "documentFile"  &&
-                //         field.type !== "bpFieldImage" &&
-                //         field.type !== "bpFieldInheritFrom") {  
-                //         field.type = "bpFieldReadOnly";                     
-                //     }
-                // }
+                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
+                    if (field.key !== "documentFile"  &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {  
+                        field.type = "bpFieldReadOnly";                     
+                    }
+                }
                 this.onFieldUpdate(field);
 
             });
@@ -140,34 +155,36 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
 
-    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        try {
-            //here we need to update original model
-            let context = $field.data as PropertyContext;
-            if (!context) {
-                return;
+
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+        $scope.$applyAsync(() => {
+            try {
+                //here we need to update original model
+                let context = $field.data as PropertyContext;
+                if (!context) {
+                    return;
+                }
+                let value = this.editor.convertToModelValue($field, $value);
+                let changeSet: IPropertyChangeSet = {
+                    lookup: context.lookup,
+                    id: context.modelPropertyName,
+                    value: value
+                };
+                let state = this.stateManager.addChange(this.context.artifact, changeSet);
+
+                if ($scope["form"]) {
+                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                }
+
+                this.stateManager.lockArtifact(state).catch((error: any) => {
+                    if (error) {
+                        this.messageService.addError(error);
+                    }
+                });
+            } catch (err) {
+                this.messageService.addError(err);
             }
-            let value = this.editor.convertToModelValue($field, $value);
-            let changeSet: IPropertyChangeSet = {
-                lookup: context.lookup,
-                id: context.modelPropertyName,
-                value: value
-            };
-            // let state = this.stateManager.addChange(this.context.artifact, changeSet);
-            
-            // if ($scope.form) {
-            //     state.setValidationErrorsFlag($scope.form.$$parentForm.$invalid);
-            // }
-
-            // this.stateManager.lockArtifact(state).catch((error: any) => {
-            //     if (error) {
-            //         this.messageService.addError(error);
-            //     }
-            // });
-
-        } catch (err) {
-            this.messageService.addError(err);
-        }
+        });
     };
 
 }

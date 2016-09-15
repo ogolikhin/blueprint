@@ -154,7 +154,7 @@ namespace Model.ArtifactModel.Impl
 
         #region Delete methods
 
-        protected List<DeleteArtifactResult> DeletedArtifactResults { get; private set; }
+        public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
 
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -224,7 +224,6 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-            artifaceBaseToDelete.DeletedArtifactResults = new List<DeleteArtifactResult>();
 
             foreach (var deletedArtifactResult in artifactResults)
             {
@@ -237,13 +236,17 @@ namespace Model.ArtifactModel.Impl
 
                     if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
                     {
-                        artifactToDelete.IsMarkedForDeletion = true;
+                        if (artifactToDelete.IsPublished)
+                        {
+                            artifactToDelete.IsMarkedForDeletion = true;
+                        }
+                        else
+                        {
+                            artifactToDelete.IsDeleted = true;
+                        }
                     }
                 }
             }
-
-            // TODO:  Add an IsMarkedForDeletion flag to this class and set it to true if the delete was successful,
-            // TODO:  then in the Publish, if IsMarkedForDeletion is true, mark IsPublished to false and delete the Id...
 
             return artifactResults;
         }
@@ -631,7 +634,13 @@ namespace Model.ArtifactModel.Impl
             // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
             foreach (var artifact in artifactList.ToArray())
             {
-                if (artifact.IsPublished)
+                artifactList.Remove(artifact);
+
+                if (artifact.IsDeleted)
+                {
+                    Logger.WriteDebug("Artifact already deleted.  Skipping deletion in the Dispose.");
+                }
+                else if (artifact.IsPublished)
                 {
                     if (artifact.IsMarkedForDeletion)
                     {
@@ -663,6 +672,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             // For each user that created artifacts, discard the list of artifacts they created.
+            // TODO: This workaround shouldn't be needed anymore.  OpenAPI should now be able to delete unpublished artifacts without having to call discard.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);

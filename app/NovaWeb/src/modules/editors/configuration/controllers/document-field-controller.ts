@@ -11,7 +11,7 @@ export function documentController(
     $window: ng.IWindowService,
     messageService: IMessageService) {
     let currentModelVal = $scope.model[$scope.options.key];
-    if (currentModelVal != null) {
+    if (currentModelVal != null && currentModelVal["fileName"] != null && currentModelVal["fileExtension"] != null) {
         $scope.hasFile = true;
         $scope.fileName = currentModelVal["fileName"];
         $scope.extension = FiletypeParser.getFiletypeClass(currentModelVal["fileExtension"]);

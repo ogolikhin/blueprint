@@ -119,13 +119,11 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = Helper.escapeHTMLText(params.data.name);
-
                 if (params.data.type === 1) {
-                    var cell = params.eGridCell;
+                    let cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
-                return sanitizedName;
+                return `<i></i><span>${Helper.escapeHTMLText(params.data.name)}</span>`;
             },
             padding: 20
         },

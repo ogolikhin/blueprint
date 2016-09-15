@@ -24,6 +24,16 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
+        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var deletedArtifacts = DeleteArtifact(Address, artifact, user, expectedStatusCodes);
+
+            return deletedArtifacts;
+        }
+
         /// <seealso cref="IArtifactStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -370,6 +380,20 @@ namespace Model.Impl
         }
         */
 
+        /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
+        public List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable
@@ -407,5 +431,68 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IDisposable
+
+        #region Static members
+
+        /// <summary>
+        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifact">The artifact to delete.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        public static List<INovaArtifactResponse> DeleteArtifact(string address, IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifact.Id);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var deletedArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
+
+            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
+
+            if (restApi.StatusCode == HttpStatusCode.OK)
+            {
+                // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
+                foreach (INovaArtifactResponse deletedArtifact in deletedArtifacts)
+                {
+                    Logger.WriteDebug("'DELETE {0}' returned following artifact Id: {1}",
+                        path, deletedArtifact.Id);
+
+                    ArtifactBase artifaceBaseToDelete = artifact as ArtifactBase;
+
+                    // Hack: This is needed until we can refactor ArtifactBase better.
+                    DeleteArtifactResult deletedArtifactResult = new DeleteArtifactResult
+                    {
+                        ArtifactId = deletedArtifact.Id,
+                        ResultCode = HttpStatusCode.OK
+                    };
+
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifact.Id == artifact.Id)
+                    {
+                        if (artifact.IsPublished)
+                        {
+                            artifact.IsMarkedForDeletion = true;
+                        }
+                        else
+                        {
+                            artifact.IsDeleted = true;
+                        }
+                    }
+                }
+            }
+
+            return deletedArtifactsToReturn;
+        }
+
+        #endregion Static members
     }
 }

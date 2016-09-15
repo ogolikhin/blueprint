@@ -50,9 +50,7 @@ export class BPUtilityPanelController {
             .subscribe(this.onSelectionChanged);
 
         const selectedItemSubscriber: Rx.IDisposable = this.artifactManager.selection.selectionObservable
-            .map((selection: ISelection) => {
-                return selection.subArtifact || selection.artifact;
-            })
+            .map((selection: ISelection) => selection.subArtifact || selection.artifact)
             .distinctUntilChanged()
             .subscribe(this.onItemChanged);
 

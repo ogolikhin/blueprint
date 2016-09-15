@@ -16,6 +16,7 @@ import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-hightli
 import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
 import {formlyConfig} from "./formly-config";
 import { SettingsService } from "../../core";
+import { SelectionManager } from "../../main/services";
 
 let moduleName = createModule();
 
@@ -25,6 +26,7 @@ describe("Formly", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("settings", SettingsService);
         $provide.service("dialogService", DialogServiceMock);     
+        $provide.service("selectionManager", SelectionManager);     
     }));    
 
     afterEach(() => {

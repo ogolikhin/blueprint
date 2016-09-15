@@ -10,9 +10,10 @@ import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
+import { ISelectionManager } from "../../main/services";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
-    "messageService", "dialogService", "settings"];
+    "messageService", "dialogService", "settings", "selectionManager"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -23,7 +24,8 @@ export function formlyConfig(
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
-    settingsService: ISettingsService
+    settingsService: ISettingsService,
+    selectionManager: ISelectionManager
 ): void {
     /* tslint:enable */
 
@@ -1134,7 +1136,7 @@ export function formlyConfig(
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, artifactAttachments, $window, messageService, dialogService);
+            actorController($scope, localization, $window, messageService, dialogService, selectionManager);
         }]
     });
  

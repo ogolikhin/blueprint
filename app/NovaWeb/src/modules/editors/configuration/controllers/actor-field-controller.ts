@@ -1,19 +1,19 @@
 ﻿import "angular"
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { ILocalizationService, IMessageService } from "../../../core";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { Models } from "../../../main/models";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ISelectionManager } from "../../../main/services";
 
-actorController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService"];
+actorController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
 export function actorController(
     $scope: any,
-    localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachments,
+    localization: ILocalizationService,    
     $window: ng.IWindowService,
     messageService: IMessageService,
-    dialogService: IDialogService) {
+    dialogService: IDialogService,
+    selectionManager: ISelectionManager) {
     let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];       
 
 
@@ -53,9 +53,18 @@ export function actorController(
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {   
-                if (currentModelVal != null) {
-                    deleteBaseActor();
+            
+            if (artifact) {
+                
+                if (selectionManager.selection && selectionManager.selection.artifact) {
+                    if (selectionManager.selection.artifact.id === artifact.id) {
+                        messageService.addError(localization.get("App_Properties_Actor_SameBaseActor_ErrorMessage", "Actor cannot be set as its own parent"));
+                        return;
+                    }
+                }
+                    if (currentModelVal != null) {
+                        deleteBaseActor();
+                    
                 }             
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,

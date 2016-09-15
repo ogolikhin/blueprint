@@ -103,7 +103,7 @@ export class BPUtilityPanelController {
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
-            if (!(item as Models.Project)) {
+            if (item.predefinedType !== ItemTypePredefined.Project) {
                 let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     this._currentItemIcon = artifactType.iconImageId;

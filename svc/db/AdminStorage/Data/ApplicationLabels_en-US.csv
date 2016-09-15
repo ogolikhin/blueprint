@@ -197,7 +197,7 @@ Project_MetaDataNotFound,"Couldn't find the project meta data"
 Artifact_NotFound,"Couldn't find the artifact"
 ArtifactType_NotFound,"Couldn't find the artifact type"
 Artifact_Lock_AlreadyLocked, "Artifact locked by another user"
-Artifact_Lock_DoesNotExist, "Artifact does not exist or has been moved to different location"
+Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The explorer will now be refreshed."
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
 
@@ -210,6 +210,7 @@ Label_LastEditOn,"Last edited on"
 Label_Description,"Description"
 Label_Project,"Project"
 Label_Collections,"Collections"
+Label_ActorInheritFrom,"Inherits from"
 
 Diagram_OldFormat_Message,"This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it."
 

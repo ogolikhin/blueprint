@@ -9,6 +9,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Linq;
+using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,19 +18,20 @@ namespace ArtifactStore.Controllers
     public class ArtifactController : LoggableApiController
     {
         internal readonly ISqlArtifactRepository ArtifactRepository;
+        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
-        public ArtifactController() : this(new SqlArtifactRepository())
+        public ArtifactController() : this(new SqlArtifactRepository(), new SqlArtifactPermissionsRepository())
         {
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository) : base()
+        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactRepository = instanceRepository;
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository, IServiceLogRepository log) : base(log)
+        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IServiceLogRepository log) : base(log)
         {
             ArtifactRepository = instanceRepository;
         }
@@ -80,14 +82,27 @@ namespace ArtifactStore.Controllers
         /// Get sub artifact tree of the artifact.
         /// </summary>
         /// <remarks>
-        /// Returns tree of subartifacts
+        /// Returns a constructed tree node representation of a given artifact's subartifacts.
         /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/subartifacts"), SessionRequired]
         [ActionName("GetSubArtifactTreeAsync")]
         public async Task<List<SubArtifact>> GetSubArtifactTreeAsync(int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var artifactIds = new[] { artifactId };
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId, false);
+
+            RolePermissions permission = RolePermissions.None;
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
             return (await ArtifactRepository.GetSubArtifactTreeAsync(artifactId, session.UserId)).ToList();
         }
 

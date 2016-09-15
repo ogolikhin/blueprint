@@ -7,6 +7,11 @@ import {IArtifactService, IProjectManager} from "../../../../../main/services/";
 import {Models} from "../../../../../main";
 
 export class PreviewCenterController {
+    private userStoryTitle: string = "ST-Title";
+    private userStoryAcceptanceCriteria: string = "ST-Acceptance Criteria";
+    private userStoryBusinessRules: string = "ST-Business Rules";
+    private userStoryNFR: string = "ST-Non-Functional Requirements";
+
     public centerTask: UserTask;
     public previousSystemTask: SystemTask;
     public nextSystemTask: SystemTask;
@@ -122,13 +127,13 @@ export class PreviewCenterController {
             this.artifactService.getArtifact(userStoryId).then((it: Models.IArtifact) => {
                 it.customPropertyValues.forEach((property) => {
                     let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
-                    if (propertyType.name === "ST-Title") {
+                    if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
                         this.title = this.$sce.trustAsHtml(property.value);
-                    } else if (propertyType.name === "ST-Acceptance Criteria") {
+                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
                         this.acceptanceCriteria = this.$sce.trustAsHtml(property.value);
-                    } else if (propertyType.name === "ST-Business Rules") {
+                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
                         this.centerTask.userStoryProperties.businessRules = property.value;
-                    } else if (propertyType.name === "ST-Non-Functional Requirements") {
+                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
                         this.centerTask.userStoryProperties.nfr = property.value;
                     }
                 });

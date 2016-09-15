@@ -31,7 +31,8 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         //"artifactSearchService",
         "$rootScope",
         "$q",
-        "$timeout"
+        "$timeout",
+        "$sce"
     ];
 
     constructor($scope: IModalScope,
@@ -42,12 +43,13 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         //private artifactSearchService: Shell.IArtifactSearchService,
         $rootScope: ng.IRootScopeService,
         private $q: ng.IQService,
-        private $timeout: ng.ITimeoutService) {
+        private $timeout: ng.ITimeoutService,
+        private $sce: ng.ISCEService) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
-        // Temporary hardcoded for the read-only USs
-        this.isReadonly = true; //dialogModel.isReadonly;
+        this.isReadonly = dialogModel.isReadonly;
+        dialogModel.clonedUserTask.description = this.$sce.trustAsHtml(dialogModel.clonedUserTask.description);
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
 
@@ -248,7 +250,6 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             this.isShowMore = true;
             this.showMoreActiveTab[0] = true;
             this.showMoreActiveTab[1] = false;
-
         } else if (type === "include") {
             this.isShowMore = true;
             this.showMoreActiveTab[0] = false;

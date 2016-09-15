@@ -37,7 +37,7 @@ namespace ArtifactStoreTests
         #region Custom data tests
 
         [Category(Categories.CustomData)]
-        [Test]
+        [TestCase]
         [TestRail(165800)]
         [Description("Gets ArtifactDetails for the actor with non-empty Inherited From field. Verify the inherited from object has expected information.")]
         public void GetActorInheritance_CustomProject_ReturnsActorInheritance()

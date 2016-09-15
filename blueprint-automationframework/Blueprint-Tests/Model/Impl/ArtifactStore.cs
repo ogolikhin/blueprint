@@ -380,6 +380,20 @@ namespace Model.Impl
         }
         */
 
+        /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
+        public List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

@@ -27,7 +27,7 @@ namespace FileStore.Controllers
                 (
                     new List<IStatusRepository>
                     {
-                        new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
+                        new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB", ServiceConstants.FileStoreDBSchema),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
                     },

@@ -183,6 +183,16 @@ namespace Model
         TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets list of subartifacts for the artifact with the specified ID.
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of subartifacts.</returns>
+        List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes an artifact.
         /// </summary>
         /// <param name="artifact">The artifact to publish.</param>

@@ -99,4 +99,24 @@ namespace Model.ArtifactModel
         #endregion Serialized JSON Properties
     }
 
+    public interface INovaSubArtifact
+    {
+        #region Serialized JSON Properties
+        int Id { get; set; }
+
+        int ParentId { get; set; }
+
+        int ItemTypeId { get; set; }
+
+        string DisplayName { get; set; }
+
+        int PredefinedType { get; set; }
+
+        bool HasChildren { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<INovaSubArtifact> Children { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
 }

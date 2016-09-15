@@ -381,6 +381,20 @@ namespace Model.Impl
         }
         */
 
+        /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
+        public List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+        }
+
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaPublishResponse PublishArtifact(IArtifactBase artifact,
             IUser user = null,

@@ -8,7 +8,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     private isShowMore: boolean = false;
-    private showMoreActiveTab: boolean[] = [true, false];
+    private showMoreActiveTabIndex: number = 0;
     private isIncludeNoResults: boolean = false;
     private isIncludeBadRequest: boolean = false;
     private isIncludeResultsVisible: boolean;
@@ -250,12 +250,10 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             this.isShowMore = !this.isShowMore;
         } else if (type === "info") {
             this.isShowMore = true;
-            this.showMoreActiveTab[0] = true;
-            this.showMoreActiveTab[1] = false;
+            this.showMoreActiveTabIndex = 0;
         } else if (type === "include") {
             this.isShowMore = true;
-            this.showMoreActiveTab[0] = false;
-            this.showMoreActiveTab[1] = true;
+            this.showMoreActiveTabIndex = 1;
         }
 
         event.stopPropagation();

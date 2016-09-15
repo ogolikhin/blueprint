@@ -3,7 +3,6 @@
 import {
     BpArtifactEditor,
     ILocalizationService, 
-    IProjectManager, 
     IArtifactManager, 
 //    IStatefulArtifact,
     IMessageService,  
@@ -33,11 +32,10 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        projectManager: IProjectManager,
         private artifactService: IArtifactService,
         private dialogService: IDialogService
     ) {
-        super(messageService, artifactManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

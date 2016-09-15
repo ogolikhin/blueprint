@@ -1,8 +1,15 @@
 import { IGlossaryService, IGlossaryTerm } from "./glossary.svc";
-import { ILocalizationService, IMessageService, IStateManager } from "../../core";
+import { ILocalizationService, IMessageService } from "../../core";
+
 import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
-import { IEditorContext, IArtifact } from "../../main/models/models";
-import { BpBaseEditor} from "../bp-base-editor";
+import { Models } from "../../main/models";
+
+import { 
+    IArtifactManager, 
+    BpBaseEditor 
+} from "../bp-base-editor";
+
+
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -21,13 +28,12 @@ export class BpGlossaryController extends BpBaseEditor {
         "selectionManager",
         "$sce",
         "messageService",
-        "stateManager"
+        "artifactManager"
     ];
 
-    private _context: IEditorContext;
     private subscribers: Rx.IDisposable[];
 
-    public glossary: IArtifact;
+    public glossary: Models.IArtifact;
     public isLoading: boolean = true; 
 
     constructor(
@@ -38,8 +44,8 @@ export class BpGlossaryController extends BpBaseEditor {
         private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService,
         messageService: IMessageService,
-        stateManager: IStateManager) {
-            super(messageService, stateManager);
+        public artifactManager: IArtifactManager) {
+            super(messageService, artifactManager);
     }
 
     public $onInit() {
@@ -54,33 +60,26 @@ export class BpGlossaryController extends BpBaseEditor {
         this.$element.off("click", this.stopPropagation);
     }
 
-    public $onChanges(changesObj) {
-        if (changesObj.context) {
-            this._context = <IEditorContext>changesObj.context.currentValue;
+    public onLoad() {
+        this.glossary = null;
 
-            if (this._context && this._context.artifact) {
-                this.isLoading = true;
-                this.glossary = null;
+        this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
+            result.subArtifacts = result.subArtifacts.map((term: IGlossaryTerm) => {
+                term.description = this.$sce.trustAsHtml(term.description);
+                return term;
+            });
 
-                this.glossaryService.getGlossary(this._context.artifact.id).then((result: IArtifact) => {
-                    result.subArtifacts = result.subArtifacts.map((term: IGlossaryTerm) => {
-                        term.description = this.$sce.trustAsHtml(term.description);
-                        return term;
-                    });
-                    this.stateManager.addChange(result);
+            this.glossary = result;
 
-                    this.glossary = result;
-
-                }).catch((error: any) => {
-                    //ignore authentication errors here
-                    if (error) {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
-                    }
-                }).finally(() => {
-                    this.isLoading = false;
-                });
+        }).catch((error: any) => {
+            //ignore authentication errors here
+            if (error) {
+                this.messageService.addError(error["message"] || "Artifact_NotFound");
             }
-        }
+        }).finally(() => {
+            this.isLoading = false;
+        });
+
     }
 
     private clearSelection() {

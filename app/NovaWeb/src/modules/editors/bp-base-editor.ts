@@ -6,17 +6,13 @@ import { Models, Enums } from "../main/models";
 export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "selectionManager2"];
-
     protected _subscribers: Rx.IDisposable[];
     public artifact: IStatefulArtifact;
     public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public artifactManager: IArtifactManager
-        
-    ) {
+        public artifactManager: IArtifactManager) {
     }
 
     public $onInit() {
@@ -30,24 +26,27 @@ export class BpBaseEditor {
     }
 
     public $onChanges(obj: any) {
-        // try {
-            
+         try {
             this.artifact = this.artifactManager.selection.getArtifact();
-
             if (this.onLoading()) {
                 this.onLoad();
             }
-        // } catch (ex) {
-        //     this.messageService.addError(ex.message);
-        // }
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+            throw ex;
+        }
     }
 
     public $onDestroy() {
-        delete this.artifact;
-        //delete this.artifactState;
+        try {
+            delete this.artifact;
+            //delete this.artifactState;
 
-        this._subscribers = (this._subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-
+            this._subscribers = (this._subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+            throw ex;
+        }
     }
 
     public onLoading(): boolean {

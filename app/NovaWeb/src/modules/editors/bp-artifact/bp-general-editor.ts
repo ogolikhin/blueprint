@@ -3,7 +3,6 @@
     BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
-    IProjectManager,
     IMessageService,
     IArtifactManager,
     IWindowManager,
@@ -19,16 +18,15 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
-    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization", "projectManager"];
+    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization"];
 
     constructor(
         messageService: IMessageService,
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
-        localization: ILocalizationService,
-        projectManager: IProjectManager
+        localization: ILocalizationService
     ) {
-        super(messageService, artifactManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public activeTab: number;

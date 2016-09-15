@@ -23,7 +23,9 @@ export class BpArtifactInfoController {
 
     static $inject: [string] = ["$scope", "artifactManager", "localization", "messageService",
         "dialogService", "$element", "windowManager", "artifactService", "communicationManager", "loadingOverlayService"];
-    private _subscribers: Rx.IDisposable[];
+
+    private subscribers: Rx.IDisposable[];
+    private artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -54,16 +56,22 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this._subscribers = [
+        this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
             // this.stateManager.stateChange.subscribeOnNext(this.onStateChange, this),
         ];
     }
 
+
     public $onDestroy() {
-        this.initProperties();
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        try {
+            this.initProperties();
+            this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+            throw ex;
+        }
     }
 
     private initProperties() {
@@ -87,28 +95,29 @@ export class BpArtifactInfoController {
     }
 
     private updateProperties(artifact: IStatefulArtifact) {
-        
+        this.initProperties();
         this.artifactName = artifact.name || "";
         this._artifactId = artifact.id;
-        this.artifactTypeId = artifact.itemTypeId;
-        artifact.metadata.getItemType(artifact.id).then((itemType: Models.IItemType) => {
+        let itemType = artifact.metadata.getItemType(); 
+        if (itemType) {
+            this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
             if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
                 this.artifactTypeIcon = itemType.iconImageId;
             }
-            
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
-        });
-        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
+        }
+        
+        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+        this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            itemType.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.Glossary;
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
@@ -139,7 +148,7 @@ export class BpArtifactInfoController {
 
     private onSelectArtifact = (artifact: IStatefulArtifact) => {
         // so, just need to do an extra check if the component has created
-        this.initProperties();
+        this.updateProperties(artifact);
         
     }
 

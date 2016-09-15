@@ -103,12 +103,13 @@ export class BPUtilityPanelController {
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
-            if (item.predefinedType !== ItemTypePredefined.Project) {
-                let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    this._currentItemIcon = artifactType.iconImageId;
-                }
-            }
+            //TODO: (PP) Please fix this for both artifact and subartifact
+            // if (item.predefinedType !== ItemTypePredefined.Project) {
+            //     let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+            //     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+            //         this._currentItemIcon = artifactType.iconImageId;
+            //     }
+            // }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;

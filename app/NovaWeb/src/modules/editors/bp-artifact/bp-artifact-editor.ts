@@ -4,7 +4,6 @@ import { IWindowManager, IMainWindow } from "../../main";
 import { 
     Models, Enums, 
     IArtifactManager, 
-    IProjectManager, 
     IStatefulArtifact, 
     IMessageService,
     BpBaseEditor 
@@ -15,7 +14,6 @@ import { PropertyContext} from "./bp-property-context";
 
 export { 
     ILocalizationService, 
-    IProjectManager, 
     IArtifactManager, 
     IStatefulArtifact,
     IMessageService,  
@@ -27,7 +25,6 @@ export {
 }
 
 export class BpArtifactEditor extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization", "projectManager"];
 
     public form: angular.IFormController;
     public model = {};
@@ -39,8 +36,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         public messageService: IMessageService,
         public artifactManager: IArtifactManager,
         public windowManager: IWindowManager,
-        public localization: ILocalizationService,
-        private projectManager: IProjectManager
+        public localization: ILocalizationService
     ) {
         super(messageService, artifactManager);
         this.editor = new PropertyEditor(this.localization);
@@ -57,16 +53,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         // );
     }
 
-
-    public $onChanges(obj: any) {
-        try {
-            this.model = {};
-            super.$onChanges(obj); 
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
-        }
-    }
 
     public $onDestroy() {
         super.$onDestroy();
@@ -89,6 +75,10 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.fields.push(field);
     }
 
+    public onLoad() {
+        this.model = {};
+        super.onLoad();
+    }
 
     public onUpdate() {
         super.onUpdate();

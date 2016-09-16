@@ -86,7 +86,7 @@ namespace ServiceLibrary.Helpers
             }
             
             return serviceStatus;
-            //return s;
+            
         }
 
         /// <summary>

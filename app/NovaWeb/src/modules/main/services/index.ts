@@ -5,10 +5,9 @@
 import { IWindowManager, WindowManager, IMainWindow, ResizeCause } from "./window-manager";
 
 angular.module("bp.main.services", [])
-    .service("selectionManager", SelectionManager)
+    // .service("selectionManager", SelectionManager)
     .service("windowManager", WindowManager);
 
 export {
-    ISelectionManager, ISelection, SelectionManager, SelectionSource,
     IWindowManager, WindowManager, IMainWindow, ResizeCause
 }

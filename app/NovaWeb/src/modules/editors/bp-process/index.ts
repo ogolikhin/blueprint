@@ -7,6 +7,8 @@ import * as ProcessEnums from "./models/enums";
 import {ICommunicationManager, CommunicationManager} from "./services/communication-manager";
 import {ContextualHelpDirective} from "./components/modal-dialogs/contextual-help";
 import {ClearTextDirective} from "./components/modal-dialogs/clear-text";
+import {UploadImageDirective} from "./components/modal-dialogs/upload-image";
+
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessTypeToggle", new BpProcessTypeToggle())
@@ -15,7 +17,8 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("processService", ProcessService)
     .service("communicationManager", CommunicationManager)
     .directive("contextualHelp", ContextualHelpDirective.factory())
-    .directive("cleartext", () => new ClearTextDirective());
+    .directive("cleartext", () => new ClearTextDirective())
+    .directive("uploadImage", UploadImageDirective.factory());
 
 export {IProcessService} from "./services/process/process.svc";
 export {

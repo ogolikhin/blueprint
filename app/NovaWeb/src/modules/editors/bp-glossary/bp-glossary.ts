@@ -1,9 +1,6 @@
-import { IGlossaryService, IGlossaryTerm } from "./glossary.svc";
+import { IGlossaryService } from "./glossary.svc";
 import { ILocalizationService, IMessageService } from "../../core";
-
-// import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
-import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulArtifactFactory } from "../../managers/artifact-manager";
-import { ISelectionManager, ISelection, SelectionSource } from "../../managers/selection-manager";
+import { IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory } from "../../managers/artifact-manager";
 import { Models } from "../../main/models";
 import { BpBaseEditor } from "../bp-base-editor";
 
@@ -30,6 +27,7 @@ export class BpGlossaryController extends BpBaseEditor {
 
     public isLoading: boolean = true;
     public terms: IStatefulSubArtifact[];
+    public selectedTerm: IStatefulSubArtifact;
 
     constructor(
         private $element: ng.IAugmentedJQuery,
@@ -59,7 +57,9 @@ export class BpGlossaryController extends BpBaseEditor {
     public onLoad() {
         // TODO: move this to sub-artifact
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
-            result.subArtifacts = result.subArtifacts.map((term: IGlossaryTerm) => {
+            result.subArtifacts = result.subArtifacts.map((term: IStatefulSubArtifact) => {
+
+                // TODO: should not same $sce wrapper in StatefulSubArtifact model (after MVP)
                 term.description = this.$sce.trustAsHtml(term.description);
 
                 const stateful = this.statefulArtifactFactory.createStatefulArtifact(term);
@@ -81,32 +81,16 @@ export class BpGlossaryController extends BpBaseEditor {
     }
 
     private clearSelection() {
-        // if (this.glossary) {
-        //     this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
-        //         t.selected = false;
-        //         return t;
-        //     });
-        // }
+        this.selectedTerm = null;
+        this.artifactManager.selection.clearSubArtifact();
     }
 
-    /*public selectTerm(term: IGlossaryTerm) {
-        if (term.selected) {
-            return;
+    public selectTerm(term: IStatefulSubArtifact) {
+        if (term !== this.selectedTerm) {
+            this.selectedTerm = term;
+            this.artifactManager.selection.setSubArtifact(this.selectedTerm);
         }
-        this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
-            t.selected = t === term;
-            return t;
-        });
-        // const oldSelection = this.selectionManager.selection;
-        // const selection: ISelection = {
-        //     source: SelectionSource.Editor,
-        //     artifact: oldSelection.artifact,
-        //     subArtifact: term
-        // };
-        // this.selectionManager.selection = selection;
-        const subArtifact = this.statefulArtifactFactory.createStatefulSubArtifact(this.glossary, term);
-        this.artifactManager.selection.setSubArtifact(this.artifact);
-    }*/
+    }
 
     private stopPropagation(event: JQueryEventObject) {
         if (event.target.tagName !== "TH") {

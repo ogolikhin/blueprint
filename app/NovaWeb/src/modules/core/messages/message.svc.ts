@@ -90,8 +90,7 @@ export class MessageService implements IMessageService {
     public addError(error: string | Error | any): void {
         if (!error) {
             this.addMessage(new Message(MessageType.Error, "Undefined error."));
-        }
-        else if (error instanceof Error) {
+        } else if (error instanceof Error) {
             this.addMessage(new Message(MessageType.Error, (error as Error).message));
         } else if (error.message) {
             this.addMessage(new Message(MessageType.Error, error.message));

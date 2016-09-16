@@ -12,7 +12,7 @@
     </thead>
     <tbody>
         <tr ng-repeat="term in $ctrl.terms"
-            ng-class="{'selected-term': term.selected}"
+            ng-class="{'selected-term': $ctrl.selectedTerm === term}"
             ng-click="$ctrl.selectTerm(term)">
             <td>{{term.name}}</td>
             <td ng-bind-html="term.description"></td>

@@ -2,7 +2,7 @@
 import { IArtifactManager, ArtifactManager, ISelectionManager,  ISelection,  SelectionSource  } from "./artifact-manager";
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
 import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
-import { ArtifactService  } from "./artifact";
+import { ArtifactService, IArtifactService, IStatefulArtifactFactory } from "./artifact";
 import { IDocumentRefs, DocumentRefs } from "./docrefs";
 import {
     ArtifactAttachmentsService,
@@ -42,5 +42,8 @@ export {
     DocumentRefs,
     IMetaData,
     MetaDataService,
-    IMetaDataService
+    IMetaDataService,
+    ArtifactService,
+    IArtifactService, 
+    IStatefulArtifactFactory
 };

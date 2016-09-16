@@ -1,6 +1,8 @@
-import { Models, Enums } from "../../../main/models";
-import { ArtifactState} from "../state";
-import { ArtifactAttachments } from "../attachments";
+import { Models } from "../../../main/models";
+// import { ArtifactState} from "../state";
+// import { IArtifactManager } from "../";
+import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
+import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import {
@@ -8,10 +10,8 @@ import {
     IChangeCollector,
     IChangeSet,
     IStatefulArtifact,
-    IArtifactStates,
+    // IArtifactStates,
     IArtifactProperties,
-    IArtifactAttachments,
-    IArtifactManager,
     IState,
     IStatefulArtifactServices,
     IIStatefulArtifact,
@@ -27,8 +27,8 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     private services: IStatefulArtifactServices;
 
     public attachments: IArtifactAttachments;
+    public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
-
 
     constructor(artifact: IIStatefulArtifact, subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
@@ -36,8 +36,12 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         this.services = services;
         this.changesets = new ChangeSetCollector();
 
+        this.artifact = artifact;
+        this.changesets = new ChangeSetCollector();
+        this.services = services;
+        this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
-        // this.customProperties = new CustomProperties(this).initialize(artifact);
+        this.docRefs = new DocumentRefs(this);
 
         // this.artifact.artifactState.observable
         //     .filter((it: IState) => !!it.lock)
@@ -48,6 +52,10 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     //TODO.
     //Needs implementation of other object like
     //attachments, traces and etc.
+
+    public get artifactState() {
+        return this.artifact.artifactState;
+    }
 
     //TODO: implement system property getters and setters
     public get id(): number {

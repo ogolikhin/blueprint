@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { IArtifactAttachment } from "../../../../managers/artifact-manager";
 import { Models } from "../../../../main";
-import { ISelectionManager } from "../../../../main/services/selection-manager";
+import { ISelectionManager } from "../../../../managers";
 import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
 
 export class BPArtifactAttachmentItem implements ng.IComponentOptions {
@@ -43,7 +43,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     }
     
     public downloadItem(): void {
-        const artifact: Models.IArtifact = this.selectionManager.selection.artifact;
+        const artifact: Models.IArtifact = this.selectionManager.getArtifact();
         let url: string = "";
 
         if (this.attachmentInfo.guid) {

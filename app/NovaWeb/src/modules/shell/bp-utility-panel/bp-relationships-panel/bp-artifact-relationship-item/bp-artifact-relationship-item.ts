@@ -1,9 +1,10 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Helper } from "../../../../shared";
 import { Relationships } from "../../../../main";
-import { IArtifactManager } from "../../../../managers";
+import { IArtifactManager, SelectionSource } from "../../../../managers";
+import { IStatefulArtifact } from "../../../../managers/models";
 import { IArtifactRelationships } from "../artifact-relationships.svc";
-import { ISelectionManager, SelectionSource } from "../../../../main/services/selection-manager";
+//import { ISelectionManager, SelectionSource } from "../../../../managers";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -138,10 +139,9 @@ export class BPArtifactRelationshipItemController {
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            const artifact = this.artifactManager.get(relationship.artifactId);
-            if (artifact) {
+            this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
                 this.artifactManager.selection.setArtifact(artifact, SelectionSource.Explorer);
-            }
+            });
         }
     }
 }

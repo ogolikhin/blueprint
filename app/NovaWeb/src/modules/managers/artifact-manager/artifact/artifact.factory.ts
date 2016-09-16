@@ -1,18 +1,18 @@
 import { IMessageService } from "../../../core";
 import { Models } from "../../../main/models";
 import { StatefulArtifactServices } from "../services";
-import { StatefulArtifact } from "./artifact";
-import { IMetaDataService } from "../";
+import { IMetaDataService, IStatefulSubArtifact, IStatefulArtifact, StatefulArtifact, StatefulSubArtifact } from "../";
 import { IArtifactService } from "./artifact.svc";
 import {
-    IStatefulArtifact, 
+    // IStatefulArtifact, 
     ISession, 
     IStatefulArtifactServices, 
-    IArtifactAttachmentsService,
+    IArtifactAttachmentsService
 } from "../../models";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact);
+    createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
     createStatefulProcessArtifact(artifact: Models.IArtifact);
 }
 
@@ -49,6 +49,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
         return new StatefulArtifact(artifact, this.services);
+    }
+
+    public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
+        return new StatefulSubArtifact(artifact, subArtifact, this.services);
     }
 
     public createStatefulProcessArtifact(): IStatefulArtifact {

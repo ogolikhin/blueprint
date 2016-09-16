@@ -14,14 +14,14 @@ import {
     IArtifactProperties,
     IState,
     IStatefulArtifactServices,
-    IIStatefulArtifact,
+    // IIStatefulArtifact,
     IIStatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactAttachmentsResultSet
 } from "../../models";
 
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
-    private artifact: IIStatefulArtifact;
+    private artifact: IStatefulArtifact;
     private subArtifact: Models.ISubArtifact;
     private changesets: IChangeCollector;
     private services: IStatefulArtifactServices;
@@ -30,7 +30,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
 
-    constructor(artifact: IIStatefulArtifact, subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
+    constructor(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
         this.subArtifact = subArtifact;
         this.services = services;

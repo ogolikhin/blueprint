@@ -7,7 +7,7 @@ import {
 
 
 angular.module("bp.managers.selection", [])
-    .service("selectionManager2", SelectionManager);
+    .service("selectionManager", SelectionManager);
 
 
 export {

@@ -20,7 +20,7 @@ export interface IArtifactManager {
 
 export class ArtifactManager  implements IArtifactManager {
 
-    public static $inject = [ "selectionManager2", "metadataService" ];
+    public static $inject = [ "selectionManager", "metadataService" ];
 
     private artifactList: IStatefulArtifact[];
 

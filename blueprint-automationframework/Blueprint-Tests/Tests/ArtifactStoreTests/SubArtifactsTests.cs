@@ -26,7 +26,7 @@ namespace ArtifactStoreTests
         private int genericDiagramId = 53;
         private int glossaryId = 52;
         private int storyboardId = 22;
-        private int uimockupId = 25;
+        private int uiMockupId = 25;
         private int useCaseDiagramId = 21;
 
         [SetUp]
@@ -48,7 +48,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(165964)]//regression see https://trello.com/c/yyqvXZa1
         [Description("Create default process, add user task, delete default user task, save process, get list of subartifacts - check that it has expected content.")]
-        public void GetSubArtifacts_ProcessWithDeletedDeafultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
+        public void GetSubArtifacts_ProcessWithDeletedDefaultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
         {
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
@@ -238,7 +238,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUIMockup_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, uimockupId, 27);
+            CheckSubArtifacts(_user, uiMockupId, 27);
         }
 
         [Category(Categories.CustomData)]
@@ -259,18 +259,18 @@ namespace ArtifactStoreTests
             public const string STEP = "Step {0}";
         }
 
-        private void CheckSubArtifacts(IUser user, int ArtifactId, int ExpectedSubArtifactsNumber)
+        private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber)
         {
             List<INovaSubArtifact> subArtifacts = null;
             Assert.DoesNotThrow(() =>
             {
-                subArtifacts = Helper.ArtifactStore.GetSubartifacts(user, ArtifactId);
+                subArtifacts = Helper.ArtifactStore.GetSubartifacts(user, artifactId);
             }, "GetSubartifacts shouldn't throw an error.");
 
-            Assert.AreEqual(ExpectedSubArtifactsNumber, subArtifacts.Count, "Number of subartifacts must be correct.");
+            Assert.AreEqual(expectedSubArtifactsNumber, subArtifacts.Count, "Number of subartifacts must be correct.");
             foreach (var s in subArtifacts)
             {
-                Assert.AreEqual(ArtifactId, s.ParentId, "ParentId of subartifact must be equal to Id of the process.");
+                Assert.AreEqual(artifactId, s.ParentId, "ParentId of subartifact must be equal to Id of the process.");
                 Assert.IsFalse(s.HasChildren, "Process subartifacts doesn't have children.");
             }
         }

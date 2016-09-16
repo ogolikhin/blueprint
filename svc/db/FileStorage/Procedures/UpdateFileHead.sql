@@ -8,11 +8,11 @@ Date			Name					Change
 2015/11/23		Albert Wong				Initial
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[UpdateFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[UpdateFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[UpdateFileHead]
+CREATE PROCEDURE [dbo].[UpdateFileHead]
 ( 
     @FileId uniqueidentifier,
 	@FileSize bigint,
@@ -22,7 +22,7 @@ AS
 BEGIN
 
 	UPDATE 
-		[FileStore].[Files]
+		[dbo].[Files]
     SET
 		[FileSize] = @FileSize,
 		[ChunkCount] = @ChunkCount 

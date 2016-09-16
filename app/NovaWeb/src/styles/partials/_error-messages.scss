@@ -1,7 +1,7 @@
 messages-container,
 bp-messages-container {
   display: block;
-  flex: none;
+  flex-shrink: 0;
 }
 
 .bp-sidebar-wrapper:not(.left-panel-visible) messages-container {

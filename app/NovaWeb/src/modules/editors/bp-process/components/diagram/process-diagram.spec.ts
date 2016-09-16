@@ -6,7 +6,6 @@ import {ProcessDiagram} from "./process-diagram";
 import {ICommunicationManager, CommunicationManager} from "../../../bp-process"; 
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog";
-import {ProcessType} from "../../models/enums";
 import * as TestModels from "../../models/test-model-factory";
 import { ModalServiceMock } from "../../../../shell/login/mocks.spec";
 
@@ -178,59 +177,5 @@ describe("ProcessDiagram Tests", () => {
 
         // assert 
         expect(error.message).toBe("There is no html element for the diagram");
-    });
-
-    it("responds to change of process type to Business", () => {
-        // arrange
-        let diagram = new ProcessDiagram(
-            rootScope,
-            scope,
-            timeout,
-            q,
-            log,
-            processModelService,
-            messageService,
-            communicationManager,
-            dialogService,
-            localization);
-        let model = TestModels.createDefaultProcessModel();
-        model.propertyValues["clientType"].value = ProcessType.UserToSystemProcess;
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-        diagram.createDiagram(1, container);
-        rootScope.$apply();
-
-        // act
-        communicationManager.toolbarCommunicationManager.toggleProcessType(ProcessType.BusinessProcess);
-
-        // assert
-        expect(diagram.processViewModel.processType).toBe(ProcessType.BusinessProcess);
-    });
-
-    it("responds to change of process type to User-System", () => {
-        // arrange
-        let diagram = new ProcessDiagram(
-            rootScope,
-            scope,
-            timeout,
-            q,
-            log,
-            processModelService,
-            messageService,
-            communicationManager,
-            dialogService,
-            localization);
-        let model = TestModels.createDefaultProcessModel();
-        model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-        diagram.createDiagram(1, container);
-        rootScope.$apply();
-
-        // act
-        communicationManager.toolbarCommunicationManager.toggleProcessType(ProcessType.UserToSystemProcess);
-
-        // assert
-        expect(diagram.processViewModel.processType).toBe(ProcessType.UserToSystemProcess);
     });
 });

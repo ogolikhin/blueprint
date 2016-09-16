@@ -7,12 +7,12 @@ Change History:
 Date			Name					Change
 2015/10/28		Michael Talis			Initial Version
 ******************************************************************************************************************************/
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[MigrationLog]') AND type in (N'U'))
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MigrationLog]') AND type in (N'U'))
 BEGIN
-DROP TABLE [FileStore].[MigrationLog]
+DROP TABLE [dbo].[MigrationLog]
 END;
 
-CREATE TABLE [FileStore].[MigrationLog](
+CREATE TABLE [dbo].[MigrationLog](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[FileSize] [bigint] NULL,
 	[TransferStatus] [int] NULL,

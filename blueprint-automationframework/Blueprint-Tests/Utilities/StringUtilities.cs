@@ -47,25 +47,5 @@ namespace Utilities
 
             return source.IndexOf(subString, StringComparison.OrdinalIgnoreCase) >= 0;
         }
-
-        /// <summary>
-        /// Wraps text into div tag. Format returned by discussions related REST.
-        /// </summary>
-        /// <param name="text">Text to wrap.</param>
-        /// <returns>Wrapped text.</returns>
-        public static string WrapInDiv(string text)
-        {
-            return ("<div>" + text + "</div>");
-        }
-
-        ///<summary>
-        /// Wraps text in html format
-        ///</summary>
-        ///<param name="text"> Text to warp.</param>
-        ///<returns>HTML wrapped text</returns>
-        public static string WrapInHTML(string text)
-        {
-            return ("<html><head/><pre>" + text + "</pre></html>");
-        }
     }
 }

@@ -163,7 +163,7 @@ describe("Artifact Picker", () => {
         $rootScope.$digest();
 
         // Assert
-        expect(isReloadCalled).toEqual(2); // we call reload(null) first to empty the tree and then we reload the project
+        expect(isReloadCalled).toEqual(1);
     }));
 
     it("doSync (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {

@@ -27,7 +27,6 @@ export class ItemState {
     private _changedItem: Models.IArtifact;
     private _lock: Models.ILockResult;
     private _hasValidationErrors: boolean;
-    public moved: boolean;
     
     public itemType: Models.IItemType;
 
@@ -61,9 +60,7 @@ export class ItemState {
                             Enums.LockResultEnum.Success : 
                             Enums.LockResultEnum.AlreadyLocked,
                     info: {
-                        lockOwnerLogin: value.lockedByUser.id === this.manager.currentUser.id ? 
-                                        this.manager.currentUser.displayName : 
-                                        value.lockedByUser.displayName,
+                        lockOwnerLogin: value.lockedByUser.id === this.manager.currentUser.id ? this.manager.currentUser.displayName : value.lockedByUser.displayName,
                         utcLockedDateTime: value.lockedDateTime
                     }
                 }; 
@@ -80,8 +77,7 @@ export class ItemState {
     public get isReadonly(): boolean {
         return this._readonly ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
-               (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit ||
-               this.moved;
+               (this.originItem.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
     public set isReadonly(value: boolean) {
         this._readonly = value;
@@ -229,7 +225,7 @@ export class ItemState {
 
     public generateArtifactDelta(): Models.IArtifact {
         if (this._hasValidationErrors) {
-            throw new Error("App_Save_Artifact_Error_400_114");
+            throw new Error("App_Save_Artifact_Error_409_114");
         }
 
         let delta: Models.IArtifact = {} as Models.Artifact;
@@ -403,13 +399,11 @@ export class StateManager implements IStateManager {
         } else {
             if (artifact) {
                 if (state.originItem.version < artifact.version) {
-                    state.moved = state.originItem.parentId !== artifact.parentId;
                     state.originItem = artifact;
                     state.discardChanges();
                     changed = true;
                 } else if (state.originItem !== artifact) {
                     state.originItem = artifact;
-                    state.moved = false;
                     changed = true;
                 }
             } else {

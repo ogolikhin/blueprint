@@ -74,9 +74,7 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
-    showLoading();
-    showNoRows();
-    hideOverlays();
+   
 }
 
 
@@ -135,6 +133,8 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
+
+      
     }
 
     public $onInit = () => {
@@ -159,8 +159,8 @@ export class BPTreeController implements IBPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
-            onViewportChanged: this.updateViewport,
-            onModelUpdated: this.updateViewport,
+            onViewportChanged: this.perfectScrollbars,
+            onModelUpdated: this.perfectScrollbars,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
 
         };
@@ -169,11 +169,9 @@ export class BPTreeController implements IBPTreeController  {
 
     public $onDestroy = () => {
         this.selectedRow = null;
-        this.bpRef = null;
-        //this.reload(null);
-        this.updateViewport(null, true);
+        this.reload(null);
+        this.perfectScrollbars(null, true);
 
-        this.options.api.destroy();
     };
 
     /* tslint:disable */
@@ -257,24 +255,9 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
-    public showLoading = () => {
-        this.options.api.showLoadingOverlay();
-    };
-
-    public showNoRows = () => {
-        this.options.api.showNoRowsOverlay();
-    };
-
-    public hideOverlays = () => {
-        this.options.api.hideOverlay();
-    };
-
-    private updateViewport = (params?: any, remove?: boolean) => {
-        if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
-            this.hideOverlays();
-        }
-
+    private perfectScrollbars = (params?: any, remove?: boolean) => {
         let viewport = this.$element[0].querySelector(".ag-body-viewport");
+
         if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
             if (remove) {
                 (<any>window).PerfectScrollbar.destroy(viewport);
@@ -354,6 +337,8 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
+    public that = this;
+
     private rowGroupOpened = (params: any) => {
         console.log("rowGroupOpened");
         let self = this;
@@ -392,24 +377,26 @@ export class BPTreeController implements IBPTreeController  {
         if (!node) {
             return;
         }
+        var self = this;
 
         node.setSelected(true, true);
 
-        if (angular.isFunction(this.onSelect)) {
-            this.onSelect({ item: node.data });
+        if (angular.isFunction(self.onSelect)) {
+            self.onSelect({ item: node.data });
         }
     };
 
     private cellFocused = (params: any) => {
-        var model = this.options.api.getModel();
+        var self = this;
+        var model = self.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
-        this.rowSelected(selectedRow);
+        self.rowSelected(selectedRow);
     };
     
     private rowClicked = (params: any) => {
-        let self = this;
+        var self = this;
 
-        this.clickTimeout = this.$timeout(function () {
+        self.clickTimeout = self.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }

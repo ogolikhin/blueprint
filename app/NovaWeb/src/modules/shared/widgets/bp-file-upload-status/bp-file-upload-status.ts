@@ -1,7 +1,6 @@
 import "angular";
 import { ILocalizationService, IFileUploadService, IFileResult } from "../../../core";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../shared/";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
 export interface IBpFileUploadStatusController {
     // propertyMap: any;
@@ -12,14 +11,12 @@ export interface IUploadStatusDialogData {
     files: File[];
     maxNumberAttachments: number;
     maxAttachmentFilesize: number;
-    allowedExtentions?: string[];
 }
 
 export interface IUploadStatusResult {
     guid: string;
     url: string;
     name: string;
-    file: File;
 }
 
 interface IFileUploadStatus {
@@ -48,6 +45,8 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     public files: IFileUploadStatus[];
     public totalFailedFiles: number = 0;
+
+
 
     constructor(
         private $q: ng.IQService,
@@ -89,19 +88,10 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         this.files.map((file: IFileUploadStatus, index: number) => {
             if (index > this.dialogData.maxNumberAttachments - 1) {
                 file.isFailed = true;
-
-                file.errorMessage =
-                    this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error",
-                        "The artifact has the maximum number of attachments.");
-            }
-            else if (this.dialogData.allowedExtentions && this.dialogData.allowedExtentions.length > 0 &&
-                    this.dialogData.allowedExtentions.indexOf(FiletypeParser.getFileExtension(file.file.name)) === -1
-                ){
-                file.isFailed = true;
-                file.errorMessage
-                    = this.localization.get("App_UP_Attachments_Have_Wrong_Type", "The attachment has wrong file type.");
-            }
-            else if (this.isFileValid(file)) {
+                file.errorMessage = 
+                    this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error", "The artifact has the maximum number of attachments.");
+            
+            } else if (this.isFileValid(file)) {
                 this.uploadFile(file);
             }
             
@@ -180,8 +170,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 return {
                     guid: f.guid,
                     url: f.filepath,
-                    name: f.file.name,
-                    file: f.file
+                    name: f.file.name
                 };
             });
     };

@@ -8,11 +8,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Added FileChunks table
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[FileChunks]') AND type in (N'U'))
-DROP TABLE [FileStore].[FileChunks]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+DROP TABLE [dbo].[FileChunks]
 GO
 
-CREATE TABLE [FileStore].[FileChunks](
+CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE [FileStore].[FileChunks](
 ),
  CONSTRAINT [FK_FileId]
  FOREIGN KEY ([FileId])
-    REFERENCES [FileStore].[Files]
+    REFERENCES [dbo].[Files]
         ([FileId])
     ON DELETE CASCADE ON UPDATE CASCADE
 

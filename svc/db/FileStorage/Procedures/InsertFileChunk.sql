@@ -8,11 +8,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[InsertFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[InsertFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileChunk]
 GO
 
-CREATE PROCEDURE [FileStore].[InsertFileChunk]
+CREATE PROCEDURE [dbo].[InsertFileChunk]
 ( 
     @FileId uniqueidentifier,
     @ChunkNum int,
@@ -22,7 +22,7 @@ CREATE PROCEDURE [FileStore].[InsertFileChunk]
 AS
 BEGIN
 
-    INSERT INTO [FileStore].[FileChunks]  
+    INSERT INTO [dbo].[FileChunks]  
            ([FileId]
            ,[ChunkNum]
            ,[ChunkSize]

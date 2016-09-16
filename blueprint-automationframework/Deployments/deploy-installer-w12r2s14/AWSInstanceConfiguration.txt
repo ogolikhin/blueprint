@@ -1,4 +1,0 @@
-NAME = deploy_installer_w12r2s14
-AMI_ID = ami-b72a56a0
-ELASTIC_IP = 52.207.195.161
-DATABASE_BACKUP_FILE_NAME = IntegrationTestDBBackups-SQL2014-NoFilestream.zip

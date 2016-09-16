@@ -8,11 +8,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Renamed procedure
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[InsertFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[InsertFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[InsertFileHead]
+CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
@@ -28,10 +28,10 @@ BEGIN
 
 	DECLARE @StoredTime datetime;
 	SET @StoredTime = GETUTCDATE();
-	SET @ExpiredTime = [FileStore].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
 
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    INSERT INTO [FileStore].[Files]  
+    INSERT INTO [dbo].[Files]  
            ([StoredTime]
            ,[FileName]
            ,[FileType]

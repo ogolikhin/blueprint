@@ -11,7 +11,6 @@ import {IProcessShape, NodeType} from "../diagram/presentation/graph/models/";
 import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 import {IUserTask, IUserStoryProperties, ILabel, ISystemTask, IProcessLink} from "../diagram/presentation/graph/models/";
 import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
-import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core";
@@ -207,8 +206,8 @@ export class SubArtifactEditorModalOpener {
     private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
 
         this.open("",
-            "user-story-preview/user-story-preview.html",
-            UserStoryPreviewController,
+            "UserStoryPreviewTemplate.html",
+            "UserStoryPreviewController",
             this.getUserStoryDialogModel(shapeId, graph),
             "preview-modal");
     }

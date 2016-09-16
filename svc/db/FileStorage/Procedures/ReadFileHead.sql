@@ -8,11 +8,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[ReadFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[ReadFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[ReadFileHead]
+CREATE PROCEDURE [dbo].[ReadFileHead]
 (
 	@FileId uniqueidentifier
 )
@@ -28,7 +28,7 @@ BEGIN
 	,[FileType]
 	,[ChunkCount]
 	,[FileSize]
-	FROM [FileStore].[Files]
+	FROM [dbo].[Files]
 	WHERE [FileId] = @FileId
 END
 

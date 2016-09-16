@@ -5,7 +5,6 @@ using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Models;
 
 namespace SearchService.Controllers
 {
@@ -26,24 +25,10 @@ namespace SearchService.Controllers
             _fullTextSearchRepository = fullTextSearchRepository;
         }
 
-        /// <summary>
-        /// Perform a Full Text Search
-        /// </summary>
-        /// <param name="searchCriteria">SearchCriteria object</param>
-        /// <param name="page">Page Number</param>
-        /// <param name="pageSize">Page Size</param>
-        /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request.</response>
-        /// <response code="404">Not Found.</response>
-        /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache, SessionRequired]
+        [HttpPost, NoCache, NoSessionRequired]
         [Route("")]
         public async Task<IHttpActionResult> Post([FromBody] SearchCriteria searchCriteria, int page = 1, int pageSize = -1)
         {
-            // get the UserId from the session
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            searchCriteria.UserId = session?.UserId;
-
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -53,7 +38,7 @@ namespace SearchService.Controllers
 
             var results = await _fullTextSearchRepository.Search(searchCriteria, page, pageSize);
 
-            var totalPages = (double)results.TotalCount >= 0 ? Math.Ceiling((double)results.TotalCount / pageSize) : -1;
+            var totalPages = Math.Ceiling((double)results.TotalCount / pageSize);
 
             return Ok(new
             {
@@ -61,10 +46,15 @@ namespace SearchService.Controllers
                 TotalCount = results.TotalCount,
                 TotalPages = totalPages,
                 PageSize = pageSize,
-                SearchResults = results.FullTextSearchItems,
-                TypeResults = results.FullTextSearchTypeItems
+                Results = results.FullTextSearchItems
             });
         }
 
+        [HttpGet, NoCache, NoSessionRequired]
+        [Route("UpCheck")]
+        public IHttpActionResult GetStatusUpCheck()
+        {
+            return Ok();
+        }
     }
 }

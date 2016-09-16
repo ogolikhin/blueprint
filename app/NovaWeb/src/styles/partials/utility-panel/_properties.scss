@@ -1,13 +1,13 @@
 bp-properties-panel {
 
     $page-body-min-width: 335px;
-    $properties-min-width: $page-body-min-width - 40px - 30px - 2px; //263px
+    $properties-min-width: $page-body-min-width - 40px - 30px - 2px;
     $property-horiz-spacing: 10px;
     $property-label-width: 100px;
-    $property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px; // 345px
-    $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width + 15px; // 240px
+    $property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px;
+    $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
     $property-left-margin: 11px;
-
+   
     .properties {
         min-width: $properties-min-width;
     }
@@ -24,49 +24,35 @@ bp-properties-panel {
             padding: 0px 0px;
         }
 
-        .nav-tabs {
-            margin-left: $property-left-margin;
-        }
+         .nav-tabs {
+             margin-left: $property-left-margin;
+         }
 
-        .tab-pane {
-            margin-left: $property-left-margin;
-        }
+         .tab-pane {
+             margin-left: $property-left-margin;
+         }
     }
 
     .formly {
         min-width: $property-width - $property-label-width;
         margin: 0px;
 
-        .formly-field-bpFieldInheritFrom {            
-            min-width: $property-input-width;
-            .inheritance-group {
-                display: block;
-                > div{
-                    display: flex;
-                    padding-top: $property-padding-default;
-                }
-                .inheritance-path {
-                    min-width: $property-input-width;
-                }
-            }
-        }
-
         &::after,
         &::before {
             width: $property-width;
         }
-
+        
         .formly-field {
             width: $property-width;
             margin: 0px;
-
+            
             .has-messages {
                 display: block;
             }
 
             label {
-                font-weight: 600;
-                width: $property-input-width;
+                font-weight: 600;   
+                width: $property-input-width;             
             }
 
             input,
@@ -88,29 +74,29 @@ bp-properties-panel {
 
                 .ui-select-choices {
                     width: $property-input-width;
-                }
+                }                
 
                 .ui-select-search {
                     min-width: $property-input-width;
                 }
-            }
+            }            
 
             .ui-select-multiple {
-                width: #{$property-input-width - 20px};
-                max-width: #{$property-input-width - 20px};
+                    width: #{$property-input-width - 20px};
+                    max-width: #{$property-input-width - 20px};
 
-                > div {
-                    width: $property-input-width;
-                }
+                    > div {
+                        width: $property-input-width;
+                    }
 
-                .ui-select-choices {
-                    width: $property-input-width;
-                }
+                    .ui-select-choices {
+                        width: $property-input-width;
+                    }
 
-                .ui-select-no-choice {
-                    width: $property-input-width;
+                    .ui-select-no-choice {
+                        width: $property-input-width;
+                    }
                 }
-            }
 
             .read-only-input {
 
@@ -121,33 +107,33 @@ bp-properties-panel {
                     width: $property-input-width;
                 }
 
-                &.richtext {
-                    min-width: $property-input-width;
+                &.richtext {      
+                      min-width: $property-input-width;      
                 }
             }
 
-            .form-tinymce {
+            .form-tinymce {      
                 min-width: $property-input-width;
             }
         }
     }
 
-    .single-column-property .formly .formly-field label {
+    .single-column-property .formly .formly-field label {  
         width: $property-input-width;
     }
 
     .tab-pane {
-        .formly {
-            min-width: $property-input-width;
+        .formly {            
+            min-width: $property-input-width;            
         }
     }
 
-    .uib-datepicker-popup {
+    .uib-datepicker-popup {  
 
         table.uib-daypicker,
         table.uib-monthpicker,
-        table.uib-yearpicker {
+        table.uib-yearpicker {    
             width: $property-input-width;
         }
     }
-}
+}    

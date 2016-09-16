@@ -45,29 +45,12 @@ namespace Model.Factories
         /// <param name="project">The target project</param>
         /// <param name="user">user for authentication</param>
         /// <param name="artifactType">artifactType</param>
-        /// <param name="parent">(optional) The parent artifact.  By default artifact will be created in root of the project.</param>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IOpenApiArtifact CreateOpenApiArtifact(IProject project,
-            IUser user,
-            BaseArtifactType artifactType,
-            IArtifactBase parent = null)
+        public static IOpenApiArtifact CreateOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
         {
-            ThrowIf.ArgumentNull(project, nameof(project));
-
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            IOpenApiArtifact artifact = CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
-
-            if (parent == null)
-            {
-                artifact.ParentId = project.Id;
-            }
-            else
-            {
-                artifact.ParentId = parent.Id;
-            }
-
-            return artifact;
+            return CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
         }
 
         /// <summary>

@@ -52,47 +52,6 @@ namespace FileStore.Controllers
         #region Service Methods
 
         /// <summary>
-        /// Makes file permanent
-        /// </summary>
-        /// <remarks>
-        /// Makes the file permanent, by setting ExpiredDate to NULL
-        /// </remarks>
-        /// <param name="id">The GUID of the file.</param>
-        /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The id is missing or malformed.</response>
-        /// <response code="404">Not Found. The file does not exist.</response>
-        /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPut, NoCache]
-        [Route("makepermanent/{id}"), SessionRequired]
-        public async Task<IHttpActionResult> MakePermanent(string id)
-        {
-            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"makepermanent/{id}");
-            try
-            {
-                var fileId = Models.File.ConvertToStoreId(id);
-
-                var numberEffectedEntities = await _filesRepo.MakeFilePermanent(fileId);
-                if (numberEffectedEntities == 0)
-                {
-                    // the file was not found in FileStorage database
-                    await _log.LogError(WebApiConfig.LogSourceFiles, $"makepermanent/{id}, file not found");
-                    return NotFound();
-                }
-                return Ok();
-            }
-            catch (FormatException ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"makepermanent/{id}, bad request", ex));
-                return BadRequest();
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"makepermanent/{id}, Exception:{ex.Message}", ex));
-                return InternalServerError();
-            }
-        }
-
-        /// <summary>
         /// GetFileHead
         /// </summary>
         /// <remarks>

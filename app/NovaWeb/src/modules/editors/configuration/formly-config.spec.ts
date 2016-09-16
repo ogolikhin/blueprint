@@ -13,21 +13,12 @@ import {LocalizationServiceMock} from "../../core/localization/localization.mock
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ArtifactAttachmentsMock} from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.mock";
 import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
-import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
 import {formlyConfig} from "./formly-config";
-import { SettingsService } from "../../core";
-import { SelectionManager } from "../../main/services";
 
 let moduleName = createModule();
 
 describe("Formly", () => {
     beforeEach(angular.mock.module(moduleName));
-
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("settings", SettingsService);
-        $provide.service("dialogService", DialogServiceMock);     
-        $provide.service("selectionManager", SelectionManager);     
-    }));    
 
     afterEach(() => {
         angular.element("body").empty();
@@ -571,19 +562,6 @@ describe("Formly", () => {
             expect((<any>fieldScope).fc.$invalid).toBeFalsy();
             expect((<any>fieldScope).fc.$error.maxDate).toBeUndefined();
             expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
-        });
-
-        it("should fail if the date is less than 1753-01-01 (SQL starting date), even if validation is not required", function () {
-            compileAndSetupStuff({model: {datepickerNotVal: "1752-10-10"}});
-
-            let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[1];
-            let fieldScope = angular.element(fieldNode).isolateScope();
-
-            expect((<any>fieldScope).fc.$valid).toBeFalsy();
-            expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-            expect((<any>fieldScope).fc.$error.maxDate).toBeUndefined();
-            expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
-            expect((<any>fieldScope).fc.$error.minDateSQL).toBeTruthy();
         });
 
         it("should fail if the date is empty", function () {

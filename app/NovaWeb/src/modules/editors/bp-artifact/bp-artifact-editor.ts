@@ -132,7 +132,9 @@ export class BpArtifactEditor extends BpBaseEditor {
     private onLockChanged(state: ItemState) {
         let lock = state.lock;
         if (lock.result === Enums.LockResultEnum.Success) {
-            this.onLoad(this.context);
+            if (lock.info.versionId !== state.originItem.version) {
+                this.onLoad(this.context);
+            }
         } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
             if (lock.info.versionId !== state.originItem.version) {
                 this.onLoad(this.context);
@@ -168,35 +170,34 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public doSave(state: ItemState): void { }
 
-    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
-        $scope.$applyAsync(() => {
-            try {
-                //here we need to update original model
-                let context = $field.data as PropertyContext;
-                if (!context) {
-                    return;
-                }
-                let value = this.editor.convertToModelValue($field, $value);
-                let changeSet: IPropertyChangeSet = {
-                    lookup: context.lookup,
-                    id: context.modelPropertyName,
-                    value: value
-                };
-                let state = this.stateManager.addChange(this.context.artifact, changeSet);
-
-                if ($scope["form"]) {
-                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
-                }
-
-                this.stateManager.lockArtifact(state).catch((error: any) => {
-                    if (error) {
-                        this.messageService.addError(error);
-                    }
-                });
-            } catch (err) {
-                this.messageService.addError(err);
+    public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
+        try {
+            //here we need to update original model
+            let context = $field.data as PropertyContext;
+            if (!context) {
+                return;
             }
-        });
+            let value = this.editor.convertToModelValue($field, $value);
+            let changeSet: IPropertyChangeSet = {
+                lookup: context.lookup,
+                id: context.modelPropertyName,
+                value: value
+            };
+            let state = this.stateManager.addChange(this.context.artifact, changeSet);
+            
+            if ($scope.form) {
+                state.setValidationErrorsFlag($scope.form.$$parentForm.$invalid);
+            }
+
+            this.stateManager.lockArtifact(state).catch((error: any) => {
+                if (error) {
+                    this.messageService.addError(error);
+                }
+            });
+
+        } catch (err) {
+            this.messageService.addError(err);
+        }
     };
 
 }

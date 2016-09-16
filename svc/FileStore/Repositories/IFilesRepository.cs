@@ -31,12 +31,5 @@ namespace FileStore.Repositories
         Task<Guid?> DeleteFile(Guid guid, DateTime? expired);
 
         Task<int> DeleteFileChunk(Guid guid, int chunkNumber);
-
-        /// <summary>
-        /// Sets ExpiredTime to NULL
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns>Number of effected entities</returns>
-        Task<int> MakeFilePermanent(Guid guid);
     }
 }

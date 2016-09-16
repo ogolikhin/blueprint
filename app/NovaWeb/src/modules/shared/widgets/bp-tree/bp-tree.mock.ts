@@ -36,10 +36,4 @@ export class BPTreeControllerMock implements IBPTreeController {
             node.hasChildren = true;
         }
     }
-
-    public showLoading() { }
-
-    public showNoRows() { }
-
-    public hideOverlays() { }
 }

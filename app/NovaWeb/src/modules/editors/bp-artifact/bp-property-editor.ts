@@ -106,13 +106,11 @@ export class PropertyEditor {
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
-                    let isModelSet: boolean = false;
 
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
                         if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
                             modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName];
-                            isModelSet = true;
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
                                 artifact.readOnlyReuseSettings &&
                                 (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
@@ -131,7 +129,6 @@ export class PropertyEditor {
                         })[0];
                         if (custompropertyvalue) {
                             modelValue = custompropertyvalue.value;
-                            isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
@@ -139,7 +136,6 @@ export class PropertyEditor {
                         let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
                             return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
                         })[0];
-                        isModelSet = true;
                         if (specificpropertyvalue) {
                             if (artifactOrSubArtifact.predefinedType === Enums.ItemTypePredefined.Step &&
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
@@ -150,11 +146,11 @@ export class PropertyEditor {
                                 } else {
                                     modelValue = specificpropertyvalue.value;
                                 }
-                            }                            
+                            }
                             propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
-                    if (isModelSet) {
+                    if (angular.isDefined(modelValue)) {
                         let field = this.createPropertyField(propertyContext);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
@@ -291,11 +287,7 @@ export class PropertyEditor {
 
         }
         if (field.templateOptions.disabled) {
-            field.templateOptions["isReadOnly"] = true;
-            if (field.type !== "bpFieldImage" &&
-                field.type !== "bpFieldInheritFrom") {
-                field.type = "bpFieldReadOnly";
-            }
+            field.type = "bpFieldReadOnly";
         }
         return field;
     }

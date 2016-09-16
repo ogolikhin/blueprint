@@ -29,7 +29,7 @@ namespace ConfigControlTests
             Assert.That(file.Content.ToString().Length > 0, "ConfigControl.GetLog returned an empty file!");
         }
 
-        [TestCase]
+        [Test]
         [Description("Calls the GetLog method of ConfigControl with no authentication.  Verify log file is returned.")]
         public static void GetLog_NoToken_VerifyLogFile()
         {

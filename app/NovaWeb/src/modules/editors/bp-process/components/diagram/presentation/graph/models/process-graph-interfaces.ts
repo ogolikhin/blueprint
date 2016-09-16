@@ -116,8 +116,11 @@ export interface IProcessGraph {
     getNodeById(id: string): IDiagramNode;
     getNextLinks(id: number): IProcessLink[];
     addLink(link: IDiagramLink, parent, index?: number, source?: MxCell, target?: MxCell);
+    addSelectionListener(listener: ISelectionListener);
     updateAfterRender();
     redraw(action: any);
+    saveProcess();
+    publishProcess();
     updateSizeChanges(width?: number, height?: number);
     destroy();
 }
@@ -137,6 +140,7 @@ export interface ILayout {
     createAutoInsertTaskMessage();
     getColumnByX(x: number): number;
     getRowByY(y: number): number;
+    hidePopupMenu();
     viewModel: IProcessViewModel;
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);

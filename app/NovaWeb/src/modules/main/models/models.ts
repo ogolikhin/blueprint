@@ -21,15 +21,7 @@ export interface IProjectNode {
     hasChildren: boolean;
     children?: IProjectNode[];
 }
-export interface ISubArtifactNode {
-    id: number;
-    parentId: number;
-    itemTypeId: number;
-    displayName: string;
-    predefinedType: ItemTypePredefined;
-    hasChildren: boolean;
-    children?: ISubArtifactNode[];
-}
+
 export interface ITrace {
     traceType?: TraceType;
     traceId: number;
@@ -88,8 +80,6 @@ export interface IArtifact extends IItem {
     //for client use
     artifacts?: IArtifact[];
     loaded?: boolean;
-    // for artifact picker use
-    parent?: IArtifact;
 }
 export interface IOption {
     id: number;
@@ -139,14 +129,6 @@ export interface IPropertyValue {
     propertyTypePredefined?: PropertyTypePredefined;
     isReuseReadOnly?: boolean;
     value: any;
-}
-
-export interface IActorInheritancePropertyValue {
-    pathToProject: string[]
-    actorName: string;
-    actorPrefix: string;
-    actorId: number;
-    hasAccess: boolean;    
 }
 
 export interface IProjectMeta {

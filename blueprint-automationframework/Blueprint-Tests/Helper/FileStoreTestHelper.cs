@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Common;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -110,18 +109,6 @@ namespace Helper
             byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
             IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
-        }
-
-        /// <summary>
-        /// Create a file consisting of a random name, size & contents.
-        /// </summary>
-        /// <param name="fileType">(optional) The file type.</param>
-        /// <returns>The created file.</returns>
-        public static IFile CreateFileWithRandomByteArray(string fileType = "text/plain")
-        {
-            uint fileSize = (uint)RandomGenerator.RandomNumber(4096);
-            string fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
-            return CreateFileWithRandomByteArray(fileSize, fileName, fileType);
         }
 
         /// <summary>

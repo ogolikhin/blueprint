@@ -7,26 +7,26 @@ Change History:
 Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[FileStore].[DF__Files__FileId__117F9D94]') AND type = 'D')
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[DF__Files__FileId__117F9D94]') AND type = 'D')
 BEGIN
-ALTER TABLE [FileStore].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
+ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
 END
 GO
-IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[FileStore].[FK_FileId]') AND type = 'F')
-AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[FileChunks]') AND type in (N'U'))
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[FK_FileId]') AND type = 'F')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
 BEGIN
-ALTER TABLE [FileStore].[FileChunks] DROP CONSTRAINT [FK_FileId]
+ALTER TABLE [dbo].[FileChunks] DROP CONSTRAINT [FK_FileId]
 END
 GO
 
 
 
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[Files]') AND type in (N'U'))
-DROP TABLE [FileStore].[Files]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
+DROP TABLE [dbo].[Files]
 GO
 
-CREATE TABLE [FileStore].[Files](
+CREATE TABLE [dbo].[Files](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[StoredTime] [datetime] NOT NULL,
 	[ExpiredTime] [datetime],
@@ -40,5 +40,5 @@ CREATE TABLE [FileStore].[Files](
 ))
 GO
 
-ALTER TABLE [FileStore].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
+ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
 GO

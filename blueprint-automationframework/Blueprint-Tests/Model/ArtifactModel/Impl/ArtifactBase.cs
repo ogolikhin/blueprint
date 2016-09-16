@@ -236,17 +236,13 @@ namespace Model.ArtifactModel.Impl
 
                     if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
                     {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
+                        artifactToDelete.IsMarkedForDeletion = true;
                     }
                 }
             }
+
+            // TODO:  Add an IsMarkedForDeletion flag to this class and set it to true if the delete was successful,
+            // TODO:  then in the Publish, if IsMarkedForDeletion is true, mark IsPublished to false and delete the Id...
 
             return artifactResults;
         }
@@ -634,13 +630,7 @@ namespace Model.ArtifactModel.Impl
             // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
             foreach (var artifact in artifactList.ToArray())
             {
-                artifactList.Remove(artifact);
-
-                if (artifact.IsDeleted)
-                {
-                    Logger.WriteDebug("Artifact already deleted.  Skipping deletion in the Dispose.");
-                }
-                else if (artifact.IsPublished)
+                if (artifact.IsPublished)
                 {
                     if (artifact.IsMarkedForDeletion)
                     {
@@ -672,7 +662,6 @@ namespace Model.ArtifactModel.Impl
             }
 
             // For each user that created artifacts, discard the list of artifacts they created.
-            // TODO: This workaround shouldn't be needed anymore.  OpenAPI should now be able to delete unpublished artifacts without having to call discard.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);

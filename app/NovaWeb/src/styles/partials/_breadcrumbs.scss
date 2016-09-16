@@ -5,8 +5,8 @@
   box-sizing: border-box;
   color: $gray;
   display: flex;
-  flex: none;
   flex-flow: row nowrap;
+  flex-shrink: 0;
   font-size: $font-size-big;
   height: $breadcrumbs-height;
   justify-content: flex-start;

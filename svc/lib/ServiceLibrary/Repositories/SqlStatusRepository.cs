@@ -1,23 +1,19 @@
 ﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Repositories
 {
     public class SqlStatusRepository : IStatusRepository
     {
-        private readonly string _dbSchema;
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
-
         public string Name { get; set; }
-
         public string AccessInfo { get; set; }
 
-        public SqlStatusRepository(string cxn, string name, string dbSchema = ServiceConstants.DefaultDBSchema)
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
+
+        public SqlStatusRepository(string cxn, string name)
             : this(new SqlConnectionWrapper(cxn), cxn, name)
         {
-            _dbSchema = dbSchema;
         }
 
         internal SqlStatusRepository(ISqlConnectionWrapper connectionWrapper, string accessInfo, string name)
@@ -29,7 +25,7 @@ namespace ServiceLibrary.Repositories
 
         public async Task<string> GetStatus(int timeout)
         {
-            return (await _connectionWrapper.QueryAsync<string>($"{_dbSchema}.GetStatus", commandType: CommandType.StoredProcedure, commandTimeout: timeout)).Single();
+            return (await _connectionWrapper.QueryAsync<string>("GetStatus", commandType: CommandType.StoredProcedure, commandTimeout: timeout)).Single();
         }
     }
 }

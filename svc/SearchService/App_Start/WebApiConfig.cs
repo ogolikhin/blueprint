@@ -24,9 +24,5 @@ namespace SearchService
         public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
 
         public static int PageSize = ConfigurationManager.AppSettings["PageSize"].ToInt32(10);
-
-        public static int MaxItems = ConfigurationManager.AppSettings["MaxItems"].ToInt32(10);
-        
-        public static int MaxSearchableValueStringSize = ConfigurationManager.AppSettings["MaxSearchableValueStringSize"].ToInt32(10);
     }
 }

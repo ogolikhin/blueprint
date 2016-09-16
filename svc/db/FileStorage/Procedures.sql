@@ -1,5 +1,41 @@
 ﻿
 /******************************************************************************************************************************
+Name:			SetSchemaVersion
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetSchemaVersion]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[SetSchemaVersion]
+GO
+
+CREATE PROCEDURE [dbo].[SetSchemaVersion]
+(
+	@value AS nvarchar(max)
+)
+AS
+PRINT 'Setting Schema Version to ' + @value;
+-- Integrity check
+DECLARE @value1 AS int = CAST(PARSENAME(@value, 1) AS int);
+DECLARE @value2 AS int = CAST(PARSENAME(@value, 2) AS int);
+DECLARE @value3 AS int = CAST(PARSENAME(@value, 3) AS int);
+DECLARE @value4 AS int = CAST(PARSENAME(@value, 4) AS int);
+
+IF EXISTS (SELECT * FROM [dbo].[DbVersionInfo])
+	BEGIN 
+		UPDATE [dbo].[DbVersionInfo] SET [SchemaVersion] = @value FROM [dbo].[DbVersionInfo];
+	END
+ELSE
+	BEGIN 
+		INSERT INTO [dbo].[DbVersionInfo] SELECT 1, @value;
+	END 
+
+GO
+/******************************************************************************************************************************
 Name:			DeleteFile
 
 Description: 
@@ -9,11 +45,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[DeleteFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[DeleteFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DeleteFile]
 GO
 
-CREATE PROCEDURE [FileStore].[DeleteFile]
+CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
 	@ExpiredTime datetime
@@ -25,11 +61,11 @@ BEGIN
 	
 	DECLARE @CurrentTime datetime;
 	SELECT @CurrentTime = GETUTCDATE();
-	SET @ExpiredTime = [FileStore].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 
-    UPDATE [FileStore].[Files] SET ExpiredTime = @ExpiredTime
+    UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
 
 	SELECT @@ROWCOUNT
@@ -46,11 +82,11 @@ Date			Name					Change
 2015/12/03		Albert					Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[DeleteFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[DeleteFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DeleteFileChunk]
 GO
 
-CREATE PROCEDURE [FileStore].[DeleteFileChunk]
+CREATE PROCEDURE [dbo].[DeleteFileChunk]
 (
 	@FileId uniqueidentifier,
 	@ChunkNumber int
@@ -60,7 +96,7 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-    DELETE FROM [FileStore].[FileChunks] 
+    DELETE FROM [dbo].[FileChunks] 
     WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNumber
 
 	SELECT @@ROWCOUNT
@@ -77,11 +113,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[ReadFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[ReadFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[ReadFileHead]
+CREATE PROCEDURE [dbo].[ReadFileHead]
 (
 	@FileId uniqueidentifier
 )
@@ -97,7 +133,7 @@ BEGIN
 	,[FileType]
 	,[ChunkCount]
 	,[FileSize]
-	FROM [FileStore].[Files]
+	FROM [dbo].[Files]
 	WHERE [FileId] = @FileId
 END
 
@@ -109,14 +145,14 @@ Description:    Returns the version of the database.
 			
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[GetStatus]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[GetStatus]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetStatus]
 GO
 
-CREATE PROCEDURE [FileStore].[GetStatus]
+CREATE PROCEDURE [dbo].[GetStatus]
 AS
 BEGIN
-       SELECT [SchemaVersion] FROM [FileStore].[DbVersionInfo] WHERE [Id] = 1;       
+       SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;       
 END
 
 GO
@@ -130,11 +166,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[HeadFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[HeadFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[HeadFile]
 GO
 
-CREATE PROCEDURE [FileStore].[HeadFile]
+CREATE PROCEDURE [dbo].[HeadFile]
 (
 	@FileId uniqueidentifier
 )
@@ -149,7 +185,7 @@ BEGIN
 	,[FileName]
 	,[FileType]
 	,[FileSize]
-	FROM [FileStore].[Files]
+	FROM [dbo].[Files]
 	WHERE [FileId] = @FileId
 END
 
@@ -164,11 +200,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Renamed procedure
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[InsertFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[InsertFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[InsertFileHead]
+CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
@@ -184,10 +220,10 @@ BEGIN
 
 	DECLARE @StoredTime datetime;
 	SET @StoredTime = GETUTCDATE();
-	SET @ExpiredTime = [FileStore].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
 
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    INSERT INTO [FileStore].[Files]  
+    INSERT INTO [dbo].[Files]  
            ([StoredTime]
            ,[FileName]
            ,[FileType]
@@ -217,11 +253,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[InsertFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[InsertFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileChunk]
 GO
 
-CREATE PROCEDURE [FileStore].[InsertFileChunk]
+CREATE PROCEDURE [dbo].[InsertFileChunk]
 ( 
     @FileId uniqueidentifier,
     @ChunkNum int,
@@ -231,7 +267,7 @@ CREATE PROCEDURE [FileStore].[InsertFileChunk]
 AS
 BEGIN
 
-    INSERT INTO [FileStore].[FileChunks]  
+    INSERT INTO [dbo].[FileChunks]  
            ([FileId]
            ,[ChunkNum]
            ,[ChunkSize]
@@ -255,11 +291,11 @@ Date			Name					Change
 2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[ReadFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[ReadFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileChunk]
 GO
 
-CREATE PROCEDURE [FileStore].[ReadFileChunk]
+CREATE PROCEDURE [dbo].[ReadFileChunk]
 ( 
     @FileId uniqueidentifier,
     @ChunkNum int
@@ -273,7 +309,7 @@ BEGIN
            ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent]
-	FROM [FileStore].[FileChunks]
+	FROM [dbo].[FileChunks]
 	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
 END
@@ -290,11 +326,11 @@ Date			Name					Change
 2015/11/23		Albert Wong				Initial
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[UpdateFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[UpdateFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
-CREATE PROCEDURE [FileStore].[UpdateFileHead]
+CREATE PROCEDURE [dbo].[UpdateFileHead]
 ( 
     @FileId uniqueidentifier,
 	@FileSize bigint,
@@ -304,7 +340,7 @@ AS
 BEGIN
 
 	UPDATE 
-		[FileStore].[Files]
+		[dbo].[Files]
     SET
 		[FileSize] = @FileSize,
 		[ChunkCount] = @ChunkCount 
@@ -324,11 +360,11 @@ Date			Name					Change
 2015/11/24		CRichards				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[ReadChunkContent]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[ReadChunkContent]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadChunkContent]
 GO
 
-CREATE PROCEDURE [FileStore].[ReadChunkContent]
+CREATE PROCEDURE [dbo].[ReadChunkContent]
 ( 
     @FileId uniqueidentifier,
     @ChunkNum int
@@ -339,41 +375,9 @@ BEGIN
 	SET NOCOUNT ON
 
 	SELECT [ChunkContent]
-	FROM [FileStore].[FileChunks]
+	FROM [dbo].[FileChunks]
 	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
-END
-
-GO
-/******************************************************************************************************************************
-Name:			[MakeFilePermanent]
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2016/09/13		Alexander Utkin		    Initial
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[MakeFilePermanent]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[MakeFilePermanent]
-GO
-
-CREATE PROCEDURE [FileStore].[MakeFilePermanent]
-( 
-    @FileId uniqueidentifier
-)
-AS
-BEGIN
-
-	UPDATE 
-		[FileStore].[Files]
-    SET
-		[ExpiredTime] = NULL
-	WHERE 
-		[FileId] = @FileId;
-
-	SELECT @@ROWCOUNT
 END
 
 GO

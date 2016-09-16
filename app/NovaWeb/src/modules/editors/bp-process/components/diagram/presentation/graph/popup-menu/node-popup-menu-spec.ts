@@ -1,6 +1,5 @@
 ﻿import {IProcess, ProcessModel} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/";
 import {NodeType} from "../models/";
 import {NodePopupMenu} from "./node-popup-menu";
 import {BpMxGraphModel} from "../bp-mxgraph-model";
@@ -9,25 +8,19 @@ import {ILayout} from "./../models/";
 
 describe("Popup Menu test", () => {
     let mxgraph: MxGraph;
-    let rootScope: ng.IRootScopeService;
+    let localScope, rootScope;
     let htmlElement: HTMLElement;
     let processModel: IProcess;
     let viewModel: IProcessViewModel;
     let shapesFactory: ShapesFactory;
     let layout: ILayout;
-    let localization: ILocalizationService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         // inject any services that are required
-        $provide.service("localization", LocalizationService);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        _localization_: ILocalizationService) => {
+    beforeEach(inject((_$window_: ng.IWindowService, $rootScope: ng.IRootScopeService) => {
 
-        localization = _localization_;
         rootScope = $rootScope;
 
         rootScope["config"] = {};
@@ -37,6 +30,8 @@ describe("Popup Menu test", () => {
             "ST_Popup_Menu_Add_System_Decision_Label": "Add System Decision Point",
             "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
         };
+
+        localScope = {};
 
         var wrapper = document.createElement('DIV');
         htmlElement = document.createElement('DIV');
@@ -81,7 +76,7 @@ describe("Popup Menu test", () => {
         var popupMenu = new NodePopupMenu(
             layout,
             shapesFactory,
-            localization,
+            rootScope,
             htmlElement,
             mxgraph,
             insertTask,
@@ -122,7 +117,7 @@ describe("Popup Menu test", () => {
         var popupMenu = new NodePopupMenu(
             layout,
             shapesFactory,
-            localization,
+            rootScope,
             htmlElement,
             mxgraph,
             insertTask,
@@ -167,7 +162,7 @@ describe("Popup Menu test", () => {
         var popupMenu = new NodePopupMenu(
             layout,
             shapesFactory,
-            localization,
+            rootScope,
             htmlElement,
             mxgraph,
             insertTask,

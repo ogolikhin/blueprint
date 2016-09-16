@@ -6,8 +6,6 @@ namespace SearchService.Models
     {
         public IEnumerable<FullTextSearchItem> FullTextSearchItems { get; set; }
 
-        public IEnumerable<FullTextSearchTypeItem> FullTextSearchTypeItems { get; set; }
-
         public int TotalCount { get; set; }
 
     }

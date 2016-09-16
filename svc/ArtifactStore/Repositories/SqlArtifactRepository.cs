@@ -10,14 +10,12 @@ using ServiceLibrary.Helpers;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
-using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
     public class SqlArtifactRepository : ISqlArtifactRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly SqlItemInfoRepository _itemInfoRepository;
 
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -27,7 +25,6 @@ namespace ArtifactStore.Repositories
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
-            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
         #region GetProjectOrArtifactChildrenAsync
@@ -69,7 +66,7 @@ namespace ArtifactStore.Repositories
                 var orphanVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
-                if (orphanVersions.Any())
+                if(orphanVersions.Any())
                 {
                     var dicUserOrphanVersions = orphanVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
@@ -156,7 +153,7 @@ namespace ArtifactStore.Repositories
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
-                if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
+                if(a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
                     return maxIndexOrder + 1; // Collections folder comes after artifacts
                 if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.BaselineFolder)
                     return maxIndexOrder + 2; // Baseline and Reviews folder comes after Collections folder
@@ -172,7 +169,7 @@ namespace ArtifactStore.Repositories
             if (av.ParentId != av.VersionProjectId)
                 return av.ItemTypeId;
 
-            switch (av.ItemTypePredefined)
+            switch(av.ItemTypePredefined)
             {
                 case ItemTypePredefined.CollectionFolder:
                     return ServiceConstants.StubCollectionsItemTypeId;
@@ -209,7 +206,7 @@ namespace ArtifactStore.Repositories
             ArtifactVersion directAncestorUserVersion;
             dicUserArtifactVersions.TryGetValue(parentUserVersion.ParentId.GetValueOrDefault(), out directAncestorUserVersion);
 
-            if (directAncestorUserVersion == null)
+            if(directAncestorUserVersion == null)
             {
                 ArtifactVersion projectUserArtifactVersion;
                 dicUserArtifactVersions.TryGetValue(projectId, out projectUserArtifactVersion);
@@ -236,7 +233,7 @@ namespace ArtifactStore.Repositories
 
         private ArtifactVersion GetUserArtifactVersion(List<ArtifactVersion> headAndDraft)
         {
-            if (headAndDraft == null)
+            if(headAndDraft == null)
                 throw new ArgumentNullException(nameof(headAndDraft));
 
             if (headAndDraft.Count == 0)
@@ -274,67 +271,6 @@ namespace ArtifactStore.Repositories
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        #endregion
-
-        #region GetSubArtifactTreeAsync
-        private async Task<IEnumerable<SubArtifact>> GetSubArtifacts(int artifactId, int userId, int revisionId, bool includeDrafts)
-        {
-            var getSubArtifactsDraftPrm = new DynamicParameters();
-            getSubArtifactsDraftPrm.Add("@artifactId", artifactId);
-            getSubArtifactsDraftPrm.Add("@userId", userId);
-            getSubArtifactsDraftPrm.Add("@revisionId", revisionId);
-            getSubArtifactsDraftPrm.Add("@includeDrafts", includeDrafts);
-            return (await ConnectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
-        }
-
-        public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
-        {
-            var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.Id);
-            foreach (var subArtifactEntry in subArtifactsDictionary)
-            {
-                var subArtifact = subArtifactEntry.Value;
-                var parentSubArtifactId = subArtifact.ParentId;
-                SubArtifact parentSubArtifact;
-                if (parentSubArtifactId != artifactId && subArtifactsDictionary.TryGetValue(parentSubArtifactId, out parentSubArtifact))
-                {
-                    if (parentSubArtifact.Children == null)
-                    {
-                        parentSubArtifact.Children = new List<SubArtifact>();
-                    }
-                    ((List<SubArtifact>)parentSubArtifact.Children).Add(subArtifact);
-                    parentSubArtifact.HasChildren = true;
-                }
-            }
-            var isUseCase = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
-                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition
-                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Flow
-                                        || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step);
-
-            if (isUseCase) {
-                var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
-                foreach (var subArtifactEntry in subArtifactsDictionary) {
-                    //filter out flow subartifacts and append children of flow to children of flow's parent.
-                    if (subArtifactEntry.Value.PredefinedType == ItemTypePredefined.Flow)
-                    {
-                        SubArtifact parent;
-                        var children = subArtifactEntry.Value.Children;
-                        if (subArtifactsDictionary.TryGetValue(subArtifactEntry.Value.ParentId, out parent))
-                        {
-                            ((List<SubArtifact>)parent.Children).Remove(subArtifactEntry.Value);
-                            ((List<SubArtifact>)parent.Children).AddRange(children);
-                        }
-                    }
-                    //populate label as display names.
-                    ItemLabel itemLabel;
-                    if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
-                    {
-                        subArtifactEntry.Value.DisplayName = itemLabel.Label;
-                    }
-                }
-            }
-            var result = subArtifactsDictionary.Where(a => a.Value.ParentId == artifactId).Select(b => b.Value);
-            return result;
-        }
         #endregion
 
         #region GetProjectOrArtifactChildrenAsync

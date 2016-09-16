@@ -28,8 +28,7 @@ export class BpArtifactInfoController {
     public artifactName: string;
     public artifactType: string;
     public artifactClass: string;
-    public artifactTypeId: number;
-    public artifactTypeIcon: number;
+    public artifactCustomIcon: number;
     public artifactTypeDescription: string;
     private _artifactId: number;
 
@@ -64,8 +63,6 @@ export class BpArtifactInfoController {
     private initProperties() {
         this.artifactName = null;
         this.artifactType = null;
-        this.artifactTypeId = null;
-        this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
         this.isLegacy = false;
         this.isReadonly = false;
@@ -74,6 +71,7 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this.artifactCustomIcon = null;
         this._artifactId = null;
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -94,13 +92,12 @@ export class BpArtifactInfoController {
         if (state.itemType) {
             this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
             if (state.itemType.iconImageId && angular.isNumber(state.itemType.iconImageId)) {
-                this.artifactTypeIcon = state.itemType.iconImageId;
+                this.artifactCustomIcon = state.itemType.id;
             }
         } else {
             this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
         }
 
-        this.artifactTypeId = artifact.itemTypeId;
         this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
@@ -129,7 +126,7 @@ export class BpArtifactInfoController {
                 name =  name || state.originItem.lockedByUser.displayName || "";
                 let msg = name ? "Locked by " + name : "Locked "; 
                 if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date) + ".";
+                    msg += " on " + this.localization.current.formatShortDateTime(date);
                 }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
@@ -214,7 +211,7 @@ export class BpArtifactInfoController {
                         if (error) {
                             if (error.statusCode === 400) {
                                 if (error.errorCode === 114) {
-                                    message = this.localization.get("App_Save_Artifact_Error_400_114");
+                                    message = this.localization.get("App_Save_Artifact_Error_409_114");
                                 } else {
                                     message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
                                 }
@@ -225,10 +222,6 @@ export class BpArtifactInfoController {
                                     message = this.localization.get("App_Save_Artifact_Error_409_116");
                                 } else if (error.errorCode === 117) {
                                     message = this.localization.get("App_Save_Artifact_Error_409_117");
-                                } else if (error.errorCode === 111) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_111");
-                                } else if (error.errorCode === 115) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_115");
                                 } else {
                                     message = this.localization.get("App_Save_Artifact_Error_409");
                                 }

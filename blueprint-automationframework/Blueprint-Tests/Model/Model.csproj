@@ -62,8 +62,6 @@
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifactDetails.cs" />
-    <Compile Include="ArtifactModel\Impl\NovaSubArtifact.cs" />
-    <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorInheritanceValue.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />

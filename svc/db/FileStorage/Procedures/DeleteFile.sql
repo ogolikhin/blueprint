@@ -8,11 +8,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[DeleteFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [FileStore].[DeleteFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DeleteFile]
 GO
 
-CREATE PROCEDURE [FileStore].[DeleteFile]
+CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
 	@ExpiredTime datetime
@@ -24,11 +24,11 @@ BEGIN
 	
 	DECLARE @CurrentTime datetime;
 	SELECT @CurrentTime = GETUTCDATE();
-	SET @ExpiredTime = [FileStore].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 
-    UPDATE [FileStore].[Files] SET ExpiredTime = @ExpiredTime
+    UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
 
 	SELECT @@ROWCOUNT

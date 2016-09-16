@@ -414,6 +414,7 @@ namespace Model.Impl
             return PublishArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.DiscardArtifacts(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaPublishResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
@@ -634,9 +635,7 @@ namespace Model.Impl
 
             if (restApi.StatusCode == HttpStatusCode.OK)
             {
-                var deletedArtifactsList = new List<IArtifactBase>();
-
-                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
+                // Set the IsSaved flags for the artifact that we discarded so the Dispose() works properly.
                 foreach (var discardedArtifacts in discardedArtifactResponse.Artifacts)
                 {
                     Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
@@ -644,24 +643,6 @@ namespace Model.Impl
 
                     IArtifactBase discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
                     discardedArtifact.IsSaved = false;
-
-                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
-                    if (discardedArtifact.IsMarkedForDeletion)
-                    {
-                        deletedArtifactsList.Add(discardedArtifact);
-
-                        discardedArtifact.IsPublished = false;
-                        discardedArtifact.IsDeleted = true;
-                    }
-                    else
-                    {
-                        discardedArtifact.IsPublished = true;
-                    }
-                }
-
-                if (deletedArtifactsList.Any())
-                {
-                    deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
                 }
             }
 

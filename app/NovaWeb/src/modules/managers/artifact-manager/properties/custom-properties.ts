@@ -1,17 +1,17 @@
-import { Models, Enums } from "../../../main/models";
-import { IStatefulArtifact, IArtifactProperties, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
+import { Models } from "../../../main/models";
+import { IIStatefulItem, IArtifactProperties, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
 import { ChangeSetCollector } from "../changeset";
 
 export class CustomProperties implements IArtifactProperties  {
     
     private properties: Models.IPropertyValue[];
-    private stateArtifact: IStatefulArtifact;
+    private statefulItem: IIStatefulItem;
     //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
     private subject: Rx.Observable<Models.IPropertyValue>;
     private changeset: IChangeCollector;
 
-    constructor(artifactState: IStatefulArtifact, properties?: Models.IPropertyValue[]) {
-        this.stateArtifact = artifactState;
+    constructor(statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
+        this.statefulItem = statefulItem;
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector();
         this.subject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
@@ -54,7 +54,7 @@ export class CustomProperties implements IArtifactProperties  {
                value: property.value              
            } as IChangeSet;
            this.changeset.add(changeset, oldValue);
-           this.stateArtifact.lock();
+           this.statefulItem.lock();
         }
         return property;
     }

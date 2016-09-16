@@ -8,7 +8,8 @@ import {
     IDocumentRefs,
     IMetaDataService,
     IArtifactAttachments,
-    IMetaData
+    IMetaData,
+    IArtifactService
 } from "./artifact-manager";
 
 
@@ -19,7 +20,7 @@ export {
     ISession,
     IArtifactService,
     IArtifactAttachmentsResultSet, 
-    IArtifactAttachmentsService 
+    IArtifactAttachmentsService
 };
 
 export interface IBlock<T> {

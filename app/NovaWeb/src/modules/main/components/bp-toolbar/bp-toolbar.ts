@@ -1,8 +1,7 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
-import { ISelectionManager } from "../../services";
-import { IProjectManager } from "../../../managers";
+import { IArtifactManager, IProjectManager } from "../../../managers";
 
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
@@ -31,7 +30,7 @@ class BPToolbarController implements IBPToolbarController {
         "localization",
         "dialogService",
         "projectManager",
-        "selectionManager",
+        "artifactManager",
         "messageService",
         "$rootScope",
         "loadingOverlayService",
@@ -42,7 +41,7 @@ class BPToolbarController implements IBPToolbarController {
         private localization: ILocalizationService,
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager,
+        private artifactManager: IArtifactManager,
         private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
@@ -170,7 +169,7 @@ class BPToolbarController implements IBPToolbarController {
 
     public $onInit(o) {
         this._subscribers = [
-            this.selectionManager.selectedArtifactObservable.subscribe(this.displayArtifact)
+            this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
         ];
     }
 

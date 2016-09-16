@@ -744,7 +744,8 @@ pagecontent, bp-properties-panel {
         }
       }
 
-      &.formly-field-bpFieldSelectMulti .error-messages {
+      &.formly-field-bpFieldSelectMulti .error-messages,
+      &.formly-field-bpFieldUserPicker .error-messages {
         right: -20px;
       }
 
@@ -1006,6 +1007,21 @@ pagecontent, bp-properties-panel {
             padding-right: $property-padding-default;
           }
         }
+      }
+    }
+  }
+
+  .system-properties {
+    &.collapse:not(.in) .formly .formly-field:first-child {
+      width: 100%;
+    }
+
+    &.collapse {
+      display: block !important;
+      height: #{$property-min-height + 12px} !important;
+
+      &.in {
+        height: auto !important;
       }
     }
   }

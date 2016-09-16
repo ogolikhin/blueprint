@@ -1,5 +1,7 @@
+import { IMessageService } from "../../core";
 import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager/selection-manager";
 import { IMetaDataService } from "./metadata";
+import { IStatefulArtifactFactory, } from "./artifact";
 
 import { IStatefulArtifact } from "../models";
 
@@ -9,7 +11,7 @@ export interface IArtifactManager {
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
-    get(id: number): IStatefulArtifact;
+    get(id: number): ng.IPromise<IStatefulArtifact>;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId: number);
 
@@ -19,12 +21,21 @@ export interface IArtifactManager {
 }
 
 export class ArtifactManager  implements IArtifactManager {
-
-    public static $inject = [ "selectionManager", "metadataService" ];
-
     private artifactList: IStatefulArtifact[];
 
-    constructor(private selectionService: ISelectionManager, private metadataService: IMetaDataService) {
+    public static $inject = [ 
+        "$q", 
+        "messageService",
+        "selectionManager", 
+        "metadataService", 
+        "statefulArtifactFactory" ];
+        
+    constructor(
+        private $q: ng.IQService, 
+        private messageService: IMessageService, 
+        private selectionService: ISelectionManager, 
+        private metadataService: IMetaDataService,
+        private artifactFactory: IStatefulArtifactFactory) {
         this.artifactList = [];
     }
 
@@ -36,8 +47,19 @@ export class ArtifactManager  implements IArtifactManager {
         return this.artifactList;
     }
 
-    public get(id: number): IStatefulArtifact {
-        return this.artifactList.filter((artifact: IStatefulArtifact) => artifact.id === id)[0] || null;
+    public get(id: number): ng.IPromise<IStatefulArtifact> {
+        let deferred = this.$q.defer<IStatefulArtifact>();
+        let artifact = this.artifactList.filter((it: IStatefulArtifact) => it.id === id)[0];
+        if (artifact) {
+            deferred.resolve(artifact);
+        } else {
+            this.artifactFactory.createStatefulArtifact({id: id}).load().then((it: IStatefulArtifact) =>{
+                deferred.resolve(it);
+            }).catch((err) => {
+                this.messageService.addError(err);
+            });
+        }
+        return deferred.promise;
     }
     
     public add(artifact: IStatefulArtifact) {

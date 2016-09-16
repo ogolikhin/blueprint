@@ -6,7 +6,7 @@ import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
-import { ISelectionManager, SelectionSource } from "../selection-manager";
+import { SelectionSource } from "../selection-manager";
 
 import { IArtifactManager } from "../../managers";
 
@@ -23,6 +23,8 @@ export interface IProjectManager {
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
+
+//    getSelectedProject(): Project;
 
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
     // getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
@@ -60,7 +62,7 @@ export class ProjectManager  implements IProjectManager {
         }
     }
 
-    public initialize = () => {
+    public initialize() {
         //subscribe to event
         this.dispose();
         delete this._projectCollection ;
@@ -102,7 +104,7 @@ export class ProjectManager  implements IProjectManager {
         }
     }
 
-    public remove = (all: boolean = false) => {
+    public remove(all: boolean = false) {
         try {
             let projectId: number = 0;
             if (!all) {
@@ -134,7 +136,7 @@ export class ProjectManager  implements IProjectManager {
 
     }
 
-    public loadArtifact = (id: number) => {
+    public loadArtifact(id: number) {
         let node: IArtifactNode;
 
         try {
@@ -203,6 +205,13 @@ export class ProjectManager  implements IProjectManager {
         return project;
     }
 
+    // public getSelectedProject(): Project {
+    //     let artifact = this.artifactManager.selection.getArtifact();
+    //     let project = this.getProject(artifact.projectId);
+    //     return project;
+    // }
+
+
     public getArtifactNode(id: number): IArtifactNode {
         let found: IArtifactNode;
         let projects  = this.projectCollection.getValue();
@@ -226,26 +235,4 @@ export class ProjectManager  implements IProjectManager {
         return foundArtifact;
     };
 
-
-    // public getPropertyTypes(project: number | Models.IProject, propertyTypeId: number): Models.IPropertyType {
-    //     let _project: Models.IProject;
-    //     if (typeof project === "number") {
-    //         _project = this.getProject(project as number);
-    //     } else if (project) {
-    //         _project = project as Models.IProject;
-    //     }
-    //     if (!_project) {
-    //         throw new Error("Project_NotFound");
-    //     }
-    //     if (!_project.meta) {
-    //         throw new Error("Project_MetaDataNotLoaded");
-    //     }
-
-    //     let propertyType: Models.IPropertyType = _project.meta.propertyTypes.filter((it: Models.IPropertyType) => {
-    //         return it.id === propertyTypeId;
-    //     })[0];
-
-    //     return propertyType;
-
-    // }
 }

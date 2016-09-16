@@ -11,7 +11,7 @@ import {
 } from "../../models";
 
 export interface IStatefulArtifactFactory {
-    createStatefulArtifact(artifact: Models.IArtifact);
+    createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
     createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
     createStatefulProcessArtifact(artifact: Models.IArtifact);
 }

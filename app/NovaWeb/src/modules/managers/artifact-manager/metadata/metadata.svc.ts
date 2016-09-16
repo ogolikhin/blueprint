@@ -168,10 +168,13 @@ export class MetaDataService implements IMetaDataService {
             propertyTypePredefined: Models.PropertyTypePredefined.ItemTypeId,
             primitiveType: Models.PrimitiveType.Choice,
             validValues: function (data: Models.IProjectMeta) {
+                if (!data) {
+                    return [];
+                }
                 return data.artifactTypes.filter((it: Models.IItemType) => {
                     return (itemType && (itemType.predefinedType === it.predefinedType));
                 });
-            } (projectMeta.data).map(function (it) {
+            } (projectMeta ? projectMeta.data : null).map(function (it) {
                 return <Models.IOption>{
                     id: it.id,
                     value: it.name
@@ -327,11 +330,13 @@ export class MetaDataService implements IMetaDataService {
 
     private getCustomPropertyTypes(projectMeta: ProjectMetaData, itemType: Models.IItemType): Models.IPropertyType[] {
         let properties: Models.IPropertyType[] = [];
-        projectMeta.data.propertyTypes.forEach((it: Models.IPropertyType) => {
-            if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                properties.push(it);
-            }
-        });
+        if (projectMeta && projectMeta.data) {
+            projectMeta.data.propertyTypes.forEach((it: Models.IPropertyType) => {
+                if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
+                    properties.push(it);
+                }
+            });
+        }
         return properties;
     }
 

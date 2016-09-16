@@ -3,9 +3,11 @@ import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
-import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
+import { Models } from "../../../models";
+import { IProjectManager, ISelectionManager } from "../../../../managers";
+//import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
 
-
+ 
 export interface IArtifactPickerController {
     propertyMap: any;  
     selectedItem?: any;
@@ -32,8 +34,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         "localization", 
         "$uibModalInstance", 
         "projectManager", 
-        "selectionManager", 
-        "projectRepository", 
         "dialogService", 
         "dialogSettings",
         "dialogData"];
@@ -42,16 +42,14 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private manager: IProjectManager,
-        private selectionManager: ISelectionManager,
-        private projectRepository: IProjectRepository,
+        private projectManager: IProjectManager,
         private dialogService: IDialogService,
         dialogSettings: IDialogSettings,
         private dialogData: IArtifactPickerFilter
     ) {
         super($uibModalInstance, dialogSettings);
         dialogService.dialogSettings.okButton = localization.get("App_Button_Ok");
-        let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        let project = this.projectManager.getSelectedProject();
         this.updateCurrentProjectInfo(project);       
 
         $scope.$on("$destroy", () => {
@@ -149,16 +147,16 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
                     //TODO: for now it display custom icons just for already loaded projects
                     let projectID = params.data.projectId;
-                    let loadedProjects = this.manager.projectCollection.getValue();
-                    let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
-                    if (projectID && isProjectLoaded !== -1) {
-                        let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
-                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                            icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-                        }
-                    }
+                    // let loadedProjects = this.manager.projectCollection.getValue();
+                    // let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
+                    // if (projectID && isProjectLoaded !== -1) {
+                    //     let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                    //     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    //         icon = `<bp-item-type-icon
+                    //             item-type-id="${artifactType.id}"
+                    //             item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                    //     }
+                    // }
                 }
                 return `${icon}<span>${name}</span>`;
             },
@@ -188,7 +186,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         } else {
             this.projectName = this.localization.get("App_Header_Name");
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-            this.projectRepository.getFolders(id)
+            this.projectManager.loadFolders(id)
                 .then((nodes: Models.IProjectNode[]) => {                  
                     this.reloadTree(nodes, id);
                 }, (error) => {

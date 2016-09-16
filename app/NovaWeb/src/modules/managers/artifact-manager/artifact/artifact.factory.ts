@@ -3,12 +3,12 @@ import { Models } from "../../../main/models";
 import { StatefulArtifactServices } from "../services";
 import { StatefulArtifact } from "./artifact";
 import { IMetaDataService } from "../";
+import { IArtifactService } from "./artifact.svc";
 import {
     IStatefulArtifact, 
     ISession, 
     IStatefulArtifactServices, 
     IArtifactAttachmentsService,
-    IArtifactService,
 } from "../../models";
 
 export interface IStatefulArtifactFactory {

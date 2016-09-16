@@ -14,8 +14,10 @@ export function actorController(
     messageService: IMessageService,
     dialogService: IDialogService,
     selectionManager: ISelectionManager) {
-    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];       
-
+    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];
+    if (currentModelVal != null) {
+        currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix, currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
+    }
 
     $scope.deleteBaseActor = () => {    
         deleteBaseActor();
@@ -37,6 +39,10 @@ export function actorController(
             currentArtifact = currentArtifact.parent;
         }
         return path;
+    }
+
+    function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]) : boolean {
+        return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;        
     }
 
     function setBaseActor() {
@@ -66,12 +72,14 @@ export function actorController(
                         deleteBaseActor();
                     
                 }             
+                var artifactPath = getArtifactPath(artifact);                
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
-                    pathToProject: getArtifactPath(artifact)
+                    pathToProject: artifactPath,
+                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     
                 };
                 currentModelVal = $scope.model[$scope.options.key];                

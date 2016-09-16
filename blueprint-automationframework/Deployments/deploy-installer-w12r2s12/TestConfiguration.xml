@@ -1,0 +1,23 @@
+<TestConfiguration>
+
+  <BlueprintServer address="http://integration.blueprintsys.net/" username="admin" password="$Admin93" />
+
+  <BlueprintServices>
+    <Service name="AdminStore"    address="http://integration.blueprintsys.net" />
+    <Service name="AccessControl" address="http://integration.blueprintsys.net:8182" />
+    <Service name="ArtifactStore" address="http://integration.blueprintsys.net" />
+    <Service name="ConfigControl" address="http://integration.blueprintsys.net:82" />
+    <Service name="FileStore"     address="http://integration.blueprintsys.net" />
+    <Service name="Storyteller"   address="http://integration.blueprintsys.net" />
+  </BlueprintServices>
+
+  <Databases>
+    <Database name="Blueprint"     connection_string="Data Source=integration.blueprintsys.net;Initial Catalog=Integration;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=integration.blueprintsys.net;Initial Catalog=Integration_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=integration.blueprintsys.net;Initial Catalog=Integration_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="FileStore"     connection_string="Data Source=integration.blueprintsys.net;Initial Catalog=Integration_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
+  </Databases>
+
+  <LogLevel>TRACE</LogLevel>
+
+</TestConfiguration>

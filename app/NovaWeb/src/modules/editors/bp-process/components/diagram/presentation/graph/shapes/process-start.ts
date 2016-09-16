@@ -2,7 +2,7 @@
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
-import {NodeFactorySettings} from "./node-factory";
+import {NodeFactorySettings} from "./node-factory-settings";
 
 export class ProcessStart extends DiagramNode<IProcessShape> {
 

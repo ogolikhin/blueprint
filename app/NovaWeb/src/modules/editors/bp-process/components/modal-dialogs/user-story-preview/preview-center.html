@@ -16,8 +16,8 @@
     <div class="storyteller-gwt-section storyteller-gwt-nfr-br">
         <label class="storyteller-label_show-hide" ng-click="centerCtrl.showMore('label', $event)" ng-class="{'show' : centerCtrl.isTabsVisible  }">
             <i class="fonticon-caret-right"></i>{{centerCtrl.isTabsVisible ? 'Show Less' : 'Show More'}}
-            <i ng-click="centerCtrl.showMore('nfr', $event)" class="fonticon-nonfunctional fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.centerTask.userStoryProperties.nfr.value)}" title="{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}"></i>
-            <i ng-click="centerCtrl.showMore('br', $event)" class="fonticon-bp-business-rule fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.centerTask.userStoryProperties.businessRules.value)}" title="{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}"></i>
+            <i ng-click="centerCtrl.showMore('nfr', $event)" class="fonticon-nonfunctional fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.nonfunctionalRequirements)}" title="{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}"></i>
+            <i ng-click="centerCtrl.showMore('br', $event)" class="fonticon-bp-business-rule fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.businessRules)}" title="{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}"></i>
         </label>
         <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="centerCtrl.isTabsVisible">
             <uib-tabset>

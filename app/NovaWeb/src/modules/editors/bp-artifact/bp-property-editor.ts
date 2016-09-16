@@ -45,7 +45,14 @@ export class PropertyEditor {
 
             case Models.PrimitiveType.User:
                 //TODO: please implement on time of user editor field implementation
-                return $value;
+                if (angular.isArray($value)) {
+                    return {
+                        validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
+                    };
+                }
+                return {
+                    validValueIds: [this.locale.toNumber($value)]
+                };
 
             default:
                 return $value;
@@ -77,11 +84,8 @@ export class PropertyEditor {
                 return $value;
             }
         } else if (context.primitiveType === Models.PrimitiveType.User) {
-            //TODO: must be changed when  a field editor for this type of property is created
             if ($value.usersGroups) {
-                return $value.usersGroups.map((val: Models.IUserGroup) => {
-                    return val.displayName;
-                }).join(", ");
+                return $value.usersGroups;
             } else if ($value.displayName) {
                 return $value.displayName;
             } else if ($value.label) {
@@ -263,8 +267,12 @@ export class PropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    //TODO needs to be changed to user selection
-                    field.type = "bpFieldReadOnly";
+                    field.type = "bpFieldUserPicker";
+                    field.templateOptions["optionsAttr"] = "bs-options";
+                    field.templateOptions.options = [];
+                    if (context.userGroupDefaultValue && context.userGroupDefaultValue.length) {
+                        field.defaultValue = context.userGroupDefaultValue;
+                    }
                     break;
                 case Models.PrimitiveType.Image:
                     field.type = "bpFieldImage";

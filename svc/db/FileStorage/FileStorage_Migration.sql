@@ -655,7 +655,7 @@ GO
 -- Always add your code just above this comment block
 -- --------------------------------------------------
 IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
- 	EXEC [FileStorage].[SetSchemaVersion] @value = N'7.0.1';
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.0.1';
 GO
 set noexec off
 -- --------------------------------------------------
@@ -673,7 +673,7 @@ Print 'Migrating 7.1.0.0 ...'
 -- Always add your code just above this comment block
 -- --------------------------------------------------
 IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.1.0') <> 0)
- 	EXEC [FileStorage].[SetSchemaVersion] @value = N'7.1.0';
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.1.0';
 GO
 set noexec off
 -- --------------------------------------------------
@@ -691,7 +691,7 @@ Print 'Migrating 7.2.0.0 ...'
 -- Always add your code just above this comment block
 -- --------------------------------------------------
 IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.2.0') <> 0)
- 	EXEC [FileStorage].[SetSchemaVersion] @value = N'7.2.0';
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.2.0';
 GO
 set noexec off
 -- --------------------------------------------------
@@ -725,7 +725,7 @@ GO
 -- Always add your code just above this comment block
 -- --------------------------------------------------
 IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.3.0') <> 0)
- 	EXEC [FileStorage].[SetSchemaVersion] @value = N'7.3.0';
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.3.0';
 GO
 set noexec off
 -- --------------------------------------------------
@@ -804,6 +804,9 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Updat
 DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MakeFilePermanent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MakeFilePermanent]
+GO
 
 DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)

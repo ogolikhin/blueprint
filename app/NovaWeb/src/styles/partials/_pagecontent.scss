@@ -23,11 +23,10 @@ pagecontent, bp-properties-panel {
   }
 
   .page-heading {
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: none;
     font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
-    min-width: $page-body-min-width;
     margin: 15px 20px 0;
+    min-width: $page-body-min-width;
     white-space: nowrap;
 
     &::after {
@@ -38,9 +37,10 @@ pagecontent, bp-properties-panel {
   }
 
   .page-body-wrapper {
+    height: 100%;
+    margin: 0 20px 10px;
     min-width: $page-body-min-width;
     overflow: hidden !important;
-    margin: 0 20px 10px;
     z-index: 0;
   }
 

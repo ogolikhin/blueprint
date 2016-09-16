@@ -142,11 +142,14 @@ export interface IPropertyValue {
 }
 
 export interface IActorInheritancePropertyValue {
-    pathToProject: string[]
+    pathToProject: string[];
     actorName: string;
     actorPrefix: string;
     actorId: number;
     hasAccess: boolean;    
+
+    // client side use only
+    isProjectPathVisible: boolean;
 }
 
 export interface IProjectMeta {

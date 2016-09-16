@@ -13,22 +13,21 @@ import {GraphLayoutPreprocessor} from "./graph-layout-preprocessor";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {ProcessCellRenderer} from "./process-cell-renderer";
 import {ProcessValidator} from "./process-graph-validator";
-import {NodePopupMenu} from "./popup-menu/node-popup-menu";
-import {NodeFactory, NodeFactorySettings} from "./shapes/node-factory";
+import {NodeFactory} from "./shapes/node-factory";
+import {NodeFactorySettings} from "./shapes/node-factory-settings";
 import {SystemTask} from "./shapes/system-task";
 import {SystemDecision} from "./shapes/system-decision";
 import {MergingPoint} from "./shapes/merging-point";
 import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
-import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
+import {ProcessDeleteHelper} from "./process-delete-helper";
 
 export var tempShapeId: number = 0;
 
 export class Layout implements ILayout {
     private mxgraph: MxGraph = null;
     private tempId = 0;
-    private popupMenu: NodePopupMenu = null;
     private preprocessor: IGraphLayoutPreprocessor = null;
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
@@ -45,21 +44,6 @@ export class Layout implements ILayout {
         this.mxgraph = processGraph.getMxGraph();
 
         this.mxgraph.cellRenderer = new ProcessCellRenderer();
-
-        // initialize a popup menu for the graph
-        // #TODO: activate handlers when the code is ready
-
-        this.popupMenu = new NodePopupMenu(
-            this,
-            this.shapesFactoryService,
-            this.rootScope,
-            this.processGraph.getHtmlElement(),
-            this.mxgraph,
-            ProcessAddHelper.insertTaskWithUpdate,
-            ProcessAddHelper.insertUserDecision,
-            ProcessAddHelper.insertUserDecisionConditionWithUpdate,
-            ProcessAddHelper.insertSystemDecision,
-            ProcessAddHelper.insertSystemDecisionConditionWithUpdate);
 
         this.tempId = 0;
 
@@ -166,6 +150,8 @@ export class Layout implements ILayout {
         finally {
 
             graphModel.endUpdate();
+
+            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
             
             for (i in this.viewModel.shapes) {
                 var thisShape: IProcessShape = this.viewModel.shapes[i];
@@ -189,8 +175,6 @@ export class Layout implements ILayout {
                     edgeGeo.state = this.getEdgeCellState(edgeGeo.edge);
                 }
             }
-
-            this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
 
             // Set vertices z-order on top in case some of them are overlaped by edges
             this.mxgraph.orderCells(false, this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent()));
@@ -494,11 +478,7 @@ export class Layout implements ILayout {
     public getRowByY(y: number): number {
         return (y - GRAPH_TOP) / GRAPH_ROW_HEIGHT;
     }
-
-    public hidePopupMenu() {
-        this.popupMenu.hidePopupMenu();
-    }
-
+ 
     private getEdgeCellState(edge: MxCell): MxCellState {
         var view: MxGraphView = this.mxgraph.getView();
         var state = view.getState(edge);

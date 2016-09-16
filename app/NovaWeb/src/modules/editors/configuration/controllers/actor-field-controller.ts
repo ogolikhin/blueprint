@@ -1,21 +1,23 @@
 ﻿import "angular"
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { ILocalizationService, IMessageService } from "../../../core";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { Models } from "../../../main/models";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ISelectionManager } from "../../../main/services";
 
-actorController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService"];
+actorController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
 export function actorController(
     $scope: any,
-    localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachments,
+    localization: ILocalizationService,    
     $window: ng.IWindowService,
     messageService: IMessageService,
-    dialogService: IDialogService) {
-    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];       
-
+    dialogService: IDialogService,
+    selectionManager: ISelectionManager) {
+    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];
+    if (currentModelVal != null) {
+        currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix, currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
+    }
 
     $scope.deleteBaseActor = () => {    
         deleteBaseActor();
@@ -39,13 +41,17 @@ export function actorController(
         return path;
     }
 
+    function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]) : boolean {
+        return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;        
+    }
+
     function setBaseActor() {
         const dialogSettings = <IDialogSettings>{
             okButton: localization.get("App_Button_Open"),
             template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
-            header: localization.get("App_UP_Attachments_Document_Picker_Title")
+            header: localization.get("App_Properties_Actor_InheritancePicker_Title")
         };
 
         const dialogData: IArtifactPickerFilter = {
@@ -53,13 +59,27 @@ export function actorController(
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {                
+            
+            if (artifact) {
+                
+                if (selectionManager.selection && selectionManager.selection.artifact) {
+                    if (selectionManager.selection.artifact.id === artifact.id) {
+                        messageService.addError(localization.get("App_Properties_Actor_SameBaseActor_ErrorMessage", "Actor cannot be set as its own parent"));
+                        return;
+                    }
+                }
+                    if (currentModelVal != null) {
+                        deleteBaseActor();
+                    
+                }             
+                var artifactPath = getArtifactPath(artifact);                
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
-                    pathToProject: getArtifactPath(artifact)
+                    pathToProject: artifactPath,
+                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     
                 };
                 currentModelVal = $scope.model[$scope.options.key];                
@@ -67,10 +87,7 @@ export function actorController(
         });
     }
 
-    $scope.selectBaseActor = () => {
-        if (currentModelVal != null) {
-            deleteBaseActor();
-        }
+    $scope.selectBaseActor = () => {        
         setBaseActor();
     };
 }

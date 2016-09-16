@@ -46,6 +46,7 @@ export class SelectionHelper {
                 case Diagrams.USECASE_DIAGRAM:
                     if (element.type === Shapes.USECASE || element.type === Shapes.ACTOR) {
                         const artifactId = ShapeExtensions.getPropertyByName(element, ShapeProps.ARTIFACT_ID);
+                        const versionId = ShapeExtensions.getPropertyByName(element, ShapeProps.VERSION_ID) || 0;
                         effectiveSelection.subArtifact = undefined;
                         if (artifactId != null) {
                             effectiveSelection.artifact = {
@@ -53,6 +54,7 @@ export class SelectionHelper {
                                 predefinedType: element.type === Shapes.USECASE ? ItemTypePredefined.UseCase : ItemTypePredefined.Actor,
                                 prefix: this.getArtifactPrefix((<IShape>element).label, artifactId),
                                 name: this.getArtifactName((<IShape>element).label, artifactId),
+                                version: versionId
                             };
                         } else {
                             effectiveSelection.artifact = null;

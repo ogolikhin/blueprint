@@ -132,6 +132,11 @@ namespace Model
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string STATUS                          = "svc/artifactstore/status";
 
+                public static class Artifacts
+                {
+                    public const string PUBLISH                     = "svc/bpartifactstore/artifacts/publish";  // XXX: For some reason they decided to put this call in blueprint-current!
+                }
+
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";
@@ -139,6 +144,7 @@ namespace Model
                     public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
                     public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
+                    public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
 
                     public static class Discussions_id_
                     {

@@ -71,7 +71,7 @@ export class DocumentRefs implements IDocumentRefs {
                     key: docref.artifactId,
                     value: docref
                 } as IChangeSet;
-                this.changeset.add(changeset);
+                this.changeset.add(changeset, docref);
                 
                 this.statefulItem.lock();
             });
@@ -98,7 +98,7 @@ export class DocumentRefs implements IDocumentRefs {
                         key: docref.artifactId,
                         value: docref
                     } as IChangeSet;
-                    this.changeset.add(changeset);
+                    this.changeset.add(changeset, docref);
                     
                     this.statefulItem.lock();
                 }
@@ -109,10 +109,8 @@ export class DocumentRefs implements IDocumentRefs {
         return this.docrefs;
     }
 
-    // TODO: implement discard
     public discard() {
-        // this.changeset.reset().forEach((it: IChangeSet) => {
-        //     this.get(it.key as number).value = it.value;
-        // });
+        this.docrefs = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.subject.onNext(this.docrefs);
     }
 }

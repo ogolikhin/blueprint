@@ -71,7 +71,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
                     key: attachment.guid,
                     value: attachment
                 } as IChangeSet;
-                this.changeset.add(changeset);
+                this.changeset.add(changeset, attachment);
                 this.statefulItem.lock();
             });
             this.subject.onNext(this.attachments);
@@ -98,7 +98,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
                         key: attachment.guid || attachment.attachmentId,
                         value: attachment
                     } as IChangeSet;
-                    this.changeset.add(changeset);
+                    this.changeset.add(changeset, attachment);
                 }
             });
             this.subject.onNext(this.attachments);
@@ -107,10 +107,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
         return this.attachments;
     }
 
-    // TODO: implement discard
     public discard() {
-        // this.changeset.reset().forEach((it: IChangeSet) => {
-        //     this.get(it.key as number).value = it.value;
-        // });
+        this.attachments = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.subject.onNext(this.attachments);
     }
 }

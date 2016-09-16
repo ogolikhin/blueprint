@@ -398,29 +398,4 @@ describe("Component BPDiscussionPanel", () => {
             expect(vm.artifactDiscussionList[0].discussionId).toBe(1);
             expect(vm.artifactDiscussionList[0].lastEditedOn).toBe("2016-05-31T17:19:53.07");
         }));
-
-        it("version is null getArtifact throws exception",
-            inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
-            //Arrange
-            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
-            artifact.prefix = "PRO";
-            let deferred = $q.defer();
-            ArtifactServiceMock.prototype.getArtifact = jasmine.createSpy("getArtifact() spy").and.callFake(
-                (): ng.IPromise<Models.IArtifact> => {
-                    deferred.reject({
-                        statusCode: 404,
-                        errorCode: 2000
-                    });
-                    return deferred.promise;
-                }
-            );
-
-            //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
-            $rootScope.$digest();
-            $timeout.flush();
-
-            //Assert
-            expect(vm.artifactDiscussionList.length).toBe(0);
-        }));
 });

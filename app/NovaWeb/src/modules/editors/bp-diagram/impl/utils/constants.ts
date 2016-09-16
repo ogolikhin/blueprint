@@ -127,4 +127,5 @@ export class ShapeProps {
     public static get HAS_MOCKUP(): string { return "HasMockup"; }
     //Use case diagram
     public static get ARTIFACT_ID(): string { return "ArtifactId"; }
+    public static get VERSION_ID(): string { return "VersionId"; }
 }

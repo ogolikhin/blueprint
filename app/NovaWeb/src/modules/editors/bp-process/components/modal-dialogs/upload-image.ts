@@ -123,7 +123,6 @@ export class UploadImageDirective implements ng.IDirective {
     }
 
     private clearImageContainer($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) {
-        //$("." + attr["imageContainerClass"]).empty();
         var result = document.getElementsByClassName("file-upload_preview");
         var wrappedResult = angular.element(result);
         wrappedResult.empty();

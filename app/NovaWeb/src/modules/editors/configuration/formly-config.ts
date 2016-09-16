@@ -11,7 +11,7 @@ import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
-import { ISelectionManager } from "../../main/services";
+import { ISelectionManager } from "../../managers";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager"];

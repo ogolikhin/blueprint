@@ -4,7 +4,7 @@ import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { Models } from "../../../main/models";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
-import { ISelectionManager } from "../../../main/services";
+import { ISelectionManager } from "../../../managers";
 
 actorController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
 export function actorController(
@@ -55,10 +55,10 @@ export function actorController(
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             
             if (artifact) {
-                
-                if (selectionManager.selection && selectionManager.selection.artifact) {
-                    if (selectionManager.selection.artifact.id === artifact.id) {
-                        messageService.addError(localization.get("App_Properties_Actor_SameBaseActor_ErrorMessage", "Actor cannot be set as its own parent"));
+                let selected = selectionManager.getArtifact();
+                if (selected) {
+                    if (selected.id === artifact.id) {
+                        messageService.addError("App_Properties_Actor_SameBaseActor_ErrorMessage"); // , "Actor cannot be set as its own parent")
                         return;
                     }
                 }

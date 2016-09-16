@@ -64,20 +64,22 @@ export interface IArtifactProperties {
     discard();
 }
 
-export interface IArtifactStates {
-    initialize(artifact: Models.IArtifact): IArtifactStates; 
+export interface IArtifactState {
+    initialize(artifact: Models.IArtifact): IArtifactState; 
     get(): IState;
     set(value: any): void;
     lockedBy: Enums.LockedByEnum;
+    lockDateTime?: Date;
+    lockOwner?: string;
     readonly: boolean;
     dirty: boolean;
     published: boolean;
-    observable: Rx.Observable<IState>;
+    observable: Rx.Observable<IArtifactState>;
 } 
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
 export interface IStatefulItem extends Models.IArtifact  {
-    artifactState: IArtifactStates;
+    artifactState: IArtifactState;
     customProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     docRefs: IDocumentRefs;

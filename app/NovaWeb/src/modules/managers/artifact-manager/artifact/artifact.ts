@@ -12,7 +12,7 @@ import {
     IChangeSet,
     IStatefulArtifact,
     ISubArtifactCollection,
-    IArtifactStates,
+    IArtifactState,
     IArtifactProperties,
     IState,
     IStatefulArtifactServices,
@@ -22,8 +22,7 @@ import {
 
 
 export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
-    private artifact: Models.IArtifact;
-    public artifactState: IArtifactStates;
+    public artifactState: IArtifactState;
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
@@ -32,13 +31,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public metadata: IMetaData;
     
     private changesets: IChangeCollector;
-    private services: IStatefulArtifactServices;
 
-    constructor(artifact: Models.IArtifact, services: IStatefulArtifactServices) {
-        this.artifact = artifact;
+    constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
-        this.services = services;
         this.metadata = new MetaData(this);
         this.customProperties = new CustomProperties(this).initialize(artifact);
         this.attachments = new ArtifactAttachments(this);
@@ -172,8 +168,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
         this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
-            this.artifactState.initialize(artifact);
             this.customProperties.initialize(artifact);
+            this.artifactState.initialize(artifact);
             deferred.resolve(this);
         }).catch((err) => {
             deferred.reject(err);
@@ -186,8 +182,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         let deferred = this.services.getDeferred<IState>();
 
         this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-            let lock = result[0];
-            this.artifactState.set({lock: lock} as IState);
+            this.artifactState.set({lock: result[0]} as IState);
             deferred.resolve(this.artifactState.get());
         }).catch((err) => {
             deferred.reject(err);
@@ -195,7 +190,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
-    private onLockChanged(state: IState) {
+    private onLockChanged(artifactState: IArtifactState) {
+        let state = artifactState.get();
         if (!state.lock) {
             return;
         }

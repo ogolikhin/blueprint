@@ -6,7 +6,7 @@ import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artif
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
 import { IArtifactManager } from "../../../managers";
-import { IStatefulArtifact } from "../../../managers/models";
+import { IStatefulArtifact, IArtifactState } from "../../../managers/models";
 
 export { IArtifactManager }
 
@@ -54,7 +54,7 @@ export class BpArtifactInfoController {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
-            // this.stateManager.stateChange.subscribeOnNext(this.onStateChange, this),
+             this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this),
         ];
     }
 
@@ -124,17 +124,10 @@ export class BpArtifactInfoController {
                 this.selfLocked = true;
                 break;
             case Enums.LockedByEnum.OtherUser:
-                let name = "";
-                let msg = "";
-                // let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                // if (state.lock && state.lock.info) {
-                //     name = state.lock.info.lockOwnerLogin;
-                // }
-                // name =  name || state.originItem.lockedByUser.displayName || "";
-                // let msg = name ? "Locked by " + name : "Locked "; 
-                // if (date) {
-                //     msg += " on " + this.localization.current.formatShortDateTime(date);
-                // }
+                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
+                 if (artifact.artifactState.lockDateTime) {
+                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                 }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:
@@ -147,6 +140,12 @@ export class BpArtifactInfoController {
     private onSelectArtifact = (artifact: IStatefulArtifact) => {
         // so, just need to do an extra check if the component has created
         this.updateProperties(artifact);
+        
+    }
+
+    private onStateChange = (state: IArtifactState) => {
+        // so, just need to do an extra check if the component has created
+//        this.updateProperties();
         
     }
 

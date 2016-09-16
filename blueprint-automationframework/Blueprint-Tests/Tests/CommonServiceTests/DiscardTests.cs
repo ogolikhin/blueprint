@@ -175,5 +175,69 @@ namespace CommonServiceTests
                 OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
             }, "Deleted Artifact {0} exists after it was discarded!", artifact.Id);
         }
+
+        [TestCase(2, BaseArtifactType.Actor)]
+        [TestRail(0)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Set a published process by saving and publishing. Perform Nova Discard - Must return nothing to discard")]
+        public void NovaDiscardArtifact_PublishedArtifactWithNoChildren_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            //Create artifact(s) with save and publish for discard call test
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            INovaPublishResponse discardArtifactResponse = null;
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
+                "We should get a 400 BadRequestException when a user trying to discard published artifact(s) which has nothing to discard!");
+
+            // Verify: Exception should contain expected message.
+            string expectedExceptionMessage = "has nothing to discard";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
+        }
+
+        [TestCase(2, BaseArtifactType.Actor)]
+        [TestRail(0)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Set a draft process by saving. Discard - must return successfully discarded.")]
+        //Create process artifact, save, don't publish, discard - must return successfully discarded.
+        public void NovaDiscard_SavedArtifact_VerifyArtifactDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            //Create artifact(s) with save for discard call test
+            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            INovaPublishResponse discardArtifactResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            // Validation:
+            
+
+        }
+
+        /*
+        [TestCase]
+        [TestRail(0)]
+        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Description("Set a published process by saving and publishing. Discard - must return nothing to discard")]
+        public void NovaDiscard_PublishedArtifact_VerifyNothingToDiscard()
+        {
+        
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            List<NovaDiscardArtifactResult> discardResultList = null;
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
+
+            // Execute:
+            // Validation:
+        
+        }
+
+
+        */
     }
 }

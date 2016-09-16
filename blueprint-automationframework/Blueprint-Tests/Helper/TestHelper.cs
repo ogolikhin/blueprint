@@ -206,6 +206,27 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a list of new saved artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactType">The type of artifacts to create.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <returns>The list of artifacts.</returns>
+        public List<IArtifactBase> CreateAndSaveMultipleArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IArtifact artifact = CreateAndSaveArtifact(project, user, artifactType);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
+        /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
         /// <param name="project">The project where the artifact is to be created.</param>

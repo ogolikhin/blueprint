@@ -414,6 +414,11 @@ namespace Model.Impl
             return PublishArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
 
+        public INovaPublishResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable
@@ -588,6 +593,80 @@ namespace Model.Impl
             return publishedArtifacts;
         }
 
+        /// <summary>
+        /// Discards a list of artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifacts">The artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        public static INovaPublishResponse DiscardArtifacts(string address,
+            List<IArtifactBase> artifacts,
+            IUser user = null,
+            bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+
+            if (artifacts == null)
+            {
+                artifacts = new List<IArtifactBase>();
+            }
+
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+            Dictionary<string, string> queryParams = null;
+
+            if (all != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+            }
+
+            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaPublishResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (restApi.StatusCode == HttpStatusCode.OK)
+            {
+                var deletedArtifactsList = new List<IArtifactBase>();
+
+                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
+                foreach (var discardedArtifacts in discardedArtifactResponse.Artifacts)
+                {
+                    Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
+                        path, discardedArtifacts.Id);
+
+                    IArtifactBase discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
+                    discardedArtifact.IsSaved = false;
+
+                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
+                    if (discardedArtifact.IsMarkedForDeletion)
+                    {
+                        deletedArtifactsList.Add(discardedArtifact);
+
+                        discardedArtifact.IsPublished = false;
+                        discardedArtifact.IsDeleted = true;
+                    }
+                    else
+                    {
+                        discardedArtifact.IsPublished = true;
+                    }
+                }
+
+                if (deletedArtifactsList.Any())
+                {
+                    deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                }
+            }
+
+            return discardedArtifactResponse;
+        }
         #endregion Static members
     }
 }

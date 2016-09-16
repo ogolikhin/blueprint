@@ -220,7 +220,7 @@ export class BpArtifactInfoController {
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
+            okButton: this.localization.get("App_Button_Ok"),
             template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",

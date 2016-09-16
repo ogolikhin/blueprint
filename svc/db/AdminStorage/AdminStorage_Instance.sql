@@ -1197,8 +1197,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_S
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions_Includes', 'en-US', N'#mention or include artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Helper_Text', 'en-US', N'The system will be [Response]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Decision_Label', 'en-US', N'Add User Decision Point')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_BusinessProcess_Label', 'en-US', N'Business Process')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-To-System Process')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Given_Label', 'en-US', N'Given')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Then_Label', 'en-US', N'Then')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_When_Label', 'en-US', N'When')

@@ -300,8 +300,6 @@ ST_Search_Project_Scope_Mentions_Includes, "#mention or include artifacts from t
 ST_System_Task_Name_Helper_Text, "The system will be [Response]"
 
 ST_Popup_Menu_Add_User_Decision_Label,"Add User Decision Point"
-ST_ProcessType_BusinessProcess_Label, "Business Process"
-ST_ProcessType_UserToSystemProcess_Label, "User-To-System Process"
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"
 ST_When_Label, "When"

@@ -142,7 +142,7 @@ export interface IPropertyValue {
 }
 
 export interface IActorInheritancePropertyValue {
-    pathToProject: string[]
+    pathToProject: string[];
     actorName: string;
     actorPrefix: string;
     actorId: number;

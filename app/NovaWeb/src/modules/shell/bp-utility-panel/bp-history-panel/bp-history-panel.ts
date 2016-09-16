@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService, IStateManager } from "../../../core";
 import { Models} from "../../../main";
-import { IArtifactManager } from "../../../managers/artifact-manager";
+import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -71,7 +71,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         if (artifact == null) {
             this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);

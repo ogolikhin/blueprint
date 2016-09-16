@@ -390,7 +390,7 @@ namespace Model.Impl
             var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChange: true);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }

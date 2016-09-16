@@ -64,3 +64,6 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Updat
 DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MakeFilePermanent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MakeFilePermanent]
+GO

@@ -77,19 +77,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
-            if (artifact.version) {
-                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-            } else {
-                return this.artifactService.getArtifact(artifact.id, timeout).then((result: Models.IArtifact) => {
-                    artifact = result;
-                    this.setEverPublishedAndDiscussions(artifact.version, timeout);
-                }).catch((error: any) => {
-                    if (error) {
-                        this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                    }
-                    artifact = null;
-                });
-            }
+            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
+
         } else {
             this.artifactId = null;
             this.subArtifact = null;

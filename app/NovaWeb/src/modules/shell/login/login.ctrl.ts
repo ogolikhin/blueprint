@@ -2,7 +2,7 @@
 import {
     ILocalizationService,
     ISettingsService } from "../../core";
-import { ISession } from "./session.svc";
+import { ISession } from "./session-interface";
 
 export class ILoginInfo {
     public userName: string;

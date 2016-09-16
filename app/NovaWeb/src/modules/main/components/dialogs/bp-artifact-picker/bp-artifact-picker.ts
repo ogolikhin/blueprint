@@ -229,6 +229,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                         this.projectRepository.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);
+                                filtered.forEach((value: Models.IArtifact) => {
+                                    value.parent = project;
+                                });                   
                                 this.projectView = false;
                                 this.reloadTree(filtered);
                             }, (error) => {

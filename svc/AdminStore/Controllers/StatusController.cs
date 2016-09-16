@@ -75,9 +75,12 @@ namespace AdminStore.Controllers
             {
                 return Ok(serviceStatus);
             }
+            else
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
+            }
 
-            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-            return ResponseMessage(response);
         }
 
         /// <summary>

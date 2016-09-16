@@ -1,6 +1,9 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../../core";
-import { IArtifactDocRef, IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../shell";
-// import { FiletypeParser } from "../../../../core/utils/filetypeParser";
+import {
+    IArtifactDocRef, 
+    IArtifactAttachmentsService, 
+    IArtifactAttachmentsResultSet
+} from "../../../../managers/artifact-manager";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");

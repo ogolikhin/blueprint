@@ -11,7 +11,7 @@ export interface IArtifactRelationshipsService {
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
 }
 
-export class ArtifactRelationships implements IArtifactRelationshipsService {
+export class ArtifactRelationshipsService implements IArtifactRelationshipsService {
     static $inject: [string] = [
         "$q",
         "$http",

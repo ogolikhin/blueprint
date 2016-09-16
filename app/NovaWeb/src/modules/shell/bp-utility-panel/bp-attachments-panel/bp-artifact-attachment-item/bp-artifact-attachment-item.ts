@@ -1,5 +1,5 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { IArtifactAttachment } from "../../../../shell";
+import { IArtifactAttachment } from "../../../../managers/artifact-manager";
 import { Models } from "../../../../main";
 import { ISelectionManager } from "../../../../main/services/selection-manager";
 import { FiletypeParser } from "../../../../shared/utils/filetypeParser";

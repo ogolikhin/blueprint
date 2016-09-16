@@ -1,6 +1,6 @@
-export { IRelationships, Relationships } from "./relationships";
+export { IArtifactRelationships, ArtifactRelationships } from "./relationships";
 export {
-    ArtifactRelationships, 
+    ArtifactRelationshipsService,
     IArtifactRelationshipsService, 
     IArtifactRelationshipsResultSet
 } from "./relationships.svc";

@@ -8,7 +8,7 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
-import { ISelectionManager } from "../../../managers/selection-manager";
+import { IArtifactManager } from "../../../managers";
 import { IStatefulItem } from "../../../managers/models";
 import { 
     // IArtifactAttachmentsResultSet, 
@@ -31,7 +31,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "selectionManager2",
+        "artifactManager",
         "stateManager",
         "session",
         "artifactAttachments",
@@ -55,7 +55,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     constructor(
         $q: ng.IQService,
         private localization: ILocalizationService,
-        protected selectionManager: ISelectionManager,
+        protected artifactManager: IArtifactManager,
         protected stateManager: IStateManager,
         private session: ISession,
         private artifactAttachments: IArtifactAttachmentsService,
@@ -63,7 +63,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
     }
     
     public addDocRef(): void {
@@ -199,8 +199,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     }
 
     public canAddNewFile() {
-        return !this.artifactIsDeleted &&
-            !(this.itemState && this.itemState.isReadonly);
+        // TODO: fix this for readonly as a property, not a function
+        // return !this.artifactIsDeleted && !(this.item.artifactState && this.item.artifactState.readonly);
+        return true;
     }
 
     /* tslint:disable:no-unused-variable */

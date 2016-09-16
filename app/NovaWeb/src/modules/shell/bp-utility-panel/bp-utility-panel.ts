@@ -28,6 +28,7 @@ export class BPUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
     private _currentItem: string;
     private _currentItemClass: string;
+    private _currentItemType: number;
     private _currentItemIcon: number;
 
     public get currentItem() { 
@@ -36,6 +37,10 @@ export class BPUtilityPanelController {
 
     public get currentItemClass() {
         return this._currentItemClass;
+    }
+
+    public get currentItemType() {
+        return this._currentItemType;
     }
 
     public get currentItemIcon() {
@@ -49,6 +54,7 @@ export class BPUtilityPanelController {
         private $element: ng.IAugmentedJQuery) {
         this._currentItem = null;
         this._currentItemClass = null;
+        this._currentItemType = null;
         this._currentItemIcon = null;
     }
 
@@ -95,15 +101,18 @@ export class BPUtilityPanelController {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
-            let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
-            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                this._currentItemIcon = artifactType.id;
-            } else {
-                this._currentItemIcon = null;
+            this._currentItemType = item.itemTypeId;
+            this._currentItemIcon = null;
+            if (item.predefinedType !== ItemTypePredefined.Project) {
+                let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    this._currentItemIcon = artifactType.iconImageId;
+                }
             }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
+            this._currentItemType = null;
             this._currentItemIcon = null;
         }
     }

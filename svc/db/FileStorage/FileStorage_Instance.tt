@@ -16,6 +16,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\IsolationLevel.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CompatibilityLevel.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CreateSchemas.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Files.sql" ) ) #>
@@ -23,6 +24,8 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\MigrationLog.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetSchemaVersion.sql" ) ) #>
+
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\ValidateExpiryTime.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures.sql" ) ) #>
@@ -32,7 +35,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'7.4.0';
+EXEC [FileStore].[SetSchemaVersion] @value = N'7.4.0';
 GO
 -- --------------------------------------------------
 

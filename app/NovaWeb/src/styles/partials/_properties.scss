@@ -111,72 +111,6 @@ pagecontent, bp-properties-panel {
     min-width: $property-width - $property-label-width;
     padding: 0 0 10px;
 
-    .form-control-wrapper{
-        display: table-cell;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        padding:4px;
-
-        .form-control{
-            width:100%;
-            max-width:100%;
-            margin:2px;
-            background-color: white;
-            background-image: none !important;
-            &:hover{
-              background-image: none !important;
-            }
-          }
-    }
-
-    .formly-field-bpDocumentFile{
-        width: 100% !important;
-        .input-group-addon{
-          padding:0;
-          background-color: transparent;
-          border:none;
-
-          .icon{
-            padding-top: 13px;
-            display: inline-block;
-            padding-right: $padding-smaller;
-            padding-left: $padding-smaller;
-          }
-        }
-
-        .thumb{
-          width:30px;
-          height:30px;
-          &.fonticon2-attachment{
-            padding-top: 10px;
-          }
-        }
-        .btn.btn-bp-small{
-          margin-left:5px;
-          padding:5px 9px;
-          min-width: 20px;
-        }
-        .form-control-wrapper
-        {
-          display: table-cell;
-          width: 100%;
-          max-width: 100%;
-          box-sizing: border-box;
-          padding:4px;
-          .form-control{
-            width:100%;
-            max-width:100%;
-            margin:2px; 
-            background-color: white;
-            background-image: none !important;
-            &:hover{
-              background-image: none !important; 
-            }
-          }
-        }
-    }
-
     // create "padding" to align un-even numbers of property groups
     &::after,
     &::before {
@@ -877,52 +811,94 @@ pagecontent, bp-properties-panel {
     .formly-field-bpFieldImage {
       width: #{$property-width * .4};
 
-      .inheritance-group {   
-      .icon{
-        display: inline-block;
-        padding-left: $padding-smaller;
-      }
+      .inheritance-group {
+        &.inheritance-group-wrapper{
+          display: flex;
+          align-items: center;
 
-      .actor-image {        
-        width: 90px;
-        height: 120px;
-        border: 1px solid $gray-lightest;
-      }               
-
-      .image-actor-group {        
-        font-size: $font-size-normal;        
-        margin: 5px 9px;
-        &.glyphicon-plus{
-          background-color: $blue-light;
-          color: $white;
-          padding: 4px 3px 4px 4px;
-          border-radius: 2px;
+          input[type=file]{
+            display:none;
+          }
         }
-      }
-     }   
+
+        .icon{
+          display: inline-block;
+          padding-left: $padding-smaller;
+          padding-top: 28px;
+        }
+
+        .actor-image-wrapper{
+          display: inline-flex;
+          align-items: center;
+          width:90px;
+          height:117px;
+          border: 1px solid $gray-lightest;
+
+          span{
+            width:90px;
+            height:117px;
+            background: url('images/icons/user-default.svg') left top no-repeat;
+            display: inline-block;
+            background-color: $gray;
+            vertical-align:middle;
+          }
+
+          label{
+            width:90px;
+            height:117px;
+            display: block;
+            align-items: center;
+            line-height: 120px;
+            margin:0;
+            img {
+              max-width: 100%;
+              max-height: 117px;
+              display:inline;
+            }
+          }
+
+          ~label{
+            display: inline-block;
+            width:auto;
+          }
+        }
+
+        .image-actor-group {
+          font-size: $font-size-normal;
+          margin: 5px 9px;
+          &.glyphicon-plus{
+            background-color: $blue-light;
+            color: $white;
+            padding: 4px 3px 4px 4px;
+            border-radius: 2px;
+            &.disabled{
+              background-color: $gray;
+            }
+          }
+        }
+     }
     }
 
     $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
     .formly-field-bpFieldInheritFrom {
-      padding-top: 38px;
+      padding-top: 49px;
       display: block;
       max-width: $property-inheritance-width;
       min-width: $property-input-width;
       width: 100%;
+
       .din{
         display: inline-block;
         padding-top: 10px;
         padding-right: 2px;
       }
-      .fr{
-        float:right;
-      }
+
       .inheritance-group {
         display: inline-flex;
         font-size: $font-size-normal;
-        width: calc(100% - #{$property-label-width});        
+        width: calc(100% - #{$property-label-width});
 
-        .inheritance-path {          
+        .inheritance-path {
           border-color: $gray-lighter;
           background-color: $gray-lightest;
           border-width: 1px;
@@ -930,12 +906,19 @@ pagecontent, bp-properties-panel {
           flex-shrink: 1;
           height: $property-min-height;
           line-height: $property-min-height;
-          min-width: $property-input-width - 30px;
-          @include text-ellipsis-flex-width(999px);                    
+          min-width: $property-input-width - 90px;
+          @include text-ellipsis-flex-width(999px);
           padding: 0 $property-padding-default;
           margin-top: 2px;
           margin-right: 8px;
-
+          max-width: 404px;
+          ~ div{
+              display:flex;
+          }
+          .path-wrapper{
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           span {
             &::before {
               content: ' > ';
@@ -947,16 +930,85 @@ pagecontent, bp-properties-panel {
               }
             }
           }
-        }        
+        }
 
         .inheritance-tools {
           flex-grow: 0;
           flex-shrink: 0;
           margin: 5px 9px;
+        }
+      }
+    }
+
+
+    .form-control-wrapper{
+      display: table-cell;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding:4px;
+
+      .form-control{
+        width:100%;
+        max-width:100%;
+        margin:2px;
+        background-color: white;
+        background-image: none !important;
+        &:hover{
+          background-image: none !important;
+        }
+      }
+    }
+
+    .formly-field-bpDocumentFile{
+      width: 100% !important;
+      .input-group-addon {
+        padding:0;
+        background-color: transparent;
+        border:none;
+
+        .icon {
+          display: inline-block;
+          line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
+          padding-left: $padding-smaller;
+          padding-right: $padding-smaller;
+        }
+      }
+
+      .thumb{
+        width:30px;
+        height:30px;
+        &.fonticon2-attachment{
+          padding-top: 10px;
+        }
+      }
+      .btn.btn-bp-small{
+        margin-left:5px;
+        padding:5px 9px;
+        min-width: 20px;
+      }
+      .form-control-wrapper {
+        display: table-cell;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 4px;
+
+        .form-control {
+          background: $white;
+          margin: 2px;
+          max-width: 100%;
+          width: 100%;
+
+          &:hover,
+          &:focus {
+            background: $white;
+            padding-right: $property-padding-default;
           }
         }
-      }     
-    }    
+      }
+    }
+  }
 }
 
 .single-column-property .formly .formly-field label {

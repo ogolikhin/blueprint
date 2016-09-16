@@ -47,7 +47,7 @@ namespace FileStore.Repositories
             File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
-                "InsertFileHead",
+                "[FileStore].InsertFileHead",
                 new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileId", null } },
                 1,
                 new Dictionary<string, object> { { "FileId", result } });
@@ -75,7 +75,7 @@ namespace FileStore.Repositories
             var guid = new Guid("99999999999999999999999999999999");
             File[] result = { new File { FileName = "name", FileType = "type" } };
             cxn.SetupQueryAsync(
-                "ReadFileHead",
+                "[FileStore].ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -97,7 +97,7 @@ namespace FileStore.Repositories
             var guid = new Guid("88888888888888888888888888888888");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "ReadFileHead",
+                "[FileStore].ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -124,7 +124,7 @@ namespace FileStore.Repositories
             var guid = new Guid("33333333333333333333333333333333");
             File[] result = { new File { FileName = "nnnn", FileType = "tttt" } };
             cxn.SetupQueryAsync(
-                "ReadFileHead",
+                "[FileStore].ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -147,7 +147,7 @@ namespace FileStore.Repositories
             var guid = new Guid("22222222222222222222222222222222");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "ReadFileHead",
+                "[FileStore].ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -254,7 +254,7 @@ namespace FileStore.Repositories
             var guid = new Guid("12345123451234512345123451234512");
             Guid? result = guid;
             cxn.SetupExecuteScalarAsync(
-                "DeleteFile",
+                "[FileStore].DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
                 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
@@ -277,7 +277,7 @@ namespace FileStore.Repositories
             var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
             var guid = new Guid("34567345673456734567345673456734");
             cxn.SetupExecuteScalarAsync(
-                "DeleteFile",
+                "[FileStore].DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
                 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
@@ -291,5 +291,33 @@ namespace FileStore.Repositories
         }
 
         #endregion DeleteFile
+
+        #region Make Permanent
+
+        [TestMethod]
+        public async Task MakePermanent_Returns_NumberEffectedRows()
+        {
+            // Arrange
+            var configRepoMock = new Mock<IConfigRepository>();
+            configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
+            var guid = Guid.NewGuid();
+            var numberEffectedRows = 2;
+
+            cxn.SetupExecuteScalarAsync(
+                "[FileStore].MakeFilePermanent",
+                new Dictionary<string, object> { { "FileId", guid }},
+                numberEffectedRows);
+
+            // Act
+            var rows = await repository.MakeFilePermanent(guid);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(numberEffectedRows, rows);
+        }
+
+        #endregion
     }
 }

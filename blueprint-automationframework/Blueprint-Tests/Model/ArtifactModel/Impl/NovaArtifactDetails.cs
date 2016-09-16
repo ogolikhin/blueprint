@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Model.ArtifactModel.Impl.PredefinedProperties;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -102,6 +105,38 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        /// <summary>
+        /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
+        /// </summary>
+        /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
+        [SuppressMessage("Microsoft.Design", "CA1024:ChangeToProperty")]
+        public ActorInheritanceValue GetActorInheritance()
+        {
+            // Finding ActorInheritence among other properties
+            CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
+                p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+
+            if (actorInheritanceProperty == null)
+            {
+                return null;
+            }
+
+            // Deserialization
+            string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
+            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
+
+            // Try to serialize and compare with JSON from the server
+            string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
+            bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+            if (isJSONChanged)
+            {
+                    string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
+                    throw new FormatException(msg);
+            }
+            //
+            return actorInheritanceValue;
+        }
+
         public class Identification
         {
             [JsonProperty("id")]
@@ -144,10 +179,24 @@ namespace Model.ArtifactModel.Impl
         public class CustomProperty
         {
             public string Name { get; set; }
-            public string PropertyTypeId { get; set; }
-            public string PropertyTypeVersionId { get; set; }
-            public string PropertyTypePredefined { get; set; }
-            public object Value { get; set; }
+
+            [JsonProperty("value")]
+            public object CustomPropertyValue { get; set; }
+
+            public int PropertyTypeId { get; set; }
+
+            public int PropertyTypeVersionId { get; set; }
+
+            [JsonProperty("PropertyTypePredefined")]
+            public PropertyTypePredefined PropertyType { get; set; }
+        }
+
+
+
+        [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
+        public enum PropertyTypePredefined
+        {
+            ActorInheritance = 4128
         }
     }
 
@@ -158,19 +207,55 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public int Id { get; set; }
-        public int ItemTypeId { get; set; }
-        public string Name { get; set; }
-        public int ParentId { get; set; }
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
         public NovaArtifactDetails.Identification CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public string Description { get; set; }
+        public int Id { get; set; }
+        public int ItemTypeId { get; set; }
         public NovaArtifactDetails.Identification LastEditedBy { get; set; }
         public DateTime? LastEditedOn { get; set; }
+        public string Name { get; set; }
+        public double OrderIndex { get; set; }
+        public int ParentId { get; set; }
         public int PredefinedType { get; set; }
         public string Prefix { get; set; }
+        public int ProjectId { get; set; }
+        public int Version { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public class NovaProject : INovaProject
+    {
+        #region Serialized JSON Properties
+
+        public string Description { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    /// <summary>
+    /// This class is returned by Nova Publish.
+    /// </summary>
+    public class NovaPublishResponse : INovaPublishResponse
+    {
+        #region Serialized JSON Properties
+
+        /// <summary>
+        /// The artifacts that were published.
+        /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
+        public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
+
+        /// <summary>
+        /// The projects where the published artifacts exist.
+        /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaProject, NovaProject>))]
+        public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
         #endregion Serialized JSON Properties
     }

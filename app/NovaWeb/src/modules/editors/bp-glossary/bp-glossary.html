@@ -11,7 +11,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="term in $ctrl.glossary.subArtifacts"
+        <tr ng-repeat="term in $ctrl.terms"
             ng-class="{'selected-term': term.selected}"
             ng-click="$ctrl.selectTerm(term)">
             <td>{{term.name}}</td>

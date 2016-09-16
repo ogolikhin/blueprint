@@ -39,6 +39,8 @@ export class PropertyEditor {
                     };
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
+                } else if (context.propertyTypePredefined < 0) {
+                    return this.locale.toNumber($value);
                 }
                 return {
                     validValueIds: [this.locale.toNumber($value)]

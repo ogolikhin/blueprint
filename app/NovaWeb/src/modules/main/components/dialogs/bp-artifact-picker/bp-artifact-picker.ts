@@ -172,7 +172,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             let artifactId = null;
             if (prms) {
                 artifactId = prms.id;
-            }
+            } 
             this.projectRepository.getArtifacts(this.projectId, artifactId)
                 .then((nodes: Models.IArtifact[]) => {                    
                     const filtered = nodes.filter(this.filterCollections);

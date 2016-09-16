@@ -138,9 +138,8 @@ export class PreviewCenterController {
         if (userStoryId) {
             let revisionId: number = null;
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
-                let propertytypes = it.metadata.getArtifactPropertyTypes();
                 it.customPropertyValues.forEach((property) => {
-                    let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
+                    let propertyType = it.metadata.getArtifactPropertyType();
                     if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
                         this.title = property.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {

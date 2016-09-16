@@ -24,7 +24,7 @@ export interface IProjectManager {
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
 
-//    getSelectedProject(): Project;
+    getSelectedProject(): Project; 
 
     // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
     // getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
@@ -205,11 +205,11 @@ export class ProjectManager  implements IProjectManager {
         return project;
     }
 
-    // public getSelectedProject(): Project {
-    //     let artifact = this.artifactManager.selection.getArtifact();
-    //     let project = this.getProject(artifact.projectId);
-    //     return project;
-    // }
+    public getSelectedProject(): Project {
+        let artifact = this.artifactManager.selection.getArtifact();
+        let project = this.getProject(artifact.projectId);
+        return project;
+    }
 
 
     public getArtifactNode(id: number): IArtifactNode {

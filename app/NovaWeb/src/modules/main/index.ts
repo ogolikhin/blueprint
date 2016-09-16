@@ -74,6 +74,5 @@ export {
     Relationships
 } from "./models";
 export {
-    ISelectionManager, SelectionManager, ISelection, SelectionSource,
     IWindowManager, WindowManager, IMainWindow, ResizeCause
 } from "./services";

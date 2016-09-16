@@ -75,6 +75,7 @@ namespace ServiceLibrary.Helpers
             }
 
             //Await the status check task results.
+            
             serviceStatus.NoErrors = true;
             foreach (var result in statusResponses)
             {
@@ -85,6 +86,7 @@ namespace ServiceLibrary.Helpers
             }
             
             return serviceStatus;
+            //return s;
         }
 
         /// <summary>

@@ -246,17 +246,23 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
     private showMore(type: string, event: any) {
         // select tab
-        if (type === "label") {
-            this.isShowMore = !this.isShowMore;
-        } else if (type === "info") {
-            this.isShowMore = true;
-            this.showMoreActiveTabIndex = 0;
-        } else if (type === "include") {
-            this.isShowMore = true;
-            this.showMoreActiveTabIndex = 1;
-        }
+        this.$scope.$applyAsync((s) => {
+            if (type === "label") {
+                this.isShowMore = !this.isShowMore;
+            } else if (type === "info") {
+                this.isShowMore = true;
+                this.showMoreActiveTabIndex = 0;
+            } else if (type === "include") {
+                this.isShowMore = true;
+                this.showMoreActiveTabIndex = 1;
+            }
 
-        event.stopPropagation();
+            setTimeout(() => {
+                var elem: any = document.getElementsByClassName("modal-dialog")[0].parentElement;
+                elem.style.width = "" + (elem.clientWidth - 1) + "px"; 
+                elem.style.width = "" + (elem.clientWidth + 1) + "px"; 
+            }, 100);
+        });
     }
 
     public getActiveHeader(): string {

@@ -3,14 +3,12 @@ import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
-import { IArtifactService } from "../../services";
-import { ICommunicationManager } from "../../../editors/bp-process";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
 import { IArtifactManager } from "../../../managers";
 import { IStatefulArtifact } from "../../../managers/models";
 
-
+export { IArtifactManager }
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -21,8 +19,8 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["$scope", "artifactManager", "localization", "messageService",
-        "dialogService", "$element", "windowManager", "artifactService", "communicationManager", "loadingOverlayService"];
+    static $inject: [string] = [
+        "$scope", "artifactManager", "localization", "messageService","dialogService", "$element", "windowManager", "loadingOverlayService"];
 
     private subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
@@ -41,14 +39,12 @@ export class BpArtifactInfoController {
 
     constructor(
         public $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
         private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private dialogService: IDialogService,
-        private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService,
-        private communicationManager: ICommunicationManager,
         private loadingOverlayService: ILoadingOverlayService
     ) {
         this.initProperties();

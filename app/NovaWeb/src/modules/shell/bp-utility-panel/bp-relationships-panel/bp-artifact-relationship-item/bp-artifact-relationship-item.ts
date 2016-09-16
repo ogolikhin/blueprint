@@ -1,6 +1,7 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Helper } from "../../../../shared";
-import { Relationships, IProjectManager } from "../../../../main";
+import { Relationships } from "../../../../main";
+import { IArtifactManager } from "../../../../managers";
 import { IArtifactRelationships } from "../artifact-relationships.svc";
 import { ISelectionManager, SelectionSource } from "../../../../main/services/selection-manager";
 
@@ -24,8 +25,7 @@ export class BPArtifactRelationshipItemController {
         "$log",
         "localization",
         "artifactRelationships",
-        "projectManager",
-        "selectionManager"
+        "artifactManager"
     ];
 
     public expanded: boolean = false;
@@ -39,8 +39,7 @@ export class BPArtifactRelationshipItemController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private artifactRelationships: IArtifactRelationships,
-        private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager) {
+        private artifactManager: IArtifactManager) {
 
     }
 
@@ -139,10 +138,9 @@ export class BPArtifactRelationshipItemController {
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            const artifact = this.projectManager.getArtifact(relationship.artifactId);
+            const artifact = this.artifactManager.get(relationship.artifactId);
             if (artifact) {
-//                const project = this.projectManager.getProject(artifact.projectId);
-                this.selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+                this.artifactManager.selection.setArtifact(artifact, SelectionSource.Explorer);
             }
         }
     }

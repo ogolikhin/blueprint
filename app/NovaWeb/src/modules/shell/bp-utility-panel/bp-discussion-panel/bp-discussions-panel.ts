@@ -51,7 +51,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, artifactManager.selection, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },

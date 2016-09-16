@@ -1,5 +1,5 @@
-﻿import "angular"
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+﻿import "angular";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
 import { ILocalizationService, IMessageService } from "../../../core";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 

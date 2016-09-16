@@ -52,7 +52,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, artifactManager.selection, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
 
         this.options = [     
             { value: "1", label: "Add new" }           

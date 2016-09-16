@@ -1110,15 +1110,14 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="input-group inheritance-group">
                     <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
-                        <div ng-show="{{model[options.key].pathToProject.length > 0 
-                            && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 39}}">
+                        <div ng-show="model[options.key].isProjectPathVisible">
                             <span>{{model[options.key].pathToProject[0]}}</span>
                             <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
                               {{item}}
                             </span>   
                             <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}</a></span>                           
                         </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 39}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
+                        <div ng-hide="model[options.key].isProjectPathVisible" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
                             <a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}</a>
                         </div>
                     </div>    

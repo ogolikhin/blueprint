@@ -8,7 +8,7 @@ import {NodeType, NodeChange, ElementType} from "../models/";
 import {UserTaskChildElement} from "./user-task-child-element";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
-import {NodeFactorySettings} from "./node-factory";
+import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";

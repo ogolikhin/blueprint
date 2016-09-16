@@ -44,9 +44,9 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
+        this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
 
-        // this._subscribers.push(
+        // this.subscribers.push(
         //     this.stateManager.stateChange
         //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
         //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
@@ -95,7 +95,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         // } else {
         //     throw Error("Artifact_Not_Found");
         // }
-        this.editor.propertyContexts = this.artifact.metadata.getArtifactPropertyTypes(this.artifact.id).map((it: Models.IPropertyType) => {
+        this.editor.propertyContexts = this.artifact.metadata.getArtifactPropertyTypes().map((it: Models.IPropertyType) => {
             return new PropertyContext(it);
         });
 

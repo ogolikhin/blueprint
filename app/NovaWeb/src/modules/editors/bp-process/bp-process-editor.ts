@@ -2,7 +2,6 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
-import {IEditorContext} from "../../main/models/models";
 import {ILocalizationService, IMessageService } from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -63,7 +62,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
+        this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
         
     }
 

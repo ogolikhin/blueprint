@@ -20,7 +20,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 export class BpArtifactInfoController {
 
     static $inject: [string] = [
-        "$scope", "artifactManager", "localization", "messageService","dialogService", "$element", "windowManager", "loadingOverlayService"];
+        "$scope", "$element", "artifactManager", "localization", "messageService", "dialogService", "windowManager", "loadingOverlayService"];
 
     private subscribers: Rx.IDisposable[];
     public isReadonly: boolean;

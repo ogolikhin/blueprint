@@ -6,7 +6,7 @@ import { Models, Enums } from "../main/models";
 export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
 
 export class BpBaseEditor {
-    protected _subscribers: Rx.IDisposable[];
+    protected subscribers: Rx.IDisposable[];
     public artifact: IStatefulArtifact;
     public isLoading: boolean = true;
 
@@ -16,8 +16,8 @@ export class BpBaseEditor {
     }
 
     public $onInit() {
-        this._subscribers = [];
-        // this._subscribers.push(
+        this.subscribers = [];
+        // this.subscribers.push(
         //     this.stateManager.stateChange
         //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
         //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
@@ -42,7 +42,7 @@ export class BpBaseEditor {
             delete this.artifact;
             //delete this.artifactState;
 
-            this._subscribers = (this._subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+            this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         } catch (ex) {
             this.messageService.addError(ex.message);
             throw ex;

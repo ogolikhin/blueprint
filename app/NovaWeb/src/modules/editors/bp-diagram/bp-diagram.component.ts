@@ -68,7 +68,7 @@ export class BPDiagramController extends BpBaseEditor {
         super.$onInit();
 
         //use context reference as the last parameter on subscribe...
-        this._subscribers.push(
+        this.subscribers.push(
             //subscribe for current artifact change (need to distinct artifact)
             this.artifactManager.selection.selectionObservable
                 .filter(this.clearSelectionFilter)

@@ -1,9 +1,9 @@
 import { Models} from "../../models";
 import { IWindowManager } from "../../services";
-import { IProjectManager, ISelectionManager, SelectionSource} from "../../../managers";
+import { IArtifactManager, } from "../../../managers";
 import { IStatefulArtifact } from "../../../managers/models";
 
-import { IMessageService, IStateManager } from "../../../core";
+import { IMessageService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -22,17 +22,13 @@ class PageContentCtrl {
     public static $inject: [string] = [
         "$state",
         "messageService",
-        "projectManager",
+        "artifactManager",
         "diagramService",
-        "selectionManager2",
-        "stateManager",
         "windowManager"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private artifactManager: IArtifactManager,
                 private diagramService: IDiagramService,
-                private selectionManager: ISelectionManager,
-                private stateManager: IStateManager,
                 private windowManager: IWindowManager) {
     }
     public context: IEditorContext = null;
@@ -43,7 +39,7 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.artifactObservable.subscribeOnNext(this.selectContext, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.selectContext, this),
             this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
@@ -61,8 +57,6 @@ class PageContentCtrl {
                 return;
             }
 
-            // _context.artifact = artifact;
-//             _context.type = this.projectManager.getArtifactType(artifact.id);
             this.$state.go("main.artifact", { id: artifact.id });
 
         } catch (ex) {
@@ -71,12 +65,12 @@ class PageContentCtrl {
         this.context = _context;
     }
 
-    private getSelectedArtifactObservable() {
-        return this.selectionManager.selectionObservable
-            .filter(s => s != null && s.source === SelectionSource.Explorer)
-            .map(s => s.artifact)
-            .distinctUntilChanged(a => a ? a.id : -1).asObservable();
-    }
+    // private getSelectedArtifactObservable() {
+    //     return this.artifactManager.selection.selectionObservable
+    //         .filter(s => s != null && s.source === SelectionSource.Explorer)
+    //         .map(s => s.artifact)
+    //         .distinctUntilChanged(a => a ? a.id : -1).asObservable();
+    // }
 
     public onContentSelected($event: MouseEvent) {
         // if ($event.target && $event.target["tagName"] !== "BUTTON") {

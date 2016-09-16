@@ -31,7 +31,6 @@ export class BpGlossaryController extends BpBaseEditor {
         "artifactManager"
     ];
 
-    private subscribers: Rx.IDisposable[];
 
     public glossary: Models.IArtifact;
     public isLoading: boolean = true; 
@@ -49,14 +48,13 @@ export class BpGlossaryController extends BpBaseEditor {
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.selectionManager.selectedSubArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this),
-        ];
+        super.$onInit();
+        this.subscribers.push(this.selectionManager.selectedSubArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this));
         this.$element.on("click", this.stopPropagation);
     }
 
     public $onDestroy() {
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
         this.$element.off("click", this.stopPropagation);
     }
 

@@ -1,5 +1,6 @@
 ﻿import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
-import {ISelectionManager, Models, IProjectManager, IWindowManager, IArtifactService} from "../../../main";
+import { Models, IWindowManager } from "../../../main";
+import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
@@ -14,7 +15,7 @@ export class BPPropertiesPanel implements ng.IComponentOptions {
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };
-}
+} 
 
 export class BPPropertiesController extends BPBaseUtilityPanelController {
 
@@ -25,8 +26,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "stateManager",
         "windowManager",
         "localization",
-        "projectManager",
-        "artifactService"
     ];
 
     public form: angular.IFormController;
@@ -53,11 +52,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         public stateManager: IStateManager,
         public windowManager: IWindowManager,
         public localization: ILocalizationService,
-        private projectManager: IProjectManager,
-        private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
     }    
 
@@ -86,7 +83,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
-    protected onSelectionChanged (artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         try {
             this.fields = [];
             this.model = {};
@@ -98,7 +95,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 return this.onLoad(artifact, subArtifact, timeout);
             }
         } catch (ex) {
-            this.messageService.addError(ex.message);
+            this.messageService.addError(ex);
+            throw ex;
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
@@ -109,54 +107,61 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.stateManager.addChange(subArtifact, changeSet);
     }
 
-    private onLoad(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
+    private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
+        let deferred = this.$q.defer<any>();
         this.isLoading = true;
+        this.selectedArtifact = artifact;
+        this.selectedSubArtifact = subArtifact;
+        this.onUpdate(artifact, subArtifact);
+        deferred.resolve();
+        return deferred.promise;
+    //    if (subArtifact) {
         
-        if (subArtifact) {
-            return this.artifactService.getSubArtifact(artifact.id, subArtifact.id, timeout).then((it: Models.ISubArtifact) => {
-                angular.extend(subArtifact, it);
-                this.addSubArtifactChangeset(artifact, subArtifact, undefined);
-                this.selectedArtifact = artifact;
-                this.selectedSubArtifact = subArtifact;
-                this.onUpdate(artifact, subArtifact);
-            }).catch((error: any) => {
-                if (error) {
-                    this.messageService.addError(error["message"] || "SubArtifact_NotFound");
-                }
-            }).finally(() => {
-                this.isLoading = false;
-            });
-        } else {
-            return this.artifactService.getArtifact(artifact.id, timeout).then((it: Models.IArtifact) => {
-                angular.extend(artifact, it);
-                this.stateManager.addChange(artifact);                
-                this.selectedArtifact = artifact;
-                this.selectedSubArtifact = undefined;
-                this.onUpdate(artifact, subArtifact);
-            }).catch((error: any) => {
-                if (error) {
-                    this.messageService.addError(error["message"] || "Artifact_NotFound");
-                }
-            }).finally(() => {
-                this.isLoading = false;
-            });   
-        }        
-    }   
+            
+    //         return this.artifactService.getSubArtifact(artifact.id, subArtifact.id, timeout).then((it: Models.ISubArtifact) => {
+    //             angular.extend(subArtifact, it);
+    //             this.addSubArtifactChangeset(artifact, subArtifact, undefined);
+    //             this.selectedArtifact = artifact;
+    //             this.selectedSubArtifact = subArtifact;
+    //             this.onUpdate(artifact, subArtifact);
+    //         }).catch((error: any) => {
+    //             if (error) {
+    //                 this.messageService.addError(error["message"] || "SubArtifact_NotFound");
+    //             }
+    //         }).finally(() => {
+    //             this.isLoading = false;
+    //         });
+    //    } else {
+    //         return this.artifactService.getArtifact(artifact.id, timeout).then((it: Models.IArtifact) => {
+    //             angular.extend(artifact, it);
+    //             this.stateManager.addChange(artifact);                
+    //             this.selectedArtifact = artifact;
+    //             this.selectedSubArtifact = undefined;
+    //             this.onUpdate(artifact, subArtifact);
+    //         }).catch((error: any) => {
+    //             if (error) {
+    //                 this.messageService.addError(error["message"] || "Artifact_NotFound");
+    //             }
+    //         }).finally(() => {
+    //             this.isLoading = false;
+    //         });   
+    //     }        
+     }   
 
-    private getChangedArtifact(item: Models.IArtifact): Models.IArtifact {        
-        if (!item) {
-            return undefined;
-        }
-        let changedItem: Models.IArtifact;
-        this.itemState = this.stateManager.getState(item.id);
+    // private getChangedArtifact(item: Models.IArtifact): Models.IArtifact {        
+    //     if (!item) {
+    //         return undefined;
+    //     }
+    //     let changedItem: Models.IArtifact;
+    //     this.itemState = this.stateManager.getState(item.id);
 
-        if (this.itemState) {
-            changedItem = this.itemState.getArtifact();
-        } else {
-            changedItem = item;
-        }
-        return changedItem;
-    }
+    //     if (this.itemState) {
+    //         changedItem = this.itemState.getArtifact();
+    //     } else {
+    //         changedItem = item;
+    //     }
+    //     return changedItem;
+    // }
 
     private getChangedSubArtifact(item: Models.ISubArtifact): Models.ISubArtifact {
         if (!item) {
@@ -187,22 +192,22 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         throw new Error("SubArtifact_Not_Found");
     }
 
-    public onUpdate(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    public onUpdate(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         try {
             
             if (!artifact || !this.editor) {
                 return;
             }
 
-            let changedArtifact = this.getChangedArtifact(artifact);           
-            let changedSubArtifact = this.getChangedSubArtifact(subArtifact);            
 
-            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(changedArtifact, changedSubArtifact).map((it: Models.IPropertyType) => {
+            // let changedArtifact = this.getChangedArtifact(artifact);           
+            // let changedSubArtifact = this.getChangedSubArtifact(subArtifact);            
+
+            this.editor.propertyContexts = artifact.metadata.getArtifactPropertyTypes().map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
 
-            
-            this.model = this.editor.load(changedArtifact, changedSubArtifact);
+            this.model = this.editor.load(artifact, subArtifact);
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {

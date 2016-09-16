@@ -1,10 +1,9 @@
 import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
-// import { IProjectManager } from  "./project-manager";
+
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
-    // IArtifactAttachment,
     IDocumentRefs,
     IMetaDataService,
     IArtifactAttachments,
@@ -18,7 +17,6 @@ import { ISession } from "../shell/login/session.svc";
 
 export { 
     ISession,
-    IArtifactService,
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService
 };

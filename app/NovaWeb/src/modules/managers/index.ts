@@ -8,6 +8,5 @@ angular.module("bp.managers", [
     "bp.managers.artifact"
 ]);
 
-export { IArtifactManager } from  "./artifact-manager";
+export { IArtifactManager, ISelectionManager, ISelection,  SelectionSource } from  "./artifact-manager";
 export { IProjectManager } from  "./project-manager";
-//export { ISelectionManager, ISelection,  SelectionSource } from  "./selection-manager";

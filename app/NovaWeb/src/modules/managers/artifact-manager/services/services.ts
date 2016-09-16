@@ -1,9 +1,11 @@
 import { IMessageService } from "../../../core/";
-import { IStatefulArtifactServices } from "../../models";
+import { IArtifactService } from "../artifact/";
+
 import { 
+    IStatefulArtifactServices,
     ISession, 
     IArtifactAttachmentsService,
-    IArtifactService,
+    
  } from "../../models";
 import { IMetaDataService } from "../";
 

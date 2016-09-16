@@ -10,6 +10,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
+using System;
+using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -118,7 +120,6 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(HttpResponseException))]
         public async Task GetSubArtifactTreeAsync_NoPermissions_ThrowsNoPermissionsException()
         {
             // Arrange
@@ -136,10 +137,17 @@ namespace ArtifactStore.Controllers
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
             artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
-            // Act
-            await artifactController.GetSubArtifactTreeAsync(artifactId);
+            HttpResponseException result = null;
 
-            //Assert
+            // Act
+            try {
+                await artifactController.GetSubArtifactTreeAsync(artifactId);
+            } catch (HttpResponseException e)
+            {
+                result = e;
+            }
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.Forbidden, result.Response.StatusCode);
         }
 
         [TestMethod]

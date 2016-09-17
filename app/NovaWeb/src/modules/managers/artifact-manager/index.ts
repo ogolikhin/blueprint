@@ -5,6 +5,7 @@ import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../model
 import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact } from "./artifact";
 import { StatefulSubArtifact, ISubArtifactCollection } from "./sub-artifact";
 import { IDocumentRefs, DocumentRefs } from "./docrefs";
+import { IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector } from "./changeset";
 import {
     ArtifactAttachmentsService,
     IArtifactAttachment,
@@ -49,5 +50,6 @@ export {
     IStatefulArtifactFactory,
     StatefulSubArtifact,
     StatefulArtifact,
-    ISubArtifactCollection
+    ISubArtifactCollection,
+    IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector
 };

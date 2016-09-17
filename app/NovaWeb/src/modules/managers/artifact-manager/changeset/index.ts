@@ -1,4 +1,22 @@
-import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../../models";
+// import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../../models";
+
+export enum ChangeTypeEnum {
+    Initial,
+    Update,
+    Add,
+    Delete
+}
+
+export interface IChangeSet {
+    type: ChangeTypeEnum;
+    key: string | number;
+    value: any;
+}
+export interface IChangeCollector {
+    add(changeset: IChangeSet, old?: any);
+    collection: IChangeSet[];
+    reset(): IChangeSet[];
+}
 
 export class ChangeSetCollector implements IChangeCollector {
     private _collection: IChangeSet[];

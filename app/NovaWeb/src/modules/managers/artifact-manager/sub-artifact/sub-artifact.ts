@@ -1,20 +1,14 @@
 import { Models } from "../../../main/models";
 // import { ArtifactState} from "../state";
-// import { IArtifactManager } from "../";
+import { ChangeTypeEnum, IChangeCollector, ChangeSetCollector, IChangeSet } from "../";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { CustomProperties } from "../properties";
-import { ChangeSetCollector } from "../changeset";
 import {
-    ChangeTypeEnum,
-    IChangeCollector,
-    IChangeSet,
     IStatefulArtifact,
-    // IArtifactStates,
     IArtifactProperties,
     IState,
     IStatefulArtifactServices,
-    // IIStatefulArtifact,
     IIStatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactAttachmentsResultSet
@@ -33,10 +27,6 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     constructor(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         this.artifact = artifact;
         this.subArtifact = subArtifact;
-        this.services = services;
-        this.changesets = new ChangeSetCollector();
-
-        this.artifact = artifact;
         this.changesets = new ChangeSetCollector();
         this.services = services;
         this.customProperties = new CustomProperties(this).initialize(artifact);

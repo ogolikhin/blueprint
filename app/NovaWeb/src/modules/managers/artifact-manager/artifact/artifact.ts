@@ -1,15 +1,12 @@
 import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
-import { IDocumentRefs, DocumentRefs } from "../";
+import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
 import {
-    ChangeTypeEnum,
-    IChangeCollector,
-    IChangeSet,
     IStatefulArtifact,
     IArtifactState,
     IArtifactProperties,

@@ -4,27 +4,23 @@ import { IStencilService } from "./impl/stencil.svc";
 import { ILocalizationService } from "../../core";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { ISelection } from "../../managers/artifact-manager";
-import { IDiagramElement } from "./impl/models";
+import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
+import { IDiagram, IShape, IDiagramElement } from "./impl/models";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
-import { SelectionHelper } from "./impl/utils/selection-helper";
+import { Diagrams, Shapes, ShapeProps } from "./impl/utils/constants";
+import { ShapeExtensions } from "./impl/utils/helpers";
+import { ItemTypePredefined } from "./../../main/models/enums";
+import { IItem } from "./../../main/models/models";
 
 import { 
     IArtifactManager, 
-    IProjectManager, 
-    IStatefulArtifact, 
     IMessageService,
-    Models, 
-    Enums, 
     BpBaseEditor 
 } from "../bp-base-editor";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: Function = BPDiagramController;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BPDiagramController extends BpBaseEditor {
@@ -39,7 +35,8 @@ export class BPDiagramController extends BpBaseEditor {
         "diagramService",
         "localization",
         "$rootScope",
-        "$log"
+        "$log",
+        "statefulArtifactFactory"
     ];
 
     public isLoading: boolean = true;
@@ -59,7 +56,8 @@ export class BPDiagramController extends BpBaseEditor {
         private diagramService: IDiagramService,
         private localization: ILocalizationService,
         private $rootScope: ng.IRootScopeService,
-        private $log: ng.ILogService) {
+        private $log: ng.ILogService,
+        private statefulArtifactFactory: IStatefulArtifactFactory) {
             super(messageService, artifactManager);
             new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
@@ -109,6 +107,8 @@ export class BPDiagramController extends BpBaseEditor {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
 
+                this.initSubArtifacts(diagram);
+
                 if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
                     this.isBrokenOrOld = true;
                     this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
@@ -138,19 +138,98 @@ export class BPDiagramController extends BpBaseEditor {
                 this.cancelationToken = null;
                 this.isLoading = false;
             });
-        }
-        
+        }   
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
-            const selectionHelper = new SelectionHelper();
-            //TODO: (DL)
-            // this.artifactManager.selection.getSubArtifact = selectionHelper.getEffectiveSelection(
-            //     this.artifact,
-            //     elements,
-            //     diagramType);
+            if (elements && elements.length > 0) {
+                const element = elements[0];
+                if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
+                    const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
+                    if (artifactPromise) {
+                        artifactPromise.then((artifact) => {
+                            this.artifactManager.selection.setArtifact(artifact);
+                        });
+                    }
+                } else {
+                    this.artifactManager.selection.setSubArtifact(this.getSubArtifact(element.id));
+                } 
+            } else {
+                this.artifactManager.selection.clearSubArtifact();
+            }
         });
+    }
+
+    private getUseCaseDiagramArtifact(shape: IShape) {
+        const artifactId = ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID);
+        if (artifactId != null) {
+            return this.artifactManager.get(artifactId);
+        }
+        return null;
+    }
+
+    private getSubArtifact(id: number) {
+        if (this.artifact) {
+            for (let subArtifact of this.artifact.subArtifactCollection.list()) {
+                if (subArtifact.id === id) {
+                    return subArtifact;
+                }
+            }
+        }
+        return null;
+    }
+
+    private initSubArtifacts(diagram: IDiagram) {
+        if (diagram.shapes) {
+            diagram.shapes.forEach((shape) => {
+                this.initPrefixAndType(diagram.diagramType, shape, shape);
+                const stateful = this.statefulArtifactFactory.createStatefulArtifact(shape);
+                this.artifact.subArtifactCollection.add(stateful);
+            });
+        }
+        if (diagram.connections) {
+            diagram.connections.forEach((connection) => {
+                this.initPrefixAndType(diagram.diagramType, connection, connection);
+                const stateful = this.statefulArtifactFactory.createStatefulArtifact(connection);
+                this.artifact.subArtifactCollection.add(stateful);
+            });
+        }
+    }
+
+    private initPrefixAndType(diagramType: string, item: IItem, element: IDiagramElement) {
+        switch (diagramType) {
+            case Diagrams.BUSINESS_PROCESS:
+                item.prefix = element.isShape ? "BPSH" : "BPCT";
+                item.predefinedType = element.isShape ? ItemTypePredefined.BPShape : ItemTypePredefined.BPConnector;
+                break;
+            case Diagrams.DOMAIN_DIAGRAM:
+                item.prefix = element.isShape ? "DDSH" : "DDCT";
+                item.predefinedType = element.isShape ? ItemTypePredefined.DDShape : ItemTypePredefined.DDConnector;
+                break;
+            case Diagrams.GENERIC_DIAGRAM:
+                item.prefix = element.isShape ? "GDST" : "GDCT";
+                item.predefinedType = element.isShape ? ItemTypePredefined.GDShape : ItemTypePredefined.GDConnector;
+                break;
+            case Diagrams.STORYBOARD:
+                item.prefix = element.isShape ? "SBSH" : "SBCT";
+                item.predefinedType = element.isShape ? ItemTypePredefined.SBShape : ItemTypePredefined.SBConnector;
+                break;
+            case Diagrams.UIMOCKUP:
+                item.prefix = element.isShape ? "UISH" : "UICT";
+                item.predefinedType = element.isShape ? ItemTypePredefined.UIShape : ItemTypePredefined.UIConnector;
+                break;
+            case Diagrams.USECASE:
+                item.prefix = "ST";
+                item.predefinedType = ItemTypePredefined.Step;
+                break;
+            case Diagrams.USECASE_DIAGRAM:
+                item.prefix = element.isShape ? "UCDS" : "UCDC";
+                item.predefinedType = element.isShape ? ItemTypePredefined.UCDShape : ItemTypePredefined.UCDConnector;
+                break;    
+            default:
+                break;
+        }
     }
 
     private clearSelection(selection: ISelection) {

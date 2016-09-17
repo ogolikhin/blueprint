@@ -4,16 +4,17 @@
 // import { ArtifactAttachments } from "../attachments";
 // import { CustomProperties } from "../properties";
 // import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
-import { ChangeSetCollector, IChangeCollector } from "../";
+import { 
+    ChangeSetCollector, 
+    IChangeCollector, 
+    ChangeTypeEnum, 
+    IChangeSet
+} from "../";
 
-import { IStatefulArtifact, 
-        //  IArtifactStates, 
-        //  IArtifactProperties, 
-        //  IState,
+import {
          IStatefulArtifactServices,
          IIStatefulArtifact,
          IStatefulSubArtifact
-        //  IArtifactAttachmentsResultSet
 } from "../../models";
 
 export interface ISubArtifactCollection {
@@ -52,19 +53,37 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     
     public add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact {
         const length = this.subArtifactList.push(subArtifact);
+
+        const changeset = {
+            type: ChangeTypeEnum.Add,
+            key: subArtifact.id,
+            value: subArtifact
+        } as IChangeSet;
+        this.changeset.add(changeset, subArtifact);
+        this.artifact.lock();
+
         return this.subArtifactList[length - 1];
     }
 
     public remove(id: number): IStatefulSubArtifact {
-        let stateArtifact: IStatefulArtifact;
-        this.subArtifactList = this.subArtifactList.filter((artifact: IStatefulArtifact) => {
-            if (artifact.id === id) {
-                stateArtifact = artifact;
+        let statefulSubArtifact: IStatefulSubArtifact;
+        this.subArtifactList = this.subArtifactList.filter((subArtifact: IStatefulSubArtifact) => {
+            if (subArtifact.id === id) {
+                statefulSubArtifact = subArtifact;
+
+                const changeset = {
+                    type: ChangeTypeEnum.Delete,
+                    key: subArtifact.id,
+                    value: subArtifact
+                } as IChangeSet;
+                this.changeset.add(changeset, subArtifact);
+                this.artifact.lock();
+
                 return false;
             }
             return true;
         });
-        return stateArtifact;
+        return statefulSubArtifact;
     }
 
     public update(id: number) {

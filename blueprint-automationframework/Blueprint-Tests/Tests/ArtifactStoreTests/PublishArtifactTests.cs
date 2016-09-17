@@ -65,7 +65,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestCase(BaseArtifactType.Process, 3)]
         [TestRail(165968)]
-        [Description("Create & save a single artifact.  Publish the artifact.  Verify publish is successful and that artifact version is now 1.")]
+        [Description("Create & publish a single artifact several times, then save to create a draft.  Publish the artifact." +
+            "Verify publish is successful and that artifact version is now 1.")]
         public void PublishArtifact_SinglePublishedArtifactWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -101,8 +102,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process, 3)]
         [TestRail(165956)]
-        [Description("Create & save multiple artifacts.  Publish the artifacts.  Verify publish is successful and that the version of the artifacts is now 1.")]
-        public void PublishArtifact_MultipleSavedArtifact_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
+        [Description("Create & save multiple artifacts.  Publish all the artifacts.  Verify publish is successful and that the version of the artifacts is now 1.")]
+        public void PublishArtifact_MultipleSavedArtifacts_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
             var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
@@ -136,7 +137,8 @@ namespace ArtifactStoreTests
         [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Glossary)]
         [TestCase(3, BaseArtifactType.Process, BaseArtifactType.TextualRequirement, BaseArtifactType.UseCase)]
         [TestRail(165969)]
-        [Description("Create & save a single artifact.  Publish the artifact.  Verify publish is successful and that artifact version is now 1.")]
+        [Description("Create & publish a multiple artifacts several times and save to create drafts.  Publish the artifacts." +
+            "Verify publish is successful and that the version artifacts is now 1.")]
         public void PublishArtifact_MultiplePublishedArtifactsWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(int numberOfVersions, params BaseArtifactType[] artifactTypes)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));

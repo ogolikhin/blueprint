@@ -4,14 +4,13 @@ import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs } from "../";
 import { CustomProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
-import { StatefulSubArtifactCollection } from "../sub-artifact";
+import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
 import {
     ChangeTypeEnum,
     IChangeCollector,
     IChangeSet,
     IStatefulArtifact,
-    ISubArtifactCollection,
     IArtifactState,
     IArtifactProperties,
     IState,

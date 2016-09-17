@@ -56,6 +56,7 @@ export class BpGlossaryController extends BpBaseEditor {
 
     public onLoad() {
         // TODO: move this to sub-artifact
+        let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
             result.subArtifacts = result.subArtifacts.map((term: IStatefulSubArtifact) => {
 
@@ -63,11 +64,11 @@ export class BpGlossaryController extends BpBaseEditor {
                 term.description = this.$sce.trustAsHtml(term.description);
 
                 const stateful = this.statefulArtifactFactory.createStatefulArtifact(term);
-                this.artifact.subArtifactCollection.add(stateful);
+                statefulSubartifacts.push(stateful);
 
                 return term;
             });
-
+            this.artifact.subArtifactCollection.initialise(statefulSubartifacts);
             this.terms = this.artifact.subArtifactCollection.list();
 
         }).catch((error: any) => {

@@ -8,10 +8,9 @@ import {
     IMetaDataService,
     IArtifactAttachments,
     IMetaData,
-    IArtifactService
+    IArtifactService,
+    ISubArtifactCollection
 } from "./artifact-manager";
-
-
 
 import { ISession } from "../shell/login/session.svc";
 
@@ -106,13 +105,6 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
 
 export interface IStatefulSubArtifact extends IStatefulItem {
-}
-
-export interface ISubArtifactCollection {
-    list(): IStatefulSubArtifact[];
-    add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
-    get(id: number): IStatefulSubArtifact;
-    remove(id: number): IStatefulSubArtifact;
 }
 
 export interface IStatefulArtifactServices {

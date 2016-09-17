@@ -3,7 +3,7 @@ import { IArtifactManager, ArtifactManager, ISelectionManager,  ISelection,  Sel
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
 import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
 import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact } from "./artifact";
-import { StatefulSubArtifact } from "./sub-artifact";
+import { StatefulSubArtifact, ISubArtifactCollection } from "./sub-artifact";
 import { IDocumentRefs, DocumentRefs } from "./docrefs";
 import {
     ArtifactAttachmentsService,
@@ -48,5 +48,6 @@ export {
     IArtifactService, 
     IStatefulArtifactFactory,
     StatefulSubArtifact,
-    StatefulArtifact
+    StatefulArtifact,
+    ISubArtifactCollection
 };

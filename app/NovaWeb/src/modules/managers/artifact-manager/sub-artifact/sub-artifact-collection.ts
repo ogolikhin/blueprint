@@ -12,11 +12,17 @@ import { IStatefulArtifact,
         //  IState,
          IStatefulArtifactServices,
          IIStatefulArtifact,
-         ISubArtifactCollection,
          IStatefulSubArtifact,
         //  IArtifactAttachmentsResultSet
 } from "../../models";
 
+export interface ISubArtifactCollection {
+    initialise(artifacts: IStatefulSubArtifact[]);
+    list(): IStatefulSubArtifact[];
+    add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
+    get(id: number): IStatefulSubArtifact;
+    remove(id: number): IStatefulSubArtifact;
+}
 
 export class StatefulSubArtifactCollection implements ISubArtifactCollection {
 
@@ -28,6 +34,10 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
         this.artifact = artifact;
         this.services = services;
         this.subArtifactList = [];
+    }
+
+    public initialise(subartifacts: IStatefulSubArtifact[]) {
+        this.subArtifactList = subartifacts;
     }
 
     public list(): IStatefulSubArtifact[] {

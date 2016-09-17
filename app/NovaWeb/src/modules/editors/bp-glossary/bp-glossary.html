@@ -17,7 +17,7 @@
             <td>{{term.name}}</td>
             <td ng-bind-html="term.description"></td>
         </tr>
-        <tr class="empty-state" ng-if="$ctrl.glossary.subArtifacts.length === 0">
+        <tr class="empty-state" ng-if="$ctrl.terms.length === 0">
             <td colspan="2">{{::$ctrl.localization.get('Artifact_Glossary_Empty') }}</td>
         </tr>
     </tbody>

@@ -503,30 +503,34 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sourceArtifact">The ArtifactDetails to copy properties from.</param>
         /// <param name="project">The project where the artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
-        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(NovaArtifactDetails sourceArtifact, IProject project, IUser user)
+        /// <param name="skipNullValues">(optional) If true (the default) it doesn't replace properties if the value of the sourceArtifact property is null.</param>
+        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(NovaArtifactDetails sourceArtifact,
+            IProject project,
+            IUser user,
+            bool skipNullValues = true)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
 
             Id = sourceArtifact.Id;
-            Name = sourceArtifact.Name;
+            Name = skipNullValues ? sourceArtifact.Name ?? Name : sourceArtifact.Name;
             ParentId = sourceArtifact.ParentId;
             ProjectId = sourceArtifact.ProjectId;
             Version = sourceArtifact.Version;
 
             // Now set the list of Property objects.
-            AddOrReplaceTextOrChoiceValueProperty("Name", sourceArtifact.Name, project, user);
-            AddOrReplaceTextOrChoiceValueProperty("Description", sourceArtifact.Description, project, user);
+            AddOrReplaceTextOrChoiceValueProperty("Name", Name, project, user, skipNullValues);
+            AddOrReplaceTextOrChoiceValueProperty("Description", sourceArtifact.Description, project, user, skipNullValues);
 
             // TODO: There is also an "ID" property to set which has a value of <prefix> + <Id>.  Ex. "AC1503".
 
             if (sourceArtifact.CreatedOn != null)
             {
-                AddOrReplaceDateValueProperty("Created On", sourceArtifact.CreatedOn, project, user);
+                AddOrReplaceDateValueProperty("Created On", sourceArtifact.CreatedOn, project, user, skipNullValues);
             }
 
             if (sourceArtifact.LastEditedOn != null)
             {
-                AddOrReplaceDateValueProperty("Last Edited On", sourceArtifact.LastEditedOn, project, user);
+                AddOrReplaceDateValueProperty("Last Edited On", sourceArtifact.LastEditedOn, project, user, skipNullValues);
             }
 
             AddOrReplaceUsersAndGroupsProperty("Created By", sourceArtifact.CreatedBy, project, user);
@@ -544,8 +548,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="propertyValue">The new value to set.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
-        private void AddOrReplaceTextOrChoiceValueProperty(string propertyName, string propertyValue, IProject project, IUser user)
+        /// <param name="skipNullValues">(optional) Pass true to only replace if the value is not null.</param>
+        public void AddOrReplaceTextOrChoiceValueProperty(string propertyName,
+            string propertyValue,
+            IProject project,
+            IUser user,
+            bool skipNullValues = false)
         {
+            if (skipNullValues && (propertyValue == null))
+            {
+                return;
+            }
+
             OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
 
             if (property == null)
@@ -564,8 +578,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="propertyValue">The new value to set.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
-        private void AddOrReplaceDateValueProperty(string propertyName, DateTime? propertyValue, IProject project, IUser user)
+        /// <param name="skipNullValues">(optional) Pass true to only replace if the value is not null.</param>
+        private void AddOrReplaceDateValueProperty(string propertyName,
+            DateTime? propertyValue,
+            IProject project,
+            IUser user,
+            bool skipNullValues = false)
         {
+            if (skipNullValues && (propertyValue == null))
+            {
+                return;
+            }
+
             OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
 
             if (property == null)

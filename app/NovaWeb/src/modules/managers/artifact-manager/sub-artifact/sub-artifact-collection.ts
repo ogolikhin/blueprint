@@ -49,8 +49,6 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     }
     
     public add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact {
-        // TODO: fix initialization
-        // subArtifact.initialize(this, this.services);
         const length = this.subArtifactList.push(subArtifact);
         return this.subArtifactList[length - 1];
     }
@@ -70,5 +68,4 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     public update(id: number) {
         // TODO: 
     }
-
 }

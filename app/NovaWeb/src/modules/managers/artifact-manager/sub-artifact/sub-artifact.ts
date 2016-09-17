@@ -137,13 +137,8 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         return this.services.attachmentService.getArtifactAttachments(this.parentId, this.id, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
-
-                // initialize attachments
                 this.attachments.initialize(result.attachments);
-
-                // TODO: initialize doc refs here
-                // this.docRefs.initialize(result.documentReferences);
-                console.log("initalizing doc refs with latest data");
+                this.docRefs.initialize(result.documentReferences);
                 
                 return result;
             });

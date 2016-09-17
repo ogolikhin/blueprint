@@ -58,12 +58,12 @@ export class BpGlossaryController extends BpBaseEditor {
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
-            result.subArtifacts = result.subArtifacts.map((term: IStatefulSubArtifact) => {
+            result.subArtifacts = result.subArtifacts.map((term: Models.ISubArtifact) => {
 
                 // TODO: should not same $sce wrapper in StatefulSubArtifact model (after MVP)
                 term.description = this.$sce.trustAsHtml(term.description);
 
-                const stateful = this.statefulArtifactFactory.createStatefulArtifact(term);
+                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, term);
                 statefulSubartifacts.push(stateful);
 
                 return term;

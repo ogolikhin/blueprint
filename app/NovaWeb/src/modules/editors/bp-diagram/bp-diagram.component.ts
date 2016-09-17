@@ -4,7 +4,7 @@ import { IStencilService } from "./impl/stencil.svc";
 import { ILocalizationService } from "../../core";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
+import { ISelection, IStatefulArtifactFactory, SelectionSource } from "../../managers/artifact-manager";
 import { IDiagram, IShape, IDiagramElement } from "./impl/models";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { Diagrams, Shapes, ShapeProps } from "./impl/utils/constants";
@@ -84,6 +84,9 @@ export class BPDiagramController extends BpBaseEditor {
 
     public $onDestroy() {
         super.$onDestroy();
+        if (this.cancelationToken) {
+            this.cancelationToken.resolve();
+        }
         this.$element.off("click", this.stopPropagation);
 
         if (this.diagramView) {
@@ -92,18 +95,7 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     public onUpdate() {
-        this.$element.css("height", "100%");
-        this.$element.css("width", "");
-        this.$element.css("background-color", "transparent");
-
-        if (this.diagramView) {
-            this.diagramView.destroy();
-        }
-
-        if (this.cancelationToken) {
-           this.cancelationToken.resolve();
-        }
-        if (this.artifact !== null && this.diagramService.isDiagram(this.artifact.predefinedType)) {
+        if (this.artifact !== null) {
             this.cancelationToken = this.$q.defer();
             this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
 
@@ -114,15 +106,7 @@ export class BPDiagramController extends BpBaseEditor {
                     this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
                     this.$log.error("Old diagram, libraryVersion is 0");
                 } else {
-                    
                     this.isBrokenOrOld = false;
-
-                    if (this.diagramView) {
-                        this.diagramView.destroy();
-                        this.$element.css("width", "");
-                        this.$element.css("overflow", "");
-                    }
-
                     this.diagramView = new DiagramView(this.$element[0], this.stencilService);
                     this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
                     this.stylizeSvg(this.$element, diagram.width, diagram.height);
@@ -149,7 +133,7 @@ export class BPDiagramController extends BpBaseEditor {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
-                            this.artifactManager.selection.setArtifact(artifact);
+                            this.artifactManager.selection.setArtifact(artifact, SelectionSource.Editor);
                         });
                     }
                 } else {
@@ -184,14 +168,14 @@ export class BPDiagramController extends BpBaseEditor {
         if (diagram.shapes) {
             diagram.shapes.forEach((shape) => {
                 this.initPrefixAndType(diagram.diagramType, shape, shape);
-                const stateful = this.statefulArtifactFactory.createStatefulArtifact(shape);
+                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, shape);
                 this.artifact.subArtifactCollection.add(stateful);
             });
         }
         if (diagram.connections) {
             diagram.connections.forEach((connection) => {
                 this.initPrefixAndType(diagram.diagramType, connection, connection);
-                const stateful = this.statefulArtifactFactory.createStatefulArtifact(connection);
+                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, connection);
                 this.artifact.subArtifactCollection.add(stateful);
             });
         }

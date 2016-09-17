@@ -1,6 +1,5 @@
-import { Models} from "../../models";
 import { IWindowManager } from "../../services";
-import { IArtifactManager, } from "../../../managers";
+import { IArtifactManager, SelectionSource } from "../../../managers";
 import { IStatefulArtifact } from "../../../managers/models";
 
 import { IMessageService } from "../../../core";
@@ -39,7 +38,7 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.selectContext, this),
+            this.artifactManager.selection.artifactObservable.filter(this.selectedInExplorer).subscribeOnNext(this.selectContext, this),
             this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
@@ -65,12 +64,10 @@ class PageContentCtrl {
         this.context = _context;
     }
 
-    // private getSelectedArtifactObservable() {
-    //     return this.artifactManager.selection.selectionObservable
-    //         .filter(s => s != null && s.source === SelectionSource.Explorer)
-    //         .map(s => s.artifact)
-    //         .distinctUntilChanged(a => a ? a.id : -1).asObservable();
-    // }
+    private selectedInExplorer = (artifact: IStatefulArtifact) => {
+        const selectedInExplorer = this.artifactManager.selection.getArtifact(SelectionSource.Explorer);
+        return selectedInExplorer && artifact && selectedInExplorer.id === artifact.id;
+    }
 
     public onContentSelected($event: MouseEvent) {
         // if ($event.target && $event.target["tagName"] !== "BUTTON") {

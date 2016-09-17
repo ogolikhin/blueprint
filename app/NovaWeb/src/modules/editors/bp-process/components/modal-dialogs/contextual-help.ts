@@ -51,7 +51,7 @@ export class ContextualHelpDirective implements ng.IDirective {
                 },
                 template: `<div class="image-preview">
                                 <i class="fonticon-close" ng-click="vm.cancel()"></i>
-                                <img src="{{ vm.imageAttributes.image }}" " />
+                                <img ng-src="{{vm.imageAttributes.image}}" />
                             </div>`,
             });
         }

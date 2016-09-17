@@ -9,7 +9,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
-import {NodeFactorySettings} from "./node-factory";
+import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";

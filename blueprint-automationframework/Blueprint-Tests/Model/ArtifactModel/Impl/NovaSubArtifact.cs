@@ -27,6 +27,11 @@ namespace Model.ArtifactModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaSubArtifact, NovaSubArtifact>))]
         public List<INovaSubArtifact> Children { get; set; } = new List<INovaSubArtifact>();
 
+        public bool ShouldSerializeChildren()
+        {
+            return Children.Count > 0;
+        }
+
         #endregion Serialized JSON Properties
     }
 }

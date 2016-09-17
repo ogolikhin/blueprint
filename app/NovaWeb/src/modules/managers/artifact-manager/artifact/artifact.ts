@@ -131,7 +131,12 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.artifact.readOnlyReuseSettings;
     }
 
-     private set(name: string, value: any) {
+    //TODO autkin temp
+    public get specificPropertyValues() {
+        return this.artifact.specificPropertyValues;
+    }
+
+    private set(name: string, value: any) {
         if (name in this) {
            const oldValue = this[name];
            const changeset = {
@@ -159,18 +164,23 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
+    private isLoaded = false;
     public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-
-        this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-            this.artifact = artifact;
-            this.customProperties.initialize(artifact);
-            this.artifactState.initialize(artifact);
+        if (!this.isLoaded) {
+            this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+                this.artifact = artifact;
+                this.customProperties.initialize(artifact);
+                this.artifactState.initialize(artifact);
+                this.isLoaded = true;
+                deferred.resolve(this);
+            }).catch((err) => {
+                deferred.reject(err);
+            });
+        } else {
             deferred.resolve(this);
-        }).catch((err) => {
-            deferred.reject(err);
-        });
-
+        }
+        
         return deferred.promise;
     }
 

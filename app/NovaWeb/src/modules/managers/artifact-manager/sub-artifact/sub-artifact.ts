@@ -95,6 +95,11 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return this.subArtifact.parentId;
     }
 
+    //TODO autkin temp
+    public get specificPropertyValues() {
+        return this.subArtifact.specificPropertyValues;
+    }
+
     private set(name: string, value: any) {
         if (name in this) {
            const oldValue = this[name];
@@ -108,19 +113,23 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
     }
 
+    private isLoaded = false;
     public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-
-        this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
-            .then((subArtifact: Models.ISubArtifact) => {
-                this.subArtifact = subArtifact;
-                this.customProperties.initialize(subArtifact);
-                this.artifactState.initialize(subArtifact);
-                deferred.resolve(this);
-        }).catch((err) => {
-            deferred.reject(err);
-        });
-
+        if (!this.isLoaded) {
+            this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
+                .then((subArtifact: Models.ISubArtifact) => {
+                    this.subArtifact = subArtifact;
+                    this.customProperties.initialize(subArtifact);
+                    //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
+                    this.isLoaded = true;
+                    deferred.resolve(this);
+            }).catch((err) => {
+                deferred.reject(err);
+            });
+        } else {
+            deferred.resolve(this);
+        }
         return deferred.promise;
     }
 

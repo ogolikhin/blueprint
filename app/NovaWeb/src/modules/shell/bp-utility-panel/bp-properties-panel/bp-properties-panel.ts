@@ -110,11 +110,26 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
         let deferred = this.$q.defer<any>();
         this.isLoading = true;
-        this.selectedArtifact = artifact;
-        this.selectedSubArtifact = subArtifact;
-        this.onUpdate(artifact, subArtifact);
-        deferred.resolve();
+        if (subArtifact) {
+            subArtifact.load().then(() => {
+                this.onUpdate(artifact, subArtifact);
+            })
+            .finally(() => {
+                deferred.resolve();
+                this.isLoading = false;
+            });
+                    
+        } else {
+            artifact.load().then(() => {
+                this.onUpdate(artifact, subArtifact);
+            })
+            .finally(() => {
+                deferred.resolve();
+                this.isLoading = false;
+            });
+        }
         return deferred.promise;
+
     //    if (subArtifact) {
         
             
@@ -193,6 +208,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onUpdate(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
+        this.selectedArtifact = artifact;
+        this.selectedSubArtifact = subArtifact;
         try {
             
             if (!artifact || !this.editor) {

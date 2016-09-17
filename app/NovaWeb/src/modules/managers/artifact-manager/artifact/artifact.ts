@@ -159,8 +159,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
-    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
+    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact> {
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
 
         this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
             this.artifact = artifact;
@@ -170,8 +170,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }).catch((err) => {
             deferred.reject(err);
         });
-        return deferred.promise;
         
+        return deferred.promise;
     }
 
     public lock(): ng.IPromise<IState> {

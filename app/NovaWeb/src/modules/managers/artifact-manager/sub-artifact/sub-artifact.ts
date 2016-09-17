@@ -108,6 +108,22 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
     }
 
+    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
+        const deferred = this.services.getDeferred<IStatefulSubArtifact>();
+
+        this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
+            .then((subArtifact: Models.ISubArtifact) => {
+                this.subArtifact = subArtifact;
+                this.customProperties.initialize(subArtifact);
+                this.artifactState.initialize(subArtifact);
+                deferred.resolve(this);
+        }).catch((err) => {
+            deferred.reject(err);
+        });
+
+        return deferred.promise;
+    }
+
     public discard(): ng.IPromise<IStatefulArtifact>   {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
 

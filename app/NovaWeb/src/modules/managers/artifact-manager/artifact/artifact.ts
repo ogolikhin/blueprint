@@ -170,7 +170,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }).catch((err) => {
             deferred.reject(err);
         });
-        
+
         return deferred.promise;
     }
 
@@ -220,5 +220,71 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     public getServices(): IStatefulArtifactServices {
         return this.services;
+    }
+
+    //TODO: moved from bp-artifactinfo 
+    // public saveChanges() {
+    public save() {
+        throw new Error("Not implemented yet");
+    //     let overlayId: number = this.loadingOverlayService.beginLoading();
+    //     try {
+    //         let state: ItemState = this.stateManager.getState(this._artifactId);
+    //         let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
+    //         this.artifactService.updateArtifact(artifactDelta)
+    //             .then((artifact: Models.IArtifact) => {
+    //                     let oldArtifact = state.getArtifact();
+    //                     if (artifact.version) {
+    //                         state.updateArtifactVersion(artifact.version);
+    //                     }
+    //                     if (artifact.lastSavedOn) {
+    //                         state.updateArtifactSavedTime(artifact.lastSavedOn);
+    //                     }
+    //                     this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
+    //                     state.finishSave();
+    //                     this.isChanged = false;
+    //                     this.projectManager.updateArtifactName(state.getArtifact());
+    //                 }, (error) => {
+    //                     let message: string;
+    //                     if (error) {
+    //                         if (error.statusCode === 400) {
+    //                             if (error.errorCode === 114) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_400_114");
+    //                             } else {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
+    //                             }
+    //                         } else if (error.statusCode === 404) {
+    //                             message = this.localization.get("App_Save_Artifact_Error_404");
+    //                         } else if (error.statusCode === 409) {
+    //                             if (error.errorCode === 116) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_116");
+    //                             } else if (error.errorCode === 117) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_117");
+    //                             } else if (error.errorCode === 111) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_111");
+    //                             } else if (error.errorCode === 115) {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409_115");
+    //                             } else {
+    //                                 message = this.localization.get("App_Save_Artifact_Error_409");
+    //                             }
+
+    //                         } else {
+    //                             message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
+    //                         }
+    //                     }
+    //                     this.messageService.addError(message);
+    //                 }
+    //             ).finally(() => this.loadingOverlayService.endLoading(overlayId));
+    //     } catch (Error) {
+    //         this.messageService.addError(this.localization.get(Error));
+    //         this.loadingOverlayService.endLoading(overlayId);
+    //     }
+    }
+
+    public publish() {
+        throw new Error("Not implemented yet");
+    }
+
+    public refresh() {
+        throw new Error("Not implemented yet");
     }
 }

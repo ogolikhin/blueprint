@@ -75,8 +75,11 @@ export interface IIStatefulItem extends IStatefulItem  {
 
 export interface IStatefulArtifact extends IStatefulItem  {
     subArtifactCollection: ISubArtifactCollection;
-    load(): ng.IPromise<IStatefulArtifact>;
     metadata: IMetaData;
+    load(): ng.IPromise<IStatefulArtifact>;
+    save();
+    publish();
+    refresh();
 }
 
 // TODO: explore the possibility of using an internal interface for services

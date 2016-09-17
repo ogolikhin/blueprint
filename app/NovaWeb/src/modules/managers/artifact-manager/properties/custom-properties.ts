@@ -1,6 +1,12 @@
 import { Models } from "../../../main/models";
-import { IIStatefulItem, IArtifactProperties, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../models";
-import { ChangeSetCollector } from "../changeset";
+import { IIStatefulItem, IArtifactProperties } from "../../models";
+// import { ChangeSetCollector } from "../changeset";
+import {
+    ChangeTypeEnum, 
+    IChangeCollector, 
+    IChangeSet,
+    ChangeSetCollector
+} from "../";
 
 export class CustomProperties implements IArtifactProperties  {
     

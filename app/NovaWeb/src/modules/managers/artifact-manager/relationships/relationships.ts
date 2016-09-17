@@ -1,11 +1,12 @@
-import { IArtifactRelationshipsService, IArtifactRelationshipsResultSet } from "./";
-// import { Models, Enums } from "../../../main/models";
 import { ChangeSetCollector } from "../changeset";
 import { Relationships } from "../../../main";
-import { 
+import {
     ChangeTypeEnum, 
     IChangeCollector, 
-    IChangeSet,
+    IChangeSet
+} from "../";
+
+import { 
     IBlock,
     IIStatefulItem
 } from "../../models";

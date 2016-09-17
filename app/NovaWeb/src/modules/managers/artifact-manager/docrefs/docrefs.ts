@@ -1,10 +1,11 @@
 import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./";
-// import { Models, Enums } from "../../../main/models";
-import { ChangeSetCollector } from "../changeset";
-import { 
+import {
     ChangeTypeEnum, 
     IChangeCollector, 
     IChangeSet,
+    ChangeSetCollector
+} from "../";
+import { 
     IBlock,
     IIStatefulItem
 } from "../../models";

@@ -36,7 +36,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
         this.artifact = artifact;
         this.services = services;
         this.subArtifactList = [];
-        this.changeset = new ChangeSetCollector();
+        this.changeset = new ChangeSetCollector(artifact);
     }
 
     public initialise(subartifacts: IStatefulSubArtifact[]) {

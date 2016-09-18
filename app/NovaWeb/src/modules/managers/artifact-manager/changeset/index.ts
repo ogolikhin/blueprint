@@ -1,4 +1,4 @@
-// import {IChangeSet, IChangeCollector, ChangeTypeEnum} from "../../models";
+ import {IIStatefulItem} from "../../models";
 
 export enum ChangeTypeEnum {
     Initial,
@@ -21,7 +21,7 @@ export interface IChangeCollector {
 export class ChangeSetCollector implements IChangeCollector {
     private _collection: IChangeSet[];
 
-    constructor() {
+    constructor(private item: IIStatefulItem) {
         this.reset();
     }
 
@@ -50,6 +50,7 @@ export class ChangeSetCollector implements IChangeCollector {
         } else {
             this.collection.push(changeset);
         }
+        this.item.artifactState.dirty = true;
     }
 
 

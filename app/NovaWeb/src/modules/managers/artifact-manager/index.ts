@@ -1,7 +1,7 @@
 
 import { IArtifactManager, ArtifactManager, ISelectionManager,  ISelection,  SelectionSource  } from "./artifact-manager";
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
-import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
+import { IStatefulArtifact, IIStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
 import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact } from "./artifact";
 import { StatefulSubArtifact, ISubArtifactCollection } from "./sub-artifact";
 import { IDocumentRefs, DocumentRefs } from "./docrefs";

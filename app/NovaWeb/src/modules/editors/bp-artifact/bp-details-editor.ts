@@ -4,6 +4,7 @@ import {
     BpArtifactEditor,
     ILocalizationService, 
     IArtifactManager, 
+    IStatefulArtifact,
     IMessageService,  
     IWindowManager, 
     PropertyContext, 
@@ -85,20 +86,8 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     public onLoad() {
         this.isLoading = true;
-        this.artifact.load().then((it: Models.IArtifact) => {
-            // delete context.artifact.lockedByUser;
-            // delete context.artifact.lockedDateTime;
-            // context.artifact = angular.extend({}, context.artifact, it);
-            // this.stateManager.addChange(context.artifact);
+        this.artifact.load(true).then((it: IStatefulArtifact) => {
             this.onUpdate();
-            // if (state.moved) {
-            //     this.dialogService.alert("Artifact_Lock_DoesNotExist");
-            //}
-        }).catch((error: any) => {
-            //ignore authentication errors here
-            if (error) {
-                this.messageService.addError(error["message"] || "Artifact_NotFound");
-            }
         }).finally(() => {
             this.isLoading = false;
         });

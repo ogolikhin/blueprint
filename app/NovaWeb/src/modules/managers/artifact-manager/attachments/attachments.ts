@@ -27,15 +27,13 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
 export class ArtifactAttachments implements IArtifactAttachments {
     private attachments: IArtifactAttachment[];
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
-    private statefulItem: IIStatefulItem;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
 
-    constructor(statefulArtifact: IIStatefulArtifact | IIStatefulSubArtifact) {
+    constructor(private statefulItem: IIStatefulArtifact | IIStatefulSubArtifact) {
         this.attachments = [];
-        this.statefulItem = statefulArtifact;
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
-        this.changeset = new ChangeSetCollector();
+        this.changeset = new ChangeSetCollector(statefulItem);
     }
 
     public initialize(attachments: IArtifactAttachment[]) {

@@ -1,4 +1,4 @@
-import { ILocalizationService, Message, IPropertyChangeSet } from "../../core";
+import { ILocalizationService, Message } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
 //import { Models, Enums } from "../../main";
 import { 
@@ -138,7 +138,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                     return;
                 }
                 let value = this.editor.convertToModelValue($field, $value);
-                switch(context.lookup) {
+                switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
                     break;

@@ -6,7 +6,7 @@ import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
-import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import {PropertyLookupEnum } from "../../../main/models/enums";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");

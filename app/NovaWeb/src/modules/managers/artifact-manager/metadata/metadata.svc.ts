@@ -8,7 +8,7 @@ export interface IMetaDataService {
     getArtifactItemType(itemTypeId: number, projectId: number): Models.IItemType;
     getSubArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType;
     getArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[];
-    getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[]
+    getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[];
 }
 
 

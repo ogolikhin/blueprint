@@ -80,7 +80,7 @@ export interface IStatefulArtifact extends IStatefulItem  {
 //    observable: Rx.Observable<IStatefulArtifact>;
     subArtifactCollection: ISubArtifactCollection;
     metadata: IMetaData;
-    load(): ng.IPromise<IStatefulArtifact>;
+    load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save();
     publish();
     refresh();

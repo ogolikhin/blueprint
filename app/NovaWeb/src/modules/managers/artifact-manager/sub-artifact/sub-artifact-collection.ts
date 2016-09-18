@@ -60,7 +60,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
             value: subArtifact
         } as IChangeSet;
         this.changeset.add(changeset, subArtifact);
-        this.artifact.lock();
+        //this.artifact.lock();
 
         return this.subArtifactList[length - 1];
     }

@@ -183,9 +183,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     private isLoaded = false;
-    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulArtifact> {
+    public load(force: boolean = false):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (!this.isLoaded) {
+        if (!this.isLoaded || force ) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 this.artifact = artifact;
                 this.artifactState.initialize(artifact);
@@ -232,9 +232,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         }
     }
-    private onChanged(artifactState: IArtifactState) {
-//        this.subject.onNext(this);
-    }
+//     private onChanged(artifactState: IArtifactState) {
+//         this.subject.onNext(this);
+//     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         return this.services.attachmentService.getArtifactAttachments(this.id, null, true)

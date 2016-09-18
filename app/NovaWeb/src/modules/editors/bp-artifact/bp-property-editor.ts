@@ -149,7 +149,8 @@ export class PropertyEditor {
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
                             } else {
-                                if (specificpropertyvalue.value == null && specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
+                                if (specificpropertyvalue.value == null && 
+                                    specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
                                     modelValue = { fileName: null, fileExtension: null };
                                 } else {
                                     modelValue = specificpropertyvalue.value;

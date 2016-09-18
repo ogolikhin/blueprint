@@ -1,5 +1,6 @@
-﻿import { ILocalizationService, IMessageService, IStateManager } from "../../../core";
-import { ISelectionManager, Models, IArtifactService} from "../../../main";
+﻿import { ILocalizationService, IMessageService } from "../../../core";
+// import { IArtifactService} from "../../../main";
+import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -19,17 +20,15 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactDiscussions",
-        "selectionManager",
-        "stateManager",
+        "artifactManager",
         "messageService",
         "dialogService",
-        "$q",
-        "artifactService"
+        "$q"
     ];
 
     //private loadLimit: number = 10;
     private artifactId: number;
-    private subArtifact: Models.ISubArtifact;
+    private subArtifact: IStatefulSubArtifact;
 
     public artifactDiscussionList: IDiscussion[] = [];
     //public sortOptions: ISortOptions[];
@@ -44,15 +43,13 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     constructor(
         private localization: ILocalizationService,
         private artifactDiscussions: IArtifactDiscussions,
-        protected selectionManager: ISelectionManager,
-        protected stateManager: IStateManager,
+        protected artifactManager: IArtifactManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
         $q: ng.IQService,
-        private artifactService: IArtifactService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -71,14 +68,27 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.artifactDiscussionList = null;
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
-            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-
+            if (artifact.version) {
+                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
+            } else {
+                // TODO: return this.artifactManager.selection.getArtifact().load()
+                // -----------------------------------------------------------------
+                // return this.artifactService.getArtifact(artifact.id, timeout).then((result: IStatefulArtifact) => {
+                //     artifact = result;
+                //     this.setEverPublishedAndDiscussions(artifact.version, timeout);
+                // }).catch((error: any) => {
+                //     if (error) {
+                //         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                //     }
+                //     artifact = null;
+                // });
+            }
         } else {
             this.artifactId = null;
             this.subArtifact = null;

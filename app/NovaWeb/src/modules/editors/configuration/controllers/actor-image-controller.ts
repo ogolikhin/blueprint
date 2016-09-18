@@ -1,17 +1,17 @@
 import "angular";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsService } from "../../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
 import { Helper } from "../../../shared/utils/helper";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
+// import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
 actorImageController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService", "settingsService"];
 export function actorImageController(
     $scope: any,
     localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachments,
+    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,

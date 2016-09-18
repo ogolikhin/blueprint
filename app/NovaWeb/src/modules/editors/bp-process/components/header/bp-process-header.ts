@@ -1,6 +1,6 @@
-import { IProjectManager, IWindowManager, IArtifactService } from "../../../../main/services";
-import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import { IMessageService, ILocalizationService, IStateManager } from "../../../../core";
+import { IWindowManager,  } from "../../../../main/services";
+import { BpArtifactInfoController , IArtifactManager} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
+import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
@@ -17,30 +17,29 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     private enableDeleteButtonHandler: string;
     public isDeleteButtonEnabled: boolean;
     
+    static $inject: [string] = [
+        "$scope", "$element", "artifactManager", "localization", "messageService", 
+        "dialogService", "windowManager", "communicationManager", "loadingOverlayService"];
+    
     constructor(
         $scope: ng.IScope,
-        projectManager: IProjectManager,
+        $element: ng.IAugmentedJQuery,
+        artifactManager: IArtifactManager,
         localization: ILocalizationService,
-        stateManager: IStateManager,
         messageService: IMessageService,
         dialogService: IDialogService,
-        $element: ng.IAugmentedJQuery,
         windowManager: IWindowManager,
-        artifactService: IArtifactService,
         communicationManager: ICommunicationManager,
         loadingOverlayService: ILoadingOverlayService
     ) {
         super(
             $scope,
-            projectManager,
+            $element,
+            artifactManager,
             localization,
-            stateManager,
             messageService,
             dialogService,
-            $element,
             windowManager,
-            artifactService,
-            communicationManager,
             loadingOverlayService
         );
         this.isDeleteButtonEnabled = false;

@@ -9,7 +9,6 @@ export enum HttpErrorStatusCodes {
     Succsess = 200,
     Unauthorized = 401,
     Forbidden = 403,
-    NotFound = 404,
     ServerError = 500
 }
 

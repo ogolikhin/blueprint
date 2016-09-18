@@ -4,6 +4,7 @@ import { ISettingsService } from "../configuration";
 export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error | any): void;    
+    addWarning(text: string): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -89,14 +90,20 @@ export class MessageService implements IMessageService {
     public addError(error: string | Error | any): void {
         if (!error) {
             this.addMessage(new Message(MessageType.Error, "Undefined error."));
-        }
-        else if (error instanceof Error) {
+        } else if (error instanceof Error) {
             this.addMessage(new Message(MessageType.Error, (error as Error).message));
         } else if (error.message) {
             this.addMessage(new Message(MessageType.Error, error.message));
         } else {
             this.addMessage(new Message(MessageType.Error, String(error)));
         }
+    }
+    public addWarning(msg: string): void {
+        if (!msg) {
+            return;
+        }
+
+        this.addMessage(new Message(MessageType.Warning, msg));
     }
 
     public addMessage(msg: Message): void {

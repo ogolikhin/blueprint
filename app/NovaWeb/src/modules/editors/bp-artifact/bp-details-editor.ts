@@ -1,15 +1,14 @@
-﻿import {
+﻿import { Models, Enums } from "../../main";
+
+import {
     BpArtifactEditor,
-    PropertyContext,
-    ILocalizationService,
-    IProjectManager,
-    IMessageService,
-    IStateManager,
-    IWindowManager,
-    Models,
-    Enums
+    ILocalizationService, 
+    IArtifactManager, 
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
 } from "./bp-artifact-editor";
-import { IArtifactService } from "../../main/services";
+
 import { IDialogService } from "../../shared";
 
 
@@ -24,18 +23,16 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "stateManager", "windowManager", "localization", "projectManager", "artifactService", "dialogService"];
+        "messageService", "artifactManager", "windowManager", "localization", "dialogService"];
 
     constructor(
         messageService: IMessageService,
-        stateManager: IStateManager,
+        artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        projectManager: IProjectManager,
-        private artifactService: IArtifactService,
         private dialogService: IDialogService
     ) {
-        super(messageService, stateManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -50,23 +47,24 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         return this.customFields && this.customFields.length > 0;
     }
 
+    public get isRichTextPropertyAvailable(): boolean {
+        return this.richTextFields && this.richTextFields.length > 0;
+    }
+
     public get isSpecificPropertyAvailable(): boolean {
-        return this.context.type.predefinedType === Models.ItemTypePredefined.Document ||
-               this.context.type.predefinedType === Models.ItemTypePredefined.Actor;
+        return this.artifact.predefinedType === Models.ItemTypePredefined.Document ||
+               this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
     }
 
     public get specificPropertiesHeading(): string {
-        if (this.context.type.predefinedType === Models.ItemTypePredefined.Document) {
+        if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
-        } else if (this.context.type.predefinedType === Models.ItemTypePredefined.Actor) {
+        } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else {
-            return this.context.type.name + this.localization.get("Nova_Properties", " Properties");
+            return this.artifact.name + this.localization.get("Nova_Properties", " Properties");
+            //TODO:: return this.artifact.type.name + this.localization.get("Nova_Properties", " Properties");
         }
-    }
-
-    public get isRichTextPropertyAvailable(): boolean {
-        return this.richTextFields && this.richTextFields.length > 0;
     }
 
     public $onDestroy() {
@@ -84,23 +82,18 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
     
-    public onLoading(obj: any): boolean {
-        return super.onLoading(obj);
-    }
 
-    public onLoad(context: Models.IEditorContext) {
+    public onLoad() {
         this.isLoading = true;
-        this.artifactService.getArtifact(context.artifact.id).then((it: Models.IArtifact) => {
-            delete context.artifact.lockedByUser;
-            delete context.artifact.lockedDateTime;
-
-//            context.artifact = angular.extend({}, context.artifact, it);
-            let state = this.stateManager.addChange(angular.extend({}, context.artifact, it));
-            context.artifact = state.originItem;
-            this.onUpdate(context);
-            if (state.moved) {
-                this.dialogService.alert("Artifact_Lock_DoesNotExist");
-            }
+        this.artifact.load().then((it: Models.IArtifact) => {
+            // delete context.artifact.lockedByUser;
+            // delete context.artifact.lockedDateTime;
+            // context.artifact = angular.extend({}, context.artifact, it);
+            // this.stateManager.addChange(context.artifact);
+            this.onUpdate();
+            // if (state.moved) {
+            //     this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            //}
         }).catch((error: any) => {
             //ignore authentication errors here
             if (error) {

@@ -1,26 +1,23 @@
-import { ISelectionManager, Models} from "../../main";
-import { IStateManager, ItemState } from "../../core";
 import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
+import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../managers/artifact-manager";
 
 export class BPBaseUtilityPanelController {
     private _subscribers: Rx.IDisposable[];
     private timeout: ng.IDeferred<void>;
-    protected itemState: ItemState;
 
     constructor(
         protected $q: ng.IQService,
         protected selectionManager: ISelectionManager, 
-        protected stateManager: IStateManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        const stateObservable = this.stateManager.stateChange.asObservable()
-            .filter((is: ItemState) => {
-                return !this.itemState || is.isReadonly !== this.itemState.isReadonly;
-            })
-            .subscribeOnNext(this.stateChanged, this);
+        // const stateObservable = this.stateManager.stateChange.asObservable()
+        //     .filter((is: ItemState) => {
+        //         return !this.itemState || is.isReadonly !== this.itemState.isReadonly;
+        //     })
+        //     .subscribeOnNext(this.stateChanged, this);
         const selectionObservable = this.selectionManager.selectionObservable;
         const panelActiveObservable = this.bpAccordionPanel.isActiveObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
@@ -36,7 +33,7 @@ export class BPBaseUtilityPanelController {
                 .distinctUntilChanged()
                 .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
         
-        this._subscribers = [ artifactOrVisibilityChange, stateObservable ];
+        this._subscribers = [ artifactOrVisibilityChange ];
     }
 
     public $onDestroy() {
@@ -44,11 +41,11 @@ export class BPBaseUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    protected stateChanged(state: ItemState) {
-        this.itemState = state;
-    }
+    // protected stateChanged(state: ItemState) {
+    //     this.itemState = state;
+    // }
 
-    private selectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    private selectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         if (this.timeout) {
             this.timeout.resolve();
         }
@@ -62,7 +59,7 @@ export class BPBaseUtilityPanelController {
         }
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         return this.$q.resolve();
     }
 }

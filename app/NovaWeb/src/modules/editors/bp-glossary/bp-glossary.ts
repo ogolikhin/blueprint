@@ -1,8 +1,9 @@
-import { IGlossaryService, IGlossaryTerm } from "./glossary.svc";
-import { ILocalizationService, IMessageService, IStateManager } from "../../core";
-import { ISelectionManager, ISelection, SelectionSource } from "../../main/services/selection-manager";
-import { IEditorContext, IArtifact } from "../../main/models/models";
-import { BpBaseEditor} from "../bp-base-editor";
+import { IGlossaryService } from "./glossary.svc";
+import { ILocalizationService, IMessageService } from "../../core";
+import { IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory } from "../../managers/artifact-manager";
+import { Models } from "../../main/models";
+import { BpBaseEditor } from "../bp-base-editor";
+
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -18,96 +19,80 @@ export class BpGlossaryController extends BpBaseEditor {
         "$log",
         "localization",
         "glossaryService",
-        "selectionManager",
         "$sce",
         "messageService",
-        "stateManager"
+        "artifactManager",
+        "statefulArtifactFactory"
     ];
 
-    private _context: IEditorContext;
-    private subscribers: Rx.IDisposable[];
-
-    public glossary: IArtifact;
-    public isLoading: boolean = true; 
+    public isLoading: boolean = true;
+    public terms: IStatefulSubArtifact[];
+    public selectedTerm: IStatefulSubArtifact;
 
     constructor(
         private $element: ng.IAugmentedJQuery,
         private $log: ng.ILogService,
         private localization: ILocalizationService, 
         private glossaryService: IGlossaryService,
-        private selectionManager: ISelectionManager,
         private $sce: ng.ISCEService,
-        messageService: IMessageService,
-        stateManager: IStateManager) {
-            super(messageService, stateManager);
+        public messageService: IMessageService,
+        public artifactManager: IArtifactManager,
+        private statefulArtifactFactory: IStatefulArtifactFactory) {
+
+            super(messageService, artifactManager);
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.selectionManager.selectedSubArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this),
-        ];
+        super.$onInit();
+        this.subscribers.push(this.artifactManager.selection.subArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this));
         this.$element.on("click", this.stopPropagation);
+        this.terms = [];
     }
 
     public $onDestroy() {
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        super.$onDestroy();
         this.$element.off("click", this.stopPropagation);
     }
 
-    public $onChanges(changesObj) {
-        if (changesObj.context) {
-            this._context = <IEditorContext>changesObj.context.currentValue;
+    public onLoad() {
+        // TODO: move this to sub-artifact
+        let statefulSubartifacts = [];
+        this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
+            result.subArtifacts = result.subArtifacts.map((term: Models.ISubArtifact) => {
 
-            if (this._context && this._context.artifact) {
-                this.isLoading = true;
-                this.glossary = null;
+                // TODO: should not same $sce wrapper in StatefulSubArtifact model (after MVP)
+                term.description = this.$sce.trustAsHtml(term.description);
 
-                this.glossaryService.getGlossary(this._context.artifact.id).then((result: IArtifact) => {
-                    result.subArtifacts = result.subArtifacts.map((term: IGlossaryTerm) => {
-                        term.description = this.$sce.trustAsHtml(term.description);
-                        return term;
-                    });
-                    this.stateManager.addChange(result);
+                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, term);
+                statefulSubartifacts.push(stateful);
 
-                    this.glossary = result;
+                return term;
+            });
+            this.artifact.subArtifactCollection.initialise(statefulSubartifacts);
+            this.terms = this.artifact.subArtifactCollection.list();
 
-                }).catch((error: any) => {
-                    //ignore authentication errors here
-                    if (error) {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
-                    }
-                }).finally(() => {
-                    this.isLoading = false;
-                });
+        }).catch((error: any) => {
+            //ignore authentication errors here
+            if (error) {
+                this.messageService.addError(error["message"] || "Artifact_NotFound");
             }
-        }
+        }).finally(() => {
+            this.isLoading = false;
+        });
     }
 
     private clearSelection() {
-        if (this.glossary) {
-            this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
-                t.selected = false;
-                return t;
-            });
+        this.selectedTerm = null;
+        this.artifactManager.selection.clearSubArtifact();
+    }
+
+    public selectTerm(term: IStatefulSubArtifact) {
+        if (term !== this.selectedTerm) {
+            this.selectedTerm = term;
+            this.artifactManager.selection.setSubArtifact(this.selectedTerm);
         }
     }
 
-    public selectTerm(term: IGlossaryTerm) {
-        if (term.selected) {
-            return;
-        }
-        this.glossary.subArtifacts = this.glossary.subArtifacts.map((t: IGlossaryTerm) => {
-            t.selected = t === term;
-            return t;
-        });
-        const oldSelection = this.selectionManager.selection;
-        const selection: ISelection = {
-            source: SelectionSource.Editor,
-            artifact: oldSelection.artifact,
-            subArtifact: term
-        };
-        this.selectionManager.selection = selection;
-    }
     private stopPropagation(event: JQueryEventObject) {
         if (event.target.tagName !== "TH") {
             event.stopPropagation();

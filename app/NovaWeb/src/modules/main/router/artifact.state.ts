@@ -1,13 +1,8 @@
 ﻿import "angular";
-import * as Models from "../models/models";
-import {IProjectManager, ISelectionManager, } from "../";
-import {SelectionSource} from "../services/selection-manager";
-import {ILocalizationService} from "../../core";
-import {MessageService} from "../../shell";
+import { Models } from "../models";
+import { IArtifactManager, SelectionSource} from "../../managers";
+import { MessageService} from "../../shell";
 
-export interface IEditorParameters {
-    context: Models.IEditorContext;
-}
 
 export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
@@ -18,46 +13,44 @@ export class ArtifactState implements ng.ui.IState {
 
 export class ArtifactStateController {
 
-    public static $inject = ["$rootScope", "$state", "projectManager", "selectionManager", "messageService", "localization"];
+    public static $inject = ["$rootScope", "$state", "artifactManager", "messageService"];
 
     constructor(
         private $rootScope,
         private $state: angular.ui.IStateService,
-        private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager,
-        private messageService: MessageService,
-        private localization: ILocalizationService) {
+        private artifactManager: IArtifactManager,
+        private messageService: MessageService) {
         
         let id = parseInt($state.params["id"], 10);
 
         // TODO: if project manager can't find artifact, need to load artifact by itself (should be covered in 'go to' user story)
-        let artifact = projectManager.getArtifact(id);
+        let artifact = artifactManager.selection.getArtifact();
         if (artifact) {
             let artifactType = artifact.predefinedType;
-            if (selectionManager.selection &&
-                selectionManager.selection.artifact &&
-                selectionManager.selection.artifact.id !== artifact.id) {
+            // if (selectionManager.selection &&
+            //     selectionManager.selection.artifact &&
+            //     selectionManager.selection.artifact.id !== artifact.id) {
 
-                selectionManager.selection = {
-                    source: SelectionSource.Explorer,
-                    artifact: artifact
-                };
-            }
-            let context: Models.IEditorContext = {};
-            context.artifact = artifact;
-            context.type = projectManager.getArtifactType(artifact);      
+            //     selectionManager.selection = {
+            //         source: SelectionSource.Explorer,
+            //         artifact: artifact
+            //     };
+            // }
+            // let context: Models.IEditorContext = {};
+            // context.artifact = artifact;
+            // context.type = projectManager.getArtifactType(artifact);      
 
-            this.navigateToSubRoute(artifactType, context);
 
         } else {
             //TODO: to restore error message when then user story "GO TO Artifact"is comleted
             //messageService.addError(this.localization.get("Artifact_NotFound"));
         }
+        this.navigateToSubRoute(artifact.predefinedType);
 
     }
 
-    public navigateToSubRoute(artifactType: Models.ItemTypePredefined, context: Models.IEditorContext) {
-        let parameters: IEditorParameters = { context: context };
+    public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
+        let parameters = {};
         switch (artifactType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:

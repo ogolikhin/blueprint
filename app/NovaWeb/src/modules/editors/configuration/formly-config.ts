@@ -2,15 +2,14 @@ import "angular";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
+import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { Models, Enums } from "../../main/models";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
 import { Helper, IDialogService } from "../../shared";
-import { FiletypeParser } from "../../shared/utils/filetypeParser";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
-import { ISelectionManager } from "../../main/services";
+import { ISelectionManager } from "../../managers";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager"];
@@ -20,7 +19,7 @@ export function formlyConfig(
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
     $sce: ng.ISCEService,
-    artifactAttachments: IArtifactAttachments,
+    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,

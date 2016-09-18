@@ -1,57 +1,58 @@
-import { ILocalizationService, IMessageService, Message, IStateManager, ItemState, IPropertyChangeSet } from "../../core";
+import { ILocalizationService, Message } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
-import { IProjectManager } from "../../main/services";
-import { Enums, Models} from "../../main/models";
+//import { Models, Enums } from "../../main";
+import { 
+    Models, Enums, 
+    IArtifactManager, 
+    IStatefulArtifact, 
+    IMessageService,
+    BpBaseEditor 
+} from "../bp-base-editor";
 
-import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
 
-export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, PropertyContext, Models, Enums, ItemState, Message }
+export { 
+    ILocalizationService, 
+    IArtifactManager, 
+    IStatefulArtifact,
+    IMessageService,  
+    IWindowManager, 
+    PropertyContext, 
+    Models, 
+    Enums, 
+    Message 
+}
 
 export class BpArtifactEditor extends BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
 
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
-    public artifactState: ItemState;
-
-    public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public stateManager: IStateManager,
+        public artifactManager: IArtifactManager,
         public windowManager: IWindowManager,
-        public localization: ILocalizationService,
-        private projectManager: IProjectManager
+        public localization: ILocalizationService
     ) {
-        super(messageService, stateManager);
+        super(messageService, artifactManager);
         this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
         super.$onInit();
-        this._subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
+        this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
 
-        this._subscribers.push(
-            this.stateManager.stateChange
-                .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
-                .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
-        );
+        // this.subscribers.push(
+        //     this.stateManager.stateChange
+        //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
+        //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
+        // );
     }
 
-
-    public $onChanges(obj: any) {
-        try {
-            this.model = {};
-            super.$onChanges(obj); 
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-        }
-    }
 
     public $onDestroy() {
         super.$onDestroy();
@@ -64,13 +65,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         delete this.model;
     }
 
-    public onLoading(obj: any): boolean  {
-        return super.onLoading(obj);
-    }
-
-    public onLoad(context: Models.IEditorContext) {
-         this.onUpdate(context);
-    }
 
     public clearFields() { 
         this.fields = []; 
@@ -81,71 +75,39 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.fields.push(field);
     }
 
-
-    public onUpdate(context: Models.IEditorContext) {
-        try {
-            super.onUpdate(context);
-            if (!context || !this.editor) {
-                return;
-            }
-            this.clearFields();
-
-            let artifact: Models.IArtifact;
-            this.artifactState = this.stateManager.getState(context.artifact.id);
-
-            if (this.artifactState) {
-                artifact = this.artifactState.getArtifact();
-            } else {
-                throw Error("Artifact_Not_Found");
-            }
-            this.editor.propertyContexts = this.projectManager.getArtifactPropertyTypes(this.context.artifact, undefined).map((it: Models.IPropertyType) => {
-                return new PropertyContext(it);
-            });
-
-
-            this.model = this.editor.load(artifact, undefined);
-
-            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                //add property change handler to each field
-                angular.extend(field.templateOptions, {
-                    onChange: this.onValueChange.bind(this)
-                });
-
-                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    if (field.key !== "documentFile"  &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {  
-                        field.type = "bpFieldReadOnly";                     
-                    }
-                }
-                this.onFieldUpdate(field);
-
-            });
-        } catch (ex) {
-            this.messageService.addError(ex);
-        }
-
-        this.setArtifactEditorLabelsWidth();
+    public onLoad() {
+        this.model = {};
+        super.onLoad();
     }
 
-    private onLockChanged(state: ItemState) {
-        let lock = state.lock;
-        if (lock.result === Enums.LockResultEnum.Success) {
-            this.onLoad(this.context);
-        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            if (lock.info.versionId !== state.originItem.version) {
-                this.onLoad(this.context);
-            } else {
-                this.onUpdate(this.context);
-            }
-
-        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
-        } else {
-            this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+    public onUpdate() {
+        super.onUpdate();
+        if ( !this.editor) {
+            return;
         }
+        this.clearFields();
 
+        this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
+
+        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+            //add property change handler to each field
+            angular.extend(field.templateOptions, {
+                onChange: this.onValueChange.bind(this)
+            });
+
+            field.templateOptions["isReadOnly"] = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+            if (this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
+                if (field.key !== "documentFile"  &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {  
+                    field.type = "bpFieldReadOnly";                     
+                }
+            }
+            this.onFieldUpdate(field);
+
+        });
+
+        this.setArtifactEditorLabelsWidth();
     }
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
@@ -166,7 +128,6 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
 
-    public doSave(state: ItemState): void { }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
         $scope.$applyAsync(() => {
@@ -177,22 +138,30 @@ export class BpArtifactEditor extends BpBaseEditor {
                     return;
                 }
                 let value = this.editor.convertToModelValue($field, $value);
-                let changeSet: IPropertyChangeSet = {
-                    lookup: context.lookup,
-                    id: context.modelPropertyName,
-                    value: value
-                };
-                let state = this.stateManager.addChange(this.context.artifact, changeSet);
-
-                if ($scope["form"]) {
-                    state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                switch (context.lookup) {
+                    case Enums.PropertyLookupEnum.Custom:
+                        this.artifact.customProperties.set(context.modelPropertyName as number, value);
+                    break;
+                    case Enums.PropertyLookupEnum.Special:
+                        this.artifact.specialProperties.set(context.modelPropertyName as number, value);
+                        break;
+                    default:
+                        this.artifact[context.modelPropertyName] = value;
+                        break;
                 }
 
-                this.stateManager.lockArtifact(state).catch((error: any) => {
-                    if (error) {
-                        this.messageService.addError(error);
-                    }
-                });
+//                this.artifact.setValue()
+                // let state = this.stateManager.addChange(this.context.artifact, changeSet);
+
+                // if ($scope["form"]) {
+                //     state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                // }
+
+                // this.stateManager.lockArtifact(state).catch((error: any) => {
+                //     if (error) {
+                //         this.messageService.addError(error);
+                //     }
+                // });
             } catch (err) {
                 this.messageService.addError(err);
             }

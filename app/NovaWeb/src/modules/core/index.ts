@@ -34,9 +34,6 @@ export {
     BPLocale} from "./localization/";
 
 export {
-    IStateManager,
-    IPropertyChangeSet,
-    ItemState,
     IWindowResize,
     IWindowVisibility
 } from "./services";

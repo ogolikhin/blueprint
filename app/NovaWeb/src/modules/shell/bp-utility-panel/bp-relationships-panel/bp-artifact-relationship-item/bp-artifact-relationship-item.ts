@@ -1,8 +1,10 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Helper } from "../../../../shared";
-import { Relationships, IProjectManager } from "../../../../main";
+import { Relationships } from "../../../../main";
+import { IArtifactManager, SelectionSource } from "../../../../managers";
+import { IStatefulArtifact } from "../../../../managers/models";
 import { IArtifactRelationships } from "../artifact-relationships.svc";
-import { ISelectionManager, SelectionSource } from "../../../../main/services/selection-manager";
+//import { ISelectionManager, SelectionSource } from "../../../../managers";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -24,8 +26,7 @@ export class BPArtifactRelationshipItemController {
         "$log",
         "localization",
         "artifactRelationships",
-        "projectManager",
-        "selectionManager"
+        "artifactManager"
     ];
 
     public expanded: boolean = false;
@@ -39,8 +40,7 @@ export class BPArtifactRelationshipItemController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private artifactRelationships: IArtifactRelationships,
-        private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager) {
+        private artifactManager: IArtifactManager) {
 
     }
 
@@ -139,11 +139,9 @@ export class BPArtifactRelationshipItemController {
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            const artifact = this.projectManager.getArtifact(relationship.artifactId);
-            if (artifact) {
-//                const project = this.projectManager.getProject(artifact.projectId);
-                this.selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
-            }
+            this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
+                this.artifactManager.selection.setArtifact(artifact, SelectionSource.Explorer);
+            });
         }
     }
 }

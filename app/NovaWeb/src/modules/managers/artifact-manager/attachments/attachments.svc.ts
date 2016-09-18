@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService } from "../../../core";
 
-export interface IArtifactAttachments {
+export interface IArtifactAttachmentsService {
     getArtifactAttachments(
         artifactId: number,
         subArtifactId?: number,
@@ -33,7 +33,7 @@ export interface IArtifactAttachmentsResultSet {
     documentReferences: IArtifactDocRef[];
 }
 
-export class ArtifactAttachments implements IArtifactAttachments {
+export class ArtifactAttachmentsService implements IArtifactAttachmentsService {
     static $inject: [string] = [
         "$q",
         "$http",

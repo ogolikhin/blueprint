@@ -2,7 +2,7 @@
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
 import { IArtifactNode, IStatefulArtifact } from "../models";
-import { StatefulArtifact } from "../artifact-manager/artifact";
+//import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";

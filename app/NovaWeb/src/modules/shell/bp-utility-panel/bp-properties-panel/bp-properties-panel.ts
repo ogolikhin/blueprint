@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IStateManager, ItemState, IPropertyChangeSet } from "../../../core";
+﻿import {ILocalizationService } from "../../../core";
 import { Models, IWindowManager } from "../../../main";
 import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -23,7 +23,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "$q",
         "selectionManager",
         "messageService",
-        "stateManager",
         "windowManager",
         "localization",
     ];
@@ -33,7 +32,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;   
-    public itemState: ItemState;
 
     public isLoading: boolean = false;
 
@@ -49,7 +47,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         protected selectionManager: ISelectionManager,        
         public messageService: IMessageService,
-        public stateManager: IStateManager,
         public windowManager: IWindowManager,
         public localization: ILocalizationService,
         public bpAccordionPanel: IBpAccordionPanelController) {
@@ -59,7 +56,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }    
 
     public $onDestroy() {
-        delete this.itemState;
         delete this.systemFields;
         delete this.specificFields;
         delete this.customFields;
@@ -101,11 +97,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private addSubArtifactChangeset(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, changeSet: IPropertyChangeSet) {
-        artifact.subArtifacts = [subArtifact];        
-        this.stateManager.addChange(artifact, changeSet);
-        this.stateManager.addChange(subArtifact, changeSet);
-    }
+    // private addSubArtifactChangeset(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
+    //     artifact.subArtifacts = [subArtifact];        
+    // }
 
     private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
         let deferred = this.$q.defer<any>();
@@ -178,34 +172,34 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     //     return changedItem;
     // }
 
-    private getChangedSubArtifact(item: Models.ISubArtifact): Models.ISubArtifact {
-        if (!item) {
-            return undefined;
-        }
-        let changedItem: Models.ISubArtifact;
-        this.itemState = this.stateManager.getState(item.id);
+    // private getChangedSubArtifact(item: Models.ISubArtifact): Models.ISubArtifact {
+    //     if (!item) {
+    //         return undefined;
+    //     }
+    //     let changedItem: Models.ISubArtifact;
+    //     this.itemState = this.stateManager.getState(item.id);
 
-        if (this.itemState) {
-            if (this.itemState.changedItem) {                
-                changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);
-            } else {                               
-                changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);
-            }
-        } else {
-            changedItem = item;
-        }
-        return changedItem;
-    }
+    //     if (this.itemState) {
+    //         if (this.itemState.changedItem) {                
+    //             changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);
+    //         } else {                               
+    //             changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);
+    //         }
+    //     } else {
+    //         changedItem = item;
+    //     }
+    //     return changedItem;
+    // }
 
-    private getSubArtifactById(artifact: Models.IArtifact, subArtifactId: number): Models.ISubArtifact {
-        for (var i = 0; i < artifact.subArtifacts.length; i++) {
-            let subArtifact = artifact.subArtifacts[i];
-            if (subArtifact.id === subArtifactId) {
-                return subArtifact;
-            }
-        }
-        throw new Error("SubArtifact_Not_Found");
-    }
+    // private getSubArtifactById(artifact: Models.IArtifact, subArtifactId: number): Models.ISubArtifact {
+    //     for (var i = 0; i < artifact.subArtifacts.length; i++) {
+    //         let subArtifact = artifact.subArtifacts[i];
+    //         if (subArtifact.id === subArtifactId) {
+    //             return subArtifact;
+    //         }
+    //     }
+    //     throw new Error("SubArtifact_Not_Found");
+    // }
 
     public onUpdate(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         this.selectedArtifact = artifact;
@@ -281,18 +275,18 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (!context) {
             return;
         }
-        let value = this.editor.convertToModelValue($field, $value);
-        let changeSet: IPropertyChangeSet = {
-            lookup: context.lookup,
-            id: context.modelPropertyName,
-            value: value
-        };
+        //let value = this.editor.convertToModelValue($field, $value);
+        // let changeSet: IPropertyChangeSet = {
+        //     lookup: context.lookup,
+        //     id: context.modelPropertyName,
+        //     value: value
+        // };
         
-        if (this.selectedSubArtifact) {
-            this.addSubArtifactChangeset(this.selectedArtifact, this.selectedSubArtifact, changeSet);
-        } else {
-            this.stateManager.addChange(this.selectedArtifact, changeSet);
-        }
+        // if (this.selectedSubArtifact) {
+        //     this.addSubArtifactChangeset(this.selectedArtifact, this.selectedSubArtifact, changeSet);
+        // } else {
+        //     this.stateManager.addChange(this.selectedArtifact, changeSet);
+        // }
     };
 
     public get specificPropertiesHeading(): string {

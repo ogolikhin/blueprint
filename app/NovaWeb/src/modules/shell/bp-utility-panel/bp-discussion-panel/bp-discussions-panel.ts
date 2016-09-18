@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService, IStateManager } from "../../../core";
+﻿import { ILocalizationService, IMessageService } from "../../../core";
 // import { IArtifactService} from "../../../main";
 import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
@@ -21,7 +21,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "localization",
         "artifactDiscussions",
         "artifactManager",
-        "stateManager",
         "messageService",
         "dialogService",
         "$q"
@@ -45,7 +44,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         private localization: ILocalizationService,
         private artifactDiscussions: IArtifactDiscussions,
         protected artifactManager: IArtifactManager,
-        protected stateManager: IStateManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
         $q: ng.IQService,

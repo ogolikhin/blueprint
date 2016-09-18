@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IStateManager } from "../../../core";
+﻿import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
 import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
@@ -30,7 +30,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         "$q",
         "localization",
         "artifactManager",
-        "stateManager",
         "artifactRelationships"
     ];
 
@@ -48,7 +47,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected artifactManager: IArtifactManager,
-        protected stateManager: IStateManager,
         private artifactRelationships: IArtifactRelationships,
         public bpAccordionPanel: IBpAccordionPanelController) {
 

@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IStateManager } from "../../../core";
+﻿import { ILocalizationService } from "../../../core";
 import { Models} from "../../../main";
 import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -23,8 +23,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "artifactManager",
-        "stateManager"
+        "artifactManager"
     ];
 
     private loadLimit: number = 10;
@@ -41,7 +40,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         private localization: ILocalizationService,
         private artifactHistory: IArtifactHistory,
         protected artifactManager: IArtifactManager,
-        protected stateManager: IStateManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);

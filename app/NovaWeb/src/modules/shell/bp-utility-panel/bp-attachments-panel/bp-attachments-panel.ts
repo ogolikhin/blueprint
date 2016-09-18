@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
+﻿import { ILocalizationService, ISettingsService } from "../../../core";
 import { Models} from "../../../main";
 import { ISession } from "../../../shell";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -32,7 +32,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactManager",
-        "stateManager",
         "session",
         "artifactAttachments",
         "settings",
@@ -48,7 +47,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
 
-    private artifactIsDeleted: boolean = false;
+//    private artifactIsDeleted: boolean = false;
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     
@@ -56,7 +55,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         private localization: ILocalizationService,
         protected artifactManager: IArtifactManager,
-        protected stateManager: IStateManager,
         private session: ISession,
         private artifactAttachments: IArtifactAttachmentsService,
         private settingsService: ISettingsService,

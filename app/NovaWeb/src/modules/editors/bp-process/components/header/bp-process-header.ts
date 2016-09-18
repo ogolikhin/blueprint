@@ -1,6 +1,6 @@
 import { IWindowManager,  } from "../../../../main/services";
 import { BpArtifactInfoController , IArtifactManager} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import { IMessageService, ILocalizationService, IStateManager } from "../../../../core";
+import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 

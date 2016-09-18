@@ -45,12 +45,6 @@ export class BpArtifactEditor extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
-
-        // this.subscribers.push(
-        //     this.stateManager.stateChange
-        //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
-        //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
-        // );
     }
 
 
@@ -127,8 +121,6 @@ export class BpArtifactEditor extends BpBaseEditor {
     };
 
 
-
-
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
         $scope.$applyAsync(() => {
             try {
@@ -150,18 +142,11 @@ export class BpArtifactEditor extends BpBaseEditor {
                         break;
                 }
 
-//                this.artifact.setValue()
-                // let state = this.stateManager.addChange(this.context.artifact, changeSet);
 
                 // if ($scope["form"]) {
                 //     state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
                 // }
 
-                // this.stateManager.lockArtifact(state).catch((error: any) => {
-                //     if (error) {
-                //         this.messageService.addError(error);
-                //     }
-                // });
             } catch (err) {
                 this.messageService.addError(err);
             }

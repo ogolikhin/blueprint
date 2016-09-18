@@ -20,6 +20,9 @@ export {
     IArtifactAttachmentsService
 };
 
+export interface IDispose {
+    dispose(): void;
+}
 export interface IBlock<T> {
     observable: Rx.IObservable<T>;
     get(refresh?: boolean): ng.IPromise<T>;
@@ -45,7 +48,7 @@ export interface IArtifactProperties {
     discard(all?: boolean);
 }
 
-export interface IArtifactState {
+export interface IArtifactState extends IDispose {
     initialize(artifact: Models.IArtifact): IArtifactState; 
     get(): IState;
     //set(value: any): void;

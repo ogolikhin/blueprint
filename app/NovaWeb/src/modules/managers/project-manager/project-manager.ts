@@ -1,21 +1,20 @@
 ﻿import { ILocalizationService, IMessageService } from "../../core";
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact } from "../models";
+import { IArtifactNode, IStatefulArtifact, IDispose, IArtifactState} from "../models";
 //import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
 import { SelectionSource } from "../selection-manager";
 
-import { IArtifactManager } from "../../managers";
+import { IArtifactManager, ISelection } from "../../managers";
 
-export interface IProjectManager {
+export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
     // eventManager
     initialize();
-    dispose();
     add(data: Models.IProject);
     remove(all?: boolean): void;
     loadArtifact(id: number): void;
@@ -37,7 +36,8 @@ export interface IProjectManager {
 export class ProjectManager  implements IProjectManager { 
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
-
+    private subscriber: Rx.IDisposable;
+    private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "localization", 
         "messageService", 
@@ -51,21 +51,43 @@ export class ProjectManager  implements IProjectManager {
         private messageService: IMessageService,
         private projectService: IProjectService,
         private artifactManager: IArtifactManager,
-        private statefulArtifactFactory: IStatefulArtifactFactory
-    ) {
+        private statefulArtifactFactory: IStatefulArtifactFactory) {
+
     }
+
+    private onChange(artifact: IArtifactState) {
+        this.projectCollection.onNext(this._projectCollection.getValue());
+    }
+
+    private onArtifactSelect(artifact: IStatefulArtifact) {
+        if (this.statechangesubscriber) {
+            this.statechangesubscriber.dispose();
+            delete this.statechangesubscriber;
+        }
+        if (artifact) {
+            this.statechangesubscriber = artifact.artifactState.observable.subscribeOnNext(this.onChange, this);
+        }
+    }
+    
 
     public dispose() {
         //clear all Project Manager event subscription
+        if (this.subscriber) {
+            this.subscriber.dispose();
+        }
         if (this._projectCollection) {
             this._projectCollection.dispose();
+            delete this._projectCollection ;
         }
+        //this.remove(true);
+
     }
 
     public initialize() {
         //subscribe to event
         this.dispose();
-        delete this._projectCollection ;
+        this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
+        
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
@@ -153,7 +175,6 @@ export class ProjectManager  implements IProjectManager {
                         return new ArtifactNode(statefulArtifact);
                     });
                     node.loaded = true;
-
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());

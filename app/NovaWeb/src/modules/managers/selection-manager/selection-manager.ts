@@ -87,7 +87,7 @@ export class SelectionManager implements ISelectionManager {
             this.editorArtifact = artifact;
         }
 
-        this.selectionSubject.onNext(selection);
+        this.setSubject(selection);
     }
 
     public getSubArtifact(): IStatefulSubArtifact {
@@ -107,7 +107,7 @@ export class SelectionManager implements ISelectionManager {
             source: val.source
         };
 
-        this.selectionSubject.onNext(selection);
+        this.setSubject(selection);
     }
 
     public clearAll() {
@@ -116,7 +116,7 @@ export class SelectionManager implements ISelectionManager {
             subArtifact: null,
             source: null
         };
-        this.selectionSubject.onNext(selection);
+        this.setSubject(selection);
     }
 
     public clearSubArtifact() {
@@ -127,10 +127,14 @@ export class SelectionManager implements ISelectionManager {
             source: val.source
         };
 
-        this.selectionSubject.onNext(selection);
+        this.setSubject(selection);
     }
 
     private distinctById(item: IItem) {
         return item ? item.id : -1;
+    }
+
+    private setSubject(selection: ISelection) {
+        this.selectionSubject.onNext(selection);
     }
 }

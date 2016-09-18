@@ -33,16 +33,6 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts= true, int revisionId = int.MaxValue)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@userId", userId);
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
-            parameters.Add("@addDrafts", addDrafts);
-            parameters.Add("@revisionId", revisionId);
-            return await ConnectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
-        }
-
         private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
@@ -169,7 +159,7 @@ namespace ArtifactStore.Repositories
                 distinctItemIds.Add(result.DestinationProjectId);
             }
 
-            var itemDetailsDictionary = (await GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
+            var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
             var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
             PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);

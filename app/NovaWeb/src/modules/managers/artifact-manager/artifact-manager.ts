@@ -3,7 +3,7 @@ import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-m
 import { IMetaDataService } from "./metadata";
 import { IStatefulArtifactFactory, } from "./artifact";
 
-import { IStatefulArtifact } from "../models";
+import { IStatefulArtifact, IDispose } from "../models";
 
 export { ISelectionManager, ISelection,  SelectionSource }
 
@@ -13,8 +13,7 @@ export interface IArtifactManager {
     add(artifact: IStatefulArtifact);
     get(id: number): ng.IPromise<IStatefulArtifact>;
     remove(id: number): IStatefulArtifact;
-    removeAll(projectId: number);
-
+    removeAll(projectId?: number);
     saveAll(): void;
     publishAll(): void;
     refreshAll(): void;
@@ -22,7 +21,6 @@ export interface IArtifactManager {
 
 export class ArtifactManager  implements IArtifactManager {
     private artifactList: IStatefulArtifact[];
-
     public static $inject = [ 
         "$q", 
         "messageService",
@@ -37,7 +35,9 @@ export class ArtifactManager  implements IArtifactManager {
         private metadataService: IMetaDataService,
         private artifactFactory: IStatefulArtifactFactory) {
         this.artifactList = [];
+//        this.selectionService.selectionObservable.subscribeOnNext(this.onArtifactSelect, this);
     }
+    
 
     public get selection(): ISelectionManager {
         return this.selectionService;
@@ -78,10 +78,10 @@ export class ArtifactManager  implements IArtifactManager {
         return stateArtifact;
     }
 
-    public removeAll(projectId) {
+    public removeAll(projectId?: number) {
         
         this.artifactList = this.artifactList.filter((it: IStatefulArtifact) => {
-            if (it.projectId !== projectId) {
+            if (!projectId || it.projectId !== projectId) {
                 this.metadataService.remove(it.projectId);
                 return false;
             }
@@ -104,4 +104,16 @@ export class ArtifactManager  implements IArtifactManager {
     public refreshAll() {
         throw new Error("Not implemented yet");
     }
+
+
+    // private changeSubscriber: Rx.IDisposable[];
+
+    // private setSubject(selection: ISelection) {
+    //     let old = this.selectionSubject.getValue();
+    //     if (old.artifact.id !== selection.artifact.id) {
+    //         this.changeSubscriber = selection.artifact.artifactState.observable.subscribeOnNext()
+    //     }
+    //     this.selectionSubject.onNext(selection);
+    // }
+    
 }

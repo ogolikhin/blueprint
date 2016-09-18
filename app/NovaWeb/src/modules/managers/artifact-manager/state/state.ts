@@ -18,6 +18,10 @@ export class ArtifactState implements IArtifactState {
         this.reset();
 
     }
+    public dispose() {
+        this.subject.dispose();
+    }
+    
     private reset() {
         delete this.lockedby;
         delete this.lockowner;

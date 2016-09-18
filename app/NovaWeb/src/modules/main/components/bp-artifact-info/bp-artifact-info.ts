@@ -53,8 +53,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-//            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
-             this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this),
         ];
     }
 
@@ -146,8 +145,6 @@ export class BpArtifactInfoController {
     private onStateChange = (state: IArtifactState) => {
         this.updateProperties(this.artifactManager.selection.getArtifact());
     }
-
-
 
     public get artifactHeadingMinWidth() {
         let style = {};

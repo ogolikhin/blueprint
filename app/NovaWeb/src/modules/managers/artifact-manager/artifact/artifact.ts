@@ -53,7 +53,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             
     }
     public dispose() {
-        //TODO: implement loginc to release resources
+        //TODO: implement logic to release resources
     }
 
     // public get observable(): Rx.Observable<IStatefulArtifact> {
@@ -179,7 +179,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.customProperties.discard(all);
         this.specialProperties.discard(all);
 
-        //TODO: following inned to be implemented
+        //TODO: need impementation
         // this.attachments.discard(all);
         // this.docRefs.discard(all);
         // this.subArtifactCollection.discard(all);

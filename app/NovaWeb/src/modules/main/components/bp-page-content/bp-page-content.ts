@@ -30,8 +30,6 @@ class PageContentCtrl {
                 private diagramService: IDiagramService,
                 private windowManager: IWindowManager) {
     }
-    public context: IEditorContext = null;
-
     public viewState: boolean;
 
     public $onInit() {
@@ -49,19 +47,12 @@ class PageContentCtrl {
     }
 
     private selectContext(artifact: IStatefulArtifact) {
-        let _context: IEditorContext = {};
-        try {
-            if (!artifact) {
-                this.$state.go("main");
-                return;
-            }
-
-            this.$state.go("main.artifact", { id: artifact.id });
-
-        } catch (ex) {
-            this.messageService.addError(ex.message);
+        if (!artifact) {
+            this.$state.go("main");
+            return;
         }
-        this.context = _context;
+
+        this.$state.go("main.artifact", { id: artifact.id });
     }
 
     private selectedInExplorer = (artifact: IStatefulArtifact) => {

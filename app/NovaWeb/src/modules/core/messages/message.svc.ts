@@ -5,6 +5,7 @@ export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error | any): void;    
     addWarning(text: string): void;    
+    addInfo(text: string): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -104,6 +105,13 @@ export class MessageService implements IMessageService {
         }
 
         this.addMessage(new Message(MessageType.Warning, msg));
+    }
+    public addInfo(msg: string): void {
+        if (!msg) {
+            return;
+        }
+
+        this.addMessage(new Message(MessageType.Info, msg));
     }
 
     public addMessage(msg: Message): void {

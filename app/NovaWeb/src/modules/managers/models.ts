@@ -41,7 +41,8 @@ export interface IArtifactProperties {
     observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
-    discard();
+    changes(): Models.IPropertyValue[];
+    discard(all?: boolean);
 }
 
 export interface IArtifactState {
@@ -66,7 +67,7 @@ export interface IStatefulItem extends Models.IArtifact  {
     attachments: IArtifactAttachments;
     docRefs: IDocumentRefs;
     // relationships: any;
-    discard(): ng.IPromise<IStatefulArtifact>;
+    discard(all?: boolean);
     lock(): ng.IPromise<IState>;
 }
 
@@ -81,9 +82,9 @@ export interface IStatefulArtifact extends IStatefulItem  {
     subArtifactCollection: ISubArtifactCollection;
     metadata: IMetaData;
     load(force?: boolean): ng.IPromise<IStatefulArtifact>;
-    save();
-    publish();
-    refresh();
+    save(): ng.IPromise<IStatefulArtifact>;
+    publish(): ng.IPromise<IStatefulArtifact>;
+    refresh(): ng.IPromise<IStatefulArtifact>;
 }
 
 // TODO: explore the possibility of using an internal interface for services

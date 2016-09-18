@@ -23,6 +23,7 @@ export interface ISubArtifactCollection {
     add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
     get(id: number): IStatefulSubArtifact;
     remove(id: number): IStatefulSubArtifact;
+    discard();
 }
 
 export class StatefulSubArtifactCollection implements ISubArtifactCollection {
@@ -86,6 +87,12 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
         return statefulSubArtifact;
     }
 
+
+    public discard() {
+        //TODO implement logic to discard changes
+        this.subArtifactList.forEach((it: IStatefulSubArtifact) => it.discard());
+
+    }
     public update(id: number) {
         // TODO: 
     }

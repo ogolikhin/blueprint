@@ -8,11 +8,13 @@ import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-ar
 import { IMetaData, MetaData } from "../metadata";
 import {
     IStatefulArtifact,
+    IStatefulSubArtifact,
     IArtifactState,
     IArtifactProperties,
     IState,
     IStatefulArtifactServices,
     IIStatefulArtifact,
+
     IArtifactAttachmentsResultSet
 } from "../../models";
 
@@ -158,28 +160,28 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
            const changeset = {
                type: ChangeTypeEnum.Update,
                key: name,
-               value: value              
+               value: this.artifact[name] = value              
            } as IChangeSet;
-           this.artifact[name] = value;
            this.changesets.add(changeset, oldValue);
            
            this.lock(); 
         }
     }
 
-    public discard(): ng.IPromise<IStatefulArtifact>   {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
+    public discard(all: boolean = false) {
 
         this.changesets.reset().forEach((it: IChangeSet) => {
             this[it.key as string].value = it.value;
         });
 
-        this.customProperties.discard();
-        this.specialProperties.discard();
-        this.attachments.discard();
+        this.customProperties.discard(all);
+        this.specialProperties.discard(all);
 
-        deferred.resolve(this);
-        return deferred.promise;
+        //TODO: following inned to be implemented
+        // this.attachments.discard(all);
+        // this.docRefs.discard(all);
+        // this.subArtifactCollection.discard(all);
+
     }
 
     private isLoaded = false;
@@ -222,9 +224,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }
         if (state.lock.result === Enums.LockResultEnum.Success) {
             if (state.lock.info.versionId !== this.version) {
+                //this.discard();
                 this.load();
             }
         } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
+            //this.discard();
             this.load();
         } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
@@ -253,69 +257,59 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.services;
     }
 
+
+    private changes(): Models.IArtifact {
+            // if (this._hasValidationErrors) {
+            //     throw new Error("App_Save_Artifact_Error_400_114");
+            // }
+
+            let delta: Models.IArtifact = {} as Models.Artifact;
+
+            delta.id = this.id;
+            delta.projectId = this.projectId;
+            delta.customPropertyValues = [];
+            this.changesets.get().forEach((it: IChangeSet) => {
+                delta[it.key as string] = it.value;
+            });
+
+            delta.customPropertyValues = this.customProperties.changes();
+            delta.specificPropertyValues = this.specialProperties.changes();
+            
+            return delta;
+        }
+
     //TODO: moved from bp-artifactinfo 
-    // public saveChanges() {
-    public save() {
-        throw new Error("Not implemented yet");
-    //     let overlayId: number = this.loadingOverlayService.beginLoading();
-    //     try {
-    //         let state: ItemState = this.stateManager.getState(this._artifactId);
-    //         let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
-    //         this.artifactService.updateArtifact(artifactDelta)
-    //             .then((artifact: Models.IArtifact) => {
-    //                     let oldArtifact = state.getArtifact();
-    //                     if (artifact.version) {
-    //                         state.updateArtifactVersion(artifact.version);
-    //                     }
-    //                     if (artifact.lastSavedOn) {
-    //                         state.updateArtifactSavedTime(artifact.lastSavedOn);
-    //                     }
-    //                     this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
-    //                     state.finishSave();
-    //                     this.isChanged = false;
-    //                     this.projectManager.updateArtifactName(state.getArtifact());
-    //                 }, (error) => {
-    //                     let message: string;
-    //                     if (error) {
-    //                         if (error.statusCode === 400) {
-    //                             if (error.errorCode === 114) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_400_114");
-    //                             } else {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-    //                             }
-    //                         } else if (error.statusCode === 404) {
-    //                             message = this.localization.get("App_Save_Artifact_Error_404");
-    //                         } else if (error.statusCode === 409) {
-    //                             if (error.errorCode === 116) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_116");
-    //                             } else if (error.errorCode === 117) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_117");
-    //                             } else if (error.errorCode === 111) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_111");
-    //                             } else if (error.errorCode === 115) {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409_115");
-    //                             } else {
-    //                                 message = this.localization.get("App_Save_Artifact_Error_409");
-    //                             }
+    
+    public save(): ng.IPromise<IStatefulArtifact> {
+        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        let changes = this.changes();
+        this.services.artifactService.updateArtifact(changes)
+            .then((artifact: Models.IArtifact) => {
+                this.discard(true);
+                this.load(true).then((it: IStatefulArtifact) => {
+                    this.services.messageService.addInfo("App_Save_Artifact_Error_200");
+                    deffered.resolve(it);
+                }).finally(() => {
 
-    //                         } else {
-    //                             message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
-    //                         }
-    //                     }
-    //                     this.messageService.addError(message);
-    //                 }
-    //             ).finally(() => this.loadingOverlayService.endLoading(overlayId));
-    //     } catch (Error) {
-    //         this.messageService.addError(this.localization.get(Error));
-    //         this.loadingOverlayService.endLoading(overlayId);
-    //     }
+                });
+            }).catch((error) => {
+                deffered.reject(it);
+                    let message: string;
+                    if (error) {
+                        message = "App_Save_Artifact_Error_" + error.statusCode + "_" + error.errorCode;
+                    }
+                    throw new Error(message);
+            });
+        return deffered.promise;
     }
 
-    public publish() {
-        throw new Error("Not implemented yet");
+    public publish(): ng.IPromise<IStatefulArtifact> {
+        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        return deffered.promise;
     }
 
-    public refresh() {
-        throw new Error("Not implemented yet");
+    public refresh(): ng.IPromise<IStatefulArtifact> {
+        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        return deffered.promise;
     }
 }

@@ -88,7 +88,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(0)]
-        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that already published")]
+        [Description("Create, save, publish Actor artifact.  Verify 400 Bad Request is returned for an artifact that is already published.")]
         public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
@@ -108,7 +108,7 @@ namespace ArtifactStoreTests
         #region 401 Unauthorized tests
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165860)]
-        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish is sreturns code 401 Unauthorized.")]
+        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
         public void PublishArtifact_SingleSavedArtifact_Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:

@@ -23,15 +23,14 @@ export interface IArtifactRelationships extends IBlock<Relationships.IRelationsh
 export class ArtifactRelationships implements IArtifactRelationships {
     private relationships: Relationships.IRelationship[];
     private subject: Rx.BehaviorSubject<Relationships.IRelationship[]>;
-    private statefulItem: IIStatefulItem;
+    
     private changeset: IChangeCollector;
     private isLoaded: boolean;
 
-    constructor(statefulItem: IIStatefulItem) {
+    constructor(private statefulItem: IIStatefulItem) {
         this.relationships = [];
-        this.statefulItem = statefulItem;
         this.subject = new Rx.BehaviorSubject<Relationships.IRelationship[]>(this.relationships);
-        this.changeset = new ChangeSetCollector();
+        this.changeset = new ChangeSetCollector(statefulItem);
     }
 
     // public initialize(relationships: Relationships.IRelationship[]) {

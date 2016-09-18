@@ -10,15 +10,13 @@ import {
 export class ArtifactProperties implements IArtifactProperties  {
     
     private properties: Models.IPropertyValue[];
-    private statefulItem: IIStatefulItem;
     //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
     private subject: Rx.Observable<Models.IPropertyValue>;
     private changeset: IChangeCollector;
 
-    constructor(statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
-        this.statefulItem = statefulItem;
+    constructor(private statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
         this.properties = properties || [];
-        this.changeset = new ChangeSetCollector();
+        this.changeset = new ChangeSetCollector(statefulItem);
         this.subject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
 //        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
         // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {

@@ -1,7 +1,7 @@
 import { IMessageService } from "../../../core";
 import { Models } from "../../../main/models";
 import { StatefulArtifactServices } from "../services";
-import { IMetaDataService, IStatefulSubArtifact, IStatefulArtifact, StatefulArtifact, StatefulSubArtifact } from "../";
+import { IMetaDataService, IStatefulSubArtifact, IStatefulArtifact,  StatefulArtifact, StatefulSubArtifact } from "../";
 import { IArtifactService } from "./artifact.svc";
 import {
     // IStatefulArtifact, 

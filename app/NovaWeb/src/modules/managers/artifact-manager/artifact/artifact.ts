@@ -31,7 +31,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
-        this.changesets = new ChangeSetCollector();
+        this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
         this.customProperties = new ArtifactProperties(this).initialize(artifact.customPropertyValues);
         this.specialProperties = new ArtifactProperties(this).initialize(artifact.specificPropertyValues);
@@ -185,12 +185,12 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private isLoaded = false;
     public load(force: boolean = false):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (!this.isLoaded || force ) {
+        if (force || !this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 this.artifact = artifact;
                 this.artifactState.initialize(artifact);
                 this.customProperties.initialize(artifact.customPropertyValues);
-                this.customProperties.initialize(artifact.specificPropertyValues);
+                this.specialProperties.initialize(artifact.specificPropertyValues);
                 this.isLoaded = true;
                 deferred.resolve(this);
             }).catch((err) => {

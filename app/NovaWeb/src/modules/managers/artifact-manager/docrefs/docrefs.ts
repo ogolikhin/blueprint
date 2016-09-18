@@ -24,15 +24,13 @@ export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
 export class DocumentRefs implements IDocumentRefs {
     private docrefs: IArtifactDocRef[];
     private subject: Rx.BehaviorSubject<IArtifactDocRef[]>;
-    private statefulItem: IIStatefulItem;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
 
-    constructor(statefulItem: IIStatefulItem) {
+    constructor(private statefulItem: IIStatefulItem) {
         this.docrefs = [];
-        this.statefulItem = statefulItem;
         this.subject = new Rx.BehaviorSubject<IArtifactDocRef[]>(this.docrefs);
-        this.changeset = new ChangeSetCollector();
+        this.changeset = new ChangeSetCollector(statefulItem);
     }
 
     public initialize(docrefs: IArtifactDocRef[]) {

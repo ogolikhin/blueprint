@@ -26,11 +26,11 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
 
     constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
         this.metadata = new MetaData(this);
-        this.changesets = new ChangeSetCollector();
         this.customProperties = new ArtifactProperties(this).initialize(subArtifact.customPropertyValues);
         this.specialProperties = new ArtifactProperties(this).initialize(subArtifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
+//        this.changesets = new ChangeSetCollector(this.artifact);
 
     }
 

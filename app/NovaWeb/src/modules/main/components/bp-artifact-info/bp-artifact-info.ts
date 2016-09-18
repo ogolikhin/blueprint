@@ -201,11 +201,10 @@ export class BpArtifactInfoController {
 
     
      public saveChanges() {
-         let artifact: any;
-          this.artifactManager.get(61788).then((it: IStatefulArtifact) =>{
-              artifact = it;
+         let overlayId: number = this.loadingOverlayService.beginLoading();
+         let artifact = this.artifactManager.selection.getArtifact().save();
+         this.loadingOverlayService.endLoading(overlayId);
 
-         });
 
         //  let overlayId: number = this.loadingOverlayService.beginLoading();
         //  try {

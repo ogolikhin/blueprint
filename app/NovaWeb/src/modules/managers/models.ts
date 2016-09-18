@@ -37,7 +37,7 @@ export interface IState {
 }
 
 export interface IArtifactProperties {
-    initialize(artifact: Models.IArtifact): IArtifactProperties; 
+    initialize(properties: Models.IPropertyValue[]): IArtifactProperties; 
     observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
@@ -61,6 +61,7 @@ export interface IArtifactState {
 export interface IStatefulItem extends Models.IArtifact  {
     artifactState: IArtifactState;
     customProperties: IArtifactProperties;
+    specialProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     docRefs: IDocumentRefs;
     // relationships: any;
@@ -74,6 +75,8 @@ export interface IIStatefulItem extends IStatefulItem  {
 }
 
 export interface IStatefulArtifact extends IStatefulItem  {
+    dispose(): void;
+//    observable: Rx.Observable<IStatefulArtifact>;
     subArtifactCollection: ISubArtifactCollection;
     metadata: IMetaData;
     load(): ng.IPromise<IStatefulArtifact>;
@@ -85,6 +88,7 @@ export interface IStatefulArtifact extends IStatefulItem  {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
 }
+
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
 

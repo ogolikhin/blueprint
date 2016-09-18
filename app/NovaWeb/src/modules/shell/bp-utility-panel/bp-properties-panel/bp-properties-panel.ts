@@ -216,15 +216,17 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 return;
             }
 
+            if (subArtifact) {
+                this.editor.load(subArtifact, artifact.metadata.getSubArtifactPropertyTypes());
+            } else {
+                this.editor.load(artifact, artifact.metadata.getArtifactPropertyTypes());
+            }
 
             // let changedArtifact = this.getChangedArtifact(artifact);           
             // let changedSubArtifact = this.getChangedSubArtifact(subArtifact);            
 
-            this.editor.propertyContexts = artifact.metadata.getArtifactPropertyTypes().map((it: Models.IPropertyType) => {
-                return new PropertyContext(it);
-            });
-
-            this.model = this.editor.load(artifact, subArtifact);
+            
+            this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {

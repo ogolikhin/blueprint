@@ -1,6 +1,7 @@
 ﻿import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
+import { IStatefulItem} from "../../managers/models";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -97,16 +98,19 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): any {
+    public load(statefulItem: IStatefulItem, properties: Models.IPropertyType[]): any {
 
         this._model = {};
         this._fields = [];
-        this._artifactId = artifact.id;
-        if (artifact && angular.isArray(this.propertyContexts)) {
-            var artifactOrSubArtifact = artifact;
-            if (subArtifact) {
-                artifactOrSubArtifact = subArtifact;
-            }
+        this._artifactId = statefulItem.id;
+        if (statefulItem && angular.isArray(properties)) {
+            this.propertyContexts = properties.map((it: Models.IPropertyType) => {
+                return new PropertyContext(it);
+            });
+//            var artifactOrSubArtifact = artifact;
+            // if (subArtifact) {
+            //     artifactOrSubArtifact = subArtifact;
+            // }
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
@@ -114,38 +118,34 @@ export class PropertyEditor {
 
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
-                        if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName];
+                        if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
+                            modelValue = statefulItem[propertyContext.modelPropertyName];
                             isModelSet = true;
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
-                                artifact.readOnlyReuseSettings &&
-                                (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                                statefulItem.readOnlyReuseSettings &&
+                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
                                 propertyContext.disabled = true;
 
                             } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
-                                artifact.readOnlyReuseSettings &&
-                                (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                                statefulItem.readOnlyReuseSettings &&
+                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                                 propertyContext.disabled = true;
                             }
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifactOrSubArtifact.customPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
                         //Custom property
-                        let custompropertyvalue = artifactOrSubArtifact.customPropertyValues.filter((value: Models.IPropertyValue) => {
-                            return value.propertyTypeId === propertyContext.modelPropertyName as number;
-                        })[0];
+                        let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
                         if (custompropertyvalue) {
                             modelValue = custompropertyvalue.value;
                             isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special)  {
                         //Specific property
-                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
-                        })[0];
+                        let specificpropertyvalue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
                         isModelSet = true;
                         if (specificpropertyvalue) {
-                            if (artifactOrSubArtifact.predefinedType === Enums.ItemTypePredefined.Step &&
+                            if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
                                 specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
                             } else {
@@ -173,9 +173,7 @@ export class PropertyEditor {
         if (propertyValue) {
             return this.localization.get("App_Properties_Actor_StepOf_Actor");
         }
-        else {
-            return this.localization.get("App_Properties_Actor_StepOf_System");
-        }
+        return this.localization.get("App_Properties_Actor_StepOf_System");
     }
 
     public destroy() {

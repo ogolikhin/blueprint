@@ -53,7 +53,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
+//            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
              this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this),
         ];
     }
@@ -139,14 +139,12 @@ export class BpArtifactInfoController {
 
     private onSelectArtifact = (artifact: IStatefulArtifact) => {
         // so, just need to do an extra check if the component has created
-        this.updateProperties(artifact);
+        //this.updateProperties(artifact);
         
     }
 
     private onStateChange = (state: IArtifactState) => {
-        // so, just need to do an extra check if the component has created
-//        this.updateProperties();
-        
+        this.updateProperties(this.artifactManager.selection.getArtifact());
     }
 
 

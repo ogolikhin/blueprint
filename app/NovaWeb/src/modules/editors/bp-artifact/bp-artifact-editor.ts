@@ -87,20 +87,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         }
         this.clearFields();
 
-        // let artifact: Models.IArtifact;
-        // this.artifactState = this.stateManager.getState(context.artifact.id);
-
-        // if (this.artifactState) {
-        //     artifact = this.artifactState.getArtifact();
-        // } else {
-        //     throw Error("Artifact_Not_Found");
-        // }
-        this.editor.propertyContexts = this.artifact.metadata.getArtifactPropertyTypes().map((it: Models.IPropertyType) => {
-            return new PropertyContext(it);
-        });
-
-
-        this.model = this.editor.load(this.artifact, undefined);
+        this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
 
         this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
             //add property change handler to each field
@@ -151,6 +138,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                     return;
                 }
                 let value = this.editor.convertToModelValue($field, $value);
+
                 let changeSet: IPropertyChangeSet = {
                     lookup: context.lookup,
                     id: context.modelPropertyName,

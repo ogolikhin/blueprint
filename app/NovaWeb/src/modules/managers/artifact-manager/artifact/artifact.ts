@@ -2,7 +2,7 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
-import { CustomProperties } from "../properties";
+import { ArtifactProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
@@ -25,6 +25,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
     public metadata: IMetaData;
+//    private subject: Rx.BehaviorSubject<IStatefulArtifact>;
     
     private changesets: IChangeCollector;
 
@@ -32,16 +33,31 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState = new ArtifactState(this).initialize(artifact);
         this.changesets = new ChangeSetCollector();
         this.metadata = new MetaData(this);
-        this.customProperties = new CustomProperties(this).initialize(artifact);
+        this.customProperties = new ArtifactProperties(this).initialize(artifact.customPropertyValues);
+        this.specialProperties = new ArtifactProperties(this).initialize(artifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
-
+//        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
+        
         this.artifactState.observable
-            .filter((it: IState) => !!it.lock)
+            .filter((it: IArtifactState) => !!it.get().lock)
             .distinctUntilChanged()
             .subscribeOnNext(this.onLockChanged, this);
+        // this.artifactState.observable
+        //     .filter((it: IArtifactState) => !!it.get().lock)
+        //     .distinctUntilChanged()
+        //     .subscribeOnNext(this.onChanged, this);
+            
     }
+    public dispose() {
+        //TODO: implement loginc to release resources
+    }
+
+    // public get observable(): Rx.Observable<IStatefulArtifact> {
+    //     return this.subject.filter(it => it !== null).asObservable();
+    // }    
+
 
     //TODO. 
     //Needs implementation of other object like 
@@ -158,6 +174,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         });
 
         this.customProperties.discard();
+        this.specialProperties.discard();
         this.attachments.discard();
 
         deferred.resolve(this);
@@ -170,8 +187,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         if (!this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 this.artifact = artifact;
-                this.customProperties.initialize(artifact);
                 this.artifactState.initialize(artifact);
+                this.customProperties.initialize(artifact.customPropertyValues);
+                this.customProperties.initialize(artifact.specificPropertyValues);
                 this.isLoaded = true;
                 deferred.resolve(this);
             }).catch((err) => {
@@ -206,13 +224,15 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.load();
             }
         } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.services.messageService.addWarning("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
             this.load();
         } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
             this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         } else {
             this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
         }
+    }
+    private onChanged(artifactState: IArtifactState) {
+//        this.subject.onNext(this);
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {

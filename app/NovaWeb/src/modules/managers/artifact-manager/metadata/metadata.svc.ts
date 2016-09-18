@@ -127,9 +127,9 @@ export class MetaDataService implements IMetaDataService {
         let projectMeta = this.get(projectId);
         let itemType = this.getArtifactItemType(projectId, itemTypeId);        
 
-        properties = this.getArtifactSystemPropertyTypes(projectMeta, itemType);
+        properties.push(...this.getArtifactSystemPropertyTypes(projectMeta, itemType));
         //add custom property types
-        properties.push(this.getCustomPropertyTypes(projectMeta, itemType));
+        properties.push(...this.getCustomPropertyTypes(projectMeta, itemType));
         return properties;
 
     }
@@ -140,9 +140,9 @@ export class MetaDataService implements IMetaDataService {
         let projectMeta = this.get(projectId);
         let itemType = this.getArtifactItemType(projectId, itemTypeId);        
         
-        properties = this.getSubArtifactSystemPropertyTypes(itemType);
+        properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
         //add custom property types
-        properties.push(this.getCustomPropertyTypes(projectMeta, itemType));
+        properties.push(...this.getCustomPropertyTypes(projectMeta, itemType));
 
         return properties;
 

@@ -1,6 +1,5 @@
 import { Models } from "../../../main/models";
 import { IIStatefulItem, IArtifactProperties } from "../../models";
-// import { ChangeSetCollector } from "../changeset";
 import {
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -8,7 +7,7 @@ import {
     ChangeSetCollector
 } from "../";
 
-export class CustomProperties implements IArtifactProperties  {
+export class ArtifactProperties implements IArtifactProperties  {
     
     private properties: Models.IPropertyValue[];
     private statefulItem: IIStatefulItem;
@@ -28,9 +27,9 @@ export class CustomProperties implements IArtifactProperties  {
         // });
     }
 
-    public initialize(artifact: Models.IArtifact): IArtifactProperties {
-        if (artifact) {
-            this.properties = artifact.customPropertyValues;
+    public initialize(properties: Models.IPropertyValue[]): IArtifactProperties {
+        if (properties) {
+            this.properties = properties;
         }
         return this;
     }

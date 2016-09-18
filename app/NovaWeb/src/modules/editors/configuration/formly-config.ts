@@ -501,12 +501,6 @@ export function formlyConfig(
             });
         },
         controller: ["$scope", function ($scope) {
-            let direction = Object.freeze({
-                UP: -1,
-                SAME: 0,
-                DOWN: 1
-            });
-
             $scope.$on("$destroy", function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
@@ -526,27 +520,6 @@ export function formlyConfig(
                 isOpen: false,
                 isChoiceSelected: function (item, $select): boolean {
                     return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
-                },
-                nextFocusableChoice: function ($item, $select, dir): number {
-                    let itemIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
-                    if (itemIndex !== -1 && dir === direction.SAME) {
-                        return itemIndex;
-                    } else if (dir === direction.DOWN) {
-                        for (let i = itemIndex + 1; i < $select.items.length; i++) {
-                            let isSelected = this.isChoiceSelected($select.items[i], $select);
-                            if (!isSelected) {
-                                return i;
-                            }
-                        }
-                    } else if (dir === direction.UP) {
-                        for (let i = itemIndex - 1; i >= 0; i--) {
-                            let isSelected = this.isChoiceSelected($select.items[i], $select);
-                            if (!isSelected) {
-                                return i;
-                            }
-                        }
-                    }
-                    return -1;
                 },
                 toggleScrollbar: function (removeScrollbar?: boolean) {
                     if (!removeScrollbar) {
@@ -673,9 +646,19 @@ export function formlyConfig(
                 onHighlight: function (option, $select) {
                     if (this.isChoiceSelected(option, $select)) {
                         if ($select.activeIndex > this.currentSelectedItem) {
-                            $select.activeIndex++;
+                            if ($select.activeIndex < $select.items.length - 1) {
+                                $select.activeIndex++;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex--;
+                            }
                         } else {
-                            $select.activeIndex--;
+                            if ($select.activeIndex > 0) {
+                                $select.activeIndex--;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex++;
+                            }
                         }
                     } else {
                         this.currentSelectedItem = $select.activeIndex;
@@ -705,15 +688,19 @@ export function formlyConfig(
                         $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
                     }
 
-                    let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
-                    if (nextItem === -1) {
-                        nextItem = this.nextFocusableChoice($item, $select, direction.UP);
-                    }
-                    $select.activeIndex = nextItem;
+                    let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+
                     $scope.$applyAsync((scope) => {
                         if (scope["uiSelectContainer"]) {
                             scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
                             scope["uiSelectContainer"].querySelector("input").focus();
+                        }
+                        if (currentItem < $select.items.length - 1) {
+                            this.currentSelectedItem = currentItem++;
+                            $select.activeIndex = currentItem;
+                        } else {
+                            this.currentSelectedItem = $select.items.length - 1;
+                            $select.activeIndex = -1;
                         }
                     });
                     this.toggleScrollbar();
@@ -756,7 +743,7 @@ export function formlyConfig(
                     </ui-select-match>
                     <ui-select-choices class="ps-child"
                         on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
-                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: 100">
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: bpFieldUserPicker.maxItems">
                         <div class="ui-select-choice-item"
                             ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
                             bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
@@ -822,12 +809,6 @@ export function formlyConfig(
                 });
             }
 
-            let direction = Object.freeze({
-                UP: -1,
-                SAME: 0,
-                DOWN: 1
-            });
-
             $scope.$on("$destroy", function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
@@ -838,30 +819,10 @@ export function formlyConfig(
             $scope.bpFieldUserPicker = {
                 $select: null,
                 items: [],
+                maxItems: 100,
                 isOpen: false,
                 isChoiceSelected: function (item, $select): boolean {
                     return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
-                },
-                nextFocusableChoice: function ($item, $select, dir): number {
-                    let itemIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
-                    if (itemIndex !== -1 && dir === direction.SAME) {
-                        return itemIndex;
-                    } else if (dir === direction.DOWN) {
-                        for (let i = itemIndex + 1; i < $select.items.length; i++) {
-                            let isSelected = this.isChoiceSelected($select.items[i], $select);
-                            if (!isSelected) {
-                                return i;
-                            }
-                        }
-                    } else if (dir === direction.UP) {
-                        for (let i = itemIndex - 1; i >= 0; i--) {
-                            let isSelected = this.isChoiceSelected($select.items[i], $select);
-                            if (!isSelected) {
-                                return i;
-                            }
-                        }
-                    }
-                    return -1;
                 },
                 toggleScrollbar: function (removeScrollbar?: boolean) {
                     if (!removeScrollbar) {
@@ -902,9 +863,19 @@ export function formlyConfig(
                 onHighlight: function (option, $select) {
                     if (this.isChoiceSelected(option, $select)) {
                         if ($select.activeIndex > this.currentSelectedItem) {
-                            $select.activeIndex++;
+                            if ($select.activeIndex < $select.items.length - 1) {
+                                $select.activeIndex++;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex--;
+                            }
                         } else {
-                            $select.activeIndex--;
+                            if ($select.activeIndex > 0) {
+                                $select.activeIndex--;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex++;
+                            }
                         }
                     } else {
                         this.currentSelectedItem = $select.activeIndex;
@@ -926,15 +897,19 @@ export function formlyConfig(
                         $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
                     }
 
-                    let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
-                    if (nextItem === -1) {
-                        nextItem = this.nextFocusableChoice($item, $select, direction.UP);
-                    }
-                    $select.activeIndex = nextItem;
+                    let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+
                     $scope.$applyAsync((scope) => {
                         if (scope["uiSelectContainer"]) {
                             scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
                             scope["uiSelectContainer"].querySelector("input").focus();
+                        }
+                        if (currentItem < $select.items.length - 1) {
+                            this.currentSelectedItem = currentItem++;
+                            $select.activeIndex = currentItem;
+                        } else {
+                            this.currentSelectedItem = $select.items.length - 1;
+                            $select.activeIndex = -1;
                         }
                     });
                     this.toggleScrollbar();

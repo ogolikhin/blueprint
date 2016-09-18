@@ -4,9 +4,9 @@ using Model;
 using Model.ArtifactModel;
 using Model.Factories;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
-using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -64,31 +64,26 @@ namespace ArtifactStoreTests
 
         #region 400 Bad Request tests
         [TestCase]
-        [TestRail(0)]
-        [Description("Create, save, publish Process artifact, checks returned result is 400 Bad Request.")]
-        public void PublishArtifact_SingleSavedArtifact_BadRequest()
+        [TestRail(165971)]
+        [Description("Send empty list of artifacts, checks returned result is 400 Bad Request.")]
+        public void PublishArtifact_EmptyArtifactList_BadRequest()
         {
             // Setup:
-            string tokenValue = _user.Token?.AccessControlToken;
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            string requestBody = "[]";
+            List<IArtifactBase> artifacts = new List<IArtifactBase>();
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestBodyAndGetResponse(
-                PUBLISH_PATH,
-                RestRequestMethod.POST,
-                requestBody,
-                "application/json"),
-                "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", PUBLISH_PATH);
-            
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifacts(artifacts, _user),
+            "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", PUBLISH_PATH);
+
             // Verify:
             const string expectedMessage = "{\"message\":\"The list of artifact Ids is empty.\",\"errorCode\":103}";
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
         }
 
         [TestCase(BaseArtifactType.Actor)]
-        [TestRail(0)]
+        [TestRail(165972)]
         [Description("Create, save, publish Actor artifact.  Verify 400 Bad Request is returned for an artifact that is already published.")]
+
         public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
@@ -107,9 +102,9 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized tests
         [TestCase(BaseArtifactType.Actor)]
-        [TestRail(165860)]
+        [TestRail(165975)]
         [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
-        public void PublishArtifact_SingleSavedArtifact_Unauthorized(BaseArtifactType artifactType)
+        public void PublishArtifact_InvalidToken_Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -133,9 +128,9 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found tests
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
-        [Description("Create, save, publish Process artifact, checks returned result is 404 Not Found.")]
-        public void PublishArtifact_SinglePublishedArtifact_NotFound(BaseArtifactType artifactType)
+        [TestRail(165973)]
+        [Description("Create, save, publish, delete Process artifact by another user, checks returned result is 404 Not Found.")]
+        public void PublishArtifact_PublishedArtifactDeletedByAnotherUser_NotFound(BaseArtifactType artifactType)
         {
             // Setup:
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
@@ -148,16 +143,38 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
                 "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
 
+            // Verify:
             string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " is deleted.\",\"errorCode\":101}";
             Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
         }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(165976)]
+        [Description("Try to publish an artifact with a non-existent Artifact ID.  Verify 404 Not Found is returned.")]
+        public void PublishArtifact_NonExistentArtifactId_NotFound(int nonExistentArtifactId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Replace ProjectId with a fake ID that shouldn't exist.
+            artifact.Id = nonExistentArtifactId;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
+                "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedMessage = "{\"message\":\"Item with Id " + artifact.Id + " is not found.\",\"errorCode\":101}";
+            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+        }
+
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
-        [Description("Create, save, publish document artifact, checks returned result is 409 Not Found.")]
-        public void PublishArtifact_SaveDependendArtifacts_Conflict(BaseArtifactType artifactType)
+        [TestRail(165974)]
+        [Description("Create, save, parent artifact with two children, publish parent artifact, checks returned result is 409 Not Found.")]
+        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishParent_Conflict(BaseArtifactType artifactType)
         {
             // Setup:
             IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
@@ -166,6 +183,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(parentArtifact, _user),
                 "'POST {0}' should return 409 Conflict if the Artifact has dependend artifact which not published!", PUBLISH_PATH);
 
+            // Verify:
             string expectedMessage = "{\"message\":\"Artifact with Id " + parentArtifact.Id + " is deleted.\",\"errorCode\":101}";
             Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
         }

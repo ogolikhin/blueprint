@@ -171,7 +171,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public discard(all: boolean = false) {
 
         this.changesets.reset().forEach((it: IChangeSet) => {
-            this[it.key as string].value = it.value;
+            if (!all) {
+                this[it.key as string].value = it.value;
+            }
         });
 
         this.customProperties.discard(all);

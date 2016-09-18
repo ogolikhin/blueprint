@@ -6,6 +6,7 @@ export interface IMetaDataService {
     add(projectId?: number);
     remove(projectId?: number);
     getArtifactItemType(itemTypeId: number, projectId: number): Models.IItemType;
+    getSubArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType;
     getArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[];
     getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[]
 }
@@ -119,11 +120,22 @@ export class MetaDataService implements IMetaDataService {
         return itemType;
     }
 
+    public getSubArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType {
+        let itemType = {} as  Models.IItemType;
+        let metadata = this.get(projectId);
+        if (metadata) {
+            itemType = metadata.data.subArtifactTypes.filter((it: Models.IItemType) => {
+                return it.id === itemTypeId;
+            })[0];
+        } 
+        
+        return itemType;
+    }
+
 
     public getArtifactPropertyTypes(projectId: number, itemTypeId: number): Models.IPropertyType[] {
         let properties: Models.IPropertyType[] = [];
 
-//        let itemType: Models.IItemType = this.getArtifactType(_artifact, subArtifact, _project);
         let projectMeta = this.get(projectId);
         let itemType = this.getArtifactItemType(projectId, itemTypeId);        
 
@@ -138,11 +150,13 @@ export class MetaDataService implements IMetaDataService {
         let properties: Models.IPropertyType[] = [];
 
         let projectMeta = this.get(projectId);
-        let itemType = this.getArtifactItemType(projectId, itemTypeId);        
-        
-        properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
-        //add custom property types
-        properties.push(...this.getCustomPropertyTypes(projectMeta, itemType));
+        let itemType = this.getSubArtifactItemType(projectId, itemTypeId);        
+        if (itemType) {
+
+            properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
+            //add custom property types
+            properties.push(...this.getCustomPropertyTypes(projectMeta, itemType));
+        }
 
         return properties;
 

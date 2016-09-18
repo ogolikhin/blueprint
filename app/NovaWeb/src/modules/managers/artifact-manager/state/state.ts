@@ -81,10 +81,10 @@ export class ArtifactState implements IArtifactState {
                 this.lockedby = Enums.LockedByEnum.None;
             }
             if (value.info) {
-                this.lockdatetime = this.state.lock.info.utcLockedDateTime;
+                this.lockdatetime = value.info.utcLockedDateTime;
             }            
             if (value.info) {
-                this.lockowner = this.state.lock.info.lockOwnerDisplayName;
+                this.lockowner = value.info.lockOwnerDisplayName;
             }            
         }
         this.set({lock: value});

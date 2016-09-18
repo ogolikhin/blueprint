@@ -160,6 +160,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                key: name,
                value: value              
            } as IChangeSet;
+           this.artifact[name] = value;
            this.changesets.add(changeset, oldValue);
            
            this.lock(); 
@@ -206,7 +207,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         let deferred = this.services.getDeferred<IState>();
 
         this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-            this.artifactState.set({lock: result[0]} as IState);
+            this.artifactState.lock = result[0];
             deferred.resolve(this.artifactState.get());
         }).catch((err) => {
             deferred.reject(err);

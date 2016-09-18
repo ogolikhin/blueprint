@@ -217,7 +217,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             }
 
             if (subArtifact) {
-                this.editor.load(subArtifact, artifact.metadata.getSubArtifactPropertyTypes());
+                this.editor.load(subArtifact, subArtifact.metadata.getSubArtifactPropertyTypes());
             } else {
                 this.editor.load(artifact, artifact.metadata.getArtifactPropertyTypes());
             }
@@ -247,6 +247,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             });
         } catch (ex) {
             this.messageService.addError(ex);
+            throw ex;
         }       
     }
 

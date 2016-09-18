@@ -8,7 +8,7 @@ export interface IMetaData {
     
     getArtifactPropertyType(propertyTypeId?: number): Models.IPropertyType;
     getArtifactPropertyTypes(): Models.IPropertyType[];
-    getSubArtifactPropertyTypes(propertyTypeId?: number): Models.IPropertyType[];
+    getSubArtifactPropertyTypes(): Models.IPropertyType[];
 }
 
 export class MetaData implements IMetaData {
@@ -27,12 +27,12 @@ export class MetaData implements IMetaData {
         return this.getArtifactPropertyTypes().filter((it: Models.IPropertyType) => it.id === propertyTypeId);
     }
 
-    public getArtifactPropertyTypes(propertyTypeId?: number): Models.IPropertyType[] {
+    public getArtifactPropertyTypes(): Models.IPropertyType[] {
         return  this.item.getServices().metaDataService.getArtifactPropertyTypes(this.item.projectId, this.item.itemTypeId);
     }
     
-    public getSubArtifactPropertyTypes(subArtifactId: number): Models.IPropertyType[] {
-        return this.item.getServices().metaDataService.getSubArtifactPropertyTypes( this.item.projectId, subArtifactId);
+    public getSubArtifactPropertyTypes(): Models.IPropertyType[] {
+        return this.item.getServices().metaDataService.getSubArtifactPropertyTypes( this.item.projectId, this.item.itemTypeId);
 
     }
 

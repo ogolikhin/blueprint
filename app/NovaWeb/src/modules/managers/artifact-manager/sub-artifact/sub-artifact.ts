@@ -3,7 +3,8 @@ import { Models } from "../../../main/models";
 import { ChangeTypeEnum, IChangeCollector, ChangeSetCollector, IChangeSet } from "../";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs } from "../docrefs";
-import { CustomProperties } from "../properties";
+import { ArtifactProperties } from "../properties";
+import { IMetaData, MetaData } from "../metadata";
 import {
     IStatefulArtifact,
     IArtifactProperties,
@@ -15,28 +16,22 @@ import {
 } from "../../models";
 
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
-    private artifact: IStatefulArtifact;
-    private subArtifact: Models.ISubArtifact;
     private changesets: IChangeCollector;
-    private services: IStatefulArtifactServices;
 
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
+    public specialProperties: IArtifactProperties;
+    public metadata: IMetaData;
 
-    constructor(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
-        this.artifact = artifact;
-        this.subArtifact = subArtifact;
+    constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
+        this.metadata = new MetaData(this);
         this.changesets = new ChangeSetCollector();
-        this.services = services;
-        this.customProperties = new CustomProperties(this).initialize(artifact);
+        this.customProperties = new ArtifactProperties(this).initialize(subArtifact.customPropertyValues);
+        this.specialProperties = new ArtifactProperties(this).initialize(subArtifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
 
-        // this.artifact.artifactState.observable
-        //     .filter((it: IState) => !!it.lock)
-        //     .distinctUntilChanged()
-        //     .subscribeOnNext(this.onLockChanged, this);
     }
 
     //TODO.
@@ -91,9 +86,10 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return this.subArtifact.prefix;
     }
 
-    public get parentId(): number {
-        return this.subArtifact.parentId;
+    public get projectId(): number {
+        return this.artifact.projectId;
     }
+
 
     //TODO autkin temp
     public get specificPropertyValues() {
@@ -120,7 +116,8 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
             this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
                 .then((subArtifact: Models.ISubArtifact) => {
                     this.subArtifact = subArtifact;
-                    this.customProperties.initialize(subArtifact);
+                    this.customProperties.initialize(subArtifact.customPropertyValues);
+                    this.specialProperties.initialize(subArtifact.specificPropertyValues);
                     //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
                     this.isLoaded = true;
                     deferred.resolve(this);

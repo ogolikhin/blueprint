@@ -47,7 +47,8 @@ export interface IArtifactProperties {
 export interface IArtifactState {
     initialize(artifact: Models.IArtifact): IArtifactState; 
     get(): IState;
-    set(value: any): void;
+    //set(value: any): void;
+    lock: Models.ILockResult;
     lockedBy: Enums.LockedByEnum;
     lockDateTime?: Date;
     lockOwner?: string;
@@ -93,6 +94,7 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
 
 export interface IStatefulSubArtifact extends IStatefulItem {
+    metadata: IMetaData;
     load(timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
 }
 

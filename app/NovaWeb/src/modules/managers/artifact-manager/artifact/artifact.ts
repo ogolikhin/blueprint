@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { Models, Enums } from "../../../main/models";
 import { ArtifactState, IArtifactState} from "../state";
-=======
 import { Models, Enums, Relationships } from "../../../main/models";
-import { ArtifactState} from "../state";
->>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { ArtifactProperties, SpecialProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
@@ -15,15 +10,7 @@ import { IArtifactRelationships, ArtifactRelationships } from "../relationships"
 import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
 import {
     IStatefulArtifact,
-<<<<<<< HEAD
     IArtifactProperties,
-    IStatefulArtifactServices,
-=======
-    // IStatefulSubArtifact,
-    IArtifactState,
-    IArtifactProperties,
-    IState,
->>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
     IIStatefulArtifact,
     IArtifactAttachmentsResultSet
 } from "../../models";
@@ -277,13 +264,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             });
     }
 
-<<<<<<< HEAD
-=======
-    public getServices(): IStatefulArtifactServices {
-        return this.services;
-    }
-
->>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
     private changes(): Models.IArtifact {
         // if (this._hasValidationErrors) {
         //     throw new Error("App_Save_Artifact_Error_400_114");

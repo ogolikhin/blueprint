@@ -255,8 +255,16 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             this.isShowMore = true;
             this.showMoreActiveTabIndex = 1;
         }
-
+        this.refreshView();
         event.stopPropagation();
+    }
+
+    private refreshView() {
+        setTimeout(() => {
+            var elem: any = document.getElementsByClassName("modal-dialog")[0].parentElement;
+            elem.style.width = "" + (elem.clientWidth - 1) + "px"; 
+            elem.style.width = "" + (elem.clientWidth + 1) + "px"; 
+        }, 100);
     }
 
     public getActiveHeader(): string {

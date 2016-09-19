@@ -70,6 +70,7 @@
     <Compile Include="ArtifactHistoryTests.cs" />
     <Compile Include="AttachmentTests.cs" />
     <Compile Include="DeleteArtifactTests.cs" />
+    <Compile Include="DiscardArtifactTests.cs" />
     <Compile Include="DiscussionsTests.cs" />
     <Compile Include="ExpandedArtifactTreeTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />

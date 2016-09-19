@@ -3,9 +3,11 @@ import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
-import { IProjectManager, Models, IProjectRepository, ISelectionManager } from "../../../";
+import { Models } from "../../../models";
+import { IProjectManager } from "../../../../managers";
+import { IProjectService } from "../../../../managers/project-manager/project-service";
 
-
+ 
 export interface IArtifactPickerController {
     propertyMap: any;  
     selectedItem?: any;
@@ -28,30 +30,26 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
 
     static $inject = [
+        "$uibModalInstance", 
+        "dialogSettings",
         "$scope", 
         "localization", 
-        "$uibModalInstance", 
         "projectManager", 
-        "selectionManager", 
-        "projectRepository", 
-        "dialogService", 
-        "dialogSettings",
+        "projectService", 
         "dialogData"];
         
     constructor(
+        $instance: ng.ui.bootstrap.IModalServiceInstance,
+        dialogSettings: IDialogSettings,
         private $scope: ng.IScope,
         private localization: ILocalizationService,
-        $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private manager: IProjectManager,
-        private selectionManager: ISelectionManager,
-        private projectRepository: IProjectRepository,
+        private projectManager: IProjectManager,
+        private projectService: IProjectService,
         private dialogService: IDialogService,
-        dialogSettings: IDialogSettings,
         private dialogData: IArtifactPickerFilter
     ) {
-        super($uibModalInstance, dialogSettings);
-        dialogService.dialogSettings.okButton = localization.get("App_Button_Ok");
-        let project = this.manager.getProject(this.selectionManager.selection.artifact.projectId);
+        super($instance, dialogSettings);
+        let project = this.projectManager.getSelectedProject();
         this.updateCurrentProjectInfo(project);       
 
         $scope.$on("$destroy", () => {
@@ -149,16 +147,16 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
                     //TODO: for now it display custom icons just for already loaded projects
                     let projectID = params.data.projectId;
-                    let loadedProjects = this.manager.projectCollection.getValue();
-                    let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
-                    if (projectID && isProjectLoaded !== -1) {
-                        let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
-                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                            icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-                        }
-                    }
+                    // let loadedProjects = this.manager.projectCollection.getValue();
+                    // let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
+                    // if (projectID && isProjectLoaded !== -1) {
+                    //     let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
+                    //     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    //         icon = `<bp-item-type-icon
+                    //             item-type-id="${artifactType.id}"
+                    //             item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                    //     }
+                    // }
                 }
                 return `${icon}<span>${name}</span>`;
             },
@@ -174,8 +172,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             let artifactId = null;
             if (prms) {
                 artifactId = prms.id;
-            }
-            this.projectRepository.getArtifacts(this.projectId, artifactId)
+            } 
+            this.projectService.getArtifacts(this.projectId, artifactId)
                 .then((nodes: Models.IArtifact[]) => {                    
                     const filtered = nodes.filter(this.filterCollections);
                     filtered.forEach((value: Models.IArtifact) => {
@@ -188,7 +186,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         } else {
             this.projectName = this.localization.get("App_Header_Name");
             let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-            this.projectRepository.getFolders(id)
+            this.projectService.getFolders(id)
                 .then((nodes: Models.IProjectNode[]) => {                  
                     this.reloadTree(nodes, id);
                 }, (error) => {
@@ -223,12 +221,15 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 this.projectId = item.id;
                 this.reloadTree(null);
                 this.tree.showLoading();
-                this.projectRepository.getProject(this.projectId).then(
+                this.projectService.getProject(this.projectId).then(
                     (project: Models.IProject) => {
                         this.updateCurrentProjectInfo(project);
-                        this.projectRepository.getArtifacts(this.projectId)
+                        this.projectService.getArtifacts(this.projectId)
                             .then((nodes: Models.IArtifact[]) => {
                                 const filtered = nodes.filter(this.filterCollections);
+                                filtered.forEach((value: Models.IArtifact) => {
+                                    value.parent = project;
+                                });                   
                                 this.projectView = false;
                                 this.reloadTree(filtered);
                             }, (error) => {
@@ -246,7 +247,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public doSync = (node: ITreeNode): Models.IArtifact => {
         if (!this.projectView) {
-            let artifact = this.manager.getArtifact(node.id);
+            let artifact = this.projectManager.getArtifact(node.id);
             if (artifact && artifact.hasChildren) {
                 angular.extend(artifact, {
                     loaded: node.loaded,

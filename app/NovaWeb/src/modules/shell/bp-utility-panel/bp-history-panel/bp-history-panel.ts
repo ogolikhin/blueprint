@@ -1,5 +1,6 @@
-﻿import { ILocalizationService, IStateManager } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+﻿import { ILocalizationService } from "../../../core";
+import { Models} from "../../../main";
+import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
@@ -22,8 +23,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "selectionManager",
-        "stateManager"
+        "artifactManager"
     ];
 
     private loadLimit: number = 10;
@@ -39,11 +39,10 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         private localization: ILocalizationService,
         private artifactHistory: IArtifactHistory,
-        protected selectionManager: ISelectionManager,
-        protected stateManager: IStateManager,
+        protected artifactManager: IArtifactManager,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -70,7 +69,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             });
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         if (artifact == null) {
             this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);

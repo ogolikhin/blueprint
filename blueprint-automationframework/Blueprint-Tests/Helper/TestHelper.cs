@@ -206,6 +206,32 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and save multiple artifacts using the Blueprint application server address from the TestConfiguration file.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <returns>The list of artifacts created.</returns>
+        public List<IArtifactBase> CreateAndSaveMultipleArtifacts(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfArtifacts,
+            IArtifactBase parent = null)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IArtifact artifact = CreateAndSaveArtifact(project, user, artifactType, parent);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
+        /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
         /// <param name="project">The project where the artifact is to be created.</param>

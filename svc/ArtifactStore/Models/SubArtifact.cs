@@ -17,6 +17,8 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public ItemTypePredefined PredefinedType { get; set; }
         [JsonProperty]
+        public string Prefix { get; set; }
+        [JsonProperty]
         public bool HasChildren { get; set; } = false;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<SubArtifact> Children { get; set; }

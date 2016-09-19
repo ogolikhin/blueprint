@@ -2,7 +2,8 @@
 import { ILocalizationService } from "../../../core";
 import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../shared";
 import { Models } from "../../models";
-import { IProjectManager } from "../../services";
+//import { IProjectManager } from "../../services";
+import { IProjectManager } from "../../../managers";
 
 
 export interface IOpenProjectController {
@@ -38,7 +39,10 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         id: "id",
         type: "type",
         name: "name", 
-        hasChildren: "hasChildren"
+        hasChildren: "hasChildren",
+        children: "children",
+        loaded: "loaded",
+        open: "open"
     };
 
     public scrollOptions = {

@@ -4,7 +4,7 @@ import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { Models } from "../../../main/models";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
-import { ISelectionManager } from "../../../main/services";
+import { ISelectionManager } from "../../../managers";
 
 actorController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
 export function actorController(
@@ -14,8 +14,10 @@ export function actorController(
     messageService: IMessageService,
     dialogService: IDialogService,
     selectionManager: ISelectionManager) {
-    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];       
-
+    let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];
+    if (currentModelVal != null) {
+        currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix, currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
+    }
 
     $scope.deleteBaseActor = () => {    
         deleteBaseActor();
@@ -39,6 +41,10 @@ export function actorController(
         return path;
     }
 
+    function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]) : boolean {
+        return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;        
+    }
+
     function setBaseActor() {
         const dialogSettings = <IDialogSettings>{
             okButton: localization.get("App_Button_Open"),
@@ -55,10 +61,10 @@ export function actorController(
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             
             if (artifact) {
-                
-                if (selectionManager.selection && selectionManager.selection.artifact) {
-                    if (selectionManager.selection.artifact.id === artifact.id) {
-                        messageService.addError(localization.get("App_Properties_Actor_SameBaseActor_ErrorMessage", "Actor cannot be set as its own parent"));
+                let selected = selectionManager.getArtifact();
+                if (selected) {
+                    if (selected.id === artifact.id) {
+                        messageService.addError("App_Properties_Actor_SameBaseActor_ErrorMessage"); // , "Actor cannot be set as its own parent")
                         return;
                     }
                 }
@@ -66,12 +72,14 @@ export function actorController(
                         deleteBaseActor();
                     
                 }             
+                var artifactPath = getArtifactPath(artifact);                
                 $scope.model[$scope.options.key] = {
                     actorName: artifact.name,
                     actorId: artifact.id,
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
-                    pathToProject: getArtifactPath(artifact)
+                    pathToProject: artifactPath,
+                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     
                 };
                 currentModelVal = $scope.model[$scope.options.key];                

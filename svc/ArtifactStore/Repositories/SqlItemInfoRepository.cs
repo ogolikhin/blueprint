@@ -29,5 +29,16 @@ namespace ArtifactStore.Helpers
             parameters.Add("@revisionId", revisionId);
             return (await _connectionWrapper.QueryAsync<ItemLabel>("GetItemsLabels", parameters, commandType: CommandType.StoredProcedure));
         }
+
+        internal async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
+        }
+
     }
 }

@@ -112,14 +112,12 @@ export class BaseDialogController implements IDialogController {
         return true;
     }
 
-    public $instance: ng.ui.bootstrap.IModalServiceInstance;
 
     static $inject = ["$uibModalInstance", "dialogSettings"];
     constructor(
-        private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, 
-        private dialogSettings: IDialogSettings) {
+        public $instance: ng.ui.bootstrap.IModalServiceInstance, 
+        public dialogSettings: IDialogSettings) {
 
-        this.$instance = $uibModalInstance;
     }
 
     public ok() {

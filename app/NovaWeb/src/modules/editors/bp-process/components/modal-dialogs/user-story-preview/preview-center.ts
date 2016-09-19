@@ -2,7 +2,8 @@
 import {IArtifactProperty, IProcess, IProcessShape} from "../../../models/process-models";
 import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
-import {IArtifactService, IProjectManager} from "../../../../../main/services/";
+import {IArtifactManager} from "../../../../../managers";
+import { IStatefulArtifact} from "../../../../../managers/models";
 
 import {Models} from "../../../../../main";
 
@@ -18,7 +19,7 @@ export class PreviewCenterController {
     public isUserSystemProcess: boolean;
     private subArtifactId: number;
     private isTabsVisible: boolean;
-    private showMoreActiveTab: boolean[] = [true, false];
+    private showMoreActiveTabIndex: number = 0;
 
     public title: string;
     public acceptanceCriteria: string;
@@ -33,9 +34,8 @@ export class PreviewCenterController {
         "$window",
         "$scope",
         "$rootScope",
-        "artifactService",
-        "projectManager",
-        "$sce"
+        "$sce",
+        "artifactManager"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -60,13 +60,11 @@ export class PreviewCenterController {
 
         } else if (type === "nfr") {
             this.isTabsVisible = true;
-            this.showMoreActiveTab[0] = true;
-            this.showMoreActiveTab[1] = false;
+            this.showMoreActiveTabIndex = 0;
 
         } else if (type === "br") {
             this.isTabsVisible = true;
-            this.showMoreActiveTab[0] = false;
-            this.showMoreActiveTab[1] = true;
+            this.showMoreActiveTabIndex = 1;
         }
         this.resizeContentAreas(this.isTabsVisible);
         event.stopPropagation();
@@ -113,9 +111,10 @@ export class PreviewCenterController {
         private $window: ng.IWindowService,
         private $scope: ng.IScope,
         private $rootScope: ng.IRootScopeService,
-        private artifactService: IArtifactService,
-        private projectManager: IProjectManager,
-        private $sce: ng.ISCEService) {
+        private $sce: ng.ISCEService,
+        private artifactManager: IArtifactManager
+        // private projectManager: IProjectManager,
+        ) {
 
         this.isReadonly = $scope.$parent["vm"].isReadonly;
 
@@ -136,18 +135,17 @@ export class PreviewCenterController {
         const userStoryId = this.centerTask.userStoryId;
         if (userStoryId) {
             let revisionId: number = null;
-
-            this.artifactService.getArtifact(userStoryId).then((it: Models.IArtifact) => {
-                it.customPropertyValues.forEach((property) => {
-                    let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
+            this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
+                it.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
+                    let propertyValue = it.customProperties.get(propertyType.id);
                     if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
-                        this.title = property.value;
+                        this.title = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
-                        this.acceptanceCriteria = property.value;
+                        this.acceptanceCriteria = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
-                        this.businessRules = property.value;
+                        this.businessRules = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
-                        this.nonfunctionalRequirements = property.value;
+                        this.nonfunctionalRequirements = propertyValue.value;
                     }
                 });
             });

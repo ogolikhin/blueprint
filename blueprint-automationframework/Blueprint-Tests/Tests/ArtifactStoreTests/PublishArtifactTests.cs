@@ -436,15 +436,12 @@ namespace ArtifactStoreTests
             }
         }
 
-        #endregion Private functions
-
-        #region private functions
         private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(BaseArtifactType artifactType)
         {
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
             return artifactChain;
         }
-        #endregion private functions
+        #endregion Private functions
     }
 }

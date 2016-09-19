@@ -333,7 +333,7 @@ namespace ArtifactStore.Repositories
                     }
                     //populate label as display names.
                     ItemLabel itemLabel;
-                    if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
+                    if (itemLabelsDictionary != null && itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
                     {
                         subArtifactEntry.Value.DisplayName = itemLabel.Label;
                     }

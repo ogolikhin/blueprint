@@ -99,7 +99,7 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 
 export interface IStatefulSubArtifact extends IStatefulItem {
     metadata: IMetaData;
-    load(timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
+    load(force?: boolean, timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
 }
 
 export interface IStatefulArtifactServices {

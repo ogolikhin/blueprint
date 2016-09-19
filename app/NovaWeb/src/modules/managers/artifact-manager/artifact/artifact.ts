@@ -184,7 +184,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     private isLoaded = false;
-    public load(force: boolean = false):  ng.IPromise<IStatefulArtifact> {
+    public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (force || !this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {

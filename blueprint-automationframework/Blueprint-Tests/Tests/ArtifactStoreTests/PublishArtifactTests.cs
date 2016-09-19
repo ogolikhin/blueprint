@@ -9,6 +9,9 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Newtonsoft.Json;
+using Common;
+using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -20,6 +23,7 @@ namespace ArtifactStoreTests
 
         private IUser _user = null;
         private IProject _project = null;
+        private List<IProject> _allProjects = null;
 
         [SetUp]
         public void SetUp()
@@ -27,6 +31,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _allProjects = ProjectFactory.GetAllProjects(_user);
         }
 
         [TearDown]
@@ -263,11 +268,14 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
                 "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
 
-            // Verify:{"message":"Artifact with Id 80654 has nothing to publish.","errorCode":114}
+            // Verify:
             string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has nothing to publish.\",\"errorCode\":114}";
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
 
         }
+
+
+
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
@@ -291,10 +299,6 @@ namespace ArtifactStoreTests
         }
 
         #endregion 401 Unauthorized tests
-
-        #region 403 Forbidden tests
-        //public void PublishArtifact_xxxx_403Forbidden()
-        #endregion 403 Forbidden tests
 
         #region 404 Not Found tests
         [TestCase(BaseArtifactType.Process)]
@@ -359,6 +363,45 @@ namespace ArtifactStoreTests
             string expectedMessage = "{\"message\":\"Specified artifacts have dependent artifacts to publish.\",\"errorCode\":120,\"errorContent\":{";
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
         }
+
+        #region Custom data tests
+
+        [Category(Categories.CustomData)]
+        [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
+        [TestRail(166007)]
+        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 400 Bad Request is returned.")]
+        public void PublishArtifact_PropertyOutOfRange_BadRequest(string toChange, string changeTo)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifact.Id),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
+                "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has validation errors.\",\"errorCode\":121}";
+            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+
+            /*
+                        var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifact(artifact.Id, _user),
+                            "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
+            */
+        }
+        #endregion Custom data tests
         #endregion 409 Conflict tests
 
         #region Private functions
@@ -440,6 +483,50 @@ namespace ArtifactStoreTests
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
             return artifactChain;
+        }
+
+        /// <summary>
+        /// Gets the custom data project.
+        /// </summary>
+        /// <returns>The custom data project.</returns>
+        private IProject GetCustomDataProject()
+        {
+            const string customDataProjectName = "Custom Data";
+
+            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
+                "No project was found named '{0}'!", customDataProjectName);
+
+            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
+            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
+
+            return projectCustomData;
+        }
+
+        /// <summary>
+        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// </summary>
+        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
+        /// <param name="artifactId">The ID of the artifact to save.</param>
+        /// <param name="user">The user updating the artifact.</param>
+        /// <returns>The body content returned from ArtifactStore.</returns>
+        private string UpdateInvalidArtifact(string requestBody,
+            int artifactId)
+        {
+            ThrowIf.ArgumentNull(_user, nameof(_user));
+
+            string tokenValue = _user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
+            const string contentType = "application/json";
+
+            var response = restApi.SendRequestBodyAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                requestBody,
+                contentType);
+
+            return response.Content;
         }
         #endregion Private functions
     }

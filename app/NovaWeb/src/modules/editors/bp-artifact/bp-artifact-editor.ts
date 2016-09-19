@@ -11,7 +11,6 @@ import {
 
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
-import { Helper } from "../../shared/utils/helper";
 
 export { 
     ILocalizationService, 
@@ -90,8 +89,16 @@ export class BpArtifactEditor extends BpBaseEditor {
                 onChange: this.onValueChange.bind(this)
             });
 
-            Helper.updateFieldReadOnlyState(field, this.artifact.artifactState);                
-                this.onFieldUpdate(field);
+            let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+            field.templateOptions["isReadOnly"] = isReadOnly;
+            if (isReadOnly) {
+                if (field.key !== "documentFile" &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {
+                    field.type = "bpFieldReadOnly";
+                }
+            }           
+            this.onFieldUpdate(field);
 
         });
 

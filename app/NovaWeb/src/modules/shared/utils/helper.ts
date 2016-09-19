@@ -1,5 +1,4 @@
 ﻿import { Models, Enums} from "../../main";
-import { IArtifactState } from "../../managers/models";
 
 export class Helper {
 
@@ -157,18 +156,6 @@ export class Helper {
 
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
-    }
-
-    public static updateFieldReadOnlyState(field: AngularFormly.IFieldConfigurationObject, artifactState: IArtifactState) {
-        let isReadOnly = artifactState.readonly || artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-        field.templateOptions["isReadOnly"] = isReadOnly;
-        if (isReadOnly) {
-            if (field.key !== "documentFile" &&
-                field.type !== "bpFieldImage" &&
-                field.type !== "bpFieldInheritFrom") {
-                field.type = "bpFieldReadOnly";
-            }
-        }
-    }
+    }    
 }
 

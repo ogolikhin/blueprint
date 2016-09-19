@@ -24,6 +24,7 @@ export class ShapeModelMock {
     private static shapeModelMock: ShapeModelMock;
     private sampleUserTask: IUserTaskShape;
     private sampleSystemTask: ISystemTaskShape;
+    private rootScope: ng.IRootScopeService;
 
     private shapesFactory: ShapesFactory;
 
@@ -40,7 +41,7 @@ export class ShapeModelMock {
             propertyValues: {}
         };
 
-        var rootScope: ng.IRootScopeService = {
+        this.rootScope = {
             index: "",
             $apply: null,
             $applyAsync: null,
@@ -61,14 +62,14 @@ export class ShapeModelMock {
             $$isolateBindings: null,
             $$phase: null
         };
-        rootScope["config"] = {};
-        rootScope["config"].labels = {
+        this.rootScope["config"] = {};
+        this.rootScope["config"].labels = {
             "ST_Persona_Label": "Persona",
             "ST_Colors_Label": "Color",
             "ST_Comments_Label": "Comments"
         };
 
-        this.shapesFactory = new ShapesFactory(rootScope);
+        this.shapesFactory = new ShapesFactory(this.rootScope);
 
         this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask);
         this.sampleUserTask.propertyValues["persona"] = this.shapesFactory.createPersonaValue("Persona");
@@ -155,5 +156,9 @@ export class ShapeModelMock {
 
     public SystemDecisionmock(): IProcessShape {
         return this.shapesFactory.createModelSystemDecisionShape(1, 0, 35, 6, 0);
+    }
+
+    public RootscopeMock(): ng.IRootScopeService{
+        return this.rootScope;
     }
 }

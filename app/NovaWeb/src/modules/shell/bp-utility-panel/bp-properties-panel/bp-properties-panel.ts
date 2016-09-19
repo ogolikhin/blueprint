@@ -41,7 +41,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
-    private selectedArtifact: Models.IArtifact;
+    private selectedArtifact: IStatefulArtifact;
     private selectedSubArtifact: Models.ISubArtifact;
 
     constructor(
@@ -228,7 +228,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                Helper.updateFieldReadOnlyState(field, this.itemState);              
+                Helper.updateFieldReadOnlyState(field, this.selectedArtifact.artifactState);              
 
                 this.onFieldUpdate(field);                                
 

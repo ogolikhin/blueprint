@@ -90,7 +90,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                 onChange: this.onValueChange.bind(this)
             });
 
-                Helper.updateFieldReadOnlyState(field, this.artifactState);                
+            Helper.updateFieldReadOnlyState(field, this.artifact.artifactState);                
                 this.onFieldUpdate(field);
 
         });

@@ -81,7 +81,7 @@ export class ArtifactManager  implements IArtifactManager {
     public removeAll(projectId?: number) {
         
         this.artifactList = this.artifactList.filter((it: IStatefulArtifact) => {
-            if (!projectId || it.projectId !== projectId) {
+            if (projectId || it.projectId === projectId) {
                 this.metadataService.remove(it.projectId);
                 return false;
             }

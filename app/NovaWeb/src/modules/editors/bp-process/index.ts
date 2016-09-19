@@ -8,6 +8,8 @@ import {ICommunicationManager, CommunicationManager} from "./services/communicat
 import {ContextualHelpDirective} from "./components/modal-dialogs/contextual-help";
 
 import {ClearTextDirective} from "./components/modal-dialogs/clear-text";
+import {UploadImageDirective} from "./components/modal-dialogs/upload-image";
+
 
 import {PreviewCenterComponent} from "./components/modal-dialogs/user-story-preview/preview-center";
 import {PreviewWingDirective} from "./components/modal-dialogs/user-story-preview/preview-wing";
@@ -24,7 +26,8 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("processService", ProcessService)
     .service("communicationManager", CommunicationManager)
     .directive("contextualHelp", ContextualHelpDirective.factory())
-    .directive("cleartext", () => new ClearTextDirective());
+    .directive("cleartext", () => new ClearTextDirective())
+    .directive("uploadImage", UploadImageDirective.factory());
 
 export {IProcessService} from "./services/process/process.svc";
 export {

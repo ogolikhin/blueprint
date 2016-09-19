@@ -1,14 +1,14 @@
 ﻿import { ILocalizationService, IMessageService } from "../../core";
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact, IDispose, IArtifactState} from "../models";
+import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
 //import { StatefulArtifact } from "../artifact-manager/artifact";
 
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
 import { SelectionSource } from "../selection-manager";
 
-import { IArtifactManager, ISelection } from "../../managers";
+import { IArtifactManager } from "../../managers";
 
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
@@ -49,7 +49,7 @@ export class ProjectManager  implements IProjectManager {
 
     }
 
-    private onChange(artifact: IArtifactState) {
+    private onChange(artifact: IStatefulArtifact) {
         this.projectCollection.onNext(this._projectCollection.getValue());
     }
 
@@ -59,7 +59,7 @@ export class ProjectManager  implements IProjectManager {
             delete this.statechangesubscriber;
         }
         if (artifact) {
-            this.statechangesubscriber = artifact.artifactState.observable.subscribeOnNext(this.onChange, this);
+            this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
         }
     }
     

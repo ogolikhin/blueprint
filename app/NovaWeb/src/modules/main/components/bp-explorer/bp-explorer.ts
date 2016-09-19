@@ -2,11 +2,11 @@
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 
 import { IProjectManager, IArtifactManager} from "../../../managers";
-import { SelectionSource } from "../../../managers/artifact-manager";
-import { IStatefulArtifact, IArtifactNode, IArtifactState } from "../../../managers/models";
+import { SelectionSource,IArtifactState } from "../../../managers/artifact-manager";
+import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
 
 export class ProjectExplorer implements ng.IComponentOptions {
-    public template: string = require("./bp-explorer.html");
+    public template: string = require("./bp-explorer.html");    
     public controller: Function = ProjectExplorerController;
     public transclude: boolean = true;
 }

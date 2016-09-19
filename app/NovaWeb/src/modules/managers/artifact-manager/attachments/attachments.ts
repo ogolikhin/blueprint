@@ -9,9 +9,7 @@ import {
 
 import { 
     IBlock,
-    IIStatefulItem,
-    IIStatefulArtifact,
-    IIStatefulSubArtifact
+    IIStatefulItem
 } from "../../models";
 
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
@@ -30,7 +28,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private changeset: IChangeCollector;
     private isLoaded: boolean;
 
-    constructor(private statefulItem: IIStatefulArtifact | IIStatefulSubArtifact) {
+    constructor(private statefulItem: IIStatefulItem) {
         this.attachments = [];
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);

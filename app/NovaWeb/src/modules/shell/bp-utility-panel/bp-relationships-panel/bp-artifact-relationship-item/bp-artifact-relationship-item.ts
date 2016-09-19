@@ -3,8 +3,7 @@ import { Helper } from "../../../../shared";
 import { Relationships } from "../../../../main";
 import { IArtifactManager, SelectionSource } from "../../../../managers";
 import { IStatefulArtifact } from "../../../../managers/models";
-import { IArtifactRelationships } from "../artifact-relationships.svc";
-//import { ISelectionManager, SelectionSource } from "../../../../managers";
+import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -23,9 +22,8 @@ export interface IResult {
 
 export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
-        "$log",
         "localization",
-        "artifactRelationships",
+        "relationshipDetailsService",
         "artifactManager"
     ];
 
@@ -37,9 +35,8 @@ export class BPArtifactRelationshipItemController {
     public selectable: boolean = false;
 
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,
+        private relationshipDetailsService: IRelationshipDetailsService,
         private artifactManager: IArtifactManager) {
 
     }
@@ -122,7 +119,7 @@ export class BPArtifactRelationshipItemController {
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
-        return this.artifactRelationships.getRelationshipDetails(artifactId)
+        return this.relationshipDetailsService.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
                     this.artifact.projectId = relationshipExtendedInfo.pathToProject[0].itemId;

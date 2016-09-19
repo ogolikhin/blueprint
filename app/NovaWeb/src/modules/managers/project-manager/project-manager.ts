@@ -9,7 +9,7 @@ import { IProjectService } from "./project-service";
 import { SelectionSource } from "../selection-manager";
 
 import { IArtifactManager } from "../../managers";
-
+import { IMetaDataService } from "../artifact-manager/metadata";
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
@@ -37,6 +37,7 @@ export class ProjectManager  implements IProjectManager {
         "messageService", 
         "projectService", 
         "artifactManager", 
+        "metadataService",
         "statefulArtifactFactory"
     ];
 
@@ -45,6 +46,7 @@ export class ProjectManager  implements IProjectManager {
         private messageService: IMessageService,
         private projectService: IProjectService,
         private artifactManager: IArtifactManager,
+        private metadataService: IMetaDataService,
         private statefulArtifactFactory: IStatefulArtifactFactory) {
 
     }
@@ -102,19 +104,23 @@ export class ProjectManager  implements IProjectManager {
             if (project) {
                 this.artifactManager.selection.setArtifact(project.artifact, SelectionSource.Explorer);
             } else {
-                angular.extend(data, {
-                    projectId: data.id,
-                    itemTypeId: Enums.ItemTypePredefined.Project,
-                    prefix: "PR",
-                    permissions: 4095,
-                    predefinedType: Enums.ItemTypePredefined.Project,
-                    hasChildren: true
-                });
-                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(data);
-                this.artifactManager.add(statefulArtifact);
-                project = new Project(statefulArtifact);
-                this.projectCollection.getValue().unshift(project);
-                this.loadArtifact(project.id);
+                this.metadataService.load(data.id).then(() => {
+                    angular.extend(data, {
+                        projectId: data.id,
+                        itemTypeId: Enums.ItemTypePredefined.Project,
+                        prefix: "PR",
+                        permissions: 4095,
+                        predefinedType: Enums.ItemTypePredefined.Project,
+                        hasChildren: true
+                    });
+
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(data);
+                    this.artifactManager.add(statefulArtifact);
+                    project = new Project(statefulArtifact);
+                    this.projectCollection.getValue().unshift(project);
+                    this.loadArtifact(project.id);
+
+                });                
 
             }
 
@@ -133,19 +139,14 @@ export class ProjectManager  implements IProjectManager {
                     projectId = artifact.projectId;    
                 } 
             }
-            let projectsToRemove: Project[] = [];
             let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
                 let result = true;
                 if (all || it.id === projectId) {
-                    projectsToRemove.push(it);
                     this.artifactManager.removeAll(it.projectId);
                     result = false;
                 }
                 return result;
             });
-            if (!projectsToRemove.length) {
-                throw new Error("Project_NotFound");
-            }
 
             this.projectCollection.onNext(_projectCollection);
             this.artifactManager.selection.setArtifact((this.projectCollection.getValue()[0] || {} as Project).artifact, SelectionSource.Explorer);

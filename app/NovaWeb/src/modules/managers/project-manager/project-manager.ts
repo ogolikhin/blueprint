@@ -139,19 +139,14 @@ export class ProjectManager  implements IProjectManager {
                     projectId = artifact.projectId;    
                 } 
             }
-            let projectsToRemove: Project[] = [];
             let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
                 let result = true;
                 if (all || it.id === projectId) {
-                    projectsToRemove.push(it);
                     this.artifactManager.removeAll(it.projectId);
                     result = false;
                 }
                 return result;
             });
-            if (!projectsToRemove.length) {
-                throw new Error("Project_NotFound");
-            }
 
             this.projectCollection.onNext(_projectCollection);
             this.artifactManager.selection.setArtifact((this.projectCollection.getValue()[0] || {} as Project).artifact, SelectionSource.Explorer);

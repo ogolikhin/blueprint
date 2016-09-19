@@ -71,6 +71,7 @@ export class ArtifactManager  implements IArtifactManager {
         let stateArtifact: IStatefulArtifact;
         this.artifactList = this.artifactList.filter((artifact: IStatefulArtifact) => {
             if (artifact.id === id) {
+                artifact.dispose();
                 stateArtifact = artifact;
                 return false;
             }
@@ -83,6 +84,7 @@ export class ArtifactManager  implements IArtifactManager {
         
         this.artifactList = this.artifactList.filter((it: IStatefulArtifact) => {
             if (projectId || it.projectId === projectId) {
+                it.dispose();
                 this.metadataService.remove(it.projectId);
                 return false;
             }

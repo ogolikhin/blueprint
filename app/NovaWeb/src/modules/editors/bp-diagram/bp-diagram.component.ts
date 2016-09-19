@@ -168,20 +168,22 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     private initSubArtifacts(diagram: IDiagram) {
+        const subArtifacts = [];
         if (diagram.shapes) {
             diagram.shapes.forEach((shape) => {
                 this.initPrefixAndType(diagram.diagramType, shape, shape);
                 const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, shape);
-                this.artifact.subArtifactCollection.add(stateful);
+                subArtifacts.push(stateful);
             });
         }
         if (diagram.connections) {
             diagram.connections.forEach((connection) => {
                 this.initPrefixAndType(diagram.diagramType, connection, connection);
                 const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, connection);
-                this.artifact.subArtifactCollection.add(stateful);
+                subArtifacts.push(stateful);
             });
         }
+        this.artifact.subArtifactCollection.initialise(subArtifacts);
     }
 
     private initPrefixAndType(diagramType: string, item: IItem, element: IDiagramElement) {

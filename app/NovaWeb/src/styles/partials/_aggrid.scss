@@ -223,67 +223,67 @@ $has-children-padding-before-arrow: 3px;
   }
 
   .ag-cell.is-business-process .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e800';
+    content: $icon-business-process;
   }
 
   .ag-cell.is-domain-diagram .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e801';
+    content: $icon-domain-diagram;
   }
 
   .ag-cell.is-actor .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e802';
+    content: $icon-actor;
   }
 
   .ag-cell.is-use-case .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e803';
+    content: $icon-use-case;
   }
 
   .ag-cell.is-process .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e804';
+    content: $icon-process;
   }
 
   .ag-cell.is-user-story .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e805';
+    content: $icon-user-story;
   }
 
   .ag-cell.is-use-case-diagram .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e806';
+    content: $icon-use-case-diagram;
   }
 
   .ag-cell.is-ui-mockup .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e807';
+    content: $icon-ui-mockup;
   }
 
   .ag-cell.is-textual-requirement .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e808';
+    content: $icon-textual-requirement;
   }
 
   .ag-cell.is-storyboard .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e809';
+    content: $icon-storyboard:;
   }
 
   .ag-cell.is-project .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80a';
+    content: $icon-project;
   }
 
   .ag-cell.is-glossary .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80b';
+    content: $icon-glossary;
   }
 
   .ag-cell.is-generic-diagram .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80c';
+    content: $icon-generic-diagram;
   }
 
   .ag-cell.is-folder .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80d';
+    content: $icon-folder;
   }
 
   .ag-row-group-expanded .ag-cell.is-folder .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80f';
+    content: $icon-folder-open;
   }
 
   .ag-cell.is-document .ag-group-value .ag-group-value-wrapper i::before {
-    content: '\e80e';
+    content: $icon-document;
   }
 
   .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper i,

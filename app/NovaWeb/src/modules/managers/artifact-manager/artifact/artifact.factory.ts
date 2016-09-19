@@ -1,12 +1,18 @@
 import { IMessageService } from "../../../core";
 import { Models } from "../../../main/models";
-import { StatefulArtifactServices } from "../services";
-import { IMetaDataService, IStatefulSubArtifact, IStatefulArtifact,  StatefulArtifact, StatefulSubArtifact } from "../";
+import { StatefulArtifactServices, IStatefulArtifactServices } from "../services";
 import { IArtifactService } from "./artifact.svc";
+import { 
+    IMetaDataService, 
+    IStatefulSubArtifact, 
+    IStatefulArtifact,  
+    StatefulArtifact, 
+    StatefulSubArtifact,
+    IArtifactRelationshipsService 
+} from "../";
 import {
     // IStatefulArtifact, 
     ISession, 
-    IStatefulArtifactServices, 
     IArtifactAttachmentsService
 } from "../../models";
 
@@ -24,6 +30,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "messageService",
         "artifactService",
         "artifactAttachments",
+        "artifactRelationships",
         "metadataService"
     ];
 
@@ -35,6 +42,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private messageService: IMessageService,
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
+        private relationshipsService: IArtifactRelationshipsService,
         private metadataService: IMetaDataService
         ) {
 
@@ -44,6 +52,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.messageService,
             this.artifactService,
             this.attachmentService,
+            this.relationshipsService,
             this.metadataService);
     }
 

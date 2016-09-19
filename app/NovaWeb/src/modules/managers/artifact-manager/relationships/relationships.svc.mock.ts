@@ -1,4 +1,4 @@
-import { IArtifactRelationshipsService, IArtifactRelationshipsResultSet } from "./relationships.svc";
+import { IArtifactRelationshipsService } from "./relationships.svc";
 import { Relationships } from "../../../main";
 
 export class ArtifactRelationshipsMock implements IArtifactRelationshipsService {
@@ -9,12 +9,10 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
 
     constructor(private $q: ng.IQService) { }
 
-    public getRelationships(artifactId: number): ng.IPromise<IArtifactRelationshipsResultSet> {
+    public getRelationships(artifactId: number): ng.IPromise<Relationships.IRelationship[]> {
         const deferred = this.$q.defer<any>();
-
-        
-        var artifactList = {
-            "manualTraces": [{
+        const artifactList = [
+            {
                 "artifactId": "1",
                 "artifactTypePrefix": "PRE",
                 "artifactName": "Artifact1",
@@ -29,21 +27,21 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
                 "hasAccess": true,
                 "primitiveItemTypePredefined": "1"
             }, {
-                    "artifactId": "3",
-                    "artifactTypePrefix": "PRE",
-                    "artifactName": "Artifact1",
-                    "itemId": "4",
-                    "itemTypePrefix": "PRE",
-                    "itemName": "Item1",
-                    "projectId": "1",
-                    "projectName": "Project1",
-                    "rraceDirection": {},
-                    "traceType": {},
-                    "suspect": false,
-                    "hasAccess": true,
-                    "primitiveItemTypePredefined": 1
-            }],
-            "otherTraces": [{
+                "artifactId": "3",
+                "artifactTypePrefix": "PRE",
+                "artifactName": "Artifact1",
+                "itemId": "4",
+                "itemTypePrefix": "PRE",
+                "itemName": "Item1",
+                "projectId": "1",
+                "projectName": "Project1",
+                "rraceDirection": {},
+                "traceType": {},
+                "suspect": false,
+                "hasAccess": true,
+                "primitiveItemTypePredefined": 1
+            },
+            {
                 "artifactId": "1",
                 "artifactTypePrefix": "PRE",
                 "artifactName": "Artifact1",
@@ -58,20 +56,20 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
                 "hasAccess": true,
                 "primitiveItemTypePredefined": "1"
             }, {
-                    "artifactId": "3",
-                    "artifactTypePrefix": "PRE",
-                    "artifactName": "Artifact1",
-                    "itemId": "4",
-                    "itemTypePrefix": "PRE",
-                    "itemName": "Item1",
-                    "projectId": "1",
-                    "projectName": "Project1",
-                    "rraceDirection": {},
-                    "traceType": {},
-                    "suspect": false,
-                    "hasAccess": true,
-                    "primitiveItemTypePredefined": 1
-                },
+                "artifactId": "3",
+                "artifactTypePrefix": "PRE",
+                "artifactName": "Artifact1",
+                "itemId": "4",
+                "itemTypePrefix": "PRE",
+                "itemName": "Item1",
+                "projectId": "1",
+                "projectName": "Project1",
+                "rraceDirection": {},
+                "traceType": {},
+                "suspect": false,
+                "hasAccess": true,
+                "primitiveItemTypePredefined": 1
+            },
             {
                 "artifactId": "3",
                 "artifactTypePrefix": "PRE",
@@ -86,8 +84,8 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
                 "suspect": false,
                 "hasAccess": true,
                 "primitiveItemTypePredefined": 1
-            }]
-        };
+            }
+        ];
 
         deferred.resolve(artifactList);
         return deferred.promise;

@@ -2,9 +2,7 @@
 import { IMessageService, IWindowVisibility, ILocalizationService } from "../../core";
 import { IUser, ISession } from "../../shell";
 import { Models, Enums } from "../models";
-import { IProjectManager } from "../../managers";
-
-
+import { IProjectManager, IArtifactManager } from "../../managers";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -13,17 +11,26 @@ export class MainView implements ng.IComponentOptions {
     public controllerAs = "$main";
 }
 
-
-
 export class MainViewController {
     private _subscribers: Rx.IDisposable[];
-    static $inject: [string] = ["$state", "session", "projectManager", "messageService", "localization", "windowVisibility"];
+    
+    static $inject: [string] = [
+        "$state", 
+        "session", 
+        "projectManager", 
+        "messageService", 
+        "localization",
+        "artifactManager",
+        "windowVisibility"
+    ];
+
     constructor(
         private $state: ng.ui.IState,
         private session: ISession,
         private projectManager: IProjectManager,
         private messageService: IMessageService,
         private localization: ILocalizationService,
+        private artifactManager: IArtifactManager,
         private windowVisibility: IWindowVisibility) {
     }
 
@@ -42,6 +49,7 @@ export class MainViewController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.messageService.dispose();
         this.projectManager.dispose();
+        this.artifactManager.dispose();
     }
 
     private onVisibilityChanged = (isHidden: boolean) => {

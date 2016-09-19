@@ -1,15 +1,22 @@
-import { Models } from "../../../main/models";
+import { Models, Relationships } from "../../../main/models";
 // import { ArtifactState} from "../state";
-import { ChangeTypeEnum, IChangeCollector, ChangeSetCollector, IChangeSet } from "../";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { ArtifactProperties, SpecialProperties } from "../properties";
+import { IStatefulArtifactServices } from "../services";
 import { IMetaData, MetaData } from "../metadata";
+import { 
+    ChangeTypeEnum, 
+    IChangeCollector, 
+    ChangeSetCollector, 
+    IChangeSet, 
+    IArtifactRelationships, 
+    ArtifactRelationships
+} from "../";
 import {
     IStatefulArtifact,
     IArtifactProperties,
     IState,
-    IStatefulArtifactServices,
     IIStatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactAttachmentsResultSet
@@ -23,12 +30,14 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     public customProperties: IArtifactProperties;
     public specialProperties: IArtifactProperties;
     public metadata: IMetaData;
+    public relationships: IArtifactRelationships;
 
     constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
         this.metadata = new MetaData(this);
         this.customProperties = new ArtifactProperties(this).initialize(subArtifact.customPropertyValues);
         this.specialProperties = new SpecialProperties(this).initialize(subArtifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
+        this.relationships = new ArtifactRelationships(this);
         this.docRefs = new DocumentRefs(this);
 //        this.changesets = new ChangeSetCollector(this.artifact);
 
@@ -104,9 +113,9 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     }
 
     private isLoaded = false;
-    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
+    public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-        if (!this.isLoaded) {
+        if (force || !this.isLoaded) {
             this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
                 .then((subArtifact: Models.ISubArtifact) => {
                     this.subArtifact = subArtifact;
@@ -146,6 +155,13 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
                 this.attachments.initialize(result.attachments);
                 this.docRefs.initialize(result.documentReferences);
                 
+                return result;
+            });
+    }
+
+    public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
+        return this.services.relationshipsService.getRelationships(this.artifact.id, this.id)
+            .then( (result: Relationships.IRelationship[]) => {
                 return result;
             });
     }

@@ -1,13 +1,22 @@
 import { IMessageService } from "../../../core/";
-import { IArtifactService } from "../artifact/";
-
+import { ISession } from "../../models";
 import { 
-    IStatefulArtifactServices,
-    ISession, 
-    IArtifactAttachmentsService,
-    
- } from "../../models";
-import { IMetaDataService } from "../";
+    IArtifactService,
+    IMetaDataService, 
+    IArtifactAttachmentsService, 
+    IArtifactRelationshipsService
+} from "../";
+
+export interface IStatefulArtifactServices {
+    //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
+    getDeferred<T>(): ng.IDeferred<T>;
+    messageService: IMessageService;
+    session: ISession;
+    artifactService: IArtifactService;
+    attachmentService: IArtifactAttachmentsService;
+    relationshipsService: IArtifactRelationshipsService;
+    metaDataService: IMetaDataService;
+}
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
     constructor(private $q: ng.IQService,
@@ -15,6 +24,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _messageService: IMessageService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
+                private _relationshipsService: IArtifactRelationshipsService,
                 private _metadataService: IMetaDataService) {
     }
 
@@ -29,12 +39,17 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get messageService(): IMessageService {
         return this._messageService;
     }
+
     public get artifactService(): IArtifactService {
         return this._artifactService;
     }
     
     public get attachmentService(): IArtifactAttachmentsService {
         return this._attachmentService;
+    }
+    
+    public get relationshipsService(): IArtifactRelationshipsService {
+        return this._relationshipsService;
     }
 
     public get metaDataService(): IMetaDataService {

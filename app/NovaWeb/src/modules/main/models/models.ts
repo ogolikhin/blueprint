@@ -27,6 +27,7 @@ export interface ISubArtifactNode {
     itemTypeId: number;
     displayName: string;
     predefinedType: ItemTypePredefined;
+    prefix: string;
     hasChildren: boolean;
     children?: ISubArtifactNode[];
 }

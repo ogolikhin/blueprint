@@ -1,4 +1,4 @@
-﻿import { Models} from "../../main";
+﻿import { Models, Enums} from "../../main";
 
 export class Helper {
 
@@ -156,6 +156,6 @@ export class Helper {
 
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
-    }
+    }    
 }
 

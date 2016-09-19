@@ -14,9 +14,9 @@ import {
 export interface IArtifactRelationships extends IBlock<Relationships.IRelationship[]> {
     observable: Rx.IObservable<Relationships.IRelationship[]>;
     get(refresh?: boolean): ng.IPromise<Relationships.IRelationship[]>;
-    add(docrefs: Relationships.IRelationship[]);
-    remove(docrefs: Relationships.IRelationship[]);
-    update(docrefs: Relationships.IRelationship[]);
+    add(relationships: Relationships.IRelationship[]);
+    remove(relationships: Relationships.IRelationship[]);
+    update(relationships: Relationships.IRelationship[]);
     discard();
 }
 
@@ -47,10 +47,11 @@ export class ArtifactRelationships implements IArtifactRelationships {
             deferred.resolve(this.relationships);
             this.subject.onNext(this.relationships);
         } else {
-            // this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactRelationshipsResultSet) => {
-            //     deferred.resolve(result.documentReferences);
-            //     this.isLoaded = true;
-            // });
+            this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
+                deferred.resolve(result);
+                this.isLoaded = true;
+                this.subject.onNext(this.relationships);
+            });
         }
 
         return deferred.promise;

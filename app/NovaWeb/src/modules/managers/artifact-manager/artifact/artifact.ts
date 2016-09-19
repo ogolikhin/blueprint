@@ -1,17 +1,30 @@
+<<<<<<< HEAD
 import { Models, Enums } from "../../../main/models";
 import { ArtifactState, IArtifactState} from "../state";
+=======
+import { Models, Enums, Relationships } from "../../../main/models";
+import { ArtifactState} from "../state";
+>>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
-import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
 import { ArtifactProperties, SpecialProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
+import { IStatefulArtifactServices } from "../services";
+import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
+import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
 import {
     IStatefulArtifact,
+<<<<<<< HEAD
     IArtifactProperties,
     IStatefulArtifactServices,
+=======
+    // IStatefulSubArtifact,
+    IArtifactState,
+    IArtifactProperties,
+    IState,
+>>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
     IIStatefulArtifact,
-
     IArtifactAttachmentsResultSet
 } from "../../models";
 
@@ -20,6 +33,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactState;
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
+    public relationships: IArtifactRelationships;
     public customProperties: IArtifactProperties;
     public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
@@ -37,6 +51,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.specialProperties = new SpecialProperties(this).initialize(artifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
+        this.relationships = new ArtifactRelationships(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
         this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
 
@@ -187,7 +202,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     private isLoaded = false;
-    public load(force: boolean = false):  ng.IPromise<IStatefulArtifact> {
+    public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (force || !this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
@@ -254,7 +269,21 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 return result;
             });
     }
+    
+    public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
+        return this.services.relationshipsService.getRelationships(this.id)
+            .then( (result: Relationships.IRelationship[]) => {
+                return result;
+            });
+    }
 
+<<<<<<< HEAD
+=======
+    public getServices(): IStatefulArtifactServices {
+        return this.services;
+    }
+
+>>>>>>> f45b3a2e9af96a254d5e00ee8f553c0a958f1418
     private changes(): Models.IArtifact {
         // if (this._hasValidationErrors) {
         //     throw new Error("App_Save_Artifact_Error_400_114");

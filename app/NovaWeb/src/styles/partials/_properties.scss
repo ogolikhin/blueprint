@@ -824,20 +824,26 @@ pagecontent, bp-properties-panel {
 
         .icon{
           display: inline-block;
-          padding-left: $padding-smaller;
+          padding-left: 9px ;
           padding-top: 28px;
+          cursor: pointer;
+          &.disabled{
+            opacity: $default-desabled-opacity;
+            cursor: not-allowed;
+          }
         }
 
         .actor-image-wrapper{
           display: inline-flex;
           align-items: center;
           width:90px;
-          height:117px;
+          height:120px;
           border: 1px solid $gray-lightest;
+          box-sizing: content-box;
 
           span{
             width:90px;
-            height:117px;
+            height:120px;
             background: url('images/icons/user-default.svg') left top no-repeat;
             display: inline-block;
             background-color: $gray;
@@ -846,16 +852,13 @@ pagecontent, bp-properties-panel {
 
           label{
             width:90px;
-            height:117px;
+            height:120px;
             display: block;
-            align-items: center;
-            line-height: 120px;
             margin:0;
-            img {
-              max-width: 100%;
-              max-height: 117px;
-              display:inline;
-            }
+            box-sizing: content-box;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
           }
 
           ~label{
@@ -871,9 +874,11 @@ pagecontent, bp-properties-panel {
             background-color: $blue-light;
             color: $white;
             padding: 4px 3px 4px 4px;
-            border-radius: 2px;
+            border-radius: $border-radius-small;
+            cursor:pointer;
             &.disabled{
               background-color: $gray;
+              cursor: not-allowed;
             }
           }
         }
@@ -888,6 +893,13 @@ pagecontent, bp-properties-panel {
       min-width: $property-input-width;
       width: 100%;
 
+      .icon{
+        cursor:pointer;
+        &.disabled{
+          opacity: $default-desabled-opacity;
+          cursor: not-allowed;
+        }
+      }
       .din{
         display: inline-block;
         padding-top: 10px;
@@ -899,6 +911,21 @@ pagecontent, bp-properties-panel {
         font-size: $font-size-normal;
         width: calc(100% - #{$property-label-width});
 
+        button{
+          &.disabled, &[disabled]{
+            background-color: $gray-lighter;
+            border-color: $gray-light;
+            color: $gray-light;
+            opacity: 1;
+          }
+        }
+
+        .bp-input-group-addon{
+          &.icon-wrapper{
+            padding-top:10px;
+            padding-right: 2px;
+          }
+        }
         .inheritance-path {
           border-color: $gray-lighter;
           background-color: $gray-lightest;
@@ -912,10 +939,7 @@ pagecontent, bp-properties-panel {
           padding: 0 $property-padding-default;
           margin-top: 2px;
           margin-right: 8px;
-          max-width: 404px;
-          ~ div{
-              display:flex;
-          }
+          max-width: calc(100% - 40px);
           .path-wrapper{
             overflow: hidden;
             text-overflow: ellipsis;
@@ -982,11 +1006,6 @@ pagecontent, bp-properties-panel {
         &.fonticon2-attachment{
           padding-top: 10px;
         }
-      }
-      .btn.btn-bp-small{
-        margin-left:5px;
-        padding:5px 9px;
-        min-width: 20px;
       }
       .form-control-wrapper {
         display: table-cell;
@@ -1186,6 +1205,14 @@ pagecontent, bp-properties-panel {
 
     span {
       color: inherit;
+    }
+    .btn-bp-small{
+      margin-left:5px;
+      padding:5px 9px;
+      min-width: 20px;
+      &.disabled{
+        background-color: $gray-lightest;
+      }
     }
   }
 

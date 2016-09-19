@@ -96,14 +96,15 @@ export class BpArtifactEditor extends BpBaseEditor {
                 onChange: this.onValueChange.bind(this)
             });
 
-            field.templateOptions["isReadOnly"] = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-            if (this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                if (field.key !== "documentFile"  &&
+            let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+            field.templateOptions["isReadOnly"] = isReadOnly;
+            if (isReadOnly) {
+                if (field.key !== "documentFile" &&
                     field.type !== "bpFieldImage" &&
-                    field.type !== "bpFieldInheritFrom") {  
-                    field.type = "bpFieldReadOnly";                     
+                    field.type !== "bpFieldInheritFrom") {
+                    field.type = "bpFieldReadOnly";
                 }
-            }
+            }           
             this.onFieldUpdate(field);
 
         });

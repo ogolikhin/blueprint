@@ -1,1 +1,1 @@
-export { StatefulArtifactServices } from "./services";
+export { StatefulArtifactServices, IStatefulArtifactServices } from "./services";

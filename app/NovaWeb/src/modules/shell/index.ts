@@ -11,7 +11,7 @@ import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
-import {ArtifactRelationships} from "./bp-utility-panel/bp-relationships-panel/artifact-relationships.svc";
+import {RelationshipDetailsService, IRelationshipDetailsService} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";
@@ -32,7 +32,7 @@ import {UsersAndGroupsService} from "./bp-utility-panel/bp-discussion-panel/bp-c
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 
-export { IUser, ISession}
+export { IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService }
 export { IServerLogger } from "./log/server-logger.svc";
 export { IMessageService, IMessage, MessageType, MessageService, Message, } from "../core";
 
@@ -51,7 +51,7 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
-    .service("artifactRelationships", ArtifactRelationships)
+    .service("relationshipDetailsService", RelationshipDetailsService)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("mentionService", MentionService)
     .service("usersAndGroupsService", UsersAndGroupsService)

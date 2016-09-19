@@ -54,36 +54,57 @@
   //text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3);
 }
 
-.icon-business-process::before { content: '\e800'; } // ''
-.icon-bp-shape::before { content: '\e800'; } // ''
-.icon-bp-connector::before { content: '\e800'; } // ''
-.icon-domain-diagram::before { content: '\e801'; } // ''
-.icon-dd-shape::before { content: '\e801'; } // ''
-.icon-dd-connector::before { content: '\e801'; } // ''
-.icon-actor::before { content: '\e802'; } // ''
-.icon-use-case::before { content: '\e803'; } // ''
-.icon-step::before { content: '\e803'; } // ''
-.icon-process::before { content: '\e804'; } // '' //StoryTeller
-.icon-user-story::before { content: '\e805'; } // ''
-.icon-use-case-diagram::before { content: '\e806'; } // ''
-.icon-ucd-shape::before { content: '\e806'; } // ''
-.icon-ucd-connector::before { content: '\e806'; } // ''
-.icon-ui-mockup::before { content: '\e807'; } // ''
-.icon-ui-shape::before { content: '\e807'; } // ''
-.icon-ui-connector::before { content: '\e807'; } // ''
-.icon-textual-requirement::before { content: '\e808'; } // ''
-.icon-storyboard::before { content: '\e809'; } // ''
-.icon-sb-shape::before { content: '\e809'; } // ''
-.icon-sb-connector::before { content: '\e809'; } // ''
-.icon-project::before { content: '\e80a'; } // ''
-.icon-glossary::before { content: '\e80b'; } // ''
-.icon-term::before { content: '\e80b'; } // ''
-.icon-generic-diagram::before { content: '\e80c'; } // ''
-.icon-gd-shape::before { content: '\e80c'; } // ''
-.icon-gd-connector::before { content: '\e80c'; } // ''
+$icon-business-process: '\e802';
+$icon-domain-diagram: '\e805';
+$icon-actor: '\e800' ;
+$icon-use-case: '\e811';
+$icon-process: '\e80d';
+$icon-user-story: '\e812';
+$icon-use-case-diagram: '\e810';
+$icon-ui-mockup: '\e80f';
+$icon-textual-requirement: '\e80e';
+$icon-storyboard: '\e80c';
+$icon-project: '\e80a';
+$icon-glossary: '\e809';
+$icon-generic-diagram: '\e808';
+$icon-folder: '\e807';
+$icon-folder-open: '\e806';
+$icon-document: '\e804';
+$icon-subartifact: '\e822';
+$icon-baseline: '\e801' ;
+$icon-collection: '\e803';
+
+.icon-business-process::before { content: $icon-business-process; } // ''
+.icon-bp-shape::before { content: $icon-subartifact; } // ''
+.icon-bp-connector::before { content: $icon-subartifact; } // ''
+.icon-domain-diagram::before { content: $icon-domain-diagram; } // ''
+.icon-dd-shape::before { content: $icon-subartifact; } // ''
+.icon-dd-connector::before { content: $icon-subartifact; } // ''
+.icon-actor::before { content: $icon-actor; } // ''
+.icon-use-case::before { content: $icon-use-case; } // ''
+.icon-step::before { content: $icon-subartifact; } // ''
+.icon-process::before { content: $icon-process; } // '' //StoryTeller
+.icon-user-story::before { content: $icon-user-story; } // ''
+.icon-use-case-diagram::before { content: $icon-use-case-diagram; } // ''
+.icon-ucd-shape::before { content: $icon-subartifact; } // ''
+.icon-ucd-connector::before { content: $icon-subartifact; } // ''
+.icon-ui-mockup::before { content: $icon-ui-mockup; } // ''
+.icon-ui-shape::before { content: $icon-subartifact; } // ''
+.icon-ui-connector::before { content: $icon-subartifact; } // ''
+.icon-textual-requirement::before { content: $icon-textual-requirement; } // ''
+.icon-storyboard::before { content: $icon-storyboard; } // ''
+.icon-sb-shape::before { content: $icon-subartifact; } // ''
+.icon-sb-connector::before { content: $icon-subartifact; } // ''
+.icon-project::before { content: $icon-project; } // ''
+.icon-glossary::before { content: $icon-glossary; } // ''
+.icon-term::before { content: $icon-subartifact; } // ''
+.icon-generic-diagram::before { content: $icon-generic-diagram; } // ''
+.icon-gd-shape::before { content: $icon-subartifact; } // ''
+.icon-gd-connector::before { content: $icon-subartifact; } // ''
 .icon-primitive-folder::before,
-.icon-folder::before { content: '\e80d'; } // ''
-.icon-document::before { content: '\e80e'; } // ''
+.icon-folder::before { content: $icon-folder; } // ''
+.icon-document::before { content: $icon-document; } // ''
+.icon-subartifact:before { content: $icon-subartifact; } /* '' */
 
 .thumb {
        width: 40px;

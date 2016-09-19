@@ -2,7 +2,8 @@
 import {IArtifactProperty, IProcess, IProcessShape} from "../../../models/process-models";
 import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
-import {IArtifactService, IProjectManager} from "../../../../../main/services/";
+import {IArtifactManager} from "../../../../../managers";
+import { IStatefulArtifact} from "../../../../../managers/models";
 
 import {Models} from "../../../../../main";
 
@@ -33,9 +34,8 @@ export class PreviewCenterController {
         "$window",
         "$scope",
         "$rootScope",
-        "artifactService",
-        "projectManager",
-        "$sce"
+        "$sce",
+        "artifactManager"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -113,9 +113,10 @@ export class PreviewCenterController {
         private $window: ng.IWindowService,
         private $scope: ng.IScope,
         private $rootScope: ng.IRootScopeService,
-        private artifactService: IArtifactService,
-        private projectManager: IProjectManager,
-        private $sce: ng.ISCEService) {
+        private $sce: ng.ISCEService,
+        private artifactManager: IArtifactManager
+        // private projectManager: IProjectManager,
+        ) {
 
         this.isReadonly = $scope.$parent["vm"].isReadonly;
 
@@ -136,10 +137,9 @@ export class PreviewCenterController {
         const userStoryId = this.centerTask.userStoryId;
         if (userStoryId) {
             let revisionId: number = null;
-
-            this.artifactService.getArtifact(userStoryId).then((it: Models.IArtifact) => {
+            this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
                 it.customPropertyValues.forEach((property) => {
-                    let propertyType = this.projectManager.getPropertyTypes(it.projectId, property.propertyTypeId);
+                    let propertyType = it.metadata.getArtifactPropertyType();
                     if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
                         this.title = property.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {

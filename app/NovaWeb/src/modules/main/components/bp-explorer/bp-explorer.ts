@@ -1,7 +1,9 @@
 ﻿import { Models} from "../../models";
-import { IProjectManager, ISelectionManager, SelectionSource } from "../../services";
-
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
+
+import { IProjectManager, IArtifactManager} from "../../../managers";
+import { SelectionSource } from "../../../managers/artifact-manager";
+import { IStatefulArtifact, IArtifactNode, IArtifactState } from "../../../managers/models";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -13,10 +15,10 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     private _selectedArtifactId: number;
     private _subscribers: Rx.IDisposable[]; 
-    public static $inject: [string] = ["projectManager", "selectionManager"];
+    public static $inject: [string] = ["projectManager", "artifactManager"];
     constructor(
         private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager) { }
+        private artifactManager: IArtifactManager) { }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -25,11 +27,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.selectionManager.selectionObservable
-                .filter(s => s != null && s.source === SelectionSource.Explorer)
-                .map(s => s.artifact)
-                .distinctUntilChanged()
-                .subscribeOnNext(this.onSelectArtifact, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
@@ -45,8 +43,12 @@ export class ProjectExplorerController {
         itemTypeId: "itemTypeId",
         name: "name",
         hasChildren: "hasChildren",
-        artifacts: "children"
+        parentNode: "parentNode",
+        children: "children",
+        loaded: "loaded",
+        open: "open"
     }; 
+
 
     public columns = [{
         headerName: "",
@@ -73,8 +75,7 @@ export class ProjectExplorerController {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
                 let name = Helper.escapeHTMLText(params.data.name);
-
-                let artifactType = this.projectManager.getArtifactType(params.data as Models.IArtifact);
+                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemType();
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifactType.id}"
@@ -102,42 +103,49 @@ export class ProjectExplorerController {
         }
     }
 
-    private onSelectArtifact = (artifact: Models.IArtifact) => {
+    private onSelectArtifact = (artifact: IStatefulArtifact) => {
         // so, just need to do an extra check if the component has created
         if (this.tree && artifact) {
             this._selectedArtifactId = artifact.id;
             this.tree.selectNode(this._selectedArtifactId);
+        // this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this);
+
         }
+    }
+
+    private onStateChange = (state: IArtifactState) => {
+        if (this.tree) {
+            if (angular.isDefined(this._selectedArtifactId)) {
+                this.tree.selectNode(this._selectedArtifactId);
+            }
+        }
+
     }
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
-        //if (!prms) {
-        //    return null;
-        //}
+        if (!prms) {
+            return null;
+        }
         //notify the repository to load the node children
-        this.projectManager.loadArtifact(prms as Models.IArtifact);
+        this.projectManager.loadArtifact(prms.id);
         return null;
     };
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-
-        this.selectionManager.selection = {
-            source: SelectionSource.Explorer,
-            artifact: this.doSync(node)
-        };
+        this.artifactManager.selection.setArtifact(this.doSync(node), SelectionSource.Explorer);
     };
 
-    public doSync = (node: ITreeNode): Models.IArtifact => {
+    public doSync = (node: ITreeNode): IStatefulArtifact => {
         //check passed in parameter
-        let artifact = this.projectManager.getArtifact(node.id);
-        if (artifact.hasChildren) {
+        let artifact = this.projectManager.getArtifactNode(node.id);
+        if (artifact.children && artifact.children.length) {
             angular.extend(artifact, {
                 loaded: node.loaded,
                 open: node.open
             });
         };
-        return artifact;
+        return artifact.artifact;
     };
 }

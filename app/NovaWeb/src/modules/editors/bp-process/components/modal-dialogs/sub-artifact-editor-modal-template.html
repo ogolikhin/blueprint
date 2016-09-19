@@ -41,7 +41,7 @@
                     <i ng-click="vm.showMore('include', $event)" class="fonticon-include-active" ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}" title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>
                 </label>
                 <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="vm.isShowMore">
-                    <uib-tabset active="vm.showMoreActiveTabIndex">
+                    <uib-tabset active="vm.showMoreActiveTabIndex" ng-click="vm.refreshView()">
                         <uib-tab index="0">
                             <uib-tab-heading>
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
@@ -136,7 +136,7 @@
                     <i ng-click="vm.showMore('include', $event)" class="fonticon-include-active" ng-class="{'available': dialogModel.clonedSystemTask.associatedArtifact}" title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>
                 </label>
                 <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="vm.isShowMore">
-                    <uib-tabset active="vm.showMoreActiveTabIndex">
+                    <uib-tabset active="vm.showMoreActiveTabIndex" ng-click="vm.refreshView()">
                         <uib-tab index="0">
                             <uib-tab-heading>
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}

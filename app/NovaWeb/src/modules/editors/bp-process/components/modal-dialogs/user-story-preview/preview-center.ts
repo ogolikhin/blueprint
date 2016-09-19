@@ -136,16 +136,16 @@ export class PreviewCenterController {
         if (userStoryId) {
             let revisionId: number = null;
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
-                it.customPropertyValues.forEach((property) => {
-                    let propertyType = it.metadata.getArtifactPropertyType();
+                it.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
+                    let propertyValue = it.customProperties.get(propertyType.id);
                     if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
-                        this.title = property.value;
+                        this.title = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
-                        this.acceptanceCriteria = property.value;
+                        this.acceptanceCriteria = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
-                        this.businessRules = property.value;
+                        this.businessRules = propertyValue.value;
                     } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
-                        this.nonfunctionalRequirements = property.value;
+                        this.nonfunctionalRequirements = propertyValue.value;
                     }
                 });
             });

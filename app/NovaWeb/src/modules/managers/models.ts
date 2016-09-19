@@ -1,5 +1,6 @@
 import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
+import { IArtifactState } from "./artifact-manager";
 
 import { 
     IArtifactAttachmentsResultSet, 
@@ -32,12 +33,6 @@ export interface IBlock<T> {
     discard();
 }
 
-export interface IState {
-    readonly?: boolean;
-    dirty?: boolean;
-    published?: boolean;
-    lock?: Models.ILockResult;
-}
 
 export interface IArtifactProperties {
     initialize(properties: Models.IPropertyValue[]): IArtifactProperties; 
@@ -48,19 +43,6 @@ export interface IArtifactProperties {
     discard(all?: boolean);
 }
 
-export interface IArtifactState extends IDispose {
-    initialize(artifact: Models.IArtifact): IArtifactState; 
-    get(): IState;
-    //set(value: any): void;
-    lock: Models.ILockResult;
-    lockedBy: Enums.LockedByEnum;
-    lockDateTime?: Date;
-    lockOwner?: string;
-    readonly: boolean;
-    dirty: boolean;
-    published: boolean;
-    observable: Rx.Observable<IArtifactState>;
-} 
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
 export interface IStatefulItem extends Models.IArtifact  {
@@ -71,7 +53,8 @@ export interface IStatefulItem extends Models.IArtifact  {
     docRefs: IDocumentRefs;
     // relationships: any;
     discard(all?: boolean);
-    lock(): ng.IPromise<IState>;
+    lock(): ng.IPromise<IStatefulArtifact>;
+    
 }
 
 export interface IIStatefulItem extends IStatefulItem  {
@@ -79,12 +62,12 @@ export interface IIStatefulItem extends IStatefulItem  {
     getServices(): IStatefulArtifactServices;
 }
 
-export interface IStatefulArtifact extends IStatefulItem  {
-    dispose(): void;
-//    observable: Rx.Observable<IStatefulArtifact>;
+export interface IStatefulArtifact extends IStatefulItem, IDispose  {
+    observable(): Rx.Observable<IStatefulArtifact>;
     subArtifactCollection: ISubArtifactCollection;
     metadata: IMetaData;
     load(force?: boolean): ng.IPromise<IStatefulArtifact>;
+    lock(): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;

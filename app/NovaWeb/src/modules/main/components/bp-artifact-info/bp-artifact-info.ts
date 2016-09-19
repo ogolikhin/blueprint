@@ -5,8 +5,7 @@ import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
-import { IArtifactManager } from "../../../managers";
-import { IStatefulArtifact, IArtifactState } from "../../../managers/models";
+import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 
 export { IArtifactManager }
 
@@ -53,7 +52,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.getArtifact().observable().subscribeOnNext(this.onStateChange, this),
         ];
     }
 
@@ -136,14 +135,8 @@ export class BpArtifactInfoController {
         
     }
 
-    private onSelectArtifact = (artifact: IStatefulArtifact) => {
-        // so, just need to do an extra check if the component has created
-        //this.updateProperties(artifact);
-        
-    }
-
-    private onStateChange = (state: IArtifactState) => {
-        this.updateProperties(this.artifactManager.selection.getArtifact());
+    private onStateChange = (artifact: IStatefulArtifact) => {
+        this.updateProperties(artifact);
     }
 
     public get artifactHeadingMinWidth() {
@@ -199,16 +192,9 @@ export class BpArtifactInfoController {
     
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
-         let artifact = this.artifactManager.selection.getArtifact().save();
-         this.loadingOverlayService.endLoading(overlayId);
-
-
-        //  let overlayId: number = this.loadingOverlayService.beginLoading();
-        //  try {
-        //      this.artifactManager.save();
-        //  } finally {
-        //      this.loadingOverlayService.endLoading(overlayId);
-        //  }
+         this.artifactManager.selection.getArtifact().save().finally(() => {
+            this.loadingOverlayService.endLoading(overlayId);
+         });
      }
 
     public openPicker() {

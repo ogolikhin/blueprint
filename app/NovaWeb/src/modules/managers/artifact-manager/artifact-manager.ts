@@ -3,7 +3,7 @@ import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-m
 import { IMetaDataService } from "./metadata";
 import { IStatefulArtifactFactory, } from "./artifact";
 
-import { IStatefulArtifact, IDispose } from "../models";
+import { IStatefulArtifact } from "../models";
 
 export { ISelectionManager, ISelection,  SelectionSource }
 

@@ -1,5 +1,27 @@
 import { Models, Enums } from "../../../main/models";
-import { IIStatefulArtifact, IArtifactState, IState } from "../../models";
+import { IIStatefulArtifact, IDispose } from "../../models";
+
+export interface IState {
+    readonly?: boolean;
+    dirty?: boolean;
+    published?: boolean;
+    lock?: Models.ILockResult;
+}
+
+export interface IArtifactState extends IDispose {
+    initialize(artifact: Models.IArtifact): IArtifactState; 
+    get(): IState;
+    //set(value: any): void;
+    lock: Models.ILockResult;
+    lockedBy: Enums.LockedByEnum;
+    lockDateTime?: Date;
+    lockOwner?: string;
+    readonly: boolean;
+    dirty: boolean;
+    published: boolean;
+    observable(): Rx.Observable<IArtifactState>;
+} 
+
 
 export class ArtifactState implements IArtifactState {
     private statefullArtifact: IIStatefulArtifact;
@@ -9,8 +31,6 @@ export class ArtifactState implements IArtifactState {
     private lockowner: string;
     
     private subject: Rx.BehaviorSubject<IArtifactState>;
-
-
 
     constructor(artifact: IIStatefulArtifact, state?: IState) {
         this.statefullArtifact = artifact; 
@@ -30,10 +50,8 @@ export class ArtifactState implements IArtifactState {
             readonly: false,
             dirty: false,
             published: false,
-            lock: null 
+            lock: this.state ? this.state.lock : null 
         };        
-
-
     }
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
@@ -51,7 +69,7 @@ export class ArtifactState implements IArtifactState {
         return this;
     }
 
-    public get observable(): Rx.Observable<IArtifactState> {
+    public observable(): Rx.Observable<IArtifactState> {
         return this.subject.filter(it => it !== null).asObservable();
     }    
 
@@ -75,12 +93,17 @@ export class ArtifactState implements IArtifactState {
         this.subject.onNext(this);
     }
 
+    public get lock(): Models.ILockResult {
+        return this.state.lock;
+    }
+
     public set lock(value: Models.ILockResult ) {
         if (value) {
             if (value.result === Enums.LockResultEnum.Success) {
                 this.lockedby = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                this.lockedby = Enums.LockedByEnum.CurrentUser;
+                this.lockedby = Enums.LockedByEnum.OtherUser;
+                this.state.readonly = true;
             } else {
                 this.lockedby = Enums.LockedByEnum.None;
             }

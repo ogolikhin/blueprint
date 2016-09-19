@@ -22,14 +22,8 @@ export interface IProjectManager extends IDispose {
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
-
     getSelectedProject(): Project; 
 
-    // getSubArtifact(artifact: number | Models.IArtifact, subArtifactId: number): Models.ISubArtifact;
-    // getArtifactItemType(artifact: number | IStatefulArtifact): Models.IItemType;    
-    // getArtifactPropertyTypes(id: number, subArtifact?: Models.ISubArtifact): Models.IPropertyType[];
-    // getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
-    // updateArtifactName(artifact: Models.IArtifact);
 }
 
 
@@ -69,9 +63,7 @@ export class ProjectManager  implements IProjectManager {
         }
     }
     
-
     public dispose() {
-        //clear all Project Manager event subscription
         if (this.subscriber) {
             this.subscriber.dispose();
         }
@@ -79,13 +71,19 @@ export class ProjectManager  implements IProjectManager {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
-        //this.remove(true);
+        this.remove(true);
 
     }
 
     public initialize() {
         //subscribe to event
-        this.dispose();
+        if (this.subscriber) {
+            this.subscriber.dispose();
+        }
+        if (this._projectCollection) {
+            this._projectCollection.dispose();
+            delete this._projectCollection ;
+        }
         this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
         
     }

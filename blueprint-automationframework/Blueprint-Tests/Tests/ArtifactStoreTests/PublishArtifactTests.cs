@@ -173,45 +173,29 @@ namespace ArtifactStoreTests
         #region 409 Conflict tests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(165974)]
-        [Description("Create, save, parent artifact with two children, publish parent artifact, checks returned result is 409 Not Found.")]
-        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishParent_Conflict(BaseArtifactType artifactType)
+        [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Not Found.")]
+        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
+            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
+            IArtifact childArtifact = artifactList[2];
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(parentArtifact, _user),
-                "'POST {0}' should return 409 Conflict if the Artifact has dependend artifact which not published!", PUBLISH_PATH);
-
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", PUBLISH_PATH);
+            
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + parentArtifact.Id + " is deleted.\",\"errorCode\":101}";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string expectedMessage = "{\"message\":\"Specified artifacts have dependent artifacts to publish.\",\"errorCode\":120,\"errorContent\":{";
+            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
         }
         #endregion 409 Conflict tests
 
         #region private functions
-        private IOpenApiArtifact CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(BaseArtifactType artifactType)
+        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(BaseArtifactType artifactType)
         {
-            IOpenApiArtifact parentArtifact, childArtifact;
-
-            //Create parent artifact with ArtifactType and populate all required values without properties
-            parentArtifact = Helper.CreateOpenApiArtifact(_project, _user, artifactType);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            parentArtifact.Save();
-
-            //Create first child artifact with ArtifactType and populate all required values without properties
-            childArtifact = Helper.CreateOpenApiArtifact(_project, _user, artifactType);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            childArtifact.ParentId = parentArtifact.Id;
-            childArtifact.Save();
-
-            //Create second child artifact with ArtifactType and populate all required values without properties
-            childArtifact = Helper.CreateOpenApiArtifact(_project, _user, artifactType);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            childArtifact.ParentId = parentArtifact.Id;
-            childArtifact.Save();
-
-            return parentArtifact;
+            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
+            return artifactChain;
         }
         #endregion private functions
     }

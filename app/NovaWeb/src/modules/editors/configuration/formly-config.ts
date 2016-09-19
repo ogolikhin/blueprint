@@ -11,9 +11,10 @@ import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 import { ISelectionManager } from "../../main/services";
+import { IUsersAndGroupsService, IUserOrGroupInfo } from "../../shell/bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
-    "messageService", "dialogService", "settings", "selectionManager"];
+    "messageService", "dialogService", "settings", "selectionManager", "usersAndGroupsService"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
@@ -25,7 +26,8 @@ export function formlyConfig(
     messageService: IMessageService,
     dialogService: IDialogService,
     settingsService: ISettingsService,
-    selectionManager: ISelectionManager
+    selectionManager: ISelectionManager,
+    usersAndGroupsService: IUsersAndGroupsService
 ): void {
     /* tslint:enable */
 
@@ -509,7 +511,6 @@ export function formlyConfig(
             });
 
             $scope.bpFieldSelectMulti = {
-                $select: null,
                 items: [],
                 itemsHeight: 24,
                 maxItemsToRender: 50,
@@ -554,7 +555,6 @@ export function formlyConfig(
                 },
                 onOpenClose: function (isOpen: boolean, $select, options) {
                     this.isOpen = isOpen;
-                    this.$select = $select;
                     this.items = options;
 
                     let dropdown = this.findDropdown($select);
@@ -735,7 +735,7 @@ export function formlyConfig(
                     on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
                     on-select="bpFieldUserPicker.onSelect($item, $select)"
                     close-on-select="false"
-                    uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select, to.options)"
+                    uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)"
                     ng-mouseover="bpFieldUserPicker.setUpDropdown($event, $select)"
                     ng-keydown="bpFieldUserPicker.setUpDropdown($event, $select)">
                     <ui-select-match placeholder="{{to.placeholder}}">
@@ -743,12 +743,18 @@ export function formlyConfig(
                     </ui-select-match>
                     <ui-select-choices class="ps-child"
                         on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
+                        refresh="bpFieldUserPicker.refreshResults($select)"
+                        ui-disable-choice="option.selected == true"
                         data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: bpFieldUserPicker.maxItems">
-                        <div class="ui-select-choice-item"
-                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
-                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                        <div class="ui-select-choice-item" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true" ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
                     </ui-select-choices>
-                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
+                    <ui-select-no-choice>
+                        <span ng-switch="bpFieldUserPicker.currentState">
+                            <span ng-switch-when="no-match">${localization.get("Property_No_Matching_Options")}</span>
+                            <span ng-switch-when="loading">Searching...</span>
+                            <span ng-switch-default>{{"Type {0} characters to start searching".replace("{0}", bpFieldUserPicker.minimumInputLength)}}</span>
+                        </span> 
+                    </ui-select-no-choice>
                 </ui-select>
                 <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
                     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
@@ -800,12 +806,12 @@ export function formlyConfig(
                 // the dropdown will be dynamically loaded from the webservice
                 $scope["to"].options = currentModelVal.map((it: Models.IUserGroup) => {
                     return {
-                        value: (it.isGroup ? "G" : "U") + it.id.toString(),
+                        value: (it.isGroup ? "g" : "u") + it.id.toString(),
                         name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
                     } as any;
                 });
                 $scope.model[$scope.options.key] = currentModelVal.map((it: Models.IUserGroup) => {
-                    return (it.isGroup ? "G" : "U") + it.id.toString();
+                    return (it.isGroup ? "g" : "u") + it.id.toString();
                 });
             }
 
@@ -817,10 +823,9 @@ export function formlyConfig(
             });
 
             $scope.bpFieldUserPicker = {
-                $select: null,
-                items: [],
+                currentState: null,
                 maxItems: 100,
-                isOpen: false,
+                minimumInputLength: 3,
                 isChoiceSelected: function (item, $select): boolean {
                     return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
                 },
@@ -856,9 +861,8 @@ export function formlyConfig(
                     return dropdown;
                 },
                 onOpenClose: function (isOpen: boolean, $select, options) {
-                    this.isOpen = isOpen;
-                    this.$select = $select;
-                    this.items = options;
+                    $select.items = [];
+                    $scope["to"].options = [];
                 },
                 onHighlight: function (option, $select) {
                     if (this.isChoiceSelected(option, $select)) {
@@ -882,11 +886,6 @@ export function formlyConfig(
                     }
                 },
                 onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
-                    if (this.isOpen) {
-                        $select.open = true; // force the dropdown to stay open on remove (if already open)
-
-                        $select.activeIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
-                    }
                     options.validation.show = formControl.$invalid;
                     this.toggleScrollbar(true);
                 },
@@ -913,6 +912,31 @@ export function formlyConfig(
                         }
                     });
                     this.toggleScrollbar();
+                },
+                refreshResults: function ($select) {
+                    let query = $select.search;
+                    if (query.length >= this.minimumInputLength) {
+                        this.currentState = "searching";
+                        usersAndGroupsService.search($select.search, true).then(
+                        (users) => {
+
+                            $scope["to"].options = users.map((item: IUserOrGroupInfo) => {
+                                let e: any = {};
+                                e[$scope["to"].valueProp] = item.id.toString();
+                                e[$scope["to"].labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
+                                e.email = item.email;
+                                e.disabled = item.isBlocked;
+                                e.selected = true;
+                                return e;
+                            });
+                            $select.items = $scope["to"].options;
+                            this.currentState = $scope["to"].options.length ? null : "no-match";
+                        });
+                    } else {
+                        $scope["to"].options = [];
+                        $select.items = $scope["to"].options;
+                        this.currentState = null;
+                    }
                 },
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
                 // Not needed for textareas

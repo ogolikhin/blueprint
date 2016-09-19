@@ -1,7 +1,7 @@
 import { IItem } from "./../../main/models/models";
-import { IStatefulArtifact, IStatefulSubArtifact } from "./../../managers/models";
+import { IStatefulArtifact, IStatefulSubArtifact, IDispose } from "./../../managers/models";
 
-export interface ISelectionManager {
+export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
     subArtifactObservable: Rx.Observable<IStatefulSubArtifact>;
     selectionObservable: Rx.Observable<ISelection>;
@@ -40,6 +40,10 @@ export class SelectionManager implements ISelectionManager {
             source: null
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
+    }
+
+    public dispose() {
+        this.clearAll();
     }
 
     public get artifactObservable() {

@@ -1,13 +1,10 @@
 import { IMessageService } from "../../core";
-import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager/selection-manager";
+import { ISelectionManager } from "../selection-manager/selection-manager";
 import { IMetaDataService } from "./metadata";
 import { IStatefulArtifactFactory, } from "./artifact";
+import { IStatefulArtifact, IDispose } from "../models";
 
-import { IStatefulArtifact } from "../models";
-
-export { ISelectionManager, ISelection,  SelectionSource }
-
-export interface IArtifactManager {
+export interface IArtifactManager extends IDispose {
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
@@ -38,6 +35,10 @@ export class ArtifactManager  implements IArtifactManager {
 //        this.selectionService.selectionObservable.subscribeOnNext(this.onArtifactSelect, this);
     }
     
+    public dispose() {
+        this.removeAll();
+        this.selection.dispose();
+    }
 
     public get selection(): ISelectionManager {
         return this.selectionService;

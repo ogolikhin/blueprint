@@ -2,8 +2,8 @@ import { ILocalizationService } from "../../../core";
 import { Models } from "../../../main/models";
 
 export interface IMetaDataService {
+    load(projectId?: number);
     get(projectId?: number);
-    add(projectId?: number);
     remove(projectId?: number);
     getArtifactItemType(itemTypeId: number, projectId: number): Models.IItemType;
     getSubArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType;
@@ -35,10 +35,10 @@ export class MetaDataService implements IMetaDataService {
         private localization: ILocalizationService) {
     }
 
-    private load(projectId?: number): ng.IPromise<ProjectMetaData> {
+    public load(projectId?: number, force: boolean = false): ng.IPromise<ProjectMetaData> {
         let deferred = this.$q.defer<ProjectMetaData>();
         let metadata = this.get(projectId);
-        if (metadata) {
+        if (!force && metadata ) {
             deferred.resolve(metadata);
         } else {
             let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
@@ -62,8 +62,9 @@ export class MetaDataService implements IMetaDataService {
                             }
                         );
                     }
-                    
-                    deferred.resolve(new ProjectMetaData(projectId, result.data));
+                    metadata = new ProjectMetaData(projectId, result.data);
+                    this.collection.push(metadata); 
+                    deferred.resolve(metadata);
                 },
                 (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                     if (!errResult) {
@@ -88,19 +89,6 @@ export class MetaDataService implements IMetaDataService {
         return this.collection.filter((it: ProjectMetaData) => it.id === projectId)[0];
     }    
 
-    public add(projectId: number) {
-        this.load(projectId).then((projectMeta: ProjectMetaData) => {
-            let metadata = this.get(projectId);
-            if (metadata) {
-                metadata.data = projectMeta.data;
-            } else {
-                this.collection.push(projectMeta); 
-            }
-        }).catch((error: any) => {
-//            this.messageService.addError(error);
-        });
-
-    }
     public remove(projectId: number) {
         this.collection = this.collection.filter((it: ProjectMetaData) => {
             return it.id !== projectId;

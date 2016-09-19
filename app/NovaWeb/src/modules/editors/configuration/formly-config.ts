@@ -1351,7 +1351,7 @@ export function formlyConfig(
                         <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
                                 ng-click="selectBaseActor()" ng-class="{disabled: to.isReadOnly}">Change</button>
                     </div>        
-                    <div ng-hide="model[options.key].actorName.length > 0">
+                    <div ng-hide="model[options.key].actorName.length > 0"  class="bp-input-group-addon select-wrapper">
                          <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
                                 ng-click="selectBaseActor()">Select</button>                       
                     </div>             

@@ -1,6 +1,9 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../../core";
-import { IArtifactDocRef, IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../../../shell";
-// import { FiletypeParser } from "../../../../core/utils/filetypeParser";
+import {
+    IArtifactDocRef, 
+    IArtifactAttachmentsService, 
+    IArtifactAttachmentsResultSet
+} from "../../../../managers/artifact-manager";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");
@@ -29,7 +32,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactAttachments: IArtifactAttachments,
+        private artifactAttachments: IArtifactAttachmentsService,
         private messageService: IMessageService,
         private $window: ng.IWindowService) {
     }

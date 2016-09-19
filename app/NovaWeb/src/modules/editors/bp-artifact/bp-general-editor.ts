@@ -1,13 +1,11 @@
 ﻿import {
+    Models, Enums, 
     BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
-    IProjectManager,
     IMessageService,
-    IStateManager,
+    IArtifactManager,
     IWindowManager,
-    Models,
-    Enums
 } from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
@@ -20,16 +18,15 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
-    public static $inject: [string] = ["messageService", "stateManager", "windowManager", "localization", "projectManager"];
+    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization"];
 
     constructor(
         messageService: IMessageService,
-        stateManager: IStateManager,
+        artifactManager: IArtifactManager,
         windowManager: IWindowManager,
-        localization: ILocalizationService,
-        projectManager: IProjectManager
+        localization: ILocalizationService
     ) {
-        super(messageService, stateManager, windowManager, localization, projectManager);
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public activeTab: number;
@@ -51,10 +48,10 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     }
 
 
-    public onLoading(obj: any): boolean {
+    public onLoading(): boolean {
         this.systemFields = [];
         this.noteFields = [];
-        return super.onLoading(obj);
+        return super.onLoading();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {

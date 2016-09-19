@@ -1,0 +1,1 @@
+export { ArtifactProperties, SpecialProperties } from "./properties";

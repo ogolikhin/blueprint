@@ -6,6 +6,7 @@ import { ITinyMceMentionOptions, MentionService } from "./mention.svc";
 import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "./users-and-groups.svc.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
+/* tslint:disable:max-line-length */
 describe("Mention Service Test", () => {
     var mentions: ITinyMceMentionOptions<IUserOrGroupInfo>;
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -19,7 +20,7 @@ describe("Mention Service Test", () => {
         var person = new UserOrGroupInfo("test name", "a@a.com", false, false);
         person.id = "id";
         //Act
-        var result = mentions.render(person).innerHTML
+        var result = mentions.render(person).innerHTML;
         //Assert
         expect(result.indexOf(`<bp-avatar icon="" name="test name"`) >= 0).toBeTruthy();
     }));
@@ -93,7 +94,7 @@ describe("Mention Service Test", () => {
             hasRan = true;
         }
         //Act
-        var result = mentions.source("a", process);
+        mentions.source("a", process);
         scope.$digest();
 
         expect(hasRan).toEqual(true);
@@ -108,7 +109,7 @@ describe("Mention Service Test", () => {
             hasRan = true;
         }
         //Act
-        var result = mentions.source("return@user.com", process);
+        mentions.source("return@user.com", process);
         scope.$digest();
 
         expect(hasRan).toEqual(true);
@@ -224,3 +225,4 @@ describe("Mention Service Test", () => {
         expect(result).toEqual("some text");
     });
 });
+/* tslint:enable:max-line-length */

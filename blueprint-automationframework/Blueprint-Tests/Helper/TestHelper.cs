@@ -214,7 +214,11 @@ namespace Helper
         /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <returns>The list of artifacts created.</returns>
-        public List<IArtifactBase> CreateAndSaveMultipleArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts, IArtifactBase parent = null)
+        public List<IArtifactBase> CreateAndSaveMultipleArtifacts(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfArtifacts,
+            IArtifactBase parent = null)
         {
             var artifactList = new List<IArtifactBase>();
 

@@ -1,12 +1,12 @@
 ﻿using Common;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Helper;
 using TestCommon;
 using Utilities;
 
@@ -152,9 +152,9 @@ namespace CommonServiceTests
             artifact.Publish(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
-            string expectedMessage = I18NHelper.FormatInvariant("The requested artifact ID {0} is not found.", 
+            string expectedMessage = I18NHelper.FormatInvariant("The requested artifact ID {0} is not found.",
                 artifact.Id);
-            
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {

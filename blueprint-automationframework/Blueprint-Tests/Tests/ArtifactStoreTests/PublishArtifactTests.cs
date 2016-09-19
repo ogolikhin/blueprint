@@ -309,9 +309,8 @@ namespace ArtifactStoreTests
                 publishResponse, allArtifacts, expectedVersion: 1);
         }
 
-        // TODO: Test saving some artifacts and passing none of them to publish with all=true.
         [TestCase(BaseArtifactType.Process, 3)]
-        [TestRail(000)]
+        [TestRail(165980)]
         [Description("Create & save multiple artifacts.  Publish with all=true but don't pass any of the artifacts." +
             "Verify publish is successful and that all the artifacts we created were published.")]
         public void PublishArtifactWithAllTrue_MultipleSavedArtifacts_SendEmptyListToPublish_ArtifactsHaveExpectedVersion(

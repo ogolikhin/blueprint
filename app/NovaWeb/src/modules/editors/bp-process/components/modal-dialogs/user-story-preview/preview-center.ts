@@ -18,7 +18,7 @@ export class PreviewCenterController {
     public isUserSystemProcess: boolean;
     private subArtifactId: number;
     private isTabsVisible: boolean;
-    private showMoreActiveTab: boolean[] = [true, false];
+    private showMoreActiveTabIndex: number = 0;
 
     public title: string;
     public acceptanceCriteria: string;
@@ -60,13 +60,11 @@ export class PreviewCenterController {
 
         } else if (type === "nfr") {
             this.isTabsVisible = true;
-            this.showMoreActiveTab[0] = true;
-            this.showMoreActiveTab[1] = false;
+            this.showMoreActiveTabIndex = 0;
 
         } else if (type === "br") {
             this.isTabsVisible = true;
-            this.showMoreActiveTab[0] = false;
-            this.showMoreActiveTab[1] = true;
+            this.showMoreActiveTabIndex = 1;
         }
         this.resizeContentAreas(this.isTabsVisible);
         event.stopPropagation();

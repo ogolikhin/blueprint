@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CustomAttributes;
 using Helper;
@@ -8,7 +7,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 
@@ -343,14 +341,15 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.Process, 1)]
+        [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(165974)]
         [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Not Found.")]
-        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType)
+        public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
         {
             // Setup:
             List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
-            IArtifact childArtifact = artifactList[2];
+            IArtifact childArtifact = artifactList[index];
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),

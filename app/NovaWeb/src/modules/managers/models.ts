@@ -1,18 +1,20 @@
-import { IMessageService } from "../core/";
+// import { IMessageService } from "../core/";
 import { Models, Enums } from "../main/models";
-
+import { IStatefulArtifactServices } from "./artifact-manager/services";
+import { ISession } from "../shell/login/session.svc";
+import { Relationships } from "../main";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
     IDocumentRefs,
-    IMetaDataService,
+    // IMetaDataService,
     IArtifactAttachments,
     IMetaData,
-    IArtifactService,
-    ISubArtifactCollection
+    // IArtifactService,
+    ISubArtifactCollection,
+    IArtifactRelationships
 } from "./artifact-manager";
 
-import { ISession } from "../shell/login/session.svc";
 
 export { 
     ISession,
@@ -68,6 +70,7 @@ export interface IStatefulItem extends Models.IArtifact  {
     customProperties: IArtifactProperties;
     specialProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
+    relationships: IArtifactRelationships;
     docRefs: IDocumentRefs;
     // relationships: any;
     discard(all?: boolean);
@@ -76,6 +79,7 @@ export interface IStatefulItem extends Models.IArtifact  {
 
 export interface IIStatefulItem extends IStatefulItem  {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getRelationships(): ng.IPromise<Relationships.IRelationship[]>;
     getServices(): IStatefulArtifactServices;
 }
 
@@ -99,17 +103,7 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 
 export interface IStatefulSubArtifact extends IStatefulItem {
     metadata: IMetaData;
-    load(timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
-}
-
-export interface IStatefulArtifactServices {
-    //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
-    getDeferred<T>(): ng.IDeferred<T>;
-    messageService: IMessageService;
-    session: ISession;
-    artifactService: IArtifactService;
-    attachmentService: IArtifactAttachmentsService;
-    metaDataService: IMetaDataService;
+    load(force?: boolean, timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
 }
 
 export interface IArtifactNode {

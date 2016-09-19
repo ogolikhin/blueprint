@@ -7,7 +7,6 @@ import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
-import { Helper } from "../../../shared/utils/helper";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -98,15 +97,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    // private addSubArtifactChangeset(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact) {
-    //     artifact.subArtifacts = [subArtifact];        
-    // }
-
     private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
         let deferred = this.$q.defer<any>();
         this.isLoading = true;
         if (subArtifact) {
-            subArtifact.load().then(() => {
+            subArtifact.load(true, timeout).then(() => {
                 this.onUpdate(artifact, subArtifact);
             })
             .finally(() => {
@@ -115,7 +110,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             });
                     
         } else {
-            artifact.load().then(() => {
+            artifact.load(false).then(() => {
                 this.onUpdate(artifact, subArtifact);
             })
             .finally(() => {
@@ -124,83 +119,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             });
         }
         return deferred.promise;
-
-    //    if (subArtifact) {
-        
-            
-    //         return this.artifactService.getSubArtifact(artifact.id, subArtifact.id, timeout).then((it: Models.ISubArtifact) => {
-    //             angular.extend(subArtifact, it);
-    //             this.addSubArtifactChangeset(artifact, subArtifact, undefined);
-    //             this.selectedArtifact = artifact;
-    //             this.selectedSubArtifact = subArtifact;
-    //             this.onUpdate(artifact, subArtifact);
-    //         }).catch((error: any) => {
-    //             if (error) {
-    //                 this.messageService.addError(error["message"] || "SubArtifact_NotFound");
-    //             }
-    //         }).finally(() => {
-    //             this.isLoading = false;
-    //         });
-    //    } else {
-    //         return this.artifactService.getArtifact(artifact.id, timeout).then((it: Models.IArtifact) => {
-    //             angular.extend(artifact, it);
-    //             this.stateManager.addChange(artifact);                
-    //             this.selectedArtifact = artifact;
-    //             this.selectedSubArtifact = undefined;
-    //             this.onUpdate(artifact, subArtifact);
-    //         }).catch((error: any) => {
-    //             if (error) {
-    //                 this.messageService.addError(error["message"] || "Artifact_NotFound");
-    //             }
-    //         }).finally(() => {
-    //             this.isLoading = false;
-    //         });   
-    //     }        
-     }   
-
-    // private getChangedArtifact(item: Models.IArtifact): Models.IArtifact {        
-    //     if (!item) {
-    //         return undefined;
-    //     }
-    //     let changedItem: Models.IArtifact;
-    //     this.itemState = this.stateManager.getState(item.id);
-
-    //     if (this.itemState) {
-    //         changedItem = this.itemState.getArtifact();
-    //     } else {
-    //         changedItem = item;
-    //     }
-    //     return changedItem;
-    // }
-
-    // private getChangedSubArtifact(item: Models.ISubArtifact): Models.ISubArtifact {
-    //     if (!item) {
-    //         return undefined;
-    //     }
-    //     let changedItem: Models.ISubArtifact;
-    //     this.itemState = this.stateManager.getState(item.id);
-
-    //     if (this.itemState) {
-    //         if (this.itemState.changedItem) {                
-    //             changedItem = this.getSubArtifactById(this.itemState.changedItem, item.id);
-    //         } else {                               
-    //             changedItem = this.getSubArtifactById(this.itemState.originItem, item.id);
-    //         }
-    //     } else {
-    //         changedItem = item;
-    //     }
-    //     return changedItem;
-    // }
-
-    // private getSubArtifactById(artifact: Models.IArtifact, subArtifactId: number): Models.ISubArtifact {
-    //     for (var i = 0; i < artifact.subArtifacts.length; i++) {
-    //         let subArtifact = artifact.subArtifacts[i];
-    //         if (subArtifact.id === subArtifactId) {
-    //             return subArtifact;
-    //         }
-    //     }
-    //     throw new Error("SubArtifact_Not_Found");
-    // }
+    }
 
     public onUpdate(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         this.selectedArtifact = artifact;
@@ -228,7 +147,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                Helper.updateFieldReadOnlyState(field, this.selectedArtifact.artifactState);              
+                let isReadOnly = this.selectedArtifact.artifactState.readonly || this.selectedArtifact.artifactState.lockedBy === LockedByEnum.OtherUser;
+                field.templateOptions["isReadOnly"] = isReadOnly;
+                //if (isReadOnly) {
+                    if (field.key !== "documentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
+                    }
+                //}                   
 
                 this.onFieldUpdate(field);                                
 

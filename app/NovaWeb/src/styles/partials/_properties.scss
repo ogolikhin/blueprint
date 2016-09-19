@@ -912,7 +912,7 @@ pagecontent, bp-properties-panel {
         width: calc(100% - #{$property-label-width});
 
         button{
-          &.disabled{
+          &.disabled, &[disabled]{
             background-color: $gray-lighter;
             border-color: $gray-light;
             color: $gray-light;

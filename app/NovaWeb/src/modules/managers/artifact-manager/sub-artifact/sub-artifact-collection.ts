@@ -4,6 +4,7 @@
 // import { ArtifactAttachments } from "../attachments";
 // import { CustomProperties } from "../properties";
 // import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
+import { IStatefulArtifactServices } from "../services";
 import { 
     ChangeSetCollector, 
     IChangeCollector, 
@@ -12,7 +13,6 @@ import {
 } from "../";
 
 import {
-         IStatefulArtifactServices,
          IIStatefulArtifact,
          IStatefulSubArtifact
 } from "../../models";

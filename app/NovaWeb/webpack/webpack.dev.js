@@ -5,6 +5,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
+var vendor_libs = require('./vendors');
 
 
 var backend = process.env.npm_config_backend || process.env.npm_package_config_backend || "http://localhost:9801";
@@ -38,26 +39,7 @@ if (process.argv.some(isDebug)) {
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: [
-            'angular',
-            'angular-ui-router',
-            'angular-ui-bootstrap',
-            'angular-ui-tinymce',
-            'angular-sanitize',
-            'bootstrap/dist/css/bootstrap.css',
-            'ng-draggable',
-            'angular-formly',
-            'angular-formly-templates-bootstrap',
-            'ag-grid',
-            'ag-grid/dist/styles/ag-grid.css',
-            'rx/dist/rx.lite.js',
-            'angular-perfect-scrollbar-2',
-            'tinymce',
-            'moment',
-            'mxClient',
-            'mxClientCss/common.css',
-            'mxClientCss/explorer.css'
-        ]
+        vendor: vendor_libs
 },
     output: {
         filename: 'app.js',

@@ -71,7 +71,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose  {
     subArtifactCollection: ISubArtifactCollection;
     metadata: IMetaData;
     load(force?: boolean): ng.IPromise<IStatefulArtifact>;
-    lock(): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;

@@ -5,6 +5,7 @@ import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { ArtifactProperties, SpecialProperties } from "../properties";
 import { IStatefulArtifactServices } from "../services";
 import { IMetaData, MetaData } from "../metadata";
+
 import { 
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -16,7 +17,6 @@ import {
 import {
     IStatefulArtifact,
     IArtifactProperties,
-    IState,
     IIStatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactAttachmentsResultSet
@@ -145,7 +145,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return deferred.promise;
     }
 
-    public lock(): ng.IPromise<IState> {
+    public lock(): ng.IPromise<IStatefulArtifact> {
         return this.artifact.lock();
     }
 

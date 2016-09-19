@@ -1,7 +1,8 @@
-import { Models} from "../../models";
-import { IProjectManager, IWindowManager, ISelectionManager, SelectionSource} from "../../services";
+import { IWindowManager } from "../../services";
+import { IArtifactManager, SelectionSource } from "../../../managers";
+import { IStatefulArtifact } from "../../../managers/models";
 
-import { IMessageService, IStateManager } from "../../../core";
+import { IMessageService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 import { IEditorContext } from "../../models/models";
 
@@ -20,28 +21,22 @@ class PageContentCtrl {
     public static $inject: [string] = [
         "$state",
         "messageService",
-        "projectManager",
+        "artifactManager",
         "diagramService",
-        "selectionManager",
-        "stateManager",
         "windowManager"];
     constructor(private $state: ng.ui.IStateService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private artifactManager: IArtifactManager,
                 private diagramService: IDiagramService,
-                private selectionManager: ISelectionManager,
-                private stateManager: IStateManager,
                 private windowManager: IWindowManager) {
     }
-    public context: IEditorContext = null;
-
     public viewState: boolean;
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.getSelectedArtifactObservable().subscribeOnNext(this.selectContext, this),
+            this.artifactManager.selection.artifactObservable.filter(this.selectedInExplorer).subscribeOnNext(this.selectContext, this),
             this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
@@ -51,42 +46,28 @@ class PageContentCtrl {
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
-    private selectContext(artifact: Models.IArtifact) {
-        let _context: IEditorContext = {};
-        try {
-            if (!artifact) {
-                this.$state.go("main");
-                return;
-            }
-
-            _context.artifact = artifact;
-            _context.type = this.projectManager.getArtifactType(_context.artifact);
-
-            this.stateManager.addItem(_context.artifact, _context.type);
-
-            this.$state.go("main.artifact", { id: artifact.id });
-
-        } catch (ex) {
-            this.messageService.addError(ex.message);
+    private selectContext(artifact: IStatefulArtifact) {
+        if (!artifact) {
+            this.$state.go("main");
+            return;
         }
-        this.context = _context;
+
+        this.$state.go("main.artifact", { id: artifact.id });
     }
 
-    private getSelectedArtifactObservable() {
-        return this.selectionManager.selectionObservable
-            .filter(s => s != null && s.source === SelectionSource.Explorer)
-            .map(s => s.artifact)
-            .distinctUntilChanged(a => a ? a.id : -1).asObservable();
+    private selectedInExplorer = (artifact: IStatefulArtifact) => {
+        const selectedInExplorer = this.artifactManager.selection.getArtifact(SelectionSource.Explorer);
+        return selectedInExplorer && artifact && selectedInExplorer.id === artifact.id;
     }
 
     public onContentSelected($event: MouseEvent) {
-        if ($event.target && $event.target["tagName"] !== "BUTTON") {
-            if (this.context) {
-                this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
-            } else {
-                this.selectionManager.clearSelection();
-            }
-        }
+        // if ($event.target && $event.target["tagName"] !== "BUTTON") {
+        //     if (this.context) {
+        //         this.selectionManager.selection = { artifact: this.context.artifact, source: SelectionSource.Editor };
+        //     } else {
+        //         this.selectionManager.clearSelection();
+        //     }
+        // }
     }
 
     private onAvailableAreaResized() {

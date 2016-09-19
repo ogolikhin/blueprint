@@ -290,6 +290,8 @@ namespace ArtifactStore.Repositories
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
             var subArtifactsDictionary = (await GetSubArtifacts(artifactId, userId, revisionId, includeDrafts)).ToDictionary(a => a.Id);
+            var itemIds = subArtifactsDictionary.Select(a => a.Key).ToList();
+            var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, itemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
             foreach (var subArtifactEntry in subArtifactsDictionary)
             {
                 var subArtifact = subArtifactEntry.Value;
@@ -304,6 +306,11 @@ namespace ArtifactStore.Repositories
                     ((List<SubArtifact>)parentSubArtifact.Children).Add(subArtifact);
                     parentSubArtifact.HasChildren = true;
                 }
+                ItemDetails itemDetails;
+                if (itemDetailsDictionary!= null && itemDetailsDictionary.TryGetValue(subArtifact.Id, out itemDetails))
+                {
+                    subArtifactEntry.Value.Prefix = itemDetails.Prefix;
+                }
             }
             var isUseCase = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition
@@ -311,7 +318,7 @@ namespace ArtifactStore.Repositories
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.Step);
 
             if (isUseCase) {
-                var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, subArtifactsDictionary.Select(a => a.Key).ToList())).ToDictionary(a => a.ItemId);
+                var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, itemIds)).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
                     //filter out flow subartifacts and append children of flow to children of flow's parent.
                     if (subArtifactEntry.Value.PredefinedType == ItemTypePredefined.Flow)
@@ -326,7 +333,7 @@ namespace ArtifactStore.Repositories
                     }
                     //populate label as display names.
                     ItemLabel itemLabel;
-                    if (itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
+                    if (itemLabelsDictionary != null && itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
                     {
                         subArtifactEntry.Value.DisplayName = itemLabel.Label;
                     }

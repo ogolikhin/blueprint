@@ -1,12 +1,8 @@
 import { ILocalizationService } from "../../core";
-import { IArtifact, ISubArtifact } from "../../main/models/models";
+import { IArtifact } from "../../main/models/models";
 
 export interface IGlossaryService {
     getGlossary(id: number): ng.IPromise<IArtifact>;
-}
-
-export interface IGlossaryTerm extends ISubArtifact {
-    selected?: boolean;
 }
 
 export class GlossaryService implements IGlossaryService {

@@ -1,55 +1,84 @@
-﻿import { IMessageService, IStateManager, ItemState } from "../core";
-import { Models } from "../main";
+﻿import { IMessageService } from "../core";
+import { IArtifactManager, IProjectManager } from "../managers";
+import { IStatefulArtifact } from "../managers/models";
+import { Models, Enums } from "../main/models";
+
+export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
 
 export class BpBaseEditor {
-    public static $inject: [string] = ["messageService", "stateManager"];
-
-    protected _subscribers: Rx.IDisposable[];
-    public context: Models.IEditorContext;
-    public artifactState: ItemState;
-    public isLoading: boolean;
+    protected subscribers: Rx.IDisposable[];
+    public artifact: IStatefulArtifact;
+    public isLoading: boolean = true;
 
     constructor(
         public messageService: IMessageService,
-        public stateManager: IStateManager
-    ) {
+        public artifactManager: IArtifactManager) {
     }
 
     public $onInit() {
-        this._subscribers = [];
+        this.subscribers = [];
+        // this.subscribers.push(
+        //     this.stateManager.stateChange
+        //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
+        //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
+        // );
+        
     }
 
     public $onChanges(obj: any) {
-        try {
-            if (this.onLoading(obj)) {
-                this.onLoad(this.context);
+         try {
+            this.artifact = this.artifactManager.selection.getArtifact();
+            if (this.onLoading()) {
+                this.onLoad();
             }
         } catch (ex) {
             this.messageService.addError(ex.message);
+            throw ex;
         }
     }
 
     public $onDestroy() {
-        delete this.context;
-        delete this.artifactState;
+        try {
+            delete this.artifact;
+            //delete this.artifactState;
 
-        this._subscribers = (this._subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-
+            this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+            throw ex;
+        }
     }
 
-    public onLoading(obj: any): boolean {
+    public onLoading(): boolean {
         this.isLoading = true;
-        let result = !!(this.context && angular.isDefined(this.context.artifact));
-        return result;
+        return !!this.artifact;
     }
 
-    public onLoad(context: Models.IEditorContext) {
-        this.onUpdate(context);
+    public onLoad() {
+        this.onUpdate();
     }
 
-    public onUpdate(context: Models.IEditorContext) {
+    public onUpdate() {
         this.isLoading = false;
     }
+
+    // private onLockChanged(state: ItemState) {
+    //     let lock = state.lock;
+    //     if (lock.result === Enums.LockResultEnum.Success) {
+    //         if (lock.info.versionId !== state.originItem.version) {
+    //             this.onLoad(this.context);
+    //         }
+    //     } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+    //         this.onUpdate(this.context);
+    //     } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+    //         this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+    //     } else {
+    //         this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+    //     }
+
+    
+
+
 
 }
 

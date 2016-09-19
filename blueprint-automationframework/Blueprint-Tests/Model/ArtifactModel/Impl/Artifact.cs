@@ -439,14 +439,14 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactToUpdate">The artifact to be updated.</param>
         /// <param name="user">The user updating the artifact.</param>
-        /// <param name="artifactChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
+        /// <param name="artifactDetailsChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>        
         public static NovaArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
-            NovaArtifactDetails artifactChanges = null,
+            NovaArtifactDetails artifactDetailsChanges = null,
 
             string address = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -456,6 +456,7 @@ namespace Model.ArtifactModel.Impl
 
             string tokenValue = user.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactToUpdate.Id);
+            NovaArtifactDetails artifactChanges = artifactDetailsChanges;
 
             if (artifactChanges == null)
             {
@@ -485,9 +486,20 @@ namespace Model.ArtifactModel.Impl
                 artifactToUpdate.IsSaved = true;
 
                 IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
+                ArtifactBase artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
 
                 // Copy updated properties into original artifact.
-                ((ArtifactBase)artifactToUpdate).ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
+                if (artifactDetailsChanges == null)
+                {
+                    artifactBaseToUpdate.Id = artifactToUpdate.Id;
+                    artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
+                    artifactBaseToUpdate.Version = artifactToUpdate.Version;
+                    artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty("Description", artifactChanges.Description, project, user);
+                }
+                else
+                {
+                    artifactBaseToUpdate.ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
+                }
             }
 
             return artifactChanges;

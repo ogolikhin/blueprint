@@ -27,6 +27,7 @@ export interface ISubArtifactNode {
     itemTypeId: number;
     displayName: string;
     predefinedType: ItemTypePredefined;
+    prefix: string;
     hasChildren: boolean;
     children?: ISubArtifactNode[];
 }
@@ -165,76 +166,76 @@ export interface IProject extends IArtifact {
     
 }
 
-export class Project implements IProject { 
-    constructor(...data: any[]) { //
-        angular.extend(this, ...data);
-        this.itemTypeId = <number>ItemTypePredefined.Project;
-    };
+// export class Project implements IProject { 
+//     constructor(...data: any[]) { //
+//         angular.extend(this, ...data);
+//         this.itemTypeId = <number>ItemTypePredefined.Project;
+//     };
 
-    public id: number;
+//     public id: number;
 
-    public name: string;
+//     public name: string;
 
-    public description: string;
+//     public description: string;
 
-    public itemTypeId: number;
+//     public itemTypeId: number;
 
-    public itemTypeVersionId: number;
+//     public itemTypeVersionId: number;
 
-    public meta: IProjectMeta;
+//     public meta: IProjectMeta;
 
-    public artifacts: IArtifact[];
+//     public artifacts: IArtifact[];
 
-    public get projectId() {
-        return this.id;
-    }
+//     public get projectId() {
+//         return this.id;
+//     }
 
-    public get prefix(): string {
-        return "PR";
-    }
-    public get parentId(): number {
-        return -1;
-    }
-    public lockedByUserId: number;
+//     public get prefix(): string {
+//         return "PR";
+//     }
+//     public get parentId(): number {
+//         return -1;
+//     }
+//     public lockedByUserId: number;
 
-    public get permissions(): RolePermissions {
-        return 4095;
-    }
+//     public get permissions(): RolePermissions {
+//         return 4095;
+//     }
 
-    public get predefinedType(): ItemTypePredefined {
-        return ItemTypePredefined.Project;
-    }
+//     public get predefinedType(): ItemTypePredefined {
+//         return ItemTypePredefined.Project;
+//     }
 
-    public get hasChildren() {
-        return this.artifacts && this.artifacts.length > 0;
-    }
+//     public get hasChildren() {
+//         return this.artifacts && this.artifacts.length > 0;
+//     }
 
-    public getArtifactTypes(id?: number): IItemType[] {
+//     public getArtifactTypes(id?: number): IItemType[] {
 
-        let itemTypes: IItemType[] = [];
+//         let itemTypes: IItemType[] = [];
 
-        if (this.meta && this.meta.artifactTypes) {
-            itemTypes = this.meta.artifactTypes.filter((it) => {
-                return !angular.isNumber(id) || it.id === id;
-            });
-        }
+//         if (this.meta && this.meta.artifactTypes) {
+//             itemTypes = this.meta.artifactTypes.filter((it) => {
+//                 return !angular.isNumber(id) || it.id === id;
+//             });
+//         }
 
-        return itemTypes;
-    }
+//         return itemTypes;
+//     }
 
 
-    public getPropertyTypes(id?: number): IPropertyType[] {
+//     public getPropertyTypes(id?: number): IPropertyType[] {
 
-        let propertyTypes: IPropertyType[] = [];
+//         let propertyTypes: IPropertyType[] = [];
 
-        if (this.meta && this.meta.propertyTypes) {
-            propertyTypes = this.meta.propertyTypes.filter((it) => {
-                return !angular.isNumber(id) || it.id === id;
-            });
-        }
-        return propertyTypes;
-    }
-}
+//         if (this.meta && this.meta.propertyTypes) {
+//             propertyTypes = this.meta.propertyTypes.filter((it) => {
+//                 return !angular.isNumber(id) || it.id === id;
+//             });
+//         }
+//         return propertyTypes;
+//     }
+// }
 
 export class Artifact implements IArtifact {
     public propertyValues: IPropertyValue[];

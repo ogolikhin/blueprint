@@ -142,21 +142,21 @@ export class PropertyEditor {
                         }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special)  {
                         //Specific property
-                        let specificpropertyvalue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
+                        let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
                         isModelSet = true;
-                        if (specificpropertyvalue) {
+                        if (specificPropertyValue) {
                             if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
-                                specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
-                                modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
+                                specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
+                                modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
-                                if (specificpropertyvalue.value == null && 
-                                    specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
+                                if (specificPropertyValue.value == null && 
+                                    specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
                                     modelValue = { fileName: null, fileExtension: null };
                                 } else {
-                                    modelValue = specificpropertyvalue.value;
+                                    modelValue = specificPropertyValue.value;
                                 }
                             }                            
-                            propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
+                            propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
                     if (isModelSet) {
@@ -170,7 +170,7 @@ export class PropertyEditor {
         return this._model;
     }
 
-    private GetActorStepOfValue(propertyValue: any): string {
+    private getActorStepOfValue(propertyValue: any): string {
         if (propertyValue) {
             return this.localization.get("App_Properties_Actor_StepOf_Actor");
         }

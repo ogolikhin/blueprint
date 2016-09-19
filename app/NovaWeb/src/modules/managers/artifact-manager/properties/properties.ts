@@ -9,7 +9,7 @@ import {
 
 export class ArtifactProperties implements IArtifactProperties  {
     
-    private properties: Models.IPropertyValue[];
+    protected properties: Models.IPropertyValue[];
     //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
     private subject: Rx.Observable<Models.IPropertyValue>;
     private changeset: IChangeCollector;
@@ -76,5 +76,12 @@ export class ArtifactProperties implements IArtifactProperties  {
        return this.changeset.get().map((it: IChangeSet) => {
             return this.get(it.key as number);
         }); 
+    }
+}
+
+export class SpecialProperties extends ArtifactProperties  {
+
+    public get(id: number): Models.IPropertyValue {
+        return this.properties.filter((it: Models.IPropertyValue) => it.propertyTypePredefined === id)[0];
     }
 }

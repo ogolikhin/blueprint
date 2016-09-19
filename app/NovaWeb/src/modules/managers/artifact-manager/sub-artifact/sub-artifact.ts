@@ -3,7 +3,7 @@ import { Models } from "../../../main/models";
 import { ChangeTypeEnum, IChangeCollector, ChangeSetCollector, IChangeSet } from "../";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs } from "../docrefs";
-import { ArtifactProperties } from "../properties";
+import { ArtifactProperties, SpecialProperties } from "../properties";
 import { IMetaData, MetaData } from "../metadata";
 import {
     IStatefulArtifact,
@@ -27,7 +27,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
         this.metadata = new MetaData(this);
         this.customProperties = new ArtifactProperties(this).initialize(subArtifact.customPropertyValues);
-        this.specialProperties = new ArtifactProperties(this).initialize(subArtifact.specificPropertyValues);
+        this.specialProperties = new SpecialProperties(this).initialize(subArtifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
 //        this.changesets = new ChangeSetCollector(this.artifact);
@@ -88,12 +88,6 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
 
     public get projectId(): number {
         return this.artifact.projectId;
-    }
-
-
-    //TODO autkin temp
-    public get specificPropertyValues() {
-        return this.subArtifact.specificPropertyValues;
     }
 
     private set(name: string, value: any) {

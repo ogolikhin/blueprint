@@ -2,7 +2,7 @@ import { Models, Enums } from "../../../main/models";
 import { ArtifactState} from "../state";
 import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
 import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
-import { ArtifactProperties } from "../properties";
+import { ArtifactProperties, SpecialProperties } from "../properties";
 import { ChangeSetCollector } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
@@ -36,7 +36,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
         this.customProperties = new ArtifactProperties(this).initialize(artifact.customPropertyValues);
-        this.specialProperties = new ArtifactProperties(this).initialize(artifact.specificPropertyValues);
+        this.specialProperties = new SpecialProperties(this).initialize(artifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
@@ -147,11 +147,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     
     public get readOnlyReuseSettings(): Enums.ReuseSettings {
         return this.artifact.readOnlyReuseSettings;
-    }
-
-    //TODO autkin temp
-    public get specificPropertyValues() {
-        return this.artifact.specificPropertyValues;
     }
 
     private set(name: string, value: any) {

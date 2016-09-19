@@ -1,1 +1,1 @@
-export { ArtifactProperties } from "./properties";
+export { ArtifactProperties, SpecialProperties } from "./properties";

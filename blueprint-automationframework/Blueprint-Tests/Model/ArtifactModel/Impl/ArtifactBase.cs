@@ -585,6 +585,8 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             bool skipNullValues = false)
         {
+            // TODO: See if this function can be replaced by something similar to SetProperty<T>() in ArtifactStoreTests.SaveArtifactTests.
+            
             if (skipNullValues && (propertyValue == null))
             {
                 return;

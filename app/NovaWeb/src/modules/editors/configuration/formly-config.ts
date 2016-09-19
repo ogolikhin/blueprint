@@ -7,7 +7,7 @@ import { Models, Enums } from "../../main/models";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
 import { Helper, IDialogService } from "../../shared";
 import { documentController } from "./controllers/document-field-controller";
-import { actorController } from "./controllers/actor-field-controller";
+import { actorInheritanceController } from "./controllers/actor-inheritance-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 import { ISelectionManager } from "../../managers";
 
@@ -1359,7 +1359,7 @@ export function formlyConfig(
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, $window, messageService, dialogService, selectionManager);
+            actorInheritanceController($scope, localization, $window, messageService, dialogService, selectionManager);
         }]
     });
  

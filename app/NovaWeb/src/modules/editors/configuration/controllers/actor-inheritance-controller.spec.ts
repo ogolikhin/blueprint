@@ -18,7 +18,7 @@ import { DialogServiceMock, IDialogService } from "../../../shared/widgets/bp-di
 import {formlyConfig} from "../formly-config";
 import { SettingsService } from "../../../core";
 import { ISelectionManager, SelectionManager } from "../../../managers/selection-manager/selection-manager";
-import { actorController } from "./actor-field-controller";
+import { actorInheritanceController } from "./actor-inheritance-controller";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog-mock";
 import { IStatefulArtifact } from "../../../managers/models";
 
@@ -60,7 +60,7 @@ describe("Actor Inheritance controller", () => {
 
     it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
         
-        let ac = actorController(scope, localization, $window, messageService, dialogService, selectionManager);
+        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
 
         // Act
         scope.deleteBaseActor();     
@@ -70,7 +70,7 @@ describe("Actor Inheritance controller", () => {
 
     it("select base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {                
 
-        let ac = actorController(scope, localization, $window, messageService, dialogService, selectionManager);
+        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
 
         // Act
         scope.selectBaseActor();
@@ -88,7 +88,7 @@ describe("Actor Inheritance controller", () => {
             id: 10                       
         };
         selectionManager.setArtifact(artifact);
-        let ac = actorController(scope, localization, $window, messageService, dialogService, selectionManager);
+        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
         var addErrorSpy = spyOn(messageService, "addError");
 
         // Act

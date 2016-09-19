@@ -6,6 +6,7 @@ import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import { Helper } from "../../../shared/utils/helper";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -209,14 +210,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                //if (this.itemState.isReadonly || this.itemState.lockedBy === LockedByEnum.OtherUser) {
-                //    field.type = "bpFieldReadOnly";
-                //}
-                if (field.key !== "documentFile" &&
-                    field.type !== "bpFieldImage" &&
-                    field.type !== "bpFieldInheritFrom") {
-                    field.type = "bpFieldReadOnly";
-                }                
+                Helper.updateFieldReadOnlyState(field, this.itemState);              
 
                 this.onFieldUpdate(field);                                
 

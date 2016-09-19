@@ -6,6 +6,7 @@ import { Enums, Models} from "../../main/models";
 import { BpBaseEditor} from "../bp-base-editor";
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
+import { Helper } from "../../shared/utils/helper";
 
 export { ILocalizationService, IProjectManager, IMessageService, IStateManager, IWindowManager, PropertyContext, Models, Enums, ItemState, Message }
 
@@ -111,14 +112,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                field.templateOptions["isReadOnly"] = this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                if (this.artifactState.isReadonly || this.artifactState.lockedBy === Enums.LockedByEnum.OtherUser) {
-                    if (field.key !== "documentFile"  &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {  
-                        field.type = "bpFieldReadOnly";                     
-                    }
-                }
+                Helper.updateFieldReadOnlyState(field, this.artifactState);                
                 this.onFieldUpdate(field);
 
             });

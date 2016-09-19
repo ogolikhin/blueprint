@@ -1,4 +1,3 @@
-import "Rx";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 

@@ -64,6 +64,8 @@ export class ProjectManager  implements IProjectManager {
     }
     
     public dispose() {
+        this.remove(true);
+
         if (this.subscriber) {
             this.subscriber.dispose();
         }
@@ -71,8 +73,6 @@ export class ProjectManager  implements IProjectManager {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
-        this.remove(true);
-
     }
 
     public initialize() {

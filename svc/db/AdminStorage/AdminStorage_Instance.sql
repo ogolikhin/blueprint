@@ -1140,6 +1140,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Suffix_Or
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Suffix_Or_Greater', 'en-US', N'or greater.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Suffix_Or_Less', 'en-US', N'or less.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Actor_Section_Name', 'en-US', N'Actor Properties')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Artifact_Section_Name', 'en-US', N'Artifact Properties')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_SubArtifact_Section_Name', 'en-US', N'Sub-Artifact Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'Service is unavailable')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'Forbidden. The user does not have permissions for the artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted')

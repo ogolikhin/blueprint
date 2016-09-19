@@ -215,8 +215,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             return this.localization.get("Nova_Document_File", "File");
         } else if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
+        } else if (this.selectedSubArtifact) {
+            return this.localization.get("Property_SubArtifact_Section_Name", "Sub-Artifact Properties");
         } else {
-            return this.selectedArtifact.predefinedType + this.localization.get("Nova_Properties", " Properties");
+            return this.localization.get("Property_Artifact_Section_Name", "Artifact Properties");
         }
     }
 }

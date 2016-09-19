@@ -1290,8 +1290,7 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="inheritance-group inheritance-group-wrapper">
                     <span class="actor-image-wrapper">
-                        <label ng-if="model[options.key]">
-                            <img ng-src="{{model[options.key]}}"/>
+                        <label ng-if="model[options.key]" ng-style="{'background-image': 'url(' + model[options.key] + ')'}" >
                             <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                                 ng-disabled="to.isReadOnly">
                         </label>    
@@ -1343,19 +1342,17 @@ export function formlyConfig(
                         </div>
                     </div>    
                     <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
-
-                    <div ng-show="model[options.key].actorName.length > 0">
-                        <div class="din">
-                            <span class="icon fonticon2-delete" ng-click="!to.isReadOnly && deleteBaseActor()"
-                                bp-tooltip="Delete"></span>
-                        </div>   
-                         <div class="fr">
-                            <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
-                                    ng-click="selectBaseActor()">Change</button>
-                        </div>        
-                    </div>         
+                    
+                    <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon icon-wrapper">
+                        <span class="icon fonticon2-delete" ng-click="!to.isReadOnly && deleteBaseActor()"
+                            ng-class="{disabled: to.isReadOnly}" bp-tooltip="Delete"></span>
+                    </div>   
+                     <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon">
+                        <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
+                                ng-click="selectBaseActor()" ng-class="{disabled: to.isReadOnly}">Change</button>
+                    </div>        
                     <div ng-hide="model[options.key].actorName.length > 0">
-                         <button class="btn btn-primary btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
+                         <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
                                 ng-click="selectBaseActor()">Select</button>                       
                     </div>             
             </div>`,

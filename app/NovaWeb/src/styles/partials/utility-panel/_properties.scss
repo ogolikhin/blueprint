@@ -40,13 +40,12 @@ bp-properties-panel {
         .formly-field-bpFieldInheritFrom {            
             min-width: $property-input-width;
             .inheritance-group {
-                display: block;
-                > div{
-                    display: flex;
-                    padding-top: $property-padding-default;
-                }
+                flex-wrap: wrap;
                 .inheritance-path {
                     min-width: $property-input-width;
+                }
+                .bp-input-group-addon{
+                    margin-top:10px;
                 }
             }
         }

@@ -84,6 +84,7 @@
 .icon-primitive-folder::before,
 .icon-folder::before { content: '\e80d'; } // ''
 .icon-document::before { content: '\e80e'; } // ''
+.icon-subartifact:before { content: '\e80f'; } /* '' */
 
 .thumb {
        width: 40px;

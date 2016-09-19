@@ -236,6 +236,8 @@ Property_Suffix_Or_Earlier," or earlier."
 Property_Suffix_Or_Greater," or greater."
 Property_Suffix_Or_Less," or less."
 Property_Actor_Section_Name,"Actor Properties"
+Property_Artifact_Section_Name,"Artifact Properties"
+Property_SubArtifact_Section_Name,"Sub-Artifact Properties"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"

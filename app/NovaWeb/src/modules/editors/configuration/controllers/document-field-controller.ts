@@ -74,19 +74,20 @@ export function documentController(
     };
     $scope.downloadFile = () => {
         if (guid) {
-            return $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
+            $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
+        } else {
+            artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
+                .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
+                    if (attachmentResultSet.attachments.length) {
+                        $window.open(
+                            "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
+                            + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
+                            "_blank");
+                    } else {
+                        messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
+                    }
+                });
         }
-        return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
-            .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
-                if (attachmentResultSet.attachments.length) {
-                    $window.open(
-                        "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
-                        + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
-                        "_blank");
-                } else {
-                    messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
-                }
-            });
     };
 
     $scope.deleteFile = () => {

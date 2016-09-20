@@ -111,18 +111,18 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="inheritance-group inheritance-group-wrapper">
                     <span class="actor-image-wrapper">
-                        <label ng-if="model[options.key]" ng-style="{'background-image': 'url(' + model[options.key] + ')'}" >
+                        <label ng-if="model[options.key].url" ng-style="{'background-image': 'url(' + model[options.key].url + ')'}" >
                             <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                                 ng-disabled="to.isReadOnly">
                         </label>    
-                        <span ng-if="!model[options.key]"></span>
+                        <span ng-if="!model[options.key].url"></span>
                     </span>
-                    <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
+                    <i ng-show="model[options.key].url.length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
                        ng-click="onActorImageDelete(to.isReadOnly)" ng-class="{disabled: to.isReadOnly}"></i>
                     <label>
                         <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                              ng-disabled="to.isReadOnly">  
-                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
+                        <i ng-hide="model[options.key].url.length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
                                     class="glyphicon glyphicon-plus image-actor-group"></i>
                     </label>
                 </div>`,

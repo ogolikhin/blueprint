@@ -789,6 +789,10 @@ pagecontent, bp-properties-panel {
     */
     .formly-field-bpFieldTinymce,
     .formly-field-bpFieldInlineTinymce {
+      > div {
+        width: 100%;
+      }
+
       div.form-tinymce,
       div.form-tinymce[contenteditable="true"] {
         a {

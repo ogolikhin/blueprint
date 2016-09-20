@@ -787,8 +787,8 @@ pagecontent, bp-properties-panel {
         }
       }
     */
-    .formly-field-bpFieldTinymce,
-    .formly-field-bpFieldInlineTinymce {
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
       > div {
         width: 100%;
       }
@@ -1016,6 +1016,7 @@ pagecontent, bp-properties-panel {
         }
       }
        
+
 
       .thumb{
         width:30px;

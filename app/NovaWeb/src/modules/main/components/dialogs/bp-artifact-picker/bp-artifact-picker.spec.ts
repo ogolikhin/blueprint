@@ -1,291 +1,209 @@
-﻿// import "angular";
-// import "angular-mocks";
-// import { SettingsService } from "../../../../core";
-// import { MessageService } from "../../../../shell/";
-// import { ProjectManager, Models } from "../../../";
-// import { ArtifactPickerController } from "./bp-artifact-picker";
-// import { SelectionManager } from "../../../services/selection-manager";
-// import { Helper } from "../../../../shared/";
-// import { BPTreeControllerMock, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
-// import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-// import { ProjectRepositoryMock } from "../../../services/project-repository.mock";
-// import { ModalServiceInstanceMock } from "../open-project.spec.ts";
-// import { DialogServiceMock, DialogTypeEnum } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+﻿import "angular";
+import "angular-mocks";
+import {ArtifactPickerController} from "./bp-artifact-picker";
+import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
+import {ILocalizationService} from "../../../../core";
+import {Models} from "../../../models";
+import {IProjectManager} from "../../../../managers";
+import {Project} from "../../../../managers/project-manager/";
+import {IProjectService} from "../../../../managers/project-manager/project-service";
 
-// describe("Artifact Picker", () => {
-//     let isReloadCalled: number = 0;
-//     let $scope;
-//     let elem;
-//     var controller: ArtifactPickerController;
+describe("ArtifactPickerController", () => {
+    let $scope: ng.IScope;
+    let projectManager: IProjectManager;
+    let projectService: IProjectService;
+    let controller: ArtifactPickerController;
+    const project = {id: 1} as Project;
 
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("localization", LocalizationServiceMock);
-//         $provide.service("settings", SettingsService);
-//         $provide.service("messageService", MessageService);
-//         $provide.service("projectRepository", ProjectRepositoryMock);
-//         $provide.service("projectManager", ProjectManager);
-//         $provide.service("selectionManager", SelectionManager);
-//         $provide.service("explorer", ArtifactPickerController);
-//         $provide.service("dialogService", DialogServiceMock);
-//     }));
+    beforeEach(inject(($rootScope: ng.IRootScopeService) => {
+        const $instance = {} as ng.ui.bootstrap.IModalServiceInstance;
+        const dialogSettings = {};
+        $scope = $rootScope.$new();
+        const localization = {} as ILocalizationService;
+        projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
+        (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
+        projectService = {} as IProjectService;
+        const dialogData = {ItemTypePredefines: [] as Models.ItemTypePredefined[]};
+        controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, dialogData);
+    }));
 
-//     beforeEach(inject((
-//         $rootScope: ng.IRootScopeService,
-//         localization: LocalizationServiceMock,
-//         projectRepository: ProjectRepositoryMock,
-//         projectManager: ProjectManager,
-//         $compile: ng.ICompileService,
-//         selectionManager: SelectionManager,
-//         dialogService: DialogServiceMock
-//     ) => {
-//         $rootScope["config"] = {
-//             "settings": {
-//                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
-//             }
-//         };
-//         projectManager.initialize();
-//         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
-//         $rootScope.$digest();
+    it("constructor sets selected project", inject(($rootScope: ng.IRootScopeService) => {
+        // Arrange
 
-//         $scope = $rootScope.$new();
+        // Act
 
-//         elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
+        // Assert
+        expect(controller.project).toEqual(project);
+    }));
 
-//         controller = new ArtifactPickerController(
-//             $scope,
-//             localization,
-//             new ModalServiceInstanceMock(),
-//             projectManager,
-//             selectionManager,
-//             projectRepository,
-//             dialogService,
-//             {
-//                 type: DialogTypeEnum.Base,
-//                 header: "test" ,
-//                 message: "test" ,
-//                 cancelButton: "test",
-//                 okButton: "test",
-//                 template: "test",
-//                 controller: null,
-//                 css: null,
-//                 backdrop: false
-//             },
-//             {
-//                 ItemTypePredefines: [Models.ItemTypePredefined.Document]
-//             }
-//         );
+    it("constructor cleans up on $destroy", inject(($rootScope: ng.IRootScopeService) => {
+        // Arrange
 
-//         controller["tree"] = new BPTreeControllerMock();      
+        // Act
+        $scope.$broadcast("$destroy");
 
-//         $compile(elem)($scope);
-//         $scope.$digest();
-//     }));
+        // Assert
+        expect(controller.columnDefs).toBeUndefined();
+        expect(controller.onSelect).toBeUndefined();
+    }));
 
+    describe("columnDefs", () => {
+        it("columnDefs properties are correctly defined", () => {
+            // Arrange
 
-//     it("check property map", inject(() => {
-//         // Assert
-//         expect(controller.propertyMap).toBeDefined();
-//         expect(controller.propertyMap["id"]).toEqual("id");
-//         expect(controller.propertyMap["itemTypeId"]).toEqual("itemTypeId");
-//         expect(controller.propertyMap["name"]).toEqual("name");
-//         expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
-//     }));
+            // Act
 
-//     it("check columns", inject(() => {
-//         // Assert
-//         var column = controller.columns[0];
-//         expect(column).toBeDefined();
-//         expect(column.headerName).toEqual("");
-//         expect(column.field).toEqual("name");
-//         expect(column.cellRenderer).toEqual("group");
-//         expect(column.suppressMenu).toEqual(true);
-//         expect(column.suppressFiltering).toEqual(true);
-//         expect(column.suppressFiltering).toEqual(true);
-//     }));
+            // Assert
+            expect(controller.columnDefs).toEqual([jasmine.objectContaining({
+                headerName: "",
+                field: "name",
+                cellRenderer: "group",
+                cellRendererParams: jasmine.objectContaining({}),
+                suppressMenu: true,
+                suppressSorting: true,
+            })]);
+            expect(angular.isFunction(controller.columnDefs[0].cellClass)).toEqual(true);
+            expect(angular.isFunction(controller.columnDefs[0].cellRendererParams["innerRenderer"])).toEqual(true);
+        });
 
+        it("cellClass, when is expandable, correct result", () => {
+            // Arrange
+            const vm = {isExpandable: true, getTypeClass: () => ""} as ArtifactPickerNodeVM<any>;
+            const cellClass = controller.columnDefs[0].cellClass as (cellClassParams: any) => string[];
 
-//     it("doLoad", inject(($rootScope: ng.IRootScopeService) => {
-//         // Arrange
-//         isReloadCalled = 0;
-//         controller.tree.reload = function (data: any[], id?: number) {
-//             isReloadCalled += 1;
-//         };
-//         // Act
-//         controller.doLoad(new Models.Project({ id: 1, name: "Project 1" }));
-//         $rootScope.$digest();
-//         // Assert
-//         expect(isReloadCalled).toEqual(1);
-//     }));
+            // Act
+            const css = cellClass({data: vm});
 
-//     it("doLoad (project view)", inject(($rootScope: ng.IRootScopeService) => {
-//         // Arrange
-//         isReloadCalled = 0;
-//         controller.tree.reload = function (data: any[], id?: number) {
-//             isReloadCalled += 1;
-//         };
-//         // Act
-//         controller.projectView = true;
-//         controller.doLoad(null);
-//         $rootScope.$digest();
-//         // Assert
-//         expect(isReloadCalled).toEqual(1);
+            // Assert
+            expect(css).toEqual(["has-children"]);
+        });
 
-//     }));
+        it("cellClass, when has type class, correct result", () => {
+            // Arrange
+            const vm = {isExpandable: false, getTypeClass: () => "is-folder"} as ArtifactPickerNodeVM<any>;
+            const cellClass = controller.columnDefs[0].cellClass as (cellClassParams: any) => string[];
 
-//     it("doSelect (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         isReloadCalled = 0;
-//         controller.tree.reload = function (data: any[], id?: number) {
-//             isReloadCalled += 1;
-//         };
-//         projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
-//         $rootScope.$digest();
-//         // Act
-//         controller.projectView = false;
-//         controller.doSelect(({ id: 1, name: "Project 1", itemTypeId: 1 } as ITreeNode));
-//         $rootScope.$digest();
-//         // Assert
-//         expect(isReloadCalled).toEqual(0);
+            // Act
+            const css = cellClass({data: vm});
 
-//     }));
+            // Assert
+            expect(css).toEqual(["is-folder"]);
+        });
 
-//     it("doSelect (project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         isReloadCalled = 0;
-//         controller.tree.reload = function (data: any[], id?: number) {
-//             isReloadCalled += 1;
-//         };
-//         projectManager.projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
-//         $rootScope.$digest();
-//         // Act
-//         controller.projectView = true;
-//         controller.doSelect(({ id: 1, name: "Project 1", type: 1 }));
-//         $rootScope.$digest();
+        it("innerRenderer, when InstanceItemNodeVM of type Folder, adds event listener", () => {
+            // Arrange
+            const cell = jasmine.createSpyObj("cell", ["addEventListener"]);
+            const vm = new InstanceItemNodeVM(projectService, {id: 1, type: Models.ProjectNodeType.Folder} as Models.IProjectNode);
+            const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
 
-//         // Assert
-//         expect(isReloadCalled).toEqual(2); // we call reload(null) first to empty the tree and then we reload the project
-//     }));
+            // Act
+            innerRenderer({data: vm, eGridCell: cell});
 
-//     it("doSync (not project view)", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         // Act
-//         var result = controller.doSync(({ id: 1, name: "Project 1", itemTypeId: 1, hasChildren: false } as ITreeNode));
-//         $rootScope.$digest();
+            // Assert
+            expect(cell.addEventListener).toHaveBeenCalledWith("keydown", jasmine.any(Function));
+        });
 
-//         // Assert
-//         expect(result.id).toEqual(1);
-//     }));
+        it("innerRenderer, when ArtifactNodeVM with custom icon, correct result", () => {
+            // Arrange
+            const vm = new ArtifactNodeVM(projectService, {id: 1, name: "artifact", prefix: "AC"});
+            const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
+            (projectManager.getArtifact as jasmine.Spy).and.returnValue({metadata: {getItemType() { return {id: 123, iconImageId: 456}; }}});
 
-//     it("cellClass should be added for PrimitiveFolder", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         let data = {
-//             "hasChildren": true,
-//             "predefinedType": Models.ItemTypePredefined.PrimitiveFolder
-//         };
-//         let params = {
-//             data: data
-//         };
+            // Act
+            const result = innerRenderer({data: vm});
 
-//         // Act
-//         var result = controller.columns[0].cellClass(params);
-//         $rootScope.$digest();
+            // Assert
+            expect(result).toEqual(`<span class="ag-group-value-wrapper"><bp-item-type-icon item-type-id="123" \
+item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
+        });
 
-//         // Assert
-//         expect(result.length).toBeGreaterThan(0);
-//         expect(result.indexOf("has-children")).toBeGreaterThan(-1);
-//         expect(result.indexOf("is-folder")).toBeGreaterThan(0);
-//     }));
+        it("innerRenderer, when not ArtifactNodeVM with custom icon, correct result", () => {
+            // Arrange
+            const vm = {name: "name"} as ArtifactPickerNodeVM<any>;
+            const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
 
-//     it("cellClass should be added for Project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         let data = {
-//             "predefinedType": Models.ItemTypePredefined.Project
-//         };
-//         let params = {
-//             data: data
-//         };
+            // Act
+            const result = innerRenderer({data: vm});
 
-//         // Act
-//         var result = controller.columns[0].cellClass(params);
-//         $rootScope.$digest();
+            // Assert
+            expect(result).toEqual(`<span class="ag-group-value-wrapper"><i></i><span>name</span></span>`);
+        });
+    });
 
-//         // Assert
-//         expect(result.length).toBeGreaterThan(0);
-//         expect(result.indexOf("is-project")).toBeGreaterThan(-1);
-//     }));
+    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
+        // Arrange
+        const model = {id: 3} as Models.IArtifact;
+        const vm = new ArtifactNodeVM(projectService, model);
 
-//     it("cellClass should be added for Other artifact types", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         const data = {
-//             "predefinedType": Models.ItemTypePredefined.Baseline
-//         };
-//         const params = {
-//             data: data
-//         };
-//         const expectedclassName = `is-${Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType])}`;
+        // Act
+        controller.onSelect(vm);
 
-//         // Act
-//         var result = controller.columns[0].cellClass(params);
-//         $rootScope.$digest();
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBe(model);
+    }));
 
-//         // Assert
-//         expect(result.length).toBeGreaterThan(0);
-//         expect(result.indexOf(expectedclassName)).toBeGreaterThan(-1);
-//     }));
+    it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {
+        // Arrange
+        const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
+        const vm = new InstanceItemNodeVM(projectService, model);
 
-//     it("cellClass should be added for Other data type folder", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         const data = {
-//             "type": 0
-//         };
-//         const params = {
-//             data: data
-//         };
+        // Act
+        controller.onSelect(vm);
 
-//         // Act
-//         var result = controller.columns[0].cellClass(params);
-//         $rootScope.$digest();
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBeUndefined();
+        expect(controller.project).toBe(model);
+    }));
 
-//         // Assert
-//         expect(result.length).toBeGreaterThan(0);
-//         expect(result.indexOf("is-folder")).toBeGreaterThan(-1);
-//     }));
+    it("onSelect, when InstanceItemNodeVM of type Folder, clears selected item", inject(($browser) => {
+        // Arrange
+        const model = {id: 99, type: Models.ProjectNodeType.Folder} as Models.IProjectNode;
+        const vm = new InstanceItemNodeVM(projectService, model);
 
-//     it("cellClass should be added for Other data type projet", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         const data = {
-//             "type": 1
-//         };
-//         const params = {
-//             data: data
-//         };
+        // Act
+        controller.onSelect(vm);
 
-//         // Act
-//         var result = controller.columns[0].cellClass(params);
-//         $rootScope.$digest();
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBeUndefined();
+    }));
 
-//         // Assert
-//         expect(result.length).toBeGreaterThan(0);
-//         expect(result.indexOf("is-project")).toBeGreaterThan(-1);
-//     }));
+    it("project, when defined, clears selected item and sets project and root node", inject(($browser) => {
+        // Arrange
+        const newProject = {id: 6, name: "new", hasChildren: true} as Models.IProject;
 
-//     it("selectedItem should be defined when selecting desired type", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//         // Arrange
-//         controller.projectView = false;
-//         projectManager.projectCollection.onNext([new Models.Artifact({ id: 1, name: "artifact 1", predefinedType: Models.ItemTypePredefined.Document })]);
-//         $rootScope.$digest();
-//         // Act
-//         controller.projectView = false;
-//         controller.doSelect({ id: 1, name: "artifact 1", itemTypeId: 1, predefinedType: Models.ItemTypePredefined.Document });
-//         $rootScope.$digest();
-//         // Assert
-//         expect(controller.selectedItem).toBeDefined();
-//     }));
+        // Act
+        controller.project = newProject;
 
-// });
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBeUndefined();
+        expect(controller.project).toBe(newProject);
+        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, {
+            id: 6,
+            type: Models.ProjectNodeType.Project,
+            name: "new",
+            hasChildren: true
+        } as Models.IProjectNode, true));
+    }));
+
+    it("project, when undefined, clears selected item and project and sets root node", inject(($browser) => {
+        // Arrange
+
+        // Act
+        controller.project = undefined;
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBeUndefined();
+        expect(controller.project).toBeUndefined();
+        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, {
+            id: 0,
+            type: Models.ProjectNodeType.Folder,
+            name: "",
+            hasChildren: true
+        } as Models.IProjectNode, true));
+    }));
+});

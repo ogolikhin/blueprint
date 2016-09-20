@@ -39,6 +39,8 @@ export class PropertyEditor {
                     };
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
+                } else if (context.propertyTypePredefined < 0) {
+                    return this.locale.toNumber($value);
                 }
                 return {
                     validValueIds: [this.locale.toNumber($value)]
@@ -209,7 +211,7 @@ export class PropertyEditor {
         } else {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
-                    field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
+                    field.type = context.isRichText ? "bpFieldTextRTFInline" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
                         field.templateOptions["tinymceOption"] = {

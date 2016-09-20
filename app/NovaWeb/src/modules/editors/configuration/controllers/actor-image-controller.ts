@@ -1,5 +1,4 @@
 import "angular";
-import { IArtifactAttachmentsService } from "../../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
 import { Helper } from "../../../shared/utils/helper";
 import { IDialogSettings, IDialogService } from "../../../shared";
@@ -7,11 +6,10 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 // import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
-actorImageController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService", "settingsService"];
+actorImageController.$inject = ["localization", "$window", "messageService", "dialogService", "settingsService"];
 export function actorImageController(
     $scope: any,
     localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
@@ -36,17 +34,6 @@ export function actorImageController(
             backdrop: false
         };
 
-        let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
-        let maxNumberAttachments: number = maxNumberAttachmentsDefault;
-
-        if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
-            maxNumberAttachments = maxNumberAttachmentsDefault;
-        }
-
-        if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
-        }
-
         const dialogData: IUploadStatusDialogData = {
             files: files,
             maxAttachmentFilesize: maxAttachmentFilesizeDefault,
@@ -64,7 +51,8 @@ export function actorImageController(
                     reader.readAsDataURL(image.file)
 
                     reader.onload = function(e) {
-                        $scope.model.image = e.target['result'];
+                        $scope.model.image = e.target['result'];                        
+                        $scope.to.onChange(image.file, getImageField(), $scope);
                     }
                 }
             }).finally(() => {
@@ -72,6 +60,13 @@ export function actorImageController(
                     callback();
                 }
             });
+    }
+
+    function getImageField(): any {
+        if (!$scope.fields) {
+            return null;
+        }
+        return $scope.fields.find((field: any) => field.key === "image");
     }
 
     $scope.onFileSelect = (files: File[], callback?: Function) => {
@@ -82,6 +77,7 @@ export function actorImageController(
         if(isReadOnly && isReadOnly === true){
             return ;
         }
+        $scope.to.onChange(null, getImageField(), $scope);
         $scope.model.image = null;
     };
 

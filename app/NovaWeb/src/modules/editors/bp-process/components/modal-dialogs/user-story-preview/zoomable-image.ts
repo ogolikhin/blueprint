@@ -11,7 +11,7 @@ export class ZoomableImageModalController {
         private imageAttributes: any) {
     }
 
-    private cancel() {
+    public cancel() {
         this.$uibModalInstance.dismiss("Cancel");
     }
 }

@@ -2,7 +2,7 @@
 import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
-import { IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared/";
+import { IDialogSettings, BaseDialogController } from "../../../../shared/";
 import { Models } from "../../../models";
 import { IProjectManager } from "../../../../managers";
 import { IProjectService } from "../../../../managers/project-manager/project-service";
@@ -45,7 +45,6 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private localization: ILocalizationService,
         private projectManager: IProjectManager,
         private projectService: IProjectService,
-        private dialogService: IDialogService,
         private dialogData: IArtifactPickerFilter
     ) {
         super($instance, dialogSettings);

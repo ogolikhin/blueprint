@@ -4,16 +4,12 @@ import { IStatefulArtifact } from "../../../managers/models";
 
 import { IMessageService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
-import { IEditorContext } from "../../models/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
 
     public controller: Function = PageContentCtrl;
     public controllerAs = "$content";
-    public bindings: any = {
-        viewState: "<"
-    };
 } 
 
 class PageContentCtrl {
@@ -30,7 +26,6 @@ class PageContentCtrl {
                 private diagramService: IDiagramService,
                 private windowManager: IWindowManager) {
     }
-    public viewState: boolean;
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...

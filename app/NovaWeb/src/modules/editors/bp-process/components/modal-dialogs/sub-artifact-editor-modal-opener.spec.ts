@@ -146,7 +146,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         // Assert
         expect(subArtifactEditorModalOpener.open).toHaveBeenCalledWith(
             "",
-            "sub-artifact-editor-modal-template.html",
+            require("./sub-artifact-editor-modal-template.html"),
             SubArtifactEditorModalController,
             subArtifactEditorModalOpener.getSubArtifactDialogModel(80, graph),
             "storyteller-modal");

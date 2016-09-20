@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿﻿import "angular";
 import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
 import { Helper } from "../../../shared/utils/helper";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
@@ -22,7 +22,7 @@ export function documentController(
     const maxNumberAttachments: number = 1;
     let setFields = (model: any) => {
         if (model) {
-        $scope.hasFile = true;
+            $scope.hasFile = true;
             $scope.fileName = model.fileName;
             $scope.extension = FiletypeParser.getFiletypeClass(model.fileName);
         }
@@ -70,19 +70,19 @@ export function documentController(
     $scope.onFileSelect = (files: File[], callback?: Function) => {
         chooseDocumentFile(files, callback);
     };
-        $scope.downloadFile = () => {
-            return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
-                .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
-                    if (attachmentResultSet.attachments.length) {
-                        $window.open(
-                            "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
-                            + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
-                            "_blank");
-                    } else {
-                        messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
-                    }
-                });
-        };
+    $scope.downloadFile = () => {
+        return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
+            .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
+                if (attachmentResultSet.attachments.length) {
+                    $window.open(
+                        "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
+                        + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
+                        "_blank");
+                } else {
+                    messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
+                }
+            });
+    };
 
     $scope.deleteFile = () => {
         const dialogSettings = <IDialogSettings> {

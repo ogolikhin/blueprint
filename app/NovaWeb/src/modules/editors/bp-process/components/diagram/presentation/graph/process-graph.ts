@@ -427,7 +427,8 @@ export class ProcessGraph implements IProcessGraph {
                         return;
                     }
 
-                    var tmp = sender.view.getState(me.getCell());
+                    let cell = graph.getCellAt(me.graphX, me.graphY);
+                    var tmp = sender.view.getState(cell);
 
                     // Ignores everything but vertices
                     if (sender.isMouseDown || (tmp != null && !sender.getModel().isVertex(tmp.cell))) {

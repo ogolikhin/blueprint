@@ -5,6 +5,7 @@ import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { ArtifactProperties, SpecialProperties } from "../properties";
 import { IStatefulArtifactServices } from "../services";
 import { IMetaData, MetaData } from "../metadata";
+
 import { 
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -16,7 +17,6 @@ import {
 import {
     IStatefulArtifact,
     IArtifactProperties,
-    IState,
     IIStatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactAttachmentsResultSet
@@ -113,9 +113,9 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     }
 
     private isLoaded = false;
-    public load(timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
+    public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-        if (!this.isLoaded) {
+        if (force || !this.isLoaded) {
             this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
                 .then((subArtifact: Models.ISubArtifact) => {
                     this.subArtifact = subArtifact;
@@ -145,7 +145,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return deferred.promise;
     }
 
-    public lock(): ng.IPromise<IState> {
+    public lock(): ng.IPromise<IStatefulArtifact> {
         return this.artifact.lock();
     }
 

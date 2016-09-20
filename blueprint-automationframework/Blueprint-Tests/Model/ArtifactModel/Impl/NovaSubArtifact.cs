@@ -21,6 +21,8 @@ namespace Model.ArtifactModel.Impl
 
         public int PredefinedType { get; set; }
 
+        public string Prefix { get; set; }
+
         public bool HasChildren { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

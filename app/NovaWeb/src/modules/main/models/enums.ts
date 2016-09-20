@@ -80,6 +80,32 @@ export enum ItemTypePredefined {
     GroupMask = 61440
 }
 
+export namespace ItemTypePredefined {
+    export function canContainSubartifacts(predefinedType: ItemTypePredefined): boolean {
+        return Boolean(this.getSubArtifactsContainerNodeTitle(predefinedType));
+    }
+
+    export function getSubArtifactsContainerNodeTitle(predefinedType: ItemTypePredefined): string {
+        switch (predefinedType) {
+            case ItemTypePredefined.Glossary:
+                return "Terms"; //TODO localize
+            case ItemTypePredefined.BusinessProcess:
+            case ItemTypePredefined.UIMockup:
+            case ItemTypePredefined.GenericDiagram:
+            case ItemTypePredefined.Storyboard:
+            case ItemTypePredefined.DomainDiagram:
+            case ItemTypePredefined.UseCaseDiagram:
+                return "Shapes"; //TODO localize
+            case ItemTypePredefined.UseCase:
+                return "Steps"; //TODO localize
+            case ItemTypePredefined.Process:
+                return "Tasks and Decisions"; //TODO localize
+            default:
+                return undefined;
+        }
+    }
+}
+
 export enum PropertyTypePredefined {
     DocumentFile = 4129,
 

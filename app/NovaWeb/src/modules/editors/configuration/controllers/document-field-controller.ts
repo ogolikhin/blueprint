@@ -18,8 +18,8 @@ export function documentController(
     settingsService: ISettingsService
 ) {
     let currentModelVal = $scope.model[$scope.options.key];
-    const maxAttachmentFilesizeDefault: number = 1048576; // 1 MB
-    const maxNumberAttachmentsDefault: number = 1;
+    const maxAttachmentFilesize: number = 1048576; // 1 MB
+    const maxNumberAttachments: number = 1;
     let setFields = (model: any) => {
         if (model) {
             $scope.hasFile = true;
@@ -41,18 +41,10 @@ export function documentController(
             header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
             backdrop: false
         };
-        let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
-        let maxNumberAttachments: number = maxNumberAttachmentsDefault;
-        if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
-            maxNumberAttachments = maxNumberAttachmentsDefault;
-        }
-        if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
-        }
         const dialogData: IUploadStatusDialogData = {
             files: files,
-            maxAttachmentFilesize: maxAttachmentFilesizeDefault,
-            maxNumberAttachments: maxNumberAttachmentsDefault
+            maxAttachmentFilesize: maxAttachmentFilesize,
+            maxNumberAttachments: maxNumberAttachments
         };
         let ds = dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
             if (uploadList && uploadList.length > 0) {

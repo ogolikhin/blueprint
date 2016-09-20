@@ -207,7 +207,7 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Actor],
+            selectableItemTypes: [],
             showSubArtifacts: true
         };
 

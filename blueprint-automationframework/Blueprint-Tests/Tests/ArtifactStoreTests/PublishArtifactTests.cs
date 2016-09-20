@@ -56,7 +56,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
             AssertPublishedArtifactPropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifact, expectedVersion: 1);
 
@@ -93,7 +93,7 @@ namespace ArtifactStoreTests
                 expectedVersion = numberOfVersions + 1;
             }
 
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
             AssertPublishedArtifactPropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions, expectedVersion);
 
@@ -119,9 +119,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-            Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(numberOfArtifacts, publishResponse.Artifacts.Count, "There should only be {0} published artifact returned!", numberOfArtifacts);
 
             AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
@@ -158,9 +156,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-            Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(artifactsWithMultipleVersions.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", artifactsWithMultipleVersions.Count);
 
@@ -186,7 +182,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, savedArtifactType, numberOfSavedArtifacts);
-            var publishedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, publishedArtifactType, numberOfPublishedArtifacts);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedArtifactType, numberOfPublishedArtifacts);
             var publishedWithDraftArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedWithDraftArtifactType, numberOfPublishedWithDraftArtifacts);
 
             Artifact.LockArtifacts(publishedWithDraftArtifacts, publishedWithDraftArtifacts.First().Address, _user);
@@ -207,9 +203,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-            Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(artifactsToPublish.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", artifactsToPublish.Count);
 
@@ -217,7 +211,7 @@ namespace ArtifactStoreTests
             AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, publishedWithDraftArtifacts, expectedVersion: 2);
 
             // Verify the published artifacts without drafts didn't get published again.
-            AssertArtifactsWereNotPublished(publishedArtifacts);
+            AssertArtifactsVersionEquals(publishedArtifacts, expectedVersion: 1);
         }
 
         [TestCase(BaseArtifactType.Process, 3, 2, null)]
@@ -240,9 +234,7 @@ namespace ArtifactStoreTests
                 PUBLISH_PATH, (all == null) ? string.Empty : I18NHelper.FormatInvariant("?all={0}", all.Value.ToString()));
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-            Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(numberOfArtifactsToPublish, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", numberOfArtifactsToPublish);
 
@@ -268,7 +260,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -299,9 +291,7 @@ namespace ArtifactStoreTests
             allArtifacts.AddRange(artifactsPassedToPublish);
             allArtifacts.AddRange(artifactsNotPassedToPublish);
 
-            Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-            Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+            AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", allArtifacts.Count);
 
@@ -329,9 +319,7 @@ namespace ArtifactStoreTests
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
-                Assert.AreEqual(1, publishResponse.Projects.Count, "There should only be 1 project returned for the published artifact!");
-                Assert.AreEqual(_project.Id, publishResponse.Projects.First().Id,
-                    "The project ID returned by the publish call doesn't match the project of the artifacts we published!");
+                AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should only be {0} published artifact returned!", allArtifacts.Count);
 
@@ -348,9 +336,133 @@ namespace ArtifactStoreTests
             }
         }
 
-        // TODO: Test saving some artifacts (some published with no drafts) and passing none of them to publish with all=true.
-        // TODO: Test with artifacts saved in different projects.
-        // TODO: Test with artifacts saved in different projects with all=true.
+        [TestCase(BaseArtifactType.Process, 3, BaseArtifactType.UseCase, 2)]
+        [TestRail(166018)]
+        [Description("Create multiple artifacts (some saved and others published).  Publish with all=true but don't pass any of the artifacts." +
+            "Verify publish is successful and that only the unpublished artifacts we created were published.")]
+        public void PublishArtifactWithAllTrue_MultipleSavedArtifactsAndPublishedArtifacts_SendEmptyListToPublish_ArtifactsHaveExpectedVersion(
+            BaseArtifactType savedArtifactType, int numberOfSavedArtifacts, BaseArtifactType publishedArtifactType, int numberOfPublishedArtifacts)
+        {
+            // Setup:
+            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, savedArtifactType, numberOfSavedArtifacts);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedArtifactType, numberOfPublishedArtifacts);
+
+            // Execute:
+            INovaPublishResponse publishResponse = null;
+
+            try
+            {
+                Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), _user, all: true),
+                    "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+                // Verify:
+                AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+                Assert.AreEqual(savedArtifacts.Count, publishResponse.Artifacts.Count,
+                    "There should only be {0} published artifact returned!", savedArtifacts.Count);
+
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
+                    publishResponse, savedArtifacts, expectedVersion: 1);
+
+                AssertArtifactsVersionEquals(publishedArtifacts, expectedVersion: 1);
+            }
+            finally
+            {
+                // This is needed so the Dispose() in the TearDown doesn't fail.
+                if (publishResponse != null)
+                {
+                    savedArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                }
+            }
+        }
+
+        [TestCase(BaseArtifactType.Process, 3)]
+        [TestRail(166019)]
+        [Description("Create & save artifacts in multiple projects.  Publish all the artifacts.  Verify publish is successful and that the version of the artifacts is now 1.")]
+        public void PublishArtifact_ArtifactsSavedInMultipleProjects_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            // Setup:
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
+
+            IProject firstProject = projects[0];
+            IProject secondProject = projects[1];
+
+            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, _user, artifactType, numberOfArtifacts);
+            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, _user, artifactType, numberOfArtifacts);
+
+            var allArtifacts = new List<IArtifactBase>();
+            allArtifacts.AddRange(artifactsInFirstProject);
+            allArtifacts.AddRange(artifactsInSecondProject);
+
+            // Execute:
+            INovaPublishResponse publishResponse = null;
+
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(allArtifacts, _user),
+                "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
+
+            // Verify:
+            var expectedProjects = new List<IProject>();
+            expectedProjects.Add(firstProject);
+            expectedProjects.Add(secondProject);
+
+            AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+            Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
+                "There should be {0} published artifacts returned!", allArtifacts.Count);
+
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
+                publishResponse, artifactsInFirstProject, expectedVersion: 1);
+        }
+
+        [TestCase(BaseArtifactType.Process, 3)]
+        [TestRail(166020)]
+        [Description("Create & save artifacts in multiple projects.  Publish all the artifacts.  Verify publish is successful and that the version of the artifacts is now 1.")]
+        public void PublishArtifactWithAllTrue_ArtifactsSavedInMultipleProjects_SendEmptyListToPublish_ArtifactsHaveVersion1(BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            // Setup:
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
+
+            IProject firstProject = projects[0];
+            IProject secondProject = projects[1];
+
+            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, _user, artifactType, numberOfArtifacts);
+            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, _user, artifactType, numberOfArtifacts);
+
+            var allArtifacts = new List<IArtifactBase>();
+            allArtifacts.AddRange(artifactsInFirstProject);
+            allArtifacts.AddRange(artifactsInSecondProject);
+
+            // Execute:
+            INovaPublishResponse publishResponse = null;
+
+            try
+            {
+                Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), _user, all: true),
+                    "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
+
+                // Verify:
+                var expectedProjects = new List<IProject>();
+                expectedProjects.Add(firstProject);
+                expectedProjects.Add(secondProject);
+
+                AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
+                    "There should be {0} published artifacts returned!", allArtifacts.Count);
+
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
+                    publishResponse, artifactsInFirstProject, expectedVersion: 1);
+            }
+            finally
+            {
+                // This is needed so the Dispose() in the TearDown doesn't fail.
+                if (publishResponse != null)
+                {
+                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                }
+            }
+        }
 
         #endregion 200 OK Tests
 
@@ -375,6 +487,52 @@ namespace ArtifactStoreTests
         #endregion 409 Conflict tests
 
         #region Private functions
+
+        /// <summary>
+        /// Asserts that the list of returned projects contains only the expected project.
+        /// </summary>
+        /// <param name="returnedProjects">The list of returned projects.</param>
+        /// <param name="expectedProject">The expected project.</param>
+        private static void AssertExpectedProjectWasReturned(List<INovaProject> returnedProjects, IProject expectedProject)
+        {
+            AssertAllExpectedProjectsWereReturned(returnedProjects, new List<IProject> { expectedProject });
+        }
+
+        /// <summary>
+        /// Asserts that the list of returned projects contains all the expected projects.
+        /// </summary>
+        /// <param name="returnedProjects">The list of returned projects.</param>
+        /// <param name="expectedProjects">The list of expected projects.</param>
+        private static void AssertAllExpectedProjectsWereReturned(List<INovaProject> returnedProjects, List<IProject> expectedProjects)
+        {
+            Assert.AreEqual(expectedProjects.Count, returnedProjects.Count,
+                "There should be {0} projects returned for the published artifact(s)!", expectedProjects.Count);
+
+            foreach (var expectedProject in expectedProjects)
+            {
+                INovaProject novaProject = returnedProjects.Find(p => p.Id == expectedProject.Id);
+
+                Assert.NotNull(novaProject, "Project ID {0} was not found in the list of returned projects!", expectedProject.Id);
+                Assert.AreEqual(expectedProject.Name, novaProject.Name,
+                    "Returned project ID {0} should have Name: '{1}'!", expectedProject.Id, expectedProject.Name);
+                Assert.IsNull(novaProject.Description, "The returned project Description should always be null!");
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the version of all the artifacts in the list still have the expected version.
+        /// </summary>
+        /// <param name="artifacts">The list of artifacts whose version you want to check.</param>
+        /// <param name="expectedVersion">The expected version of all the artifacts.</param>
+        private void AssertArtifactsVersionEquals(List<IArtifactBase> artifacts, int expectedVersion)
+        {
+            foreach (var artifact in artifacts)
+            {
+                var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+                Assert.AreEqual(expectedVersion, artifactHistoryAfter[0].VersionId,
+                    "Version ID after publish should be {0}!", expectedVersion);
+            }
+        }
 
         /// <summary>
         /// Asserts that the specified list of artifacts were NOT published by getting the artifacts and comparing against

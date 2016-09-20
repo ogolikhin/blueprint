@@ -817,6 +817,11 @@ namespace ArtifactStoreTests
             }
         }
 
+        /// <summary>
+        /// Creates chain of tree artifacts. Grandparent, parent and child
+        /// </summary>
+        /// <param name="artifactType">The type of created artifacts</param>
+        /// <returns>List of created artifacts.</returns>
         private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(BaseArtifactType artifactType)
         {
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };

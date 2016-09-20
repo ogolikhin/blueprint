@@ -256,7 +256,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 // load docRefs
                 this.docRefs.initialize(result.documentReferences);
 
-                return result;
+                deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {
                     this.deleted = true;
@@ -270,7 +270,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.id)
             .then( (result: Relationships.IRelationship[]) => {
-                return result;
+                deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {
                     this.deleted = true;

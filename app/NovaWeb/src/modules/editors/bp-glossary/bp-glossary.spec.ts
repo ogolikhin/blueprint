@@ -1,71 +1,82 @@
-// import "./";
-// import "angular";
-// import "angular-mocks";
-// import "Rx";
-// import { ComponentTest } from "../../util/component.test";
-// import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-// import { BpGlossaryController } from "./bp-glossary";
-// import { GlossaryServiceMock } from "./glossary.svc.mock";
-// import { ISelectionManager, SelectionManager } from "./../../main/services/selection-manager";
-// import { MessageServiceMock } from "../../core/messages/message.mock";
-// import { StateManager } from "../../core/services/state-manager";
-// import { SessionSvcMock } from "../../shell/login/mocks.spec";
+import "./";
+import "angular";
+import "angular-mocks";
+import "Rx";
+import { ComponentTest } from "../../util/component.test";
+import { LocalizationServiceMock } from "../../core/localization/localization.mock";
+import { BpGlossaryController } from "./bp-glossary";
+import { GlossaryServiceMock } from "./glossary.svc.mock";
+import { SelectionManager } from "./../../managers/selection-manager/selection-manager";
+import { MessageServiceMock } from "../../core/messages/message.mock";
+import { SessionSvcMock } from "../../shell/login/mocks.spec";
+import {
+    IArtifactManager,
+    ArtifactManager,
+    StatefulArtifactFactory,
+    MetaDataService,
+    ArtifactService,
+    ArtifactAttachmentsService,
+    ArtifactRelationshipsService }
+    from "../../managers/artifact-manager";
 
-// describe("Component BP Glossary", () => {
+describe("Component BP Glossary", () => {
 
-//     let componentTest: ComponentTest<BpGlossaryController>;
-//     let template = `<bp-glossary context="context"></bp-glossary>`;
-//     let vm: BpGlossaryController;
-//     let bindings = {
-//         context: {
-//             artifact: {
-//                 id: 263
-//             }
-//         }
-//     };
+    let componentTest: ComponentTest<BpGlossaryController>;
+    let template = `<bp-glossary context="context"></bp-glossary>`;
+    let vm: BpGlossaryController;
+    let bindings = {};
 
-//     beforeEach(angular.mock.module("bp.editors.glossary"));
+    beforeEach(angular.mock.module("bp.editors.glossary"));
 
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("glossaryService", GlossaryServiceMock);
-//         $provide.service("localization", LocalizationServiceMock);
-//         $provide.service("selectionManager", SelectionManager);
-//         $provide.service("messageService", MessageServiceMock);
-//         $provide.service("stateManager", StateManager);
-//         $provide.service("session", SessionSvcMock);
-//     }));
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("glossaryService", GlossaryServiceMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("selectionManager", SelectionManager);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("session", SessionSvcMock);
+        $provide.service("selectionManager", SelectionManager);
+        $provide.service("artifactService", ArtifactService);
+        $provide.service("artifactManager", ArtifactManager);
+        $provide.service("artifactAttachments", ArtifactAttachmentsService);
+        $provide.service("metadataService", MetaDataService);
+        $provide.service("artifactRelationships", ArtifactRelationshipsService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
+    }));
 
-//     beforeEach(inject(() => {
-//         componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
-//         vm = componentTest.createComponent(bindings);
-//     }));
+    beforeEach(inject((artifactManager: IArtifactManager, statefulArtifactFactory: StatefulArtifactFactory) => {
+        const artifact = statefulArtifactFactory.createStatefulArtifact({id: 263});
+        artifactManager.selection.setArtifact(artifact);
+        componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
+        vm = componentTest.createComponent(bindings);
+    }));
     
-//     afterEach( () => {
-//         vm = null;
-//     });
+    afterEach( () => {
+        vm = null;
+    });
 
-//     it("should be visible by default", () => {
-//         //Assert
-//         expect(componentTest.element.find("table").length).toBe(1);
-//     });
+    it("should be visible by default", () => {
+        //Assert
+        expect(componentTest.element.find("table").length).toBe(1);
+    });
 
-//     it("should display data for a provided artifact id", inject(() => {
-//        //Assert
-//        expect(vm.glossary.id).toBe(263);
-//        expect(vm.glossary.subArtifacts.length).toBe(4);
-//     }));
+    it("should display data for a provided artifact id", inject(() => {
+       //Assert
+       expect(vm.artifact.id).toBe(263);
+       expect(vm.terms).toBeDefined();
+       expect(vm.terms.length).toBe(4);
+    }));
 
-//     it("should select a specified term", inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager) => {
-//        // pre-req
-//        expect(componentTest.element.find(".selected-term").length).toBe(0);
+    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager) => {
+       // pre-req
+       expect(componentTest.element.find(".selected-term").length).toBe(0);
        
 
-//        // Act
-//        selectionManager.clearSelection();
-//        vm.selectTerm(vm.glossary.subArtifacts[2]);
-//        $rootScope.$digest();
+       // Act
+       artifactManager.selection.clearAll();
+       vm.selectTerm(vm.artifact.subArtifactCollection.get(386));
+       $rootScope.$digest();
 
-//        //Assert
-//        expect(componentTest.element.find(".selected-term").length).toBe(1);
-//     }));
-// });
+       //Assert
+       expect(componentTest.element.find(".selected-term").length).toBe(1);
+    }));
+});

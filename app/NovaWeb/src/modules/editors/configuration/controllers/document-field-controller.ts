@@ -102,7 +102,7 @@ export function documentController(
             guid = null;
         });
     }
-    $scope.changeLabelText = localization.get("Document_File_Change", "Change");
-    $scope.uploadLabelText = localization.get("Document_File_Upload", "Upload");
-    $scope.downloadLabelText = localization.get("Document_File_Download", "Download");
+    $scope.changeLabelText = localization.get("App_UP_Document_File_Change", "Change");
+    $scope.uploadLabelText = localization.get("App_UP_Document_File_Upload", "Upload");
+    $scope.downloadLabelText = localization.get("App_UP_Document_File_Download", "Download");
 }

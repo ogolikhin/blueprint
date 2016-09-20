@@ -83,6 +83,10 @@ App_UP_Attachments_Upload_Empty,"There are no files to upload."
 App_UP_Attachments_Upload_Total_Failed,"Total items failed:"
 App_UP_Attachments_Upload_Dialog_Header,"File Upload"
 
+App_UP_Document_File_Change, "Change"
+App_UP_Document_File_Upload, "Upload"
+App_UP_Document_File_Download, "Download"
+
 App_UP_Discussions_Introduction_Message,"You may collaborate with others using this discussion panel to add comments to any selected artifact."
 App_UP_Discussions_Start_Discussion,"+ Start a new discussion"
 App_UP_Discussions_New_Discussion,"+ New comment"

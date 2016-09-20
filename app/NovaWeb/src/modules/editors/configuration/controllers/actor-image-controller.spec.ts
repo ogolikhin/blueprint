@@ -100,9 +100,12 @@ describe("Actor image controller tests", () => {
         it("delete image for actor without readonly mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
                                                                        messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
-            //actorImageController.$inject = ["localization", "$window", "messageService", "dialogService", "settingsService"];
-
             actorImageController(scope, localization, $window, messageService, dialogService, settingsService);
+
+            scope.to = {
+                onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+                }
+            };
 
             scope.onActorImageDelete();
 
@@ -113,9 +116,12 @@ describe("Actor image controller tests", () => {
         it("delete image for actor with read only mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
                                                                  messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
-            actorImageController.$inject = ["localization", "$window", "messageService", "dialogService", "settingsService"];
-
             actorImageController(scope, localization, $window, messageService, dialogService, settingsService);
+
+            scope.to = {
+                onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+                }
+            };
 
             scope.onActorImageDelete(true);
 

@@ -32,14 +32,14 @@ export class NavigationService implements INavigationService {
         options = <ng.ui.IStateOptions>{ inherit: false };
 
         if (context) {
-            this.populatePath(context.sourceArtifactId, parameters);
+            this.populatePath(id, context.sourceArtifactId, parameters);
         }
 
         return this.$state.go(this._artifactState, parameters, options);
     }
 
-    private populatePath(sourceArtifactId: number, parameters: any) {
-        if (!sourceArtifactId) {
+    private populatePath(id: number, sourceArtifactId: number, parameters: any) {
+        if (!sourceArtifactId || sourceArtifactId === id) {
             return;
         }
 

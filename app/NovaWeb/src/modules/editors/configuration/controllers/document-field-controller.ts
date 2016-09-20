@@ -91,16 +91,18 @@ export function documentController(
     };
 
     $scope.deleteFile = () => {
-        const dialogSettings = <IDialogSettings> {
-            okButton: localization.get("App_Button_Ok", "OK"),
-            header: localization.get("App_UP_Attachments_Delete_Attachment", "Delete Attachment"),
-            message: localization.get("App_UP_Attachments_Delete_Attachment", "Attachment will be deleted. Continue?")
-        };
-        dialogService.open(dialogSettings).then(() => {
-            $scope.to.onChange(null, $scope.fields[0], $scope);
-            clearFields();
-            guid = null;
-        });
+        if (!$scope.fields[0].templateOptions.isReadOnly) {
+            const dialogSettings = <IDialogSettings>{
+                okButton: localization.get("App_Button_Ok", "OK"),
+                header: localization.get("App_UP_Attachments_Delete_Attachment", "Delete Attachment"),
+                message: localization.get("App_UP_Attachments_Delete_Attachment", "Attachment will be deleted. Continue?")
+            };
+            dialogService.open(dialogSettings).then(() => {
+                $scope.to.onChange(null, $scope.fields[0], $scope);
+                clearFields();
+                guid = null;
+            });
+        }
     }
     $scope.changeLabelText = localization.get("App_UP_Document_File_Change", "Change");
     $scope.uploadLabelText = localization.get("App_UP_Document_File_Upload", "Upload");

@@ -6,8 +6,8 @@ import { IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ISelectionManager } from "../../../managers";
 
-actorController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
-export function actorController(
+actorInheritanceController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
+export function actorInheritanceController(
     $scope: any,
     localization: ILocalizationService,    
     $window: ng.IWindowService,

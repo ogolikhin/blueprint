@@ -27,13 +27,15 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         private artifactAttachments: IArtifactAttachmentsService,
         private $window: ng.IWindowService,
         private messageService: IMessageService,
-        private dialogService: IDialogService) {
+        private dialogService: IDialogService
+    ) {
         super();
-        let currentModelVal = this.$scope.model[this.$scope.options["key"]];
-        let guid: number; //we use this to download newly added files (prior to saving).
         const maxAttachmentFilesize: number = 1048576; // 1 MB
         const maxNumberAttachments: number = 1;
         const templateOptions: any = $scope["to"];
+
+        let currentModelVal = this.$scope.model[this.$scope.options["key"]];
+        let guid: number; //we use this to download newly added files (prior to saving).
         let setFields = (model: any) => {
             if (model) {
                 this.$scope["hasFile"] = true;
@@ -41,11 +43,13 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 this.$scope["extension"] = FiletypeParser.getFiletypeClass(model.fileName);
             }
         }
+
         let clearFields = () => {
             this.$scope["hasFile"] = false;
             this.$scope["fileName"] = null;
             this.$scope["extension"] = null;
         }
+
         let chooseDocumentFile = (files: File[], callback?: Function) => {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
@@ -81,10 +85,10 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
             });
         }
 
-        setFields(currentModelVal);
         $scope["onFileSelect"] = (files: File[], callback?: Function) => {
             chooseDocumentFile(files, callback);
         };
+
         $scope["downloadFile"] = () => {
             if (guid) {
                 $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
@@ -117,8 +121,11 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 });
             }
         }
+
         $scope["changeLabelText"] = localization.get("App_UP_Document_File_Change", "Change");
         $scope["uploadLabelText"] = localization.get("App_UP_Document_File_Upload", "Upload");
         $scope["downloadLabelText"] = localization.get("App_UP_Document_File_Download", "Download");
+
+        setFields(currentModelVal);
     }
 }

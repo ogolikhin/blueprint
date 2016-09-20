@@ -634,6 +634,7 @@ namespace ArtifactStoreTests
         [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
         [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
         [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
+        [Category(Categories.CustomData)]
         [TestRail(166129)]
         [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
         public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)

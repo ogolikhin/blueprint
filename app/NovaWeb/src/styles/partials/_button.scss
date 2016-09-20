@@ -10,6 +10,26 @@
   }
  }
 .btn-primary {
+  background-color: $white;
+  border: solid 1px $gray-lighter;
+  color: $brand-secondary;
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: $brand-secondary;
+    border-color: $brand-secondary;
+    color: $white;
+  }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: $gray-lighter ;
+    border-color: $gray-light;
+    color: $gray-light;
+    opacity: 1;
+  }
+}
+.btn-promoted-action {
   background-color: $brand-secondary;
   border: solid 1px $brand-secondary;
   color: $white;
@@ -30,7 +50,6 @@
     opacity: 1;
   }
 }
-
 .btn-cancel {
     background-color: transparent;
     border: 1px solid $gray-light;

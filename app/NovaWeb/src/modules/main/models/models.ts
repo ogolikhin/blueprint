@@ -153,6 +153,11 @@ export interface IActorInheritancePropertyValue {
     isProjectPathVisible: boolean;
 }
 
+export interface IActorImagePropertyValue {
+    url: string;
+    guid: string;    
+}
+
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];

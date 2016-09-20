@@ -171,7 +171,7 @@ export function formlyConfig(
                 </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            actorImageController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
+            actorImageController($scope, localization, $window, messageService, dialogService, settingsService);
         }]
     });
 

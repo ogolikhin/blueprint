@@ -1,16 +1,13 @@
 import "angular";
-import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
-import { Models, Enums } from "../../main/models";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
 import { Helper, IDialogService } from "../../shared";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 import { ISelectionManager } from "../../managers";
-import { IUsersAndGroupsService, IUserOrGroupInfo } from "../../shell/bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
 import { BPFieldReadOnly } from "./types/read-only";
 import { BPFieldText } from "./types/text";
 import { BPFieldTextMulti } from "./types/text-multi";
@@ -18,74 +15,25 @@ import { BPFieldNumber } from "./types/number";
 import { BPFieldDatePicker } from "./types/date-picker";
 import { BPFieldSelect } from "./types/select";
 import { BPFieldSelectMulti } from "./types/select-multi";
+import { BPFieldUserPicker } from "./types/user-picker";
 import { BPFieldTinymce } from "./types/tinymce";
 import { BPFieldTinymceInline } from "./types/tinymce-inline";
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
-    "messageService", "dialogService", "settings", "selectionManager", "usersAndGroupsService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "artifactAttachments", "$window",
+    "messageService", "dialogService", "settings", "selectionManager"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
-    $sce: ng.ISCEService,
     artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
     settingsService: ISettingsService,
-    selectionManager: ISelectionManager,
-    usersAndGroupsService: IUsersAndGroupsService
+    selectionManager: ISelectionManager
 ): void {
     /* tslint:enable */
-
-    let scrollIntoView = function (event) {
-        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
-
-        if (target) {
-            target.scrollTop = 0;
-            target.focus();
-            angular.element(target).triggerHandler("click");
-        }
-    };
-
-    let blurOnKey = function (event: KeyboardEvent, keyCode?: number | number[]) {
-        let _keyCode: number[];
-        if (!keyCode) {
-            _keyCode = [13]; // 13 = Enter
-        } else if (angular.isNumber(keyCode)) {
-            _keyCode = [keyCode];
-        } else if (angular.isArray(keyCode)) {
-            _keyCode = keyCode;
-        }
-
-        let inputField = event.target as HTMLElement;
-        let key = event.keyCode || event.which;
-        if (_keyCode && inputField && _keyCode.indexOf(key) !== -1) {
-            let inputFieldButton = inputField.parentElement.querySelector("span button") as HTMLElement;
-            if (inputFieldButton) {
-                inputFieldButton.focus();
-            } else {
-                inputField.blur();
-            }
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-        }
-    };
-
-    let closeDropdownOnTab = function (event) {
-        let key = event.keyCode || event.which;
-        if (key === 9) { // 9 = Tab
-            let escKey = document.createEvent("Events");
-            escKey.initEvent("keydown", true, true);
-            escKey["which"] = 27; // 27 = Escape
-            escKey["keyCode"] = 27;
-            event.target.dispatchEvent(escKey);
-
-            blurOnKey(event, 9);
-        }
-    };
-
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
@@ -104,238 +52,9 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldDatePicker());
     formlyConfig.setType(new BPFieldSelect());
     formlyConfig.setType(new BPFieldSelectMulti());
+    formlyConfig.setType(new BPFieldUserPicker());
     formlyConfig.setType(new BPFieldTinymce());
     formlyConfig.setType(new BPFieldTinymceInline());
-
-    formlyConfig.setType({
-        name: "bpFieldUserPicker",
-        extends: "select",
-        /* tslint:disable */
-        template: `<div class="input-group has-messages">
-                <ui-select class="has-scrollbar"
-                    multiple
-                    ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    remove-selected="false"
-                    on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
-                    on-select="bpFieldUserPicker.onSelect($item, $select)"
-                    close-on-select="false"
-                    uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)"
-                    ng-mouseover="bpFieldUserPicker.setUpDropdown($event, $select)"
-                    ng-keydown="bpFieldUserPicker.setUpDropdown($event, $select)">
-                    <ui-select-match placeholder="{{to.placeholder}}">
-                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
-                    </ui-select-match>
-                    <ui-select-choices class="ps-child"
-                        on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
-                        refresh="bpFieldUserPicker.refreshResults($select)"
-                        ui-disable-choice="option.selected == true"
-                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: bpFieldUserPicker.maxItems">
-                        <div class="ui-select-choice-item" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true" ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
-                    </ui-select-choices>
-                    <ui-select-no-choice>
-                        <span ng-switch="bpFieldUserPicker.currentState">
-                            <span ng-switch-when="no-match">${localization.get("Property_No_Matching_Options")}</span>
-                            <span ng-switch-when="loading">Searching...</span>
-                            <span ng-switch-default>{{"Type {0} characters to start searching".replace("{0}", bpFieldUserPicker.minimumInputLength)}}</span>
-                        </span> 
-                    </ui-select-no-choice>
-                </ui-select>
-                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-                </div>
-            </div>`,
-        /* tslint:enable */
-        wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
-            templateOptions: {
-                placeholder: localization.get("Property_Placeholder_Select_Option"),
-                valueProp: "value",
-                labelProp: "name"
-            },
-            validators: {
-                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
-                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
-                requiredCustom: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        if ((<any>$scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
-                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }
-        },
-        link: function ($scope, $element, $attrs) {
-            $scope.$applyAsync((scope) => {
-                scope["fc"].$setTouched();
-                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
-
-                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
-                if (uiSelectContainer) {
-                    scope["uiSelectContainer"] = uiSelectContainer;
-                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
-                    uiSelectContainer.addEventListener("click", scrollIntoView, true);
-
-                    scope["bpFieldUserPicker"].toggleScrollbar();
-                    scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
-                }
-            });
-        },
-        controller: ["$scope", function ($scope) {
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (currentModelVal && angular.isArray(currentModelVal) && currentModelVal.length) {
-                // create the initial options in the dropdown just to be able to display the selected options in the field
-                // the dropdown will be dynamically loaded from the webservice
-                $scope["to"].options = currentModelVal.map((it: Models.IUserGroup) => {
-                    return {
-                        value: (it.isGroup ? "g" : "u") + it.id.toString(),
-                        name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
-                    } as any;
-                });
-                $scope.model[$scope.options.key] = currentModelVal.map((it: Models.IUserGroup) => {
-                    return (it.isGroup ? "g" : "u") + it.id.toString();
-                });
-            }
-
-            $scope.$on("$destroy", function () {
-                if ($scope["uiSelectContainer"]) {
-                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
-                    $scope["uiSelectContainer"].removeEventListener("click", scrollIntoView, true);
-                }
-            });
-
-            $scope.bpFieldUserPicker = {
-                currentState: null,
-                maxItems: 100,
-                minimumInputLength: 3,
-                isChoiceSelected: function (item, $select): boolean {
-                    return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
-                },
-                toggleScrollbar: function (removeScrollbar?: boolean) {
-                    if (!removeScrollbar) {
-                        if ($scope["uiSelectContainer"]) {
-                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                            if (elem && elem.scrollHeight > elem.clientHeight) {
-                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
-                            } else {
-                                removeScrollbar = true;
-                            }
-                        }
-                    }
-                    if (removeScrollbar) {
-                        if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
-                            if (elem && elem.scrollHeight <= elem.clientHeight) {
-                                $scope["uiSelectContainer"].classList.remove("has-scrollbar");
-                            }
-                        }
-                    }
-                },
-                findDropdown: function ($select): HTMLElement {
-                    let dropdown: HTMLElement;
-                    let elements = $select.$element.find("ul");
-                    for (let i = 0; i < elements.length; i++) {
-                        if (elements[i].classList.contains("ui-select-choices")) {
-                            dropdown = elements[i];
-                            break;
-                        }
-                    }
-                    return dropdown;
-                },
-                onOpenClose: function (isOpen: boolean, $select, options) {
-                    $select.items = [];
-                    $scope["to"].options = [];
-                },
-                onHighlight: function (option, $select) {
-                    if (this.isChoiceSelected(option, $select)) {
-                        if ($select.activeIndex > this.currentSelectedItem) {
-                            if ($select.activeIndex < $select.items.length - 1) {
-                                $select.activeIndex++;
-                            } else {
-                                this.currentSelectedItem = $select.activeIndex;
-                                $select.activeIndex--;
-                            }
-                        } else {
-                            if ($select.activeIndex > 0) {
-                                $select.activeIndex--;
-                            } else {
-                                this.currentSelectedItem = $select.activeIndex;
-                                $select.activeIndex++;
-                            }
-                        }
-                    } else {
-                        this.currentSelectedItem = $select.activeIndex;
-                    }
-                },
-                onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
-                    options.validation.show = formControl.$invalid;
-                    this.toggleScrollbar(true);
-                },
-                onSelect: function ($item, $select) {
-                    // On ENTER the ui-select reset the activeIndex to the first item of the list.
-                    // We need to hide the highlight until we select the proper entry
-                    if ($scope["uiSelectContainer"]) {
-                        $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
-                    }
-
-                    let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
-
-                    $scope.$applyAsync((scope) => {
-                        if (scope["uiSelectContainer"]) {
-                            scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                            scope["uiSelectContainer"].querySelector("input").focus();
-                        }
-                        if (currentItem < $select.items.length - 1) {
-                            this.currentSelectedItem = currentItem++;
-                            $select.activeIndex = currentItem;
-                        } else {
-                            this.currentSelectedItem = $select.items.length - 1;
-                            $select.activeIndex = -1;
-                        }
-                    });
-                    this.toggleScrollbar();
-                },
-                refreshResults: function ($select) {
-                    let query = $select.search;
-                    if (query.length >= this.minimumInputLength) {
-                        this.currentState = "searching";
-                        usersAndGroupsService.search($select.search, true).then(
-                        (users) => {
-
-                            $scope["to"].options = users.map((item: IUserOrGroupInfo) => {
-                                let e: any = {};
-                                e[$scope["to"].valueProp] = item.id.toString();
-                                e[$scope["to"].labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
-                                e.email = item.email;
-                                e.disabled = item.isBlocked;
-                                e.selected = true;
-                                return e;
-                            });
-                            $select.items = $scope["to"].options;
-                            this.currentState = $scope["to"].options.length ? null : "no-match";
-                        });
-                    } else {
-                        $scope["to"].options = [];
-                        $select.items = $scope["to"].options;
-                        this.currentState = null;
-                    }
-                },
-                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
-                // Not needed for textareas
-                setUpDropdown: function ($event, $select) {
-                    if ($scope["uiSelectContainer"]) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
-                        if (elem && !elem.classList.contains("ps-child")) {
-                            elem.classList.add("ps-child");
-                        }
-                    }
-                }
-            };
-        }]
-    });
 
     formlyConfig.setType({
         name: "bpDocumentFile",

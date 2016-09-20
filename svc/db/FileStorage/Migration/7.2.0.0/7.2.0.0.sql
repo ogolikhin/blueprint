@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Migration 7.2.0.0
 -- --------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.2.0') <> 0) 
+IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'7.2.0') <> 0) 
 	set noexec on
 Print 'Migrating 7.2.0.0 ...'
 -- --------------------------------------------------
@@ -11,8 +11,8 @@ Print 'Migrating 7.2.0.0 ...'
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.2.0') <> 0)
- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.2.0';
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.2.0') <> 0)
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.2.0';
 GO
 set noexec off
 -- --------------------------------------------------

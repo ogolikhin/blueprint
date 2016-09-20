@@ -11,6 +11,7 @@ import {IProcessShape, NodeType} from "../diagram/presentation/graph/models/";
 import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 import {IUserTask, IUserStoryProperties, ILabel, ISystemTask, IProcessLink} from "../diagram/presentation/graph/models/";
 import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
+import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core";
@@ -170,7 +171,7 @@ export class SubArtifactEditorModalOpener {
 
     private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
         this.open("",
-            "sub-artifact-editor-modal-template.html",
+            require("./sub-artifact-editor-modal-template.html"),
             SubArtifactEditorModalController,
             this.getSubArtifactDialogModel(shapeId, graph),
             "storyteller-modal");
@@ -179,7 +180,7 @@ export class SubArtifactEditorModalOpener {
     // @todo: replace with proper controller / template
     private openUserSystemDecisionDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
         this.open("",
-            "SubArtifactDecisionEditorModalTemplate.html",
+            /* TODO: require("SubArtifactDecisionEditorModalTemplate.html"), */ "",
             "SubArtifactDecisionEditorModalController",
             this.getUserSystemDecisionDialogModel(shapeId, graph),
             "storyteller-modal");
@@ -206,8 +207,8 @@ export class SubArtifactEditorModalOpener {
     private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
 
         this.open("",
-            "UserStoryPreviewTemplate.html",
-            "UserStoryPreviewController",
+            require("./user-story-preview/user-story-preview.html"),
+            UserStoryPreviewController,
             this.getUserStoryDialogModel(shapeId, graph),
             "preview-modal");
     }
@@ -226,12 +227,11 @@ export class SubArtifactEditorModalOpener {
         return retArr;
     }
 
-    public open = (size, htmlFileName: string, ctrl: any, dialogModel: any, windowClass: string) => {
+    public open = (size, htmlTemplate: string, ctrl: any, dialogModel: any, windowClass: string) => {
         this.$uibModal.open(<ModalSettings>{
             okButton: this.localization.get("App_Button_Ok"),
             animation: this.animationsEnabled,
-            template: require(`./${htmlFileName}`),
-            //templateUrl: `./${htmlFileName}`,
+            template: htmlTemplate,
             controller: ctrl,
             controllerAs: "vm",
             windowClass: windowClass,

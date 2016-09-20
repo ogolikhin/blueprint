@@ -1,11 +1,13 @@
 ﻿import { Models, Enums } from "../../models";
-import { IProjectManager, IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { IMessageService, Message, MessageType, ILocalizationService, IStateManager, ItemState } from "../../../core";
+import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
+import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
-import { IArtifactService } from "../../services";
-import { ICommunicationManager } from "../../../editors/bp-process";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
+
+import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+
+export { IArtifactManager }
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -16,9 +18,10 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
 
-    static $inject: [string] = ["$scope","projectManager", "localization", "stateManager", "messageService",
-        "dialogService", "$element", "windowManager", "artifactService", "communicationManager", "loadingOverlayService"];
-    private _subscribers: Rx.IDisposable[];
+    static $inject: [string] = [
+        "$scope", "$element", "artifactManager", "localization", "messageService", "dialogService", "windowManager", "loadingOverlayService"];
+
+    private subscribers: Rx.IDisposable[];
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -35,30 +38,33 @@ export class BpArtifactInfoController {
 
     constructor(
         public $scope: ng.IScope,
-        private projectManager: IProjectManager,
+        private $element: ng.IAugmentedJQuery,
+        private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
-        private stateManager: IStateManager,
         private messageService: IMessageService,
         private dialogService: IDialogService,
-        private $element: ng.IAugmentedJQuery,
         private windowManager: IWindowManager,
-        private artifactService: IArtifactService,
-        private communicationManager: ICommunicationManager,
         private loadingOverlayService: ILoadingOverlayService
     ) {
         this.initProperties();
     }
 
     public $onInit() {
-        this._subscribers = [
+        this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.stateManager.stateChange.subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.getArtifact().observable().subscribeOnNext(this.onStateChange, this),
         ];
     }
 
+
     public $onDestroy() {
-        this.initProperties();
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        try {
+            this.initProperties();
+            this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        } catch (ex) {
+            this.messageService.addError(ex.message);
+            throw ex;
+        }
     }
 
     private initProperties() {
@@ -81,64 +87,57 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onStateChange(state: ItemState) {
+    private updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
-        if (!state) {
+        if (!artifact) {
             return;
         }
-        let artifact = state.getArtifact(); 
-
         this.artifactName = artifact.name || "";
         this._artifactId = artifact.id;
-
-        if (state.itemType) {
-            this.artifactType = state.itemType.name || Models.ItemTypePredefined[state.itemType.predefinedType] || "";
-            if (state.itemType.iconImageId && angular.isNumber(state.itemType.iconImageId)) {
-                this.artifactTypeIcon = state.itemType.iconImageId;
+        let itemType = artifact.metadata.getItemType(); 
+        if (itemType) {
+            this.artifactTypeId = itemType.id;
+            this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+            if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
+                this.artifactTypeIcon = itemType.iconImageId;
             }
-        } else {
-            this.artifactType = Models.ItemTypePredefined[artifact.predefinedType] || "";
+            this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
+        
+        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
-        this.artifactTypeId = artifact.itemTypeId;
-        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
+        this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            itemType.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            itemType.predefinedType === Enums.ItemTypePredefined.Glossary;
 
-        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[artifact.predefinedType] || "document"));
-
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
-
-        this.isReadonly = state.isReadonly;
-        this.isChanged = state.isChanged;
-        switch (state.lockedBy) {
+        this.isReadonly = artifact.artifactState.readonly;
+        this.isChanged = artifact.artifactState.dirty;
+        switch (artifact.artifactState.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
             case Enums.LockedByEnum.OtherUser:
-                let name = "";
-                let date = this.localization.current.toDate(state.originItem.lockedDateTime);
-                if (state.lock && state.lock.info) {
-                    name = state.lock.info.lockOwnerLogin;
-                }
-                name =  name || state.originItem.lockedByUser.displayName || "";
-                let msg = name ? "Locked by " + name : "Locked "; 
-                if (date) {
-                    msg += " on " + this.localization.current.formatShortDateTime(date) + ".";
-                }
+                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
+                 if (artifact.artifactState.lockDateTime) {
+                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                 }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
             default:
                 break;
 
         }
+        
     }
 
+    private onStateChange = (artifact: IStatefulArtifact) => {
+        this.updateProperties(artifact);
+    }
 
     public get artifactHeadingMinWidth() {
         let style = {};
@@ -190,65 +189,17 @@ export class BpArtifactInfoController {
         }
     }
 
-    //TODO: move the save logic to a more appropriate place
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            let state: ItemState = this.stateManager.getState(this._artifactId);
-            let artifactDelta: Models.IArtifact = state.generateArtifactDelta();
-            this.artifactService.updateArtifact(artifactDelta)
-                .then((artifact: Models.IArtifact) => {
-                        let oldArtifact = state.getArtifact();
-                        if (artifact.version) {
-                            state.updateArtifactVersion(artifact.version);
-                        }
-                        if (artifact.lastSavedOn) {
-                            state.updateArtifactSavedTime(artifact.lastSavedOn);
-                        }
-                        this.messageService.addMessage(new Message(MessageType.Info, this.localization.get("App_Save_Artifact_Error_200")));
-                        state.finishSave();
-                        this.isChanged = false;
-                        this.projectManager.updateArtifactName(state.getArtifact());
-                    }, (error) => {
-                        let message: string;
-                        if (error) {
-                            if (error.statusCode === 400) {
-                                if (error.errorCode === 114) {
-                                    message = this.localization.get("App_Save_Artifact_Error_400_114");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_400") + error.message;
-                                }
-                            } else if (error.statusCode === 404) {
-                                message = this.localization.get("App_Save_Artifact_Error_404");
-                            } else if (error.statusCode === 409) {
-                                if (error.errorCode === 116) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_116");
-                                } else if (error.errorCode === 117) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_117");
-                                } else if (error.errorCode === 111) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_111");
-                                } else if (error.errorCode === 115) {
-                                    message = this.localization.get("App_Save_Artifact_Error_409_115");
-                                } else {
-                                    message = this.localization.get("App_Save_Artifact_Error_409");
-                                }
-
-                            } else {
-                                message = this.localization.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                            }
-                        }
-                        this.messageService.addError(message);
-                    }
-                ).finally(() => this.loadingOverlayService.endLoading(overlayId));
-        } catch (Error) {
-            this.messageService.addError(this.localization.get(Error));
+    
+     public saveChanges() {
+         let overlayId: number = this.loadingOverlayService.beginLoading();
+         this.artifactManager.selection.getArtifact().save().finally(() => {
             this.loadingOverlayService.endLoading(overlayId);
-        }
-    }
+         });
+     }
 
     public openPicker() {
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
+            okButton: this.localization.get("App_Button_Ok"),
             template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",

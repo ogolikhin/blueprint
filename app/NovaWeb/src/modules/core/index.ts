@@ -9,7 +9,6 @@ import { IFileUploadService, FileUploadService, IFileResult } from "./file-uploa
 import { LocalizationService, localeConfig } from "./localization/";
 import { SettingsService, ISettingsService } from "./configuration";
 
-
 angular.module("app.core", [
     "bp.core.services",
     "bp.core.messages",
@@ -35,9 +34,6 @@ export {
     BPLocale} from "./localization/";
 
 export {
-    IStateManager,
-    IPropertyChangeSet,
-    ItemState,
     IWindowResize,
     IWindowVisibility
 } from "./services";
@@ -49,3 +45,7 @@ export {
     Message,
     MessageType
 } from "./messages";
+
+export { 
+    IHttpInterceptorConfig 
+} from "./http";

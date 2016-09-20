@@ -5,7 +5,7 @@ import {IDecision, ISystemTask} from "../models/";
 import {NodeType, NodeChange} from "../models/";
 import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
-import {NodeFactorySettings} from "./node-factory";
+import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 

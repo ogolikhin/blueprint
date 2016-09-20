@@ -1,4 +1,4 @@
-<div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
+<div class="artifact-heading">
     <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''" bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
         <bp-item-type-icon ng-if="!!$ctrl.artifactTypeIcon"
                            item-type-id="{{$ctrl.artifactTypeId}}"
@@ -17,15 +17,13 @@
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>
-        <bp-breadcrumb          
-         name="{{ $ctrl.artifactName }}"
-         context="$ctrl.context"></bp-breadcrumb>
-         <div class="type-id"> {{$ctrl.artifactTypeDescription}} </div>
+        <bp-breadcrumb name="{{ $ctrl.artifactName }}" context="$ctrl.context"></bp-breadcrumb>
+        <div class="type-id"> {{$ctrl.artifactTypeDescription}} </div>
     </div>
 </div>
 <div class="page-top-toolbar">
     <button class="btn btn-bluelight" bp-tooltip="Delete" ng-click="$ctrl.clickDelete()" ng-if="$ctrl.isDeleteButtonEnabled">Delete</button>
-    <bp-toggle class="btn bp-toggle" context="$ctrl.context"></bp-toggle>
+    <bp-process-type-toggle></bp-process-type-toggle>
     <button class="btn btn-bluelight" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
     <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>
     <button class="btn btn-bluelight" bp-tooltip="Save">Save</button>

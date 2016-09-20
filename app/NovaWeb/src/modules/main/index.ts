@@ -13,6 +13,7 @@ import "angular-perfect-scrollbar-2";
 import "tinymce";
 import "../shell";
 import "../shared";
+import "../managers";
 import "./services/";
 import "./components";
 import "./router";
@@ -57,6 +58,7 @@ angular.module("app.main", [
     "agGrid",
     "ngDraggable",
     "angular-perfect-scrollbar-2",
+    "bp.managers",
     "bp.editors",
     "bp.components",
     "bp.router",
@@ -72,9 +74,5 @@ export {
     Relationships
 } from "./models";
 export {
-    IProjectRepository, ProjectRepository,
-    IArtifactService, ArtifactService,
-    IProjectManager, ProjectManager,
-    ISelectionManager, SelectionManager, ISelection, SelectionSource,
     IWindowManager, WindowManager, IMainWindow, ResizeCause
 } from "./services";

@@ -1,6 +1,7 @@
 ﻿import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
+import { IStatefulItem} from "../../managers/models";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 
@@ -38,6 +39,8 @@ export class PropertyEditor {
                     };
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
+                } else if (context.propertyTypePredefined < 0) {
+                    return this.locale.toNumber($value);
                 }
                 return {
                     validValueIds: [this.locale.toNumber($value)]
@@ -45,7 +48,14 @@ export class PropertyEditor {
 
             case Models.PrimitiveType.User:
                 //TODO: please implement on time of user editor field implementation
-                return $value;
+                if (angular.isArray($value)) {
+                    return {
+                        validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
+                    };
+                }
+                return {
+                    validValueIds: [this.locale.toNumber($value)]
+                };
 
             default:
                 return $value;
@@ -77,11 +87,8 @@ export class PropertyEditor {
                 return $value;
             }
         } else if (context.primitiveType === Models.PrimitiveType.User) {
-            //TODO: must be changed when  a field editor for this type of property is created
             if ($value.usersGroups) {
-                return $value.usersGroups.map((val: Models.IUserGroup) => {
-                    return val.displayName;
-                }).join(", ");
+                return $value.usersGroups;
             } else if ($value.displayName) {
                 return $value.displayName;
             } else if ($value.label) {
@@ -93,64 +100,63 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact): any {
+    public load(statefulItem: IStatefulItem, properties: Models.IPropertyType[]): any {
 
         this._model = {};
         this._fields = [];
-        this._artifactId = artifact.id;
-        if (artifact && angular.isArray(this.propertyContexts)) {
-            var artifactOrSubArtifact = artifact;
-            if (subArtifact) {
-                artifactOrSubArtifact = subArtifact;
-            }
+        this._artifactId = statefulItem.id;
+        if (statefulItem && angular.isArray(properties)) {
+            this.propertyContexts = properties.map((it: Models.IPropertyType) => {
+                return new PropertyContext(it);
+            });
+            // var artifactOrSubArtifact = artifact;
+            // if (subArtifact) {
+            //     artifactOrSubArtifact = subArtifact;
+            // }
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
+                    let isModelSet: boolean = false;
 
                     if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
                         //System property
-                        if (angular.isDefined(artifactOrSubArtifact[propertyContext.modelPropertyName])) {
-                            modelValue = artifactOrSubArtifact[propertyContext.modelPropertyName];
+                        if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
+                            modelValue = statefulItem[propertyContext.modelPropertyName];
+                            isModelSet = true;
                             if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
-                                artifact.readOnlyReuseSettings &&
-                                (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                                statefulItem.readOnlyReuseSettings &&
+                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
                                 propertyContext.disabled = true;
 
                             } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
-                                artifact.readOnlyReuseSettings &&
-                                (artifact.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                                statefulItem.readOnlyReuseSettings &&
+                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                                 propertyContext.disabled = true;
                             }
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom && angular.isArray(artifactOrSubArtifact.customPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
                         //Custom property
-                        let custompropertyvalue = artifactOrSubArtifact.customPropertyValues.filter((value: Models.IPropertyValue) => {
-                            return value.propertyTypeId === propertyContext.modelPropertyName as number;
-                        })[0];
+                        let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
                         if (custompropertyvalue) {
                             modelValue = custompropertyvalue.value;
+                            isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special && angular.isArray(artifactOrSubArtifact.specificPropertyValues)) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special)  {
                         //Specific property
-                        let specificpropertyvalue = artifactOrSubArtifact.specificPropertyValues.filter((value) => {
-                            return value.propertyTypePredefined === propertyContext.modelPropertyName as number;
-                        })[0];
-                        if (specificpropertyvalue) {
-                            if (artifactOrSubArtifact.predefinedType === Enums.ItemTypePredefined.Step &&
-                                specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
-                                modelValue = this.GetActorStepOfValue(specificpropertyvalue.value);
+                        let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
+                        isModelSet = true;
+                        if (specificPropertyValue) {
+                            if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
+                                specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
+                                modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
-                                if (specificpropertyvalue.value == null && specificpropertyvalue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
-                                    modelValue = { fileName: null, fileExtension: null };
-                                } else {
-                                    modelValue = specificpropertyvalue.value;
-                                }
-                            }
-                            propertyContext.disabled = specificpropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
+                                modelValue = specificPropertyValue.value;
+                            }                            
+                            propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
-                    if (angular.isDefined(modelValue)) {
+                    if (isModelSet) {
                         let field = this.createPropertyField(propertyContext);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
@@ -161,13 +167,11 @@ export class PropertyEditor {
         return this._model;
     }
 
-    private GetActorStepOfValue(propertyValue: any): string {
+    private getActorStepOfValue(propertyValue: any): string {
         if (propertyValue) {
             return this.localization.get("App_Properties_Actor_StepOf_Actor");
         }
-        else {
-            return this.localization.get("App_Properties_Actor_StepOf_System");
-        }
+        return this.localization.get("App_Properties_Actor_StepOf_System");
     }
 
     public destroy() {
@@ -259,8 +263,12 @@ export class PropertyEditor {
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    //TODO needs to be changed to user selection
-                    field.type = "bpFieldReadOnly";
+                    field.type = "bpFieldUserPicker";
+                    field.templateOptions["optionsAttr"] = "bs-options";
+                    field.templateOptions.options = [];
+                    if (context.userGroupDefaultValue && context.userGroupDefaultValue.length) {
+                        field.defaultValue = context.userGroupDefaultValue;
+                    }
                     break;
                 case Models.PrimitiveType.Image:
                     field.type = "bpFieldImage";

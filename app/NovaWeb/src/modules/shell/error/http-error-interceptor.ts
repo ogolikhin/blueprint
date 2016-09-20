@@ -1,7 +1,7 @@
 ﻿import "angular";
 import { ISession } from "../login/session.svc";
 import { SessionTokenHelper } from "../login/session.token.helper";
-import { IMessageService,} from "../../core";
+import { IMessageService, IHttpInterceptorConfig } from "../../core";
 
 
 export enum HttpErrorStatusCodes {
@@ -9,14 +9,7 @@ export enum HttpErrorStatusCodes {
     Succsess = 200,
     Unauthorized = 401,
     Forbidden = 403,
-    NotFound = 404,
     ServerError = 500
-}
-
-export interface IHttpInterceptorConfig extends ng.IRequestConfig {
-    ignoreInterceptor: boolean;
-    dontRetry: boolean;
-    dontHandle: boolean;
 }
 
 export class HttpErrorInterceptor {

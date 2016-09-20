@@ -98,10 +98,14 @@ namespace Helper
         /// <param name="project">The target project.</param>
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="parentArtifact">(optional) The parent artifact.  By default artifact will be created in root of the project.</param>
         /// <returns>The new artifact object.</returns>
-        public IArtifact CreateAndSaveOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        public IOpenApiArtifact CreateAndSaveOpenApiArtifact(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            IArtifactBase parentArtifact = null)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parentArtifact);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();
@@ -202,6 +206,32 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and save multiple artifacts using the Blueprint application server address from the TestConfiguration file.
+        /// </summary>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <returns>The list of artifacts created.</returns>
+        public List<IArtifactBase> CreateAndSaveMultipleArtifacts(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfArtifacts,
+            IArtifactBase parent = null)
+        {
+            var artifactList = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                IArtifact artifact = CreateAndSaveArtifact(project, user, artifactType, parent);
+                artifactList.Add(artifact);
+            }
+
+            return artifactList;
+        }
+
+        /// <summary>
         /// Creates a new artifact, then saves and publishes it the specified number of times.
         /// </summary>
         /// <param name="project">The project where the artifact is to be created.</param>
@@ -242,6 +272,54 @@ namespace Helper
             }
 
             return artifactList;
+        }
+
+        /// <summary>
+        /// Creates a chain of saved parent/child artifacts of the given artifact types.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
+        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
+        public List<IArtifact> CreateSavedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        {
+            ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
+
+            var artifactChain = new List<IArtifact>();
+            IArtifact bottomArtifact = null;
+
+            // Create artifact chain.
+            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            {
+                bottomArtifact = CreateAndSaveArtifact(project, user, artifactType, parent: bottomArtifact);
+                artifactChain.Add(bottomArtifact);
+            }
+
+            return artifactChain;
+        }
+
+        /// <summary>
+        /// Creates a chain of published parent/child artifacts of the given artifact types.
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be created.</param>
+        /// <param name="user">The user who will create the artifacts.</param>
+        /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
+        /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
+        public List<IArtifact> CreatePublishedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        {
+            ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
+
+            var artifactChain = new List<IArtifact>();
+            IArtifact bottomArtifact = null;
+
+            // Create artifact chain.
+            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            {
+                bottomArtifact = CreateAndPublishArtifact(project, user, artifactType, parent: bottomArtifact);
+                artifactChain.Add(bottomArtifact);
+            }
+
+            return artifactChain;
         }
 
         #endregion Artifact Management

@@ -74,7 +74,9 @@ export interface IBPTreeController {
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
-   
+    showLoading();
+    showNoRows();
+    hideOverlays();
 }
 
 
@@ -133,8 +135,6 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
-
-      
     }
 
     public $onInit = () => {
@@ -159,8 +159,8 @@ export class BPTreeController implements IBPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
-            onViewportChanged: this.perfectScrollbars,
-            onModelUpdated: this.perfectScrollbars,
+            onViewportChanged: this.updateViewport,
+            onModelUpdated: this.updateViewport,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
 
         };
@@ -169,9 +169,11 @@ export class BPTreeController implements IBPTreeController  {
 
     public $onDestroy = () => {
         this.selectedRow = null;
-        this.reload(null);
-        this.perfectScrollbars(null, true);
+        this.bpRef = null;
+        //this.reload(null);
+        this.updateViewport(null, true);
 
+        this.options.api.destroy();
     };
 
     /* tslint:disable */
@@ -182,9 +184,12 @@ export class BPTreeController implements IBPTreeController  {
         }
         let item = {} as ITreeNode;
 
-        for (let property in data) {
-            item[propertyMap[property] ? propertyMap[property] : property ] = data[property];
-        }
+         for (let property in data) {
+             item[propertyMap[property] ? propertyMap[property] : property ] = data[property];
+         }
+        // for (let property in propertyMap) {
+        //     item[property] = data[property];
+        // }
         if (item.hasChildren) {
             if (angular.isArray(item.children) && item.children.length) {
                 item.children = item.children.map(function (it) {
@@ -255,9 +260,24 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
-    private perfectScrollbars = (params?: any, remove?: boolean) => {
-        let viewport = this.$element[0].querySelector(".ag-body-viewport");
+    public showLoading = () => {
+        this.options.api.showLoadingOverlay();
+    };
 
+    public showNoRows = () => {
+        this.options.api.showNoRowsOverlay();
+    };
+
+    public hideOverlays = () => {
+        this.options.api.hideOverlay();
+    };
+
+    private updateViewport = (params?: any, remove?: boolean) => {
+        if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
+            this.hideOverlays();
+        }
+
+        let viewport = this.$element[0].querySelector(".ag-body-viewport");
         if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
             if (remove) {
                 (<any>window).PerfectScrollbar.destroy(viewport);
@@ -337,8 +357,6 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
-    public that = this;
-
     private rowGroupOpened = (params: any) => {
         console.log("rowGroupOpened");
         let self = this;
@@ -377,26 +395,24 @@ export class BPTreeController implements IBPTreeController  {
         if (!node) {
             return;
         }
-        var self = this;
 
         node.setSelected(true, true);
 
-        if (angular.isFunction(self.onSelect)) {
-            self.onSelect({ item: node.data });
+        if (angular.isFunction(this.onSelect)) {
+            this.onSelect({ item: node.data });
         }
     };
 
     private cellFocused = (params: any) => {
-        var self = this;
-        var model = self.options.api.getModel();
+        var model = this.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
-        self.rowSelected(selectedRow);
+        this.rowSelected(selectedRow);
     };
     
     private rowClicked = (params: any) => {
-        var self = this;
+        let self = this;
 
-        self.clickTimeout = self.$timeout(function () {
+        this.clickTimeout = this.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }

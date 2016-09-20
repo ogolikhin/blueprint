@@ -36,14 +36,7 @@
                 <li><a href="#" ng-click="$ctrl.execute($event)">Process</a></li>
             </ul>
         </li>
-        <li>
-            <a href="#" id="publishAll" ng-click="$ctrl.execute($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-save-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Save_All"]}}</span>
-            </a>
-        </li>
+
         <li>
             <a href="#" id="publishAll" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
@@ -68,14 +61,6 @@
                 <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
             </a>
         </li>
-         <li>
-            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-relationship-right"></i>
-                </div>
-                <span>Go to</span>
-            </a>
-        </li>
         <li>
             <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
@@ -84,7 +69,15 @@
                 <span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span>
             </a>
         </li>
-       
+        <li class="separator"></li>
+        <li>
+            <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
+                <div class="icon-container">
+                    <i class="fonticon fonticon2-relationship-right"></i>
+                </div>
+                <span>Go to</span>
+            </a>
+        </li>
     </ul>
     <ul class="nav navbar-nav nav-right">
         <li>

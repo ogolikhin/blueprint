@@ -1,7 +1,8 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
-import { IProjectManager, ISelectionManager } from "../../services";
+import { IArtifactManager, IProjectManager } from "../../../managers";
+
 import { OpenProjectController } from "../dialogs/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
@@ -29,7 +30,9 @@ class BPToolbarController implements IBPToolbarController {
         "localization",
         "dialogService",
         "projectManager",
-        "selectionManager",
+        "artifactManager",
+        "messageService",
+        "$rootScope",
         "loadingOverlayService",
         "$timeout",
         "$http"];
@@ -38,7 +41,9 @@ class BPToolbarController implements IBPToolbarController {
         private localization: ILocalizationService,
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager,
+        private artifactManager: IArtifactManager,
+        private messageService: IMessageService,
+        private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
         private $http: ng.IHttpService //Used for testing, remove later
@@ -52,10 +57,10 @@ class BPToolbarController implements IBPToolbarController {
         var element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
             case `projectclose`:
-                this.projectManager.closeProject();
+                this.projectManager.remove();
                 break;
             case `projectcloseall`:
-                this.projectManager.closeProject(true);
+                this.projectManager.remove(true);
                 break;
             case `deleteartifact`:
                 this.dialogService.open(<IDialogSettings>{
@@ -78,7 +83,7 @@ class BPToolbarController implements IBPToolbarController {
                     css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
                 }).then((project: Models.IProject) => {
                     if (project) {
-                        this.projectManager.loadProject(project);
+                        this.projectManager.add(project);
                     }
                 });
                 break;
@@ -145,7 +150,7 @@ class BPToolbarController implements IBPToolbarController {
 
     public $onInit(o) {
         this._subscribers = [
-            this.selectionManager.selectedArtifactObservable.subscribe(this.displayArtifact)
+            this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
         ];
     }
 

@@ -203,7 +203,8 @@ export class ProcessAddHelper {
         var sourceId = link.sourceId;
         var destinationId = link.destinationId;
         layout.setTempShapeId(layout.getTempShapeId() - 1);
-        var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(layout.getTempShapeId(), layout.viewModel.id, layout.viewModel.projectId, -1, -1);
+        var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(layout.getTempShapeId(), 
+        layout.viewModel.id, layout.viewModel.projectId, -1, -1);
         ProcessAddHelper.addShape(systemDecision, layout);
         layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 

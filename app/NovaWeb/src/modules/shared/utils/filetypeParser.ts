@@ -65,4 +65,19 @@
             return "ext-document";
         }
     }
+
+    static getFileExtension(filename: string): string {
+        if (!filename) {
+            return "";
+        }
+
+        filename = filename.toLowerCase();
+        const fileExt: RegExpMatchArray = filename.match(/([^.]*)$/);
+
+        if(fileExt[0]){
+            return fileExt[0];
+        }else{
+            return "";
+        }
+    }
 }

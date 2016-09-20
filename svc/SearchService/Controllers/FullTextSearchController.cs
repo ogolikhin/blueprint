@@ -5,6 +5,7 @@ using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Models;
 
 namespace SearchService.Controllers
 {
@@ -25,10 +26,24 @@ namespace SearchService.Controllers
             _fullTextSearchRepository = fullTextSearchRepository;
         }
 
+        /// <summary>
+        /// Perform a Full Text Search
+        /// </summary>
+        /// <param name="searchCriteria">SearchCriteria object</param>
+        /// <param name="page">Page Number</param>
+        /// <param name="pageSize">Page Size</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="404">Not Found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, NoCache, NoSessionRequired]
         [Route("")]
         public async Task<IHttpActionResult> Post([FromBody] SearchCriteria searchCriteria, int page = 1, int pageSize = -1)
         {
+            // get the UserId from the session
+            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            //searchCriteria.UserId = session?.UserId;
+
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -38,24 +53,43 @@ namespace SearchService.Controllers
 
             var results = await _fullTextSearchRepository.Search(searchCriteria, page, pageSize);
 
-            var totalPages = Math.Ceiling((double)results.TotalCount / pageSize);
+            results.Page = page;
+            results.PageSize = pageSize;
 
-            return Ok(new
-            {
-                Page = page,
-                TotalCount = results.TotalCount,
-                TotalPages = totalPages,
-                PageSize = pageSize,
-                SearchResults = results.FullTextSearchItems,
-                TypeResults = results.FullTextSearchTypeItems
-            });
+            return Ok(results);
         }
 
-        [HttpGet, NoCache, NoSessionRequired]
-        [Route("UpCheck")]
-        public IHttpActionResult GetStatusUpCheck()
+        /// <summary>
+        /// Return metadata for a Full Text Search
+        /// </summary>
+        /// <param name="searchCriteria">SearchCriteria object</param>
+        /// <param name="pageSize">Page Size</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="404">Not Found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost, NoCache, NoSessionRequired]
+        [Route("metadata")]
+        public async Task<IHttpActionResult> MetaData([FromBody] SearchCriteria searchCriteria, int pageSize = -1)
         {
-            return Ok();
+            // get the UserId from the session
+            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            //searchCriteria.UserId = session?.UserId;
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (pageSize == -1) pageSize = WebApiConfig.PageSize;
+
+            var results = await _fullTextSearchRepository.SearchMetaData(searchCriteria);
+
+            results.PageSize = pageSize;
+            results.TotalPages = (int)results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / pageSize) : -1;
+
+            return Ok(results);
         }
+
     }
 }

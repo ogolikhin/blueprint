@@ -6,23 +6,25 @@ import { ComponentTest } from "../../util/component.test";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { BpGlossaryController } from "./bp-glossary";
 import { GlossaryServiceMock } from "./glossary.svc.mock";
-import { ISelectionManager, SelectionManager } from "./../../main/services/selection-manager";
+import { SelectionManager } from "./../../managers/selection-manager/selection-manager";
 import { MessageServiceMock } from "../../core/messages/message.mock";
-import { StateManager } from "../../core/services/state-manager";
 import { SessionSvcMock } from "../../shell/login/mocks.spec";
+import {
+    IArtifactManager,
+    ArtifactManager,
+    StatefulArtifactFactory,
+    MetaDataService,
+    ArtifactService,
+    ArtifactAttachmentsService,
+    ArtifactRelationshipsService }
+    from "../../managers/artifact-manager";
 
 describe("Component BP Glossary", () => {
 
     let componentTest: ComponentTest<BpGlossaryController>;
     let template = `<bp-glossary context="context"></bp-glossary>`;
     let vm: BpGlossaryController;
-    let bindings = {
-        context: {
-            artifact: {
-                id: 263
-            }
-        }
-    };
+    let bindings = {};
 
     beforeEach(angular.mock.module("bp.editors.glossary"));
 
@@ -31,11 +33,19 @@ describe("Component BP Glossary", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("stateManager", StateManager);
         $provide.service("session", SessionSvcMock);
+        $provide.service("selectionManager", SelectionManager);
+        $provide.service("artifactService", ArtifactService);
+        $provide.service("artifactManager", ArtifactManager);
+        $provide.service("artifactAttachments", ArtifactAttachmentsService);
+        $provide.service("metadataService", MetaDataService);
+        $provide.service("artifactRelationships", ArtifactRelationshipsService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
     }));
 
-    beforeEach(inject(() => {
+    beforeEach(inject((artifactManager: IArtifactManager, statefulArtifactFactory: StatefulArtifactFactory) => {
+        const artifact = statefulArtifactFactory.createStatefulArtifact({id: 263});
+        artifactManager.selection.setArtifact(artifact);
         componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
         vm = componentTest.createComponent(bindings);
     }));
@@ -51,18 +61,19 @@ describe("Component BP Glossary", () => {
 
     it("should display data for a provided artifact id", inject(() => {
        //Assert
-       expect(vm.glossary.id).toBe(263);
-       expect(vm.glossary.subArtifacts.length).toBe(4);
+       expect(vm.artifact.id).toBe(263);
+       expect(vm.terms).toBeDefined();
+       expect(vm.terms.length).toBe(4);
     }));
 
-    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager) => {
+    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager) => {
        // pre-req
        expect(componentTest.element.find(".selected-term").length).toBe(0);
        
 
        // Act
-       selectionManager.clearSelection();
-       vm.selectTerm(vm.glossary.subArtifacts[2]);
+       artifactManager.selection.clearAll();
+       vm.selectTerm(vm.artifact.subArtifactCollection.get(386));
        $rootScope.$digest();
 
        //Assert

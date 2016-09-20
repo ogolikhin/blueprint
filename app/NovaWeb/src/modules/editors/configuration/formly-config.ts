@@ -2,25 +2,29 @@ import "angular";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {PrimitiveType, PropertyLookupEnum} from "../../main/models/enums";
-import {ILocalizationService, IMessageService} from "../../core";
-import {Helper} from "../../shared";
-import { FiletypeParser } from "../../shared/utils/filetypeParser";
-import { IArtifactAttachments, IArtifactAttachmentsResultSet } from "../../shell/bp-utility-panel/bp-attachments-panel/artifact-attachments.svc";
+import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
+import { Models, Enums } from "../../main/models";
+import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
+import { Helper, IDialogService } from "../../shared";
 import { documentController } from "./controllers/document-field-controller";
-import { actorController } from "./controllers/actor-field-controller";
+import { actorInheritanceController } from "./controllers/actor-inheritance-controller";
+import { actorImageController } from "./controllers/actor-image-controller";
+import { ISelectionManager } from "../../managers";
 
-
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window", "messageService"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
+    "messageService", "dialogService", "settings", "selectionManager"];
 /* tslint:disable */
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
     localization: ILocalizationService,
     $sce: ng.ISCEService,
-    artifactAttachments: IArtifactAttachments,
+    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
-    messageService: IMessageService
+    messageService: IMessageService,
+    dialogService: IDialogService,
+    settingsService: ISettingsService,
+    selectionManager: ISelectionManager
 ): void {
     /* tslint:enable */
 
@@ -147,7 +151,7 @@ export function formlyConfig(
             let currentModelVal = $scope.model[$scope.options.key];
             let newValue: any;
 
-            $scope.primitiveType = PrimitiveType;
+            $scope.primitiveType = Enums.PrimitiveType;
             $scope.tooltip = "";
             $scope.scrollOptions = {
                 minScrollbarLength: 20,
@@ -162,7 +166,7 @@ export function formlyConfig(
             };
 
             switch ($scope.options.data.primitiveType) {
-                case PrimitiveType.Text:
+                case Enums.PrimitiveType.Text:
                     if (currentModelVal) {
                         newValue = currentModelVal;
                     } else if ($scope.options.data) {
@@ -175,11 +179,11 @@ export function formlyConfig(
                         newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
                     break;
-                case PrimitiveType.Date:
+                case Enums.PrimitiveType.Date:
                     let date = localization.current.toDate(currentModelVal || ($scope.options.data ? $scope.options.data.dateDefaultValue : null));
                     if (date) {
                         newValue = localization.current.formatDate(date,
-                            $scope.options.data.lookup === PropertyLookupEnum.Custom ?
+                            $scope.options.data.lookup === Enums.PropertyLookupEnum.Custom ?
                                 localization.current.shortDateFormat :
                                 localization.current.longDateFormat);
                     } else {
@@ -187,13 +191,13 @@ export function formlyConfig(
                     }
                     $scope.tooltip = newValue;
                     break;
-                case PrimitiveType.Number:
+                case Enums.PrimitiveType.Number:
                     let decimal = localization.current.toNumber($scope.options.data.decimalPlaces);
                     newValue = localization.current.formatNumber(
                         currentModelVal || ($scope.options.data ? $scope.options.data.decimalDefaultValue : null), decimal);
                     $scope.tooltip = newValue;
                     break;
-                case PrimitiveType.Choice:
+                case Enums.PrimitiveType.Choice:
                     newValue = currentModelVal || ($scope.options.data ? $scope.options.data.defaultValidValueId : null);
                     if (!$scope.options.data.isMultipleAllowed && $scope.options.data.validValues) {
                         if (angular.isNumber(newValue)) {
@@ -211,8 +215,14 @@ export function formlyConfig(
                         }
                     }
                     break;
-                case PrimitiveType.User:
-                    newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                case Enums.PrimitiveType.User:
+                    if (angular.isArray(currentModelVal)) {
+                        newValue = currentModelVal.map((val: Models.IUserGroup) => {
+                            return (val.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + val.displayName;
+                        }).join(", ");
+                    } else {
+                        newValue = currentModelVal || ($scope.options.data ? $scope.options.data.userGroupDefaultValue : null);
+                    }
                     $scope.tooltip = newValue;
                     break;
                 default:
@@ -359,7 +369,7 @@ export function formlyConfig(
 
             $scope.bpFieldSelect = {
                 refreshResults: function ($select) {
-                    if (!$scope.options.data.isValidated && $scope.options.data.lookup === PropertyLookupEnum.Custom) {
+                    if (!$scope.options.data.isValidated && $scope.options.data.lookup === Enums.PropertyLookupEnum.Custom) {
                         let search = $select.search;
 
                         if (search) {
@@ -495,7 +505,6 @@ export function formlyConfig(
                 SAME: 0,
                 DOWN: 1
             });
-            let lastHighlighted = -1;
 
             $scope.$on("$destroy", function () {
                 if ($scope["uiSelectContainer"]) {
@@ -511,6 +520,7 @@ export function formlyConfig(
                 maxItemsToRender: 50,
                 startingItem: 0,
                 firstVisibleItem: 0,
+                currentSelectedItem: -1,
                 isScrolling: false,
                 isOpen: false,
                 isChoiceSelected: function (item, $select): boolean {
@@ -660,24 +670,25 @@ export function formlyConfig(
                     $scope.bpFieldSelectMulti.isScrolling = true;
                 },
                 onHighlight: function (option, $select) {
-                    let nextIndex = -1;
-                    let highlightIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(option[$scope.to.valueProp]);
                     if (this.isChoiceSelected(option, $select)) {
-                        nextIndex = this.nextFocusableChoice(option, $select, lastHighlighted < highlightIndex ? direction.DOWN : direction.UP);
-                        if (nextIndex !== -1) {
-                            $select.activeIndex = nextIndex;
-                            lastHighlighted = nextIndex;
+                        if ($select.activeIndex > this.currentSelectedItem) {
+                            $select.activeIndex++;
                         } else {
-                            $select.activeIndex = lastHighlighted;
+                            $select.activeIndex--;
                         }
                     } else {
-                        lastHighlighted = highlightIndex;
+                        this.currentSelectedItem = $select.activeIndex;
                     }
                 },
                 onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                     if (this.isOpen) {
                         $select.open = true; // force the dropdown to stay open on remove (if already open)
-                        $select.activeIndex = this.nextFocusableChoice($item, $select, direction.SAME);
+
+                        if (this.startingItem !== 0) { // user selected an item after scrolling
+                            $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
+                        }
+
+                        $select.activeIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
                     }
                     options.validation.show = formControl.$invalid;
                     this.toggleScrollbar(true);
@@ -689,11 +700,8 @@ export function formlyConfig(
                         $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
                     }
 
-                    let items = $scope.bpFieldSelectMulti.items;
-                    let startingItem = $scope.bpFieldSelectMulti.startingItem;
-                    let maxItemsToRender = $scope.bpFieldSelectMulti.maxItemsToRender;
-                    if (startingItem !== 0) { // user selected an item after scrolling
-                        $select.items = items.slice(startingItem, startingItem + maxItemsToRender);
+                    if (this.startingItem !== 0) { // user selected an item after scrolling
+                        $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
                     }
 
                     let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
@@ -720,6 +728,224 @@ export function formlyConfig(
                     }
                     if ($select.items.length > this.maxItemsToRender) {
                         $select.items = $select.items.slice(0, this.maxItemsToRender);
+                    }
+                }
+            };
+        }]
+    });
+
+    formlyConfig.setType({
+        name: "bpFieldUserPicker",
+        extends: "select",
+        /* tslint:disable */
+        template: `<div class="input-group has-messages">
+                <ui-select class="has-scrollbar"
+                    multiple
+                    ng-model="model[options.key]"
+                    ng-disabled="{{to.disabled}}"
+                    remove-selected="false"
+                    on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
+                    on-select="bpFieldUserPicker.onSelect($item, $select)"
+                    close-on-select="false"
+                    uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select, to.options)"
+                    ng-mouseover="bpFieldUserPicker.setUpDropdown($event, $select)"
+                    ng-keydown="bpFieldUserPicker.setUpDropdown($event, $select)">
+                    <ui-select-match placeholder="{{to.placeholder}}">
+                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
+                    </ui-select-match>
+                    <ui-select-choices class="ps-child"
+                        on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
+                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: 100">
+                        <div class="ui-select-choice-item"
+                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
+                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+                    </ui-select-choices>
+                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
+                </ui-select>
+                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+                </div>
+            </div>`,
+        /* tslint:enable */
+        wrapper: ["bpFieldLabel", "bootstrapHasError"],
+        defaultOptions: {
+            templateOptions: {
+                placeholder: localization.get("Property_Placeholder_Select_Option"),
+                valueProp: "value",
+                labelProp: "name"
+            },
+            validators: {
+                // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
+                // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
+                requiredCustom: {
+                    expression: function ($viewValue, $modelValue, $scope) {
+                        if ((<any>$scope).$parent.to.required) { // TODO: find a better way to get the "required" flag
+                            if (angular.isArray($modelValue) && $modelValue.length === 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        },
+        link: function ($scope, $element, $attrs) {
+            $scope.$applyAsync((scope) => {
+                scope["fc"].$setTouched();
+                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
+
+                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
+                if (uiSelectContainer) {
+                    scope["uiSelectContainer"] = uiSelectContainer;
+                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
+                    uiSelectContainer.addEventListener("click", scrollIntoView, true);
+
+                    scope["bpFieldUserPicker"].toggleScrollbar();
+                    scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
+                }
+            });
+        },
+        controller: ["$scope", function ($scope) {
+            let currentModelVal = $scope.model[$scope.options.key];
+            if (currentModelVal && angular.isArray(currentModelVal) && currentModelVal.length) {
+                // create the initial options in the dropdown just to be able to display the selected options in the field
+                // the dropdown will be dynamically loaded from the webservice
+                $scope["to"].options = currentModelVal.map((it: Models.IUserGroup) => {
+                    return {
+                        value: (it.isGroup ? "G" : "U") + it.id.toString(),
+                        name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
+                    } as any;
+                });
+                $scope.model[$scope.options.key] = currentModelVal.map((it: Models.IUserGroup) => {
+                    return (it.isGroup ? "G" : "U") + it.id.toString();
+                });
+            }
+
+            let direction = Object.freeze({
+                UP: -1,
+                SAME: 0,
+                DOWN: 1
+            });
+
+            $scope.$on("$destroy", function () {
+                if ($scope["uiSelectContainer"]) {
+                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
+                    $scope["uiSelectContainer"].removeEventListener("click", scrollIntoView, true);
+                }
+            });
+
+            $scope.bpFieldUserPicker = {
+                $select: null,
+                items: [],
+                isOpen: false,
+                isChoiceSelected: function (item, $select): boolean {
+                    return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
+                },
+                nextFocusableChoice: function ($item, $select, dir): number {
+                    let itemIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                    if (itemIndex !== -1 && dir === direction.SAME) {
+                        return itemIndex;
+                    } else if (dir === direction.DOWN) {
+                        for (let i = itemIndex + 1; i < $select.items.length; i++) {
+                            let isSelected = this.isChoiceSelected($select.items[i], $select);
+                            if (!isSelected) {
+                                return i;
+                            }
+                        }
+                    } else if (dir === direction.UP) {
+                        for (let i = itemIndex - 1; i >= 0; i--) {
+                            let isSelected = this.isChoiceSelected($select.items[i], $select);
+                            if (!isSelected) {
+                                return i;
+                            }
+                        }
+                    }
+                    return -1;
+                },
+                toggleScrollbar: function (removeScrollbar?: boolean) {
+                    if (!removeScrollbar) {
+                        if ($scope["uiSelectContainer"]) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight > elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.add("has-scrollbar");
+                            } else {
+                                removeScrollbar = true;
+                            }
+                        }
+                    }
+                    if (removeScrollbar) {
+                        if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
+                            let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                            if (elem && elem.scrollHeight <= elem.clientHeight) {
+                                $scope["uiSelectContainer"].classList.remove("has-scrollbar");
+                            }
+                        }
+                    }
+                },
+                findDropdown: function ($select): HTMLElement {
+                    let dropdown: HTMLElement;
+                    let elements = $select.$element.find("ul");
+                    for (let i = 0; i < elements.length; i++) {
+                        if (elements[i].classList.contains("ui-select-choices")) {
+                            dropdown = elements[i];
+                            break;
+                        }
+                    }
+                    return dropdown;
+                },
+                onOpenClose: function (isOpen: boolean, $select, options) {
+                    this.isOpen = isOpen;
+                    this.$select = $select;
+                    this.items = options;
+                },
+                onHighlight: function (option, $select) {
+                    if (this.isChoiceSelected(option, $select)) {
+                        if ($select.activeIndex > this.currentSelectedItem) {
+                            $select.activeIndex++;
+                        } else {
+                            $select.activeIndex--;
+                        }
+                    } else {
+                        this.currentSelectedItem = $select.activeIndex;
+                    }
+                },
+                onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
+                    if (this.isOpen) {
+                        $select.open = true; // force the dropdown to stay open on remove (if already open)
+
+                        $select.activeIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                    }
+                    options.validation.show = formControl.$invalid;
+                    this.toggleScrollbar(true);
+                },
+                onSelect: function ($item, $select) {
+                    // On ENTER the ui-select reset the activeIndex to the first item of the list.
+                    // We need to hide the highlight until we select the proper entry
+                    if ($scope["uiSelectContainer"]) {
+                        $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
+                    }
+
+                    let nextItem = this.nextFocusableChoice($item, $select, direction.DOWN);
+                    if (nextItem === -1) {
+                        nextItem = this.nextFocusableChoice($item, $select, direction.UP);
+                    }
+                    $select.activeIndex = nextItem;
+                    $scope.$applyAsync((scope) => {
+                        if (scope["uiSelectContainer"]) {
+                            scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                            scope["uiSelectContainer"].querySelector("input").focus();
+                        }
+                    });
+                    this.toggleScrollbar();
+                },
+                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
+                // Not needed for textareas
+                setUpDropdown: function ($event, $select) {
+                    if ($scope["uiSelectContainer"]) {
+                        let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
+                        if (elem && !elem.classList.contains("ps-child")) {
+                            elem.classList.add("ps-child");
+                        }
                     }
                 }
             };
@@ -863,7 +1089,7 @@ export function formlyConfig(
         name: "bpDocumentFile",
         /* tslint:disable:max-line-length */
         template:
-        `<div ng-if="hasFile"> 
+            `<div ng-if="hasFile"> 
             <span class="input-group has-messages">
                 <span class="input-group-addon">
                     <div class="thumb {{extension}}"></div>
@@ -872,10 +1098,13 @@ export function formlyConfig(
                     <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
                 </span>
                 <span class="input-group-addon">
-                    <span class="icon fonticon2-delete"></span>
+                    <span class="icon fonticon2-delete" ng-click="deleteFile()"></span>
                 </span>
                 <span class="input-group-addon">
-                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
+                        Change
+                    </label>
                 </span>
                 <span class="input-group-addon">
                     <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
@@ -888,16 +1117,19 @@ export function formlyConfig(
                     <div class="thumb fonticon2-attachment"></div>
                 </span>
                 <span class="form-control-wrapper">
-                    <input type="text" " class="form-control" readonly/>
+                    <input type="text" class="form-control" readonly/>
                 </span>    
                 <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Upload">
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
+                        Upload
+                    </label>
                 </span>
             </span>
           </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            documentController($scope, localization, artifactAttachments, $window, messageService);
+            documentController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
         }]
     });
 
@@ -951,6 +1183,17 @@ export function formlyConfig(
                 }
             },
             validators: {
+                minDateSQL: {
+                    expression: function($viewValue, $modelValue, scope) {
+                        let date = localization.current.toDate($modelValue || $viewValue, true);
+                        let minDate = scope["minDateSQL"];
+
+                        if (date && minDate) {
+                            return date.getTime() >= minDate.getTime();
+                        }
+                        return true;
+                    }
+                },
                 minDate: {
                     expression: function($viewValue, $modelValue, scope) {
                         if (!(<any> scope.options).data.isValidated) {
@@ -1007,6 +1250,9 @@ export function formlyConfig(
                     $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
                 }
             }
+            // see http://stackoverflow.com/questions/3310569/what-is-the-significance-of-1-1-1753-in-sql-server
+            $scope.minDateSQL = localization.current.toDate("1753-01-01", true);
+            $scope.to["minDateSQL"] = localization.current.formatDate($scope.minDateSQL, localization.current.shortDateFormat);
 
             $scope.bpFieldDatepicker = {
                 opened: false,
@@ -1048,15 +1294,27 @@ export function formlyConfig(
     formlyConfig.setType({
         name: "bpFieldImage",
         /* tslint:disable:max-line-length */
-        template: `<div class="inheritance-group">
-                    <img ng-src="{{model[options.key]}}" class="actor-image" />
+        template: `<div class="inheritance-group inheritance-group-wrapper">
+                    <span class="actor-image-wrapper">
+                        <label ng-if="model[options.key]" ng-style="{'background-image': 'url(' + model[options.key] + ')'}" >
+                            <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                                ng-disabled="to.isReadOnly">
+                        </label>    
+                        <span ng-if="!model[options.key]"></span>
+                    </span>
                     <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
-                                                        ng-click="bpFieldInheritFrom.delete($event)"></i>
-                    <i ng-hide="model[options.key].length > 0" bp-tooltip="Add"
-                                    class="glyphicon glyphicon-plus image-actor-group" 
-                                    ng-click="bpFieldInheritFrom.delete($event)"></i>
-                </div>`
+                       ng-click="onActorImageDelete(to.isReadOnly)" ng-class="{disabled: to.isReadOnly}"></i>
+                    <label>
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                             ng-disabled="to.isReadOnly">  
+                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
+                                    class="glyphicon glyphicon-plus image-actor-group"></i>
+                    </label>
+                </div>`,
         /* tslint:enable:max-line-length */
+        controller: ["$scope", function ($scope) {
+            actorImageController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
+        }]
     });
 
     //<input type="text"
@@ -1078,53 +1336,51 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="input-group inheritance-group">
                     <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
-                        <div ng-show="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}">
+                        <div ng-show="model[options.key].isProjectPathVisible">
                             <span>{{model[options.key].pathToProject[0]}}</span>
-                                <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
-                                  {{item}}
-                                </span>   
-                                <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a></span>                           
-                            </div>                                                
-                        <div ng-hide="{{model[options.key].pathToProject.length > 0 && (model[options.key].pathToProject.toString().length + model[options.key].actorPrefix.toString().length + model[options.key].actorId.toString().length + model[options.key].actorName.toString().length) < 38}}" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}">
-                            <a  href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}:{{ model[options.key].actorName }}</a>
+                            <span ng-repeat="item in model[options.key].pathToProject track by $index"  ng-hide="$first">
+                              {{item}}
+                            </span>   
+                            <span><a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}</a></span>                           
+                        </div>                                                
+                        <div ng-hide="model[options.key].isProjectPathVisible" bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
+                            <a href="#">{{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}</a>
                         </div>
                     </div>    
                     <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
-
-                    <div ng-show="model[options.key].actorName.length > 0">
-                        <div class="din">
-                            <span class="icon fonticon2-delete" ng-disabled="to.isReadOnly" ng-click="bpFieldInheritFrom.delete($event)"
-                                bp-tooltip="Delete"></span>
-                        </div>   
-                         <div class="fr">
-                            <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
-                                    ng-click="bpFieldInheritFrom.change($event)">Change</button>
-                        </div>        
-                    </div>         
-                    <div ng-hide="model[options.key].actorName.length > 0">
-                         <button class="btn btn-primary btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
+                    
+                    <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon icon-wrapper">
+                        <span class="icon fonticon2-delete" ng-click="!to.isReadOnly && deleteBaseActor()"
+                            ng-class="{disabled: to.isReadOnly}" bp-tooltip="Delete"></span>
+                    </div>   
+                     <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon">
+                        <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
+                                ng-click="selectBaseActor()" ng-class="{disabled: to.isReadOnly}">Change</button>
+                    </div>        
+                    <div ng-hide="model[options.key].actorName.length > 0"  class="bp-input-group-addon select-wrapper">
+                         <button class="btn btn-white btn-bp-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
                                 ng-click="selectBaseActor()">Select</button>                       
                     </div>             
             </div>`,
         /* tslint:enable:max-line-length */
         wrapper: ["bpFieldLabel"],
         controller: ["$scope", function ($scope) {
-            actorController($scope, localization, artifactAttachments, $window, messageService);
+            actorInheritanceController($scope, localization, $window, messageService, dialogService, selectionManager);
         }]
     });
- 
+
     /* tslint:disable */
     /* not using this template yet
-    formlyConfig.setWrapper({
-        name: "bpFieldHasError",
-        template: `<div class="form-group" ng-class="{'has-error': showError}">
-                <label class="control-label" for="{{id}}">{{to.label}}</label>
-                <formly-transclude></formly-transclude>
-                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-                </div>
-            </div>`
-    });*/
+     formlyConfig.setWrapper({
+     name: "bpFieldHasError",
+     template: `<div class="form-group" ng-class="{'has-error': showError}">
+     <label class="control-label" for="{{id}}">{{to.label}}</label>
+     <formly-transclude></formly-transclude>
+     <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+     <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+     </div>
+     </div>`
+     });*/
     /* tslint:enable */
 
     /* tslint:disable */
@@ -1135,6 +1391,7 @@ export function formlyConfig(
     formlyValidationMessages.addTemplateOptionValueMessage("min", "min", localization.get("Property_Value_Must_Be"), localization.get("Property_Suffix_Or_Greater"), "Number too small");
     formlyValidationMessages.addTemplateOptionValueMessage("maxDate", "maxDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Earlier"), "Date too big");
     formlyValidationMessages.addTemplateOptionValueMessage("minDate", "minDate", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small");
+    formlyValidationMessages.addTemplateOptionValueMessage("minDateSQL", "minDateSQL", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small for SQL");
     formlyValidationMessages.addTemplateOptionValueMessage("requiredCustom", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     formlyValidationMessages.addTemplateOptionValueMessage("required", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     /* tslint:enable */

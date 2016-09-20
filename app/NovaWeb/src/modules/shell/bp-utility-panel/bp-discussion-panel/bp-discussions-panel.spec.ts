@@ -7,12 +7,20 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
-import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
+import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
 import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { Models } from "../../../main/services/project-manager";
-import { ArtifactServiceMock } from "../../../main/services/artifact.svc.mock";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {
+    IArtifactManager,
+    ArtifactManager,
+    IStatefulArtifactFactory,
+    StatefulArtifactFactory,
+    MetaDataService,
+    ArtifactService,
+    ArtifactAttachmentsService,
+    ArtifactRelationshipsService }
+    from "../../../managers/artifact-manager";
 
 describe("Component BPDiscussionPanel", () => {
 
@@ -31,7 +39,14 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("selectionManager", SelectionManager);
+        $provide.service("artifactService", ArtifactService);
+        $provide.service("artifactManager", ArtifactManager);
+        $provide.service("artifactAttachments", ArtifactAttachmentsService);
+        $provide.service("metadataService", MetaDataService);
+        $provide.service("artifactRelationships", ArtifactRelationshipsService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
     }));
 
     beforeEach(inject(() => {
@@ -51,13 +66,12 @@ describe("Component BPDiscussionPanel", () => {
     });
 
     it("should load data for a selected artifact",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", prefix: "PRO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
 
             //Assert
@@ -66,30 +80,28 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("should not load data for a artifact without prefix",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
-            artifact.prefix = "ACO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", prefix: "ACO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
 
             //Assert
             expect(vm.artifactDiscussionList.length).toBe(0);
             expect(vm.canCreate).toBe(false);
             expect(vm.canDelete).toBe(false);
-            //expect(vm.artifactDiscussionList.length).toBe(2);
         }));
 
     it("should load replies for expanded discussion",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = false;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -101,10 +113,10 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("should throw exception for expanded discussion",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             $rootScope.$digest();
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.getReplies = jasmine.createSpy("getReplies() spy").and.callFake(
@@ -118,7 +130,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
 
             vm.artifactDiscussionList[0].expanded = false;
@@ -131,13 +143,13 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("expanded should be false for collapsed discussion",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
-            
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = true;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -148,13 +160,13 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("add discussion should return default discussion",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -165,10 +177,10 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("add discussion throws exception",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.addDiscussion = jasmine.createSpy("addDiscussion() spy").and.callFake(
                 (): ng.IPromise<IDiscussion> => {
@@ -181,7 +193,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -192,13 +204,13 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("add discussion reply should return default reply",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -210,10 +222,10 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("add discussion reply throws exception",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.addDiscussionReply = jasmine.createSpy("addDiscussionReply() spy").and.callFake(
                 (): ng.IPromise<IReply> => {
@@ -226,7 +238,7 @@ describe("Component BPDiscussionPanel", () => {
             );
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -237,13 +249,13 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("Clicking new comment shows add comment",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact", version: 1 } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             vm.newCommentClick();
 
@@ -253,14 +265,14 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("Clicking cancel comment hides add comment",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             vm.showAddComment = true;
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             vm.cancelCommentClick();
 
@@ -269,14 +281,14 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("Editing discussion should move it to the first",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             vm.showAddComment = true;
 
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             const secondDiscussionId = vm.artifactDiscussionList[1].discussionId;
             vm.discussionEdited(vm.artifactDiscussionList[1]);
@@ -285,10 +297,10 @@ describe("Component BPDiscussionPanel", () => {
             expect(vm.artifactDiscussionList[0].discussionId).toBe(secondDiscussionId);
         }));
     it("delete comment success, replies reloaded.",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             vm.showAddComment = true;
             let reply: IReply = {
                 itemId: 100,
@@ -345,7 +357,7 @@ describe("Component BPDiscussionPanel", () => {
                 return deferred.promise;
             };
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             vm.deleteReply(discussion, reply);
             $rootScope.$digest();
             //Assert
@@ -353,10 +365,10 @@ describe("Component BPDiscussionPanel", () => {
         }));
 
     it("delete comment thread success, discussions reloaded.",
-        inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $timeout: ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService,
+                artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            artifact.prefix = "PRO";
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
             vm.showAddComment = true;
             let reply: IReply = {
                 itemId: 100,
@@ -390,7 +402,7 @@ describe("Component BPDiscussionPanel", () => {
                 showAddReply: true
             };
             //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+            artifactManager.selection.setArtifact(artifact);
             vm.deleteCommentThread(discussion);
             $rootScope.$digest();
             //Assert
@@ -398,29 +410,5 @@ describe("Component BPDiscussionPanel", () => {
             expect(vm.artifactDiscussionList[0].discussionId).toBe(1);
             expect(vm.artifactDiscussionList[0].lastEditedOn).toBe("2016-05-31T17:19:53.07");
         }));
-
-        it("version is null getArtifact throws exception",
-            inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
-            //Arrange
-            const artifact = { id: 2, name: "Project 2" } as Models.IArtifact;
-            artifact.prefix = "PRO";
-            let deferred = $q.defer();
-            ArtifactServiceMock.prototype.getArtifact = jasmine.createSpy("getArtifact() spy").and.callFake(
-                (): ng.IPromise<Models.IArtifact> => {
-                    deferred.reject({
-                        statusCode: 404,
-                        errorCode: 2000
-                    });
-                    return deferred.promise;
-                }
-            );
-
-            //Act
-            selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
-            $rootScope.$digest();
-            $timeout.flush();
-
-            //Assert
-            expect(vm.artifactDiscussionList.length).toBe(0);
-        }));
 });
+

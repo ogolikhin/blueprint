@@ -744,7 +744,8 @@ pagecontent, bp-properties-panel {
         }
       }
 
-      &.formly-field-bpFieldSelectMulti .error-messages {
+      &.formly-field-bpFieldSelectMulti .error-messages,
+      &.formly-field-bpFieldUserPicker .error-messages {
         right: -20px;
       }
 
@@ -788,6 +789,10 @@ pagecontent, bp-properties-panel {
     */
     .formly-field-bpFieldTinymce,
     .formly-field-bpFieldInlineTinymce {
+      > div {
+        width: 100%;
+      }
+
       div.form-tinymce,
       div.form-tinymce[contenteditable="true"] {
         a {
@@ -811,51 +816,120 @@ pagecontent, bp-properties-panel {
     .formly-field-bpFieldImage {
       width: #{$property-width * .4};
 
-      .inheritance-group {   
-      .icon{
-        display: inline-block;
-        padding-left: $padding-smaller;
-      }
+      .inheritance-group {
+        &.inheritance-group-wrapper{
+          display: flex;
+          align-items: center;
 
-      .actor-image {        
-        width: 90px;
-        height: 120px;
-        border: 1px solid $gray-lightest;
-      }               
-
-      .image-actor-group {        
-        font-size: $font-size-normal;        
-        margin: 5px 9px;
-        &.glyphicon-plus{
-          background-color: $blue-light;
-          color: $white;
-          padding: 4px 3px 4px 4px;
-          border-radius: 2px;
+          input[type=file]{
+            display:none;
+          }
         }
-      }
+
+        .icon{
+          display: inline-block;
+          padding-left: 9px ;
+          padding-top: 28px;
+          cursor: pointer;
+          &.disabled{
+            opacity: $default-desabled-opacity;
+            cursor: not-allowed;
+          }
+        }
+
+        .actor-image-wrapper{
+          display: inline-flex;
+          align-items: center;
+          width:90px;
+          height:120px;
+          border: 1px solid $gray-lightest;
+          box-sizing: content-box;
+
+          span{
+            width:90px;
+            height:120px;
+            background: url('images/icons/user-default.svg') left top no-repeat;
+            display: inline-block;
+            background-color: $gray;
+            vertical-align:middle;
+          }
+
+          label{
+            width:90px;
+            height:120px;
+            display: block;
+            margin:0;
+            box-sizing: content-box;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+          }
+
+          ~label{
+            display: inline-block;
+            width:auto;
+          }
+        }
+
+        .image-actor-group {
+          font-size: $font-size-normal;
+          margin: 5px 9px;
+          &.glyphicon-plus{
+            background-color: $blue-light;
+            color: $white;
+            padding: 4px 3px 4px 4px;
+            border-radius: $border-radius-small;
+            cursor:pointer;
+            &.disabled{
+              background-color: $gray;
+              cursor: not-allowed;
+            }
+          }
+        }
      }
     }
 
     $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
     .formly-field-bpFieldInheritFrom {
-      padding-top: 38px;
+      padding-top: 49px;
       display: block;
       max-width: $property-inheritance-width;
       min-width: $property-input-width;
       width: 100%;
+
+      .icon{
+        cursor:pointer;
+        &.disabled{
+          opacity: $default-desabled-opacity;
+          cursor: not-allowed;
+        }
+      }
       .din{
         display: inline-block;
         padding-top: 10px;
         padding-right: 2px;
       }
-      .fr{
-        float:right;
-      }
+
       .inheritance-group {
         display: inline-flex;
         font-size: $font-size-normal;
         width: calc(100% - #{$property-label-width});
 
+        button{
+          &.disabled, &[disabled]{
+            background-color: $gray-lighter;
+            border-color: $gray-light;
+            color: $gray-light;
+            opacity: 1;
+          }
+        }
+
+        .bp-input-group-addon{
+          &.icon-wrapper{
+            padding-top:10px;
+            padding-right: 2px;
+          }
+        }
         .inheritance-path {
           border-color: $gray-lighter;
           background-color: $gray-lightest;
@@ -864,12 +938,16 @@ pagecontent, bp-properties-panel {
           flex-shrink: 1;
           height: $property-min-height;
           line-height: $property-min-height;
-          min-width: $property-input-width - 30px;
+          min-width: $property-input-width - 90px;
           @include text-ellipsis-flex-width(999px);
           padding: 0 $property-padding-default;
           margin-top: 2px;
           margin-right: 8px;
-
+          max-width: calc(100% - 40px);
+          .path-wrapper{
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           span {
             &::before {
               content: ' > ';
@@ -917,6 +995,18 @@ pagecontent, bp-properties-panel {
         padding:0;
         background-color: transparent;
         border:none;
+        label{
+            padding: 5px 9px !important;
+            min-width: 20px;
+            text-align: center;
+            width: auto !important;
+            margin: 5px 5px 5px !important;
+            font-size:  $font-size-big;
+            input[type=file]{
+                display:none;
+            }
+        }
+
 
         .icon {
           display: inline-block;
@@ -925,6 +1015,7 @@ pagecontent, bp-properties-panel {
           padding-right: $padding-smaller;
         }
       }
+       
 
       .thumb{
         width:30px;
@@ -932,11 +1023,6 @@ pagecontent, bp-properties-panel {
         &.fonticon2-attachment{
           padding-top: 10px;
         }
-      }
-      .btn.btn-bp-small{
-        margin-left:5px;
-        padding:5px 9px;
-        min-width: 20px;
       }
       .form-control-wrapper {
         display: table-cell;
@@ -957,6 +1043,21 @@ pagecontent, bp-properties-panel {
             padding-right: $property-padding-default;
           }
         }
+      }
+    }
+  }
+
+  .system-properties {
+    &.collapse:not(.in) .formly .formly-field:first-child {
+      width: 100%;
+    }
+
+    &.collapse {
+      display: block !important;
+      height: #{$property-min-height + 12px} !important;
+
+      &.in {
+        height: auto !important;
       }
     }
   }
@@ -1121,6 +1222,14 @@ pagecontent, bp-properties-panel {
 
     span {
       color: inherit;
+    }
+    .btn-bp-small{
+      margin-left:5px;
+      padding:5px 9px;
+      min-width: 20px;
+      &.disabled{
+        background-color: $gray-lightest;
+      }
     }
   }
 

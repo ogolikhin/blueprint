@@ -1,24 +1,15 @@
-﻿import {ProcessShapeType} from "../../../../../models/enums";
-import {IProcessShape} from "../../../../../models/process-models";
-import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/process-models";
-import {IDiagramNode} from "../models/";
-import {ShapesFactory} from "./shapes-factory";
-import {ProcessStart} from "./process-start";
-import {ProcessEnd} from "./process-end";
-import {UserTask} from "./user-task";
-import {SystemTask} from "./system-task";
-import {UserDecision} from "./user-decision";
-import {SystemDecision} from "./system-decision";
-
-
-export class NodeFactorySettings {
-    public isCommentsButtonEnabled: boolean;
-    public isRelationshipButtonEnabled: boolean;
-    public isLinkButtonEnabled: boolean;
-    public isPreviewButtonEnabled: boolean;
-    public isMockupButtonEnabled: boolean;
-    public isDetailsButtonEnabled: boolean;
-}
+﻿import { ProcessShapeType } from "../../../../../models/enums";
+import { IProcessShape } from "../../../../../models/process-models";
+import { IUserTaskShape, ISystemTaskShape } from "../../../../../models/process-models";
+import { IDiagramNode } from "../models/";
+import { ShapesFactory } from "./shapes-factory";
+import { ProcessStart } from "./process-start";
+import { ProcessEnd } from "./process-end";
+import { UserTask } from "./user-task";
+import { SystemTask } from "./system-task";
+import { UserDecision } from "./user-decision";
+import { SystemDecision } from "./system-decision";
+import { NodeFactorySettings } from "./node-factory-settings";
 
 export class NodeFactory {
 

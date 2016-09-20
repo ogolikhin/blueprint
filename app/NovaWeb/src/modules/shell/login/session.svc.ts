@@ -2,26 +2,10 @@
 import { ILocalizationService } from "../../core/";
 import { IDialogService } from "../../shared/";
 import { IAuth, IUser} from "./auth.svc";
-
+import { ISession } from "./session-interface";
 import {LoginCtrl, ILoginInfo} from "./login.ctrl";
-export interface ISession {
-    ensureAuthenticated(): ng.IPromise<any>;
 
-    currentUser: IUser;
-
-    logout(): ng.IPromise<any>;
-
-    login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
-
-    loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
-
-    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
-
-    onExpired(): ng.IPromise<any>;
-
-    getLoginMessage(): string;
-    forceUsername(): string;
-}
+export { ISession }
 
 export class SessionSvc implements ISession {
 
@@ -173,22 +157,24 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm").then((confirmed: boolean) => {
-                            if (confirmed) {
-                                this.login(result.userName, result.password, true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            } else {
-                                this.showLogin(done);
-                            }
-                        }).finally(() => {
-                            confirmationDialog = null;
-                        });
+                        this.dialogService
+                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                            .then((confirmed: boolean) => {
+                                if (confirmed) {
+                                    this.login(result.userName, result.password, true).then(
+                                        () => {
+                                            this._isExpired = false;
+                                            done.resolve();
+                                        },
+                                        (err) => {
+                                            this.showLogin(done, err);
+                                        });
+                                } else {
+                                    this.showLogin(done);
+                                }
+                            }).finally(() => {
+                                confirmationDialog = null;
+                            });
                     } else {
                         this.showLogin(done);
                     }

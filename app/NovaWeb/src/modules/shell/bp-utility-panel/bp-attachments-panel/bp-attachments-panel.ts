@@ -1,7 +1,6 @@
-﻿import { ILocalizationService, ISettingsService, IStateManager } from "../../../core";
-import { ISelectionManager, Models} from "../../../main";
+﻿import { ILocalizationService, ISettingsService } from "../../../core";
+import { Models} from "../../../main";
 import { ISession } from "../../../shell";
-import { IArtifactAttachmentsResultSet, IArtifactAttachments, IArtifactDocRef } from "./artifact-attachments.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { IDialogSettings, IDialogService } from "../../../shared";
@@ -9,6 +8,16 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { IArtifactManager } from "../../../managers";
+import { IStatefulItem } from "../../../managers/models";
+import { 
+    // IArtifactAttachmentsResultSet, 
+    IArtifactAttachmentsService, 
+    IArtifactDocRef, 
+    IStatefulArtifact,
+    IStatefulSubArtifact,
+    IArtifactAttachment
+} from "../../../managers/artifact-manager";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -22,35 +31,37 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "selectionManager",
-        "stateManager",
+        "artifactManager",
         "session",
         "artifactAttachments",
         "settings",
         "dialogService"
     ];
 
-    public artifactAttachmentsList: IArtifactAttachmentsResultSet;
+    public attachmentsList: IArtifactAttachment[];
+    public docRefList: IArtifactDocRef[];
+    public item: IStatefulItem;
+    public isItemReadOnly: boolean;
+
     public categoryFilter: number;
-    public isLoading: boolean = false;
+    public isLoadingAttachments: boolean = false;
+    public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
 
-    private artifactIsDeleted: boolean = false;
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     
     constructor(
         $q: ng.IQService,
         private localization: ILocalizationService,
-        protected selectionManager: ISelectionManager,
-        protected stateManager: IStateManager,
+        protected artifactManager: IArtifactManager,
         private session: ISession,
-        private artifactAttachments: IArtifactAttachments,
+        private artifactAttachments: IArtifactAttachmentsService,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
-        super($q, selectionManager, stateManager, bpAccordionPanel);
+        super($q, artifactManager.selection, bpAccordionPanel);
     }
     
     public addDocRef(): void {
@@ -68,14 +79,16 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
             if (artifact) {
-                this.artifactAttachmentsList.documentReferences.push(<IArtifactDocRef>{
+                const newDoc = <IArtifactDocRef>{
                     artifactName: artifact.name,
                     artifactId: artifact.id,
                     userId: this.session.currentUser.id,
                     userName: this.session.currentUser.displayName,
                     itemTypePrefix: artifact.prefix,
                     referencedDate: new Date().toISOString()
-                });
+                };
+
+                this.docRefList = this.item.docRefs.add([newDoc]);
             }
         });
     }
@@ -90,10 +103,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload")
             };
 
-            const curNumOfAttachments: number = this.artifactAttachmentsList 
-                    && this.artifactAttachmentsList.attachments 
-                    && this.artifactAttachmentsList.attachments.length || 0;
-            
+            const curNumOfAttachments: number = this.attachmentsList && this.attachmentsList.length || 0;
             let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
             let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
 
@@ -111,19 +121,18 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
-                // TODO: add state manager handling
-
                 if (uploadList) {
-                    uploadList.map((uploadedFile: any) => {
-                        this.artifactAttachmentsList.attachments.push({
+                    const newAttachments = uploadList.map((uploadedFile: any) => {
+                        return <IArtifactAttachment>{
                             userId: this.session.currentUser.id,
                             userName: this.session.currentUser.displayName,
                             fileName: uploadedFile.name,
                             attachmentId: null,
                             guid: uploadedFile.guid,
                             uploadedDate: null
-                        });
+                        };
                     });
+                    this.attachmentsList = this.item.attachments.add(newAttachments);
                 }
             }).finally(() => {
                 if (callback) {
@@ -135,40 +144,41 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         openUploadStatus();
     }
 
-    protected onSelectionChanged(artifact: Models.IArtifact, subArtifact: Models.ISubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        this.artifactAttachmentsList = null;
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        this.item = subArtifact || artifact;
+        this.getAttachments();
 
-        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-            return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
-                .then((result: IArtifactAttachmentsResultSet) => {
-                    this.artifactIsDeleted = false;
-                    this.artifactAttachmentsList = result;
-                }, (error) => {
-                    if (error && error.statusCode === 404) {
-                        this.artifactIsDeleted = true;
-                    }
-                });
-        } else {
-            this.artifactAttachmentsList = null;
-        }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    /* tslint:disable:no-unused-variable */
-    public canAddNewFile() {
-        return !this.artifactIsDeleted &&
-            !(this.itemState && this.itemState.isReadonly);
-    }
-    /* tslint:disable:no-unused-variable */
+    private getAttachments() {
+        this.attachmentsList = [];
 
-    private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
-        this.isLoading = true;
-        return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
-            .then( (result: IArtifactAttachmentsResultSet) => {
-                return result;
-            })
-            .finally( () => {
-                this.isLoading = false;
+        if (this.item) {
+            this.isLoadingAttachments = true;
+            this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
+                this.attachmentsList = attachments;
+                
+                // get doc refs here because they're included in attachments payload
+                this.getDocRefs();
+            }).finally(() => {
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.artifactState.deleted;
+                this.isLoadingAttachments = false;
             });
+        }
+    }
+
+    private getDocRefs() {
+        this.docRefList = [];
+
+        if (this.item) {
+            this.isLoadingDocRefs = true;
+            // don't refresh because they were already retrieved with attachments
+            this.item.docRefs.get(false).then((docrefs: IArtifactDocRef[]) => {
+                this.docRefList = docrefs;
+            }).finally(() => {
+                this.isLoadingDocRefs = false;
+            });
+        }
     }
 }

@@ -26,7 +26,6 @@ export class NodeLabelEditor {
     }
 
     private onMouseOver = (e) => {
-        e.stopPropagation();
         let element = this.getLabel(e);
 
         if (this.currentDiv != null && this.currentDiv !== element) {

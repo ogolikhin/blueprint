@@ -1,8 +1,9 @@
 ﻿import { ILocalizationService } from "../../../../core";
 import { Helper } from "../../../../shared";
-import { Relationships, IProjectManager } from "../../../../main";
-import { IArtifactRelationships } from "../artifact-relationships.svc";
-import { ISelectionManager, SelectionSource } from "../../../../main/services/selection-manager";
+import { Relationships } from "../../../../main";
+import { IArtifactManager, SelectionSource } from "../../../../managers";
+import { IStatefulArtifact } from "../../../../managers/models";
+import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -21,11 +22,9 @@ export interface IResult {
 
 export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
-        "$log",
         "localization",
-        "artifactRelationships",
-        "projectManager",
-        "selectionManager"
+        "relationshipDetailsService",
+        "artifactManager"
     ];
 
     public expanded: boolean = false;
@@ -36,11 +35,9 @@ export class BPArtifactRelationshipItemController {
     public selectable: boolean = false;
 
     constructor(
-        private $log: ng.ILogService,
         private localization: ILocalizationService,
-        private artifactRelationships: IArtifactRelationships,
-        private projectManager: IProjectManager,
-        private selectionManager: ISelectionManager) {
+        private relationshipDetailsService: IRelationshipDetailsService,
+        private artifactManager: IArtifactManager) {
 
     }
 
@@ -122,7 +119,7 @@ export class BPArtifactRelationshipItemController {
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
-        return this.artifactRelationships.getRelationshipDetails(artifactId)
+        return this.relationshipDetailsService.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
                     this.artifact.projectId = relationshipExtendedInfo.pathToProject[0].itemId;
@@ -139,11 +136,9 @@ export class BPArtifactRelationshipItemController {
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            const artifact = this.projectManager.getArtifact(relationship.artifactId);
-            if (artifact) {
-//                const project = this.projectManager.getProject(artifact.projectId);
-                this.selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
-            }
+            this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
+                this.artifactManager.selection.setArtifact(artifact, SelectionSource.Explorer);
+            });
         }
     }
 }

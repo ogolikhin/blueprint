@@ -107,7 +107,7 @@ export class PropertyEditor {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-//            var artifactOrSubArtifact = artifact;
+            // var artifactOrSubArtifact = artifact;
             // if (subArtifact) {
             //     artifactOrSubArtifact = subArtifact;
             // }
@@ -149,12 +149,7 @@ export class PropertyEditor {
                                 specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
-                                if (specificPropertyValue.value == null && 
-                                    specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
-                                    modelValue = { fileName: null, fileExtension: null };
-                                } else {
-                                    modelValue = specificPropertyValue.value;
-                                }
+                                modelValue = specificPropertyValue.value;
                             }                            
                             propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }

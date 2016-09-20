@@ -87,7 +87,6 @@ export class NodeLabelEditor {
 
     private getCellIndex(x: number, y: number): string {
         let value =  Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
-        //window.console.log("x: " + x + " y: " + y + " value: " + value);
         return value;
     }
 

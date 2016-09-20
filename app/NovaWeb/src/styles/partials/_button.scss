@@ -31,6 +31,17 @@
   }
 }
 
+.btn-cancel {
+    background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
+    &:hover,
+    &:focus,
+    &:active {
+        border-color: $brand-secondary;
+        color: $brand-secondary;
+    }
+}
 .btn-secondary {
   background-color: $gray-light;
   border: solid 1px $gray-light;

@@ -1,7 +1,6 @@
 import "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../core";
-import { IUsersAndGroupsService, IUserOrGroupInfo } from "../../../shell/bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
+import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../core";
 import { Models } from "../../../main/models";
 import { BPFieldBaseController } from "./base-controller";
 

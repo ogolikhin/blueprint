@@ -3,7 +3,6 @@ import { Models } from "../models";
 import { IArtifactManager, SelectionSource} from "../../managers";
 import { MessageService} from "../../shell";
 
-
 export class ArtifactState implements ng.ui.IState {
     public url = "/{id:any}";
     public template = "<div ui-view class='artifact-state'></div>";
@@ -38,15 +37,13 @@ export class ArtifactStateController {
             // }
             // let context: Models.IEditorContext = {};
             // context.artifact = artifact;
-            // context.type = projectManager.getArtifactType(artifact);      
-
-
+            // context.type = projectManager.getArtifactType(artifact);
         } else {
             //TODO: to restore error message when then user story "GO TO Artifact"is comleted
             //messageService.addError(this.localization.get("Artifact_NotFound"));
         }
-        this.navigateToSubRoute(artifact.predefinedType);
 
+        this.navigateToSubRoute(artifact.predefinedType);
     }
 
     public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
@@ -76,4 +73,3 @@ export class ArtifactStateController {
         }
     }
 }
-

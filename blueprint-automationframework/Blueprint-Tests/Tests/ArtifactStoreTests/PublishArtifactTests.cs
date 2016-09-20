@@ -11,7 +11,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
-using Common;
 using Utilities.Facades;
 
 namespace ArtifactStoreTests
@@ -800,7 +799,6 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
         /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user updating the artifact.</param>
         /// <returns>The body content returned from ArtifactStore.</returns>
         private string UpdateInvalidArtifact(string requestBody,
             int artifactId)

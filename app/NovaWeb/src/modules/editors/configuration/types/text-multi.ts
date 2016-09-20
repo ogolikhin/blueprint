@@ -1,4 +1,4 @@
-import "angular"
+import "angular";
 import "angular-formly";
 
 export class BPFieldTextMulti implements AngularFormly.ITypeOptions {

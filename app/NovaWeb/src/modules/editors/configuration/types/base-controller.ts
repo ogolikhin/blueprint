@@ -1,7 +1,7 @@
 export interface IBPFieldBaseController {
-    blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void,
-    closeDropdownOnTab(event: KeyboardEvent): void,
-    scrollIntoView(event): void
+    blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void;
+    closeDropdownOnTab(event: KeyboardEvent): void;
+    scrollIntoView(event): void;
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {

@@ -1,7 +1,7 @@
-import "angular"
+import "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../core";
-import { BPFieldBaseController } from "./base-controller"
+import { BPFieldBaseController } from "./base-controller";
 
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";
@@ -29,34 +29,34 @@ export class BpFieldNumberController extends BPFieldBaseController {
 
         let validators = {
             decimalPlaces: {
-                expression: function ($viewValue, $modelValue, $scope) {
-                    if (!$scope.options.data.isValidated) {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (!scope.options.data.isValidated) {
                         return true;
                     }
                     let value = $modelValue || $viewValue;
                     if (value) {
                         let decimal = value.toString().split(localization.current.decimalSeparator);
                         if (decimal.length === 2) {
-                            return decimal[1].length <= $scope.to.decimalPlaces;
+                            return decimal[1].length <= scope.to.decimalPlaces;
                         }
                     }
                     return true;
                 }
             },
             wrongFormat: {
-                expression: function ($viewValue, $modelValue, $scope) {
+                expression: function ($viewValue, $modelValue, scope) {
                     let value = $modelValue || $viewValue;
                     return !value || angular.isNumber(
-                        localization.current.toNumber(value, $scope.options.data.isValidated ? $scope.to.decimalPlaces : null)
+                        localization.current.toNumber(value, scope.options.data.isValidated ? scope.to.decimalPlaces : null)
                         );
                 }
             },
             max: {
-                expression: function ($viewValue, $modelValue, $scope) {
-                    if (!$scope.options.data.isValidated) {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (!scope.options.data.isValidated) {
                         return true;
                     }
-                    let max = localization.current.toNumber($scope.to.max);
+                    let max = localization.current.toNumber(scope.to.max);
                     if (angular.isNumber(max)) {
                         let value = localization.current.toNumber($modelValue || $viewValue);
                         if (angular.isNumber(value)) {
@@ -67,11 +67,11 @@ export class BpFieldNumberController extends BPFieldBaseController {
                 }
             },
             min: {
-                expression: function ($viewValue, $modelValue, $scope) {
-                    if (!$scope.options.data.isValidated) {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (!scope.options.data.isValidated) {
                         return true;
                     }
-                    let min = localization.current.toNumber($scope.to.min);
+                    let min = localization.current.toNumber(scope.to.min);
                     if (angular.isNumber(min)) {
                         let value = localization.current.toNumber($modelValue || $viewValue);
                         if (angular.isNumber(value)) {
@@ -86,6 +86,6 @@ export class BpFieldNumberController extends BPFieldBaseController {
 
         $scope["bpFieldNumber"] = {
             keyup: this.blurOnKey
-        }
+        };
     }
 }

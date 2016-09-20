@@ -3,7 +3,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
-import { Helper, IDialogService } from "../../shared";
+import { IDialogService } from "../../shared";
 import { documentController } from "./controllers/document-field-controller";
 import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";

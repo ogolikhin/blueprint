@@ -1,4 +1,4 @@
-import "angular"
+import "angular";
 import "angular-formly";
 
 export class BPFieldTinymce implements AngularFormly.ITypeOptions {

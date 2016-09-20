@@ -1,8 +1,8 @@
-import "angular"
+import "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../core";
 import { Helper } from "../../../shared";
-import { BPFieldBaseController } from "./base-controller"
+import { BPFieldBaseController } from "./base-controller";
 
 export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     static $inject: [string] = ["$scope"];
@@ -99,9 +99,9 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
 
         let validators = {
             minDateSQL: {
-                expression: function($viewValue, $modelValue, $scope) {
+                expression: function($viewValue, $modelValue, scope) {
                     let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let minDate = $scope.minDateSQL;
+                    let minDate = scope.minDateSQL;
 
                     if (date && minDate) {
                         return date.getTime() >= minDate.getTime();
@@ -110,13 +110,13 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 }
             },
             minDate: {
-                expression: function($viewValue, $modelValue, $scope) {
-                    if (!$scope.options.data.isValidated) {
+                expression: function($viewValue, $modelValue, scope) {
+                    if (!scope.options.data.isValidated) {
                         return true;
                     }
 
                     let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let minDate = localization.current.toDate($scope.to.datepickerOptions.minDate, true);
+                    let minDate = localization.current.toDate(scope.to.datepickerOptions.minDate, true);
 
                     if (date && minDate) {
                         return date.getTime() >= minDate.getTime();
@@ -125,13 +125,13 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 }
             },
             maxDate: {
-                expression: function($viewValue, $modelValue, $scope) {
-                    if (!$scope.options.data.isValidated) {
+                expression: function($viewValue, $modelValue, scope) {
+                    if (!scope.options.data.isValidated) {
                         return true;
                     }
 
                     let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let maxDate = localization.current.toDate($scope.to.datepickerOptions.maxDate, true);
+                    let maxDate = localization.current.toDate(scope.to.datepickerOptions.maxDate, true);
 
                     if (date && maxDate) {
                         return date.getTime() <= maxDate.getTime();

@@ -1,6 +1,6 @@
-import "angular"
+import "angular";
 import "angular-formly";
-import { BPFieldBaseController } from "./base-controller"
+import { BPFieldBaseController } from "./base-controller";
 
 export class BPFieldText implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldText";
@@ -23,6 +23,6 @@ export class BpFieldTextController extends BPFieldBaseController {
 
         $scope["bpFieldText"] = {
             keyup: this.blurOnKey
-        }
+        };
     }
 }

@@ -1,7 +1,7 @@
-import "angular"
+import "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../core";
-import { BPFieldBaseController } from "./base-controller"
+import { BPFieldBaseController } from "./base-controller";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelectMulti";
@@ -49,8 +49,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, $scope) {
-                    if ((<AngularFormly.ITemplateScope>$scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
+                expression: function ($viewValue, $modelValue, scope) {
+                    if ((<AngularFormly.ITemplateScope>scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
                         if (angular.isArray($modelValue) && $modelValue.length === 0) {
                             return false;
                         }
@@ -278,6 +278,6 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
             scrollIntoView: this.scrollIntoView
-        }
+        };
     }
 }

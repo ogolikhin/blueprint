@@ -1,4 +1,4 @@
-import "angular"
+import "angular";
 import "angular-formly";
 import { Helper } from "../../../shared";
 

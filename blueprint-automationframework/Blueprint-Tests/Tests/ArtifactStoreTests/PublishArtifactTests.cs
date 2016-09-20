@@ -11,7 +11,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
-using Common;
 using Utilities.Facades;
 
 namespace ArtifactStoreTests
@@ -697,7 +696,7 @@ namespace ArtifactStoreTests
         {
             AssertAllExpectedProjectsWereReturned(returnedProjects, new List<IProject> { expectedProject });
         }
-
+        
         /// <summary>
         /// Asserts that the list of returned projects contains all the expected projects.
         /// </summary>

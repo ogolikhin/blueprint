@@ -18,7 +18,7 @@ namespace AdminStore.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _preAuthorizedKey;
+        internal readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -37,7 +37,7 @@ namespace AdminStore.Controllers
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
             _statusControllerHelper = scHelper;
-            _preAuthorizedKey = preAuthorizedKey;
+            _expectedPreAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -56,12 +56,9 @@ namespace AdminStore.Controllers
             //Check pre-authorized key
             // Refactoring for shorter status as per US955
 
-            if (preAuthorizedKey != null && preAuthorizedKey != _preAuthorizedKey)
-            {
-                var unauthorizedMessage = "Unauthorized";
-                var shorterResponseMedia = new MediaTypeHeaderValue("application/json");
-                var unauthorizedResponse = Request.CreateResponse(HttpStatusCode.Unauthorized, unauthorizedMessage, shorterResponseMedia);
-                return ResponseMessage(unauthorizedResponse);
+            if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
+            {                
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
 
             }
 

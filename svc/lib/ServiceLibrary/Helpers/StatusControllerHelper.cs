@@ -11,7 +11,8 @@ namespace ServiceLibrary.Helpers
     public interface IStatusControllerHelper
     {
         Task<ServiceStatus> GetStatus();
-        ServiceStatus GetShorterStatus(ServiceStatus s);
+         ServiceStatus GetShorterStatus(ServiceStatus s);
+
     }
 
     public class StatusControllerHelper : IStatusControllerHelper
@@ -58,7 +59,7 @@ namespace ServiceLibrary.Helpers
             return serviceStatus;
         }
 
-        public ServiceStatus GetShorterStatus(ServiceStatus s)
+        public  ServiceStatus GetShorterStatus(ServiceStatus s)
         {
             var serviceStatus = new ServiceStatus();
 
@@ -68,21 +69,20 @@ namespace ServiceLibrary.Helpers
 
             if (s.StatusResponses.Count > 0)
             {
-                for (int statusResponse = 0; statusResponse < s.StatusResponses.Count; statusResponse++)
+                
+                foreach (var statusResponse in s.StatusResponses)
                 {
-                    statusResponses.Add(new StatusResponse { Name = s.StatusResponses[statusResponse].Name, NoErrors = s.StatusResponses[statusResponse].NoErrors });
+                    statusResponses.Add(new StatusResponse { Name = statusResponse.Name, NoErrors = statusResponse.NoErrors });
                 }
             }
 
-            //Await the status check task results.
             
             serviceStatus.NoErrors = true;
             foreach (var result in statusResponses)
             {
                 var statusResult = result;
                 serviceStatus.StatusResponses.Add(statusResult);
-
-                serviceStatus.NoErrors &= statusResult.NoErrors;
+                serviceStatus.NoErrors = s.NoErrors;
             }
             
             return serviceStatus;
@@ -122,6 +122,7 @@ namespace ServiceLibrary.Helpers
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
         }
+
     }
 
     // *************************************************************************************

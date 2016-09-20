@@ -29,20 +29,37 @@ export class NavigationService implements INavigationService {
         let options: ng.ui.IStateOptions;
 
         if (context) {
-            if (context.sourceArtifactId) {
-                const pathName = "path";
-                const path = this.$state.params[pathName];
-
-                if (!path) {
-                    parameters[pathName] = `${context.sourceArtifactId}`;
-                } else {
-                    parameters[pathName] = `${path},${context.sourceArtifactId}`;
-                }
-            }
+            this.populatePath(context.sourceArtifactId, parameters);
         } else {
-            options = { inherit: false };
+            // Disables the inheritance of url parameters (such as "path")
+            options = <ng.ui.IStateOptions>{ inherit: false };
         }
 
         return this.$state.go(this._artifactState, parameters, options);
+    }
+
+    private populatePath(sourceArtifactId: number, parameters: any) {
+        if (!sourceArtifactId) {
+            return;
+        }
+
+        const parameterName = "path";
+        const delimiter = ",";
+
+        const path = this.$state.params[parameterName];
+
+        if (!path) {
+            parameters[parameterName] = `${sourceArtifactId}`;
+        } else {
+            const pathElements = path.split(delimiter);
+
+            if (pathElements.length > 0) {
+                let lastArtifactId = Number(pathElements[pathElements.length - 1]);
+
+                if (lastArtifactId !== sourceArtifactId) {
+                    parameters[parameterName] = `${path}${delimiter}${sourceArtifactId}`;
+                }
+            }
+        }
     }
 }

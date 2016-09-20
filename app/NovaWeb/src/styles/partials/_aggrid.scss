@@ -286,6 +286,10 @@ $has-children-padding-before-arrow: 3px;
     content: $icon-document;
   }
 
+  .ag-cell.is-subartifact .ag-group-value .ag-group-value-wrapper i::before {
+    content: $icon-subartifact;
+  }
+
   .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper i,
   .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper i {
     background: transparent !important;

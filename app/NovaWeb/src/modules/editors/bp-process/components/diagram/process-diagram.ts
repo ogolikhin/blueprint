@@ -206,6 +206,8 @@ export class ProcessDiagram {
     }
 
     public resize = (width: number, height: number) => {
-        this.graph.updateSizeChanges(width, height);
+        if (!!this.graph) {
+            this.graph.updateSizeChanges(width, height);
+        }
     }
 }

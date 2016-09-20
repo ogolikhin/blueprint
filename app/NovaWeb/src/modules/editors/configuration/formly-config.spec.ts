@@ -748,11 +748,11 @@
 //                             }
 //                         },
 //                         /*{
-//                             type: "bpFieldTinymce",
+//                             type: "bpFieldTextRTF",
 //                             key: "tinymce"
 //                         },
 //                         {
-//                             type: "bpFieldInlineTinymce",
+//                             type: "bpFieldTextRTFInline",
 //                             key: "inlineTinymce"
 //                         },*/
 //                         {

@@ -39,6 +39,8 @@ export class PropertyEditor {
                     };
                 } else if (angular.isObject(($value))) {
                     return { customValue: $value.customValue };
+                } else if (context.propertyTypePredefined < 0) {
+                    return this.locale.toNumber($value);
                 }
                 return {
                     validValueIds: [this.locale.toNumber($value)]
@@ -107,7 +109,7 @@ export class PropertyEditor {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-//            var artifactOrSubArtifact = artifact;
+            // var artifactOrSubArtifact = artifact;
             // if (subArtifact) {
             //     artifactOrSubArtifact = subArtifact;
             // }
@@ -149,12 +151,7 @@ export class PropertyEditor {
                                 specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                                 modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
-                                if (specificPropertyValue.value == null && 
-                                    specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.DocumentFile) {
-                                    modelValue = { fileName: null, fileExtension: null };
-                                } else {
-                                    modelValue = specificPropertyValue.value;
-                                }
+                                modelValue = specificPropertyValue.value;
                             }                            
                             propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
@@ -214,7 +211,7 @@ export class PropertyEditor {
         } else {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
-                    field.type = context.isRichText ? "bpFieldInlineTinymce" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
+                    field.type = context.isRichText ? "bpFieldTextRTFInline" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
                         field.templateOptions["tinymceOption"] = {

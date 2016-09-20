@@ -26,7 +26,6 @@ export class NodeLabelEditor {
     }
 
     private onMouseOver = (e) => {
-        e.stopPropagation();
         let element = this.getLabel(e);
 
         if (this.currentDiv != null && this.currentDiv !== element) {
@@ -88,7 +87,6 @@ export class NodeLabelEditor {
 
     private getCellIndex(x: number, y: number): string {
         let value =  Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
-        //window.console.log("x: " + x + " y: " + y + " value: " + value);
         return value;
     }
 
@@ -121,19 +119,11 @@ export class NodeLabelEditor {
     private getLabel(e) {
         var x = 0;
         var y = 0;
-        let zoom = 1;
 
         e = e || window.event;
 
-        // zoom is needed for Chrome only.
-        if (!this.isIe11() && 
-            (e.target.nodeName === "rect" || e.target.nodeName === "image" || e.target.nodeName === "text" || 
-             e.target.nodeName === "path" || e.target.nodeName === "ellipse" || e.target.nodeName === "process-graph-container")) {
-            zoom = window.outerWidth / window.innerWidth; 
-        }
-        
-        x = e.offsetX * zoom;
-        y = e.offsetY * zoom;
+        x = e.offsetX;
+        y = e.offsetY;
         let index = this.getCellIndex(x, y);
         let cell = this.divIndex[index];
         if (cell != null) {

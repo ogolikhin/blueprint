@@ -1098,10 +1098,13 @@ export function formlyConfig(
                     <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
                 </span>
                 <span class="input-group-addon">
-                    <span class="icon fonticon2-delete"></span>
+                    <span class="icon fonticon2-delete" ng-click="deleteFile()"></span>
                 </span>
                 <span class="input-group-addon">
-                    <button class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
+                        Change
+                    </label>
                 </span>
                 <span class="input-group-addon">
                     <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
@@ -1114,16 +1117,19 @@ export function formlyConfig(
                     <div class="thumb fonticon2-attachment"></div>
                 </span>
                 <span class="form-control-wrapper">
-                    <input type="text" " class="form-control" readonly/>
+                    <input type="text" class="form-control" readonly/>
                 </span>    
                 <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" ng-disabled="false" bp-tooltip="Upload">Upload</button>
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Upload">
+                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
+                        Upload
+                    </label>
                 </span>
             </span>
           </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            documentController($scope, localization, artifactAttachments, $window, messageService);
+            documentController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
         }]
     });
 

@@ -28,15 +28,15 @@ export class NavigationService implements INavigationService {
         const parameters = { id: id };
         let options: ng.ui.IStateOptions;
 
-        if (!!context) {
-            if (!!context.previousItemId) {
+        if (context) {
+            if (context.previousItemId) {
                 const pathName = "path";
                 const path = this.$state.params[pathName];
 
                 if (!path) {
-                    parameters[pathName] = `${path},${context.previousItemId}`;
-                } else {
                     parameters[pathName] = `${context.previousItemId}`;
+                } else {
+                    parameters[pathName] = `${path},${context.previousItemId}`;
                 }
             }
         } else {

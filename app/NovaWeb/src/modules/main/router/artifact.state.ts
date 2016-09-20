@@ -4,7 +4,7 @@ import { IArtifactManager, SelectionSource} from "../../managers";
 import { MessageService} from "../../shell";
 
 export class ArtifactState implements ng.ui.IState {
-    public url = "/{id:any}";
+    public url = "/{id:any}?{path:string}";
     public template = "<div ui-view class='artifact-state'></div>";
     public controller = "artifactStateController";
     public reloadOnSearch = false;

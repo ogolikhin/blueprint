@@ -14,6 +14,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -39,6 +40,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private linkButton: Button;
     private rootScope: any;
     private dialogManager: IModalDialogCommunication;
+    private processDiagramManager: IProcessDiagramCommunication;
+    private processId: number;
+    
     // #UNUSED
     // private _userStoryId: number;
 
@@ -68,7 +72,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
-
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -306,7 +309,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
+        this.processId = graph.viewModel.id;
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+
         var mxGraph = graph.getMxGraph();
         var fillColor = "#FFFFFF";
         if (this.model.id < 0) {
@@ -422,9 +428,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-        // #TODO fix up reference to ProcessCommands 
-        // var data: ICommandData = { processId: this.associatedArtifact.id, model: this.model };
-        // ProcessCommands.getProcessCommands().getNavigateToProcessCommand().execute(data);
+
+        let context = { previousItemId: this.processId };
+        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, context);
     }
 
     private openDialog(dialogType: ModalDialogType) {

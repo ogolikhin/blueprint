@@ -64,7 +64,8 @@ export function actorImageController(
                     reader.readAsDataURL(image.file)
 
                     reader.onload = function(e) {
-                        $scope.model.image = e.target['result'];
+                        $scope.model.image = e.target['result'];                        
+                        $scope.to.onChange(image.file, getImageField(), $scope);
                     }
                 }
             }).finally(() => {
@@ -72,6 +73,13 @@ export function actorImageController(
                     callback();
                 }
             });
+    }
+
+    function getImageField(): any {
+        if (!$scope.fields) {
+            return null;
+        }
+        return $scope.fields.find((field: any) => field.key === "image");
     }
 
     $scope.onFileSelect = (files: File[], callback?: Function) => {
@@ -82,6 +90,7 @@ export function actorImageController(
         if(isReadOnly && isReadOnly === true){
             return ;
         }
+        $scope.to.onChange(null, getImageField(), $scope);
         $scope.model.image = null;
     };
 

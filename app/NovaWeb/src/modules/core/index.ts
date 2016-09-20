@@ -36,7 +36,10 @@ export {
 
 export {
     IWindowResize,
-    IWindowVisibility
+    IWindowVisibility,
+    IUserOrGroupInfo,
+    IUsersAndGroupsService,
+    UsersAndGroupsService
 } from "./services";
 
 export {

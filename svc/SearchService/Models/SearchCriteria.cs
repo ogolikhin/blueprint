@@ -17,6 +17,5 @@ namespace SearchService.Models
 
         public IEnumerable<int> ItemTypeIds { get; set; }
 
-        public bool IncludeMetaData { get; set; } = true;
     }
 }

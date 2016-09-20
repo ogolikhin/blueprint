@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {ArtifactPickerController} from "./bp-artifact-picker";
+import {ArtifactPickerController, IArtifactPickerOptions} from "./bp-artifact-picker";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 import {ILocalizationService} from "../../../../core";
 import {Models} from "../../../models";
@@ -12,6 +12,7 @@ describe("ArtifactPickerController", () => {
     let $scope: ng.IScope;
     let projectManager: IProjectManager;
     let projectService: IProjectService;
+    let options: IArtifactPickerOptions;
     let controller: ArtifactPickerController;
     const project = {id: 1} as Project;
 
@@ -23,8 +24,8 @@ describe("ArtifactPickerController", () => {
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
         projectService = {} as IProjectService;
-        const dialogData = {ItemTypePredefines: [] as Models.ItemTypePredefined[]};
-        controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, dialogData);
+        options = {selectableItemTypes: [Models.ItemTypePredefined.Actor], showSubArtifacts: true};
+        controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, options);
     }));
 
     it("constructor sets selected project", inject(($rootScope: ng.IRootScopeService) => {
@@ -93,7 +94,7 @@ describe("ArtifactPickerController", () => {
         it("innerRenderer, when InstanceItemNodeVM of type Folder, adds event listener", () => {
             // Arrange
             const cell = jasmine.createSpyObj("cell", ["addEventListener"]);
-            const vm = new InstanceItemNodeVM(projectService, {id: 1, type: Models.ProjectNodeType.Folder} as Models.IProjectNode);
+            const vm = new InstanceItemNodeVM(projectService, options, {id: 1, type: Models.ProjectNodeType.Folder} as Models.IProjectNode);
             const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
 
             // Act
@@ -105,7 +106,7 @@ describe("ArtifactPickerController", () => {
 
         it("innerRenderer, when ArtifactNodeVM with custom icon, correct result", () => {
             // Arrange
-            const vm = new ArtifactNodeVM(projectService, {id: 1, name: "artifact", prefix: "AC"});
+            const vm = new ArtifactNodeVM(projectService, options, {id: 1, name: "artifact", prefix: "AC"});
             const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
             (projectManager.getArtifact as jasmine.Spy).and.returnValue({metadata: {getItemType() { return {id: 123, iconImageId: 456}; }}});
 
@@ -130,10 +131,10 @@ item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
         });
     });
 
-    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
+    it("onSelect, when selectable ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
         // Arrange
-        const model = {id: 3} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(projectService, model);
+        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Actor} as Models.IArtifact;
+        const vm = new ArtifactNodeVM(projectService, options, model);
 
         // Act
         controller.onSelect(vm);
@@ -143,10 +144,23 @@ item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
         expect(controller.returnValue).toBe(model);
     }));
 
+    it("onSelect, when not selectable ArtifactNodeVM, clears selected item", inject(($browser) => {
+        // Arrange
+        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Glossary} as Models.IArtifact;
+        const vm = new ArtifactNodeVM(projectService, options, model);
+
+        // Act
+        controller.onSelect(vm);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toBeUndefined();
+    }));
+
     it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {
         // Arrange
         const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
-        const vm = new InstanceItemNodeVM(projectService, model);
+        const vm = new InstanceItemNodeVM(projectService, options, model);
 
         // Act
         controller.onSelect(vm);
@@ -160,7 +174,7 @@ item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
     it("onSelect, when InstanceItemNodeVM of type Folder, clears selected item", inject(($browser) => {
         // Arrange
         const model = {id: 99, type: Models.ProjectNodeType.Folder} as Models.IProjectNode;
-        const vm = new InstanceItemNodeVM(projectService, model);
+        const vm = new InstanceItemNodeVM(projectService, options, model);
 
         // Act
         controller.onSelect(vm);
@@ -181,7 +195,7 @@ item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.returnValue).toBeUndefined();
         expect(controller.project).toBe(newProject);
-        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, {
+        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, options, {
             id: 6,
             type: Models.ProjectNodeType.Project,
             name: "new",
@@ -199,7 +213,7 @@ item-type-icon="456"></bp-item-type-icon><span>AC1 artifact</span></span>`);
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.returnValue).toBeUndefined();
         expect(controller.project).toBeUndefined();
-        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, {
+        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectService, options, {
             id: 0,
             type: Models.ProjectNodeType.Folder,
             name: "",

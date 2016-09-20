@@ -132,7 +132,7 @@ export class ProcessDiagram {
     }
 
     private navigateToAssociatedArtifact = (info: any) => {
-        this.navigationService.navigateToItem(info.id, info.context);
+        this.navigationService.navigateToArtifact(info.id, info.context);
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {

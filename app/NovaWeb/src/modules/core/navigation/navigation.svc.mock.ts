@@ -10,14 +10,14 @@ export class NavigationServiceMock implements INavigationService {
     ) {
     }
 
-    public navigateToDefault(): ng.IPromise<any> {
+    public navigateToMain(): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 
         return deferred.promise;
     }
 
-    public navigateToItem(id: number, context?: INavigationContext): ng.IPromise<any> {
+    public navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

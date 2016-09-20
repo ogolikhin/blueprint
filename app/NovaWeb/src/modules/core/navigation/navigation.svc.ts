@@ -1,10 +1,10 @@
 export interface INavigationContext {
-    previousItemId: number;
+    sourceArtifactId: number;
 }
 
 export interface INavigationService {
-    navigateToDefault(): ng.IPromise<any>;
-    navigateToItem(id: number, context?: INavigationContext): ng.IPromise<any>;
+    navigateToMain(): ng.IPromise<any>;
+    navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {
@@ -20,23 +20,23 @@ export class NavigationService implements INavigationService {
     ) {
     }
 
-    public navigateToDefault(): ng.IPromise<any> {
+    public navigateToMain(): ng.IPromise<any> {
         return this.$state.go(this._defaultState);
     }
 
-    public navigateToItem(id: number, context?: INavigationContext): ng.IPromise<any> {
+    public navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any> {
         const parameters = { id: id };
         let options: ng.ui.IStateOptions;
 
         if (context) {
-            if (context.previousItemId) {
+            if (context.sourceArtifactId) {
                 const pathName = "path";
                 const path = this.$state.params[pathName];
 
                 if (!path) {
-                    parameters[pathName] = `${context.previousItemId}`;
+                    parameters[pathName] = `${context.sourceArtifactId}`;
                 } else {
-                    parameters[pathName] = `${path},${context.previousItemId}`;
+                    parameters[pathName] = `${path},${context.sourceArtifactId}`;
                 }
             }
         } else {

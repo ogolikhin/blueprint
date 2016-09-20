@@ -46,11 +46,11 @@ class PageContentCtrl {
 
     private selectContext(artifact: IStatefulArtifact) {
         if (!artifact) {
-            this.navigationService.navigateToDefault();
+            this.navigationService.navigateToMain();
             return;
         }
 
-        this.navigationService.navigateToItem(artifact.id);
+        this.navigationService.navigateToArtifact(artifact.id);
     }
 
     private selectedInExplorer = (artifact: IStatefulArtifact) => {

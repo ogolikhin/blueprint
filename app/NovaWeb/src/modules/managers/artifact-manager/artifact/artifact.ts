@@ -254,6 +254,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.docRefs.initialize(result.documentReferences);
 
                 return result;
+            }, (error) => {
+                if (error && error.statusCode === 404) {
+                    this.artifactState.deleted = true;
+                }
+                return error;
             });
     }
     
@@ -261,6 +266,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.services.relationshipsService.getRelationships(this.id)
             .then( (result: Relationships.IRelationship[]) => {
                 return result;
+            }, (error) => {
+                if (error && error.statusCode === 404) {
+                    this.artifactState.deleted = true;
+                }
+                return error;
             });
     }
 

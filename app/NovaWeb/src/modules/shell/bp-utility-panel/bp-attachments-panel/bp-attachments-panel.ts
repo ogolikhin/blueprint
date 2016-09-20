@@ -41,13 +41,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public attachmentsList: IArtifactAttachment[];
     public docRefList: IArtifactDocRef[];
     public item: IStatefulItem;
+    public isItemReadOnly: boolean;
 
     public categoryFilter: number;
     public isLoadingAttachments: boolean = false;
     public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
 
-//    private artifactIsDeleted: boolean = false;
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     
@@ -146,22 +146,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.item = subArtifact || artifact;
-        
         this.getAttachments();
 
-        // if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-        //     return this.getAttachments(artifact.id, subArtifact ? subArtifact.id : null, timeout)
-        //         .then((result: IArtifactAttachmentsResultSet) => {
-        //             this.artifactIsDeleted = false;
-        //             this.artifactAttachmentsList = result;
-        //         }, (error) => {
-        //             if (error && error.statusCode === 404) {
-        //                 this.artifactIsDeleted = true;
-        //             }
-        //         });
-        // } else {
-        //     this.artifactAttachmentsList = null;
-        // }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
@@ -173,10 +159,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
                 this.attachmentsList = attachments;
                 
-                // TODO: optimize the following later
                 // get doc refs here because they're included in attachments payload
                 this.getDocRefs();
             }).finally(() => {
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.artifactState.deleted;
                 this.isLoadingAttachments = false;
             });
         }
@@ -195,23 +181,4 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             });
         }
     }
-
-    public canAddNewFile() {
-        // TODO: fix this for readonly as a property, not a function
-        // return !this.artifactIsDeleted && !(this.item.artifactState && this.item.artifactState.readonly);
-        return true;
-    }
-
-    /* tslint:disable:no-unused-variable */
-    // private getAttachments(artifactId: number, subArtifactId: number = null, timeout: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
-    //     this.isLoadingAttachments = true;
-    //     return this.artifactAttachments.getArtifactAttachments(artifactId, subArtifactId, true, timeout)
-    //         .then( (result: IArtifactAttachmentsResultSet) => {
-    //             return result;
-    //         })
-    //         .finally( () => {
-    //             this.isLoadingAttachments = false;
-    //         });
-    // }
-    /* tslint:enable:no-unused-variable */
 }

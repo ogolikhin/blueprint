@@ -6,6 +6,8 @@ export interface IState {
     dirty?: boolean;
     published?: boolean;
     lock?: Models.ILockResult;
+    deleted: boolean;
+    moved: boolean;
 }
 
 export interface IArtifactState extends IDispose {
@@ -19,6 +21,8 @@ export interface IArtifactState extends IDispose {
     readonly: boolean;
     dirty: boolean;
     published: boolean;
+    deleted: boolean;
+    moved: boolean;
     observable(): Rx.Observable<IArtifactState>;
 } 
 
@@ -50,6 +54,8 @@ export class ArtifactState implements IArtifactState {
             readonly: false,
             dirty: false,
             published: false,
+            deleted: false,
+            moved: false,
             lock: this.state ? this.state.lock : null 
         };        
     }
@@ -73,13 +79,14 @@ export class ArtifactState implements IArtifactState {
         return this.subject.filter(it => it !== null).asObservable();
     }    
 
-
     public get lockedBy(): Enums.LockedByEnum {
         return this.lockedby;
     }
+
     public get lockDateTime(): Date {
         return this.lockdatetime;
     }
+
     public get lockOwner(): string {
         return this.lockowner;
     }
@@ -141,5 +148,21 @@ export class ArtifactState implements IArtifactState {
 
     public set published(value: boolean) {
         this.set({published: value});
+    }
+
+    public get deleted(): boolean {
+        return this.state.deleted;
+    }
+
+    public set deleted(value: boolean) {
+        this.set({deleted: value});
+    }
+
+    public get moved(): boolean {
+        return this.state.moved;
+    }
+
+    public set moved(value: boolean) {
+        this.set({moved: value});
     }
 }

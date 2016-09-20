@@ -1101,13 +1101,13 @@ export function formlyConfig(
                     <span class="icon fonticon2-delete" ng-click="deleteFile()"></span>
                 </span>
                 <span class="input-group-addon">
-                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="{{changeLabelText}}">
                         <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
                         Change
                     </label>
                 </span>
                 <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">{{downloadLabelText}}</button>
                 </span>
             </span>
          </div>
@@ -1120,7 +1120,7 @@ export function formlyConfig(
                     <input type="text" class="form-control" readonly/>
                 </span>    
                 <span class="input-group-addon">
-                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Upload">
+                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="{{uploadLabelText}}">
                         <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
                         Upload
                     </label>

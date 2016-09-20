@@ -18,6 +18,7 @@ export function documentController(
     settingsService: ISettingsService
 ) {
     let currentModelVal = $scope.model[$scope.options.key];
+    let guid: number; //we use this to download newly added files (prior to saving).
     const maxAttachmentFilesize: number = 1048576; // 1 MB
     const maxNumberAttachments: number = 1;
     let setFields = (model: any) => {
@@ -58,6 +59,7 @@ export function documentController(
                 };
                 $scope.to.onChange(newFileObject, $scope.fields[0], $scope);
                 setFields(newFileObject);
+                guid = uploadedFile.guid;
             }
         }).finally(() => {
             if (callback) {
@@ -71,6 +73,9 @@ export function documentController(
         chooseDocumentFile(files, callback);
     };
     $scope.downloadFile = () => {
+        if (guid) {
+            return $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
+        }
         return artifactAttachments.getArtifactAttachments($scope.fields[0].templateOptions.artifactId)
             .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                 if (attachmentResultSet.attachments.length) {
@@ -93,6 +98,10 @@ export function documentController(
         dialogService.open(dialogSettings).then(() => {
             $scope.to.onChange(null, $scope.fields[0], $scope);
             clearFields();
+            guid = null;
         });
     }
+    $scope.changeLabelText = localization.get("Document_File_Change", "Change");
+    $scope.uploadLabelText = localization.get("Document_File_Upload", "Upload");
+    $scope.downloadLabelText = localization.get("Document_File_Download", "Download");
 }

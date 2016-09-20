@@ -105,8 +105,10 @@ export class SubArtifactEditorModalOpener {
             return;
         }
         userTaskDialogModel.isSystemTask = !userTaskDialogModel.isUserTask;
-        userTaskDialogModel.originalUserTask = userTaskNode;
-        userTaskDialogModel.clonedUserTask = userTaskDialogModel.originalUserTask.cloneUserTask();
+        if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
+            userTaskDialogModel.originalUserTask = userTaskNode;
+            userTaskDialogModel.clonedUserTask = userTaskDialogModel.originalUserTask.cloneUserTask();
+        }
         userTaskDialogModel.originalSystemTask = systemTaskNode;
         userTaskDialogModel.clonedSystemTask = userTaskDialogModel.originalSystemTask.cloneSystemTask();
 

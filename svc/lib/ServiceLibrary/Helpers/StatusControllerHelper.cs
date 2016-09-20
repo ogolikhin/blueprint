@@ -11,6 +11,8 @@ namespace ServiceLibrary.Helpers
     public interface IStatusControllerHelper
     {
         Task<ServiceStatus> GetStatus();
+         ServiceStatus GetShorterStatus(ServiceStatus s);
+
     }
 
     public class StatusControllerHelper : IStatusControllerHelper
@@ -57,6 +59,36 @@ namespace ServiceLibrary.Helpers
             return serviceStatus;
         }
 
+        public  ServiceStatus GetShorterStatus(ServiceStatus s)
+        {
+            var serviceStatus = new ServiceStatus();
+
+            serviceStatus.ServiceName = s.ServiceName;
+
+            List<StatusResponse> statusResponses = new List<StatusResponse>();
+
+            if (s.StatusResponses.Count > 0)
+            {
+                
+                foreach (var statusResponse in s.StatusResponses)
+                {
+                    statusResponses.Add(new StatusResponse { Name = statusResponse.Name, NoErrors = statusResponse.NoErrors });
+                }
+            }
+
+            
+            serviceStatus.NoErrors = true;
+            foreach (var result in statusResponses)
+            {
+                var statusResult = result;
+                serviceStatus.StatusResponses.Add(statusResult);
+                serviceStatus.NoErrors = s.NoErrors;
+            }
+            
+            return serviceStatus;
+            
+        }
+
         /// <summary>
         /// Modifies serviceStatus in place, returns whether status was successfully obtained.
         /// </summary>
@@ -90,6 +122,7 @@ namespace ServiceLibrary.Helpers
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
         }
+
     }
 
     // *************************************************************************************

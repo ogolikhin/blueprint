@@ -1,5 +1,4 @@
 import "angular";
-import { IArtifactAttachmentsService } from "../../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
 import { Helper } from "../../../shared/utils/helper";
 import { IDialogSettings, IDialogService } from "../../../shared";
@@ -7,11 +6,10 @@ import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 // import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
-actorImageController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService", "settingsService"];
+actorImageController.$inject = ["localization", "$window", "messageService", "dialogService", "settingsService"];
 export function actorImageController(
     $scope: any,
     localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
@@ -35,17 +33,6 @@ export function actorImageController(
             header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
             backdrop: false
         };
-
-        let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
-        let maxNumberAttachments: number = maxNumberAttachmentsDefault;
-
-        if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
-            maxNumberAttachments = maxNumberAttachmentsDefault;
-        }
-
-        if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
-        }
 
         const dialogData: IUploadStatusDialogData = {
             files: files,

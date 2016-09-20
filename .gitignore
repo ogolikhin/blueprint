@@ -235,3 +235,6 @@ FakesAssemblies/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+
+# NetBeans project files
+/app/NovaWeb/nbproject/

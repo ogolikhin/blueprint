@@ -98,20 +98,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
-        [TestCase]  // TODO: This isn't in TestRail because it's only a temporary testcase.  When versionId is implemented, delete this test.
-        [Description("This is a temporary testcase to let us know if/when the versionId parameter is implemented.")]
-        public void GetArtifactDetailsWithVersionId1_PublishedArtifactWithMultipleVersions_501NotImplemented()
-        {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            Assert.Throws<Http501NotImplementedException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
-            }, "If this is getting a 200 OK, that means the versionId feature is implemented now and this test should be deleted and test 154700 should be enabled.");
-        }
-
         [TestCase(BaseArtifactType.Process)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // XXX: Currently fails with a 501 Not Implemented error.
         [TestRail(154700)]
         [Description("Create & publish an artifact, modify & publish it again, GetArtifactDetails with versionId=1.  Verify the artifact details for the first version are returned.")]
         public void GetArtifactDetailsWithVersionId1_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)

@@ -3,7 +3,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
-import { Helper, IDialogService } from "../../shared";
+import { IDialogService } from "../../shared";
 import { documentController } from "./controllers/document-field-controller";
 import { actorInheritanceController } from "./controllers/actor-inheritance-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
@@ -11,6 +11,8 @@ import { ISelectionManager } from "../../managers";
 import { BPFieldReadOnly } from "./types/read-only";
 import { BPFieldText } from "./types/text";
 import { BPFieldTextMulti } from "./types/text-multi";
+import { BPFieldTextRTF } from "./types/text-rtf";
+import { BPFieldTextRTFInline } from "./types/text-rtf-inline";
 import { BPFieldNumber } from "./types/number";
 import { BPFieldSelect } from "./types/select";
 import { BPFieldSelectMulti } from "./types/select-multi";
@@ -44,58 +46,13 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldReadOnly());
     formlyConfig.setType(new BPFieldText());
     formlyConfig.setType(new BPFieldTextMulti());
+    formlyConfig.setType(new BPFieldTextRTF());
+    formlyConfig.setType(new BPFieldTextRTFInline());
     formlyConfig.setType(new BPFieldNumber());
     formlyConfig.setType(new BPFieldSelect());
     formlyConfig.setType(new BPFieldSelectMulti());
     formlyConfig.setType(new BPFieldUserPicker());
     formlyConfig.setType(new BPFieldDatePicker());
-
-    formlyConfig.setType({
-        name: "bpFieldTinymce",
-        template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["bpFieldLabel"],
-        defaultOptions: {
-            templateOptions: {
-                tinymceOption: { // this will go to ui-tinymce directive
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
-            }
-        }
-    });
-
-    formlyConfig.setType({
-        name: "bpFieldInlineTinymce",
-        /* tslint:disable */
-        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
-        /* tslint:enable */
-        defaultOptions: {
-            templateOptions: {
-                tinymceOption: { // this will go to ui-tinymce directive
-                    inline: true,
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    init_instance_callback: function (editor) {
-                        Helper.autoLinkURLText(editor.getBody());
-                        editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
-                        editor.dom.bind(editor.dom.select("a"), "click", function (e) {
-                            let element = e.target as HTMLElement;
-                            while (element && element.tagName.toUpperCase() !== "A") {
-                                element = element.parentElement;
-                            }
-                            if (element && element.getAttribute("href")) {
-                                window.open(element.getAttribute("href"), "_blank");
-                            }
-                        });
-                    },
-                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
-            }
-        },
-        controller: ["$scope", function ($scope) {
-            let currentModelVal = $scope.model[$scope.options.key];
-            $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
-        }]
-    });
 
     formlyConfig.setType({
         name: "bpDocumentFile",
@@ -171,7 +128,7 @@ export function formlyConfig(
                 </div>`,
         /* tslint:enable:max-line-length */
         controller: ["$scope", function ($scope) {
-            actorImageController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
+            actorImageController($scope, localization, $window, messageService, dialogService, settingsService);
         }]
     });
 

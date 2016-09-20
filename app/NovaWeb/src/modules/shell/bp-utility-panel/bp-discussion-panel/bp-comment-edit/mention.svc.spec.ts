@@ -1,9 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
-import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
-import { ILocalizationService } from "../../../../core";
+import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
 import { ITinyMceMentionOptions, MentionService } from "./mention.svc";
-import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "./users-and-groups.svc.mock";
+import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "../../../../core/services/users-and-groups.svc.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
 /* tslint:disable:max-line-length */

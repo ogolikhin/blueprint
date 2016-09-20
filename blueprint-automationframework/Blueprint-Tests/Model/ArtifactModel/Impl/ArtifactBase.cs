@@ -458,9 +458,24 @@ namespace Model.ArtifactModel.Impl
                     from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
                     select result.ArtifactId;
 
+                // TODO: Check if this logic is correct.  It looks like this should be outside the loop.
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
                 deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
             }
+        }
+
+        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            IEnumerable<int> publishedArtifactIds =
+                from result in publishedArtifactsList
+                select result.Id;
+
+            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
+            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(publishedArtifactIds));
         }
 
         #endregion IArtifactObservable methods

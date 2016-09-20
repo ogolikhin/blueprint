@@ -23,7 +23,6 @@ namespace ArtifactStoreTests
 
         private IUser _user = null;
         private IProject _project = null;
-        private List<IProject> _allProjects = null;
 
         [SetUp]
         public void SetUp()
@@ -31,7 +30,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-            _allProjects = ProjectFactory.GetAllProjects(_user);
         }
 
         [TearDown]
@@ -619,7 +617,7 @@ namespace ArtifactStoreTests
         [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(166007)]
         [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
-        public void PublishArtifact_PropertyOutOfRange_BadRequest(string toChange, string changeTo)
+        public void PublishArtifact_PropertyOutOfRange_Conflict(string toChange, string changeTo)
         {
             // Setup:
             var projectCustomData = GetCustomDataProject();
@@ -653,7 +651,7 @@ namespace ArtifactStoreTests
         [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
         [TestRail(166129)]
         [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
-        public void PublishAllArtifacts_PropertyOutOfRange_BadRequest(string toChange, string changeTo, BaseArtifactType artifactType, int index)
+        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
         {
             // Setup:
             var projectCustomData = GetCustomDataProject();
@@ -832,6 +830,9 @@ namespace ArtifactStoreTests
         /// <returns>The custom data project.</returns>
         private IProject GetCustomDataProject()
         {
+            List<IProject> _allProjects = null;
+            _allProjects = ProjectFactory.GetAllProjects(_user);
+
             const string customDataProjectName = "Custom Data";
 
             Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),

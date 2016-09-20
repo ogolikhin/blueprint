@@ -46,9 +46,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
-        this.subscribers.push(this.artifact.artifactState.observable()
-                        
-                        .subscribeOnNext(this.onChange, this));
+        this.subscribers.push(this.artifact.artifactState.observable().subscribeOnNext(this.onChange, this));
 
     }
 
@@ -165,15 +163,13 @@ export class BpArtifactEditor extends BpBaseEditor {
         if (angular.isUndefined(this.isLoading)) {
             return;
         }
-        if (state.lock) {
-            if (state.lock.result === Enums.LockResultEnum.Success) {
-                if (state.lock.info.versionId !== this.artifact.version) {
-                   this.onLoad();
-                }
-            } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-                this.onUpdate();
-            } 
-        }
+        this.onUpdate();        
+        // if (state.old || 
+        //     state.deleted || 
+        //     state.status === Enums.LockResultEnum.AlreadyLocked || 
+        //     state.status === Enums.LockResultEnum.DoesNotExist) {
+        //     this.onUpdate();
+        // }
     }
     
 

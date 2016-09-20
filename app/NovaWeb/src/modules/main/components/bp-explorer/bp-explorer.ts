@@ -108,18 +108,8 @@ export class ProjectExplorerController {
         if (this.tree && artifact) {
             this._selectedArtifactId = artifact.id;
             this.tree.selectNode(this._selectedArtifactId);
-        // this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this);
 
         }
-    }
-
-    private onStateChange = (state: IArtifactState) => {
-        if (this.tree) {
-            if (angular.isDefined(this._selectedArtifactId)) {
-                this.tree.selectNode(this._selectedArtifactId);
-            }
-        }
-
     }
 
     public doLoad = (prms: Models.IProject): any[] => {

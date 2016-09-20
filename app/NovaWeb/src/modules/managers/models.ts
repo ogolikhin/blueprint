@@ -99,6 +99,6 @@ export interface IArtifactNode {
     predefinedType: Models.ItemTypePredefined;
     hasChildren?: boolean;
     loaded?: boolean;
-    open: boolean;
+    open?: boolean;
 }
 

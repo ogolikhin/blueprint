@@ -507,6 +507,7 @@ namespace ArtifactStoreTests
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
+
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165975)]
         [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
@@ -526,27 +527,10 @@ namespace ArtifactStoreTests
             Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestRail(166016)]
-        [Description("Create & save a multiple artifacts.  Publish artifacts with wrong token.  Verify publish returns 401 Unauthorized.")]
-        public void PublishAllArtifacts_InvalidToken_Unauthorized(BaseArtifactType artifactType)
-        {
-            // Setup:
-            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
-
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-
-            // Execute:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o=>(IArtifactBase)o), userWithBadToken, all : true),
-                "'POST {0}' should return 401 Unauthorized if a token is invalid!", PUBLISH_PATH);
-
-            // Verify:
-            const string expectedMessage = "\"Unauthorized call\"";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
-        }
         #endregion 401 Unauthorized tests
 
         #region 404 Not Found tests
+
         [TestCase(BaseArtifactType.Process)]
         [TestRail(165973)]
         [Description("Create, save, publish, delete Process artifact by another user, checks returned result is 404 Not Found.")]
@@ -591,6 +575,7 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
+
         [TestCase(BaseArtifactType.Process, 1)]
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(165974)]
@@ -835,15 +820,15 @@ namespace ArtifactStoreTests
         /// <returns>The custom data project.</returns>
         private IProject GetCustomDataProject()
         {
-            List<IProject> _allProjects = null;
-            _allProjects = ProjectFactory.GetAllProjects(_user);
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(_user);
 
             const string customDataProjectName = "Custom Data";
 
-            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
+            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
                 "No project was found named '{0}'!", customDataProjectName);
 
-            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
+            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
 
             return projectCustomData;

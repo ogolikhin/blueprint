@@ -178,7 +178,9 @@ export class ProcessDiagram {
     public destroy() {
         this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
         this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
-        
+        this.processViewModel.communicationManager.processDiagramCommunication
+            .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+
         // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();

@@ -15,6 +15,7 @@ import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {INavigationContext} from "../../../../../../../core/navigation/navigation.svc";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -429,7 +430,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             return;
         }
 
-        let context = { previousItemId: this.processId };
+        let context = <INavigationContext>{ sourceArtifactId: this.processId };
         this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, context);
     }
 

@@ -13,6 +13,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {INavigationContext} from "../../../../../../../core/navigation/navigation.svc";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -461,7 +462,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        let context = { previousItemId: this.processId };
+        let context = <INavigationContext>{ sourceArtifactId: this.processId };
         this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, context);
     }
 

@@ -7,33 +7,7 @@ import { Helper } from "../../../shared";
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
-    /* tslint:disable */
-    public template: string = `
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-                <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
-                <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions"><div ng-bind-html="model[options.key]"></div></div>
-                <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-                <div ng-if="options.data.isMultipleAllowed || options.data.isRichText" class="overflow-fade"></div>
-            </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Date">
-                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Number">
-                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.User">
-                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && options.data.isMultipleAllowed">
-                <div id="{{::id}}" class="read-only-input multiple always-visible" perfect-scrollbar opts="scrollOptions">
-                    <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}" bp-tooltip-truncated="true">{{option.name}}</div>
-                </div>
-                <div class="overflow-fade"></div>
-            </div>
-            <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
-                <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{model[options.key]}}</div>
-            </div>`;
-    /* tslint:enable */
+    public template: string = require("./read-only.template.html");
     public wrapper: string = "bpFieldLabel";
     public controller: Function = BpFieldReadOnlyController;
 }

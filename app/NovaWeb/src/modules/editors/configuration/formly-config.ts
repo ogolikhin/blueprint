@@ -14,6 +14,7 @@ import { IUsersAndGroupsService, IUserOrGroupInfo } from "../../shell/bp-utility
 import { BPFieldReadOnly } from "./types/read-only"
 import { BPFieldText } from "./types/text"
 import { BPFieldTextMulti } from "./types/text-multi"
+import { BPFieldNumber } from "./types/number"
 import { BPFieldDatePicker } from "./types/date-picker"
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
@@ -95,6 +96,7 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldReadOnly());
     formlyConfig.setType(new BPFieldText());
     formlyConfig.setType(new BPFieldTextMulti());
+    formlyConfig.setType(new BPFieldNumber());
     formlyConfig.setType(new BPFieldDatePicker());
 
     formlyConfig.setType({
@@ -748,93 +750,6 @@ export function formlyConfig(
                         }
                     }
                 }
-            };
-        }]
-    });
-
-    formlyConfig.setType({
-        name: "bpFieldNumber",
-        extends: "input",
-        /* tslint:disable */
-        template: `<div class="input-group has-messages">
-                <input type="text"
-                    id="{{::id}}"
-                    name="{{::id}}"
-                    ng-model="model[options.key]"
-                    ng-keyup="bpFieldNumber.keyup($event)"
-                    class="form-control" />
-                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-                </div>
-            </div>`,
-        /* tslint:enable */
-        wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
-            validators: {
-                decimalPlaces: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        if (!(<any>$scope.options).data.isValidated) {
-                            return true;
-                        }
-                        let value = $modelValue || $viewValue;
-                        if (value) {
-                            let decimal = value.toString().split(localization.current.decimalSeparator);
-                            if (decimal.length === 2) {
-                                return decimal[1].length <= $scope.to["decimalPlaces"];
-                            }
-                        }
-                        return true;
-                    }
-                },
-                wrongFormat: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        let value = $modelValue || $viewValue;
-                        return !value ||
-                            angular.isNumber(localization.current.toNumber(value, (
-                                <any>$scope.options).data.isValidated ? $scope.to["decimalPlaces"] : null
-                            ));
-                    }
-                },
-                max: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        if (!(<any>$scope.options).data.isValidated) {
-                            return true;
-                        }
-                        let max = localization.current.toNumber($scope.to.max);
-                        if (angular.isNumber(max)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
-                            if (angular.isNumber(value)) {
-                                return value <= max;
-                            }
-                        }
-                        return true;
-                    }
-                },
-                min: {
-                    expression: function ($viewValue, $modelValue, $scope) {
-                        if (!(<any>$scope.options).data.isValidated) {
-                            return true;
-                        }
-                        let min = localization.current.toNumber($scope.to.min);
-                        if (angular.isNumber(min)) {
-                            let value = localization.current.toNumber($modelValue || $viewValue);
-                            if (angular.isNumber(value)) {
-                                return value >= min;
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }
-        },
-        link: function ($scope, $element, $attrs) {
-            $scope.$applyAsync((scope) => {
-                scope["fc"].$setTouched();
-            });
-        },
-        controller: ["$scope", function ($scope) {
-            $scope.bpFieldNumber = {
-                keyup: blurOnKey
             };
         }]
     });

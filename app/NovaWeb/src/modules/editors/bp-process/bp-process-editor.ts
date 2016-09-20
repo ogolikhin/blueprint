@@ -2,7 +2,7 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
-import {ILocalizationService, IMessageService } from "../../core";
+import {ILocalizationService, IMessageService, INavigationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause } from "../../main";
@@ -35,7 +35,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "localization",
         "$timeout", 
         "communicationManager",
-        "dialogService"
+        "dialogService",
+        "navigationService"
     ];
 
     constructor(
@@ -52,7 +53,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private localization: ILocalizationService,
         private $timeout: ng.ITimeoutService,
         private communicationManager: ICommunicationManager,
-        private dialogService: IDialogService
+        private dialogService: IDialogService,
+        private navigationService: INavigationService
     ) {
        super(messageService, artifactManager);
 
@@ -78,7 +80,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.messageService,
             this.communicationManager,
             this.dialogService,
-            this.localization
+            this.localization,
+            this.navigationService
         );
        
         let htmlElement = this.getHtmlElement();

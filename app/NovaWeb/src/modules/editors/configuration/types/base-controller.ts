@@ -6,10 +6,9 @@ export interface IBPFieldBaseController {
 
 export class BPFieldBaseController implements IBPFieldBaseController {
     constructor() {
-        let self = this;
     }
 
-    public blurOnKey = function (event: KeyboardEvent, keyCode?: number | number[]) {
+    public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {
         let _keyCode: number[];
         if (!keyCode) {
             _keyCode = [13]; // 13 = Enter
@@ -33,7 +32,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         }
     };
 
-    public closeDropdownOnTab = function (event: KeyboardEvent) {
+    public closeDropdownOnTab = (event: KeyboardEvent): void => {
         let key = event.keyCode || event.which;
         if (key === 9) { // 9 = Tab
             let escKey = document.createEvent("Events");
@@ -42,11 +41,11 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             escKey["keyCode"] = 27;
             event.target.dispatchEvent(escKey);
 
-            self.blurOnKey(event, 9);
+            this.blurOnKey(event, 9);
         }
     };
 
-    public scrollIntoView = function (event) {
+    public scrollIntoView = (event): void => {
         let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
 
         if (target) {

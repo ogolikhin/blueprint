@@ -18,6 +18,8 @@ import { BPFieldNumber } from "./types/number";
 import { BPFieldDatePicker } from "./types/date-picker";
 import { BPFieldSelect } from "./types/select";
 import { BPFieldSelectMulti } from "./types/select-multi";
+import { BPFieldTinymce } from "./types/tinymce";
+import { BPFieldTinymceInline } from "./types/tinymce-inline";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager", "usersAndGroupsService"];
@@ -102,6 +104,8 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldDatePicker());
     formlyConfig.setType(new BPFieldSelect());
     formlyConfig.setType(new BPFieldSelectMulti());
+    formlyConfig.setType(new BPFieldTinymce());
+    formlyConfig.setType(new BPFieldTinymceInline());
 
     formlyConfig.setType({
         name: "bpFieldUserPicker",
@@ -333,52 +337,6 @@ export function formlyConfig(
         }]
     });
 
-    formlyConfig.setType({
-        name: "bpFieldTinymce",
-        template: `<textarea ui-tinymce="options.data.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce"></textarea>`,
-        wrapper: ["bpFieldLabel"],
-        defaultOptions: {
-            templateOptions: {
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
-            }
-        }
-    });
-
-    formlyConfig.setType({
-        name: "bpFieldInlineTinymce",
-        /* tslint:disable */
-        template: `<div class="form-tinymce-toolbar" ng-class="options.key"></div><div ui-tinymce="to.tinymceOption" ng-model="model[options.key]" class="form-control form-tinymce" perfect-scrollbar></div>`,
-        /* tslint:enable */
-        defaultOptions: {
-            templateOptions: {
-                tinymceOption: { // this will goes to ui-tinymce directive
-                    inline: true,
-                    plugins: "advlist autolink link image paste lists charmap print noneditable mention",
-                    init_instance_callback: function (editor) {
-                        Helper.autoLinkURLText(editor.getBody());
-                        editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
-                        editor.dom.bind(editor.dom.select("a"), "click", function (e) {
-                            let element = e.target as HTMLElement;
-                            while (element && element.tagName.toUpperCase() !== "A") {
-                                element = element.parentElement;
-                            }
-                            if (element && element.getAttribute("href")) {
-                                window.open(element.getAttribute("href"), "_blank");
-                            }
-                        });
-                    },
-                    mentions: {} // an empty mentions is needed when including the mention plugin and not using it
-                }
-            }
-        },
-        controller: ["$scope", function ($scope) {
-            let currentModelVal = $scope.model[$scope.options.key];
-            $scope.model[$scope.options.key] = Helper.stripWingdings(currentModelVal);
-        }]
-    });
     formlyConfig.setType({
         name: "bpDocumentFile",
         /* tslint:disable:max-line-length */

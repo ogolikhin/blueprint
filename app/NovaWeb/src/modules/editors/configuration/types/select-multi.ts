@@ -1,7 +1,6 @@
 import "angular"
 import "angular-formly";
 import { ILocalizationService } from "../../../core";
-import { Enums } from "../../../main/models";
 import { BPFieldBaseController } from "./base-controller"
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
@@ -61,10 +60,6 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             }
         };
         $scope.options["validators"] = validators;
-
-        let newCustomValueId = function (): string {
-            return (-1 * (Math.random() * 100 + 100)).toString(); // not to conflict with special IDs like project (-1) or collections (-2)
-        };
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {

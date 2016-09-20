@@ -28,11 +28,11 @@ export class NavigationService implements INavigationService {
         const parameters = { id: id };
         let options: ng.ui.IStateOptions;
 
+        // Disables the inheritance of url parameters (such as "path")
+        options = <ng.ui.IStateOptions>{ inherit: false };
+
         if (context) {
             this.populatePath(context.sourceArtifactId, parameters);
-        } else {
-            // Disables the inheritance of url parameters (such as "path")
-            options = <ng.ui.IStateOptions>{ inherit: false };
         }
 
         return this.$state.go(this._artifactState, parameters, options);

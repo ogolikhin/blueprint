@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿﻿import "angular";
 import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
 import { Helper } from "../../../shared/utils/helper";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";

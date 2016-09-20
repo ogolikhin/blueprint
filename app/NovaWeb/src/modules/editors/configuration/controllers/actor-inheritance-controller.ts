@@ -19,8 +19,9 @@ export function actorInheritanceController(
         currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix, currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
     }
 
-    $scope.deleteBaseActor = () => {    
-        deleteBaseActor();
+    $scope.deleteBaseActor = () => {            
+        $scope.to.onChange(null, getInheritanceField(), $scope);        
+        deleteBaseActor();        
     };
 
     function deleteBaseActor() {
@@ -79,12 +80,19 @@ export function actorInheritanceController(
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
                     pathToProject: artifactPath,
-                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
-                    
-                };
-                currentModelVal = $scope.model[$scope.options.key];                
+                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)                    
+                };                
+                currentModelVal = $scope.model[$scope.options.key];                   
+                $scope.to.onChange(currentModelVal, getInheritanceField(), $scope);
             }
         });
+    }
+
+    function getInheritanceField(): any {
+        if (!$scope.fields) {
+            return null;
+        }
+        return $scope.fields.find((field: any) => field.key === "actorInheritance");
     }
 
     $scope.selectBaseActor = () => {        

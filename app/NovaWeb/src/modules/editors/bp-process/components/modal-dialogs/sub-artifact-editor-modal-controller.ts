@@ -261,9 +261,9 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
     private refreshView() {
         setTimeout(() => {
-            var elem: any = document.getElementsByClassName("modal-dialog")[0].parentElement;
-            elem.style.width = "" + (elem.clientWidth - 1) + "px"; 
-            elem.style.width = "" + (elem.clientWidth + 1) + "px"; 
+            let elem: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+            elem.style.height = "" + (elem.clientHeight - 1) + "px"; 
+            elem.style.height = "" + (elem.clientHeight + 1) + "px"; 
         }, 100);
     }
 

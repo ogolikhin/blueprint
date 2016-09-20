@@ -60,6 +60,36 @@ namespace Model.StorytellerModel.Impl
             }
         }
 
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
+        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(Storyteller), nameof(Storyteller.NotifyArtifactPublish), String.Join(", ", publishedArtifactIds));
+
+            foreach (var publishedArtifactId in publishedArtifactIds)
+            {
+                Artifacts.ForEach(a =>
+                {
+                    if (a.Id == publishedArtifactId)
+                    {
+                        if (a.IsMarkedForDeletion)
+                        {
+                            a.IsDeleted = true;
+                            a.IsPublished = false;
+                        }
+                        else
+                        {
+                            a.IsPublished = true;
+                        }
+
+                        a.IsSaved = false;
+                    }
+                });
+                Artifacts.RemoveAll(a => a.Id == publishedArtifactId);
+            }
+        }
+
         #endregion IArtifactObserver methods
 
         #region Implemented from IStoryteller

@@ -63,8 +63,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
-                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldSelect"].closeDropdownOnTab, true);
-                $scope["uiSelectContainer"].removeEventListener("click", $scope["bpFieldSelect"].scrollIntoView, true);
+                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                $scope["uiSelectContainer"].removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
             }
         });
 
@@ -132,19 +132,19 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             onScroll: function (event) {
                 let dropdown = this;
-                if (!$scope["bpFieldSelect"].isScrolling) {
+                if (!$scope["bpFieldSelectMulti"].isScrolling) {
                     //using requestAnimationFrame to throttle the event (see: https://developer.mozilla.org/en-US/docs/Web/Events/scroll)
                     window.requestAnimationFrame(() => {
-                        let $select = $scope["bpFieldSelect"].$select;
-                        let items = $scope["bpFieldSelect"].items;
+                        let $select = $scope["bpFieldSelectMulti"].$select;
+                        let items = $scope["bpFieldSelectMulti"].items;
                         if ($select.search !== "") {
                             items = items.filter((item) => {
                                 return item[$scope["to"].labelProp].toLowerCase().indexOf($select.search.toLowerCase()) !== -1;
                             });
                         }
-                        let itemsHeight = $scope["bpFieldSelect"].itemsHeight;
+                        let itemsHeight = $scope["bpFieldSelectMulti"].itemsHeight;
                         let itemsContainer = dropdown.firstElementChild as HTMLElement;
-                        let maxItemsToRender = $scope["bpFieldSelect"].maxItemsToRender;
+                        let maxItemsToRender = $scope["bpFieldSelectMulti"].maxItemsToRender;
 
                         let firstVisibleItem = Math.round(dropdown.scrollTop / itemsHeight);
                         let lastVisibleItem = Math.round((dropdown.scrollTop + dropdown.offsetHeight) / itemsHeight);
@@ -159,18 +159,18 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         } else {
                             newStartingItem = firstVisibleItem - itemsToKeepOffscreen;
                         }
-                        if (firstVisibleItem !== $scope["bpFieldSelect"].firstVisibleItem ||
-                            newStartingItem !== $scope["bpFieldSelect"].startingItem) {
+                        if (firstVisibleItem !== $scope["bpFieldSelectMulti"].firstVisibleItem ||
+                            newStartingItem !== $scope["bpFieldSelectMulti"].startingItem) {
                             $scope["$applyAsync"](() => {
                                 let newIndex: number;
-                                if (firstVisibleItem > $scope["bpFieldSelect"].firstVisibleItem) { // scrolling down
+                                if (firstVisibleItem > $scope["bpFieldSelectMulti"].firstVisibleItem) { // scrolling down
                                     newIndex = lastVisibleItem - newStartingItem - 1;
                                 } else { // scrolling up
                                     newIndex = firstVisibleItem - newStartingItem;
                                 }
                                 $select.activeIndex = newIndex;
-                                $scope["bpFieldSelect"].firstVisibleItem = firstVisibleItem;
-                                $scope["bpFieldSelect"].startingItem = newStartingItem;
+                                $scope["bpFieldSelectMulti"].firstVisibleItem = firstVisibleItem;
+                                $scope["bpFieldSelectMulti"].startingItem = newStartingItem;
                                 $select.items = items.slice(newStartingItem, newStartingItem + maxItemsToRender);
                             });
                         }
@@ -196,10 +196,10 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         itemsContainer.style.marginTop = marginTop.toString() + "px";
                         itemsContainer.style.marginBottom = marginBottom.toString() + "px";
 
-                        $scope["bpFieldSelect"].isScrolling = false;
+                        $scope["bpFieldSelectMulti"].isScrolling = false;
                     });
                 }
-                $scope["bpFieldSelect"].isScrolling = true;
+                $scope["bpFieldSelectMulti"].isScrolling = true;
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {

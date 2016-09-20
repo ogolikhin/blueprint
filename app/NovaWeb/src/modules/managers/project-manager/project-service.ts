@@ -1,10 +1,11 @@
 ﻿import { Models } from "../../main/models";
 
 export interface IProjectService {
-    getFolders(id?: number): ng.IPromise<any[]>;
+    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
     getProject(id?: number): ng.IPromise<Models.IProjectNode>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
+    getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -107,6 +108,25 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-
+    public getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]> {
+        var defer = this.$q.defer<any>();
+        let url = `/svc/artifactstore/artifacts/${artifactId}/subartifacts`;
+        this.$http.get<Models.ISubArtifactNode[]>(url).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifactNode[]>) => {
+                defer.resolve(result.data);
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                var error = {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
 }
-

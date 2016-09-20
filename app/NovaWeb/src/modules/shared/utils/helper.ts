@@ -1,4 +1,4 @@
-﻿import { Models, Enums} from "../../main";
+﻿import { Models } from "../../main";
 
 export class Helper {
 

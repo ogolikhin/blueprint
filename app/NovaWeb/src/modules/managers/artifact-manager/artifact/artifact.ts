@@ -310,11 +310,31 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 });
             }).catch((error) => {
                 deffered.reject(it);
-                    let message: string;
-                    if (error) {
-                        message = "App_Save_Artifact_Error_" + error.statusCode + "_" + error.errorCode;
+                let message: string;
+                if (error) {
+                    if (error.statusCode === 400) {
+                        if (error.errorCode === 114) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+                        } else {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+                        }
+                    } else if (error.statusCode === 404) {
+                        message = this.services.localizationService.get("App_Save_Artifact_Error_404");
+                    } else if (error.statusCode === 409) {
+                        if (error.errorCode === 116) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
+                        } else if (error.errorCode === 117) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
+                        } else if (error.errorCode === 111 || error.errorCode === 115) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+                        } else {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409");
+                        }
+                    } else {
+                        message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
-                    throw new Error(message);
+                }
+                throw new Error(message);
             });
         return deffered.promise;
     }

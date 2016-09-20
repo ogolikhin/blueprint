@@ -34,6 +34,8 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
     public search(value: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
         var sanitizedValue = encodeURI(value);
+        //sanitizedValue = sanitizedValue.replace(/%20/g, " ");
+        //var sanitizedValue = value;
         this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", this.createRequestConfig(sanitizedValue, emailDiscussions))
             .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
                 deferred.resolve(result.data);

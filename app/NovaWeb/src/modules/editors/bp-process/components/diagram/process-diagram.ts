@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, Message, MessageType} from "../../../../core";
+﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {IProcessService} from "../../services/process/process.svc";
@@ -16,7 +16,9 @@ export class ProcessDiagram {
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
     private modelUpdateHandler: string;
+    private navigateToAssociatedArtifactHandler: string;
     private shapesFactory: ShapesFactory;
+
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
@@ -27,8 +29,9 @@ export class ProcessDiagram {
         private messageService: IMessageService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
-        private localization: ILocalizationService) {
-
+        private localization: ILocalizationService,
+        private navigationService: INavigationService
+    ) {
         this.processModel = null;
     }
  
@@ -99,6 +102,8 @@ export class ProcessDiagram {
             this.processViewModel.updateProcessGraphModel(process);
             this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
             this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
+                .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
         }
 
         let isProcessTypeToggleEnabled = !this.processViewModel.isReadonly && !this.processViewModel.isHistorical;
@@ -107,16 +112,12 @@ export class ProcessDiagram {
             .toolbarCommunicationManager
             .enableProcessTypeToggle(isProcessTypeToggleEnabled, this.processViewModel.processType);
         
-        this.toggleProcessTypeHandler = 
-            this.processViewModel
-            .communicationManager
-            .toolbarCommunicationManager
+        this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
             .registerToggleProcessTypeObserver(this.processTypeChanged);
-        this.modelUpdateHandler = 
-            this.processViewModel
-            .communicationManager
-            .processDiagramCommunication
+        this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .registerModelUpdateObserver(this.modelUpdate);
+        this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .registerNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifact);
         
         return this.processViewModel;
     }
@@ -128,6 +129,10 @@ export class ProcessDiagram {
 
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
+    }
+
+    private navigateToAssociatedArtifact = (info: any) => {
+        this.navigationService.navigateToArtifact(info.id, info.context);
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
@@ -173,7 +178,9 @@ export class ProcessDiagram {
     public destroy() {
         this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
         this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
-        
+        this.processViewModel.communicationManager.processDiagramCommunication
+            .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+
         // tear down persistent objects and event handlers
         if (this.graph != null) {
             this.graph.destroy();
@@ -201,6 +208,8 @@ export class ProcessDiagram {
     }
 
     public resize = (width: number, height: number) => {
-        this.graph.updateSizeChanges(width, height);
+        if (!!this.graph) {
+            this.graph.updateSizeChanges(width, height);
+        }
     }
 }

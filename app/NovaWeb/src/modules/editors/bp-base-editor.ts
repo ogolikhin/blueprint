@@ -8,7 +8,7 @@ export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, 
 export class BpBaseEditor {
     protected subscribers: Rx.IDisposable[];
     public artifact: IStatefulArtifact;
-    public isLoading: boolean = true;
+    public isLoading: boolean;
 
     constructor(
         public messageService: IMessageService,
@@ -17,12 +17,6 @@ export class BpBaseEditor {
 
     public $onInit() {
         this.subscribers = [];
-        // this.subscribers.push(
-        //     this.stateManager.stateChange
-        //         .filter(it => this.context && this.context.artifact.id === it.originItem.id && !!it.lock)
-        //         .distinctUntilChanged().subscribeOnNext(this.onLockChanged, this)
-        // );
-        
     }
 
     public $onChanges(obj: any) {
@@ -61,25 +55,6 @@ export class BpBaseEditor {
     public onUpdate() {
         this.isLoading = false;
     }
-
-    // private onLockChanged(state: ItemState) {
-    //     let lock = state.lock;
-    //     if (lock.result === Enums.LockResultEnum.Success) {
-    //         if (lock.info.versionId !== state.originItem.version) {
-    //             this.onLoad(this.context);
-    //         }
-    //     } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-    //         this.onUpdate(this.context);
-    //     } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-    //         this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
-    //     } else {
-    //         this.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
-    //     }
-
-    
-
-
-
 }
 
 

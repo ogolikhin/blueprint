@@ -1,25 +1,24 @@
 import "angular";
-import { IArtifactAttachmentsService } from "../../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
 import { Helper } from "../../../shared/utils/helper";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { Models } from "../../../main/models";
 // import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
-actorImageController.$inject = ["localization", "artifactAttachments", "$window", "messageService", "dialogService", "settingsService"];
+actorImageController.$inject = ["localization", "$window", "messageService", "dialogService", "settingsService"];
 export function actorImageController(
     $scope: any,
     localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachmentsService,
     $window: ng.IWindowService,
     messageService: IMessageService,
     dialogService: IDialogService,
     settingsService: ISettingsService
     ) {
-    let currentModelVal = $scope.model[$scope.options.key];
-    if (currentModelVal) {
-        $scope.actorId =  currentModelVal["actorId"];
+    let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key]; 
+    if (!currentModelVal) {
+        currentModelVal = <Models.IActorImagePropertyValue>{};
     }
 
     const maxAttachmentFilesizeDefault: number = 1048576; // 1 MB
@@ -36,17 +35,6 @@ export function actorImageController(
             backdrop: false
         };
 
-        let maxAttachmentFilesize: number = settingsService.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
-        let maxNumberAttachments: number = maxNumberAttachmentsDefault;
-
-        if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
-            maxNumberAttachments = maxNumberAttachmentsDefault;
-        }
-
-        if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
-        }
-
         const dialogData: IUploadStatusDialogData = {
             files: files,
             maxAttachmentFilesize: maxAttachmentFilesizeDefault,
@@ -61,10 +49,13 @@ export function actorImageController(
                 if (uploadList && uploadList.length > 0) {
                     let image = uploadList[0];
                     var reader = new FileReader();
-                    reader.readAsDataURL(image.file)
+                    reader.readAsDataURL(image.file);                    
 
-                    reader.onload = function(e) {
-                        $scope.model.image = e.target['result'];
+                    reader.onload = function (e) {                       
+                        currentModelVal.url = e.target['result'];
+                        currentModelVal.guid = image.guid;                        
+                        $scope.model[$scope.options.key] = currentModelVal;        
+                        $scope.to.onChange(image.file, getImageField(), $scope);
                     }
                 }
             }).finally(() => {
@@ -72,6 +63,13 @@ export function actorImageController(
                     callback();
                 }
             });
+    }
+
+    function getImageField(): any {
+        if (!$scope.fields) {
+            return null;
+        }
+        return $scope.fields.find((field: any) => field.key === "image");
     }
 
     $scope.onFileSelect = (files: File[], callback?: Function) => {
@@ -82,6 +80,7 @@ export function actorImageController(
         if(isReadOnly && isReadOnly === true){
             return ;
         }
+        $scope.to.onChange(null, getImageField(), $scope);
         $scope.model.image = null;
     };
 

@@ -82,6 +82,9 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
+        /// <summary>
+        /// NOTE: Description should ALWAYS be returned as null because the Nova UI needs it to be null.
+        /// </summary>
         string Description { get; set; }
         int Id { get; set; }
         string Name { get; set; }
@@ -111,6 +114,8 @@ namespace Model.ArtifactModel
         string DisplayName { get; set; }
 
         int PredefinedType { get; set; }
+
+        string Prefix { get; set; }
 
         bool HasChildren { get; set; }
 

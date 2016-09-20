@@ -1,17 +1,18 @@
 ﻿import "angular";
+import { ColDef } from "ag-grid/main";
 import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
-import { IBPTreeController, ITreeNode } from "../../../../shared/widgets/bp-tree/bp-tree";
+import { ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM, SubArtifactNodeVM } from "./bp-artifact-picker-node-vm";
 import { IDialogSettings, BaseDialogController } from "../../../../shared/";
 import { Models } from "../../../models";
 import { IProjectManager } from "../../../../managers";
 import { IProjectService } from "../../../../managers/project-manager/project-service";
 
- 
 export interface IArtifactPickerController {
-    propertyMap: any;  
-    selectedItem?: any;
-    getProjects: any;
+    project: Models.IProject;
+    rootNode: ArtifactPickerNodeVM<any>;
+    columnDefs: any[];
+    onSelect: (vm: ArtifactPickerNodeVM<any>) => void;
 }
 
 export interface IArtifactPickerFilter {
@@ -19,23 +20,17 @@ export interface IArtifactPickerFilter {
 }
 
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
+
     public hasCloseButton: boolean = true;
-    private _selectedItem: Models.IArtifact;
-
-    public tree: IBPTreeController;
-    public projectId: number;
-    public projectView: boolean = false;
-    public projectName: string;
-    private project: Models.IProject;
-
+    private _selectedItem: Models.IItem;
 
     static $inject = [
-        "$uibModalInstance", 
+        "$uibModalInstance",
         "dialogSettings",
-        "$scope", 
-        "localization", 
-        "projectManager", 
-        "projectService", 
+        "$scope",
+        "localization",
+        "projectManager",
+        "projectService",
         "dialogData"];
         
     constructor(
@@ -48,53 +43,35 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private dialogData: IArtifactPickerFilter
     ) {
         super($instance, dialogSettings);
-        let project = this.projectManager.getSelectedProject();
-        this.updateCurrentProjectInfo(project);       
+        this.project = this.projectManager.getSelectedProject();
 
         $scope.$on("$destroy", () => {
-            this.columns[0].cellClass = null;
-            this.columns[0].cellRendererParams.innerRenderer = null;
-            this.columns = null;
-
-            this.tree = null;
-
-            this.doSelect = null;
-            this.doSync = null;
-            this.doLoad = null;
+            if (this.columnDefs) {
+                this.columnDefs[0].cellClass = undefined;
+                this.columnDefs[0].cellRendererParams["innerRenderer"] = undefined;
+                this.columnDefs = undefined;
+            }
+            this.onSelect = undefined;
         });
-    };
-
-    public propertyMap = {
-        id: "id",
-        itemTypeId: "itemTypeId",
-        type: "type",
-        name: "name",
-        hasChildren: "hasChildren"
     };
 
     //Dialog return value
     public get returnValue(): any {
-        return this.selectedItem || null;
+        return this._selectedItem;
     };
 
-    public get selectedItem(): Models.IArtifact {
-        return this._selectedItem;
+    private setSelectedItem(item: Models.IItem) {
+        this.$scope.$applyAsync((s) => {
+            this._selectedItem = this.isItemSelectable(item) ? item : undefined;
+        });
     }
 
-    private setSelectedItem(item: Models.IArtifact) {
-        this._selectedItem = this.isItemSelectable(item) ? item : undefined;
-    }
-
-    private isItemSelectable(item: Models.IArtifact): boolean {
-        if (this.projectView) {
-            return false;
-        }
-
-        if (this.dialogData && this.dialogData.ItemTypePredefines && this.dialogData.ItemTypePredefines.length > 0) {
-            return this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) >= 0;
-        } else {
-            return true;
-        }
+    private isItemSelectable(item: Models.IItem): boolean {
+        return !(item &&
+            this.dialogData &&
+            this.dialogData.ItemTypePredefines &&
+            this.dialogData.ItemTypePredefines.length > 0 &&
+            this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) === -1);
     }
 
     private onEnterKeyPressed = (e: any) => {
@@ -104,30 +81,20 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         }
     };
 
-    public columns = [{
+    public columnDefs: ColDef[] = [{
         headerName: "",
         field: "name",
         cellClass: function (params) {
+            const vm = params.data as ArtifactPickerNodeVM<any>;
             let css: string[] = [];
 
-            if (params.data.hasChildren) {
+            if (vm.isExpandable) {
                 css.push("has-children");
             }
 
-            if (params.data.predefinedType) {
-                if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
-                    css.push("is-folder");
-                } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
-                    css.push("is-project");
-                } else {               
-                    css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
-                }
-            } else {
-               if (params.data.type === 0) {
-                   css.push("is-folder");
-               } else if (params.data.type === 1) {
-                   css.push("is-project");
-               }
+            const typeClass = vm.getTypeClass();
+            if (typeClass) {
+                css.push(typeClass);
             }
 
             return css;
@@ -135,131 +102,68 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                const vm = params.data as ArtifactPickerNodeVM<any>;
                 let icon = "<i></i>";
-                let name = Helper.escapeHTMLText(params.data.name);
+                const name = Helper.escapeHTMLText(vm.name);
 
-                if (!this.projectView) {
-                    if (params.data.itemTypeId === 1) {
-                        const cell = params.eGridCell;
-                        cell.addEventListener("keydown", this.onEnterKeyPressed);
-                    }
-
+                if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Folder) {
+                    params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
+                } else if (vm instanceof ArtifactNodeVM) {
                     //TODO: for now it display custom icons just for already loaded projects
-                    let projectID = params.data.projectId;
-                    // let loadedProjects = this.manager.projectCollection.getValue();
-                    // let isProjectLoaded = loadedProjects.map((p) => { return p.id; }).indexOf(projectID);
-                    // if (projectID && isProjectLoaded !== -1) {
-                    //     let artifactType = this.manager.getArtifactType(params.data as Models.IArtifact);
-                    //     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    //         icon = `<bp-item-type-icon
-                    //             item-type-id="${artifactType.id}"
-                    //             item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-                    //     }
-                    // }
+                    let statefulArtifact = this.projectManager.getArtifact(vm.model.id);
+                    if (statefulArtifact) {
+                        let artifactType = statefulArtifact.metadata.getItemType();
+                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                            icon = `<bp-item-type-icon \
+item-type-id="${artifactType.id}" \
+item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                        }
+                    }
                 }
-                return `${icon}<span>${name}</span>`;
+                return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
             },
             padding: 20
         },
         suppressMenu: true,
         suppressSorting: true,
-        suppressFiltering: true
     }];
 
-    public doLoad = (prms: any): any[] => {
-        if (!this.projectView) {
-            let artifactId = null;
-            if (prms) {
-                artifactId = prms.id;
-            } 
-            this.projectService.getArtifacts(this.projectId, artifactId)
-                .then((nodes: Models.IArtifact[]) => {                    
-                    const filtered = nodes.filter(this.filterCollections);
-                    filtered.forEach((value: Models.IArtifact) => {
-                        value.parent = prms || this.project;
-                    });                   
-                    this.reloadTree(filtered, artifactId);
-                }, (error) => {
-                });
-            return null;
+    public rootNode: InstanceItemNodeVM;
+
+    public onSelect = (vm: ArtifactPickerNodeVM<any>) => {
+        if (vm instanceof ArtifactNodeVM || vm instanceof SubArtifactNodeVM) {
+            this.setSelectedItem(vm.model);
         } else {
-            this.projectName = this.localization.get("App_Header_Name");
-            let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-            this.projectService.getFolders(id)
-                .then((nodes: Models.IProjectNode[]) => {                  
-                    this.reloadTree(nodes, id);
-                }, (error) => {
-                });
-
-            return null;
+            this.setSelectedItem(undefined);
+            if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Project) {
+                this.project = vm.model;
+            }
         }
     };
 
-    private reloadTree = (data?: any[], nodeId?: number) => {
-        if (this.tree) {
-            this.tree.reload(data, nodeId);
-        }
-    };
+    private _project: Models.IProject;
 
-    private updateCurrentProjectInfo(project: Models.IProject) {
-        this.project = project;
-        if (project) {
-            this.projectName = project.name;
-            this.projectId = project.id;
-        }
+    public get project(): Models.IProject {
+        return this._project;
     }
 
-    public doSelect = (item: Models.IProjectNode | Models.IItem | any) => {
-        if (!this.projectView) {
-            let self = this;
-            this.$scope.$applyAsync((s) => {
-                self.setSelectedItem(item);
-            });
+    public set project(project: Models.IProject) {
+        this.setSelectedItem(undefined);
+        this._project = project;
+        if (project) {
+            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+                id: project.id,
+                type: Models.ProjectNodeType.Project,
+                name: project.name,
+                hasChildren: project.hasChildren,
+            } as Models.IProjectNode, true);
         } else {
-            if (item && item.type === Models.ProjectNodeType.Project) {
-                this.projectId = item.id;
-                this.reloadTree(null);
-                this.tree.showLoading();
-                this.projectService.getProject(this.projectId).then(
-                    (project: Models.IProject) => {
-                        this.updateCurrentProjectInfo(project);
-                        this.projectService.getArtifacts(this.projectId)
-                            .then((nodes: Models.IArtifact[]) => {
-                                const filtered = nodes.filter(this.filterCollections);
-                                filtered.forEach((value: Models.IArtifact) => {
-                                    value.parent = project;
-                                });                   
-                                this.projectView = false;
-                                this.reloadTree(filtered);
-                            }, (error) => {
-
-                            });
-                    }
-                );
-            }
+            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+                id: 0,
+                type: Models.ProjectNodeType.Folder,
+                name: "",
+                hasChildren: true
+            } as Models.IProjectNode, true);
         }
-    };
-
-    private filterCollections = (node: Models.IItem) => {
-        return node.predefinedType !== Models.ItemTypePredefined.CollectionFolder;
-    };
-
-    public doSync = (node: ITreeNode): Models.IArtifact => {
-        if (!this.projectView) {
-            let artifact = this.projectManager.getArtifact(node.id);
-            if (artifact && artifact.hasChildren) {
-                angular.extend(artifact, {
-                    loaded: node.loaded,
-                    open: node.open
-                });
-            }
-            return artifact;
-        }
-    };
-
-    public getProjects() {
-        this.projectView = true;
-        this._selectedItem = undefined;
-        this.doLoad(null);
     }
 }

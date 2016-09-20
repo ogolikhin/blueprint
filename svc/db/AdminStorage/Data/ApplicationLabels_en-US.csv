@@ -129,8 +129,7 @@ App_Save_Artifact_Error_400,"An error has occurred and the artifact is no longer
 App_Save_Artifact_Error_404,"Sorry, but the artifact cannot be saved because it has been deleted or moved. Please Refresh All."
 App_Save_Artifact_Error_409,"There was a conflict while saving the artifact."
 App_Save_Artifact_Error_400_114,"The artifact cannot be saved. Please ensure all values are correct."
-App_Save_Artifact_Error_409_115,"Sorry, but an error has occurred and the artifact is no longer locked by you. Please contact an administrator."
-App_Save_Artifact_Error_409_111,"The artifact cannot be saved because another user has already begun editing it."
+App_Save_Artifact_Error_409_115,"Sorry, but the artifact cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost."
 App_Save_Artifact_Error_409_116,"The artifact cannot be saved. It is a reused artifact with read-only settings. You have modified read-only properties."
 App_Save_Artifact_Error_409_117,"A property type is out of date."
 App_Save_Artifact_Error_Other,"Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>"
@@ -236,6 +235,8 @@ Property_Suffix_Or_Earlier," or earlier."
 Property_Suffix_Or_Greater," or greater."
 Property_Suffix_Or_Less," or less."
 Property_Actor_Section_Name,"Actor Properties"
+Property_Artifact_Section_Name,"Artifact Properties"
+Property_SubArtifact_Section_Name,"Sub-Artifact Properties"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"

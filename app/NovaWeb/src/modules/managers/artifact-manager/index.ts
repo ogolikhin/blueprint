@@ -1,5 +1,5 @@
-
-import { IArtifactManager, ArtifactManager, ISelectionManager,  ISelection,  SelectionSource  } from "./artifact-manager";
+import { IArtifactManager, ArtifactManager } from "./artifact-manager";
+import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager";
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
 import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
 import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact } from "./artifact";
@@ -24,6 +24,9 @@ import {
 
 import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
 
+export { IArtifactState, IState } from "./state/artifact-state";
+
+
 angular.module("bp.managers.artifact", [])
     .service("artifactService", ArtifactService)
     .service("artifactManager", ArtifactManager)
@@ -38,6 +41,7 @@ export {
     IStatefulArtifact,
     IStatefulSubArtifact,
     IArtifactManager,
+    ArtifactManager,
     ISelectionManager,  
     ISelection,  
     SelectionSource,    

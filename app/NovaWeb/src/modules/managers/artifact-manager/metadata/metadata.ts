@@ -15,11 +15,7 @@ export interface IMetaData {
 
 export class MetaData implements IMetaData {
 
-    constructor(private item: IIStatefulItem ) {
-        if (item.projectId) {
-            this.item.getServices().metaDataService.add(item.projectId);
-        }
-    }
+    constructor(private item: IIStatefulItem ) {}
         
     public getItemType(): Models.IItemType {
         return this.item.getServices().metaDataService.getArtifactItemType(this.item.projectId, this.item.itemTypeId);

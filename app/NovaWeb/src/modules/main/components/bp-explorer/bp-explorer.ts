@@ -1,9 +1,9 @@
 ﻿import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
-
 import { IProjectManager, IArtifactManager} from "../../../managers";
-import { SelectionSource } from "../../../managers/artifact-manager";
-import { IStatefulArtifact, IArtifactNode, IArtifactState } from "../../../managers/models";
+import { SelectionSource, IArtifactState } from "../../../managers/artifact-manager";
+import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
+import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -14,11 +14,16 @@ export class ProjectExplorer implements ng.IComponentOptions {
 export class ProjectExplorerController {
     public tree: IBPTreeController;
     private _selectedArtifactId: number;
-    private _subscribers: Rx.IDisposable[]; 
-    public static $inject: [string] = ["projectManager", "artifactManager"];
+    private _subscribers: Rx.IDisposable[];
+
+    public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
+    
     constructor(
         private projectManager: IProjectManager,
-        private artifactManager: IArtifactManager) { }
+        private artifactManager: IArtifactManager,
+        private navigationService: INavigationService
+    ) { 
+    }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
@@ -48,7 +53,6 @@ export class ProjectExplorerController {
         loaded: "loaded",
         open: "open"
     }; 
-
 
     public columns = [{
         headerName: "",
@@ -109,7 +113,6 @@ export class ProjectExplorerController {
             this._selectedArtifactId = artifact.id;
             this.tree.selectNode(this._selectedArtifactId);
         // this.artifactManager.selection.getArtifact().artifactState.observable.subscribeOnNext(this.onStateChange, this);
-
         }
     }
 
@@ -119,7 +122,6 @@ export class ProjectExplorerController {
                 this.tree.selectNode(this._selectedArtifactId);
             }
         }
-
     }
 
     public doLoad = (prms: Models.IProject): any[] => {
@@ -134,18 +136,20 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.artifactManager.selection.setArtifact(this.doSync(node), SelectionSource.Explorer);
+        if (node) {
+            this.navigationService.navigateToArtifact(this.doSync(node).id);
+        }
     };
 
     public doSync = (node: ITreeNode): IStatefulArtifact => {
         //check passed in parameter
-        let artifact = this.projectManager.getArtifactNode(node.id);
-        if (artifact.children && artifact.children.length) {
-            angular.extend(artifact, {
+        let artifactNode = this.projectManager.getArtifactNode(node.id);
+        if (artifactNode.children && artifactNode.children.length) {
+            angular.extend(artifactNode, {
                 loaded: node.loaded,
                 open: node.open
             });
         };
-        return artifact.artifact;
+        return artifactNode.artifact;
     };
 }

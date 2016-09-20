@@ -9,6 +9,12 @@ namespace Model.ArtifactModel
         /// </summary>
         /// <param name="deletedArtifactIds">The list of artifact IDs that were deleted.</param>
         void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds);
+
+        /// <summary>
+        /// Notifies this observer about artifacts that were published.
+        /// </summary>
+        /// <param name="publishedArtifactIds">The list of artifact IDs that were published.</param>
+        void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds);
     }
 
     public interface IArtifactObservable
@@ -32,5 +38,11 @@ namespace Model.ArtifactModel
         /// </summary>
         /// <param name="deletedArtifactsList">The list of artifacts that were deleted.</param>
         void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList);
+
+        /// <summary>
+        /// Notifies all registered observers about artifacts that were published.
+        /// </summary>
+        /// <param name="publishedArtifactsList">The list of artifacts that were published.</param>
+        void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList);
     }
 }

@@ -1,36 +1,34 @@
 import { IWindowManager } from "../../services";
 import { IArtifactManager, SelectionSource } from "../../../managers";
 import { IStatefulArtifact } from "../../../managers/models";
-
-import { IMessageService } from "../../../core";
+import { IMessageService, INavigationService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
-import { IEditorContext } from "../../models/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
-
     public controller: Function = PageContentCtrl;
     public controllerAs = "$content";
-    public bindings: any = {
-        viewState: "<"
-    };
 } 
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
+
     public static $inject: [string] = [
-        "$state",
         "messageService",
         "artifactManager",
         "diagramService",
-        "windowManager"];
-    constructor(private $state: ng.ui.IStateService,
-                private messageService: IMessageService,
-                private artifactManager: IArtifactManager,
-                private diagramService: IDiagramService,
-                private windowManager: IWindowManager) {
+        "windowManager",
+        "navigationService"
+    ];
+
+    constructor(
+        private messageService: IMessageService,
+        private artifactManager: IArtifactManager,
+        private diagramService: IDiagramService,
+        private windowManager: IWindowManager,
+        private navigationService: INavigationService
+    ) {
     }
-    public viewState: boolean;
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
@@ -48,11 +46,11 @@ class PageContentCtrl {
 
     private selectContext(artifact: IStatefulArtifact) {
         if (!artifact) {
-            this.$state.go("main");
+            this.navigationService.navigateToMain();
             return;
         }
 
-        this.$state.go("main.artifact", { id: artifact.id });
+        this.navigationService.navigateToArtifact(artifact.id);
     }
 
     private selectedInExplorer = (artifact: IStatefulArtifact) => {

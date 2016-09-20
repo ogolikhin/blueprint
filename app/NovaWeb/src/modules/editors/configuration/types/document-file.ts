@@ -32,7 +32,8 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         super();
         const maxAttachmentFilesize: number = 1048576; // 1 MB
         const maxNumberAttachments: number = 1;
-        const templateOptions: any = $scope["to"];
+        const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
+        let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
 
         let currentModelVal = this.$scope.model[this.$scope.options["key"]];
         let guid: number; //we use this to download newly added files (prior to saving).
@@ -74,7 +75,9 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                         fileGuid: uploadedFile.guid,
                         filePath: uploadedFile.url
                     };
-                    templateOptions.onChange(newFileObject, $scope.fields[0], $scope);
+                    if (onChange) {
+                        onChange(newFileObject, $scope.fields[0], $scope);
+                    }
                     setFields(newFileObject);
                     guid = uploadedFile.guid;
                 }
@@ -93,7 +96,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
             if (guid) {
                 $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
             } else {
-                artifactAttachments.getArtifactAttachments(templateOptions.artifactId)
+                artifactAttachments.getArtifactAttachments(templateOptions["artifactId"])
                     .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                         if (attachmentResultSet.attachments.length) {
                             $window.open(
@@ -108,14 +111,16 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         };
 
         $scope["deleteFile"] = () => {
-            if (!templateOptions.isReadOnly) {
+            if (!templateOptions["isReadOnly"]) {
                 const dialogSettings = <IDialogSettings>{
                     okButton: localization.get("App_Button_Ok", "OK"),
                     header: localization.get("App_UP_Attachments_Delete_Attachment", "Delete Attachment"),
                     message: localization.get("App_UP_Attachments_Delete_Attachment", "Attachment will be deleted. Continue?")
                 };
                 dialogService.open(dialogSettings).then(() => {
-                    templateOptions.onChange(null, $scope.fields[0], $scope);
+                    if (onChange) {
+                        onChange(null, $scope.fields[0], $scope);
+                    }
                     clearFields();
                     guid = null;
                 });

@@ -2,6 +2,7 @@
 import { ILocalizationService, IMessageService } from "../../core";
 import { IProjectRepository, Models } from "./project-repository";
 import { ISelectionManager, SelectionSource } from "./selection-manager";
+import { Helper } from "../../shared";
 
 export {Models}
 
@@ -32,6 +33,8 @@ export interface IProjectManager {
     getPropertyTypes(project: number, propertyTypeId: number): Models.IPropertyType;
 
     updateArtifactName(artifact: Models.IArtifact);
+
+    reloadProject(project: Models.IProject);
 }
 
 
@@ -40,8 +43,9 @@ export class ProjectManager implements IProjectManager {
     private _projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
     private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "messageService", "projectRepository", "selectionManager"];
+    static $inject: [string] = ["$q", "localization", "messageService", "projectRepository", "selectionManager"];
     constructor(
+        private $q: ng.IQService,
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository,
@@ -69,10 +73,111 @@ export class ProjectManager implements IProjectManager {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]));
     }
 
+    public reloadProject(project: Models.IProject) {
+        //get current project
+        let currentProject: Models.IArtifact = project;
+
+        //cache project explorer tree
+        let projectTree: Models.IProject[] = this._projectCollection.getValue();
+        let currentProjectBranch = projectTree.filter(function (it) {
+            return it.id === currentProject.id;
+        });
+        let projectCache: Models.IArtifact[] = this.toFlat(currentProjectBranch[0]);
+
+        //close current project
+        this.closeProject();
+
+        //load current project
+        this.loadProjectAsync(currentProject).then(() => {
+            //reapply project tree states to new tree
+            let newProject = this._projectCollection.getValue().filter(function (it) {
+                return it.id === currentProject.id;
+            });
+            this.openProject(newProject[0], projectCache);
+        });
+    }
+
+    private toFlat(root: Models.IArtifact): any[] {
+        var stack: Models.IArtifact[] = [root], array: any[] = [];
+        while (stack.length !== 0) {
+            var node = stack.shift();
+            array.push(node);
+            if (angular.isArray(node.artifacts)) {
+
+                for (var i = node.artifacts.length - 1; i >= 0; i--) {
+                    stack.push(node.artifacts[i]);
+                }
+                node.artifacts = null;
+            }
+        }
+
+        return array;
+    }
+
+    private openProject(project: Models.IProject, cache: Models.IArtifact[]){
+        if (project.hasChildren) {
+            angular.forEach(project.artifacts, (value) => {
+                this.openArtifact(value, cache);
+            });
+
+        }
+    }
+
+    private openArtifact(artifact: Models.IArtifact, cache: Models.IArtifact[]) {
+//        if ((<Models.IProject>artifact).meta !== undefined){
+//            if (artifact.hasChildren) {
+//                angular.forEach(artifact.artifacts, (value) => {
+//                    this.openArtifact(value, cache);
+//                });
+//
+//            }
+//            return;
+//        }
+        
+        //find artifact in cache
+        let artifactFromCache = cache.filter(function (it) {
+            return it.id === artifact.id;
+        });
+        //if not found - do nothing
+        if (!artifactFromCache[0]) {
+            return;
+        }
+
+        //if it's opened, load it and open it
+        if (artifactFromCache[0]["open"]) {
+            this.loadArtifactAsync(artifact).then(() => {
+                //recursively go through children
+                if (artifact.hasChildren) {
+                    angular.forEach(artifact.artifacts, (value) => {
+                        this.openArtifact(value, cache);
+                    });
+
+                }
+            });
+            //this.openArtifact();
+        }
+
+        
+    }
+
     public loadProject = (project: Models.IProject) => {
-        try {
+        this.loadProjectAsync(project).then(
+            ()=>{}, 
+            (err)=>{
+                if(err){
+                    throw err;
+                }
+            }
+        );
+    }
+
+    private loadProjectAsync(project: Models.IProject): ng.IPromise<any>{
+       var defer = this.$q.defer<any>();
+       
+       try {
             if (!project) {
-                throw new Error("Project_NotFound");
+                defer.reject(new Error("Project_NotFound"))
+                return defer.promise; 
             }
             let self = this;
             var _projectCollection: Models.IProject[] = this.projectCollection.getValue();
@@ -119,35 +224,55 @@ export class ProjectManager implements IProjectManager {
                                 self.projectCollection.onNext(_projectCollection);
                                 this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: _project };
 
+                                defer.resolve();
                             }).catch((error: any) => {
                                 
                                 this.messageService.addError(error);
+                                defer.reject();
                             });
 
                     }).catch((error: any) => {
                         this.messageService.addError(error);
+                        defer.reject();
                     });
-
-
-            } 
+            }  
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Project_NotFound");
+            defer.reject();
         }
+       
+       return defer.promise; 
     }
 
     public loadArtifact = (artifact: Models.IArtifact) => {
+        this.loadArtifactAsync(artifact).then(
+            ()=>{}, 
+            (err)=>{
+                if(err){
+                    throw err;
+                }
+            }
+        );
+    }
+    
+    private loadArtifactAsync(artifact: Models.IArtifact): ng.IPromise<any>{
+        var defer = this.$q.defer<any>();
+        
         try {
             let self = this;
             if (artifact === null) {
-                return;
+                defer.reject();
+                return defer.promise; 
             }
             if (!artifact) {
-                throw new Error("Artifact_NotFound");
+                defer.reject(new Error("Artifact_NotFound"));
+                return defer.promise; 
             }
 
             artifact = this.getArtifact(artifact.id);
             if (!artifact) {
-                throw new Error("Artifact_NotFound");
+                defer.reject(new Error("Artifact_NotFound"));
+                return defer.promise; 
             }
 
             this._repository.getArtifacts(artifact.projectId, artifact.id)
@@ -160,6 +285,7 @@ export class ProjectManager implements IProjectManager {
                     });
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     this.selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+                    defer.resolve();
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
@@ -174,12 +300,16 @@ export class ProjectManager implements IProjectManager {
                         });
                         self.projectCollection.onNext(self.projectCollection.getValue());
                     }
+                    defer.reject();
                 });
 
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Artifact_NotFound");
             this.projectCollection.onNext(this.projectCollection.getValue());
+            defer.reject();
         }
+        
+        return defer.promise; 
     }
 
     public updateArtifactName(artifact: Models.IArtifact) {

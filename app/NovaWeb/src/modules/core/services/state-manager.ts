@@ -234,6 +234,10 @@ export class ItemState {
         delta.id = this._changedItem.id;
         delta.projectId = this._changedItem.projectId;
         delta.customPropertyValues = [];
+
+        if (this._changedItem.itemTypeId != this.originItem.itemTypeId) {
+            delta.itemTypeId = this._changedItem.itemTypeId;
+        }
         
         angular.forEach(this._changesets, function(set, key) {
             delta = this.applyChangeSet(delta, set);

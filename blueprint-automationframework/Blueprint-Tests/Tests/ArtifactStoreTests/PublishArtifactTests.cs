@@ -507,8 +507,6 @@ namespace ArtifactStoreTests
 
         }
 
-
-
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
@@ -531,6 +529,24 @@ namespace ArtifactStoreTests
             Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
         }
 
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(166016)]
+        [Description("Create & save a multiple artifacts.  Publish artifacts with wrong token.  Verify publish returns 401 Unauthorized.")]
+        public void PublishAllArtifacts_InvalidToken_Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
+
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o=>(IArtifactBase)o), userWithBadToken, all : true),
+                "'POST {0}' should return 401 Unauthorized if a token is invalid!", PUBLISH_PATH);
+
+            // Verify:
+            const string expectedMessage = "\"Unauthorized call\"";
+            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+        }
         #endregion 401 Unauthorized tests
 
         #region 404 Not Found tests
@@ -581,11 +597,11 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 1)]
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(165974)]
-        [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Not Found.")]
+        [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Conflict.")]
         public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
         {
             // Setup:
-            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
+            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
             IArtifact childArtifact = artifactList[index];
 
             // Execute:
@@ -603,7 +619,7 @@ namespace ArtifactStoreTests
         [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
         [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(166007)]
-        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 400 Bad Request is returned.")]
+        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
         public void PublishArtifact_PropertyOutOfRange_BadRequest(string toChange, string changeTo)
         {
             // Setup:
@@ -623,18 +639,51 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
-                "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
+                "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
             string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has validation errors.\",\"errorCode\":121}";
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
-
-            /*
-                        var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifact(artifact.Id, _user),
-                            "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
-            */
         }
+
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
+        [TestRail(166129)]
+        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
+        public void PublishAllArtifacts_PropertyOutOfRange_BadRequest(string toChange, string changeTo, BaseArtifactType artifactType, int index)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+
+            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
+            artifactList[index].Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifactList[index].Id),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, all: true),
+                "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedMessage = "{\"message\":\"Artifact with Id " + artifactList[index].Id + " has validation errors.\",\"errorCode\":121}";
+            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+        }
+    
         #endregion Custom data tests
+
         #endregion 409 Conflict tests
 
         #region Private functions
@@ -771,7 +820,7 @@ namespace ArtifactStoreTests
             }
         }
 
-        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(BaseArtifactType artifactType)
+        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(BaseArtifactType artifactType)
         {
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);

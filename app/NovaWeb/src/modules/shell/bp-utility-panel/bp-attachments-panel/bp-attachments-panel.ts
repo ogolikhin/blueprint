@@ -163,7 +163,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 // get doc refs here because they're included in attachments payload
                 this.getDocRefs();
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.artifactState.deleted;
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
                 this.isLoadingAttachments = false;
             });
         }

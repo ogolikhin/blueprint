@@ -25,9 +25,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
     public metadata: IMetaData;
+    public deleted: boolean;
+
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
-    
     private changesets: IChangeCollector;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
@@ -41,6 +42,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.relationships = new ArtifactRelationships(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
         this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
+        this.deleted = false;
 
         this.subscribers = [
             this.artifactState.observable()
@@ -54,8 +56,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //     .filter((it: IArtifactState) => !!it.get().lock)
         //     .distinctUntilChanged()
         //     .subscribeOnNext(this.onChanged, this);
-            
     }
+
     public dispose() {
         //TODO: implement logic to release resources
         this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
@@ -245,7 +247,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        return this.services.attachmentService.getArtifactAttachments(this.id, null, true)
+        const deferred = this.services.getDeferred();
+        this.services.attachmentService.getArtifactAttachments(this.id, null, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 // load attachments
                 this.attachments.initialize(result.attachments);
@@ -256,22 +259,25 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 return result;
             }, (error) => {
                 if (error && error.statusCode === 404) {
-                    this.artifactState.deleted = true;
+                    this.deleted = true;
                 }
-                return error;
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
     
     public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
-        return this.services.relationshipsService.getRelationships(this.id)
+        const deferred = this.services.getDeferred();
+        this.services.relationshipsService.getRelationships(this.id)
             .then( (result: Relationships.IRelationship[]) => {
                 return result;
             }, (error) => {
                 if (error && error.statusCode === 404) {
-                    this.artifactState.deleted = true;
+                    this.deleted = true;
                 }
-                return error;
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
 
     private changes(): Models.IArtifact {

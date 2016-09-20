@@ -21,8 +21,6 @@ export interface IArtifactState extends IDispose {
     readonly: boolean;
     dirty: boolean;
     published: boolean;
-    deleted: boolean;
-    moved: boolean;
     observable(): Rx.Observable<IArtifactState>;
 } 
 
@@ -148,21 +146,5 @@ export class ArtifactState implements IArtifactState {
 
     public set published(value: boolean) {
         this.set({published: value});
-    }
-
-    public get deleted(): boolean {
-        return this.state.deleted;
-    }
-
-    public set deleted(value: boolean) {
-        this.set({deleted: value});
-    }
-
-    public get moved(): boolean {
-        return this.state.moved;
-    }
-
-    public set moved(value: boolean) {
-        this.set({moved: value});
     }
 }

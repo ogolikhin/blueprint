@@ -190,18 +190,20 @@ export class BPTreeViewController implements IBPTreeViewController {
         let node = event.node;
         let vm = node.data as ITreeViewNodeVM;
 
-        let row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.key}"]`);
-        if (row) {
-            row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
-            row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
-        }
-        if (node.expanded && vm.loadChildrenAsync) {
+        if (vm.isExpandable) {
+            let row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.key}"]`);
             if (row) {
-                row.classList.add("ag-row-loading");
+                row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
+                row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
-            vm.loadChildrenAsync().then(() => this.resetRowDataAsync());
+            if (node.expanded && vm.loadChildrenAsync) {
+                if (row) {
+                    row.classList.add("ag-row-loading");
+                }
+                vm.loadChildrenAsync().then(() => this.resetRowDataAsync());
+            }
+            vm.isExpanded = node.expanded;
         }
-        vm.isExpanded = node.expanded;
     }
 
     public onModelUpdated = (event?: any) => {

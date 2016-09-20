@@ -46,16 +46,18 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         this.project = this.projectManager.getSelectedProject();
 
         $scope.$on("$destroy", () => {
-            this.columnDefs[0].cellClass = null;
-            this.columnDefs[0].cellRendererParams["innerRenderer"] = null;
-            this.columnDefs = null;
-            this.onSelect = null;
+            if (this.columnDefs) {
+                this.columnDefs[0].cellClass = undefined;
+                this.columnDefs[0].cellRendererParams["innerRenderer"] = undefined;
+                this.columnDefs = undefined;
+            }
+            this.onSelect = undefined;
         });
     };
 
     //Dialog return value
     public get returnValue(): any {
-        return this._selectedItem || null;
+        return this._selectedItem;
     };
 
     private setSelectedItem(item: Models.IItem) {
@@ -90,7 +92,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 css.push("has-children");
             }
 
-            var typeClass = vm.getTypeClass();
+            const typeClass = vm.getTypeClass();
             if (typeClass) {
                 css.push(typeClass);
             }
@@ -112,9 +114,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                     if (statefulArtifact) {
                         let artifactType = statefulArtifact.metadata.getItemType();
                         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                            icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+                            icon = `<bp-item-type-icon \
+item-type-id="${artifactType.id}" \
+item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
                         }
                     }
                 }
@@ -133,10 +135,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
             this.setSelectedItem(vm.model);
         } else {
             this.setSelectedItem(undefined);
-            if (vm instanceof InstanceItemNodeVM) {
-                if (vm.model.type === Models.ProjectNodeType.Project) {
-                    this.projectService.getProject(vm.model.id).then(project => this.project = project);
-                }
+            if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Project) {
+                this.project = vm.model;
             }
         }
     };

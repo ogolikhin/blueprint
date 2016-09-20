@@ -28,7 +28,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "$q",
         "session",
         "messageService",
-        "localizationService",
         "localization",
         "artifactService",
         "artifactAttachments",

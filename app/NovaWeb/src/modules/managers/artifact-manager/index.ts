@@ -41,6 +41,7 @@ export {
     IStatefulArtifact,
     IStatefulSubArtifact,
     IArtifactManager,
+    ArtifactManager,
     ISelectionManager,  
     ISelection,  
     SelectionSource,    

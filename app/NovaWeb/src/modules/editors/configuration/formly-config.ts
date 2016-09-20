@@ -11,11 +11,12 @@ import { actorController } from "./controllers/actor-field-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 import { ISelectionManager } from "../../managers";
 import { IUsersAndGroupsService, IUserOrGroupInfo } from "../../shell/bp-utility-panel/bp-discussion-panel/bp-comment-edit/users-and-groups.svc";
-import { BPFieldReadOnly } from "./types/read-only"
-import { BPFieldText } from "./types/text"
-import { BPFieldTextMulti } from "./types/text-multi"
-import { BPFieldNumber } from "./types/number"
-import { BPFieldDatePicker } from "./types/date-picker"
+import { BPFieldReadOnly } from "./types/read-only";
+import { BPFieldText } from "./types/text";
+import { BPFieldTextMulti } from "./types/text-multi";
+import { BPFieldNumber } from "./types/number";
+import { BPFieldDatePicker } from "./types/date-picker";
+import { BPFieldSelect } from "./types/select";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "$sce", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager", "usersAndGroupsService"];
@@ -98,140 +99,7 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldTextMulti());
     formlyConfig.setType(new BPFieldNumber());
     formlyConfig.setType(new BPFieldDatePicker());
-
-    formlyConfig.setType({
-        name: "bpFieldSelect",
-        extends: "select",
-        /* tslint:disable */
-        template: `<div class="input-group has-messages">
-                <div class="ui-select-single" ng-class="options.data.isValidated || options.data.lookup !== 2 ? 'no-custom' : 'allow-custom'"><ui-select
-                    ng-model="model[options.key]"
-                    ng-disabled="{{to.disabled}}"
-                    uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
-                    <ui-select-match placeholder="{{to.placeholder}}">
-                        <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
-                    </ui-select-match>
-                    <ui-select-choices class="ps-child"
-                        data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
-                        refresh="bpFieldSelect.refreshResults($select)"
-                        refresh-delay="0">
-                        <div class="ui-select-choice-item"
-                            ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
-                            ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
-                            bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
-                    </ui-select-choices>
-                    <ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
-                </ui-select></div>
-                <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-                    <div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-                </div>
-            </div>`,
-        /* tslint:enable */
-        wrapper: ["bpFieldLabel", "bootstrapHasError"],
-        defaultOptions: {
-            templateOptions: {
-                placeholder: localization.get("Property_Placeholder_Select_Option"),
-                valueProp: "value",
-                labelProp: "name"
-            }
-        },
-        link: function ($scope, $element, $attrs) {
-            $scope.$applyAsync((scope) => {
-                scope["fc"].$setTouched();
-                (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
-
-                let uiSelectContainer = $element[0].querySelector(".ui-select-container");
-                if (uiSelectContainer) {
-                    scope["uiSelectContainer"] = uiSelectContainer;
-                    uiSelectContainer.addEventListener("keydown", closeDropdownOnTab, true);
-                }
-            });
-        },
-        controller: ["$scope", function ($scope) {
-            let newCustomValueId = function (): number {
-                return -1 * (Math.random() * 100 + 100); // not to conflict with special IDs like project (-1) or collections (-2)
-            };
-
-            $scope.$on("$destroy", function () {
-                if ($scope["uiSelectContainer"]) {
-                    $scope["uiSelectContainer"].removeEventListener("keydown", closeDropdownOnTab, true);
-                }
-            });
-
-            let customValueId = -1;
-            // we need to generate a custom id everytime, otherwise the select won't be able to recognize two different custom values
-
-            let currentModelVal = $scope.model[$scope.options.key];
-            if (angular.isObject(currentModelVal) && currentModelVal.customValue) {
-                let newVal = currentModelVal.customValue;
-                $scope.to.options.push({
-                    value: customValueId,
-                    name: newVal,
-                    isCustom: true
-                });
-                $scope.model[$scope.options.key] = customValueId;
-            }
-
-            $scope.bpFieldSelect = {
-                refreshResults: function ($select) {
-                    if (!$scope.options.data.isValidated && $scope.options.data.lookup === Enums.PropertyLookupEnum.Custom) {
-                        let search = $select.search;
-
-                        if (search) {
-                            let optionList = angular.copy($select.items);
-
-                            //remove last user input
-                            optionList = optionList.filter(function (item) {
-                                return !item.isCustom;
-                            });
-
-                            let isDuplicate = false;
-                            $select.items.forEach(function (item) {
-                                if (item[$scope.to.labelProp] === search) {
-                                    isDuplicate = true;
-                                    return;
-                                }
-                            });
-
-                            if (!isDuplicate) {
-                                //manually add user input and set selection
-                                customValueId = newCustomValueId();
-                                let userInputItem = {
-                                    value: { customValue: search },
-                                    name: search,
-                                    isCustom: true
-                                };
-                                $select.items = [userInputItem].concat(optionList);
-                                $select.selected = userInputItem;
-                            }
-                        }
-                    }
-                },
-                onOpenClose: function (isOpen) {
-                    if (isOpen && $scope["uiSelectContainer"]) {
-                        let currentVal = $scope.model[$scope.options.key];
-                        if (angular.isObject(currentVal)) {
-                            $scope["uiSelectContainer"].querySelector(".ui-select-choices-row").classList.add("active");
-                        } else if (angular.isNumber(currentVal)) {
-                            let options = $scope["uiSelectContainer"].querySelectorAll(".ui-select-choices-row");
-                            [].forEach.call(options, function (option) {
-                                option.classList.remove("active");
-                            });
-                            let elem = $scope["uiSelectContainer"].querySelector(".ui-select-choice-item-selected");
-                            if (elem) {
-                                while (elem && !elem.classList.contains("ui-select-choices-row")) {
-                                    elem = elem.parentElement;
-                                }
-                                if (elem) {
-                                    elem.classList.add("active");
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-        }]
-    });
+    formlyConfig.setType(new BPFieldSelect());
 
     formlyConfig.setType({
         name: "bpFieldSelectMulti",

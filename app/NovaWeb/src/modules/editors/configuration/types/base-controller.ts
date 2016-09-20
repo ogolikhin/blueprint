@@ -6,6 +6,7 @@ export interface IBPFieldBaseController {
 
 export class BPFieldBaseController implements IBPFieldBaseController {
     constructor() {
+        let self = this;
     }
 
     public blurOnKey = function (event: KeyboardEvent, keyCode?: number | number[]) {
@@ -41,7 +42,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             escKey["keyCode"] = 27;
             event.target.dispatchEvent(escKey);
 
-            this.blurOnKey(event, 9);
+            self.blurOnKey(event, 9);
         }
     };
 

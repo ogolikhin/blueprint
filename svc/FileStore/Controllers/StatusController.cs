@@ -10,6 +10,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace FileStore.Controllers
 {
@@ -18,7 +19,7 @@ namespace FileStore.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _preAuthorizedKey;
+        internal readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this
@@ -34,7 +35,7 @@ namespace FileStore.Controllers
                     "FileStore",
                     new ServiceLogRepository(),
                     WebApiConfig.LogSourceStatus
-                ), 
+                ),
                 WebApiConfig.StatusCheckPreauthorizedKey
             )
         {
@@ -43,7 +44,7 @@ namespace FileStore.Controllers
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
             _statusControllerHelper = scHelper;
-            _preAuthorizedKey = preAuthorizedKey;
+            _expectedPreAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -60,12 +61,19 @@ namespace FileStore.Controllers
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
             //Check pre-authorized key
-            if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
+            // Refactoring for shorter status as per US955
+
+            if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
             {
-                return Unauthorized();
+
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
             }
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+            if (preAuthorizedKey == null)
+            {
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
+            }
 
             if (serviceStatus.NoErrors)
             {
@@ -74,6 +82,7 @@ namespace FileStore.Controllers
 
             var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
             return ResponseMessage(response);
+
         }
 
         /// <summary>

@@ -787,8 +787,12 @@ pagecontent, bp-properties-panel {
         }
       }
     */
-    .formly-field-bpFieldTinymce,
-    .formly-field-bpFieldInlineTinymce {
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
+      > div {
+        width: 100%;
+      }
+
       div.form-tinymce,
       div.form-tinymce[contenteditable="true"] {
         a {
@@ -991,14 +995,32 @@ pagecontent, bp-properties-panel {
         padding:0;
         background-color: transparent;
         border:none;
+        label{
+            padding: 5px 9px !important;
+            min-width: 20px;
+            text-align: center;
+            width: auto !important;
+            margin: 5px 5px 5px !important;
+            font-size:  $font-size-big;
+            input[type=file]{
+                display:none;
+            }
+        }
+
 
         .icon {
           display: inline-block;
           line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
+          &.disabled{
+            opacity: $default-desabled-opacity;
+            cursor: not-allowed;
+          }
         }
       }
+       
+
 
       .thumb{
         width:30px;

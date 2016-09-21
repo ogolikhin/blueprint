@@ -113,7 +113,7 @@ namespace Model.ArtifactModel.Impl
         public ActorInheritanceValue GetActorInheritance()
         {
             // Finding ActorInheritence among other properties
-            CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
+            CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
 
             if (actorInheritanceProperty == null)
@@ -135,6 +135,41 @@ namespace Model.ArtifactModel.Impl
             }
             //
             return actorInheritanceValue;
+        }
+
+        /// <summary>
+        /// DocumentFile property for Artifact of Document type
+        /// TODO: replace this and GetActorInheritance function with generic function
+        /// </summary>
+        public DocumentFileValue DocumentFile
+        {
+            /// <summary>
+            /// Returns DocumentFile property for Artifact of Document type
+            /// </summary>
+            get
+            {
+                // Finding DocumentFile among other properties
+                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.DocumentFile);
+
+                if (documentFileProperty == null)
+                {
+                    return null;
+                }
+                return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
+            }
+
+            /// <summary>
+            /// Sets DocumentFile property for Artifact of Document type
+            /// </summary>
+            /// <param name="value">DocumentFile property.</param>
+            set
+            {
+                // Finding DocumentFile among other properties
+                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.DocumentFile);
+                documentFileProperty.CustomPropertyValue = value;
+            }
         }
 
         public class Identification
@@ -196,7 +231,8 @@ namespace Model.ArtifactModel.Impl
         [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
         public enum PropertyTypePredefined
         {
-            ActorInheritance = 4128
+            ActorInheritance = 4128,
+            DocumentFile = 4129
         }
     }
 

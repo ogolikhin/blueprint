@@ -73,7 +73,7 @@ namespace ArtifactStore.Repositories
                 {
                     var dicUserOrphanVersions = orphanVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
-                    foreach (var userOrphanVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == projectId))
+                    foreach (var userOrphanVersion in dicUserOrphanVersions.Values.Where(v => v?.ParentId == projectId))
                     {
                         // Replace with the corrected ParentId
                         if (dicUserArtifactVersions.ContainsKey(userOrphanVersion.ItemId))
@@ -342,6 +342,7 @@ namespace ArtifactStore.Repositories
             var result = subArtifactsDictionary.Where(a => a.Value.ParentId == artifactId).Select(b => b.Value);
             return result;
         }
+
         #endregion
 
         #region GetProjectOrArtifactChildrenAsync
@@ -407,6 +408,17 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
+
+        #region GetArtifactInfoAsync
+
+        public Task<Artifact> GetArtifactInfoAsync(int artifactId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
     }
 
     internal class ArtifactVersion

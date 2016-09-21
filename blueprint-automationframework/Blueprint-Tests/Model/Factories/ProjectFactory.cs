@@ -43,8 +43,9 @@ namespace Model.Factories
         /// Gets all projects on the Blueprint server.
         /// </summary>
         /// <param name="user">The user making the REST request.</param>
+        /// <param name="shouldRetrievePropertyTypes">(optional) Pass true if you also want to get the property types for each project.</param>
         /// <returns>A list of projects that were found.</returns>
-        public static List<IProject> GetAllProjects(IUser user)
+        public static List<IProject> GetAllProjects(IUser user, bool shouldRetrievePropertyTypes = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -53,6 +54,14 @@ namespace Model.Factories
             RestApiFacade restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
             List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            if (shouldRetrievePropertyTypes)
+            {
+                foreach (var project in projects)
+                {
+                    project.GetAllArtifactTypes(Address, user);
+                }
+            }
 
             return projects.ConvertAll(o => (IProject)o);
         }

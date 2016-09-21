@@ -1,6 +1,5 @@
-/// <reference path="clear-text.ts" />
-import {IFileResult, IFileUploadService} from "../../../../core/file-upload/"
-import {ISystemTask} from "../diagram/presentation/graph/models/"
+import {IFileResult, IFileUploadService} from "../../../../core/file-upload/";
+import {ISystemTask} from "../diagram/presentation/graph/models/";
 
 export interface IUploadImageScope extends ng.IScope {
     uploadImage: () => void;
@@ -25,14 +24,16 @@ export class UploadImageDirective implements ng.IDirective {
         buttonsContainerEnabled: "=",
         imageUrl: "@",
         imageAlt: "@"
-    }
+    };
     public restrict = "E";
     public defaultName = "default";
 
-    constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService, private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
+    constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService, 
+    private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
     }
     public static factory(): ng.IDirectiveFactory {
-        var directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService, $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
+        var directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService, 
+        $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
             new UploadImageDirective(fileUploadService, $window, $timeout, $compile);
         directive.$inject = ["fileUploadService", "$window", "$timeout", "$compile"];
         return directive;
@@ -53,17 +54,17 @@ export class UploadImageDirective implements ng.IDirective {
         $scope.uploadImage = () => {
             var fileInput = uploadImageCntr;
             fileInput.click();
-        }
+        };
 
         $scope.downloadImage = () => {
             if ($scope.systemTaskModel.associatedImageUrl) {
                 this.$window.open($scope.systemTaskModel.associatedImageUrl, "_blank");
             }
-        }
+        };
 
         $scope.clearImage = () => {
             var fileInput = uploadImageCntr;
-            fileInput.val('');
+            fileInput.val("");
             this.clearImageContainer($scope, $element, attr);
             this.toggleButtons($scope, $element, false);
             if (!!$scope.systemTaskModel.associatedImageUrl) {
@@ -72,7 +73,7 @@ export class UploadImageDirective implements ng.IDirective {
             if (!!$scope.systemTaskModel.imageId) {
                 $scope.systemTaskModel.imageId = null;
             }
-        }
+        };
 
         $scope.fileChanged = (element: any) => {
             $scope.typeError = false;
@@ -80,8 +81,10 @@ export class UploadImageDirective implements ng.IDirective {
             var dataFile = element.files[0];
             if (dataFile) { //datafile is defined only if the user selects a file, on delete it is null
                 var type = (dataFile.type || "").toLowerCase();
-                if (type.indexOf("/") > -1) type = type.split('/')[1];
-                if (type !== "jpeg" && type !== "jpg" && type !== 'png') {
+                if (type.indexOf("/") > -1) {
+                    type = type.split("/")[1];
+                }
+                if (type !== "jpeg" && type !== "jpg" && type !== "png") {
                     $scope.typeError = true;
                     return;
                 }
@@ -99,8 +102,7 @@ export class UploadImageDirective implements ng.IDirective {
                     this.createImage($scope, $element, attr);
                 });
             }
-
-        }
+        };
     };
     private createImage($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) {
 

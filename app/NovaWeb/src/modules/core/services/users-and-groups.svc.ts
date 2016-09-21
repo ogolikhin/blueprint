@@ -1,4 +1,4 @@
-﻿import { IHttpInterceptorConfig } from "../../../../core/http";
+﻿import { IHttpInterceptorConfig } from "../http";
 export interface IHttpError {
     message: string;
     statusCode: number; // client side only
@@ -33,7 +33,7 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
 
     public search(value: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
-        var sanitizedValue = encodeURI(value);
+        var sanitizedValue = encodeURI(value).replace(/%20/g, " "); // we revert the encoding of space (%20)
         this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", this.createRequestConfig(sanitizedValue, emailDiscussions))
             .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
                 deferred.resolve(result.data);

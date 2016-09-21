@@ -25,6 +25,7 @@ import {
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private changesets: IChangeCollector;
 
+    public deleted: boolean;
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
     public customProperties: IArtifactProperties;
@@ -39,8 +40,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         this.attachments = new ArtifactAttachments(this);
         this.relationships = new ArtifactRelationships(this);
         this.docRefs = new DocumentRefs(this);
-//        this.changesets = new ChangeSetCollector(this.artifact);
-
+        // this.changesets = new ChangeSetCollector(this.artifact);
     }
 
     //TODO.
@@ -150,20 +150,34 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        return this.services.attachmentService.getArtifactAttachments(this.artifact.id, this.id, true)
+        const deferred = this.services.getDeferred();
+        this.services.attachmentService.getArtifactAttachments(this.artifact.id, this.id, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 this.attachments.initialize(result.attachments);
                 this.docRefs.initialize(result.documentReferences);
                 
-                return result;
+                deferred.resolve(result);
+            }, (error) => {
+                if (error && error.statusCode === 404) {
+                    this.deleted = true;
+                }
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
 
     public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
-        return this.services.relationshipsService.getRelationships(this.artifact.id, this.id)
+        const deferred = this.services.getDeferred();
+        this.services.relationshipsService.getRelationships(this.artifact.id, this.id)
             .then( (result: Relationships.IRelationship[]) => {
-                return result;
+                deferred.resolve(result);
+            }, (error) => {
+                if (error && error.statusCode === 404) {
+                    this.deleted = true;
+                }
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
 
     public getServices(): IStatefulArtifactServices {

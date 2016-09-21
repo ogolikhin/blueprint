@@ -5,6 +5,7 @@ namespace SearchService.Repositories
 {
     public interface IFullTextSearchRepository
     {
-        Task<FullTextSearchResult> Search(SearchCriteria searchCriteria, int page, int pageSize);
+        Task<FullTextSearchResult> Search(int userId, SearchCriteria searchCriteria, int page, int pageSize);
+        Task<FullTextSearchMetaDataResult> SearchMetaData(int userId, SearchCriteria searchCriteria);
     }
 }

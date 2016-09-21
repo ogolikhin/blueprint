@@ -1,4 +1,4 @@
-import { IMessageService } from "../../../core";
+import { IMessageService, ILocalizationService } from "../../../core";
 import { Models } from "../../../main/models";
 import { StatefulArtifactServices, IStatefulArtifactServices } from "../services";
 import { IArtifactService } from "./artifact.svc";
@@ -28,6 +28,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "$q",
         "session",
         "messageService",
+        "localization",
         "artifactService",
         "artifactAttachments",
         "artifactRelationships",
@@ -40,6 +41,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private $q: ng.IQService,
         private session: ISession,
         private messageService: IMessageService,
+        private localizationService: ILocalizationService,
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
         private relationshipsService: IArtifactRelationshipsService,
@@ -50,6 +52,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.$q,
             this.session,
             this.messageService,
+            this.localizationService,
             this.artifactService,
             this.attachmentService,
             this.relationshipsService,

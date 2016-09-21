@@ -1,9 +1,8 @@
-﻿import "angular"
+﻿import "angular";
 import { ILocalizationService, IMessageService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { Models } from "../../../main/models";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerController, IArtifactPickerOptions } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ISelectionManager } from "../../../managers";
 
 actorInheritanceController.$inject = ["localization", "$window", "messageService", "dialogService", "selectionManager"];
@@ -16,11 +15,13 @@ export function actorInheritanceController(
     selectionManager: ISelectionManager) {
     let currentModelVal = <Models.IActorInheritancePropertyValue>$scope.model[$scope.options.key];
     if (currentModelVal != null) {
-        currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix, currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
+        currentModelVal.isProjectPathVisible = isArtifactactPathFitToControl(currentModelVal.actorPrefix,
+            currentModelVal.actorName, currentModelVal.actorId, currentModelVal.pathToProject);
     }
 
-    $scope.deleteBaseActor = () => {    
-        deleteBaseActor();
+    $scope.deleteBaseActor = () => {            
+        $scope.to.onChange(null, getInheritanceField(), $scope);        
+        deleteBaseActor();        
     };
 
     function deleteBaseActor() {
@@ -41,7 +42,7 @@ export function actorInheritanceController(
         return path;
     }
 
-    function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]) : boolean {
+    function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]): boolean {
         return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;        
     }
 
@@ -54,8 +55,9 @@ export function actorInheritanceController(
             header: localization.get("App_Properties_Actor_InheritancePicker_Title")
         };
 
-        const dialogData: IArtifactPickerFilter = {
-            ItemTypePredefines: [Models.ItemTypePredefined.Actor]
+        const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: [Models.ItemTypePredefined.Actor],
+            showSubArtifacts: false
         };
 
         dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
@@ -79,12 +81,19 @@ export function actorInheritanceController(
                     actorPrefix: artifact.prefix,
                     hasAccess: true,
                     pathToProject: artifactPath,
-                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
-                    
-                };
-                currentModelVal = $scope.model[$scope.options.key];                
+                    isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)                    
+                };                
+                currentModelVal = $scope.model[$scope.options.key];                   
+                $scope.to.onChange(currentModelVal, getInheritanceField(), $scope);
             }
         });
+    }
+
+    function getInheritanceField(): any {
+        if (!$scope.fields) {
+            return null;
+        }
+        return $scope.fields[1];
     }
 
     $scope.selectBaseActor = () => {        

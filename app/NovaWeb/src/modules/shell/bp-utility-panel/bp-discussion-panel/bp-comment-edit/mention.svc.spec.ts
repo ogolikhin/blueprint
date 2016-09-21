@@ -1,9 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
-import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
-import { ILocalizationService } from "../../../../core";
+import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
 import { ITinyMceMentionOptions, MentionService } from "./mention.svc";
-import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "./users-and-groups.svc.mock";
+import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "../../../../core/services/users-and-groups.svc.mock";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 
 /* tslint:disable:max-line-length */
@@ -173,7 +172,7 @@ describe("Mention Service Test", () => {
 
         it("name is null/undefined, email match", () => {
             // Assign
-            mentions["query"] = "BLUE";
+            mentions["queryText"] = "BLUE";
 
             //Act
             var result = mentions.matcher(<IUserOrGroupInfo>{
@@ -187,7 +186,7 @@ describe("Mention Service Test", () => {
         it("name is not match, email null/undefined", () => {
             // Assign
             mentions = new MentionService(null, null, null, null);
-            mentions["query"] = "blue";
+            mentions["queryText"] = "blue";
 
             //Act
             var result = mentions.matcher(<IUserOrGroupInfo>{
@@ -201,7 +200,7 @@ describe("Mention Service Test", () => {
         it("name match, email null/undefined", () => {
             // Assign
             mentions = new MentionService(null, null, null, null);
-            mentions["query"] = "bluE";
+            mentions["queryText"] = "bluE";
 
             //Act
             var result = mentions.matcher(<IUserOrGroupInfo>{

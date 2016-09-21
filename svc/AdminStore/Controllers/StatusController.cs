@@ -9,6 +9,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace AdminStore.Controllers
 {
@@ -17,10 +18,10 @@ namespace AdminStore.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
-        internal readonly string _preAuthorizedKey;
+        internal readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
-            : this( new StatusControllerHelper(
+            : this(new StatusControllerHelper(
                         new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorageDB"),
                                                         new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
@@ -36,7 +37,7 @@ namespace AdminStore.Controllers
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
             _statusControllerHelper = scHelper;
-            _preAuthorizedKey = preAuthorizedKey;
+            _expectedPreAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -50,15 +51,22 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]
-        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey=null)
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
             //Check pre-authorized key
-            if(_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
-            {
-                return Unauthorized();
+            // Refactoring for shorter status as per US955
+
+            if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
+            {                
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
+
             }
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+            if (preAuthorizedKey == null)
+            {
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
+            }
 
             if (serviceStatus.NoErrors)
             {
@@ -69,6 +77,7 @@ namespace AdminStore.Controllers
                 var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
                 return ResponseMessage(response);
             }
+
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ import { AppConstants, IAppConstants } from "./constants/";
 import { IFileUploadService, FileUploadService, IFileResult } from "./file-upload/";
 import { LocalizationService, localeConfig } from "./localization/";
 import { SettingsService, ISettingsService } from "./configuration";
+import { NavigationService, INavigationService } from "./navigation/navigation.svc";
 
 angular.module("app.core", [
     "bp.core.services",
@@ -17,8 +18,8 @@ angular.module("app.core", [
     .service("fileUploadService", FileUploadService)
     .service("localization", LocalizationService)
     .service("settings", SettingsService)
+    .service("navigationService", NavigationService)
     .config(localeConfig);
-
 
 export {
     IAppConstants,
@@ -35,7 +36,10 @@ export {
 
 export {
     IWindowResize,
-    IWindowVisibility
+    IWindowVisibility,
+    IUserOrGroupInfo,
+    IUsersAndGroupsService,
+    UsersAndGroupsService
 } from "./services";
 
 export {
@@ -49,3 +53,7 @@ export {
 export { 
     IHttpInterceptorConfig 
 } from "./http";
+
+export {
+    INavigationService
+}

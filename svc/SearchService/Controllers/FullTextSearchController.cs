@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Helpers;
@@ -26,6 +28,8 @@ namespace SearchService.Controllers
             _fullTextSearchRepository = fullTextSearchRepository;
         }
 
+        #region Search
+
         /// <summary>
         /// Perform a Full Text Search
         /// </summary>
@@ -36,28 +40,44 @@ namespace SearchService.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache, NoSessionRequired]
+        [HttpPost, NoCache, SessionRequired]
         [Route("")]
-        public async Task<IHttpActionResult> Post([FromBody] SearchCriteria searchCriteria, int page = 1, int pageSize = -1)
+        [ResponseType(typeof(FullTextSearchResult))]
+        public async Task<IHttpActionResult> Post([FromBody] SearchCriteria searchCriteria, int? page = null, int? pageSize = null)
         {
             // get the UserId from the session
-            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            //searchCriteria.UserId = session?.UserId;
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                return Unauthorized();
+            }
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
             {
                 return BadRequest();
             }
 
-            if (pageSize == -1) pageSize = WebApiConfig.PageSize;
+            int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
+            if (searchPageSize <= 0)
+            {
+                searchPageSize = WebApiConfig.PageSize;
+            }
 
-            var results = await _fullTextSearchRepository.Search(searchCriteria, page, pageSize);
+            int searchPage = page.HasValue && page.Value > 0 ? page.Value : 1;
 
-            results.Page = page;
-            results.PageSize = pageSize;
+            var results = await _fullTextSearchRepository.Search(userId.Value, searchCriteria, searchPage, searchPageSize);
+
+            results.Page = searchPage;
+            results.PageSize = searchPageSize;
+            results.PageItemCount = results.FullTextSearchItems.Count();
 
             return Ok(results);
+
         }
+
+        #endregion
+
+        #region Metadata
 
         /// <summary>
         /// Return metadata for a Full Text Search
@@ -68,28 +88,62 @@ namespace SearchService.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache, NoSessionRequired]
+        [HttpPost, NoCache, SessionRequired]
         [Route("metadata")]
-        public async Task<IHttpActionResult> MetaData([FromBody] SearchCriteria searchCriteria, int pageSize = -1)
+        [ResponseType(typeof(FullTextSearchMetaDataResult))]
+        public async Task<IHttpActionResult> MetaData([FromBody] SearchCriteria searchCriteria, int? pageSize = null)
         {
             // get the UserId from the session
-            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            //searchCriteria.UserId = session?.UserId;
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                return Unauthorized();
+            }
 
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            if (pageSize == -1) pageSize = WebApiConfig.PageSize;
+            int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
+            if (searchPageSize <= 0)
+            {
+                searchPageSize = WebApiConfig.PageSize;
+            }
 
-            var results = await _fullTextSearchRepository.SearchMetaData(searchCriteria);
+            var results = await _fullTextSearchRepository.SearchMetaData(userId.Value, searchCriteria);
 
-            results.PageSize = pageSize;
-            results.TotalPages = (int)results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / pageSize) : -1;
+            results.PageSize = searchPageSize;
+            results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
 
             return Ok(results);
         }
+
+        #endregion
+
+        #region Private
+
+        private int? GetUserId()
+        {
+            object sessionValue;
+            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            {
+                return null;
+            }
+            var session = sessionValue as Session;
+            return session?.UserId;
+        }
+
+        private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
+        {
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        #endregion
 
     }
 }

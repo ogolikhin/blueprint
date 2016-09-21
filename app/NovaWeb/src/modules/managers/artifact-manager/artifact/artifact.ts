@@ -25,9 +25,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public specialProperties: IArtifactProperties;
     public subArtifactCollection: ISubArtifactCollection;
     public metadata: IMetaData;
+    public deleted: boolean;
+
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
-    
     private changesets: IChangeCollector;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
@@ -41,21 +42,18 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.relationships = new ArtifactRelationships(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
         this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
+        this.deleted = false;
 
         this.subscribers = [
             this.artifactState.observable()
                 .subscribeOnNext(this.onChanged, this),
-            this.artifactState.observable()
-                .filter((it: IArtifactState) => !!it.get().lock)
-                .distinctUntilChanged()
-                .subscribeOnNext(this.onLockChanged, this),
         ];
         // this.artifactState.observable
         //     .filter((it: IArtifactState) => !!it.get().lock)
         //     .distinctUntilChanged()
         //     .subscribeOnNext(this.onChanged, this);
-            
     }
+
     public dispose() {
         //TODO: implement logic to release resources
         this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
@@ -193,14 +191,21 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (force || !this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+                let parentId = this.artifact.parentId; 
                 this.artifact = artifact;
                 this.artifactState.initialize(artifact);
                 this.customProperties.initialize(artifact.customPropertyValues);
                 this.specialProperties.initialize(artifact.specificPropertyValues);
+                if (parentId && parentId !== artifact.parentId) {
+                    this.artifactState.readonly = true;
+                    this.services.messageService.addError("The artifach has been moved!");
+                }
                 this.isLoaded = true;
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
+            }).finally(() => {
+                this.lockpromise = null;
             });
         } else {
             deferred.resolve(this);
@@ -209,43 +214,76 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
-    public lock(): ng.IPromise<IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
 
-        this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-            this.artifactState.lock = result[0];
-            deferred.resolve(this);
-        }).catch((err) => {
-            deferred.reject(err);
-        });
-        return deferred.promise;
+    private validateLock(lock: Models.ILockResult): boolean {
+        let success: boolean;
+        if (lock.result === Enums.LockResultEnum.Success) {
+            success = true;
+            if (lock.info && lock.info.versionId !== this.version) {
+                this.discard(true);
+                success = false;
+            }
+        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+            this.discard(true);
+            success = false;
+        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.discard(true);
+            this.artifactState.readonly = true;
+        } else {
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.discard(true);
+            this.artifactState.readonly = true;
+        }
+        return success;
+    }
+
+    private lockpromise: ng.IPromise<IStatefulArtifact>;
+    public lock(): ng.IPromise<IStatefulArtifact> {
+        if (!this.lockpromise) {
+
+            let deferred = this.services.getDeferred<IStatefulArtifact>();
+            this.lockpromise = deferred.promise;
+            
+            this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
+                let lock = result[0];
+                let success = this.validateLock(lock); 
+                if (angular.isUndefined(success)) {
+                    deferred.reject(lock);    
+                } else if (!success) {
+                    this.load(true).then((artifact: IStatefulArtifact) => {
+                        deferred.resolve(this);
+                    });
+                } else {
+                    this.artifactState.lock(lock);
+                    deferred.resolve(this);
+                }
+            }).catch((err) => {
+                deferred.reject(err);
+            });
+
+        }
+        return this.lockpromise;
     }
 
     private onChanged(artifactState: IArtifactState) {
         this.subject.onNext(this);
     }
-    private onLockChanged(artifactState: IArtifactState) {
-        let state = artifactState.get();
-        if (!state.lock) {
-            return;
-        }
-        if (state.lock.result === Enums.LockResultEnum.Success) {
-            if (state.lock.info.versionId !== this.version) {
-                this.discard(true);
-                this.load(true);
-            }
-        } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.discard(true);
-            this.load(true);
-        } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
-        } else {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
-        }
-    }
+    // private onLockChanged(state: IArtifactState) {
+    //     if (state.old || 
+    //         state.deleted || 
+    //         state.status === Enums.LockResultEnum.AlreadyLocked || 
+    //         state.status === Enums.LockResultEnum.DoesNotExist) {
+    //         this.discard(true);
+    //         this.load(true);
+    //     } else if (state.status === Enums.LockResultEnum.Failure || state.status === Enums.LockResultEnum.AccessDenied) {
+    //         this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.status]);
+    //     }
+    // }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        return this.services.attachmentService.getArtifactAttachments(this.id, null, true)
+        const deferred = this.services.getDeferred();
+        this.services.attachmentService.getArtifactAttachments(this.id, null, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 // load attachments
                 this.attachments.initialize(result.attachments);
@@ -253,25 +291,28 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 // load docRefs
                 this.docRefs.initialize(result.documentReferences);
 
-                return result;
+                deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {
-                    this.artifactState.deleted = true;
+                    this.deleted = true;
                 }
-                return error;
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
     
     public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
-        return this.services.relationshipsService.getRelationships(this.id)
+        const deferred = this.services.getDeferred();
+        this.services.relationshipsService.getRelationships(this.id)
             .then( (result: Relationships.IRelationship[]) => {
-                return result;
+                deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {
-                    this.artifactState.deleted = true;
+                    this.deleted = true;
                 }
-                return error;
+                deferred.reject(error);
             });
+        return deferred.promise;
     }
 
     private changes(): Models.IArtifact {
@@ -310,11 +351,31 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 });
             }).catch((error) => {
                 deffered.reject(it);
-                    let message: string;
-                    if (error) {
-                        message = "App_Save_Artifact_Error_" + error.statusCode + "_" + error.errorCode;
+                let message: string;
+                if (error) {
+                    if (error.statusCode === 400) {
+                        if (error.errorCode === 114) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+                        } else {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+                        }
+                    } else if (error.statusCode === 404) {
+                        message = this.services.localizationService.get("App_Save_Artifact_Error_404");
+                    } else if (error.statusCode === 409) {
+                        if (error.errorCode === 116) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
+                        } else if (error.errorCode === 117) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
+                        } else if (error.errorCode === 111 || error.errorCode === 115) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+                        } else {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409");
+                        }
+                    } else {
+                        message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
-                    throw new Error(message);
+                }
+                throw new Error(message);
             });
         return deffered.promise;
     }

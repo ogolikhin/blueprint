@@ -787,8 +787,8 @@ pagecontent, bp-properties-panel {
         }
       }
     */
-    .formly-field-bpFieldTinymce,
-    .formly-field-bpFieldInlineTinymce {
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
       > div {
         width: 100%;
       }
@@ -1013,9 +1013,14 @@ pagecontent, bp-properties-panel {
           line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
+          &.disabled{
+            opacity: $default-desabled-opacity;
+            cursor: not-allowed;
+          }
         }
       }
        
+
 
       .thumb{
         width:30px;

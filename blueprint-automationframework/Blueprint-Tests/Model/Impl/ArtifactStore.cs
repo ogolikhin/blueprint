@@ -5,6 +5,7 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -561,6 +562,7 @@ namespace Model.Impl
             if (restApi.StatusCode == HttpStatusCode.OK)
             {
                 var deletedArtifactsList = new List<IArtifactBase>();
+                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
 
                 // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
                 foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
@@ -569,6 +571,13 @@ namespace Model.Impl
                         path, publishedArtifactDetails.Id);
 
                     IArtifactBase publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
+
+                    if (publishedArtifact == null)
+                    {
+                        otherPublishedArtifactsList.Add(publishedArtifactDetails);
+                        continue;
+                    }
+
                     publishedArtifact.IsSaved = false;
 
                     // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
@@ -588,6 +597,17 @@ namespace Model.Impl
                 if (deletedArtifactsList.Any())
                 {
                     deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                }
+
+                if (otherPublishedArtifactsList.Any())
+                {
+                    if (artifacts.Any())
+                    {
+                        artifacts[0]?.NotifyArtifactPublish(otherPublishedArtifactsList);
+                    }
+
+                    Assert.That((all != null) && (all.Value == true),
+                        "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
                 }
             }
 

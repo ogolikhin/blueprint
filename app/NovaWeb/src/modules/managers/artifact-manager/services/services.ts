@@ -1,4 +1,4 @@
-import { IMessageService } from "../../../core/";
+import { IMessageService, ILocalizationService } from "../../../core/";
 import { ISession } from "../../models";
 import { 
     IArtifactService,
@@ -11,6 +11,7 @@ export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
     messageService: IMessageService;
+    localizationService: ILocalizationService;
     session: ISession;
     artifactService: IArtifactService;
     attachmentService: IArtifactAttachmentsService;
@@ -22,6 +23,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     constructor(private $q: ng.IQService,
                 private _session: ISession,
                 private _messageService: IMessageService,
+                private _localizationService: ILocalizationService,
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
                 private _relationshipsService: IArtifactRelationshipsService,
@@ -38,6 +40,10 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
 
     public get messageService(): IMessageService {
         return this._messageService;
+    }
+    
+    public get localizationService(): ILocalizationService {
+        return this._localizationService;
     }
 
     public get artifactService(): IArtifactService {

@@ -71,7 +71,6 @@ describe("UploadImage Directive", () => {
         //Act
         isolatedScope["downloadImage"]();
         // Assert           
-        expect($window.open).toHaveBeenCalled();
         expect($window.open).toHaveBeenCalledWith(fakeUrl, "_blank");
     }));
     it("clearImage", inject(($injector: ng.auto.IInjectorService) => {

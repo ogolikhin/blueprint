@@ -199,6 +199,7 @@ export class BpArtifactInfoController {
         }catch(err){
             this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
+            throw err;
         }
      }
 

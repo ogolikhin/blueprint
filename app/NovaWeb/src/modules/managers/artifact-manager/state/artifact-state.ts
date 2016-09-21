@@ -137,6 +137,6 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set invalid(value: boolean) {
-        this.set({invalid: value});
+        this.state.invalid = value;
     }
 }

@@ -91,6 +91,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             currentState: null,
             maxItems: 100,
             minimumInputLength: 3,
+            labels: {
+                noMatch: localization.get("Property_No_Matching_Options"),
+                minimumLength: "Type the user or group's name or email",
+                searching: "Searching..."
+            },
             isChoiceSelected: function (item, $select): boolean {
                 return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
             },

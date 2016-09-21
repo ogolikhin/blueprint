@@ -22,9 +22,9 @@
 		</ui-select-choices>
 		<ui-select-no-choice>
 			<span ng-switch="bpFieldUserPicker.currentState">
-				<span ng-switch-when="no-match">${localization.get("Property_No_Matching_Options")}</span>
-				<span ng-switch-when="loading">Searching...</span>
-				<span ng-switch-default>{{"Type {0} characters to start searching".replace("{0}", bpFieldUserPicker.minimumInputLength)}}</span>
+				<span ng-switch-when="no-match">{{bpFieldUserPicker.labels.noMatch}}</span>
+				<span ng-switch-when="loading">{{bpFieldUserPicker.labels.searching}}</span>
+				<span ng-switch-default>{{bpFieldUserPicker.labels.minimumLength}}</span>
 			</span>
 		</ui-select-no-choice>
 	</ui-select>

@@ -69,6 +69,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
         });
 
         $scope["bpFieldSelectMulti"] = {
+            $select: null,
             items: [],
             itemsHeight: 24,
             maxItemsToRender: 50,
@@ -114,6 +115,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             onOpenClose: function (isOpen: boolean, $select, options) {
                 this.isOpen = isOpen;
                 this.items = options;
+                this.$select = $select
 
                 let dropdown = this.findDropdown($select);
                 if (dropdown && options.length > this.maxItemsToRender) {

@@ -109,8 +109,16 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.setNextNode(this.modalProcessViewModel);
     }
     
-    private getDescription() {
-        return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+    private getUserTaskDescription() {
+        if (this.dialogModel.clonedUserTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+        }
+    }
+
+    private getSystemTaskDescription() {
+        if (this.dialogModel.clonedSystemTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedSystemTask.description);
+        }
     }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {

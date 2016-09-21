@@ -71,7 +71,6 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
-
     public onLoad() {
         this.model = {};
         super.onLoad();
@@ -104,7 +103,7 @@ export class BpArtifactEditor extends BpBaseEditor {
             this.onFieldUpdate(field);
 
         });
-
+        this.isLoading = false;
         this.setArtifactEditorLabelsWidth();
     }
 

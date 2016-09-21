@@ -32,7 +32,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            // this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this)
+//             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this)
         ];
     }
     

@@ -201,6 +201,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     this.services.messageService.addError("The artifach has been moved!");
                 }
                 this.isLoaded = true;
+                this.artifactState.outdated = false;
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
@@ -248,19 +249,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
                 let lock = result[0];
                 let success = this.validateLock(lock); 
-                if (angular.isUndefined(success)) {
-                    deferred.reject(lock);    
-                } else if (!success) {
-                    // TODO: needs to update state
-
-                    
-
-                    // this.load(true).then((artifact: IStatefulArtifact) => {
-                    //     deferred.resolve(this);
-                    // });
-                } else {
+                if (success) {
                     this.artifactState.lock(lock);
                     deferred.resolve(this);
+                } else if (success === false) {
+                    this.artifactState.outdated = true;
+                    deferred.resolve(this);
+                } else { // undefined | null
+                    deferred.reject(lock);    
                 }
             }).catch((err) => {
                 deferred.reject(err);
@@ -273,17 +269,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private onChanged(artifactState: IArtifactState) {
         this.subject.onNext(this);
     }
-    // private onLockChanged(state: IArtifactState) {
-    //     if (state.old || 
-    //         state.deleted || 
-    //         state.status === Enums.LockResultEnum.AlreadyLocked || 
-    //         state.status === Enums.LockResultEnum.DoesNotExist) {
-    //         this.discard(true);
-    //         this.load(true);
-    //     } else if (state.status === Enums.LockResultEnum.Failure || state.status === Enums.LockResultEnum.AccessDenied) {
-    //         this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.status]);
-    //     }
-    // }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();

@@ -1,16 +1,25 @@
 import "angular";
 import "angular-mocks";
 import {Models} from "../../../models";
+import {IProjectManager} from "../../../../managers/";
 import {IProjectService} from "../../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
 import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 
 describe("ArtifactPickerNodeVM", () => {
+    let projectManager: IProjectManager;
+    let projectService: IProjectService;
+    let options: IArtifactPickerOptions;
+
+    beforeEach(() => {
+        projectManager = jasmine.createSpyObj("projectManager", ["getArtifact"]) as IProjectManager;
+        projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
+        options = {} as IArtifactPickerOptions;
+    });
+
     describe("InstanceItemNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
                 name: "name",
@@ -18,7 +27,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IProjectNode;
 
             // Act
-            const vm = new InstanceItemNodeVM(projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -29,109 +38,110 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getTypeClass, when a folder, returns correct class", () => {
+        it("getCellClass, when a folder, returns correct class", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
-                name: "name",
                 type: Models.ProjectNodeType.Folder,
                 hasChildren: true
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-folder");
+            expect(result).toEqual(["has-children", "is-folder"]);
         });
 
-        it("getTypeClass, when a project, returns correct class", () => {
+        it("getCellClass, when a project, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
-                name: "name",
                 type: Models.ProjectNodeType.Project,
                 hasChildren: true
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-project");
+            expect(result).toEqual(["has-children", "is-project"]);
         });
 
-        it("getTypeClass, when invalid, returns undefined", () => {
+        it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
-                name: "name",
-                type: -999,
-                hasChildren: true
+                type: -999
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toBeUndefined();
+            expect(result).toEqual([]);
         });
 
-        it("loadChildrenAsync, when a folder, loads folders", (done: DoneFn) =>
+        it("getIcon returns correct result", () => {
+            // Arrange
+            const model = {
+                id: 123,
+                type: -999
+            } as Models.IProjectNode;
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<i></i>`);
+        });
+
+        it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1234}, {id: 5678}] as Models.IProjectNode[];
-                const projectService = {
-                    getFolders(id: number) { return $q.resolve(children); }
-                } as IProjectService;
-                const options = {} as IArtifactPickerOptions;
+                (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
                     id: 123,
                     type: Models.ProjectNodeType.Folder
                 } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectService, options, model);
+                const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectService, options, child)));
+                    expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectManager, projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
             }
         ));
 
-        it("loadChildrenAsync, when a project, loads artifact", (done: DoneFn) =>
+        it("loadChildrenAsync, when a project, loads artifacts except collection folder", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                const projectService = {
-                    getArtifacts(id: number) { return $q.resolve(children); }
-                } as IProjectService;
-                const options = {} as IArtifactPickerOptions;
+                const children = [{id: 1234}, {id: 5678, predefinedType: Models.ItemTypePredefined.CollectionFolder}] as Models.IArtifact[];
+                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
                     id: 123,
                     type: Models.ProjectNodeType.Project
                 } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectService, options, model);
+                const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
+                    expect(vm.children).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
+                                                        .map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
+                    expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -142,8 +152,6 @@ describe("ArtifactPickerNodeVM", () => {
     describe("ArtifactNodeVM", () => {
         it("constructor, when not showing sub-artifacts, sets correct property values", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 999,
                 name: "name",
@@ -153,7 +161,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -166,8 +174,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("constructor, when showing sub-artifacts, sets correct property values", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {showSubArtifacts: true} as IArtifactPickerOptions;
+            options.showSubArtifacts = true;
             const model = {
                 id: 456,
                 name: "New Business Process",
@@ -177,7 +184,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -188,94 +195,118 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getTypeClass, when a folder, returns correct class", () => {
+        it("getCellClass, when a folder, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
+                hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-folder");
+            expect(result).toEqual(["has-children", "is-folder"]);
         });
 
-        it("getTypeClass, when a project, returns correct class", () => {
+        it("getCellClass, when a project, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Project,
+                hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-project");
+            expect(result).toEqual(["has-children", "is-project"]);
         });
 
-        it("getTypeClass, when a use case, returns correct class", () => {
+        it("getCellClass, when a use case, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.UseCase,
+                hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-use-case");
+            expect(result).toEqual(["has-children", "is-use-case"]);
         });
 
-        it("getTypeClass, when invalid, returns undefined", () => {
+        it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
-            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
-                predefinedType: -999,
+                predefinedType: -999
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, options, model);
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toBeUndefined();
+            expect(result).toEqual([]);
+        });
+
+        it("getIcon, when custom icon, returns correct result", () => {
+            // Arrange
+            const itemType = {id:123, iconImageId: 456};
+            (projectManager.getArtifact as jasmine.Spy).and.returnValue({metadata: {getItemType() { return itemType; }}});
+            const model = {
+                id: 123
+            } as Models.IArtifact;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<bp-item-type-icon item-type-id="123" item-type-icon="456"></bp-item-type-icon>`);
+        });
+
+        it("getIcon, when no custom icon, returns correct result", () => {
+            // Arrange
+            (projectManager.getArtifact as jasmine.Spy).and.returnValue(undefined);
+            const model = {
+                id: 123
+            } as Models.IArtifact;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<i></i>`);
         });
 
         it("loadChildrenAsync, when not showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                const projectService = {
-                    getArtifacts(projectId: number, artifactId?: number) { return $q.resolve(children); }
-                } as IProjectService;
-                const options = {} as IArtifactPickerOptions;
+                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
                     id: 123,
                     predefinedType: Models.ItemTypePredefined.GenericDiagram,
                 } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectService, options, model);
+                const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
+                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
+                    expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -286,15 +317,13 @@ describe("ArtifactPickerNodeVM", () => {
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                const projectService = {
-                    getArtifacts(projectId: number, artifactId?: number) { return $q.resolve(children); }
-                } as IProjectService;
-                const options = {showSubArtifacts: true} as IArtifactPickerOptions;
+                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                options.showSubArtifacts = true;
                 const model = {
                     id: 123,
                     predefinedType: Models.ItemTypePredefined.BusinessProcess,
                 } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectService, options, model);
+                const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
@@ -302,7 +331,7 @@ describe("ArtifactPickerNodeVM", () => {
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
                     expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, model, "Shapes"));
-                    expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
+                    expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -313,7 +342,6 @@ describe("ArtifactPickerNodeVM", () => {
     describe("SubArtifactContainerNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
-            const projectService = {} as IProjectService;
             const model = {
                 id: 555,
                 name: "name"
@@ -331,26 +359,38 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getTypeClass returns correct class", () => {
+        it("getCellClass returns correct result", () => {
             // Arrange
-            const projectService = {} as IProjectService;
             const model = {} as Models.IArtifact;
             const vm = new SubArtifactContainerNodeVM(projectService, model, "");
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-subartifact");
+            expect(result).toEqual(["has-children", "is-subartifact"]);
+        });
+
+        it("getIcon returns correct result", () => {
+            // Arrange
+            const model = {
+                id: 123,
+                type: -999
+            } as Models.IProjectNode;
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<i></i>`);
         });
 
         it("loadChildrenAsync", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
-                const projectService = {
-                    getSubArtifactTree(id: number) { return $q.resolve(children); }
-                } as IProjectService;
+                (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {} as Models.IArtifact;
                 const vm = new SubArtifactContainerNodeVM(projectService, model, "");
 
@@ -389,18 +429,34 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getTypeClass returns correct class", () => {
+        it("getCellClass returns correct result", () => {
             // Arrange
             const model = {
-                id: 100
+                id: 100,
+                hasChildren: true
             } as Models.ISubArtifactNode;
             const vm = new SubArtifactNodeVM(model);
 
             // Act
-            const result = vm.getTypeClass();
+            const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual("is-subartifact");
+            expect(result).toEqual(["has-children", "is-subartifact"]);
+        });
+
+        it("getIcon returns correct result", () => {
+            // Arrange
+            const model = {
+                id: 123,
+                type: -999
+            } as Models.IProjectNode;
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<i></i>`);
         });
     });
 });

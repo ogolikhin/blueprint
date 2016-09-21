@@ -68,6 +68,8 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose  {
     save(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
+    
+    setValidationErrorsFlag(value: boolean);
 }
 
 // TODO: explore the possibility of using an internal interface for services

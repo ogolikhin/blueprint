@@ -185,6 +185,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         // this.subArtifactCollection.discard(all);
 
     }
+    
+    public setValidationErrorsFlag(value: boolean){
+        this.artifactState.invalid = value;
+    }
 
     private isLoaded = false;
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
@@ -316,9 +320,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     private changes(): Models.IArtifact {
-        // if (this._hasValidationErrors) {
-        //     throw new Error("App_Save_Artifact_Error_400_114");
-        // }
+        if (this.artifactState.invalid) {
+            throw new Error("App_Save_Artifact_Error_400_114");
+        }
 
         let delta: Models.IArtifact = {} as Models.Artifact;
 
@@ -328,7 +332,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.changesets.get().forEach((it: IChangeSet) => {
             delta[it.key as string] = it.value;
         });
-
+      
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
         
@@ -339,6 +343,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     
     public save(): ng.IPromise<IStatefulArtifact> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();
+       
         let changes = this.changes();
         this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
@@ -376,7 +381,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     }
                 }
                 throw new Error(message);
-            });
+            }
+        );
+       
         return deffered.promise;
     }
 

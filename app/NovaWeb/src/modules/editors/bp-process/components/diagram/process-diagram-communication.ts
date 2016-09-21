@@ -7,7 +7,7 @@ export interface IProcessDiagramCommunication {
 
     registerNavigateToAssociatedArtifactObserver(observer: any);
     removeNavigateToAssociatedArtifactObserver(observer: any);
-    navigateToAssociatedArtifact(artifactId: number, context: any);
+    navigateToAssociatedArtifact(artifactId: number, context?: any);
 
     onDestroy();
 }

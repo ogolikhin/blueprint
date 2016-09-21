@@ -2,7 +2,7 @@
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
-import { ArtifactPickerController } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
@@ -192,19 +192,32 @@ export class BpArtifactInfoController {
     
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
-         this.artifactManager.selection.getArtifact().save().finally(() => {
+         try{
+            this.artifactManager.selection.getArtifact().save().finally(() => {
+               this.loadingOverlayService.endLoading(overlayId);
+            });
+        }catch(err){
+            this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
-         });
+            throw err;
+        }
      }
 
     public openPicker() {
-        this.dialogService.open(<IDialogSettings>{
+        const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
             template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
             controller: ArtifactPickerController,
             css: "nova-open-project",
             header: "Some header"
-        }).then((artifact: any) => {
+        };
+
+        const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: [],
+            showSubArtifacts: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
             
         });
     }

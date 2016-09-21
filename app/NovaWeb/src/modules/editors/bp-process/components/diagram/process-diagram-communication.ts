@@ -5,18 +5,24 @@ export interface IProcessDiagramCommunication {
     removeModelUpdateObserver(observer: any);
     modelUpdate(selectedNodeId: number);
 
+    registerNavigateToAssociatedArtifactObserver(observer: any);
+    removeNavigateToAssociatedArtifactObserver(observer: any);
+    navigateToAssociatedArtifact(artifactId: number, context?: any);
+
     onDestroy();
 }
 
 export class ProcessDiagramCommunication implements IProcessDiagramCommunication {
-    private setModelUpdateSubject: ICommunicationWrapper; 
+    private setModelUpdateSubject: ICommunicationWrapper;
+    private setNavigateToAssociatedArtifactSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
         this.setModelUpdateSubject = new CommunicationWrapper();
+        this.setNavigateToAssociatedArtifactSubject = new CommunicationWrapper();
     };
 
-    // 1. Model update  
+    // Model update
     public registerModelUpdateObserver(observer: any): string {
         return this.setModelUpdateSubject.subscribe(observer);
     }
@@ -29,8 +35,21 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setModelUpdateSubject.notify(selectedNodeId);
     }
 
+    // Navigate to associated artifact
+    public registerNavigateToAssociatedArtifactObserver(observer: any): string {
+        return this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
+    }
+
+    public removeNavigateToAssociatedArtifactObserver(handler: string) {
+        this.setNavigateToAssociatedArtifactSubject.disposeObserver(handler);
+    }
+
+    public navigateToAssociatedArtifact(id: number, context?: any) {
+        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, context: context });
+    }
+
     public onDestroy() {
         this.setModelUpdateSubject.dispose();
+        this.setNavigateToAssociatedArtifactSubject.dispose();
     }
 }
-

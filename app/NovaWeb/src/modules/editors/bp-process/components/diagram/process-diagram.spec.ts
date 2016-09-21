@@ -2,6 +2,8 @@
 import {IProcessService} from "../../services/process/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ProcessDiagram} from "./process-diagram";
 import {ICommunicationManager, CommunicationManager} from "../../../bp-process"; 
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
@@ -18,6 +20,7 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
     }));
     let rootScope: ng.IRootScopeService,
         scope,
@@ -26,9 +29,10 @@ describe("ProcessDiagram Tests", () => {
         log: ng.ILogService,
         processModelService: IProcessService,
         messageService: IMessageService;
-        let communicationManager: ICommunicationManager,
-            dialogService: DialogService,
-            localization: LocalizationServiceMock;
+    let communicationManager: ICommunicationManager,
+        dialogService: DialogService,
+        localization: LocalizationServiceMock,
+        navigationService: INavigationService;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -42,7 +46,8 @@ describe("ProcessDiagram Tests", () => {
         _messageService_: IMessageService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        _navigationService_: INavigationService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -61,7 +66,7 @@ describe("ProcessDiagram Tests", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
-
+        navigationService = _navigationService_;
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -81,7 +86,9 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
+            localization,
+            navigationService
+        );
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -108,7 +115,9 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
+            localization,
+            navigationService
+        );
 
         let model = TestModels.createDefaultProcessModel();
 
@@ -138,8 +147,9 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
-        
+            localization,
+            navigationService
+        );
 
         let error: Error;
         // act
@@ -164,8 +174,9 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
-
+            localization,
+            navigationService
+        );
 
         let error: Error;
 
@@ -192,7 +203,10 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
+            localization,
+            navigationService
+        );
+
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.UserToSystemProcess;
         let loadSpy = spyOn(processModelService, "load");
@@ -219,7 +233,10 @@ describe("ProcessDiagram Tests", () => {
             messageService,
             communicationManager,
             dialogService,
-            localization);
+            localization,
+            navigationService
+        );
+
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
         let loadSpy = spyOn(processModelService, "load");
@@ -232,5 +249,36 @@ describe("ProcessDiagram Tests", () => {
 
         // assert
         expect(diagram.processViewModel.processType).toBe(ProcessType.UserToSystemProcess);
+    });
+
+    it("calls navigationService to navigation to associated artifact", () => {
+        // arrange
+        let artifactId = 14;
+        let diagram = new ProcessDiagram(
+            rootScope,
+            scope,
+            timeout,
+            q,
+            log,
+            processModelService,
+            messageService,
+            communicationManager,
+            dialogService,
+            localization,
+            navigationService
+        );
+        let navigateToArtifactSpy = spyOn(navigationService, "navigateToArtifact");
+
+        let model = TestModels.createDefaultProcessModel();
+        model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
+        spyOn(processModelService, "load").and.returnValue(q.when(model));
+        diagram.createDiagram(1, container);
+        rootScope.$apply();
+
+        // act
+        communicationManager.processDiagramCommunication.navigateToAssociatedArtifact(artifactId);
+
+        // assert
+        expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, undefined);
     });
 });

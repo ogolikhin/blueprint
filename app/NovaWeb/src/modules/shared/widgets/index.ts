@@ -3,6 +3,7 @@ import "./bp-avatar";
 import "./bp-tree";
 import "./bp-tree-dragndrop";
 import "./bp-tree-inline-editing";
+import "./bp-tree-view";
 import "./bp-tooltip";
 import "./bp-infinite-scroll";
 import "./bp-select";
@@ -19,6 +20,7 @@ angular.module("bp.widjets", [
     "bp.widjets.avatar",
     "bp.widjets.tree",
     "bp.widjets.treedraganddrop",
+    "bp.widjets.treeView",
     "bp.widjets.inlineedit",
     "bp.widjets.tooltip",    
     "bp.widjets.infinitescroll",

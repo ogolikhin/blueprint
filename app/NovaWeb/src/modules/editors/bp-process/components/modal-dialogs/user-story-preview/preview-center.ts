@@ -41,7 +41,7 @@ export class PreviewCenterController {
     public resizeContentAreas = function (isTabSetVisible) {
         var availHeight = window.innerHeight ? window.innerHeight :
             (document.documentElement && document.documentElement.clientHeight ? document.documentElement.clientHeight :
-                (document.body ? document.body.clientHeight : screen.availHeight));
+                (document.body ? document.body.clientHeight : screen.availHeight));        
         //unfortunately this is very dependant on the way the GWT window is made :-(
         //the following is based on 930px (availHeight) - (25px (hidden tabs) or 192px (visible tabs) - 500px of other elements)
         var tabSetHeight = isTabSetVisible ? 201 : 25;
@@ -67,9 +67,23 @@ export class PreviewCenterController {
             this.showMoreActiveTabIndex = 1;
         }
         this.resizeContentAreas(this.isTabsVisible);
+        this.refreshView();
         event.stopPropagation();
     }
 
+    private refreshView() {
+        let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
+        if (!element) { return; }
+
+        var n = document.createTextNode(' ');
+        element.appendChild(n);
+
+        setTimeout(function () {
+            n.parentNode.removeChild(n);
+        }, 20); 
+    }
     public strIsNotEmpty = (value: string): boolean => {
         //todo: Settings of tinymce should be changed
         if (value && value.trim().replace("\u200B", "").length > 0) {

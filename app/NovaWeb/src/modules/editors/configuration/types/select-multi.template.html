@@ -1,0 +1,28 @@
+<div class="input-group has-messages">
+	<ui-select class="has-scrollbar"
+		multiple
+		ng-model="model[options.key]"
+		ng-disabled="{{to.disabled}}"
+		remove-selected="false"
+		on-remove="bpFieldSelectMulti.onRemove($item, $select, fc, options)"
+		on-select="bpFieldSelectMulti.onSelect($item, $select)"
+		close-on-select="false"
+		uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen, $select, to.options)"
+		ng-mouseover="bpFieldSelectMulti.setUpDropdown($event, $select)"
+		ng-keydown="bpFieldSelectMulti.setUpDropdown($event, $select)">
+		<ui-select-match placeholder="{{to.placeholder}}">
+			<div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
+		</ui-select-match>
+		<ui-select-choices class="ps-child"
+			on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
+			data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
+			<div class="ui-select-choice-item"
+				ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
+				bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+		</ui-select-choices>
+		<ui-select-no-choice>${localization.get("Property_No_Matching_Options")}</ui-select-no-choice>
+	</ui-select>
+	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+	</div>
+</div>

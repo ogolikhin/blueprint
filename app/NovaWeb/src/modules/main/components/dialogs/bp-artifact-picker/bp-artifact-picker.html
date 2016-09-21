@@ -2,27 +2,29 @@
     <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
 </div>
 <div class="modal-body artifact-picker">
-    <div ng-click="$ctrl.getProjects()">
+    <div>
         <input type="text" class="form-control upper-text" /><i class="fonticon2-search"></i>
     </div>
     <div class="project-wrapper">
         <div class="artifact-picker-container">
             <div class="grid-header">
-                <i class="navigate-back fonticon2-arrow-double-left" ng-if="!$ctrl.projectView" ng-click="$ctrl.getProjects()"></i><i ng-if="!$ctrl.projectView" class="icon-project"></i>
-                &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.projectName}}" bp-tooltip-truncated="true" >{{$ctrl.projectName}}</span>
+                <div ng-if="$ctrl.project">
+                    <i class="navigate-back fonticon2-arrow-double-left" ng-click="$ctrl.project = undefined"></i><i class="icon-project"></i>
+                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project.name}}" bp-tooltip-truncated="true">{{$ctrl.project.name}}</span>
+                </div>
+                <div ng-if="!$ctrl.project">
+                    {{::$root.config.labels['App_Header_Name']}}
+                </div>
             </div>
-            <bp-tree bp-ref="$ctrl.tree"
-                     grid-class="project-tree"
-                     header-height="20"
-                     row-height="20"
-                     grid-columns="$ctrl.columns"
-                     property-map="$ctrl.propertyMap"
-                     on-load="$ctrl.doLoad(prms)"
-                     on-select="$ctrl.doSelect(item)"
-                     on-sync="$ctrl.doSync(item)">
-            </bp-tree>
+            <bp-tree-view grid-class="project-tree"
+                          row-height="20"
+                          root-node="$ctrl.rootNode"
+                          root-node-visible="false"
+                          column-defs="$ctrl.columnDefs"
+                          header-height="20"
+                          on-select="$ctrl.onSelect(vm)">
+            </bp-tree-view>
         </div>
-
     </div>
 </div>
 <div class="modal-footer">

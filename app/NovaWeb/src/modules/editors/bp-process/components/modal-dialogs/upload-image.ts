@@ -1,4 +1,3 @@
-/// <reference path="clear-text.ts" />
 import {IFileResult, IFileUploadService} from "../../../../core/file-upload/";
 import {ISystemTask} from "../diagram/presentation/graph/models/";
 

@@ -377,8 +377,8 @@ namespace ArtifactStoreTests
         #region Custom data tests
 
         [Category(Categories.CustomData)]
-        [TestCase("Value\":10.0", "Value\":999.0")] //Insert value into Numeric field which is out of range
-        [TestCase("Value\":\"20", "Value\":\"21")] //Insert value into Date field which is out of range
+        [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(164595)]
         [Description("Try to update an artifact properties with a value that out of its permitted range. Verify 200 OK Request is returned.")]
         public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)

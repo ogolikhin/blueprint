@@ -25,12 +25,12 @@ import { IStatefulArtifact } from "../../../managers/models";
 
 
 describe("Actor Inheritance controller", () => {
-    
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock)
         $provide.service("messageService", MessageServiceMock)
-        $provide.service("dialogService", ArtifactPickerDialogServiceMock);     
-        $provide.service("selectionManager", SelectionManager); 
+        $provide.service("dialogService", ArtifactPickerDialogServiceMock);
+        $provide.service("selectionManager", SelectionManager);
     }));
 
     let compile, scope, rootScope, module;
@@ -44,7 +44,7 @@ describe("Actor Inheritance controller", () => {
                 scope.model = {};
                 scope.options = {
                     key: "Key"
-                }         
+                }
 
                 scope.model[scope.options.key] = {
                     pathToProject: [],
@@ -56,11 +56,15 @@ describe("Actor Inheritance controller", () => {
                 };
             }
         )
-    );    
+    );
 
     it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
-        
+
         let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
+        scope.to = {
+            onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+            }
+        };
 
         // Act
         scope.deleteBaseActor();     
@@ -71,6 +75,10 @@ describe("Actor Inheritance controller", () => {
     it("select base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {                
 
         let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
+        scope.to = {
+            onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+            }
+        };
 
         // Act
         scope.selectBaseActor();

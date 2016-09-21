@@ -109,8 +109,16 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.setNextNode(this.modalProcessViewModel);
     }
     
-    private getDescription() {
-        return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+    private getUserTaskDescription() {
+        if (this.dialogModel.clonedUserTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+        }
+    }
+
+    private getSystemTaskDescription() {
+        if (this.dialogModel.clonedSystemTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedSystemTask.description);
+        }
     }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
@@ -260,11 +268,17 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
     }
 
     private refreshView() {
-        setTimeout(() => {
-            var elem: any = document.getElementsByClassName("modal-dialog")[0].parentElement;
-            elem.style.width = "" + (elem.clientWidth - 1) + "px"; 
-            elem.style.width = "" + (elem.clientWidth + 1) + "px"; 
-        }, 100);
+        let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
+        if (!element) { return; }
+
+        var n = document.createTextNode(' ');
+        element.appendChild(n);
+
+        setTimeout(function () {
+            n.parentNode.removeChild(n);
+        }, 20); 
     }
 
     public getActiveHeader(): string {

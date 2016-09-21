@@ -51,6 +51,12 @@ export class ArtifactNode implements IArtifactNode {
 export class Project extends ArtifactNode { 
 
     public meta: Models.IProjectMeta;
+    public constructor(artifact: IStatefulArtifact) {
+        super(artifact);
+        this.open = true;
+        this.hasChildren = true;
+
+    }
 
     public get description(): string {
         return this.artifact.description;

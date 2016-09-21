@@ -26,7 +26,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public subArtifactCollection: ISubArtifactCollection;
     public metadata: IMetaData;
     public deleted: boolean;
-    public hasValidationErrors: boolean;
 
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
@@ -188,7 +187,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
     
     public setValidationErrorsFlag(value: boolean){
-        this.hasValidationErrors = value;
+        this.artifactState.invalid = value;
     }
 
     private isLoaded = false;
@@ -321,7 +320,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     private changes(): Models.IArtifact {
-        if (this.hasValidationErrors) {
+        if (this.artifactState.invalid) {
             throw new Error("App_Save_Artifact_Error_400_114");
         }
 

@@ -7,7 +7,7 @@ import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
-import { ArtifactPickerController, IArtifactPickerFilter } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerController, IArtifactPickerOptions } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
 import { IArtifactManager } from "../../../managers";
 import { IStatefulItem } from "../../../managers/models";
 import { 
@@ -73,8 +73,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             header: this.localization.get("App_UP_Attachments_Document_Picker_Title")
         };
 
-        const dialogData: IArtifactPickerFilter = {
-            ItemTypePredefines: [Models.ItemTypePredefined.Document]
+        const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: [Models.ItemTypePredefined.Document],
+            showSubArtifacts: false
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
@@ -162,7 +163,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 // get doc refs here because they're included in attachments payload
                 this.getDocRefs();
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.artifactState.deleted;
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
                 this.isLoadingAttachments = false;
             });
         }

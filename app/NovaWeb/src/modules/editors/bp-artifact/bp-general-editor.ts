@@ -47,15 +47,14 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         return this.noteFields && this.noteFields.length > 0;
     }
 
-
-    public onLoading(): boolean {
+     
+    public clearFields() { 
         this.systemFields = [];
         this.noteFields = [];
-        return super.onLoading();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        super.onFieldUpdate(field);
+//        super.onFieldUpdate(field);
         let propertyContext = field.data as PropertyContext;
         if (!propertyContext) {
             return;

@@ -15,8 +15,9 @@ export interface IArtifactPickerController {
     onSelect: (vm: ArtifactPickerNodeVM<any>) => void;
 }
 
-export interface IArtifactPickerFilter {
-    ItemTypePredefines: Models.ItemTypePredefined[];
+export interface IArtifactPickerOptions {
+    selectableItemTypes?: Models.ItemTypePredefined[];
+    showSubArtifacts?: boolean;
 }
 
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
@@ -40,7 +41,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private localization: ILocalizationService,
         private projectManager: IProjectManager,
         private projectService: IProjectService,
-        private dialogData: IArtifactPickerFilter
+        private dialogData: IArtifactPickerOptions
     ) {
         super($instance, dialogSettings);
         this.project = this.projectManager.getSelectedProject();
@@ -69,57 +70,24 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     private isItemSelectable(item: Models.IItem): boolean {
         return !(item &&
             this.dialogData &&
-            this.dialogData.ItemTypePredefines &&
-            this.dialogData.ItemTypePredefines.length > 0 &&
-            this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) === -1);
+            this.dialogData.selectableItemTypes &&
+            this.dialogData.selectableItemTypes.length > 0 &&
+            this.dialogData.selectableItemTypes.indexOf(item.predefinedType) === -1);
     }
-
-    private onEnterKeyPressed = (e: any) => {
-        const key = e.which || e.keyCode;
-        if (key === 13) {
-            this.ok();
-        }
-    };
 
     public columnDefs: ColDef[] = [{
         headerName: "",
         field: "name",
         cellClass: function (params) {
             const vm = params.data as ArtifactPickerNodeVM<any>;
-            let css: string[] = [];
-
-            if (vm.isExpandable) {
-                css.push("has-children");
-            }
-
-            const typeClass = vm.getTypeClass();
-            if (typeClass) {
-                css.push(typeClass);
-            }
-
-            return css;
+            return vm.getCellClass();
         },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
                 const vm = params.data as ArtifactPickerNodeVM<any>;
-                let icon = "<i></i>";
+                const icon = vm.getIcon();
                 const name = Helper.escapeHTMLText(vm.name);
-
-                if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Folder) {
-                    params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
-                } else if (vm instanceof ArtifactNodeVM) {
-                    //TODO: for now it display custom icons just for already loaded projects
-                    let statefulArtifact = this.projectManager.getArtifact(vm.model.id);
-                    if (statefulArtifact) {
-                        let artifactType = statefulArtifact.metadata.getItemType();
-                        if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                            icon = `<bp-item-type-icon \
-item-type-id="${artifactType.id}" \
-item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-                        }
-                    }
-                }
                 return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
             },
             padding: 20
@@ -151,14 +119,14 @@ item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
         this.setSelectedItem(undefined);
         this._project = project;
         if (project) {
-            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+            this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this.dialogData, {
                 id: project.id,
                 type: Models.ProjectNodeType.Project,
                 name: project.name,
                 hasChildren: project.hasChildren,
             } as Models.IProjectNode, true);
         } else {
-            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+            this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this.dialogData, {
                 id: 0,
                 type: Models.ProjectNodeType.Folder,
                 name: "",

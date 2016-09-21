@@ -4,7 +4,6 @@ import "angular-formly-templates-bootstrap";
 import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
 import { IDialogService } from "../../shared";
-import { documentController } from "./controllers/document-field-controller";
 import { actorInheritanceController } from "./controllers/actor-inheritance-controller";
 import { actorImageController } from "./controllers/actor-image-controller";
 import { ISelectionManager } from "../../managers";
@@ -18,6 +17,7 @@ import { BPFieldSelect } from "./types/select";
 import { BPFieldSelectMulti } from "./types/select-multi";
 import { BPFieldUserPicker } from "./types/user-picker";
 import { BPFieldDatePicker } from "./types/date-picker";
+import { BPFieldDocumentFile } from "./types/document-file";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager"];
@@ -54,53 +54,7 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldUserPicker());
     formlyConfig.setType(new BPFieldDatePicker());
 
-    formlyConfig.setType({
-        name: "bpDocumentFile",
-        /* tslint:disable:max-line-length */
-        template:
-            `<div ng-if="hasFile"> 
-            <span class="input-group has-messages">
-                <span class="input-group-addon">
-                    <div class="thumb {{extension}}"></div>
-                </span>
-                <span class="form-control-wrapper">
-                    <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
-                </span>
-                <span class="input-group-addon">
-                    <span class="icon fonticon2-delete" ng-click="deleteFile()"></span>
-                </span>
-                <span class="input-group-addon">
-                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Change">
-                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
-                        Change
-                    </label>
-                </span>
-                <span class="input-group-addon">
-                    <button class="btn btn-primary btn-bp-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
-                </span>
-            </span>
-         </div>
-         <div ng-if="!hasFile">
-            <span class="input-group has-messages">
-                <span class="input-group-addon">
-                    <div class="thumb fonticon2-attachment"></div>
-                </span>
-                <span class="form-control-wrapper">
-                    <input type="text" class="form-control" readonly/>
-                </span>    
-                <span class="input-group-addon">
-                    <label class="btn btn-white btn-bp-small" ng-disabled="false" bp-tooltip="Upload">
-                        <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
-                        Upload
-                    </label>
-                </span>
-            </span>
-          </div>`,
-        /* tslint:enable:max-line-length */
-        controller: ["$scope", function ($scope) {
-            documentController($scope, localization, artifactAttachments, $window, messageService, dialogService, settingsService);
-        }]
-    });
+    formlyConfig.setType(new BPFieldDocumentFile());
 
     //<span class="input-group-btn" >
     //    <button type="button" class="btn btn-default" ng- click="bpFieldInheritFrom.delete($event)" > +</button>
@@ -111,18 +65,18 @@ export function formlyConfig(
         /* tslint:disable:max-line-length */
         template: `<div class="inheritance-group inheritance-group-wrapper">
                     <span class="actor-image-wrapper">
-                        <label ng-if="model[options.key]" ng-style="{'background-image': 'url(' + model[options.key] + ')'}" >
+                        <label ng-if="model[options.key].url" ng-style="{'background-image': 'url(' + model[options.key].url + ')'}" >
                             <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                                 ng-disabled="to.isReadOnly">
                         </label>    
-                        <span ng-if="!model[options.key]"></span>
+                        <span ng-if="!model[options.key].url"></span>
                     </span>
-                    <i ng-show="model[options.key].length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
+                    <i ng-show="model[options.key].url.length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"  
                        ng-click="onActorImageDelete(to.isReadOnly)" ng-class="{disabled: to.isReadOnly}"></i>
                     <label>
                         <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                              ng-disabled="to.isReadOnly">  
-                        <i ng-hide="model[options.key].length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
+                        <i ng-hide="model[options.key].url.length > 0" bp-tooltip="Add" ng-class="{disabled: to.isReadOnly}"
                                     class="glyphicon glyphicon-plus image-actor-group"></i>
                     </label>
                 </div>`,

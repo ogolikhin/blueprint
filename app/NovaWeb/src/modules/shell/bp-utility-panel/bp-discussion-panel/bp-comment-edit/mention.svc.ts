@@ -80,9 +80,9 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         }
     }
 
-    public matcher(person: IUserOrGroupInfo): boolean {
+    public matcher = (person: IUserOrGroupInfo): boolean => {
         // this.query is defined in the caller context (mention plugin)
-        const query = (<any>this).query.toLowerCase();
+        const query = this.queryText.toLowerCase();
 
         return (person.name && person.name.toLowerCase().indexOf(query) >= 0)
             || (person.email && person.email.toLowerCase().indexOf(query) >= 0);

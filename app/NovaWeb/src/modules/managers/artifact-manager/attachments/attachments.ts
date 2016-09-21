@@ -19,6 +19,7 @@ export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
     update(attachments: IArtifactAttachment[]);
+    changes(): IArtifactAttachment[];
     discard();
 }
 
@@ -107,6 +108,13 @@ export class ArtifactAttachments implements IArtifactAttachments {
         }
 
         return this.attachments;
+    }
+
+    public changes(): IArtifactAttachment[]{
+        let changes = this.changeset.get().map((changeset: IChangeSet) => changeset.value);
+        let addChanges = changes[0];
+        return undefined;
+        //return this.changeset.get();
     }
 
     public discard() {

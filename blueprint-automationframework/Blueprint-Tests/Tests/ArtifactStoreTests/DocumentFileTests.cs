@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(166132)]
         [Description("Create and publish document, attach file, check that artifact details has expected values.")]
-        public void AddFile_PublishedDocument_ArtifactHasExpectedDetails()
+        public void AddAttachment_PublishedDocument_ArtifactHasExpectedDetails()
         {
             // Setup:
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,
@@ -62,7 +62,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(166151)]
         [Description("Create and publish document, attach file, delete attachment, check that artifact has no attachments.")]
-        public void RemoveAttachment_PublishedDocumentWithAttachment_ArtifactHasNoAttachment()
+        public void DeleteAttachment_PublishedDocumentWithAttachment_ArtifactHasNoAttachment()
         {
             // Setup:
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,
@@ -86,7 +86,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(166154)]
         [Description("Create and publish document, attach file, publish, replace attachment, check that artifact details has expected values.")]
-        public void ReplaceFile_PublishedDocumentWithAttachment_ArtifactHasExpectedDetails()
+        public void ReplaceAttachment_PublishedDocumentWithAttachment_ArtifactHasExpectedDetails()
         {
             // Setup:
             INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,

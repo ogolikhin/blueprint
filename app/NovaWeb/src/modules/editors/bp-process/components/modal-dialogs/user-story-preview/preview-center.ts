@@ -74,8 +74,8 @@ export class PreviewCenterController {
     private refreshView() {
         setTimeout(() => {
             let elem: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
-            elem.style.height = "" + (elem.clientHeight - 1) + "px";
-            elem.style.height = "" + (elem.clientHeight + 1) + "px";
+            elem.style.border = "1px";
+            elem.style.border = "";
         }, 100);
     }
     public strIsNotEmpty = (value: string): boolean => {

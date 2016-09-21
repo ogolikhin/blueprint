@@ -251,9 +251,13 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 if (angular.isUndefined(success)) {
                     deferred.reject(lock);    
                 } else if (!success) {
-                    this.load(true).then((artifact: IStatefulArtifact) => {
-                        deferred.resolve(this);
-                    });
+                    // TODO: needs to update state
+
+                    
+
+                    // this.load(true).then((artifact: IStatefulArtifact) => {
+                    //     deferred.resolve(this);
+                    // });
                 } else {
                     this.artifactState.lock(lock);
                     deferred.resolve(this);

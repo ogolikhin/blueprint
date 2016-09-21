@@ -12,9 +12,10 @@ interface IState {
     dirty?: boolean;
     published?: boolean;
     deleted?: boolean;
+    needsToBeUpdated?: boolean;
 }
 
-export interface IArtifactState extends IState,IDispose {
+export interface IArtifactState extends IState, IDispose {
     initialize(artifact: Models.IArtifact): IArtifactState;
     observable(): Rx.Observable<IArtifactState>; 
     lock(value:  Models.ILockResult): void;

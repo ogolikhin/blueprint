@@ -17,7 +17,7 @@ export class BpBaseEditor {
 
     public $onInit() {
         this.subscribers = [
-            this.artifact.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onChange, this)
+            // this.context.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onChange, this)
         ];                
     }
 
@@ -28,11 +28,17 @@ export class BpBaseEditor {
     }
 
     public $onChanges(obj: any) {
-         try {
-            this.artifact = this.artifactManager.selection.getArtifact();
-            if (this.onLoading()) {
-                this.onLoad();
-            }
+        // this.artifact = this.context;
+        try {
+            this.artifactManager.selection.clearAll();
+
+            this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
+                this.artifact = artifact;
+                if (this.onLoading()) {
+                    this.onLoad();
+                    this.artifactManager.selection.setArtifact(this.artifact);
+                }
+             });
         } catch (ex) {
             this.messageService.addError(ex.message);
             throw ex;

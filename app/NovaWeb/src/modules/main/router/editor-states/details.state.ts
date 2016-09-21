@@ -2,9 +2,9 @@
 
 export class ArtifactDetailsState implements ng.ui.IState {
     public template = require("./details.state.html");
-//    public params: IEditorParameters = { context: null };
     public controller = "detailsStateController";
     public controllerAs = "$content";
+    public params: any = { context: null };
 }
 
 export class DetailsStateController extends BaseEditorStateController {

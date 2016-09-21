@@ -52,7 +52,7 @@ export class BpArtifactInfoController {
     public $onInit() {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.getArtifact().observable().subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onStateChange, this),
         ];
     }
 

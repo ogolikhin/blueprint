@@ -24,16 +24,15 @@ export class ArtifactStateController {
         let id = parseInt($state.params["id"], 10);
 
         // either gets a loaded artifact or loads if the artifact hasn't been loaded already
-        artifactManager.get(id)
-            .then((artifact: IStatefulArtifact) => {
+        artifactManager.get(id).then((artifact: IStatefulArtifact) => {
                 if (artifact) {
-                    artifactManager.selection.setArtifact(artifact);
-                    this.navigateToSubRoute(artifact.predefinedType);
+                    this.navigateToSubRoute(artifact.predefinedType, artifact);
                 }
             });
     }
 
-    public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
+    public navigateToSubRoute(artifactType: Models.ItemTypePredefined, artifact: IStatefulArtifact) {
+        var params = {context: artifact.id };
         switch (artifactType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -42,20 +41,20 @@ export class ArtifactStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.artifact.diagram");
+                this.$state.go("main.artifact.diagram", params);
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.artifact.glossary");
+                this.$state.go("main.artifact.glossary", params);
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.artifact.general");
+                this.$state.go("main.artifact.general", params);
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.artifact.process");
+                this.$state.go("main.artifact.process", params);
                 break;
             default:
-                this.$state.go("main.artifact.details");
+                this.$state.go("main.artifact.details", params);
         }
     }
 }

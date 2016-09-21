@@ -100,7 +100,7 @@ namespace SearchService.Controllers
                 return Unauthorized();
             }
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
             {
                 return BadRequest();
             }
@@ -141,7 +141,7 @@ namespace SearchService.Controllers
 
         private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
         {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query))
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || !searchCriteria.ProjectIds.Any())
             {
                 return false;
             }

@@ -11,5 +11,7 @@ namespace ArtifactStore.Repositories
 
         Task<DeletedItemInfo> GetDeletedItemInfo(int itemId);
 
+        Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId);
+
     }
 }

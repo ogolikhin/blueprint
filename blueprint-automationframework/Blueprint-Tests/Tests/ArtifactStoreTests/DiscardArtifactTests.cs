@@ -150,8 +150,8 @@ namespace ArtifactStoreTests
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166137)]
-        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return the 200 nothing to discard")]
-        public void DiscardArtifacts_DiscardPublishedArtifactsWithNoChildrenWithDiscardAll_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return empty response which represents nothing to be discarded")]
+        public void DiscardArtifacts_DiscardPublishedArtifactsnWithDiscardAll_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -162,13 +162,14 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
+            // Validation: Verify that response from discard call is empty since published artifact is not discardable
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(0), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", 0, discardArtifactResponse.Artifacts.Count);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166138)]
-        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return the 200 nothing to discard")]
-        public void DiscardArtifacts_DiscardMixedListOfPublishedAndSavedArtifactsWithDiscardAll_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return list of saved artifacts that got dicarded")]
+        public void DiscardArtifacts_DiscardMixedListOfPublishedAndSavedArtifactsWithDiscardAll_DiscardSavedArtifacts(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -186,6 +187,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
+            // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
         }
 

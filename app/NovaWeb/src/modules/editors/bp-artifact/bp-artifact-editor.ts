@@ -62,6 +62,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
     public clearFields() { 
+        this.model = {};
         this.fields = []; 
     }
 
@@ -71,10 +72,9 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
-    public onLoad() {
-        this.model = {};
-        super.onLoad();
-    }
+    // public onLoad() {
+    //     super.onLoad();
+    // }
 
     public onUpdate() {
         super.onUpdate();

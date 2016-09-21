@@ -13,12 +13,10 @@ export class BpBaseEditor {
     constructor(
         public messageService: IMessageService,
         public artifactManager: IArtifactManager) {
+        this.subscribers = [];                
     }
 
     public $onInit() {
-        this.subscribers = [
-            // this.context.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onChange, this)
-        ];                
     }
 
     private shouldbeUpdated(state: any) {
@@ -30,13 +28,14 @@ export class BpBaseEditor {
     public $onChanges(obj: any) {
         // this.artifact = this.context;
         try {
-            this.artifactManager.selection.clearAll();
+//            this.artifactManager.selection.clearAll();
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
-                this.artifact = artifact;
-                if (this.onLoading()) {
-                    this.onLoad();
-                    this.artifactManager.selection.setArtifact(this.artifact);
+                if (this.onLoading(artifact)) {
+                    this.artifactManager.selection.setArtifact(artifact);
+                    this.artifact.load(true).then(() => {
+                        this.onUpdate();
+                    });
                 }
              });
         } catch (ex) {
@@ -48,8 +47,6 @@ export class BpBaseEditor {
     public $onDestroy() {
         try {
             delete this.artifact;
-            //delete this.artifactState;
-
             this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -57,8 +54,15 @@ export class BpBaseEditor {
         }
     }
 
-    public onLoading(): boolean {
+    public onLoading(artifact: IStatefulArtifact): boolean {
         this.isLoading = true;
+        if (artifact) {
+            this.artifact = artifact;
+            this.subscribers.push(
+                this.artifact.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onUpdate, this)
+            );
+        }
+        
         return !!this.artifact;
     }
 
@@ -70,16 +74,6 @@ export class BpBaseEditor {
         this.isLoading = false;
     }
 
-    private onChange() {
-        this.onUpdate();        
-        // if (state.old || 
-        //     state.deleted || 
-        //     state.status === Enums.LockResultEnum.AlreadyLocked || 
-        //     state.status === Enums.LockResultEnum.DoesNotExist) {
-        //     this.onUpdate();
-        // }
-    }
-    
 
 }
 

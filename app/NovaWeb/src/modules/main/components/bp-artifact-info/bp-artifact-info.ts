@@ -56,7 +56,7 @@ export class BpArtifactInfoController {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onStateChange, this),
         ];
-    }
+    } 
 
 
     public $onDestroy() {

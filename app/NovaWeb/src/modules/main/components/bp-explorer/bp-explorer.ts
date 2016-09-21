@@ -101,16 +101,8 @@ export class ProjectExplorerController {
         // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
-            if (angular.isDefined(this._selectedArtifactId)) {
-                this.tree.selectNode(this._selectedArtifactId);
-            }
-        }
-    }
-
-    private onSelectArtifact = (artifact: IStatefulArtifact) => {
-        // so, just need to do an extra check if the component has created
-        if (this.tree && artifact) {
-            this._selectedArtifactId = artifact.id;
+            this._selectedArtifactId = projects[0].id;
+            this.navigationService.navigateToArtifact(this._selectedArtifactId);
             this.tree.selectNode(this._selectedArtifactId);
         }
     }

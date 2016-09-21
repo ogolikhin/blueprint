@@ -2,14 +2,11 @@
 	<ui-select class="has-scrollbar"
 		multiple
 		ng-model="model[options.key]"
-		ng-disabled="{{to.disabled}}"
 		remove-selected="false"
 		on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
 		on-select="bpFieldUserPicker.onSelect($item, $select)"
 		close-on-select="false"
-		uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)"
-		ng-mouseover="bpFieldUserPicker.setUpDropdown($event, $select)"
-		ng-keydown="bpFieldUserPicker.setUpDropdown($event, $select)">
+		uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)">
 		<ui-select-match placeholder="{{to.placeholder}}">
 			<div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
 		</ui-select-match>
@@ -17,7 +14,8 @@
 			on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
 			refresh="bpFieldUserPicker.refreshResults($select)"
 			ui-disable-choice="option.selected == true"
-			data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search} | limitTo: bpFieldUserPicker.maxItems">
+			data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
+			<bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar>
 			<div class="ui-select-choice-item" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true" ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
 		</ui-select-choices>
 		<ui-select-no-choice>

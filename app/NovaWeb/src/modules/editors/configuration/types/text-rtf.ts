@@ -5,11 +5,9 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
     public wrapper: string = "bpFieldLabel";
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public controller: Function = BpFieldTextRTFController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 

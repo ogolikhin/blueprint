@@ -9,7 +9,6 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public extends: string = "select";
     public template: string = require("./user-picker.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(($scope) => {
             $scope["fc"].$setTouched();
@@ -21,6 +20,18 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
                 uiSelectContainer.addEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
                 uiSelectContainer.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
 
+                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
+                // Not needed for textareas
+                let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
+                if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
+                    uiSelectInput.classList.add("ps-child");
+                }
+
+                let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
+                if (uiSelectChoices) {
+                    $scope["bpFieldUserPicker"].setupResultsElement(uiSelectChoices);
+                }
+
                 $scope["bpFieldUserPicker"].toggleScrollbar();
                 $scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
             }
@@ -29,17 +40,18 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public controller: Function = BpFieldUserPickerController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService"];
+    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile"];
 
     constructor(
         private $scope: AngularFormly.ITemplateScope,
         private localization: ILocalizationService,
-        private usersAndGroupsService: IUsersAndGroupsService) {
+        private usersAndGroupsService: IUsersAndGroupsService,
+        private $compile: ng.ICompileService
+    ) {
         super();
 
         let to: AngularFormly.ITemplateOptions = {
@@ -87,16 +99,31 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             }
         });
 
-        $scope["bpFieldUserPicker"] = {
+        // The following is a workaround to make $compile "stick"!
+        // If the userpicker object is created like the other Formly types (e.g. select-multi), $compile disappears!
+        $scope["bpFieldUserPicker"] = this.createUserPicker($scope, localization, usersAndGroupsService, $compile);
+    }
+
+    private createUserPicker(
+        $scope: AngularFormly.ITemplateScope,
+        localization: ILocalizationService,
+        usersAndGroupsService: IUsersAndGroupsService,
+        $compile: ng.ICompileService
+    ) {
+        return {
             currentState: null,
             currentLimit: 5,
+            maxLimit: 100,
             loadMoreAmount: 5,
-            maxItems: 100,
             minimumInputLength: 2,
+            showResultsCount: false,
+            showLoadMore: false,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options"),
-                minimumLength: "Type the user or group's name or email",
-                searching: "Searching..."
+                minimumLength: localization.get("Property_UserPicker_Placeholder"),
+                searching: localization.get("Property_UserPicker_Searching"),
+                showMore: localization.get("Property_UserPicker_ShowMore"),
+                topResults: localization.get("Property_UserPicker_Display_Top_N_Results")
             },
             isChoiceSelected: function (item, $select): boolean {
                 return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
@@ -121,6 +148,69 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 }
             },
+            closeDropdownOnTab: this.closeDropdownOnTab,
+            scrollIntoView: this.scrollIntoView,
+            resetSettings: function () {
+                this.currentState = null;
+                this.currentLimit = this.loadMoreAmount;
+                //angular.element($scope["uiSelectLoadMore"]).empty();
+            },
+            setupResultsElement: function(uiSelectChoices: HTMLElement) {
+                let uiSelectLoadMore = `
+                    <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-choices-group results">
+                        <div ng-bind="bpFieldUserPicker.labels.topResults.replace('{0}', bpFieldUserPicker.currentLimit)"></div>
+                        <button ng-if="bpFieldUserPicker.showLoadMore" ng-click="bpFieldUserPicker.loadMore()" ng-bind="bpFieldUserPicker.labels.showMore"></button>
+                    </li>`;
+                angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));
+            },
+            loadMore: function () {
+                if (this.currentLimit < this.maxLimit) {
+                    this.currentLimit += this.loadMoreAmount;
+                }
+            },
+            refreshResults: function ($select) {
+                let query = $select.search;
+                if (query.length >= this.minimumInputLength) {
+                    this.currentState = "searching";
+                    const interNalCompile = $compile;
+                    usersAndGroupsService.search(
+                        $select.search,
+                        true, //emailDiscussion has to be set to true so that als users without email get returned
+                        //max number of users to return. We ask for 1 more so to know if we need to show the "Load more"
+                        //if more than maxLimit, we ask for maxLimit
+                        this.currentLimit < this.maxLimit ? this.currentLimit + 1 : this.maxLimit,
+                        false //do not include guest users
+                    ).then(
+                        (users) => {
+                            $scope.to.options = users.map((item: IUserOrGroupInfo) => {
+                                let e: any = {};
+                                e[$scope.to.valueProp] = item.id.toString();
+                                e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
+                                e.email = item.email;
+                                e.disabled = item.isBlocked;
+                                //e.selected = true;
+                                return e;
+                            });
+                            $select.items = $scope.to.options;
+                            this.currentState = $scope.to.options.length ? null : "no-match";
+
+                            this.showResultsCount = $scope.to.options.length > this.currentLimit;
+                            this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
+                        },
+                        () => {
+                            $scope.to.options = [];
+                            $select.items = $scope.to.options;
+
+                            this.resetSettings();
+                        }
+                    );
+                } else {
+                    $scope.to.options = [];
+                    $select.items = $scope.to.options;
+
+                    this.resetSettings();
+                }
+            },
             findDropdown: function ($select): HTMLElement {
                 let dropdown: HTMLElement;
                 let elements = $select.$element.find("ul");
@@ -135,7 +225,8 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             onOpenClose: function (isOpen: boolean, $select, options) {
                 $select.items = [];
                 $scope.to.options = [];
-                this.currentLimit = this.loadMoreAmount;
+
+                this.resetSettings();
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
@@ -185,48 +276,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 });
                 this.toggleScrollbar();
-            },
-            refreshResults: function ($select) {
-                let query = $select.search;
-                if (query.length >= this.minimumInputLength) {
-                    this.currentState = "searching";
-                    usersAndGroupsService.search(
-                        $select.search,
-                        true, //emailDiscussion has to be set to true so that als users without email get returned
-                        this.currentLimit, //max number of users to return
-                        false //do not include guest users
-                    ).then(
-                        (users) => {
-                            $scope.to.options = users.map((item: IUserOrGroupInfo) => {
-                                let e: any = {};
-                                e[$scope.to.valueProp] = item.id.toString();
-                                e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
-                                e.email = item.email;
-                                e.disabled = item.isBlocked;
-                                e.selected = true;
-                                return e;
-                            });
-                            $select.items = $scope.to.options;
-                            this.currentState = $scope.to.options.length ? null : "no-match";
-                        });
-                } else {
-                    $scope.to.options = [];
-                    $select.items = $scope.to.options;
-                    this.currentState = null;
-                }
-            },
-            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
-            // Not needed for textareas
-            setUpDropdown: function ($event, $select) {
-                if ($scope["uiSelectContainer"]) {
-                    let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
-                    if (elem && !elem.classList.contains("ps-child")) {
-                        elem.classList.add("ps-child");
-                    }
-                }
-            },
-            closeDropdownOnTab: this.closeDropdownOnTab,
-            scrollIntoView: this.scrollIntoView
+            }
         };
     }
 }

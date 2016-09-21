@@ -8,7 +8,6 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public extends: string = "input";
     public template: string = require("./number.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
@@ -17,7 +16,6 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public controller: Function = BpFieldNumberController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 

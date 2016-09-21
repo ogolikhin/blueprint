@@ -8,7 +8,6 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public extends: string = "select";
     public template: string = require("./select-multi.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
@@ -20,6 +19,13 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
                 uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
                 uiSelectContainer.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
 
+                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
+                // Not needed for textareas
+                let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
+                if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
+                    uiSelectInput.classList.add("ps-child");
+                }
+
                 $scope["bpFieldSelectMulti"].toggleScrollbar();
                 $scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
             }
@@ -28,7 +34,6 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public controller: Function = BpFieldSelectMultiController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 
@@ -101,6 +106,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                     }
                 }
             },
+            closeDropdownOnTab: this.closeDropdownOnTab,
+            scrollIntoView: this.scrollIntoView,
             findDropdown: function ($select): HTMLElement {
                 let dropdown: HTMLElement;
                 let elements = $select.$element.find("ul");
@@ -112,24 +119,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
                 return dropdown;
             },
-            onOpenClose: function (isOpen: boolean, $select, options) {
-                this.isOpen = isOpen;
-                this.items = options;
-                this.$select = $select;
-
-                let dropdown = this.findDropdown($select);
-                if (dropdown && options.length > this.maxItemsToRender) {
-                    let itemsContainer = dropdown.firstElementChild as HTMLElement;
-                    if (isOpen) {
-                        if (this.startingItem === 0) {
-                            itemsContainer.style.marginTop = "0";
-                            itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
-                            $select.activeIndex = 0;
-                        }
-                        angular.element(dropdown).on("scroll", this.onScroll);
-                    } else {
-                        angular.element(dropdown).off("scroll", this.onScroll);
-                    }
+            limitItems: function ($select) {
+                if ($select.items.length > this.maxItemsToRender) {
+                    $select.items = $select.items.slice(0, this.maxItemsToRender);
                 }
             },
             onScroll: function (event) {
@@ -203,6 +195,26 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
                 $scope["bpFieldSelectMulti"].isScrolling = true;
             },
+            onOpenClose: function (isOpen: boolean, $select, options) {
+                this.isOpen = isOpen;
+                this.items = options;
+                this.$select = $select;
+
+                let dropdown = this.findDropdown($select);
+                if (dropdown && options.length > this.maxItemsToRender) {
+                    let itemsContainer = dropdown.firstElementChild as HTMLElement;
+                    if (isOpen) {
+                        if (this.startingItem === 0) {
+                            itemsContainer.style.marginTop = "0";
+                            itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
+                            $select.activeIndex = 0;
+                        }
+                        angular.element(dropdown).on("scroll", this.onScroll);
+                    } else {
+                        angular.element(dropdown).off("scroll", this.onScroll);
+                    }
+                }
+            },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
                     if ($select.activeIndex >= this.currentSelectedItem) {
@@ -264,22 +276,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                     }
                 });
                 this.toggleScrollbar();
-            },
-            // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class.
-            // Not needed for textareas
-            setUpDropdown: function ($event, $select) {
-                if ($scope["uiSelectContainer"]) {
-                    let elem = $scope["uiSelectContainer"].querySelector("div:not(.ps-child)") as HTMLElement;
-                    if (elem && !elem.classList.contains("ps-child")) {
-                        elem.classList.add("ps-child");
-                    }
-                }
-                if ($select.items.length > this.maxItemsToRender) {
-                    $select.items = $select.items.slice(0, this.maxItemsToRender);
-                }
-            },
-            closeDropdownOnTab: this.closeDropdownOnTab,
-            scrollIntoView: this.scrollIntoView
+            }
         };
     }
 }

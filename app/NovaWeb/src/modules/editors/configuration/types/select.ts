@@ -9,7 +9,6 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public extends: string = "select";
     public template: string = require("./select.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
@@ -25,7 +24,6 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public controller: Function = BpFieldSelectController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 
@@ -67,6 +65,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
         }
 
         $scope["bpFieldSelect"] = {
+            closeDropdownOnTab: this.closeDropdownOnTab,
             refreshResults: function ($select) {
                 if (!$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom) {
                     let search = $select.search;
@@ -122,8 +121,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
                         }
                     }
                 }
-            },
-            closeDropdownOnTab: this.closeDropdownOnTab
+            }
         };
     }
 }

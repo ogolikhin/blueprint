@@ -86,7 +86,7 @@ export class ProjectManager  implements IProjectManager {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
-        this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
+        // this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
         
     }
 

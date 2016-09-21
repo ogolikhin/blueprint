@@ -127,8 +127,9 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        if (node) {
-            this.navigationService.navigateToArtifact(this.doSync(node).id);
+        if (node && this._selectedArtifactId !== node.id) {
+            this._selectedArtifactId = this.doSync(node).id;
+            this.navigationService.navigateToArtifact(this._selectedArtifactId);
         }
     };
 

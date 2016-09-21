@@ -40,11 +40,11 @@ export class BpArtifactEditor extends BpBaseEditor {
         public localization: ILocalizationService
     ) {
         super(messageService, artifactManager);
-        this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
         super.$onInit();
+        this.editor = new PropertyEditor(this.localization);
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 

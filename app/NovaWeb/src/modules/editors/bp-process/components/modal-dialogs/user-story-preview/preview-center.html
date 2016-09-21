@@ -20,7 +20,7 @@
             <i ng-click="centerCtrl.showMore('br', $event)" class="fonticon-bp-business-rule fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.businessRules)}" title="{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}"></i>
         </label>
         <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="centerCtrl.isTabsVisible">
-            <uib-tabset active="centerCtrl.showMoreActiveTabIndex">
+            <uib-tabset active="centerCtrl.showMoreActiveTabIndex" ng-click="centerCtrl.refreshView()">
                 <uib-tab index="0">
                     <uib-tab-heading>
                         <i class="fonticon-nonfunctional fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}

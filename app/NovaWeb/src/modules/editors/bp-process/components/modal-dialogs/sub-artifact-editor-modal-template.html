@@ -142,6 +142,8 @@
                                 <i class="fonticon-information-more fonticon-st-tabs"></i>{{::$root.config.labels['ST_Additional_Info_Tab_Label']}}
                             </uib-tab-heading>
                             <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
+                                <!--Temporary replace the rich box-->
+                                <div ng-bind-html="vm.getDescription()"></div>
                                 <!--<textarea name="system_task_description" 
                                           rich-text-box-inline-traces 
                                           project-id="{{ vm.isProjectOnlySearch ? vm.processModelService.processModel.projectId : '' }}" 

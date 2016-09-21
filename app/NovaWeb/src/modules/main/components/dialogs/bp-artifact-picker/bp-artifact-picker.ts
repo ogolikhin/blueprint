@@ -15,8 +15,9 @@ export interface IArtifactPickerController {
     onSelect: (vm: ArtifactPickerNodeVM<any>) => void;
 }
 
-export interface IArtifactPickerFilter {
-    ItemTypePredefines: Models.ItemTypePredefined[];
+export interface IArtifactPickerOptions {
+    selectableItemTypes?: Models.ItemTypePredefined[];
+    showSubArtifacts?: boolean;
 }
 
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
@@ -40,7 +41,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         private localization: ILocalizationService,
         private projectManager: IProjectManager,
         private projectService: IProjectService,
-        private dialogData: IArtifactPickerFilter
+        private dialogData: IArtifactPickerOptions
     ) {
         super($instance, dialogSettings);
         this.project = this.projectManager.getSelectedProject();
@@ -69,9 +70,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     private isItemSelectable(item: Models.IItem): boolean {
         return !(item &&
             this.dialogData &&
-            this.dialogData.ItemTypePredefines &&
-            this.dialogData.ItemTypePredefines.length > 0 &&
-            this.dialogData.ItemTypePredefines.indexOf(item.predefinedType) === -1);
+            this.dialogData.selectableItemTypes &&
+            this.dialogData.selectableItemTypes.length > 0 &&
+            this.dialogData.selectableItemTypes.indexOf(item.predefinedType) === -1);
     }
 
     private onEnterKeyPressed = (e: any) => {
@@ -151,14 +152,14 @@ item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
         this.setSelectedItem(undefined);
         this._project = project;
         if (project) {
-            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+            this.rootNode = new InstanceItemNodeVM(this.projectService, this.dialogData, {
                 id: project.id,
                 type: Models.ProjectNodeType.Project,
                 name: project.name,
                 hasChildren: project.hasChildren,
             } as Models.IProjectNode, true);
         } else {
-            this.rootNode = new InstanceItemNodeVM(this.projectService, {
+            this.rootNode = new InstanceItemNodeVM(this.projectService, this.dialogData, {
                 id: 0,
                 type: Models.ProjectNodeType.Folder,
                 name: "",

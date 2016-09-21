@@ -2,6 +2,7 @@ import "angular";
 import "angular-mocks";
 import {Models} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/";
+import {IArtifactPickerOptions} from "./bp-artifact-picker";
 import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 
 describe("ArtifactPickerNodeVM", () => {
@@ -9,6 +10,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
                 name: "name",
@@ -16,7 +18,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IProjectNode;
 
             // Act
-            const vm = new InstanceItemNodeVM(projectService, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -30,13 +32,14 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when a folder, returns correct class", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
                 name: "name",
                 type: Models.ProjectNodeType.Folder,
                 hasChildren: true
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -48,13 +51,14 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when a project, returns correct class", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
                 name: "name",
                 type: Models.ProjectNodeType.Project,
                 hasChildren: true
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -66,13 +70,14 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when invalid, returns undefined", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 123,
                 name: "name",
                 type: -999,
                 hasChildren: true
             } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectService, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -88,18 +93,19 @@ describe("ArtifactPickerNodeVM", () => {
                 const projectService = {
                     getFolders(id: number) { return $q.resolve(children); }
                 } as IProjectService;
+                const options = {} as IArtifactPickerOptions;
                 const model = {
                     id: 123,
                     type: Models.ProjectNodeType.Folder
                 } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectService, model);
+                const vm = new InstanceItemNodeVM(projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectService, child)));
+                    expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -113,18 +119,19 @@ describe("ArtifactPickerNodeVM", () => {
                 const projectService = {
                     getArtifacts(id: number) { return $q.resolve(children); }
                 } as IProjectService;
+                const options = {} as IArtifactPickerOptions;
                 const model = {
                     id: 123,
                     type: Models.ProjectNodeType.Project
                 } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectService, model);
+                const vm = new InstanceItemNodeVM(projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, child)));
+                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -133,32 +140,34 @@ describe("ArtifactPickerNodeVM", () => {
     });
 
     describe("ArtifactNodeVM", () => {
-        it("constructor, when cannot have sub-artifacts, sets correct property values", () => {
+        it("constructor, when not showing sub-artifacts, sets correct property values", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 999,
                 name: "name",
-                prefix: "AC",
-                predefinedType: Models.ItemTypePredefined.Actor,
+                prefix: "UCD",
+                predefinedType: Models.ItemTypePredefined.UseCaseDiagram,
                 hasChildren: false
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
-            expect(vm.name).toEqual("AC999 name");
+            expect(vm.name).toEqual("UCD999 name");
             expect(vm.key).toEqual("999");
             expect(vm.isExpandable).toEqual(false);
             expect(vm.children).toEqual([]);
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("constructor, when can have sub-artifacts, sets correct property values", () => {
+        it("constructor, when showing sub-artifacts, sets correct property values", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {showSubArtifacts: true} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 name: "New Business Process",
@@ -168,7 +177,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -182,11 +191,12 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when a folder, returns correct class", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -198,11 +208,12 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when a project, returns correct class", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Project,
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -214,11 +225,12 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when a use case, returns correct class", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.UseCase,
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -230,11 +242,12 @@ describe("ArtifactPickerNodeVM", () => {
         it("getTypeClass, when invalid, returns undefined", () => {
             // Arrange
             const projectService = {} as IProjectService;
+            const options = {} as IArtifactPickerOptions;
             const model = {
                 id: 456,
                 predefinedType: -999,
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(projectService, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getTypeClass();
@@ -243,43 +256,45 @@ describe("ArtifactPickerNodeVM", () => {
             expect(result).toBeUndefined();
         });
 
-        it("loadChildrenAsync, when cannot have sub-artifacts, loads children", (done: DoneFn) =>
+        it("loadChildrenAsync, when not showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
                 const projectService = {
                     getArtifacts(projectId: number, artifactId?: number) { return $q.resolve(children); }
                 } as IProjectService;
+                const options = {} as IArtifactPickerOptions;
                 const model = {
                     id: 123,
-                    predefinedType: Models.ItemTypePredefined.Actor,
+                    predefinedType: Models.ItemTypePredefined.GenericDiagram,
                 } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectService, model);
+                const vm = new ArtifactNodeVM(projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, child)));
+                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
             }
         ));
 
-        it("loadChildrenAsync, when can have sub-artifacts, loads children", (done: DoneFn) =>
+        it("loadChildrenAsync, when showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                 // Arrange
                 const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
                 const projectService = {
                     getArtifacts(projectId: number, artifactId?: number) { return $q.resolve(children); }
                 } as IProjectService;
+                const options = {showSubArtifacts: true} as IArtifactPickerOptions;
                 const model = {
                     id: 123,
                     predefinedType: Models.ItemTypePredefined.BusinessProcess,
                 } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectService, model);
+                const vm = new ArtifactNodeVM(projectService, options, model);
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
@@ -287,7 +302,7 @@ describe("ArtifactPickerNodeVM", () => {
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
                     expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, model, "Shapes"));
-                    expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectService, child)));
+                    expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises

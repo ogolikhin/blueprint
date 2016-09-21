@@ -2,6 +2,7 @@ import { Models } from "../../../models";
 import { Helper } from "../../../../shared/";
 import { ITreeViewNodeVM } from "../../../../shared/widgets/bp-tree-view/";
 import { IProjectService } from "../../../../managers/project-manager/project-service";
+import { IArtifactPickerOptions } from "./bp-artifact-picker";
 
 export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
     constructor(public model: T,
@@ -24,7 +25,7 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
 }
 
 export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode> {
-    constructor(private projectService: IProjectService, model: Models.IProjectNode, isExpanded: boolean = false) {
+    constructor(private projectService: IProjectService, private options: IArtifactPickerOptions, model: Models.IProjectNode, isExpanded: boolean = false) {
         super(model, model.name, model.id.toString(), model.hasChildren, [], isExpanded);
     }
 
@@ -44,12 +45,12 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
                 return this.projectService.getFolders(this.model.id).then((children: Models.IProjectNode[]) => {
-                    this.children = children.map(child => new InstanceItemNodeVM(this.projectService, child));
+                    this.children = children.map(child => new InstanceItemNodeVM(this.projectService, this.options, child));
                 });
             case Models.ProjectNodeType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-                    this.children = children.map(child => new ArtifactNodeVM(this.projectService, child));
+                    this.children = children.map(child => new ArtifactNodeVM(this.projectService, this.options, child));
                 });
             default:
                 return;
@@ -58,9 +59,9 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
 }
 
 export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
-    constructor(private projectService: IProjectService, model: Models.IArtifact) {
+    constructor(private projectService: IProjectService, private options: IArtifactPickerOptions, model: Models.IArtifact) {
         super(model, `${model.prefix}${model.id} ${model.name}`, model.id.toString(),
-            model.hasChildren || Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType), [], false);
+            model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
     }
 
     public getTypeClass(): string {
@@ -79,8 +80,8 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-            this.children = children.map(child => new ArtifactNodeVM(this.projectService, child));
-            if (Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
+            this.children = children.map(child => new ArtifactNodeVM(this.projectService, this.options, child));
+            if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.model, name)); //TODO localize
             }

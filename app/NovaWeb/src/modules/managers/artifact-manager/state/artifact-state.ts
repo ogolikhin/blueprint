@@ -130,13 +130,4 @@ export class ArtifactState implements IArtifactState {
     public set published(value: boolean) {
         this.set({published: value});
     }
-
-    public get deleted(): boolean {
-        return this.state.deleted;
-    }
-
-    public set deleted(value: boolean) {
-        this.set({deleted: value});
-    }
-
 }

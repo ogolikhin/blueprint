@@ -23,7 +23,6 @@ namespace ArtifactStoreTests
 
         private IUser _user = null;
         private IProject _project = null;
-        private List<IProject> _allProjects = null;
 
         [SetUp]
         public void SetUp()
@@ -31,7 +30,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-            _allProjects = ProjectFactory.GetAllProjects(_user);
         }
 
         [TearDown]
@@ -506,11 +504,10 @@ namespace ArtifactStoreTests
 
         }
 
-
-
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
+
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165975)]
         [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
@@ -533,6 +530,7 @@ namespace ArtifactStoreTests
         #endregion 401 Unauthorized tests
 
         #region 404 Not Found tests
+
         [TestCase(BaseArtifactType.Process)]
         [TestRail(165973)]
         [Description("Create, save, publish, delete Process artifact by another user, checks returned result is 404 Not Found.")]
@@ -577,14 +575,15 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
+
         [TestCase(BaseArtifactType.Process, 1)]
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(165974)]
-        [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Not Found.")]
+        [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Conflict.")]
         public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
         {
             // Setup:
-            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(artifactType);
+            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
             IArtifact childArtifact = artifactList[index];
 
             // Execute:
@@ -602,8 +601,8 @@ namespace ArtifactStoreTests
         [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
         [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(166007)]
-        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 400 Bad Request is returned.")]
-        public void PublishArtifact_PropertyOutOfRange_BadRequest(string toChange, string changeTo)
+        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
+        public void PublishArtifact_PropertyOutOfRange_Conflict(string toChange, string changeTo)
         {
             // Setup:
             var projectCustomData = GetCustomDataProject();
@@ -622,18 +621,52 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
-                "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
+                "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
             string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has validation errors.\",\"errorCode\":121}";
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
-
-            /*
-                        var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifact(artifact.Id, _user),
-                            "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
-            */
         }
+
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
+        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
+        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
+        [Category(Categories.CustomData)]
+        [TestRail(166129)]
+        [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
+        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+
+            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
+            artifactList[index].Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifactList[index].Id),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, all: true),
+                "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedMessage = "{\"message\":\"Artifact with Id " + artifactList[index].Id + " has validation errors.\",\"errorCode\":121}";
+            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+        }
+    
         #endregion Custom data tests
+
         #endregion 409 Conflict tests
 
         #region Private functions
@@ -647,7 +680,7 @@ namespace ArtifactStoreTests
         {
             AssertAllExpectedProjectsWereReturned(returnedProjects, new List<IProject> { expectedProject });
         }
-
+        
         /// <summary>
         /// Asserts that the list of returned projects contains all the expected projects.
         /// </summary>
@@ -770,7 +803,12 @@ namespace ArtifactStoreTests
             }
         }
 
-        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(BaseArtifactType artifactType)
+        /// <summary>
+        /// Creates chain of tree artifacts. Grandparent, parent and child
+        /// </summary>
+        /// <param name="artifactType">The type of created artifacts</param>
+        /// <returns>List of created artifacts.</returns>
+        private List<IArtifact> CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(BaseArtifactType artifactType)
         {
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
@@ -783,12 +821,15 @@ namespace ArtifactStoreTests
         /// <returns>The custom data project.</returns>
         private IProject GetCustomDataProject()
         {
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(_user);
+
             const string customDataProjectName = "Custom Data";
 
-            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
+            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
                 "No project was found named '{0}'!", customDataProjectName);
 
-            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
+            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
 
             return projectCustomData;

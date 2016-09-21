@@ -49,6 +49,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public option: string = "1";
     public isLoading: boolean = false;
     public selectedTraces: IArtifactSelectedArtifactMap;
+    public isItemReadOnly: boolean;
 
     constructor(
         $q: ng.IQService,
@@ -105,6 +106,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
                 return relationships;
             }).finally(() => {
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
                 this.isLoading = false;
             });
         }

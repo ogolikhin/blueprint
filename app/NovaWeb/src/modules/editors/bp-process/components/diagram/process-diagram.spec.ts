@@ -250,4 +250,35 @@ describe("ProcessDiagram Tests", () => {
         // assert
         expect(diagram.processViewModel.processType).toBe(ProcessType.UserToSystemProcess);
     });
+
+    it("calls navigationService to navigation to associated artifact", () => {
+        // arrange
+        let artifactId = 14;
+        let diagram = new ProcessDiagram(
+            rootScope,
+            scope,
+            timeout,
+            q,
+            log,
+            processModelService,
+            messageService,
+            communicationManager,
+            dialogService,
+            localization,
+            navigationService
+        );
+        let navigateToArtifactSpy = spyOn(navigationService, "navigateToArtifact");
+
+        let model = TestModels.createDefaultProcessModel();
+        model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
+        spyOn(processModelService, "load").and.returnValue(q.when(model));
+        diagram.createDiagram(1, container);
+        rootScope.$apply();
+
+        // act
+        communicationManager.processDiagramCommunication.navigateToAssociatedArtifact(artifactId);
+
+        // assert
+        expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, undefined);
+    });
 });

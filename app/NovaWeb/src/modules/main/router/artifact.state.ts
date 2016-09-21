@@ -1,6 +1,6 @@
 ﻿import "angular";
 import { Models } from "../models";
-import { IArtifactManager, SelectionSource} from "../../managers";
+import { IArtifactManager } from "../../managers";
 import { IStatefulArtifact } from "../../managers/models";
 import { MessageService} from "../../shell";
 
@@ -19,11 +19,11 @@ export class ArtifactStateController {
         private $rootScope,
         private $state: angular.ui.IStateService,
         private artifactManager: IArtifactManager,
-        private messageService: MessageService) {
-        
+        private messageService: MessageService
+    ) {
         let id = parseInt($state.params["id"], 10);
 
-        // TODO: if project manager can't find artifact, need to load artifact by itself (should be covered in 'go to' user story)
+        // either gets a loaded artifact or loads if the artifact hasn't been loaded already
         artifactManager.get(id)
             .then((artifact: IStatefulArtifact) => {
                 if (artifact) {
@@ -34,7 +34,6 @@ export class ArtifactStateController {
     }
 
     public navigateToSubRoute(artifactType: Models.ItemTypePredefined) {
-        let parameters = {};
         switch (artifactType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -43,20 +42,20 @@ export class ArtifactStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.artifact.diagram", parameters);
+                this.$state.go("main.artifact.diagram");
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.artifact.glossary", parameters);
+                this.$state.go("main.artifact.glossary");
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.artifact.general", parameters);
+                this.$state.go("main.artifact.general");
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.artifact.process", parameters);
+                this.$state.go("main.artifact.process");
                 break;
             default:
-                this.$state.go("main.artifact.details", parameters);
+                this.$state.go("main.artifact.details");
         }
     }
 }

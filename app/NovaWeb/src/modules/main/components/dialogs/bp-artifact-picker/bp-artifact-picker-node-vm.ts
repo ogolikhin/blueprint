@@ -1,7 +1,9 @@
 import { Models } from "../../../models";
 import { Helper } from "../../../../shared/";
 import { ITreeViewNodeVM } from "../../../../shared/widgets/bp-tree-view/";
+import { IProjectManager } from "../../../../managers";
 import { IProjectService } from "../../../../managers/project-manager/project-service";
+import { IArtifactPickerOptions } from "./bp-artifact-picker";
 
 export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
     constructor(public model: T,
@@ -12,7 +14,17 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
         public isExpanded: boolean) {
     }
 
-    public abstract getTypeClass(): string;
+    public getCellClass(): string[] {
+        const result = [] as string[];
+        if (this.isExpandable) {
+            result.push("has-children");
+        }
+        return result;
+    }
+
+    public getIcon(): string {
+        return "<i></i>";
+    }
 
     protected static processChildArtifacts(children: Models.IArtifact[], parent: Models.IArtifact): Models.IArtifact[] {
         children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
@@ -24,19 +36,27 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
 }
 
 export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode> {
-    constructor(private projectService: IProjectService, model: Models.IProjectNode, isExpanded: boolean = false) {
+    constructor(private projectManager: IProjectManager,
+        private projectService: IProjectService,
+        private options: IArtifactPickerOptions,
+        model: Models.IProjectNode,
+        isExpanded: boolean = false) {
         super(model, model.name, model.id.toString(), model.hasChildren, [], isExpanded);
     }
 
-    public getTypeClass(): string {
+    public getCellClass(): string[] {
+        var result = super.getCellClass();
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
-                return "is-folder";
+                result.push("is-folder");
+                break;
             case Models.ProjectNodeType.Project:
-                return "is-project";
+                result.push("is-project");
+                break;
             default:
-                return undefined;
+                break;
         }
+        return result;
     }
 
     public loadChildrenAsync(): ng.IPromise<void> {
@@ -44,12 +64,12 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
                 return this.projectService.getFolders(this.model.id).then((children: Models.IProjectNode[]) => {
-                    this.children = children.map(child => new InstanceItemNodeVM(this.projectService, child));
+                    this.children = children.map(child => new InstanceItemNodeVM(this.projectManager, this.projectService, this.options, child));
                 });
             case Models.ProjectNodeType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-                    this.children = children.map(child => new ArtifactNodeVM(this.projectService, child));
+                    this.children = children.map(child => new ArtifactNodeVM(this.projectManager, this.projectService, this.options, child));
                 });
             default:
                 return;
@@ -58,29 +78,51 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
 }
 
 export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
-    constructor(private projectService: IProjectService, model: Models.IArtifact) {
+    constructor(private projectManager: IProjectManager,
+        private projectService: IProjectService,
+        private options: IArtifactPickerOptions,
+        model: Models.IArtifact) {
         super(model, `${model.prefix}${model.id} ${model.name}`, model.id.toString(),
-            model.hasChildren || Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType), [], false);
+            model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
     }
 
-    public getTypeClass(): string {
+    public getCellClass(): string[] {
+        var result = super.getCellClass();
         switch (this.model.predefinedType) {
             case Models.ItemTypePredefined.PrimitiveFolder:
-                return "is-folder";
+                result.push("is-folder");
+                break;
             case Models.ItemTypePredefined.Project:
-                return "is-project";
+                result.push("is-project");
+                break;
             default:
                 var typeName = Models.ItemTypePredefined[this.model.predefinedType];
-                return typeName ? "is-" + Helper.toDashCase(typeName) : undefined;
+                if (typeName) {
+                    result.push("is-" + Helper.toDashCase(typeName));
+                }
+                break;
         }
+        return result;
     }
 
+    public getIcon(): string {
+        //TODO: for now it display custom icons just for already loaded projects
+        let statefulArtifact = this.projectManager.getArtifact(this.model.id);
+        if (statefulArtifact) {
+            let artifactType = statefulArtifact.metadata.getItemType();
+            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+            }
+        }
+        return super.getIcon();
+    }
+ 
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-            this.children = children.map(child => new ArtifactNodeVM(this.projectService, child));
-            if (Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
+            this.children = children.map(child => new ArtifactNodeVM(this.projectManager, this.projectService, this.options, child));
+            if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.model, name)); //TODO localize
             }
@@ -93,8 +135,10 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
         super(model, name, `${model.id} ${name}`, true, [], false);
     }
 
-    public getTypeClass(): string {
-        return "is-subartifact";
+    public getCellClass(): string[] {
+        var result = super.getCellClass();
+        result.push("is-subartifact");
+        return result;
     }
 
     public loadChildrenAsync(): ng.IPromise<void> {
@@ -111,7 +155,9 @@ export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactN
         super(model, `${model.prefix}${model.id} ${model.displayName}`, model.id.toString(), model.hasChildren, children, false);
     }
 
-    public getTypeClass(): string {
-        return "is-subartifact";
+    public getCellClass(): string[] {
+        var result = super.getCellClass();
+        result.push("is-subartifact");
+        return result;
     }
 }

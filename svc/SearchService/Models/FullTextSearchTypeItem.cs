@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SearchService.Models
+﻿namespace SearchService.Models
 {
     public class FullTextSearchTypeItem
     {

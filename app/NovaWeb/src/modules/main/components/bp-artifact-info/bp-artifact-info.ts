@@ -12,8 +12,10 @@ export { IArtifactManager }
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: Function = BpArtifactInfoController;
-
     public transclude: boolean = true;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BpArtifactInfoController {

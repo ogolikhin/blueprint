@@ -6,7 +6,7 @@ import {ISystemTaskShape} from "../diagram/presentation/graph/models/";
 import {IFileResult, IFileUploadService, FileUploadService} from "../../../../core/file-upload/";
 import {UploadImageDirective} from "./upload-image";
 
-fdescribe("UploadImage Directive", () => {
+describe("UploadImage Directive", () => {
     var element: ng.IAugmentedJQuery;
     var scope: ng.IScope;
     var imageUpload: any;

@@ -131,6 +131,7 @@ namespace ArtifactStoreTests
                 testFileValue.FileExtension = "xls";//TODO - replace with param
                 testFileValue.FileGuid = file.Guid;
                 testFileValue.FileName = file.FileName;
+                testFileValue.FilePath = file.UriToFile.OriginalString;
             }
             artifactDetails.DocumentFile = testFileValue;
 

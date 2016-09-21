@@ -633,37 +633,30 @@ namespace Model.Impl
             {
                 database.Open();
                 Logger.WriteDebug("Running: {0}", query);
-                try
+                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
                 {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    using (var sqlDataReader = cmd.ExecuteReader())
+                    if (sqlDataReader.HasRows)
                     {
-                        if (sqlDataReader.HasRows)
+                        while (sqlDataReader.Read())
                         {
-                            while (sqlDataReader.Read())
+                            int expiredTimeOrdinal = sqlDataReader.GetOrdinal("ExpiredTime");
+                            var sqlExpiredTime = sqlDataReader.GetSqlDateTime(expiredTimeOrdinal);
+                            if (sqlExpiredTime.IsNull)
                             {
-                                int expiredTimeOrdinal = sqlDataReader.GetOrdinal("ExpiredTime");
-                                var sqlExpiredTime = sqlDataReader.GetSqlDateTime(expiredTimeOrdinal);
-                                if (sqlExpiredTime.IsNull)
-                                {
-                                    return null;
-                                }
-                                   
-                                else
-                                {
-                                    expiredTime = (DateTime)(sqlExpiredTime);
-                                }
+                                return null;
+                            }
+
+                            else
+                            {
+                                expiredTime = (DateTime)(sqlExpiredTime);
                             }
                         }
-                        else
-                        {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
-                        }
                     }
-                }
-                catch
-                {
-                    throw;
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
                 }
             }
 

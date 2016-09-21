@@ -1,6 +1,6 @@
 import "angular";
 import { ILocalizationService, IFileUploadService, IFileResult } from "../../../core";
-import { IDialogSettings, BaseDialogController, IDialogService } from "../../../shared/";
+import { IDialogSettings, BaseDialogController, IDialogService } from "../bp-dialog";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 
 export interface IBpFileUploadStatusController {
@@ -93,15 +93,12 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 file.errorMessage =
                     this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error",
                         "The artifact has the maximum number of attachments.");
-            }
-            else if (this.dialogData.allowedExtentions && this.dialogData.allowedExtentions.length > 0 &&
-                    this.dialogData.allowedExtentions.indexOf(FiletypeParser.getFileExtension(file.file.name)) === -1
-                ){
+            } else if (this.dialogData.allowedExtentions && this.dialogData.allowedExtentions.length > 0 &&
+                    this.dialogData.allowedExtentions.indexOf(FiletypeParser.getFileExtension(file.file.name)) === -1) {
                 file.isFailed = true;
                 file.errorMessage
                     = this.localization.get("App_UP_Attachments_Have_Wrong_Type", "The attachment has wrong file type.");
-            }
-            else if (this.isFileValid(file)) {
+            } else if (this.isFileValid(file)) {
                 this.uploadFile(file);
             }
             

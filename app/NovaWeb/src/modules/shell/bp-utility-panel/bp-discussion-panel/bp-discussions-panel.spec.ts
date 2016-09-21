@@ -39,7 +39,6 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        $provide.service("messageService", MessageServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("artifactService", ArtifactService);
         $provide.service("artifactManager", ArtifactManager);

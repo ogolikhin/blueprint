@@ -2,6 +2,7 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace ArtifactStoreTests
     {
         private IUser _user = null;
         private IProject _project = null;
+        const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+        const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
 
         [SetUp]
         public void SetUp()
@@ -98,6 +101,7 @@ namespace ArtifactStoreTests
             }
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166135)]
         [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard - Must return successful discard response")]
@@ -123,6 +127,7 @@ namespace ArtifactStoreTests
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166136)]
         [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard with optional parameter all=true - Must return successful discard response")]
@@ -190,6 +195,8 @@ namespace ArtifactStoreTests
             // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
         }
+
+        // TODO Discard of removed artifact
 
         #endregion 200 OK Tests
 
@@ -269,18 +276,142 @@ namespace ArtifactStoreTests
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
         }
 
+        [TestCase]
+        [TestRail(166145)]
+        [Description("Send empty list of artifacts and Discard, checks returned result is 400 Bad Request.")]
+        public void DiscardArtifacts_EmptyArtifactList_BadRequest()
+        {
+            // Setup:
+            List<IArtifactBase> artifacts = new List<IArtifactBase>();
+
+            INovaPublishResponse discardArtifactResponse = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts, _user),
+            "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", DISCARD_PATH);
+
+            // Verify:
+            const string expectedExceptionMessage = "The list of artifact Ids is empty.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard artifact(s) which has empty list of Ids.", expectedExceptionMessage);
+        }
+
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
+
+        [TestCase(2, BaseArtifactType.Actor)]
+        [TestRail(166148)]
+        [Description("Create & save a single artifact.  Discard the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
+        public void DiscardArtifacts_InvalidToken_Unauthorized(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            // Create artifact(s) with save and publish for discard test
+            List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, userWithBadToken),
+                "'POST {0}' should return 401 Unauthorized if a token is invalid!", DISCARD_PATH);
+
+            // Verify:
+            const string expectedExceptionMessage = "Unauthorized call";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has invalid token.", expectedExceptionMessage);
+        }
+
         #endregion 401 Unauthorized tests
 
-        #region 403 Forbidden tests
-        #endregion 403 Forbidden tests
-
         #region 404 Not Found tests
+
+        [TestCase(2, BaseArtifactType.Process)]
+        [TestRail(166152)]
+        [Description("Create, save, publish, delete Process artifact by another user, checks returned result is 404 Not Found.")]
+        public void DiscardArtifacts_PublishedArtifactDeleted_NotFound(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            // Create artifact(s) with save and publish for discard test
+            List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            publishedArtifacts[publishedArtifacts.Count - 1].Delete(_user);
+            publishedArtifacts[publishedArtifacts.Count - 1].Publish(_user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
+                "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist", DISCARD_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Artifact with Id " + publishedArtifacts[publishedArtifacts.Count - 1].Id + " is deleted.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has removed artifact Id.", expectedExceptionMessage);
+        }
+
+        [TestCase(2, BaseArtifactType.Process, int.MaxValue)]
+        [TestRail(166153)]
+        [Description("Try to discard an artifact with a non-existent Artifact ID.  Verify 404 Not Found is returned.")]
+        public void DiscardArtifact_NonExistentArtifactId_NotFound(int numberOfArtifacts, BaseArtifactType artifactType, int nonExistentArtifactId)
+        {
+            // Setup:
+            // Create artifact(s) with save and publish for discard test
+            List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            // Preservs real Id
+            int realId = publishedArtifacts[publishedArtifacts.Count - 1].Id;
+
+            // Replace ProjectId with a fake ID that shouldn't exist.
+            publishedArtifacts[publishedArtifacts.Count - 1].Id = nonExistentArtifactId;
+
+            try
+            {
+                // Execute:
+                var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
+                "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist", DISCARD_PATH);
+
+                // Verify:
+                string expectedExceptionMessage = "Item with Id " + publishedArtifacts[publishedArtifacts.Count - 1].Id + " is not found.";
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has non existent artifact Id.", expectedExceptionMessage);
+            }
+            finally
+            {
+                // Returns real Id to artifact
+                publishedArtifacts[publishedArtifacts.Count - 1].Id = realId;
+            }
+        }
+
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
+        [TestCase(2, BaseArtifactType.Process)]
+        [TestRail(166158)]
+        [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
+        public void DiscardArtifact_ParentAndChildArtifacts_OnlyDiscardParent_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            // Create artifact(s) with save and publish for discard test
+            var changedPublishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            foreach (var publishedArtifact in changedPublishedArtifacts.ConvertAll(x => (IArtifact)x))
+            {
+                publishedArtifact.Save();
+            }
+
+            INovaPublishResponse discardArtifactResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+
+            List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
+            oneArtifactList.Add(changedPublishedArtifacts[2]);
+            
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", DISCARD_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
+        }
+
         #endregion 409 Conflict tests
 
         #region private call
@@ -304,6 +435,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion private call
-
     }
 }

@@ -113,7 +113,7 @@ namespace Model.ArtifactModel.Impl
         public ActorInheritanceValue GetActorInheritance()
         {
             // Finding ActorInheritence among other properties
-            CustomProperty actorInheritanceProperty = SpecificPropertyValues.First(
+            CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
 
             if (actorInheritanceProperty == null)
@@ -149,7 +149,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 // Finding DocumentFile among other properties
-                CustomProperty documentFileProperty = SpecificPropertyValues.First(
+                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if (documentFileProperty == null)
@@ -166,7 +166,7 @@ namespace Model.ArtifactModel.Impl
             set
             {
                 // Finding DocumentFile among other properties
-                CustomProperty documentFileProperty = SpecificPropertyValues.First(
+                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
                 documentFileProperty.CustomPropertyValue = value;
             }

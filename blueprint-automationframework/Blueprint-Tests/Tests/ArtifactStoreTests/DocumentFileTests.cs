@@ -21,7 +21,6 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
         private List<IProject> _allProjects = null;
-        private IProject _customDataProject = null;
 
         [SetUp]
         public void SetUp()
@@ -32,7 +31,6 @@ namespace ArtifactStoreTests
             _allProjects = ProjectFactory.GetAllProjects(_user);
             _project = _allProjects.First();
             _project.GetAllArtifactTypes(ProjectFactory.Address, _user);
-            _customDataProject = GetCustomDataProject();
         }
 
         [TearDown]
@@ -41,7 +39,7 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [Test]
+        [TestCase]
         [TestRail(166132)]
         [Description("Create and publish document, upload file, update artifact with uploaded file info, check that artifact details has expected values.")]
         public void AddFile_PublishedDocument_ArtifactHasExpectedDetails()
@@ -56,24 +54,6 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
-            Assert.AreEqual("Custom Data", _customDataProject.Name);
-        }
-
-        /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <returns>The custom data project.</returns>
-        private IProject GetCustomDataProject()
-        {
-            const string customDataProjectName = "Custom Data";
-
-            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-
-            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
-
-            return projectCustomData;
         }
 
         /// <summary>
@@ -100,7 +80,7 @@ namespace ArtifactStoreTests
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:
-            Assert.IsTrue(DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue), "...");
+            DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
         }
 
         /// <summary>
@@ -108,12 +88,12 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifactDetails">Artifact details to check.</param>
         /// <param name="expectedDocumentFile">Expected file info.</param>
-        private static bool DocumentHasExpectedAttachment(INovaArtifactDetails artifactDetails, DocumentFileValue expectedDocumentFile)
+        private static void DocumentHasExpectedAttachment(INovaArtifactDetails artifactDetails, DocumentFileValue expectedDocumentFile)
         {
             var documentFileProperty = artifactDetails.SpecificPropertyValues[0].CustomPropertyValue;
             var actualDocumentFile = JsonConvert.DeserializeObject<DocumentFileValue>(documentFileProperty.ToString());
-            return ((actualDocumentFile.FileExtension == expectedDocumentFile.FileExtension) &&
-                (actualDocumentFile.FileName == expectedDocumentFile.FileName));
+            Assert.AreEqual(actualDocumentFile.FileExtension, expectedDocumentFile.FileExtension, "FileExtension should have expected value, but it doesn't.");
+            Assert.AreEqual(actualDocumentFile.FileName, expectedDocumentFile.FileName, "FileName should have expected value, but it doesn't.");
         }
     }
 }

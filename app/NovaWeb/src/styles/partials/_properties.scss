@@ -923,7 +923,8 @@ pagecontent, bp-properties-panel {
 
         .bp-input-group-addon{
           &.icon-wrapper{
-            padding-top:10px;
+            line-height: #{$property-min-height + 6px}; // height of input box plus padding
+            display: inline-block;
             padding-right: 2px;
           }
         }
@@ -1005,7 +1006,6 @@ pagecontent, bp-properties-panel {
             }
         }
       }
-
       .thumb{
         width:30px;
         height:30px;

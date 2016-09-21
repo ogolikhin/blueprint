@@ -17,6 +17,7 @@ export interface IProjectManager extends IDispose {
     initialize();
     add(data: Models.IProject);
     remove(all?: boolean): void;
+    refresh(data: Models.IProject);
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
     getProject(id: number);
@@ -92,6 +93,19 @@ export class ProjectManager  implements IProjectManager {
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
+    }
+
+    public refresh(data: Models.IProject){
+        let project: Project;
+        if (!data) {
+            throw new Error("Project_NotFound");
+        }
+        project = this.getProject(data.id);
+        if (!project) {
+            throw new Error("Project_NotFound");
+        }
+        
+        
     }
 
     public add(data: Models.IProject) {

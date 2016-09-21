@@ -81,7 +81,7 @@ namespace SearchService.Repositories
             prm.Add("@maxItems", WebApiConfig.MaxItems);
             prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
 
-            if (searchCriteria.ItemTypeIds.ToArray().Length > 0)
+            if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
                 prm.Add("@itemTypeIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ItemTypeIds));
                 queryResult = await ConnectionWrapper.QueryMultipleAsync<FullTextSearchTypeItem, int?>("SearchFullTextByItemTypesMetaData", prm, commandType: CommandType.StoredProcedure);

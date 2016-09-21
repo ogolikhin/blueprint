@@ -355,7 +355,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
                 });
             }).catch((error) => {
-                deffered.reject(it);
+                deffered.reject(error);
                 let message: string;
                 if (error) {
                     if (error.statusCode === 400) {
@@ -380,6 +380,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                         message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
                 }
+                this.services.messageService.addError(message);
                 throw new Error(message);
             }
         );

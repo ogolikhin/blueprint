@@ -71,6 +71,27 @@ namespace ArtifactStore.Controllers
             Assert.AreEqual(artifactId, result.ArtifactId);
         }
 
-      
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_Success()
+        {
+            // Arrange
+            const int userId = 1;
+            var session = new Session { UserId = userId };
+            const int itemId = 10;
+            var vcArtifactInfo = new VersionControlArtifactInfo();
+            var mockArtifactVersionsRepository = new Mock<IArtifactVersionsRepository>();
+            mockArtifactVersionsRepository.Setup(r => r.GetVersionControlArtifactInfoAsync(itemId, userId)).ReturnsAsync(vcArtifactInfo);
+            var artifactVersionsController = new ArtifactVersionsController(mockArtifactVersionsRepository.Object, null)
+            {
+                Request = new HttpRequestMessage()
+            };
+            artifactVersionsController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            var result = await artifactVersionsController.GetVersionControlArtifactInfoAsync(itemId);
+
+            //Assert
+            Assert.AreSame(vcArtifactInfo, result);
+        }
     }
 }

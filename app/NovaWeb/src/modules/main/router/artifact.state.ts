@@ -1,6 +1,6 @@
 ﻿import "angular";
 import { Models } from "../models";
-import { IArtifactManager, SelectionSource} from "../../managers";
+import { IArtifactManager } from "../../managers";
 import { IStatefulArtifact } from "../../managers/models";
 import { MessageService} from "../../shell";
 

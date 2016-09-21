@@ -10,21 +10,21 @@
   }
  }
 .btn-primary {
-  background-color: $white;
-  border: solid 1px $gray-lighter;
-  color: $brand-secondary;
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: $brand-secondary;
-    border-color: $brand-secondary;
-    color: $white;
+  background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: transparent;
+        border-color: $brand-secondary;
+        color: $brand-secondary;
   }
 
   &[disabled],
   &[disabled]:hover {
     background-color: $gray-lighter ;
-    border-color: $gray-light;
+    border-color: $gray-lighter;
     color: $gray-light;
     opacity: 1;
   }
@@ -49,17 +49,6 @@
     color: $gray-light;
     opacity: 1;
   }
-}
-.btn-cancel {
-    background-color: transparent;
-    border: 1px solid $gray-light;
-    color: $gray-light;
-    &:hover,
-    &:focus,
-    &:active {
-        border-color: $brand-secondary;
-        color: $brand-secondary;
-    }
 }
 .btn-secondary {
   background-color: $gray-light;

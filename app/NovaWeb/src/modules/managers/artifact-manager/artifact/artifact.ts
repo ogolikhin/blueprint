@@ -189,7 +189,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private isLoaded = false;
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (force || !this.isLoaded) {
+        if (!this.isProject() && (force || !this.isLoaded)) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 let parentId = this.artifact.parentId; 
                 this.artifact = artifact;
@@ -215,6 +215,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
+    private isProject(): boolean {
+        return this.itemTypeId === Enums.ItemTypePredefined.Project;
+    }
 
     private validateLock(lock: Models.ILockResult): boolean {
         let success: boolean;

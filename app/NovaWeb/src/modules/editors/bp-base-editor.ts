@@ -1,6 +1,6 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
-import { IStatefulArtifact } from "../managers/models";
+import { IStatefulArtifact, } from "../managers/models";
 import { Models, Enums } from "../main/models";
 
 export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
@@ -16,7 +16,15 @@ export class BpBaseEditor {
     }
 
     public $onInit() {
-        this.subscribers = [];
+        this.subscribers = [
+            this.artifact.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onChange, this)
+        ];                
+    }
+
+    private shouldbeUpdated(state: any) {
+
+        return { isReadOnly: state.readonly,
+            };
     }
 
     public $onChanges(obj: any) {
@@ -55,6 +63,18 @@ export class BpBaseEditor {
     public onUpdate() {
         this.isLoading = false;
     }
+
+    private onChange() {
+        this.onUpdate();        
+        // if (state.old || 
+        //     state.deleted || 
+        //     state.status === Enums.LockResultEnum.AlreadyLocked || 
+        //     state.status === Enums.LockResultEnum.DoesNotExist) {
+        //     this.onUpdate();
+        // }
+    }
+    
+
 }
 
 

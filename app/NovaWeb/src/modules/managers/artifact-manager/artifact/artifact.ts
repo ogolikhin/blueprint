@@ -194,14 +194,16 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.artifactState.initialize(artifact);
                 this.customProperties.initialize(artifact.customPropertyValues);
                 this.specialProperties.initialize(artifact.specificPropertyValues);
-                if (parentId !== artifact.parentId) {
+                if (parentId && parentId !== artifact.parentId) {
                     this.artifactState.readonly = true;
-                    this.services.messageService.addWarning("Artifach has moved!");
+                    this.services.messageService.addError("The artifach has been moved!");
                 }
                 this.isLoaded = true;
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
+            }).finally(() => {
+                this.lockpromise = null;
             });
         } else {
             deferred.resolve(this);
@@ -251,7 +253,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                         deferred.resolve(this);
                     });
                 } else {
-                    this.artifactState.set(result[0]);
+                    this.artifactState.lock(lock);
                     deferred.resolve(this);
                 }
             }).catch((err) => {

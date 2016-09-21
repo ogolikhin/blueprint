@@ -46,8 +46,6 @@ export class BpArtifactEditor extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
-        this.subscribers.push(this.artifact.artifactState.observable().subscribeOnNext(this.onChange, this));
-
     }
 
 
@@ -159,19 +157,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         });
     };
 
-    private onChange(state: IArtifactState) {
-        if (angular.isUndefined(this.isLoading)) {
-            return;
-        }
-        this.onUpdate();        
-        // if (state.old || 
-        //     state.deleted || 
-        //     state.status === Enums.LockResultEnum.AlreadyLocked || 
-        //     state.status === Enums.LockResultEnum.DoesNotExist) {
-        //     this.onUpdate();
-        // }
-    }
-    
 
 }
 

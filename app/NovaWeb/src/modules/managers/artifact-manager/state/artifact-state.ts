@@ -40,7 +40,7 @@ export class ArtifactState implements IArtifactState {
     private reset() {
         this.state = {
             lockedby: Enums.LockedByEnum.None
-        } 
+        }; 
     }
 
     public get(): IState {
@@ -63,7 +63,7 @@ export class ArtifactState implements IArtifactState {
                 this.state.lockowner =  artifact.lockedByUser.displayName;
                 this.state.lockdatetime =  artifact.lockedDateTime;
             }
-            this.subject.onNext(this);
+            this.set();
         }
         return this;
     }

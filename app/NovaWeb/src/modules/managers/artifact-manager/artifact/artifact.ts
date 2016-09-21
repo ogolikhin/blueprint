@@ -47,10 +47,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.subscribers = [
             this.artifactState.observable()
                 .subscribeOnNext(this.onChanged, this),
-            this.artifactState.observable()
-                .filter((it: IArtifactState) => !!it.get().lock)
-                .distinctUntilChanged()
-                .subscribeOnNext(this.onLockChanged, this),
         ];
         // this.artifactState.observable
         //     .filter((it: IArtifactState) => !!it.get().lock)
@@ -195,14 +191,21 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (force || !this.isLoaded) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+                let parentId = this.artifact.parentId; 
                 this.artifact = artifact;
                 this.artifactState.initialize(artifact);
                 this.customProperties.initialize(artifact.customPropertyValues);
                 this.specialProperties.initialize(artifact.specificPropertyValues);
+                if (parentId && parentId !== artifact.parentId) {
+                    this.artifactState.readonly = true;
+                    this.services.messageService.addError("The artifach has been moved!");
+                }
                 this.isLoaded = true;
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
+            }).finally(() => {
+                this.lockpromise = null;
             });
         } else {
             deferred.resolve(this);
@@ -211,40 +214,72 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
-    public lock(): ng.IPromise<IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
 
-        this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-            this.artifactState.lock = result[0];
-            deferred.resolve(this);
-        }).catch((err) => {
-            deferred.reject(err);
-        });
-        return deferred.promise;
+    private validateLock(lock: Models.ILockResult): boolean {
+        let success: boolean;
+        if (lock.result === Enums.LockResultEnum.Success) {
+            success = true;
+            if (lock.info && lock.info.versionId !== this.version) {
+                this.discard(true);
+                success = false;
+            }
+        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+            this.discard(true);
+            success = false;
+        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.discard(true);
+            this.artifactState.readonly = true;
+        } else {
+            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            this.discard(true);
+            this.artifactState.readonly = true;
+        }
+        return success;
+    }
+
+    private lockpromise: ng.IPromise<IStatefulArtifact>;
+    public lock(): ng.IPromise<IStatefulArtifact> {
+        if (!this.lockpromise) {
+
+            let deferred = this.services.getDeferred<IStatefulArtifact>();
+            this.lockpromise = deferred.promise;
+            
+            this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
+                let lock = result[0];
+                let success = this.validateLock(lock); 
+                if (angular.isUndefined(success)) {
+                    deferred.reject(lock);    
+                } else if (!success) {
+                    this.load(true).then((artifact: IStatefulArtifact) => {
+                        deferred.resolve(this);
+                    });
+                } else {
+                    this.artifactState.lock(lock);
+                    deferred.resolve(this);
+                }
+            }).catch((err) => {
+                deferred.reject(err);
+            });
+
+        }
+        return this.lockpromise;
     }
 
     private onChanged(artifactState: IArtifactState) {
         this.subject.onNext(this);
     }
-    private onLockChanged(artifactState: IArtifactState) {
-        let state = artifactState.get();
-        if (!state.lock) {
-            return;
-        }
-        if (state.lock.result === Enums.LockResultEnum.Success) {
-            if (state.lock.info.versionId !== this.version) {
-                this.discard(true);
-                this.load(true);
-            }
-        } else if (state.lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.discard(true);
-            this.load(true);
-        } else if (state.lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
-        } else {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.lock.result]);
-        }
-    }
+    // private onLockChanged(state: IArtifactState) {
+    //     if (state.old || 
+    //         state.deleted || 
+    //         state.status === Enums.LockResultEnum.AlreadyLocked || 
+    //         state.status === Enums.LockResultEnum.DoesNotExist) {
+    //         this.discard(true);
+    //         this.load(true);
+    //     } else if (state.status === Enums.LockResultEnum.Failure || state.status === Enums.LockResultEnum.AccessDenied) {
+    //         this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.status]);
+    //     }
+    // }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();

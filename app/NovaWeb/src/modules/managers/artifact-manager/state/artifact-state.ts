@@ -1,41 +1,34 @@
 import { Models, Enums } from "../../../main/models";
 import { IIStatefulArtifact, IDispose } from "../../models";
 
-export interface IState {
+interface IState {
+    lockedby?: Enums.LockedByEnum;
+    lockdatetime?: Date;
+    lockowner?: string;
+    lockedBy?: Enums.LockedByEnum;
+    lockDateTime?: Date;
+    lockOwner?: string;
     readonly?: boolean;
     dirty?: boolean;
     published?: boolean;
-    lock?: Models.ILockResult;
-    deleted: boolean;
-    moved: boolean;
+    deleted?: boolean;
 }
 
-export interface IArtifactState extends IDispose {
-    initialize(artifact: Models.IArtifact): IArtifactState; 
+export interface IArtifactState extends IState,IDispose {
+    initialize(artifact: Models.IArtifact): IArtifactState;
+    observable(): Rx.Observable<IArtifactState>; 
+    lock(value:  Models.ILockResult): void;
     get(): IState;
-    //set(value: any): void;
-    lock: Models.ILockResult;
-    lockedBy: Enums.LockedByEnum;
-    lockDateTime?: Date;
-    lockOwner?: string;
-    readonly: boolean;
-    dirty: boolean;
-    published: boolean;
-    observable(): Rx.Observable<IArtifactState>;
+    set(value?: IState): void;
 } 
 
 
 export class ArtifactState implements IArtifactState {
-    private statefullArtifact: IIStatefulArtifact;
     private state: IState;
-    private lockedby: Enums.LockedByEnum = Enums.LockedByEnum.None;
-    private lockdatetime: Date;
-    private lockowner: string;
     
     private subject: Rx.BehaviorSubject<IArtifactState>;
 
-    constructor(artifact: IIStatefulArtifact, state?: IState) {
-        this.statefullArtifact = artifact; 
+    constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IArtifactState>(null);
         this.reset();
 
@@ -45,30 +38,32 @@ export class ArtifactState implements IArtifactState {
     }
     
     private reset() {
-        delete this.lockedby;
-        delete this.lockowner;
-        delete this.lockdatetime;
         this.state = {
-            readonly: false,
-            dirty: false,
-            published: false,
-            deleted: false,
-            moved: false,
-            lock: this.state ? this.state.lock : null 
-        };        
+            lockedby: Enums.LockedByEnum.None
+        }; 
+    }
+
+    public get(): IState {
+        return this.state;
+    }
+    public set(value?: IState) {
+        if (value) {
+            angular.extend(this.state, value);
+        }
+        this.subject.onNext(this);
     }
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
             this.reset();
             if (artifact.lockedByUser) {
-                this.lockedby = artifact.lockedByUser.id === this.statefullArtifact.getServices().session.currentUser.id ?
+                this.state.lockedby = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                                 Enums.LockedByEnum.CurrentUser :
                                 Enums.LockedByEnum.OtherUser;
-                this.lockowner =  artifact.lockedByUser.displayName;
-                this.lockdatetime =  artifact.lockedDateTime;
+                this.state.lockowner =  artifact.lockedByUser.displayName;
+                this.state.lockdatetime =  artifact.lockedDateTime;
             }
-            this.subject.onNext(this);
+            this.set();
         }
         return this;
     }
@@ -77,59 +72,47 @@ export class ArtifactState implements IArtifactState {
         return this.subject.filter(it => it !== null).asObservable();
     }    
 
+
     public get lockedBy(): Enums.LockedByEnum {
-        return this.lockedby;
+        return this.state.lockedby;
     }
 
     public get lockDateTime(): Date {
-        return this.lockdatetime;
+        return this.state.lockdatetime;
     }
 
     public get lockOwner(): string {
-        return this.lockowner;
-    }
-
-    public get(): IState {
-        return this.state;
+        return this.state.lockowner;
     }
     
-    public set(value: any) {
-        angular.extend(this.state, value);
-        this.subject.onNext(this);
-    }
 
-    public get lock(): Models.ILockResult {
-        return this.state.lock;
-    }
-
-    public set lock(value: Models.ILockResult ) {
+    public lock(value: Models.ILockResult) {
         if (value) {
             if (value.result === Enums.LockResultEnum.Success) {
-                this.lockedby = Enums.LockedByEnum.CurrentUser;
+                this.state.lockedby = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                this.lockedby = Enums.LockedByEnum.OtherUser;
-                this.state.readonly = true;
+                this.state.lockedby = Enums.LockedByEnum.OtherUser;
+            } else if (value.result === Enums.LockResultEnum.DoesNotExist) {
+                this.state.lockedby = Enums.LockedByEnum.None;
             } else {
-                this.lockedby = Enums.LockedByEnum.None;
+                this.state.lockedby = Enums.LockedByEnum.None;
             }
             if (value.info) {
-                this.lockdatetime = value.info.utcLockedDateTime;
-            }            
-            if (value.info) {
-                this.lockowner = value.info.lockOwnerDisplayName;
-            }            
+                this.state.lockdatetime = value.info.utcLockedDateTime;
+                this.state.lockowner = value.info.lockOwnerDisplayName;
+            }
+            this.set();            
         }
-        this.set({lock: value});
     }
 
     public get readonly(): boolean {
         return this.state.readonly ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
-               (this.statefullArtifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+               (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
     
     public set readonly(value: boolean) {
-        this.set({readonly: value});
+        this.state.readonly = value;
     }
 
     public get dirty(): boolean {

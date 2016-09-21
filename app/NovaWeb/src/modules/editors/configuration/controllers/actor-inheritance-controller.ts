@@ -93,7 +93,7 @@ export function actorInheritanceController(
         if (!$scope.fields) {
             return null;
         }
-        return $scope.fields.find((field: any) => field.key === "actorInheritance");
+        return $scope.fields[1];
     }
 
     $scope.selectBaseActor = () => {        

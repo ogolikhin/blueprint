@@ -69,7 +69,7 @@ export function actorImageController(
         if (!$scope.fields) {
             return null;
         }
-        return $scope.fields.find((field: any) => field.key === "image");
+        return $scope.fields[0];
     }
 
     $scope.onFileSelect = (files: File[], callback?: Function) => {

@@ -11,5 +11,7 @@ namespace ArtifactStore.Repositories
         Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren, int userId);
 
         Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
+
+        Task<Artifact> GetArtifactInfoAsync(int artifactId, int userId);
     }
 }

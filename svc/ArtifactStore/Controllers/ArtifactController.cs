@@ -131,5 +131,26 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, session.UserId);
         }
+
+        /// <summary>
+        /// Get base information of the artifact.
+        /// </summary>
+        /// <remarks>
+        /// Returns base information of the specified artifact.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. An artifact for the specified id does not exists.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/info"), SessionRequired]
+        [ActionName("GetArtifactInfo")]
+        public async Task<Artifact> GetArtifactInfoAsync(int artifactId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactRepository.GetArtifactInfoAsync(artifactId, session.UserId);
+        }
     }
 }

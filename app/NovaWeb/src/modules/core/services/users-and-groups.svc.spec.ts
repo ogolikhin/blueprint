@@ -1,5 +1,4 @@
-﻿/// <reference path="users-and-groups.svc.ts" />
-import "angular";
+﻿import "angular";
 import "angular-mocks";
 import { UserOrGroupInfo } from "./users-and-groups.svc.mock";
 import { IUserOrGroupInfo, UsersAndGroupsService } from "./users-and-groups.svc";
@@ -40,7 +39,7 @@ describe("Users And Groups Service", () => {
         usersAndGroupsService.search(searchValue, emailDiscussions).then((response) => {
             userResponse = response[0];
         }, (err) => {
-                error = err
+                error = err;
             });
         $httpBackend.flush();
 

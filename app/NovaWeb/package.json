@@ -15,7 +15,9 @@
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
     "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
     "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
-    "lint": "tslint \"src/modules/**/*.ts\"",
+    "lint": "npm run lint:all",
+    "lint:all": "tslint \"src/modules/**/*.ts\"",
+    "lint:nospec": "tslint -e \"**/*.spec.ts\" -e \"**/*.mock.ts\" \"src/modules/**/*.ts\"",
     "typings:u": "typings uninstall --global --save",
     "typings:i": "typings install --global --save"
   },

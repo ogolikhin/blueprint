@@ -992,12 +992,17 @@ pagecontent, bp-properties-panel {
         padding:0;
         background-color: transparent;
         border:none;
-
         .icon {
           display: inline-block;
           line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
           padding-left: $padding-smaller;
-          padding-right: $padding-smaller;
+          padding-right: $padding-smaller; // normalize the general 5px spacing between elements (see above)
+        }
+        &:not(:first-child):not(:last-child) {
+            padding-right: 5px;
+            .icon {
+                padding-right: $padding-smaller - 5px;
+            }
         }
       }
 

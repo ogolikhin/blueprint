@@ -1101,10 +1101,10 @@ export function formlyConfig(
                     <span class="icon fonticon2-delete"></span>
                 </span>
                 <span class="input-group-addon">
-                    <button class="btn btn-white btn-small" ng-disabled="false" bp-tooltip="Change">Change</button>
+                    <button class="btn btn-primary btn-small" ng-disabled="false" bp-tooltip="Change">Change</button>
                 </span>
                 <span class="input-group-addon">
-                    <button class="btn btn-primary btn-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
+                    <button class="btn btn-promoted-action btn-small" bp-tooltip="Download" ng-click="downloadFile()">Download</button>
                 </span>
             </span>
          </div>
@@ -1348,11 +1348,11 @@ export function formlyConfig(
                             ng-class="{disabled: to.isReadOnly}" bp-tooltip="Delete"></span>
                     </div>   
                      <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon">
-                        <button class="btn btn-white btn-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
+                        <button class="btn btn-primary btn-small" ng-disabled="to.isReadOnly" bp-tooltip="Change"
                                 ng-click="selectBaseActor()" ng-class="{disabled: to.isReadOnly}">Change</button>
                     </div>        
                     <div ng-hide="model[options.key].actorName.length > 0"  class="bp-input-group-addon select-wrapper">
-                         <button class="btn btn-white btn-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
+                         <button class="btn btn-promoted-action btn-small" ng-disabled="to.isReadOnly" bp-tooltip="Select"
                                 ng-click="selectBaseActor()">Select</button>                       
                     </div>             
             </div>`,

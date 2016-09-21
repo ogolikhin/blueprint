@@ -895,6 +895,7 @@ pagecontent, bp-properties-panel {
 
       .icon{
         cursor:pointer;
+        margin-right: 5px;
         &.disabled{
           opacity: $default-desabled-opacity;
           cursor: not-allowed;

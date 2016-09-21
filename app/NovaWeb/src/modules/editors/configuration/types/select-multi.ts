@@ -10,18 +10,18 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync((scope) => {
-            scope["fc"].$setTouched();
-            (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
+            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
-                scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
-                uiSelectContainer.addEventListener("click", scope["bpFieldSelectMulti"].scrollIntoView, true);
+                $scope["uiSelectContainer"] = uiSelectContainer;
+                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                uiSelectContainer.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
 
-                scope["bpFieldSelectMulti"].toggleScrollbar();
-                scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
+                $scope["bpFieldSelectMulti"].toggleScrollbar();
+                $scope["uiSelectContainer"].firstElementChild.scrollTop = 0;
             }
         });
     };
@@ -33,9 +33,9 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization"];
+    static $inject: [string] = ["$scope", "localization", "$timeout"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private $timeout: ng.ITimeoutService) {
         super();
 
         let to: AngularFormly.ITemplateOptions = {
@@ -115,7 +115,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             onOpenClose: function (isOpen: boolean, $select, options) {
                 this.isOpen = isOpen;
                 this.items = options;
-                this.$select = $select
+                this.$select = $select;
 
                 let dropdown = this.findDropdown($select);
                 if (dropdown && options.length > this.maxItemsToRender) {
@@ -205,7 +205,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
-                    if ($select.activeIndex > this.currentSelectedItem) {
+                    if ($select.activeIndex >= this.currentSelectedItem) {
                         if ($select.activeIndex < $select.items.length - 1) {
                             $select.activeIndex++;
                         } else {
@@ -250,10 +250,10 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
 
                 let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
 
-                $scope["$applyAsync"]((scope) => {
-                    if (scope["uiSelectContainer"]) {
-                        scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                        scope["uiSelectContainer"].querySelector("input").focus();
+                $scope["$applyAsync"](() => {
+                    if ($scope["uiSelectContainer"]) {
+                        $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                        $scope["uiSelectContainer"].querySelector("input").focus();
                     }
                     if (currentItem < $select.items.length - 1) {
                         this.currentSelectedItem = currentItem++;

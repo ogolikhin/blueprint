@@ -15,8 +15,12 @@ export interface IUserOrGroupInfo {
 }
 
 export interface IUsersAndGroupsService {
-    search(value: string): ng.IPromise<IUserOrGroupInfo[]>;
-    search(value: string, emailDiscussions: boolean): ng.IPromise<IUserOrGroupInfo[]>;
+    search(
+        value?: string,
+        emailDiscussions?: boolean,
+        limit?: number,
+        includeGuests?: boolean
+    ): ng.IPromise<IUserOrGroupInfo[]>;
 }
 
 export class UsersAndGroupsService implements IUsersAndGroupsService {
@@ -24,17 +28,45 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    private createRequestConfig(value: string, emailDiscussions: boolean = false): ng.IRequestConfig {
-        var config = <IHttpInterceptorConfig>{ };
-        config.params = { search: value, emailDiscussions: emailDiscussions };
+    private createRequestConfig(
+        value?: string,
+        emailDiscussions?: boolean,
+        limit?: number,
+        includeGuests?: boolean
+    ): ng.IRequestConfig {
+        let config = <IHttpInterceptorConfig>{ };
+        config.params = {};
+        if (value) {
+            config.params.search = value;
+        }
+        if (emailDiscussions) {
+            config.params.emailDiscussions = emailDiscussions;
+        }
+        if (limit) {
+            config.params.limit = limit;
+        }
+        if (includeGuests) {
+            config.params.includeGuests = includeGuests;
+        }
         config.dontRetry = true;
         return config;
     }
 
-    public search(value: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
-        var deferred = this.$q.defer<IUserOrGroupInfo[]>();
-        var sanitizedValue = encodeURI(value).replace(/%20/g, " "); // we revert the encoding of space (%20)
-        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", this.createRequestConfig(sanitizedValue, emailDiscussions))
+    public search(
+        value?: string,
+        emailDiscussions?: boolean, //webservice default = false
+        limit?: number,             //webservice default = 5
+        includeGuests?: boolean     //webservice default = true
+    ): ng.IPromise<IUserOrGroupInfo[]> {
+        let deferred = this.$q.defer<IUserOrGroupInfo[]>();
+        let sanitizedValue = encodeURI(value).replace(/%20/g, " "); // we revert the encoding of space (%20)
+        let requestConfig = this.createRequestConfig(
+            sanitizedValue,
+            emailDiscussions,
+            limit,
+            includeGuests
+        );
+        this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", requestConfig)
             .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
                 deferred.resolve(result.data);
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {

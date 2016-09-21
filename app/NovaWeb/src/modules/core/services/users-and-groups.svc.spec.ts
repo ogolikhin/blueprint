@@ -11,6 +11,7 @@ describe("Users And Groups Service", () => {
         $provide.service("usersAndGroupsService", UsersAndGroupsService);
         //$provide.service("localization", LocalizationServiceMock);
     }));
+
     it("Search for users, user returned", inject(($httpBackend: ng.IHttpBackendService, usersAndGroupsService: UsersAndGroupsService) => {
         const searchValue = "test";
         let emailDiscussions = true;
@@ -46,6 +47,26 @@ describe("Users And Groups Service", () => {
 
         expect(userResponse).toBeUndefined();
         expect(error.statusCode).toEqual(404);
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    }));
+
+    it("Search for users with limit N, N users returned", inject(($httpBackend: ng.IHttpBackendService, usersAndGroupsService: UsersAndGroupsService) => {
+        const searchValue = "test";
+        let emailDiscussions = true;
+        let testUser1 = new UserOrGroupInfo("test name 1", "test1@test.com", false, false, false);
+        let testUser2 = new UserOrGroupInfo("test name 2", "test2@test.com", false, false, false);
+        $httpBackend.expectGET(`/svc/shared/users/search?emailDiscussions=true&search=test`).respond(200, [ testUser1, testUser2 ]);
+        let userResponse: IUserOrGroupInfo[];
+        usersAndGroupsService.search(searchValue, emailDiscussions).then((response) => {
+            userResponse = response;
+        });
+        $httpBackend.flush();
+
+        expect(userResponse).toBeDefined();
+        expect(userResponse.length).toEqual(2);
+        expect(userResponse[0].name).toEqual("test name 1");
+        expect(userResponse[1].name).toEqual("test name 2");
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));

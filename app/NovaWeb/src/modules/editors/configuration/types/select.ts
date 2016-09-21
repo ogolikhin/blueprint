@@ -11,14 +11,14 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync((scope) => {
-            scope["fc"].$setTouched();
-            (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
+            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
-                scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", scope["bpFieldSelect"].closeDropdownOnTab, true);
+                $scope["uiSelectContainer"] = uiSelectContainer;
+                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelect"].closeDropdownOnTab, true);
             }
         });
     };

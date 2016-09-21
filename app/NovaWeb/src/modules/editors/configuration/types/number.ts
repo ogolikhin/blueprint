@@ -10,8 +10,8 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync((scope) => {
-            scope["fc"].$setTouched();
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
         });
     };
     public controller: Function = BpFieldNumberController;

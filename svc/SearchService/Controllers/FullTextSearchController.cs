@@ -88,7 +88,7 @@ namespace SearchService.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache, NoSessionRequired]
+        [HttpPost, NoCache, SessionRequired]
         [Route("metadata")]
         [ResponseType(typeof(FullTextSearchMetaDataResult))]
         public async Task<IHttpActionResult> MetaData([FromBody] SearchCriteria searchCriteria, int? pageSize = null)

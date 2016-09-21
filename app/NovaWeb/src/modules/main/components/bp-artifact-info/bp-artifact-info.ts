@@ -192,9 +192,14 @@ export class BpArtifactInfoController {
     
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
-         this.artifactManager.selection.getArtifact().save().finally(() => {
+         try{
+            this.artifactManager.selection.getArtifact().save().finally(() => {
+               this.loadingOverlayService.endLoading(overlayId);
+            });
+        }catch(err){
+            this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
-         });
+        }
      }
 
     public openPicker() {

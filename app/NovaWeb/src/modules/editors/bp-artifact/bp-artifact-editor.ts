@@ -147,9 +147,9 @@ export class BpArtifactEditor extends BpBaseEditor {
                 }
 
 
-                // if ($scope["form"]) {
-                //     state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
-                // }
+                if ($scope["form"]) {
+                    this.artifact.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                }
 
             } catch (err) {
                 this.messageService.addError(err);

@@ -8,7 +8,14 @@
       min-width: 20px;
       font-size: 1.2rem;
   }
- }
+&[disabled],
+  &[disabled]:hover {
+    background-color: $gray-lighter ;
+    border-color: $gray-lighter;
+    color: $gray-light;
+    opacity: 1;
+  }
+}
 .btn-primary {
   background-color: transparent;
     border: 1px solid $gray-light;
@@ -20,20 +27,11 @@
         border-color: $brand-secondary;
         color: $brand-secondary;
   }
-
-  &[disabled],
-  &[disabled]:hover {
-    background-color: $gray-lighter ;
-    border-color: $gray-lighter;
-    color: $gray-light;
-    opacity: 1;
-  }
 }
 .btn-promoted-action {
   background-color: $brand-secondary;
   border: solid 1px $brand-secondary;
   color: $white;
-
   &:hover,
   &:focus,
   &:active {
@@ -41,25 +39,16 @@
     border-color: darken($brand-secondary, 10%);
     color: $white;
   }
-
-  &[disabled],
-  &[disabled]:hover {
-    background-color: $gray-lighter ;
-    border-color: $gray-light;
-    color: $gray-light;
-    opacity: 1;
-  }
 }
 .btn-secondary {
-  background-color: $gray-light;
-  border: solid 1px $gray-light;
-  color: $white;
-
+  background-color: transparent;
+  border: solid 1px $brand-secondary;
+  color: $brand-secondary;
   &:hover,
   &:focus,
   &:active {
-    background-color: darken($gray-light, 10%);
-    border-color: darken($gray-light, 10%);
+    background-color: $brand-secondary;
+    border: solid 1px $brand-secondary;
     color: $white;
   }
 }

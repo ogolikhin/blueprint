@@ -157,7 +157,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.$rootScope["config"].labels["ST_Artifact_Inaccessible"];
+            msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
         } else {
             msg = model.typePrefix + model.id + ": " + model.name;
         }

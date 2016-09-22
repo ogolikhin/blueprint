@@ -25,8 +25,12 @@ namespace ServiceLibrary.Helpers
         public const string DefaultDBSchema = "[dbo]";
         public const string FileStoreDBSchema = "[FileStore]";
 
-        public const int MaxSearchItems = 1000;
+        public const int MaxSearchItems = 500;
 
         public const int SearchPageSize = 10;
+
+        public const int MaxSearchableValueStringSize = 50;
+
+        public const int MinSearchQueryCharLimit = 3;
     }
 }

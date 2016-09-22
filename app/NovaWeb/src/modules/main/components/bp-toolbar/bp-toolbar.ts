@@ -31,7 +31,6 @@ class BPToolbarController implements IBPToolbarController {
         "dialogService",
         "projectManager",
         "artifactManager",
-        "messageService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
@@ -42,7 +41,6 @@ class BPToolbarController implements IBPToolbarController {
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
         private artifactManager: IArtifactManager,
-        private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -116,13 +114,12 @@ class BPToolbarController implements IBPToolbarController {
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
 
-                let currentArtifact: Models.IArtifact = this.projectManager.getArtifact(this._currentArtifact);
-                if(currentArtifact){
-                    let currentProject: Models.IArtifact = this.projectManager.getProject(currentArtifact.projectId);
-                    this.projectManager.reloadProject(currentProject);
+                if(this._currentArtifact){
+                    this.projectManager.refresh(this.projectManager.getSelectedProject())
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                    });
                 }
-                
-                this.loadingOverlayService.endLoading(refreshAllLoadingId);
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -163,6 +160,10 @@ class BPToolbarController implements IBPToolbarController {
         this._currentArtifact =
             Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
             artifact.version !== 0 ? artifact.id : null;
+    }
+    
+    public get canRefreshAll(): boolean{
+        return !!this._currentArtifact;
     }
 
 }

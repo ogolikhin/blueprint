@@ -34,6 +34,7 @@ export class ProjectManager  implements IProjectManager {
     private subscriber: Rx.IDisposable;
     private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
+        "$q",
         "localization", 
         "messageService", 
         "projectService", 
@@ -43,6 +44,7 @@ export class ProjectManager  implements IProjectManager {
     ];
 
     constructor(
+        private $q: ng.IQService,
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private projectService: IProjectService,
@@ -95,17 +97,75 @@ export class ProjectManager  implements IProjectManager {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
     }
 
-    public refresh(data: Models.IProject){
+    public refresh(currentProject: Models.IProject){
+        var defer = this.$q.defer<any>();
+        
         let project: Project;
-        if (!data) {
+        if (!currentProject) {
             throw new Error("Project_NotFound");
         }
-        project = this.getProject(data.id);
+        project = this.getProject(currentProject.id);
         if (!project) {
             throw new Error("Project_NotFound");
         }
         
+        let selectedArtifact = this.artifactManager.selection.getArtifact();
+        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
+        this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
+            .then((data: Models.IArtifact[]) => {
+                project.children = data.map((it: Models.IArtifact) => {
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulArtifact);
+                    return new ArtifactNode(statefulArtifact);
+                });
+                project.loaded = true;
+                project.open = true;
+                
+                if (selectedArtifact.parentId != this.artifactManager.selection.getArtifact(SelectionSource.Explorer).parentId){
+                    this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId), SelectionSource.Explorer);
+                }
+                
+                this.openChildNodes(project.children, data);
+                
+                this.projectCollection.onNext(this.projectCollection.getValue());
+                defer.resolve();
+            }
+        ).catch((error: any) => {
+            //ignore authentication errors here
+            if (error) {
+                this.messageService.addError(error["message"] || "Artifact_NotFound");
+            } else {
+                project.children = [];
+                project.loaded = false;
+                project.open = false;
+                this.projectCollection.onNext(this.projectCollection.getValue());
+            }
+            defer.reject();
+        });
         
+        this.metadataService.load(currentProject.id);    
+        
+        return defer.promise; 
+    }
+
+    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]){
+        
+        angular.forEach(childrenNodes, (node) => {
+            let childData = childrenData.filter(function (it) {
+                return it.id === node.id;
+            });
+            if (childData[0].hasChildren && childData[0].children){
+                node.children = childData[0].children.map((it: Models.IArtifact) => {
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulArtifact);
+                    return new ArtifactNode(statefulArtifact);
+                });
+                node.loaded = true;
+                node.open = true;
+                
+                this.openChildNodes(node.children, childData[0].children);
+            }
+        });
     }
 
     public add(data: Models.IProject) {

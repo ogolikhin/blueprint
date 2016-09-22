@@ -87,7 +87,7 @@ export interface IArtifact extends IItem {
     subArtifacts?: ISubArtifact[];
 
     //for client use
-    artifacts?: IArtifact[];
+    children?: IArtifact[];
     loaded?: boolean;
     // for artifact picker use
     parent?: IArtifact;

@@ -24,7 +24,7 @@ export class BpBaseEditor {
     public $onChanges(obj: any) {
         // this.artifact = this.context;
         try {
-            this.artifactManager.selection.clearAll();
+            // this.artifactManager.selection.clearAll();
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {

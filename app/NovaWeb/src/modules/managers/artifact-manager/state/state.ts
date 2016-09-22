@@ -58,13 +58,15 @@ export class ArtifactState implements IArtifactState {
         if (artifact) {
             this.reset();
             if (artifact.lockedByUser) {
-                this.state.lockedby = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                                Enums.LockedByEnum.CurrentUser :
-                                Enums.LockedByEnum.OtherUser;
-                this.state.lockowner =  artifact.lockedByUser.displayName;
-                this.state.lockdatetime =  artifact.lockedDateTime;
-            }
-            this.set();
+                let lockinfo: IState = {
+                    lockedby : artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                                                    Enums.LockedByEnum.CurrentUser :
+                                                    Enums.LockedByEnum.OtherUser,
+                    lockowner: artifact.lockedByUser.displayName,                                                    
+                    lockdatetime: artifact.lockedDateTime                
+                };
+                this.set(lockinfo);
+            };                
         }
         return this;
     }

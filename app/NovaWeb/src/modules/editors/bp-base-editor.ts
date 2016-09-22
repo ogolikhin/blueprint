@@ -1,5 +1,6 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
+import { IArtifactState } from "../managers/artifact-manager";
 import { IStatefulArtifact, } from "../managers/models";
 import { Models, Enums } from "../main/models";
 
@@ -19,11 +20,6 @@ export class BpBaseEditor {
     public $onInit() {
     }
 
-    private shouldbeUpdated(state: any) {
-
-        return { isReadOnly: state.readonly,
-            };
-    }
 
     public $onChanges(obj: any) {
         // this.artifact = this.context;
@@ -32,10 +28,8 @@ export class BpBaseEditor {
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {
-                    this.artifactManager.selection.setArtifact(artifact);
-                    this.artifact.load(true).then(() => {
-                        this.onUpdate();
-                    });
+                    this.artifact.artifactState.outdated = true;
+                    this.onLoad();
                 }
              });
         } catch (ex) {
@@ -59,7 +53,7 @@ export class BpBaseEditor {
         if (artifact) {
             this.artifact = artifact;
             this.subscribers.push(
-                this.artifact.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onUpdate, this)
+                this.artifact.artifactState.observable().filter(this.shouldbeUpdated).subscribeOnNext(this.onStateChange, this)
             );
         }
         
@@ -67,13 +61,23 @@ export class BpBaseEditor {
     }
 
     public onLoad() {
-        this.onUpdate();
+        this.artifactManager.selection.setArtifact(this.artifact);
+        this.artifact.load(this.artifact.artifactState.outdated).then(() => {
+            this.onUpdate();
+        });
     }
 
     public onUpdate() {
         this.isLoading = false;
     }
 
+    private shouldbeUpdated(state: IArtifactState): boolean {
+        return !!state.outdated;
+    }
+
+    private onStateChange(state: any) {
+        this.onLoad();
+    }
 
 }
 

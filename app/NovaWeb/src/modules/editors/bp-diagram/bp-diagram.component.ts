@@ -99,40 +99,39 @@ export class BPDiagramController extends BpBaseEditor {
         }
     }
 
-    public onUpdate() {
+    public onLoad() {
+        super.onLoad();
         if (this.isDestroyed()) {
             return;
         }
         this.cancelationToken = this.$q.defer();
-        this.artifact.load(true).then((it: IStatefulArtifact) => {
-            if (this.isDestroyed()) {
-                return;
-            }
-            this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
-                this.initSubArtifacts(diagram);
+        if (this.isDestroyed()) {
+            return;
+        }
+        this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+            this.initSubArtifacts(diagram);
 
-                if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
-                    this.isBrokenOrOld = true;
-                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
-                    this.$log.error("Old diagram, libraryVersion is 0");
-                } else {
-                    this.isBrokenOrOld = false;
-                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                    this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
-                    this.stylizeSvg(this.$element, diagram.width, diagram.height);
-                    this.diagramView.drawDiagram(diagram);
-                }
-            }).catch((error: any) => {
-                if (error !== CancelationTokenConstant.cancelationToken) {
-                    this.isBrokenOrOld = true;
-                    this.errorMsg = error.message;
-                    this.$log.error(error.message);
-                }               
-            }).finally(() => {
-                this.cancelationToken = null;
-                this.isLoading = false;
-            });
-        });  
+            if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
+                this.isBrokenOrOld = true;
+                this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
+                this.$log.error("Old diagram, libraryVersion is 0");
+            } else {
+                this.isBrokenOrOld = false;
+                this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
+                this.stylizeSvg(this.$element, diagram.width, diagram.height);
+                this.diagramView.drawDiagram(diagram);
+            }
+        }).catch((error: any) => {
+            if (error !== CancelationTokenConstant.cancelationToken) {
+                this.isBrokenOrOld = true;
+                this.errorMsg = error.message;
+                this.$log.error(error.message);
+            }
+        }).finally(() => {
+            this.cancelationToken = null;
+            this.isLoading = false;
+        });
     }
 
     private isDestroyed() {

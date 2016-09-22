@@ -45,63 +45,131 @@ namespace Model.ArtifactModel.Impl
         #endregion Constructors
 
         /// <summary>
-        /// Asserts that this NovaArtifactDetails object is equal to the specified ArtifactBase.
+        /// Asserts that this INovaArtifactDetails object is equal to the specified IArtifactBase.
         /// </summary>
-        /// <param name="artifact">The ArtifactBase to compare against.</param>
+        /// <param name="artifact">The IArtifactBase to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public void AssertEquals(IArtifactBase artifact)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            Assert.AreEqual(Id, artifact.Id, "The Id parameters don't match!");
-            Assert.AreEqual(Name, artifact.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(ParentId, artifact.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(ItemTypeId, artifact.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(ProjectId, artifact.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(Version, artifact.Version, "The Version  parameters don't match!");
+            AssertEquals(this, artifact);
         }
 
         /// <summary>
-        /// Asserts that this NovaArtifactDetails object is equal to the specified NovaArtifactDetails.
+        /// Asserts that the specified INovaArtifactDetails object is equal to the specified IArtifactBase.
         /// </summary>
-        /// <param name="artifact">The NovaArtifactDetails to compare against.</param>
+        /// <param name="artifactDetails">The INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact">The IArtifactBase to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(NovaArtifactDetails artifact)
+        public static void AssertEquals(INovaArtifactBase artifactDetails, IArtifactBase artifact)
         {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            Assert.AreEqual(Id, artifact.Id, "The Id parameters don't match!");
-            Assert.AreEqual(Name, artifact.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(Description, artifact.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(ParentId, artifact.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions  parameters don't match!");
-            Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(ItemTypeId, artifact.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(ItemTypeVersionId, artifact.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime  parameters don't match!");
-            Assert.AreEqual(ProjectId, artifact.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(Version, artifact.Version, "The Version  parameters don't match!");
-            Assert.AreEqual(CreatedOn, artifact.CreatedOn, "The CreatedOn  parameters don't match!");
-            Assert.AreEqual(LastEditedOn, artifact.LastEditedOn, "The LastEditedOn  parameters don't match!");
+            Assert.AreEqual(artifactDetails.Id, artifact.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifactDetails.Name, artifact.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ParentId, artifact.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ItemTypeId, artifact.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ProjectId, artifact.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.Version, artifact.Version, "The Version  parameters don't match!");
+        }
 
-            Identification.AssertEquals(CreatedBy, artifact.CreatedBy);
-            Identification.AssertEquals(LastEditedBy, artifact.LastEditedBy);
-            Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
+        /// <summary>
+        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaArtifactDetails.
+        /// </summary>
+        /// <param name="artifact">The INovaArtifactDetails to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(INovaArtifactDetails artifact)
+        {
+            AssertEquals(this, artifact);
+        }
 
-            Assert.AreEqual(CustomPropertyValues.Count, artifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
-            Assert.AreEqual(SpecificPropertyValues.Count, artifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+        /// <summary>
+        /// Asserts that both INovaArtifactDetails objects are equal.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
+            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+            Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+            Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+            Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+            Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+
+            Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
 
             // Now compare each property in CustomProperties & SpecificPropertyValues.
-            foreach (CustomProperty property in CustomPropertyValues)
+            foreach (CustomProperty property in artifact1.CustomPropertyValues)
             {
-                Assert.That(artifact.CustomPropertyValues.Exists(p => p.Name == property.Name),
+                Assert.That(artifact2.CustomPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a CustomProperty named '{0}'!", property.Name);
             }
 
-            foreach (CustomProperty property in SpecificPropertyValues)
+            foreach (CustomProperty property in artifact1.SpecificPropertyValues)
             {
-                Assert.That(artifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
+                Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+            }
+        }
+
+        /// <summary>
+        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
+        /// </summary>
+        /// <param name="artifact">The INovaArtifactResponse to compare against.</param>
+        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
+        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(INovaArtifactResponse artifact, bool skipDatesAndDescription = false)
+        {
+            AssertEquals(this, artifact, skipDatesAndDescription);
+        }
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
+        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
+        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+
+            if (!skipDatesAndDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
             }
         }
 
@@ -128,6 +196,7 @@ namespace Model.ArtifactModel.Impl
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
             bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+
             if (isJSONChanged)
             {
                     string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
@@ -138,31 +207,20 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// DocumentFile property for Artifact of Document type
+        /// Gets or sets the DocumentFile property for Artifact of Document type.
         /// TODO: replace this and GetActorInheritance function with generic function
         /// </summary>
         public DocumentFileValue DocumentFile
         {
-            /// <summary>
-            /// Returns DocumentFile property for Artifact of Document type
-            /// </summary>
             get
             {
                 // Finding DocumentFile among other properties
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
-                if (documentFileProperty == null)
-                {
-                    return null;
-                }
-                return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
+                return (DocumentFileValue) documentFileProperty?.CustomPropertyValue;
             }
 
-            /// <summary>
-            /// Sets DocumentFile property for Artifact of Document type
-            /// </summary>
-            /// <param name="value">DocumentFile property.</param>
             set
             {
                 // Finding DocumentFile among other properties
@@ -243,20 +301,22 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public NovaArtifactDetails.Identification CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public string Description { get; set; }
-        public int Id { get; set; }
-        public int ItemTypeId { get; set; }
-        public NovaArtifactDetails.Identification LastEditedBy { get; set; }
-        public DateTime? LastEditedOn { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-        public int ParentId { get; set; }
-        public int PredefinedType { get; set; }
-        public string Prefix { get; set; }
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
         public int ProjectId { get; set; }
         public int Version { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public DateTime? LastEditedOn { get; set; }
+        public NovaArtifactDetails.Identification CreatedBy { get; set; }
+        public NovaArtifactDetails.Identification LastEditedBy { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int ParentId { get; set; }
+        public double OrderIndex { get; set; }
+        public int ItemTypeId { get; set; }
+        public string Prefix { get; set; }
+        public int PredefinedType { get; set; }
 
         #endregion Serialized JSON Properties
     }
@@ -265,9 +325,11 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public string Description { get; set; }
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
 
         #endregion Serialized JSON Properties
     }

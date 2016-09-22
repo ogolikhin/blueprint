@@ -30,6 +30,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
     private changesets: IChangeCollector;
+    private lockPromise: ng.IPromise<IStatefulArtifact>;
+    private loadPromise: ng.IPromise<IStatefulArtifact>;
+    private isLoaded = false;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
@@ -180,41 +183,46 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.specialProperties.discard(all);
 
         //TODO: need impementation
-        // this.attachments.discard(all);
-        // this.docRefs.discard(all);
+         this.attachments.discard();
+         this.docRefs.discard();
         // this.subArtifactCollection.discard(all);
-
     }
     
-    public setValidationErrorsFlag(value: boolean){
+    public setValidationErrorsFlag(value: boolean) {
         this.artifactState.invalid = value;
     }
 
-    private isLoaded = false;
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.isProject() && (force || !this.isLoaded)) {
-            this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                let parentId = this.artifact.parentId; 
-                this.artifact = artifact;
-                this.artifactState.initialize(artifact);
-                this.customProperties.initialize(artifact.customPropertyValues);
-                this.specialProperties.initialize(artifact.specificPropertyValues);
-                if (parentId && parentId !== artifact.parentId) {
-                    this.artifactState.set({
-                        readonly: true,
-                        lockedby: 0
-                    });
-                    this.services.messageService.addError("The artifach has been moved!");
-                }
-                this.isLoaded = true;
-                this.artifactState.outdated = false;
-                deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            }).finally(() => {
-                this.lockpromise = null;
-            });
+            if (this.loadPromise) {
+                return this.loadPromise;
+            } else {
+                this.loadPromise = deferred.promise;
+                this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+                    this.artifact = artifact;
+                    this.artifactState.initialize(artifact);
+                    this.customProperties.initialize(artifact.customPropertyValues);
+                    this.specialProperties.initialize(artifact.specificPropertyValues);
+                    
+                    const parentId = this.artifact.parentId;
+                    if (parentId && parentId !== artifact.parentId) {
+                        this.artifactState.set({
+                            readonly: true,
+                            lockedby: 0
+                        });
+                        this.services.messageService.addError("The artifact has been moved!");
+                    }
+                    this.isLoaded = true;
+                    this.artifactState.outdated = false;
+                    deferred.resolve(this);
+                }).catch((err) => {
+                    deferred.reject(err);
+                }).finally(() => {
+                    this.loadPromise = null;
+                    this.lockPromise = null;
+                });
+            }
         } else {
             deferred.resolve(this);
         }
@@ -249,12 +257,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return success;
     }
 
-    private lockpromise: ng.IPromise<IStatefulArtifact>;
     public lock(): ng.IPromise<IStatefulArtifact> {
-        if (!this.lockpromise) {
+        if (!this.lockPromise) {
 
             let deferred = this.services.getDeferred<IStatefulArtifact>();
-            this.lockpromise = deferred.promise;
+            this.lockPromise = deferred.promise;
             
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
                 let lock = result[0];
@@ -273,7 +280,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             });
 
         }
-        return this.lockpromise;
+        return this.lockPromise;
     }
 
     private onChanged(artifactState: IArtifactState) {
@@ -330,7 +337,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
       
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
-        
+        delta.attachmentValues = this.attachments.changes();
+        delta.docRefValues = this.docRefs.changes();
+
         return delta;
     }
 

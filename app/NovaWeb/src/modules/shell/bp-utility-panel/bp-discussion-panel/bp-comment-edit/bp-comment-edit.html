@@ -1,20 +1,20 @@
-﻿<div class="edit-container">
+<div class="edit-container">
     <textarea ui-tinymce="$ctrl.tinymceOptions" ng-model="$ctrl.commentText" placeholder="{{$ctrl.commentPlaceHolderText}}"></textarea>
     <!--<div>
         <input type="text" ng-model="$ctrl.commentText" />
     </div>-->
     <div ng-if="!$ctrl.isWaiting" class="comment-edit-button-bar clearfix">
         <div class="pull-left">
-            <button class="btn btn-new-comment" 
-                    type="button" 
-                    ng-click="$ctrl.callPostComment()"
-                    ng-disabled="$ctrl.isWaiting">{{$ctrl.addButtonText}}</button>
-        </div>
-        <div class="pull-right">
-            <button class="btn btn-new-comment" 
+            <button class="btn btn-primary btn-small"
                     type="button" 
                     ng-click="$ctrl.cancelComment()"
                     ng-disabled="$ctrl.isWaiting">{{$ctrl.cancelButtonText}}</button>
+        </div>
+        <div class="pull-right">
+            <button class="btn btn-promoted-action btn-small"
+                    type="button" 
+                    ng-click="$ctrl.callPostComment()"
+                    ng-disabled="$ctrl.isWaiting">{{$ctrl.addButtonText}}</button>
         </div>
     </div>
     <div ng-if="$ctrl.isWaiting" class="app-loading comment-edit-waiting">

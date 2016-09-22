@@ -193,6 +193,15 @@ namespace Model
         List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets list of unpublished changes for the specified user.
+        /// (Runs: GET svc/bpartifactstore/artifacts/unpublished)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of artifacts & projects for the unpublished changes.</returns>
+        INovaPublishResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes an artifact.
         /// </summary>
         /// <param name="artifact">The artifact to publish.</param>

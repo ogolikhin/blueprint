@@ -183,10 +183,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.specialProperties.discard(all);
 
         //TODO: need impementation
-        // this.attachments.discard(all);
-        // this.docRefs.discard(all);
+         this.attachments.discard();
+         this.docRefs.discard();
         // this.subArtifactCollection.discard(all);
-
     }
     
     public setValidationErrorsFlag(value: boolean) {
@@ -338,7 +337,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
       
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
-        
+        delta.attachmentValues = this.attachments.changes();
+        delta.docRefValues = this.docRefs.changes();
+
         return delta;
     }
 

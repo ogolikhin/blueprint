@@ -29,7 +29,7 @@ namespace ServiceLibrary.Helpers
 
         public const int SearchPageSize = 10;
 
-        public const int MaxSearchableValueStringSize = 50;
+        public const int MaxSearchableValueStringSize = 250;
 
         public const int MinSearchQueryCharLimit = 3;
     }

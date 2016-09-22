@@ -98,7 +98,7 @@ export class ProjectManager  implements IProjectManager {
             if (!data) {
                 throw new Error("Project_NotFound");
             }
-            project = this.getProject(data.id);
+            project = this.getProject(data.id, 0);
             if (!project) {
                 this.metadataService.load(data.id).then(() => {
                     angular.extend(data, {

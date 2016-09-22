@@ -10,6 +10,7 @@ namespace CustomAttributes
         public const string AdminStore = "AdminStore";
         public const string ArtifactStore = "ArtifactStore";
         public const string ArtifactVersion = "ArtifactVersion";
+        public const string SearchService = "SearchService";
 
         /// <summary>
         /// This test cannot be run in parallel with other tests.

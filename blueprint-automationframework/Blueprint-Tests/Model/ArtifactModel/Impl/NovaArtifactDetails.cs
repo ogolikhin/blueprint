@@ -109,32 +109,31 @@ namespace Model.ArtifactModel.Impl
         /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
         /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
-        [SuppressMessage("Microsoft.Design", "CA1024:ChangeToProperty")]
-        public ActorInheritanceValue GetActorInheritance()
+        public ActorInheritanceValue ActorInheritance
         {
-            // Finding ActorInheritence among other properties
-            CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
+            get
+            {
+                // Finding ActorInheritence among other properties
+                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+                if (actorInheritanceProperty == null)
+                {
+                    return null;
+                }
+                // Deserialization
+                string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
+                var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
 
-            if (actorInheritanceProperty == null)
-            {
-                return null;
+                CheckIsJSONChanged<ActorInheritanceValue>(actorInheritanceProperty);
+
+                return actorInheritanceValue;
             }
 
-            // Deserialization
-            string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
-            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
-
-            // Try to serialize and compare with JSON from the server
-            string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
-            bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            if (isJSONChanged)
+            set
             {
-                    string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
-                    throw new FormatException(msg);
+                Assert.IsNotNull(value);
+                throw new NotImplementedException();
             }
-            //
-            return actorInheritanceValue;
         }
 
         /// <summary>
@@ -156,6 +155,12 @@ namespace Model.ArtifactModel.Impl
                 {
                     return null;
                 }
+
+                // Deserialization
+                //string documentFilePropertyString = documentFileProperty.CustomPropertyValue.ToString();
+                //var documentFilePropertyValue = JsonConvert.DeserializeObject<DocumentFileValue>(documentFilePropertyString);
+                //CheckIsJSONChanged<DocumentFileValue>(documentFileProperty);
+
                 return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
             }
 
@@ -170,6 +175,19 @@ namespace Model.ArtifactModel.Impl
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
                 documentFileProperty.CustomPropertyValue = value;
             }
+        }
+
+        private static void CheckIsJSONChanged<TClass>(CustomProperty property)
+        {
+            // Deserialization
+            string specificPropertyString = property.CustomPropertyValue.ToString();
+            var specificPropertyValue = JsonConvert.DeserializeObject<TClass>(specificPropertyString);
+
+            // Try to serialize and compare with JSON from the server
+            string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
+            bool isJSONChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+            string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
+            Assert.IsFalse(isJSONChanged, msg);
         }
 
         public class Identification

@@ -45,7 +45,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, actorInheritedFromOtherActorId); ;
             ActorInheritanceValue actorInheritance = null;
 
-            actorInheritance = artifactDetails.GetActorInheritance();
+            actorInheritance = artifactDetails.ActorInheritance;
             Assert.AreEqual(parentActorId, actorInheritance.ActorId, "Inherited From artifact should have id {0}, but it has id {1}", parentActorId, actorInheritance.ActorId);
             Assert.AreEqual(customDataProjectName, actorInheritance.PathToProject[0], "PathToProject[0] - name of project which contains Inherited From actor.");
         }

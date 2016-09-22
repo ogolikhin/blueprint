@@ -396,6 +396,20 @@ namespace Model.Impl
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
 
+        /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
+        public INovaPublishResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var unpublishedChanges = restApi.SendRequestAndDeserializeObject<NovaPublishResponse>(
+                RestPaths.Svc.ArtifactStore.Artifacts.UNPUBLISHED,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChange: true);
+
+            return unpublishedChanges;
+        }
+
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaPublishResponse PublishArtifact(IArtifactBase artifact,
             IUser user = null,
@@ -557,7 +571,8 @@ namespace Model.Impl
                 RestRequestMethod.POST,
                 artifactIds,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             if (restApi.StatusCode == HttpStatusCode.OK)
             {

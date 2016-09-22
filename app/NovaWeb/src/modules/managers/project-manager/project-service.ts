@@ -107,7 +107,8 @@ export class ProjectService implements IProjectService {
                 }
                 var error = {
                     statusCode: errResult.status,
-                    message: "Artifact_NotFound"
+                    message: "Artifact_NotFound",
+                    errorCode: errResult.data.errorCode
                 };
                 defer.reject(error);
             }

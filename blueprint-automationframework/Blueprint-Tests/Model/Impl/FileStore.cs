@@ -11,6 +11,8 @@ using Utilities.Facades;
 using Model.NovaModel;
 using Model.NovaModel.Impl;
 using System.Globalization;
+using Model.Factories;
+using System.Data.SqlClient;
 
 namespace Model.Impl
 {
@@ -618,6 +620,47 @@ namespace Model.Impl
                     NovaFiles.Remove(NovaFiles.First(i => i.Guid == fileId));
                 }
             }
+        }
+
+        /// <seealso cref="IFileStore.GetSQLExpiredTime(string)"/>
+        public DateTime? GetSQLExpiredTime(string fileId)
+        {
+            string FILES_TABLE = "[FileStore].[Files]";
+            string query = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM {0} WHERE FileId = '{1}'", FILES_TABLE, fileId);
+            DateTime? expiredTime = null;
+
+            using (IDatabase database = DatabaseFactory.CreateDatabase(databaseName: "FileStore"))
+            {
+                database.Open();
+                Logger.WriteDebug("Running: {0}", query);
+                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.HasRows)
+                    {
+                        while (sqlDataReader.Read())
+                        {
+                            int expiredTimeOrdinal = sqlDataReader.GetOrdinal("ExpiredTime");
+                            var sqlExpiredTime = sqlDataReader.GetSqlDateTime(expiredTimeOrdinal);
+                            if (sqlExpiredTime.IsNull)
+                            {
+                                return null;
+                            }
+
+                            else
+                            {
+                                expiredTime = (DateTime)(sqlExpiredTime);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
+                }
+            }
+
+            return expiredTime;
         }
         #endregion Inherited from IFileStore
 

@@ -12,7 +12,7 @@ namespace SearchServiceTests
     [Category(Categories.SearchService)]
     public static class FullTextSearchTests //: TestBase
     {
-        const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FullTextSearch.METADATA;
+        const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
 
         //private IUser _user = null;
         //private IProject _project = null;

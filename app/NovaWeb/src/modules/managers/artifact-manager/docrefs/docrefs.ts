@@ -112,26 +112,17 @@ export class DocumentRefs implements IDocumentRefs {
     public changes(): IArtifactDocRef[] {
         let docRefChanges = new Array<IArtifactDocRef>();
         let changes = this.changeset.get();
-        let addChanges = new Array<IChangeSet>();
-        let deleteChanges = new Array<IChangeSet>();
-        if (changes.length > 0) {
-            changes.forEach(changeBucket => {
-                if (changeBucket.type === ChangeTypeEnum.Add) {
-                    addChanges = changeBucket.value;
-                } else if (changeBucket.type === ChangeTypeEnum.Delete) {
-                    deleteChanges = changeBucket.value;
-                }
-            });
-        }
-        if (addChanges.length > 0) {
-            addChanges.forEach(addChange => {
+        let addChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Add)[0];
+        let deleteChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Delete)[0];
+        if (addChanges && addChanges.value.length > 0) {
+            addChanges.value.forEach(addChange => {
                 var docRef = addChange.value as IArtifactDocRef;
                 docRef.changeType = 0;
                 docRefChanges.push(docRef);
             });
         }
-        if (deleteChanges.length > 0) {
-            deleteChanges.forEach(deleteChange => {
+        if (deleteChanges && deleteChanges.value.length > 0) {
+            deleteChanges.value.forEach(deleteChange => {
                 var docRef = deleteChange.value as IArtifactDocRef;
                 docRef.changeType = 2;
                 docRefChanges.push(docRef);

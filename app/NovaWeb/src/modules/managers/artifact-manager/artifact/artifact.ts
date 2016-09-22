@@ -180,10 +180,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.specialProperties.discard(all);
 
         //TODO: need impementation
-        // this.attachments.discard(all);
-        // this.docRefs.discard(all);
+         this.attachments.discard();
+         this.docRefs.discard();
         // this.subArtifactCollection.discard(all);
-
     }
     
     public setValidationErrorsFlag(value: boolean){

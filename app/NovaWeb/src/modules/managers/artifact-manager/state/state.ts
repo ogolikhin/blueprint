@@ -26,22 +26,22 @@ export interface IArtifactState extends IState, IDispose {
 
 
 export class ArtifactState implements IArtifactState {
-    private state: IState;
+    private state: IState = {
+        lockedby: Enums.LockedByEnum.None,
+    }; 
     
     private subject: Rx.BehaviorSubject<IArtifactState>;
 
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IArtifactState>(null);
-        this.reset();
-
+        this.subject = new Rx.BehaviorSubject<IArtifactState>(this);
     }
     public dispose() {
         this.subject.dispose();
     }
     
-    private reset() {
-        this.state = {
-            lockedby: Enums.LockedByEnum.None
+    private reset(): IState {
+        return this.state = {
+            lockedby: Enums.LockedByEnum.None,
         }; 
     }
 
@@ -57,17 +57,17 @@ export class ArtifactState implements IArtifactState {
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
-            this.reset();
+            let state = this.reset();
             if (artifact.lockedByUser) {
-                let lockinfo: IState = {
+                state = {
                     lockedby : artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                                                     Enums.LockedByEnum.CurrentUser :
                                                     Enums.LockedByEnum.OtherUser,
                     lockowner: artifact.lockedByUser.displayName,                                                    
                     lockdatetime: artifact.lockedDateTime                
                 };
-                this.set(lockinfo);
             };                
+            this.set(state);
         }
         return this;
     }
@@ -136,7 +136,7 @@ export class ArtifactState implements IArtifactState {
         return this.state.outdated;
     }
     public set outdated(value: boolean) {
-        this.state.outdated = value;
+        this.set({outdated: value});
     }
     
     public get invalid(): boolean {
@@ -144,6 +144,6 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set invalid(value: boolean) {
-        this.state.invalid = value;
+        this.set({invalid: value});
     }
 }

@@ -89,14 +89,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
     
 
-    // public onLoad() {
-    //     this.isLoading = true;
-    //     this.artifact.load(false).then((it: IStatefulArtifact) => {
-    //         this.onUpdate();
-    //     }).finally(() => {
-    //         this.isLoading = false;
-    //     });
-    // }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
         let propertyContext = field.data as PropertyContext;

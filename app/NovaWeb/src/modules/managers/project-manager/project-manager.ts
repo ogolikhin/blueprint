@@ -99,9 +99,7 @@ export class ProjectManager  implements IProjectManager {
                 throw new Error("Project_NotFound");
             }
             project = this.getProject(data.id);
-            if (project) {
-                this.artifactManager.selection.setArtifact(project.artifact, SelectionSource.Explorer);
-            } else {
+            if (!project) {
                 this.metadataService.load(data.id).then(() => {
                     angular.extend(data, {
                         projectId: data.id,
@@ -119,7 +117,6 @@ export class ProjectManager  implements IProjectManager {
                     this.loadArtifact(project.id);
 
                 });                
-
             }
 
         } catch (ex) {
@@ -147,7 +144,6 @@ export class ProjectManager  implements IProjectManager {
             });
 
             this.projectCollection.onNext(_projectCollection);
-            this.artifactManager.selection.setArtifact((this.projectCollection.getValue()[0] || {} as Project).artifact, SelectionSource.Explorer);
         } catch (ex) {
             this.messageService.addError(ex);
             throw ex;

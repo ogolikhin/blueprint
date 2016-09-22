@@ -29,6 +29,11 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
 
                 let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
                 if (uiSelectChoices) {
+                    let uiSelectChoicesLI = uiSelectChoices.querySelector("li:not(.ps-child)") as HTMLElement;
+                    if (uiSelectChoicesLI && !uiSelectChoicesLI.classList.contains("ps-child")) {
+                        uiSelectChoicesLI.classList.add("ps-child");
+                    }
+
                     $scope["bpFieldUserPicker"].setupResultsElement(uiSelectChoices);
                 }
 
@@ -159,7 +164,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             },
             setupResultsElement: function(uiSelectChoices: HTMLElement) {
                 let uiSelectLoadMore = `
-                    <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-results-count"><br><br><br><br>
+                    <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-results-count">
                         <div ng-bind="bpFieldUserPicker.labels.topResults.replace('{0}', bpFieldUserPicker.currentLimit)"></div>
                         <button
                             ng-if="bpFieldUserPicker.showLoadMore"
@@ -196,7 +201,6 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                                 e.email = item.email;
                                 e.isGroup = item.isGroup;
                                 e.selected = this.isChoiceSelected(e, $select);
-                                e.disabled = item.isBlocked || e.selected;
                                 return e;
                             });
                             $select.items = $scope.to.options;

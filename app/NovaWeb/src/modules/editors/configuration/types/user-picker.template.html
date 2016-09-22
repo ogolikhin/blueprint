@@ -10,14 +10,14 @@
 		<ui-select-match placeholder="{{to.placeholder}}">
 			<div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
 		</ui-select-match>
-		<ui-select-choices class="ps-child"
+		<ui-select-choices
 			on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
 			refresh="bpFieldUserPicker.refreshResults($select)"
-			ui-disable-choice="option.disabled"
+			ui-disable-choice="option.selected"
 			data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
 			<div ng-class="{'already-selected': option.selected}">
-				<div ng-if="option.isGroup"></div>
-				<div ng-if="!option.isGroup"><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
+				<div ng-if="option.isGroup"><img src="/novaweb/static/images/icons/user-group.svg" height="25" width="25"/></div>
+				<div ng-if="!option.isGroup"><img src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25"/><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
 				<div class="ui-select-choice-item"
 					bp-tooltip="{{option[to.labelProp]}}"
 					bp-tooltip-truncated="true"

@@ -1,7 +1,6 @@
 ﻿import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
-import { SelectionSource, IArtifactState } from "../../../managers/artifact-manager";
 import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
@@ -101,9 +100,13 @@ export class ProjectExplorerController {
         // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
-            this._selectedArtifactId = projects[0].id;
-            this.navigationService.navigateToArtifact(this._selectedArtifactId);
-            this.tree.selectNode(this._selectedArtifactId);
+            if (projects && projects.length > 0) {
+                this._selectedArtifactId = projects[0].id;
+                this.navigationService.navigateToArtifact(this._selectedArtifactId);
+                this.tree.selectNode(this._selectedArtifactId);
+            } else {
+                this.navigationService.navigateToMain();
+            }
         }
     }
 
@@ -120,7 +123,11 @@ export class ProjectExplorerController {
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
         if (node && this._selectedArtifactId !== node.id) {
-            this._selectedArtifactId = this.doSync(node).id;
+            const artifact = this.doSync(node);
+            this._selectedArtifactId = artifact.id;
+            //NOTE: setExplorerArtifact method does not trigger notification
+            this.artifactManager.selection.setExplorerArtifact(artifact);
+            //
             this.navigationService.navigateToArtifact(this._selectedArtifactId);
         }
     };

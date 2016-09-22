@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
 import { Models } from "../../main";
-import { IArtifactManager, SelectionSource, ISelection, IStatefulItem } from "../../managers/artifact-manager";
+import { IArtifactManager, ISelection, IStatefulItem } from "../../managers/artifact-manager";
 import { ItemTypePredefined } from "../../main/models/enums";
 import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
 
@@ -135,7 +135,8 @@ export class BPUtilityPanelController {
     }
     
     private togglePropertiesPanel(selection: ISelection) {
-        const artifact = selection.artifact;        
+        const artifact = selection.artifact;
+        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
         if (artifact && (selection.subArtifact 
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
@@ -147,8 +148,8 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                selection.source === SelectionSource.Editor &&
-                this.artifactManager.selection.getArtifact(SelectionSource.Explorer).predefinedType === ItemTypePredefined.UseCaseDiagram))) {
+                explorerArtifact &&
+                explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
 
             this.showPanel(PanelType.Properties);
         } else {

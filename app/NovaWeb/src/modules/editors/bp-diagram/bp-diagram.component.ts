@@ -4,7 +4,7 @@ import { IStencilService } from "./impl/stencil.svc";
 import { ILocalizationService } from "../../core";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { ISelection, IStatefulArtifactFactory, SelectionSource } from "../../managers/artifact-manager";
+import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
 import { IDiagram, IShape, IDiagramElement } from "./impl/models";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { Diagrams, Shapes, ShapeProps } from "./impl/utils/constants";
@@ -141,20 +141,23 @@ export class BPDiagramController extends BpBaseEditor {
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
+            if (this.isDestroyed()) {
+                return;
+            }
             if (elements && elements.length > 0) {
                 const element = elements[0];
                 if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
-                            this.artifactManager.selection.setArtifact(artifact, SelectionSource.Editor);
+                            this.artifactManager.selection.setArtifact(artifact);
                         });
                     }
                 } else {
                     this.artifactManager.selection.setSubArtifact(this.getSubArtifact(element.id));
                 } 
             } else {
-                this.artifactManager.selection.clearSubArtifact();
+                this.artifactManager.selection.setArtifact(this.artifact);
             }
         });
     }

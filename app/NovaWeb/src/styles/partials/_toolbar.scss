@@ -45,6 +45,14 @@ bp-toolbar {
               margin: 0 0 0 3px;
             }
           }
+          &.disabled {
+              color: $gray-light;
+              &:hover {
+                  background: $gray-lighter;
+                  color: $gray-light;
+                  cursor: not-allowed;
+              }
+          }
         span {
           display: block;
           font-size: $font-size-smaller;
@@ -62,7 +70,7 @@ bp-toolbar {
 
       &.open > a:hover,
       > a:hover {
-        color: $brand-secondary !important;
+        color: $brand-secondary;
       }
     }
 

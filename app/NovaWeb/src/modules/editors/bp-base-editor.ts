@@ -40,8 +40,6 @@ export class BpBaseEditor {
 
     public $onDestroy() {
         try {
-            this.artifactManager.selection.clearAll();
-            
             delete this.artifact;
             this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         } catch (ex) {

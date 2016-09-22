@@ -287,11 +287,22 @@ namespace Model
                 public const string FILES_id_                       = "svc/filestore/files/{0}";
                 public const string STATUS                          = "svc/filestore/status";
 
-                public const string NOVAFILE_id_                   = "svc/bpfilestore/file/{0}";
+                public const string NOVAFILE_id_                    = "svc/bpfilestore/file/{0}";
 
                 public static class Status
                 {
                     public const string UPCHECK                     = "svc/filestore/status/upcheck";
+                }
+            }
+
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class SearchService
+            {
+                public const string FULLTEXTSEARCH = "svc/searchservice/fulltextsearch";
+
+                public static class FullTextSearch
+                {
+                    public const string METADATA      = "svc/searchservice/fulltextsearch/metadata";
                 }
             }
 

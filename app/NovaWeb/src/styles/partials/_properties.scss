@@ -318,7 +318,8 @@ pagecontent, bp-properties-panel {
               }
 
               &:hover .ui-select-choice-item {
-                background: $blue-lightest;
+                background: $brand-secondary;
+                color: $white;
 
                 &::before {
                   content: '\2713';
@@ -329,11 +330,11 @@ pagecontent, bp-properties-panel {
 
           .ui-select-choices-row.disabled {
             .ui-select-choices-row-inner {
-              color: $gray;
               cursor: not-allowed;
 
               .ui-select-choice-item {
                 background: transparent;
+                color: $gray;
 
                 &::before {
                   content: '\2713';
@@ -349,7 +350,8 @@ pagecontent, bp-properties-panel {
           .ui-select-choices-row.active {
             .ui-select-choices-row-inner {
               .ui-select-choice-item {
-                background: $blue-lightest;
+                background: $brand-secondary;
+                color: $white;
 
                 &::before {
                   content: '\2713';
@@ -527,7 +529,8 @@ pagecontent, bp-properties-panel {
           &:not(.disable-highlight) {
             .ui-select-choices-row.active .ui-select-choice-item,
             .ui-select-choices-row-inner:hover .ui-select-choice-item {
-              background: $blue-lightest;
+              background: $brand-secondary;
+              color: $white;
 
               &::before {
                 content: '\2713';
@@ -537,11 +540,11 @@ pagecontent, bp-properties-panel {
 
           .ui-select-choices-row.disabled {
             .ui-select-choices-row-inner {
-              color: $gray;
               cursor: not-allowed;
 
               .ui-select-choice-item {
                 background: transparent;
+                color: $gray;
 
                 &::before {
                   content: '\2713';
@@ -745,10 +748,13 @@ pagecontent, bp-properties-panel {
     }
 
     $user-picker-choice-size: 40px;
+    $user-picker-results-count: 56px;
     .formly-field-bpFieldUserPicker {
       .ui-select-multiple .ui-select-choices {
         display: flex;
         flex-flow: column nowrap;
+        height: #{10 * $user-picker-choice-size}; // hack to trick IE display flex
+        max-height: #{5 * $user-picker-choice-size + $user-picker-results-count + 2px}; //2px is the top and bottom border
         overflow: hidden;
 
         .ui-select-choices-group {
@@ -819,7 +825,7 @@ pagecontent, bp-properties-panel {
         .ui-select-results-count {
           border-top: solid 1px $gray-lighter;
           flex: none;
-          height: 56px;
+          height: $user-picker-results-count;
 
           div {
             font-size: $font-size-normal;

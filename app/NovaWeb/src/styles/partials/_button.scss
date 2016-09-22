@@ -3,37 +3,17 @@
   min-width: 100px;
   padding: 8px 19px;
   text-align: center;
-  &.btn-small{
-      padding:5px 10px;
+  &.btn-bp-small{
+      margin-left:5px;
+      padding:5px 9px;
       min-width: 20px;
-      font-size: 1.2rem;
   }
-  &[disabled],
-  &[disabled]:hover,
-  &.disabled,
-  &.disabled:hover{
-    background-color: $gray-lighter ;
-    border-color: $gray-lighter;
-    color: $gray-light;
-    opacity: 1;
-  }
-}
+ }
 .btn-primary {
-  background-color: transparent;
-    border: 1px solid $gray-light;
-    color: $gray-light;
-    &:hover,
-    &:focus,
-    &:active {
-        background-color: transparent;
-        border-color: $brand-secondary;
-        color: $brand-secondary;
-  }
-}
-.btn-promoted-action {
   background-color: $brand-secondary;
   border: solid 1px $brand-secondary;
   color: $white;
+
   &:hover,
   &:focus,
   &:active {
@@ -41,16 +21,26 @@
     border-color: darken($brand-secondary, 10%);
     color: $white;
   }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: $gray-lighter ;
+    border-color: $gray-light;
+    color: $gray-light;
+    opacity: 1;
+  }
 }
+
 .btn-secondary {
-  background-color: transparent;
-  border: solid 1px $brand-secondary;
-  color: $brand-secondary;
+  background-color: $gray-light;
+  border: solid 1px $gray-light;
+  color: $white;
+
   &:hover,
   &:focus,
   &:active {
-    background-color: $brand-secondary;
-    border: solid 1px $brand-secondary;
+    background-color: darken($gray-light, 10%);
+    border-color: darken($gray-light, 10%);
     color: $white;
   }
 }

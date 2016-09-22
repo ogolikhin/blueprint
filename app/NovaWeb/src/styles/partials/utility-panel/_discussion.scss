@@ -1,14 +1,14 @@
 bp-discussion-panel {
     $item-gap: $padding-bigger;
 
-    /*.btn-new-comment {
+    .btn-new-comment {
         background-color: #fff;
         color: $blue-light;
         border: solid 1px $gray-lighter;
         border-radius: 3px;
         padding: 2px $padding-smallest;
         min-width: 0;
-    }*/
+    }
 
     bp-comment-edit {
         .edit-container {

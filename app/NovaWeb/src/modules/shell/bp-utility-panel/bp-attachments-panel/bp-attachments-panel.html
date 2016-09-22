@@ -1,4 +1,4 @@
-<div class="filter-bar"
+﻿<div class="filter-bar" 
     ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
 
     <div class="bp-select" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
@@ -72,7 +72,7 @@
     
     <div class="add-empty">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+        <label class="btn btn-default" ng-class="{'disabled': $ctrl.isItemReadOnly }">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -80,7 +80,7 @@
         <hr />
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
+        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
             {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

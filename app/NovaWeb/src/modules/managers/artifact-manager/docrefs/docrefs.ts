@@ -18,6 +18,7 @@ export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
     add(docrefs: IArtifactDocRef[]);
     remove(docrefs: IArtifactDocRef[]);
     update(docrefs: IArtifactDocRef[]);
+    changes(): IArtifactDocRef[];
     discard();
 }
 
@@ -106,6 +107,37 @@ export class DocumentRefs implements IDocumentRefs {
         }
 
         return this.docrefs;
+    }
+
+    public changes(): IArtifactDocRef[] {
+        let docRefChanges = new Array<IArtifactDocRef>();
+        let changes = this.changeset.get();
+        let addChanges = new Array<IChangeSet>();
+        let deleteChanges = new Array<IChangeSet>();
+        if (changes.length > 0) {
+            changes.forEach(changeBucket => {
+                if (changeBucket.type === ChangeTypeEnum.Add) {
+                    addChanges = changeBucket.value;
+                } else if (changeBucket.type === ChangeTypeEnum.Delete) {
+                    deleteChanges = changeBucket.value;
+                }
+            });
+        }
+        if (addChanges.length > 0) {
+            addChanges.forEach(addChange => {
+                var docRef = addChange.value as IArtifactDocRef;
+                docRef.changeType = 0;
+                docRefChanges.push(docRef);
+            });
+        }
+        if (deleteChanges.length > 0) {
+            deleteChanges.forEach(deleteChange => {
+                var docRef = deleteChange.value as IArtifactDocRef;
+                docRef.changeType = 2;
+                docRefChanges.push(docRef);
+            });
+        }
+        return docRefChanges;
     }
 
     public discard() {

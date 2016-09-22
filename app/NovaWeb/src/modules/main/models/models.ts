@@ -1,5 +1,5 @@
 ﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
-import { IArtifactAttachment } from "../../managers/artifact-manager";
+import { IArtifactAttachment, IArtifactDocRef } from "../../managers/artifact-manager";
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -56,6 +56,7 @@ export interface IItem {
     predefinedType?: ItemTypePredefined;
 
     attachmentValues?: IArtifactAttachment[];
+    docRefValues?: IArtifactDocRef[];
 }
 
 export interface IUserGroup {

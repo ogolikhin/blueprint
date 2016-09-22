@@ -110,11 +110,35 @@ export class ArtifactAttachments implements IArtifactAttachments {
         return this.attachments;
     }
 
-    public changes(): IArtifactAttachment[]{
-        let changes = this.changeset.get().map((changeset: IChangeSet) => changeset.value);
-        let addChanges = changes[0];
-        return undefined;
-        //return this.changeset.get();
+    public changes(): IArtifactAttachment[] {
+        let attachmentChanges = new Array<IArtifactAttachment>();
+        let changes = this.changeset.get();
+        let addChanges = new Array<IChangeSet>();
+        let deleteChanges = new Array<IChangeSet>();
+        if (changes.length > 0) {
+            changes.forEach(changeBucket => {
+                if (changeBucket.type === ChangeTypeEnum.Add) {
+                    addChanges = changeBucket.value;
+                } else if (changeBucket.type === ChangeTypeEnum.Delete) {
+                    deleteChanges = changeBucket.value;
+                }
+            });
+        }
+        if (addChanges.length > 0) {
+            addChanges.forEach(addChange => {
+                var attachment = addChange.value as IArtifactAttachment;
+                attachment.changeType = 0;
+                attachmentChanges.push(attachment);
+            });
+        }
+        if (deleteChanges.length > 0) {
+            deleteChanges.forEach(deleteChange => {
+                var attachment = deleteChange.value as IArtifactAttachment;
+                attachment.changeType = 2;
+                attachmentChanges.push(attachment);
+            });
+        }
+        return attachmentChanges;
     }
 
     public discard() {

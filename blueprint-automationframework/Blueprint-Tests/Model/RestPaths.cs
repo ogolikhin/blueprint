@@ -295,10 +295,15 @@ namespace Model
                 }
             }
 
-            public static class FullTextSearch
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            public static class SearchService
             {
-                public const string FULLTEXTSEARCH                  = "svc/searchservice/fulltextsearch";
-                public const string FULLTEXTSEARCHMETADATA          = "svc/searchservice/fulltextsearch/metadata";
+                public const string FULLTEXTSEARCH = "svc/searchservice/fulltextsearch";
+
+                public static class FullTextSearch
+                {
+                    public const string METADATA      = "svc/searchservice/fulltextsearch/metadata";
+                }
             }
 
             public static class Shared

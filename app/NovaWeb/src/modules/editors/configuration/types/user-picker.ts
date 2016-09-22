@@ -10,7 +10,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public template: string = require("./user-picker.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync(($scope) => {
+        $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
             ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
@@ -111,6 +111,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
         $compile: ng.ICompileService
     ) {
         return {
+            $select: null,
             currentState: null,
             currentLimit: 5,
             maxLimit: 100,
@@ -153,26 +154,32 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             resetSettings: function () {
                 this.currentState = null;
                 this.currentLimit = this.loadMoreAmount;
-                //angular.element($scope["uiSelectLoadMore"]).empty();
+                this.showResultsCount = false;
+                this.showLoadMore = false;
             },
             setupResultsElement: function(uiSelectChoices: HTMLElement) {
                 let uiSelectLoadMore = `
-                    <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-choices-group results">
+                    <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-results-count"><br><br><br><br>
                         <div ng-bind="bpFieldUserPicker.labels.topResults.replace('{0}', bpFieldUserPicker.currentLimit)"></div>
-                        <button ng-if="bpFieldUserPicker.showLoadMore" ng-click="bpFieldUserPicker.loadMore()" ng-bind="bpFieldUserPicker.labels.showMore"></button>
+                        <button
+                            ng-if="bpFieldUserPicker.showLoadMore"
+                            ng-click="bpFieldUserPicker.loadMore()"
+                            ng-bind="bpFieldUserPicker.labels.showMore"></button>
                     </li>`;
                 angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));
             },
             loadMore: function () {
-                if (this.currentLimit < this.maxLimit) {
-                    this.currentLimit += this.loadMoreAmount;
+                if (this.currentLimit < this.maxLimit && this.$select) {
+                    this.refreshResults(this.$select, true);
                 }
             },
-            refreshResults: function ($select) {
+            refreshResults: function ($select, loadMore?: boolean) {
                 let query = $select.search;
                 if (query.length >= this.minimumInputLength) {
+                    if (loadMore) {
+                        this.currentLimit += this.loadMoreAmount;
+                    }
                     this.currentState = "searching";
-                    const interNalCompile = $compile;
                     usersAndGroupsService.search(
                         $select.search,
                         true, //emailDiscussion has to be set to true so that als users without email get returned
@@ -185,10 +192,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             $scope.to.options = users.map((item: IUserOrGroupInfo) => {
                                 let e: any = {};
                                 e[$scope.to.valueProp] = item.id.toString();
-                                e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
+                                e[$scope.to.labelProp] = item.name;
                                 e.email = item.email;
-                                e.disabled = item.isBlocked;
-                                //e.selected = true;
+                                e.isGroup = item.isGroup;
+                                e.selected = this.isChoiceSelected(e, $select);
+                                e.disabled = item.isBlocked || e.selected;
                                 return e;
                             });
                             $select.items = $scope.to.options;
@@ -196,6 +204,8 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
 
                             this.showResultsCount = $scope.to.options.length > this.currentLimit;
                             this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
+
+                            this.$select = $select;
                         },
                         () => {
                             $scope.to.options = [];

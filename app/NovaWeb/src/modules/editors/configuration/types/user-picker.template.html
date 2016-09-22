@@ -1,5 +1,5 @@
 <div class="input-group has-messages">
-	<ui-select class="has-scrollbar"
+	<ui-select class="user-picker has-scrollbar"
 		multiple
 		ng-model="model[options.key]"
 		remove-selected="false"
@@ -13,10 +13,16 @@
 		<ui-select-choices class="ps-child"
 			on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
 			refresh="bpFieldUserPicker.refreshResults($select)"
-			ui-disable-choice="option.selected == true"
+			ui-disable-choice="option.disabled"
 			data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
-			<bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar>
-			<div class="ui-select-choice-item" bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true" ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
+			<div ng-class="{'already-selected': option.selected}">
+				<div ng-if="option.isGroup"></div>
+				<div ng-if="!option.isGroup"><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
+				<div class="ui-select-choice-item"
+					bp-tooltip="{{option[to.labelProp]}}"
+					bp-tooltip-truncated="true"
+					ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
+			</div>
 		</ui-select-choices>
 		<ui-select-no-choice>
 			<span ng-switch="bpFieldUserPicker.currentState">

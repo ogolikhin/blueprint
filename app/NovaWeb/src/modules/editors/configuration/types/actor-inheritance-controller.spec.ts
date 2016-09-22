@@ -10,21 +10,27 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "../../../main/models/enums";
-import { ILocalizationService } from "../../../core/localization";
+import { ILocalizationService } from "../../.";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { IMessageService } from "../../../core/messages";
+import { IMessageService } from "../../.";
 import { DialogServiceMock, IDialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {formlyConfig} from "../formly-config";
-import { SettingsService } from "../../../core";
+import { SettingsService } from "../../.";
 import { ISelectionManager, SelectionManager } from "../../../managers/selection-manager/selection-manager";
-import { actorInheritanceController } from "./actor-inheritance-controller";
+import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog-mock";
 import { IStatefulArtifact } from "../../../managers/models";
 
-
-
 describe("Actor Inheritance controller", () => {
+
+    let controller: BPFieldInheritFromController,
+        scope,
+        rootScope,
+        compile,
+        module,
+        createController,
+        $controller : ng.IControllerService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock)
@@ -33,11 +39,9 @@ describe("Actor Inheritance controller", () => {
         $provide.service("selectionManager", SelectionManager);
     }));
 
-    let compile, scope, rootScope, module;
-
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
@@ -54,17 +58,21 @@ describe("Actor Inheritance controller", () => {
                     hasAccess: true,
                     isProjectPathVisible: true
                 };
+
+                scope["to"] = {
+                    onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {}
+                };
+
+                controller = $controller(BPFieldInheritFromController, {$scope: scope});
             }
         )
     );
 
-    it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
+    beforeEach(angular.mock.inject(function(_$controller_){
+        $controller = _$controller_;
+    }));
 
-        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
-        scope.to = {
-            onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
-            }
-        };
+    it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
 
         // Act
         scope.deleteBaseActor();     
@@ -73,12 +81,6 @@ describe("Actor Inheritance controller", () => {
     }));
 
     it("select base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {                
-
-        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
-        scope.to = {
-            onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
-            }
-        };
 
         // Act
         scope.selectBaseActor();
@@ -96,7 +98,7 @@ describe("Actor Inheritance controller", () => {
             id: 10                       
         };
         selectionManager.setArtifact(artifact);
-        let ac = actorInheritanceController(scope, localization, $window, messageService, dialogService, selectionManager);
+
         var addErrorSpy = spyOn(messageService, "addError");
 
         // Act

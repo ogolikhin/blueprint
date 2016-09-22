@@ -100,6 +100,9 @@ namespace SearchService.Repositories
 
         private string GetQuery(string input)
         {
+            //Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
+            //doubling the quote to "" fixes it. 
+            //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
                 string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
         }

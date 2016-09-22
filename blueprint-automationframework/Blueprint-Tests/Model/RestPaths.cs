@@ -287,12 +287,18 @@ namespace Model
                 public const string FILES_id_                       = "svc/filestore/files/{0}";
                 public const string STATUS                          = "svc/filestore/status";
 
-                public const string NOVAFILE_id_                   = "svc/bpfilestore/file/{0}";
+                public const string NOVAFILE_id_                    = "svc/bpfilestore/file/{0}";
 
                 public static class Status
                 {
                     public const string UPCHECK                     = "svc/filestore/status/upcheck";
                 }
+            }
+
+            public static class FullTextSearch
+            {
+                public const string FULLTEXTSEARCH                  = "svc/searchservice/fulltextsearch";
+                public const string FULLTEXTSEARCHMETADATA          = "svc/searchservice/fulltextsearch/metadata";
             }
 
             public static class Shared

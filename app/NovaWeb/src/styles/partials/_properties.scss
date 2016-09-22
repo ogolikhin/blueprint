@@ -680,54 +680,6 @@ pagecontent, bp-properties-panel {
         }
       }
 
-      .user-picker {
-        .ui-select-choices {
-          display: flex;
-          flex-flow: column nowrap;
-          overflow: hidden;
-
-          .ui-select-choices-group {
-            max-height: 100%;
-            overflow: auto;
-
-            bp-avatar {
-              height: 25px;
-              width: 25px;
-
-              .avatar-placeholder .initials {
-                font-size: 0.9rem;
-              }
-            }
-          }
-
-          .ui-select-results-count {
-            border-top: solid 1px $gray-lighter;
-            flex: none;
-            height: 56px;
-
-            div {
-              font-size: $font-size-normal;
-              height: 27px;
-              padding: 9px 0 0;
-              text-align: center;
-            }
-
-            button {
-              background: $white;
-              border: 0;
-              color: $brand-secondary;
-              font-size: $font-size-big;
-              font-weight: 600;
-              height: 28px;
-              line-height: 20px;
-              outline: none;
-              padding: 0 0 8px;
-              width: 100%;
-            }
-          }
-        }
-      }
-
       .form-tinymce {
         border: solid 1px $gray-lightest;
         border-radius: 0;
@@ -789,6 +741,106 @@ pagecontent, bp-properties-panel {
         border-color: transparent !important;
         cursor: default !important;
         padding-right: $property-padding-default !important;
+      }
+    }
+
+    $user-picker-choice-size: 40px;
+    .formly-field-bpFieldUserPicker {
+      .ui-select-multiple .ui-select-choices {
+        display: flex;
+        flex-flow: column nowrap;
+        overflow: hidden;
+
+        .ui-select-choices-group {
+          max-height: 100%;
+          overflow: auto;
+
+          bp-avatar {
+            height: #{$user-picker-choice-size - 12px};
+            margin: 6px 2px;
+            width: #{$user-picker-choice-size - 12px};
+
+            .avatar-placeholder .initials {
+              font-size: $font-size-smaller;
+            }
+          }
+        }
+
+        .ui-select-choices-row {
+          height: $user-picker-choice-size;
+
+          .ui-select-choices-row-inner {
+            .ui-select-choice-item {
+              display: flex;
+              flex-flow: row nowrap;
+              height: $user-picker-choice-size;
+              line-height: 100%;
+              overflow: hidden;
+              padding: 0 8px;
+              text-overflow: clip;
+              white-space: normal;
+
+              &::before {
+                flex: none;
+                padding-top: 14px;
+              }
+
+              .ui-select-choice-info {
+                overflow: hidden;
+                padding: 6px 0 6px 4px;
+
+                div {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+
+                  &:first-child {
+                    line-height: 15px;
+                  }
+
+                  &:last-child {
+                    font-size: $font-size-smaller;
+                    line-height: #{$user-picker-choice-size - 12px - 15px};
+                  }
+                }
+              }
+
+              .ui-select-choice-icon {
+                flex: none;
+                height: $user-picker-choice-size;
+                line-height: $user-picker-choice-size;
+                text-align: center;
+                width: #{$user-picker-choice-size - 8px};
+              }
+            }
+          }
+        }
+
+        .ui-select-results-count {
+          border-top: solid 1px $gray-lighter;
+          flex: none;
+          height: 56px;
+
+          div {
+            font-size: $font-size-normal;
+            height: 27px;
+            padding: 9px 0 0;
+            text-align: center;
+          }
+
+          button {
+            background: $white;
+            border: 0;
+            color: $brand-secondary;
+            font-size: $font-size-big;
+            font-weight: 600;
+            height: 28px;
+            line-height: 20px;
+            outline: none;
+            padding: 0 0 8px;
+            width: 100%;
+          }
+        }
       }
     }
 

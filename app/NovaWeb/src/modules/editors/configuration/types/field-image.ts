@@ -108,7 +108,5 @@ export class BPFieldImageController extends BPFieldBaseController {
             $scope.model[$scope.options["key"]] = null;
         };
 
-        //onChange(image.file, getImageField(), $scope);
-        //setFields(currentModelVal);
     }
 }

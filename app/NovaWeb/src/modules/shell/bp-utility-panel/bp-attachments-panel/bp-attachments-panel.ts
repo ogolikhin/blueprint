@@ -124,10 +124,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 if (uploadList) {
                     const newAttachments = uploadList.map((uploadedFile: any) => {
+                        let fileExt: RegExpMatchArray = uploadedFile.name.match(/([^.]*)$/);
                         return <IArtifactAttachment>{
                             userId: this.session.currentUser.id,
                             userName: this.session.currentUser.displayName,
                             fileName: uploadedFile.name,
+                            fileType: fileExt[0] ? fileExt[0] : "",
                             attachmentId: null,
                             guid: uploadedFile.guid,
                             uploadedDate: null
@@ -143,6 +145,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         };
 
         openUploadStatus();
+    }
+
+    public delete(attachment: IArtifactAttachment) {
+        this.item.attachments.remove([attachment]);
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

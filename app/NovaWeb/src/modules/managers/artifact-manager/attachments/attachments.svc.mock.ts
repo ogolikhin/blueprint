@@ -17,6 +17,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "test.png",
+                fileType: ".png",
                 attachmentId: 1093,
                 uploadedDate: "2016-06-23T14:54:27.273Z"
                 },
@@ -24,6 +25,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "bug.wmv",
+                fileType: ".wmv",
                 attachmentId: 1097,
                 uploadedDate: "2016-06-27T15:13:39.12Z"
                 },
@@ -31,6 +33,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "Allegro from Duet in C Major.mp3",
+                fileType: ".mp3",
                 attachmentId: 1098,
                 uploadedDate: "2016-06-27T15:16:33.463Z"
                 },
@@ -38,6 +41,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "adventure_time.jpg",
+                fileType: ".jpg",
                 attachmentId: 1099,
                 uploadedDate: "2016-06-27T15:17:27.433Z"
                 },
@@ -45,6 +49,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "open311ApiGetServiceRequestsReadme.doc",
+                fileType: ".doc",
                 attachmentId: 1100,
                 uploadedDate: "2016-06-27T15:17:27.433Z"
                 },
@@ -52,6 +57,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "demo.zip",
+                fileType: ".zip",
                 attachmentId: 1101,
                 uploadedDate: "2016-06-27T15:17:27.433Z"
                 },
@@ -59,6 +65,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 userId: 1,
                 userName: "admin",
                 fileName: "nova.tslint.json",
+                fileType: ".json",
                 attachmentId: 1103,
                 uploadedDate: "2016-06-27T22:06:25.217Z"
                 }

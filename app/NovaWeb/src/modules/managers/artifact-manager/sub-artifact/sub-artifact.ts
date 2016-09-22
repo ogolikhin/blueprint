@@ -24,6 +24,8 @@ import {
 
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private changesets: IChangeCollector;
+    private loadPromise: ng.IPromise<IStatefulArtifact>;
+    private isLoaded = false;
 
     public deleted: boolean;
     public attachments: IArtifactAttachments;
@@ -112,21 +114,27 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
     }
 
-    private isLoaded = false;
     public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
         if (force || !this.isLoaded) {
-            this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
-                .then((subArtifact: Models.ISubArtifact) => {
-                    this.subArtifact = subArtifact;
-                    this.customProperties.initialize(subArtifact.customPropertyValues);
-                    this.specialProperties.initialize(subArtifact.specificPropertyValues);
-                    //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
-                    this.isLoaded = true;
-                    deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            });
+            if (this.loadPromise) {
+                return this.loadPromise;
+            } else {
+                this.loadPromise = deferred.promise;
+                this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
+                    .then((subArtifact: Models.ISubArtifact) => {
+                        this.subArtifact = subArtifact;
+                        this.customProperties.initialize(subArtifact.customPropertyValues);
+                        this.specialProperties.initialize(subArtifact.specificPropertyValues);
+                        //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
+                        this.isLoaded = true;
+                        deferred.resolve(this);
+                }).catch((err) => {
+                    deferred.reject(err);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
+            }
         } else {
             deferred.resolve(this);
         }

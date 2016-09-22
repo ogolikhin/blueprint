@@ -17,6 +17,7 @@ export interface IArtifactPickerController {
 
 export interface IArtifactPickerOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
+    selectionMode?: "single" | "multiple";
     showSubArtifacts?: boolean;
 }
 

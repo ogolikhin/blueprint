@@ -463,6 +463,7 @@ namespace Model.ArtifactModel.Impl
                 artifactChanges = new NovaArtifactDetails
                 {
                     Id = artifactToUpdate.Id,
+                    ItemTypeId = artifactToUpdate.ArtifactTypeId,   // XXX: This is a required hack until we can make all NovaArtifactDetails properties nullable.  Otherwise some tests fail with "Project ID provided is invalid."
                     ProjectId = artifactToUpdate.ProjectId,
                     Version = artifactToUpdate.Version,
                     Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)

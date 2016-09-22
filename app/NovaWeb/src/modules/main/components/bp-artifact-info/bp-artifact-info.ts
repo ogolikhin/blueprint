@@ -74,6 +74,7 @@ export class BpArtifactInfoController {
     private onArtifactChanged = (artifact: IStatefulArtifact) => {
         if (artifact) {
             this.artifact = artifact;
+            this.updateProperties(this.artifact);
             this.subscribers.push(
                 this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
             );

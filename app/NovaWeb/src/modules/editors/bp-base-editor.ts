@@ -24,7 +24,7 @@ export class BpBaseEditor {
     public $onChanges(obj: any) {
         // this.artifact = this.context;
         try {
-//            this.artifactManager.selection.clearAll();
+            this.artifactManager.selection.clearAll();
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {
@@ -40,6 +40,8 @@ export class BpBaseEditor {
 
     public $onDestroy() {
         try {
+            this.artifactManager.selection.clearAll();
+            
             delete this.artifact;
             this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         } catch (ex) {

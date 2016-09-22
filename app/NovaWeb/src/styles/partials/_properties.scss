@@ -904,7 +904,6 @@ pagecontent, bp-properties-panel {
 
       .icon{
         cursor:pointer;
-        margin-right: 5px;
         &.disabled{
           opacity: $default-desabled-opacity;
           cursor: not-allowed;
@@ -932,8 +931,7 @@ pagecontent, bp-properties-panel {
 
         .bp-input-group-addon{
           &.icon-wrapper{
-            line-height: #{$property-min-height + 6px}; // height of input box plus padding
-            display: inline-block;
+            padding-top:10px;
             padding-right: 2px;
           }
         }
@@ -1002,7 +1000,6 @@ pagecontent, bp-properties-panel {
         padding:0;
         background-color: transparent;
         border:none;
-<<<<<<< HEAD
         label{
             padding: 5px 9px !important;
             min-width: 20px;
@@ -1016,13 +1013,10 @@ pagecontent, bp-properties-panel {
         }
 
 
-=======
->>>>>>> buttons-styling
         .icon {
           display: inline-block;
           line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
           padding-left: $padding-smaller;
-<<<<<<< HEAD
           padding-right: $padding-smaller;
           &.disabled{
             opacity: $default-desabled-opacity;
@@ -1033,17 +1027,6 @@ pagecontent, bp-properties-panel {
        
 
 
-=======
-          padding-right: $padding-smaller; // normalize the general 5px spacing between elements (see above)
-        }
-        &:not(:first-child):not(:last-child) {
-            padding-right: 5px;
-            .icon {
-                padding-right: $padding-smaller - 5px;
-            }
-        }
-      }
->>>>>>> buttons-styling
       .thumb{
         width:30px;
         height:30px;

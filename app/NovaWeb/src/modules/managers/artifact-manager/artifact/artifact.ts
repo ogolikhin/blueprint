@@ -30,6 +30,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
     private changesets: IChangeCollector;
+    private loadPromise: ng.IPromise<IStatefulArtifact>;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
@@ -186,7 +187,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     }
     
-    public setValidationErrorsFlag(value: boolean){
+    public setValidationErrorsFlag(value: boolean) {
         this.artifactState.invalid = value;
     }
 
@@ -194,27 +195,34 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.isProject() && (force || !this.isLoaded)) {
-            this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                let parentId = this.artifact.parentId; 
-                this.artifact = artifact;
-                this.artifactState.initialize(artifact);
-                this.customProperties.initialize(artifact.customPropertyValues);
-                this.specialProperties.initialize(artifact.specificPropertyValues);
-                if (parentId && parentId !== artifact.parentId) {
-                    this.artifactState.set({
-                        readonly: true,
-                        lockedby: 0
-                    });
-                    this.services.messageService.addError("The artifach has been moved!");
-                }
-                this.isLoaded = true;
-                this.artifactState.outdated = false;
-                deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            }).finally(() => {
-                this.lockpromise = null;
-            });
+            if (this.loadPromise) {
+                return this.loadPromise;
+            } else {
+                this.loadPromise = deferred.promise;
+                this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+                    this.loadPromise = null;
+                    this.artifact = artifact;
+                    this.artifactState.initialize(artifact);
+                    this.customProperties.initialize(artifact.customPropertyValues);
+                    this.specialProperties.initialize(artifact.specificPropertyValues);
+                    
+                    const parentId = this.artifact.parentId;
+                    if (parentId && parentId !== artifact.parentId) {
+                        this.artifactState.set({
+                            readonly: true,
+                            lockedby: 0
+                        });
+                        this.services.messageService.addError("The artifact has been moved!");
+                    }
+                    this.isLoaded = true;
+                    this.artifactState.outdated = false;
+                    deferred.resolve(this);
+                }).catch((err) => {
+                    deferred.reject(err);
+                }).finally(() => {
+                    this.lockpromise = null;
+                });
+            }
         } else {
             deferred.resolve(this);
         }

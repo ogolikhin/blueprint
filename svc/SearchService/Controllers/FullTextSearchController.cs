@@ -141,7 +141,9 @@ namespace SearchService.Controllers
 
         private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
         {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || !searchCriteria.ProjectIds.Any())
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || 
+                searchCriteria.Query.Trim().Length < ServiceConstants.MinSearchQueryCharLimit || 
+                !searchCriteria.ProjectIds.Any())
             {
                 return false;
             }

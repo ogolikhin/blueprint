@@ -27,6 +27,6 @@ namespace SearchService
 
         public static int MaxItems = ConfigurationManager.AppSettings["MaxItems"].ToInt32(ServiceConstants.MaxSearchItems);
         
-        public static int MaxSearchableValueStringSize = ConfigurationManager.AppSettings["MaxSearchableValueStringSize"].ToInt32(10);
+        public static int MaxSearchableValueStringSize = ConfigurationManager.AppSettings["MaxSearchableValueStringSize"].ToInt32(ServiceConstants.MaxSearchableValueStringSize);        
     }
 }

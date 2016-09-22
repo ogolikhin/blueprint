@@ -8,8 +8,8 @@ export class BPFieldText implements AngularFormly.ITypeOptions {
     public template: string = require("./text.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync((scope) => {
-            scope["fc"].$setTouched();
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
         });
     };
     public controller: Function = BpFieldTextController;

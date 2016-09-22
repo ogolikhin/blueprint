@@ -9,23 +9,21 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public extends: string = "select";
     public template: string = require("./select.template.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync((scope) => {
-            scope["fc"].$setTouched();
-            (scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = (scope["fc"] as ng.IFormController).$invalid;
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
+            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
-                scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", scope["bpFieldSelect"].closeDropdownOnTab, true);
+                $scope["uiSelectContainer"] = uiSelectContainer;
+                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelect"].closeDropdownOnTab, true);
             }
         });
     };
     public controller: Function = BpFieldSelectController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 
@@ -67,6 +65,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
         }
 
         $scope["bpFieldSelect"] = {
+            closeDropdownOnTab: this.closeDropdownOnTab,
             refreshResults: function ($select) {
                 if (!$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom) {
                     let search = $select.search;
@@ -122,8 +121,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
                         }
                     }
                 }
-            },
-            closeDropdownOnTab: this.closeDropdownOnTab
+            }
         };
     }
 }

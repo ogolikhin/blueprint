@@ -67,37 +67,6 @@ pagecontent, bp-properties-panel {
         display: none;
       }
     }
-
-    /* DO NOT DELETE. Commented out while testing Formly
-      .content {
-        align-content: flex-start;
-        align-items: flex-start;
-        display: flex;
-        flex-wrap: wrap;
-        font-size: $font-size-smallest;
-        justify-content: space-between;
-        margin: 0 10px;
-        min-width: $property-content-min-width;
-        //overflow: auto;
-        padding: 0 0 10px;
-
-        // create "padding" to align un-even numbers of property groups
-        &::after,
-        &::before {
-          content: '';
-          display: flex;
-          //flex: 392px;
-          flex-grow: 0;
-          flex-shrink: 1;
-          order: 0;
-          width: 392px;
-        }
-
-        &::before {
-          order: 1;
-        }
-      }
-    */
   }
 
   .formly {
@@ -349,7 +318,8 @@ pagecontent, bp-properties-panel {
               }
 
               &:hover .ui-select-choice-item {
-                background: $blue-lightest;
+                background: $brand-secondary;
+                color: $white;
 
                 &::before {
                   content: '\2713';
@@ -360,11 +330,11 @@ pagecontent, bp-properties-panel {
 
           .ui-select-choices-row.disabled {
             .ui-select-choices-row-inner {
-              color: $gray;
               cursor: not-allowed;
 
               .ui-select-choice-item {
                 background: transparent;
+                color: $gray;
 
                 &::before {
                   content: '\2713';
@@ -380,7 +350,8 @@ pagecontent, bp-properties-panel {
           .ui-select-choices-row.active {
             .ui-select-choices-row-inner {
               .ui-select-choice-item {
-                background: $blue-lightest;
+                background: $brand-secondary;
+                color: $white;
 
                 &::before {
                   content: '\2713';
@@ -558,7 +529,8 @@ pagecontent, bp-properties-panel {
           &:not(.disable-highlight) {
             .ui-select-choices-row.active .ui-select-choice-item,
             .ui-select-choices-row-inner:hover .ui-select-choice-item {
-              background: $blue-lightest;
+              background: $brand-secondary;
+              color: $white;
 
               &::before {
                 content: '\2713';
@@ -568,11 +540,11 @@ pagecontent, bp-properties-panel {
 
           .ui-select-choices-row.disabled {
             .ui-select-choices-row-inner {
-              color: $gray;
               cursor: not-allowed;
 
               .ui-select-choice-item {
                 background: transparent;
+                color: $gray;
 
                 &::before {
                   content: '\2713';
@@ -774,19 +746,110 @@ pagecontent, bp-properties-panel {
         padding-right: $property-padding-default !important;
       }
     }
-    /*
-      .formly-field-tinymce,
-      .formly-field-tinymceInline {
-        display: block;
-        max-width: 100%;
-        width: 100%;
 
-        label {
-          display: block;
-          width: 100%;
+    $user-picker-choice-size: 40px;
+    $user-picker-results-count: 56px;
+    .formly-field-bpFieldUserPicker {
+      .ui-select-multiple .ui-select-choices {
+        display: flex;
+        flex-flow: column nowrap;
+        height: #{10 * $user-picker-choice-size}; // hack to trick IE display flex
+        max-height: #{5 * $user-picker-choice-size + $user-picker-results-count + 2px}; //2px is the top and bottom border
+        overflow: hidden;
+
+        .ui-select-choices-group {
+          max-height: 100%;
+          overflow: auto;
+
+          bp-avatar {
+            height: #{$user-picker-choice-size - 12px};
+            margin: 6px 2px;
+            width: #{$user-picker-choice-size - 12px};
+
+            .avatar-placeholder .initials {
+              font-size: $font-size-smaller;
+            }
+          }
+        }
+
+        .ui-select-choices-row {
+          height: $user-picker-choice-size;
+
+          .ui-select-choices-row-inner {
+            .ui-select-choice-item {
+              display: flex;
+              flex-flow: row nowrap;
+              height: $user-picker-choice-size;
+              line-height: 100%;
+              overflow: hidden;
+              padding: 0 8px;
+              text-overflow: clip;
+              white-space: normal;
+
+              &::before {
+                flex: none;
+                padding-top: 14px;
+              }
+
+              .ui-select-choice-info {
+                overflow: hidden;
+                padding: 6px 0 6px 4px;
+
+                div {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+
+                  &:first-child {
+                    line-height: 15px;
+                  }
+
+                  &:last-child {
+                    font-size: $font-size-smaller;
+                    line-height: #{$user-picker-choice-size - 12px - 15px};
+                  }
+                }
+              }
+
+              .ui-select-choice-icon {
+                flex: none;
+                height: $user-picker-choice-size;
+                line-height: $user-picker-choice-size;
+                text-align: center;
+                width: #{$user-picker-choice-size - 8px};
+              }
+            }
+          }
+        }
+
+        .ui-select-results-count {
+          border-top: solid 1px $gray-lighter;
+          flex: none;
+          height: $user-picker-results-count;
+
+          div {
+            font-size: $font-size-normal;
+            height: 27px;
+            padding: 9px 0 0;
+            text-align: center;
+          }
+
+          button {
+            background: $white;
+            border: 0;
+            color: $brand-secondary;
+            font-size: $font-size-big;
+            font-weight: 600;
+            height: 28px;
+            line-height: 20px;
+            outline: none;
+            padding: 0 0 8px;
+            width: 100%;
+          }
         }
       }
-    */
+    }
+
     .formly-field-bpFieldTextRTF,
     .formly-field-bpFieldTextRTFInline {
       > div {
@@ -899,6 +962,7 @@ pagecontent, bp-properties-panel {
 
       .icon{
         cursor:pointer;
+        margin-right: 5px;
         &.disabled{
           opacity: $default-desabled-opacity;
           cursor: not-allowed;
@@ -926,7 +990,8 @@ pagecontent, bp-properties-panel {
 
         .bp-input-group-addon{
           &.icon-wrapper{
-            padding-top:10px;
+            line-height: #{$property-min-height + 6px}; // height of input box plus padding
+            display: inline-block;
             padding-right: 2px;
           }
         }
@@ -996,14 +1061,31 @@ pagecontent, bp-properties-panel {
         background-color: transparent;
         border:none;
         label{
-            padding: 5px 9px !important;
+            padding: 5px 9px ;
             min-width: 20px;
             text-align: center;
             width: auto !important;
-            margin: 5px 5px 5px !important;
+            margin: 5px 5px 5px;
             font-size:  $font-size-big;
             input[type=file]{
                 display:none;
+            }
+            &.btn-small{
+              padding:5px 10px;
+              min-width: 20px;
+              font-size: 1.2rem;
+          }
+            &.btn-primary {
+                background-color: transparent;
+                border: 1px solid $gray-light;
+                color: $gray-light;
+                &:hover,
+                &:focus,
+                &:active {
+                    background-color: transparent;
+                    border-color: $brand-secondary;
+                    color: $brand-secondary;
+              }
             }
         }
 
@@ -1018,6 +1100,12 @@ pagecontent, bp-properties-panel {
             cursor: not-allowed;
           }
         }
+        &:not(:first-child):not(:last-child) {
+           padding-right: 5px;
+            .icon {
+                padding-right: $padding-smaller - 5px;
+            }
+          }
       }
        
 

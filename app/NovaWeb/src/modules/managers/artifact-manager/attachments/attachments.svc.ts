@@ -12,9 +12,11 @@ export interface IArtifactAttachment {
     userId: number;
     userName: string;
     fileName: string;
+    fileType: string;
     attachmentId: number;
     uploadedDate: string;
     guid?: string;
+    changeType?: number;
 }
 
 export interface IArtifactDocRef {
@@ -24,6 +26,7 @@ export interface IArtifactDocRef {
     userName: string;
     itemTypePrefix: string;
     referencedDate: string;
+    changeType?: number;
 }
 
 export interface IArtifactAttachmentsResultSet {

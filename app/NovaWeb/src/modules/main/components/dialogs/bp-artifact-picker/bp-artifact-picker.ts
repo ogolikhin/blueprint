@@ -17,7 +17,7 @@ export interface IArtifactPickerController {
 
 export interface IArtifactPickerOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
-    selectionMode?: "single" | "multiple";
+    selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
 }
 
@@ -85,6 +85,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         },
         cellRenderer: "group",
         cellRendererParams: {
+            checkbox: this.dialogData.selectionMode === "checkbox",
             innerRenderer: (params) => {
                 const vm = params.data as ArtifactPickerNodeVM<any>;
                 const icon = vm.getIcon();

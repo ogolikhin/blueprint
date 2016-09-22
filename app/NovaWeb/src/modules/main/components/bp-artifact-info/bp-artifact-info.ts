@@ -227,7 +227,7 @@ export class BpArtifactInfoController {
 
         const dialogData: IArtifactPickerOptions = {
             selectableItemTypes: [],
-            selectionMode: "multiple",
+            selectionMode: "checkbox",
             showSubArtifacts: true
         };
 

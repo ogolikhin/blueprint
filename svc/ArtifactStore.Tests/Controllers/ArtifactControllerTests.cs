@@ -177,30 +177,5 @@ namespace ArtifactStore.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result[0].Id);
         }
-
-        [TestMethod]
-        public async Task GetArtifactInfoAsync_Success()
-        {
-            // Arrange
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-            const int artifactId = 10;
-            var artifact = new Artifact();
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
-            mockArtifactRepository.Setup(r => r.GetArtifactInfoAsync(artifactId, userId)).ReturnsAsync(artifact);
-            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
-            {
-                Request = new HttpRequestMessage()
-            };
-            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
-
-            // Act
-            var result = await artifactController.GetArtifactInfoAsync(artifactId);
-
-            //Assert
-            Assert.AreSame(artifact, result);
-        }
     }
 }

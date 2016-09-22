@@ -76,5 +76,26 @@ namespace ArtifactStore.Controllers
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId);
             return result;
         }
+
+        /// <summary>
+        /// Get version control information of an artifact or sub-artifact.
+        /// </summary>
+        /// <remarks>
+        /// Returns version control information of the specified artifact or sub-artifact.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact or sub-artifact.</response>
+        /// <response code="404">Not found. An artifact or sub-artifact for the specified id does not exist.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("artifacts/versionControlInfo/{itemId:int:min(1)}"), SessionRequired]
+        [ActionName("GetVersionControlArtifactInfo")]
+        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, session.UserId);
+        }
     }
 }

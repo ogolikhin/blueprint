@@ -12,8 +12,8 @@ namespace FileStoreTests
     {
         [TestCase]
         [TestRail(106953)]
-        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing the status of dependent services.")]
-        public static void GetStatus_ValidPreAuthorizedKey_ValidReturnedContent()
+        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
+        public static void GetStatusWithPreAuthorizedKey_ValidPreAuthorizedKey_ReturnsDetailedStatus()
         {
             using (TestHelper helper = new TestHelper())
             {
@@ -24,13 +24,35 @@ namespace FileStoreTests
                     content = helper.FileStore.GetStatus();
                 }, "The GET /status endpoint should return 200 OK!");
 
-                var extraExpectedStrings = new List<string> {"FileStore", "FileStorageDB"};
+                var extraExpectedStrings = new List<string> {"FileStore", "FileStorageDB", "\"accessInfo\":\"data source=" };
 
                 CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
             }
         }
 
-        [TestCase(null)]
+        [TestCase]
+        [TestRail(166143)]
+        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        public static void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
+        {
+            using (TestHelper helper = new TestHelper())
+            {
+                string content = null;
+
+                Assert.DoesNotThrow(() =>
+                {
+                    content = helper.FileStore.GetStatus();
+                }, "The GET /status endpoint should return 200 OK!");
+
+                var extraExpectedStrings = new List<string> { "FileStore", "FileStorageDB" };
+
+                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+
+                // Verify secure info isn't returned:
+                Assert.IsFalse(content.Contains("accessInfo=data source"), "Connection string info was returned without a pre-authorized key!");
+            }
+        }
+
         [TestCase("ABCDEFG123456")]
         [TestRail(106954)]
         [Description("Calls the /status endpoint for FileStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]

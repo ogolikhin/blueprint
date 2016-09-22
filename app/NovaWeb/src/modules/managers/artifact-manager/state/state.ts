@@ -13,6 +13,7 @@ interface IState {
     published?: boolean;
     deleted?: boolean;
     outdated?: boolean;
+    invalid?: boolean;
 }
 
 export interface IArtifactState extends IState, IDispose {
@@ -131,11 +132,18 @@ export class ArtifactState implements IArtifactState {
     public set published(value: boolean) {
         this.set({published: value});
     }
-
     public get outdated(): boolean {
         return this.state.outdated;
     }
     public set outdated(value: boolean) {
         this.state.outdated = value;
+    }
+    
+    public get invalid(): boolean {
+        return this.state.invalid;
+    }
+
+    public set invalid(value: boolean) {
+        this.state.invalid = value;
     }
 }

@@ -30,5 +30,6 @@ Invoke-MsBuild -project ${WORKSPACE}\svc\AdminStore\AdminStore.csproj -publishUr
 Invoke-MsBuild -project ${WORKSPACE}\svc\FileStore\FileStore.csproj -publishUrl "..\DeployArtifacts\FileStore"
 Invoke-MsBuild -project ${WORKSPACE}\svc\ConfigControl\ConfigControl.csproj -publishUrl "..\DeployArtifacts\ConfigControl"
 Invoke-MsBuild -project ${WORKSPACE}\svc\ArtifactStore\ArtifactStore.csproj -publishUrl "..\DeployArtifacts\ArtifactStore"
+Invoke-MsBuild -project ${WORKSPACE}\svc\SearchService\SearchService.csproj -publishUrl "..\DeployArtifacts\SearchService"
 
 Read-Host

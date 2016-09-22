@@ -60,7 +60,7 @@ namespace SearchService.Controllers
             int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
             if (searchPageSize <= 0)
             {
-                searchPageSize = WebApiConfig.PageSize;
+                searchPageSize = GetDefaultSearchPageSize();
             }
 
             int searchPage = page.HasValue && page.Value > 0 ? page.Value : 1;
@@ -100,7 +100,7 @@ namespace SearchService.Controllers
                 return Unauthorized();
             }
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
             {
                 return BadRequest();
             }
@@ -108,7 +108,7 @@ namespace SearchService.Controllers
             int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
             if (searchPageSize <= 0)
             {
-                searchPageSize = WebApiConfig.PageSize;
+                searchPageSize = GetDefaultSearchPageSize();
             }
 
             var results = await _fullTextSearchRepository.SearchMetaData(userId.Value, searchCriteria);
@@ -117,6 +117,11 @@ namespace SearchService.Controllers
             results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
 
             return Ok(results);
+        }
+
+        private static int GetDefaultSearchPageSize()
+        {
+            return WebApiConfig.PageSize > 0 ? WebApiConfig.PageSize : ServiceConstants.SearchPageSize;
         }
 
         #endregion
@@ -136,7 +141,7 @@ namespace SearchService.Controllers
 
         private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
         {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query))
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || !searchCriteria.ProjectIds.Any())
             {
                 return false;
             }

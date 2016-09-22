@@ -80,7 +80,8 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     private clearSelectionFilter = (selection: ISelection) => {
-        return selection != null
+        return this.artifact
+               && selection != null
                && selection.artifact
                && selection.artifact.id === this.artifact.id
                && !selection.subArtifact;
@@ -99,36 +100,43 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     public onUpdate() {
-        if (this.artifact !== null) {
-            this.cancelationToken = this.$q.defer();
-            this.artifact.load(true).then((it: IStatefulArtifact) => {
-                this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+        if (this.isDestroyed()) {
+            return;
+        }
+        this.cancelationToken = this.$q.defer();
+        this.artifact.load(true).then((it: IStatefulArtifact) => {
+            if (this.isDestroyed()) {
+                return;
+            }
+            this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+                this.initSubArtifacts(diagram);
 
-                    this.initSubArtifacts(diagram);
-
-                    if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
-                        this.isBrokenOrOld = true;
-                        this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
-                        this.$log.error("Old diagram, libraryVersion is 0");
-                    } else {
-                        this.isBrokenOrOld = false;
-                        this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                        this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
-                        this.stylizeSvg(this.$element, diagram.width, diagram.height);
-                        this.diagramView.drawDiagram(diagram);
-                    }
-                }).catch((error: any) => {
-                    if (error !== CancelationTokenConstant.cancelationToken) {
-                        this.isBrokenOrOld = true;
-                        this.errorMsg = error.message;
-                        this.$log.error(error.message);
-                    }               
-                }).finally(() => {
-                    this.cancelationToken = null;
-                    this.isLoading = false;
-                });
+                if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
+                    this.isBrokenOrOld = true;
+                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
+                    this.$log.error("Old diagram, libraryVersion is 0");
+                } else {
+                    this.isBrokenOrOld = false;
+                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                    this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
+                    this.stylizeSvg(this.$element, diagram.width, diagram.height);
+                    this.diagramView.drawDiagram(diagram);
+                }
+            }).catch((error: any) => {
+                if (error !== CancelationTokenConstant.cancelationToken) {
+                    this.isBrokenOrOld = true;
+                    this.errorMsg = error.message;
+                    this.$log.error(error.message);
+                }               
+            }).finally(() => {
+                this.cancelationToken = null;
+                this.isLoading = false;
             });
-        }   
+        });  
+    }
+
+    private isDestroyed() {
+        return !this.artifact;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

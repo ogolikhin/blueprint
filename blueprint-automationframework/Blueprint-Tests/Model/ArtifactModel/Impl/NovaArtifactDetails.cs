@@ -133,10 +133,12 @@ namespace Model.ArtifactModel.Impl
         /// Asserts that this INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
         /// </summary>
         /// <param name="artifact">The INovaArtifactResponse to compare against.</param>
+        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
+        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaArtifactResponse artifact)
+        public void AssertEquals(INovaArtifactResponse artifact, bool skipDatesAndDescription = false)
         {
-            AssertEquals(this, artifact);
+            AssertEquals(this, artifact, skipDatesAndDescription);
         }
 
         /// <summary>
@@ -144,25 +146,31 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
         /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
+        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
+        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2)
+        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
 
             Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
             Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
             Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
             Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-            Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-            Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
 
-            Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-            Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+            if (!skipDatesAndDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+            }
         }
 
         /// <summary>
@@ -188,6 +196,7 @@ namespace Model.ArtifactModel.Impl
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
             bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+
             if (isJSONChanged)
             {
                     string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
@@ -198,31 +207,20 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// DocumentFile property for Artifact of Document type
+        /// Gets or sets the DocumentFile property for Artifact of Document type.
         /// TODO: replace this and GetActorInheritance function with generic function
         /// </summary>
         public DocumentFileValue DocumentFile
         {
-            /// <summary>
-            /// Returns DocumentFile property for Artifact of Document type
-            /// </summary>
             get
             {
                 // Finding DocumentFile among other properties
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
-                if (documentFileProperty == null)
-                {
-                    return null;
-                }
-                return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
+                return (DocumentFileValue) documentFileProperty?.CustomPropertyValue;
             }
 
-            /// <summary>
-            /// Sets DocumentFile property for Artifact of Document type
-            /// </summary>
-            /// <param name="value">DocumentFile property.</param>
             set
             {
                 // Finding DocumentFile among other properties

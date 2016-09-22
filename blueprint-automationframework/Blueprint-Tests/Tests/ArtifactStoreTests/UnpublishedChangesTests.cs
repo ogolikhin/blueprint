@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
@@ -33,9 +31,8 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/9f9PjtnF  Version of saved artifact is 0 instead of -1.
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(000)]
+        [TestRail(182259)]
         [Description("Create & save an artifact.  GetUnpublishedChanges.  Verify the saved artifact is returned.")]
         public void GetArtifactDetails_SavedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
@@ -51,13 +48,12 @@ namespace ArtifactStoreTests
 
             foreach (var change in unpublishedChanges.Artifacts)
             {
-                artifactDetails.AssertEquals(change);
+                artifactDetails.AssertEquals(change, skipDatesAndDescription: true);
             }
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(000)]
+        [TestRail(182260)]
         [Description("Create & publish an artifact, then change & save it.  GetUnpublishedChanges.  Verify the draft artifact is returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
@@ -75,7 +71,7 @@ namespace ArtifactStoreTests
 
             foreach (var change in unpublishedChanges.Artifacts)
             {
-                artifactDetails.AssertEquals(change);
+                artifactDetails.AssertEquals(change, skipDatesAndDescription: true);
             }
         }
     }

@@ -89,7 +89,8 @@
     "typescript": "~1.8.9",
     "typings": "~1.3.2",
     "url-loader": "~0.5.7",
-    "webpack": "^1.12.14"
+    "webpack": "^1.12.14",
+    "webpack-fail-plugin": "^1.0.5"
   },
   "config": {
     "backend": "http://localhost:9801"

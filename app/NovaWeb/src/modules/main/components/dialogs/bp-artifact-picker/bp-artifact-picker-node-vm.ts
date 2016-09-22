@@ -116,6 +116,12 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         }
         return super.getIcon();
     }
+
+    public isSelectable(): boolean {
+        return !(this.options &&
+            this.options.selectableItemTypes &&
+            this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+    }
  
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
@@ -139,6 +145,10 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
         var result = super.getCellClass();
         result.push("is-subartifact");
         return result;
+    }
+
+    public isSelectable(): boolean {
+        return false;
     }
 
     public loadChildrenAsync(): ng.IPromise<void> {

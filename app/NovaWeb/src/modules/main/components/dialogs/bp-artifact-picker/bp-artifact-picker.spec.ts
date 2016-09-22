@@ -24,7 +24,7 @@ describe("ArtifactPickerController", () => {
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
         projectService = {} as IProjectService;
-        options = {selectableItemTypes: [Models.ItemTypePredefined.Actor], showSubArtifacts: true};
+        options = {};
         controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, options);
     }));
 
@@ -92,9 +92,9 @@ describe("ArtifactPickerController", () => {
         });
     });
 
-    it("onSelect, when selectable ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
+    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
         // Arrange
-        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Actor} as Models.IArtifact;
+        const model = {id: 3} as Models.IArtifact;
         const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
         // Act
@@ -103,19 +103,6 @@ describe("ArtifactPickerController", () => {
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.returnValue).toBe(model);
-    }));
-
-    it("onSelect, when not selectable ArtifactNodeVM, clears selected item", inject(($browser) => {
-        // Arrange
-        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Glossary} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
-
-        // Act
-        controller.onSelect(vm);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
     }));
 
     it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {

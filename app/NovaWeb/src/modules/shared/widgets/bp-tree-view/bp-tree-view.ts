@@ -51,6 +51,7 @@ export interface ITreeViewNodeVM {
     isExpandable: boolean;
     children: ITreeViewNodeVM[];
     isExpanded: boolean;
+    isSelectable?(): boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
 
@@ -243,6 +244,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
         const node = event.node as agGrid.RowNode &
             {setSelectedParams: (params: {newValue: boolean, clearSelection?: boolean, tailingNodeInSequence?: boolean, rangeSelect?: boolean}) => void};
+        const vm = node.data as ITreeViewNodeVM;
 
         // We set suppressRowClickSelection and handle row selection here because ag-grid's renderedRow.onRowClick()
         // does not work correctly with checkboxes and does not allow selection of group rows.
@@ -256,16 +258,23 @@ export class BPTreeViewController implements IBPTreeViewController {
             } else {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
-        } else {
+        } else if (vm.isSelectable ? vm.isSelectable() : true) {
             node.setSelectedParams({newValue: true, clearSelection: !multiSelectKeyPressed, rangeSelect: shiftKeyPressed});
         }
     }
 
     public onRowSelected = (event: {node: agGrid.RowNode}) => {
         let node = event.node;
-        if (this.onSelect && node.isSelected()) {
+        if (node.isSelected()) {
             let vm = node.data as ITreeViewNodeVM;
-            this.onSelect({vm: vm});
+            if (vm.isSelectable ? vm.isSelectable() : true) {
+                if (this.onSelect) {
+                    let vm = node.data as ITreeViewNodeVM;
+                    this.onSelect({vm: vm});
+                }
+            } else {
+                node.setSelected(false);
+            }
         }
     }
 

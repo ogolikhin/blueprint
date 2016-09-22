@@ -385,6 +385,7 @@ describe("BPTreeViewController", () => {
             const event = {ctrlKey: false, metaKey: false, shiftKey: true, target: target} as MouseEvent;
             const node = jasmine.createSpyObj("node", ["isSelected", "setSelectedParams"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
             (node.isSelected as jasmine.Spy).and.returnValue(false);
+            node.data = {isSelectable() { return true; }};
 
             // Act
             controller.onCellClicked({event: event, node: node});
@@ -393,7 +394,6 @@ describe("BPTreeViewController", () => {
             expect(node.setSelectedParams).toHaveBeenCalledWith({newValue: true, clearSelection: true, rangeSelect: true});
         });
 
-
         it("onCellClicked, when unselected node clicked in checkbox mode, calls setSelectedParams correctly", () => {
             // Arrange
             controller.selectionMode = "checkbox";
@@ -401,6 +401,7 @@ describe("BPTreeViewController", () => {
             const event = {ctrlKey: false, metaKey: false, shiftKey: true, target: target} as MouseEvent;
             const node = jasmine.createSpyObj("node", ["isSelected", "setSelectedParams"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
             (node.isSelected as jasmine.Spy).and.returnValue(false);
+            node.data = {isSelectable() { return true; }};
 
             // Act
             controller.onCellClicked({event: event, node: node});
@@ -409,7 +410,23 @@ describe("BPTreeViewController", () => {
             expect(node.setSelectedParams).toHaveBeenCalledWith({newValue: true, clearSelection: false, rangeSelect: true});
         });
 
-        it("onRowSelected, when selected, calls onSelect", () => {
+        it("onCellClicked, when unselected and unselectable node clicked, does not calls setSelectedParams", () => {
+            // Arrange
+            controller.selectionMode = "checkbox";
+            const target = angular.element(`<div class="ag-group-value">`)[0] as EventTarget;
+            const event = {ctrlKey: false, metaKey: false, shiftKey: true, target: target} as MouseEvent;
+            const node = jasmine.createSpyObj("node", ["isSelected", "setSelectedParams"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
+            (node.isSelected as jasmine.Spy).and.returnValue(false);
+            node.data = {isSelectable() { return false; }};
+
+            // Act
+            controller.onCellClicked({event: event, node: node});
+
+            // Assert
+            expect(node.setSelectedParams).not.toHaveBeenCalled();
+        });
+
+        it("onRowSelected, when selected and selectable, calls onSelect", () => {
             // Arrange
             controller.onSelect = jasmine.createSpy("onSelect");
             const node = {data: {} as ITreeViewNodeVM, isSelected: () => true} as agGrid.RowNode;
@@ -419,6 +436,20 @@ describe("BPTreeViewController", () => {
 
             // Assert
             expect(controller.onSelect).toHaveBeenCalledWith({vm: node.data});
+        });
+
+        it("onRowSelected, when selected and not selectable, deselects", () => {
+            // Arrange
+            controller.onSelect = jasmine.createSpy("onSelect");
+            const node = jasmine.createSpyObj("node", ["isSelected", "setSelected"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
+            (node.isSelected as jasmine.Spy).and.returnValue(true);
+            node.data = {isSelectable() { return false; }};
+
+            // Act
+            controller.onRowSelected({node: node});
+
+            // Assert
+            expect(controller.onSelect).not.toHaveBeenCalled();
         });
 
         it("onRowSelected, when not selected, does not call onSelect", () => {

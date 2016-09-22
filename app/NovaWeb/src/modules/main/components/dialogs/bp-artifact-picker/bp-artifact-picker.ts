@@ -64,16 +64,8 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     private setSelectedItem(item: Models.IItem) {
         this.$scope.$applyAsync((s) => {
-            this._selectedItem = this.isItemSelectable(item) ? item : undefined;
+            this._selectedItem = item;
         });
-    }
-
-    private isItemSelectable(item: Models.IItem): boolean {
-        return !(item &&
-            this.dialogData &&
-            this.dialogData.selectableItemTypes &&
-            this.dialogData.selectableItemTypes.length > 0 &&
-            this.dialogData.selectableItemTypes.indexOf(item.predefinedType) === -1);
     }
 
     public columnDefs: ColDef[] = [{

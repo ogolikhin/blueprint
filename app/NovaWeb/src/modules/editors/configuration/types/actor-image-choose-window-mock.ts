@@ -1,6 +1,5 @@
-import { IDialogSettings, IDialogService } from "../../.";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import { DialogTypeEnum } from "../../../shared/widgets/bp-dialog/bp-dialog";
-import { Models } from "../../.";
 import { IUploadStatusDialogData } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 
 // interface IUploadStatusDialogData {
@@ -50,5 +49,5 @@ export class ActorImagePickerDialogServiceMock implements IDialogService {
         controller: null,
         css: null,
         backdrop: false
-    }
+    };
 }

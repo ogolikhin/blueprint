@@ -1,6 +1,7 @@
 var loaders = require("./loaders");
 var webpack = require('webpack');
 var path = require('path');
+var FailPlugin = require('webpack-fail-plugin');
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
@@ -23,7 +24,7 @@ var preLoaders = [
 function isDebug(argument) {
     return argument === '--debug';
 }
-if (process.argv.some(isDebug)) {   
+if (process.argv.some(isDebug)) {
     postLoaders = [];
     preLoaders = [];
     console.log("Is Debug");
@@ -48,6 +49,7 @@ module.exports = {
   },
   devtool: "source-map-inline",
   plugins: [
+    FailPlugin,
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',

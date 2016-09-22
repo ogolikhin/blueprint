@@ -46,7 +46,7 @@ namespace SearchService.Repositories
             prm.Add("@page", page);
             prm.Add("@pageSize", pageSize);
             prm.Add("@maxItems", GetDefaultMaxItems());
-            prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
+            prm.Add("@maxSearchableValueStringSize", GetDefaultMaxSearchableValueStringSize());
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
@@ -80,7 +80,7 @@ namespace SearchService.Repositories
             prm.Add("@predefineds", SqlMapperHelper.ToInt32Collection(new [] { 4098, 4099, 4115, 16384 }));
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
             prm.Add("@maxItems", GetDefaultMaxItems());
-            prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
+            prm.Add("@maxSearchableValueStringSize", GetDefaultMaxSearchableValueStringSize());
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
@@ -110,6 +110,13 @@ namespace SearchService.Repositories
         private int GetDefaultMaxItems()
         {
             return WebApiConfig.MaxItems > 0 ? WebApiConfig.MaxItems : ServiceConstants.MaxSearchItems;
+        }
+
+        private int GetDefaultMaxSearchableValueStringSize()
+        {
+            return WebApiConfig.MaxSearchableValueStringSize > 0
+                ? WebApiConfig.MaxSearchableValueStringSize
+                : ServiceConstants.MaxSearchableValueStringSize;
         }
     }
 }

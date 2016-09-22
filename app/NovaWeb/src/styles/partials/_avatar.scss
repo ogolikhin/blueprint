@@ -1,34 +1,35 @@
 bp-avatar {
-    $avatar-size: 40px;
+  display: block;
 
-    .avatar-placeholder {
-        position: relative;
-        height: $avatar-size;
-        width: $avatar-size;
-        border: 2px solid $gray-lighter;
-        border-radius: 50%;
-        line-height: ($avatar-size - 8px);
-        text-align: center;
-        font-size: $font-size-bigger;
-        text-transform: uppercase;
-        
-        img, .initials {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            height: ($avatar-size - 8px);
-            width: ($avatar-size - 8px);
-            border-radius: 50%;
-            border: 0;
-        }
-    }
+  .avatar-placeholder {
+    border: 2px solid $gray-lighter;
+    border-radius: 50%;
+    font-size: $font-size-bigger;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    text-transform: uppercase;
+    width: 100%;
 
-    &.guest {
-        .initials {
-            background-image: url('images/guest.png') !important;
-            background-color: transparent !important;
-            text-indent: -99999px;
-            background-size: cover;
-        }
+    img, .initials {
+      border: 0;
+      border-radius: 50%;
+      display: block;
+      height: calc(100% - 4px);
+      left: 2px;
+      line-height: 200%;
+      position: absolute;
+      top: 2px;
+      width: calc(100% - 4px);
     }
+  }
+
+  &.guest {
+    .initials {
+      background-image: url('images/guest.png') !important;
+      background-color: transparent !important;
+      background-size: cover;
+      text-indent: -99999px;
+    }
+  }
 }

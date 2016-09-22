@@ -6,11 +6,9 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
     public template: string = require("./text-rtf-inline.template.html");
     public wrapper: string = "bpFieldLabel";
-    public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public controller: Function = BpFieldTextRTFInlineController;
 
     constructor() {
-        this.defaultOptions = {};
     }
 }
 

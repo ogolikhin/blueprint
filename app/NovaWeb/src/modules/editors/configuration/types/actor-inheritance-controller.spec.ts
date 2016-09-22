@@ -10,13 +10,13 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
 import {PrimitiveType} from "../../../main/models/enums";
-import { ILocalizationService } from "../../.";
+import { ILocalizationService } from "../../../core";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { IMessageService } from "../../.";
+import { IMessageService } from "../../../core";
 import { DialogServiceMock, IDialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {formlyConfig} from "../formly-config";
-import { SettingsService } from "../../.";
+import { SettingsService } from "../../../core";
 import { ISelectionManager, SelectionManager } from "../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog-mock";
@@ -30,7 +30,7 @@ describe("Actor Inheritance controller", () => {
         compile,
         module,
         createController,
-        $controller : ng.IControllerService;
+        $controller: ng.IControllerService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock)

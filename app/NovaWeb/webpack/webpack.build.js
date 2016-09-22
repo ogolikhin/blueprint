@@ -5,6 +5,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 var vendor_libs = require('./vendors');
+var FailPlugin = require('webpack-fail-plugin');
 
 var del = require('del');
 del(['dist/*']);
@@ -21,12 +22,11 @@ module.exports = {
     resolve: {
         root: __dirname,
         extensions: ['', '.ts', '.js', '.json'],
-        alias: {          
+        alias: {
             tinymce: 'tinymce/tinymce',
             mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js'),
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
-
     },
     resolveLoader: {
         modulesDirectories: ["node_modules"]
@@ -40,7 +40,6 @@ module.exports = {
     //    },
 
     plugins: [
-        
         new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin(
             {
@@ -64,7 +63,7 @@ module.exports = {
         //    'window.jquery': 'jquery'
         //}),
          new CopyWebpackPlugin([
-            // {output}/file.txt             
+            // {output}/file.txt
              { from: '**/*.view.html' },
              { from: './web.config' },
              { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
@@ -84,7 +83,8 @@ module.exports = {
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),
              BUILD_YEAR: new Date().getFullYear().toString()
-         })
+         }),
+         FailPlugin
     ],
     module:{
         loaders: loaders,

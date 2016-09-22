@@ -241,6 +241,10 @@ Property_Suffix_Or_Less," or less."
 Property_Actor_Section_Name,"Actor Properties"
 Property_Artifact_Section_Name,"Artifact Properties"
 Property_SubArtifact_Section_Name,"Sub-Artifact Properties"
+Property_UserPicker_Placeholder,"Type the user or group's name or email"
+Property_UserPicker_Searching,"Searching..."
+Property_UserPicker_ShowMore,"Show more"
+Property_UserPicker_Display_Top_N_Results,"Displaying top {0} results"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"

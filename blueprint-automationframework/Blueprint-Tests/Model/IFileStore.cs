@@ -166,5 +166,12 @@ namespace Model
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         void DeleteNovaFile(string fileId, IUser user, DateTime? expireTime = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
+        /// <summary>
+        /// Returns ExpiredTime for the specified file. Uses [Blueprint_FileStorage].[FileStore].[Files]
+        /// </summary>
+        /// <param name="fileId">The file GUID</param>
+        /// <returns>ExpiredTime</returns>
+        DateTime? GetSQLExpiredTime(string fileId);
+
     }
 }

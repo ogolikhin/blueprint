@@ -31,23 +31,13 @@
     font-size: 14px;
 
     bp-avatar {
-        $avatar-size: 25px;
-
+        height: 25px;
         display: inline-block;
         vertical-align: middle;
-        height: $avatar-size;
+        width: 25px;
 
-        .avatar-placeholder {
-            display: inline-block;
-            width: $avatar-size;
-            height: $avatar-size;
-            line-height: $avatar-size - 8;
-
-            .initials {
-                width: $avatar-size - 8;
-                height: $avatar-size - 8;
-                font-size: 1rem;
-            }
+        .avatar-placeholder .initials {
+            font-size: 0.9rem;
         }
     }
 }

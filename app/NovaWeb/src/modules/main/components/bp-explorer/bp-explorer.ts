@@ -32,7 +32,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
+//             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this)
         ];
     }
     
@@ -101,16 +101,8 @@ export class ProjectExplorerController {
         // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
-            if (angular.isDefined(this._selectedArtifactId)) {
-                this.tree.selectNode(this._selectedArtifactId);
-            }
-        }
-    }
-
-    private onSelectArtifact = (artifact: IStatefulArtifact) => {
-        // so, just need to do an extra check if the component has created
-        if (this.tree && artifact) {
-            this._selectedArtifactId = artifact.id;
+            this._selectedArtifactId = projects[0].id;
+            this.navigationService.navigateToArtifact(this._selectedArtifactId);
             this.tree.selectNode(this._selectedArtifactId);
         }
     }
@@ -127,8 +119,9 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        if (node) {
-            this.navigationService.navigateToArtifact(this.doSync(node).id);
+        if (node && this._selectedArtifactId !== node.id) {
+            this._selectedArtifactId = this.doSync(node).id;
+            this.navigationService.navigateToArtifact(this._selectedArtifactId);
         }
     };
 

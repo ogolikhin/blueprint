@@ -58,6 +58,7 @@ function Build-Nova-Services{
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`"" + $sharedTrailingArgs
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`"" + $sharedTrailingArgs
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService\SearchService.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\SearchService`"" + $sharedTrailingArgs
 }
 
 function Build-Nova-Html{
@@ -133,7 +134,7 @@ function Run-Nova-Unit-Tests{
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore.Tests\FileStore.Tests.csproj
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore.Tests\AdminStore.Tests.csproj
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore.Tests\ArtifactStore.Tests.csproj
-
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService.Tests\SearchService.Tests.csproj
 
     Write-Section "Running tests"
     $vstestArgs =   "`"$workspace\svc\lib\ServiceLibrary.Tests\bin\Release\ServiceLibrary.Tests.dll`" " + 
@@ -142,6 +143,7 @@ function Run-Nova-Unit-Tests{
                     "`"$workspace\svc\ArtifactStore.Tests\bin\Release\ArtifactStore.Tests.dll`" " + 
                     "`"$workspace\svc\ConfigControl.Tests\bin\Release\ConfigControl.Tests.dll`" " +
                     "`"$workspace\svc\FileStore.Tests\bin\Release\FileStore.Tests.dll`" " +
+                    "`"$workspace\svc\SearchService.Tests\bin\Release\SearchService.Tests.dll`" " +
                     "/Settings:`"$workspace\svc\CodeCoverage.runsettings`" /Enablecodecoverage /UseVsixExtensions:false /Logger:trx"
     Invoke-MyExpression "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" $vstestArgs
 }

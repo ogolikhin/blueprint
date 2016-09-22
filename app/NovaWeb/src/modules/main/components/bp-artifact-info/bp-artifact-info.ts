@@ -12,8 +12,10 @@ export { IArtifactManager }
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: Function = BpArtifactInfoController;
-
     public transclude: boolean = true;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BpArtifactInfoController {
@@ -22,6 +24,7 @@ export class BpArtifactInfoController {
         "$scope", "$element", "artifactManager", "localization", "messageService", "dialogService", "windowManager", "loadingOverlayService"];
 
     private subscribers: Rx.IDisposable[];
+    private artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -47,14 +50,15 @@ export class BpArtifactInfoController {
         private loadingOverlayService: ILoadingOverlayService
     ) {
         this.initProperties();
+        this.subscribers = [];     
     }
 
     public $onInit() {
         this.subscribers = [
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.getArtifact().observable().subscribeOnNext(this.onStateChange, this),
+            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactChanged, this),
         ];
-    }
+    } 
 
 
     public $onDestroy() {
@@ -66,6 +70,20 @@ export class BpArtifactInfoController {
             throw ex;
         }
     }
+
+    private onArtifactChanged = (artifact: IStatefulArtifact) => {
+        if (artifact) {
+            this.artifact = artifact;
+            this.updateProperties(this.artifact);
+            this.subscribers.push(
+                this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
+            );
+        }
+    }
+    private onStateChanged = () => {
+        this.updateProperties(this.artifact);
+    }
+    
 
     private initProperties() {
         this.artifactName = null;
@@ -80,7 +98,6 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
-        this._artifactId = null;
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
@@ -93,7 +110,6 @@ export class BpArtifactInfoController {
             return;
         }
         this.artifactName = artifact.name || "";
-        this._artifactId = artifact.id;
         let itemType = artifact.metadata.getItemType(); 
         if (itemType) {
             this.artifactTypeId = itemType.id;
@@ -135,9 +151,6 @@ export class BpArtifactInfoController {
         
     }
 
-    private onStateChange = (artifact: IStatefulArtifact) => {
-        this.updateProperties(artifact);
-    }
 
     public get artifactHeadingMinWidth() {
         let style = {};

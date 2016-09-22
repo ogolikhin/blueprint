@@ -14,6 +14,9 @@ export class BpProcessEditor implements ng.IComponentOptions {
     public controller: Function = BpProcessEditorController;
     public controllerAs = "$ctrl";
     public transclude: boolean = true;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BpProcessEditorController extends BpBaseEditor {

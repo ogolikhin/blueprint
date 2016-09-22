@@ -34,7 +34,6 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.artifactObservable.filter(this.selectedInExplorer).subscribeOnNext(this.selectContext, this),
             this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
@@ -42,20 +41,6 @@ class PageContentCtrl {
     public $onDestroy() {
         //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-    }
-
-    private selectContext(artifact: IStatefulArtifact) {
-        if (!artifact) {
-            this.navigationService.navigateToMain();
-            return;
-        }
-
-        this.navigationService.navigateToArtifact(artifact.id);
-    }
-
-    private selectedInExplorer = (artifact: IStatefulArtifact) => {
-        const selectedInExplorer = this.artifactManager.selection.getArtifact(SelectionSource.Explorer);
-        return selectedInExplorer && artifact && selectedInExplorer.id === artifact.id;
     }
 
     public onContentSelected($event: MouseEvent) {

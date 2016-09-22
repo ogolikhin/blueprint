@@ -55,6 +55,8 @@ export class BpGlossaryController extends BpBaseEditor {
     }
 
     public onLoad() {
+        super.onLoad();
+        
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {

@@ -19,7 +19,7 @@ import {
     ArtifactRelationshipsService }
     from "../../managers/artifact-manager";
 
-describe("Component BP Glossary", () => {
+xdescribe("Component BP Glossary", () => {
 
     let componentTest: ComponentTest<BpGlossaryController>;
     let template = `<bp-glossary context="context"></bp-glossary>`;

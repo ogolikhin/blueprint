@@ -12,10 +12,11 @@ interface IState {
     dirty?: boolean;
     published?: boolean;
     deleted?: boolean;
+    outdated?: boolean;
     invalid?: boolean;
 }
 
-export interface IArtifactState extends IState,IDispose {
+export interface IArtifactState extends IState, IDispose {
     initialize(artifact: Models.IArtifact): IArtifactState;
     observable(): Rx.Observable<IArtifactState>; 
     lock(value:  Models.ILockResult): void;
@@ -58,13 +59,15 @@ export class ArtifactState implements IArtifactState {
         if (artifact) {
             this.reset();
             if (artifact.lockedByUser) {
-                this.state.lockedby = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                                Enums.LockedByEnum.CurrentUser :
-                                Enums.LockedByEnum.OtherUser;
-                this.state.lockowner =  artifact.lockedByUser.displayName;
-                this.state.lockdatetime =  artifact.lockedDateTime;
-            }
-            this.set();
+                let lockinfo: IState = {
+                    lockedby : artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                                                    Enums.LockedByEnum.CurrentUser :
+                                                    Enums.LockedByEnum.OtherUser,
+                    lockowner: artifact.lockedByUser.displayName,                                                    
+                    lockdatetime: artifact.lockedDateTime                
+                };
+                this.set(lockinfo);
+            };                
         }
         return this;
     }
@@ -89,37 +92,36 @@ export class ArtifactState implements IArtifactState {
 
     public lock(value: Models.ILockResult) {
         if (value) {
+            let lockinfo: IState = {};
             if (value.result === Enums.LockResultEnum.Success) {
-                this.state.lockedby = Enums.LockedByEnum.CurrentUser;
+                lockinfo.lockedby = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                this.state.lockedby = Enums.LockedByEnum.OtherUser;
+                lockinfo.lockedby = Enums.LockedByEnum.OtherUser;
             } else if (value.result === Enums.LockResultEnum.DoesNotExist) {
-                this.state.lockedby = Enums.LockedByEnum.None;
+                lockinfo.lockedby = Enums.LockedByEnum.None;
             } else {
-                this.state.lockedby = Enums.LockedByEnum.None;
+                lockinfo.lockedby = Enums.LockedByEnum.None;
             }
             if (value.info) {
-                this.state.lockdatetime = value.info.utcLockedDateTime;
-                this.state.lockowner = value.info.lockOwnerDisplayName;
+                lockinfo.lockdatetime = value.info.utcLockedDateTime;
+                lockinfo.lockowner = value.info.lockOwnerDisplayName;
             }
-            this.set();            
+            this.set(lockinfo);            
         }
+    
     }
-
     public get readonly(): boolean {
         return this.state.readonly ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
                (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
-    
     public set readonly(value: boolean) {
-        this.state.readonly = value;
+        this.set({readonly: value});
     }
 
     public get dirty(): boolean {
         return this.state.dirty;
     }
-
     public set dirty(value: boolean) {
         this.set({dirty: value});
     }
@@ -127,9 +129,14 @@ export class ArtifactState implements IArtifactState {
     public get published(): boolean {
         return this.state.published;
     }
-
     public set published(value: boolean) {
         this.set({published: value});
+    }
+    public get outdated(): boolean {
+        return this.state.outdated;
+    }
+    public set outdated(value: boolean) {
+        this.state.outdated = value;
     }
     
     public get invalid(): boolean {

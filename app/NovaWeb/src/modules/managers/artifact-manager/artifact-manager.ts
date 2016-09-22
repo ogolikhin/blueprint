@@ -55,6 +55,7 @@ export class ArtifactManager  implements IArtifactManager {
             deferred.resolve(artifact);
         } else {
             this.artifactFactory.createStatefulArtifact({id: id}).load().then((it: IStatefulArtifact) => {
+                this.add(it);
                 deferred.resolve(it);
             }).catch((err) => {
                 if (err) {

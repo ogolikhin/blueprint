@@ -1,6 +1,6 @@
-import { IDialogSettings, IDialogService } from "../../../shared";
+import { IDialogSettings, IDialogService } from "../../.";
 import { DialogTypeEnum } from "../../../shared/widgets/bp-dialog/bp-dialog";
-import { Models } from "../../../main/models";
+import { Models } from "../../.";
 import { IUploadStatusDialogData } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 
 // interface IUploadStatusDialogData {

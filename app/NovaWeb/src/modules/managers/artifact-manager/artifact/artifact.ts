@@ -193,7 +193,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private isLoaded = false;
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (force || !this.isLoaded) {
+        if (!this.isProject() && (force || !this.isLoaded)) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 let parentId = this.artifact.parentId; 
                 this.artifact = artifact;
@@ -201,10 +201,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.customProperties.initialize(artifact.customPropertyValues);
                 this.specialProperties.initialize(artifact.specificPropertyValues);
                 if (parentId && parentId !== artifact.parentId) {
-                    this.artifactState.readonly = true;
+                    this.artifactState.set({
+                        readonly: true,
+                        lockedby: 0
+                    });
                     this.services.messageService.addError("The artifach has been moved!");
                 }
                 this.isLoaded = true;
+                this.artifactState.outdated = false;
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
@@ -218,6 +222,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return deferred.promise;
     }
 
+    private isProject(): boolean {
+        return this.itemTypeId === Enums.ItemTypePredefined.Project;
+    }
 
     private validateLock(lock: Models.ILockResult): boolean {
         let success: boolean;
@@ -252,15 +259,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
                 let lock = result[0];
                 let success = this.validateLock(lock); 
-                if (angular.isUndefined(success)) {
-                    deferred.reject(lock);    
-                } else if (!success) {
-                    this.load(true).then((artifact: IStatefulArtifact) => {
-                        deferred.resolve(this);
-                    });
-                } else {
+                if (success) {
                     this.artifactState.lock(lock);
                     deferred.resolve(this);
+                } else if (success === false) {
+                    this.artifactState.set({outdated: true});
+                    deferred.resolve(this);
+                } else { // undefined | null
+                    deferred.reject(lock);    
                 }
             }).catch((err) => {
                 deferred.reject(err);
@@ -273,17 +279,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private onChanged(artifactState: IArtifactState) {
         this.subject.onNext(this);
     }
-    // private onLockChanged(state: IArtifactState) {
-    //     if (state.old || 
-    //         state.deleted || 
-    //         state.status === Enums.LockResultEnum.AlreadyLocked || 
-    //         state.status === Enums.LockResultEnum.DoesNotExist) {
-    //         this.discard(true);
-    //         this.load(true);
-    //     } else if (state.status === Enums.LockResultEnum.Failure || state.status === Enums.LockResultEnum.AccessDenied) {
-    //         this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[state.status]);
-    //     }
-    // }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();

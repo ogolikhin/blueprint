@@ -1,5 +1,6 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
+import { IArtifactState } from "../managers/artifact-manager";
 import { IStatefulArtifact, } from "../managers/models";
 import { Models, Enums } from "../main/models";
 
@@ -13,26 +14,24 @@ export class BpBaseEditor {
     constructor(
         public messageService: IMessageService,
         public artifactManager: IArtifactManager) {
+        this.subscribers = [];                
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.artifact.artifactState.observable().map((this.shouldbeUpdated)).distinctUntilChanged().subscribeOnNext(this.onChange, this)
-        ];                
     }
 
-    private shouldbeUpdated(state: any) {
-
-        return { isReadOnly: state.readonly,
-            };
-    }
 
     public $onChanges(obj: any) {
-         try {
-            this.artifact = this.artifactManager.selection.getArtifact();
-            if (this.onLoading()) {
-                this.onLoad();
-            }
+        // this.artifact = this.context;
+        try {
+            this.artifactManager.selection.clearAll();
+
+            this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
+                if (this.onLoading(artifact)) {
+                    this.artifact.artifactState.outdated = true;
+                    this.onLoad();
+                }
+             });
         } catch (ex) {
             this.messageService.addError(ex.message);
             throw ex;
@@ -42,8 +41,6 @@ export class BpBaseEditor {
     public $onDestroy() {
         try {
             delete this.artifact;
-            //delete this.artifactState;
-
             this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         } catch (ex) {
             this.messageService.addError(ex.message);
@@ -51,29 +48,36 @@ export class BpBaseEditor {
         }
     }
 
-    public onLoading(): boolean {
+    public onLoading(artifact: IStatefulArtifact): boolean {
         this.isLoading = true;
+        if (artifact) {
+            this.artifact = artifact;
+            this.subscribers.push(
+                this.artifact.artifactState.observable().filter(this.shouldbeUpdated).subscribeOnNext(this.onStateChange, this)
+            );
+        }
+        
         return !!this.artifact;
     }
 
     public onLoad() {
-        this.onUpdate();
+        this.artifactManager.selection.setArtifact(this.artifact);
+        this.artifact.load(this.artifact.artifactState.outdated).then(() => {
+            this.onUpdate();
+        });
     }
 
     public onUpdate() {
         this.isLoading = false;
     }
 
-    private onChange() {
-        this.onUpdate();        
-        // if (state.old || 
-        //     state.deleted || 
-        //     state.status === Enums.LockResultEnum.AlreadyLocked || 
-        //     state.status === Enums.LockResultEnum.DoesNotExist) {
-        //     this.onUpdate();
-        // }
+    private shouldbeUpdated(state: IArtifactState): boolean {
+        return !!state.outdated;
     }
-    
+
+    private onStateChange(state: any) {
+        this.onLoad();
+    }
 
 }
 

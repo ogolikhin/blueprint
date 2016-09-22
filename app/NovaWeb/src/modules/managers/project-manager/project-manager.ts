@@ -55,15 +55,15 @@ export class ProjectManager  implements IProjectManager {
         this.projectCollection.onNext(this._projectCollection.getValue());
     }
 
-    private onArtifactSelect(artifact: IStatefulArtifact) {
-        if (this.statechangesubscriber) {
-            this.statechangesubscriber.dispose();
-            delete this.statechangesubscriber;
-        }
-        if (artifact) {
-            this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-        }
-    }
+    // private onArtifactSelect(artifact: IStatefulArtifact) {
+    //     if (this.statechangesubscriber) {
+    //         this.statechangesubscriber.dispose();
+    //         delete this.statechangesubscriber;
+    //     }
+    //     if (artifact) {
+    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
+    //     }
+    // }
     
     public dispose() {
         this.remove(true);
@@ -86,8 +86,6 @@ export class ProjectManager  implements IProjectManager {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
-        this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
-        
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
@@ -154,7 +152,7 @@ export class ProjectManager  implements IProjectManager {
             this.messageService.addError(ex);
             throw ex;
         }
-
+ 
     }
 
     public loadArtifact(id: number) {
@@ -177,7 +175,7 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
+//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

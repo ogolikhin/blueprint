@@ -1,6 +1,7 @@
 ﻿import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
+import { Project } from "../../../managers/project-manager";
 import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
@@ -94,7 +95,7 @@ export class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    private onLoadProject = (projects: Models.IProject[]) => {
+    private onLoadProject = (projects: Project[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
         // so, just need to do an extra check if the component has created
@@ -102,9 +103,11 @@ export class ProjectExplorerController {
             this.tree.reload(projects);
             if (projects && projects.length > 0) {
                 this._selectedArtifactId = projects[0].id;
+                this.artifactManager.selection.setExplorerArtifact(projects[0].artifact);
                 this.navigationService.navigateToArtifact(this._selectedArtifactId);
                 this.tree.selectNode(this._selectedArtifactId);
             } else {
+                this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
             }
         }

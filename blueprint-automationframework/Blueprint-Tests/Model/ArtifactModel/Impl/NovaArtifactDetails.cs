@@ -335,7 +335,7 @@ namespace Model.ArtifactModel.Impl
     }
 
     /// <summary>
-    /// This class is returned by Nova calls such as: Discard, Publish, .
+    /// This class is returned by Nova calls such as: Discard, Publish...
     /// </summary>
     public class NovaArtifactsAndProjectsResponse : INovaArtifactsAndProjectsResponse
     {

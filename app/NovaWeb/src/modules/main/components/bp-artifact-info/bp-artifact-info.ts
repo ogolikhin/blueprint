@@ -5,7 +5,7 @@ import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 
-import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactManager, IStatefulArtifact, IArtifactState } from "../../../managers/artifact-manager";
 
 export { IArtifactManager }
 
@@ -50,16 +50,22 @@ export class BpArtifactInfoController {
         private loadingOverlayService: ILoadingOverlayService
     ) {
         this.initProperties();
-        this.subscribers = [];     
+        this.subscribers = [];
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactChanged, this),
-        ];
-    } 
+        const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
+        const stateSub = this.artifactManager.selection
+            .artifactObservable
+            .filter((artifact: IStatefulArtifact) => artifact != null)
+            .flatMap((artifact: IStatefulArtifact) => {
+                this.artifact = artifact;
+                return artifact.artifactState.observable();
+            })
+            .subscribeOnNext(this.onStateChanged, this);
 
+        this.subscribers = [windowSub, stateSub];
+    }
 
     public $onDestroy() {
         try {
@@ -71,18 +77,18 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onArtifactChanged = (artifact: IStatefulArtifact) => {
-        if (artifact) {
-            this.artifact = artifact;
-            this.subscribers.push(
-                this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
-            );
-        }
-    }
-    private onStateChanged = () => {
+    // private onArtifactChanged = (artifact: IStatefulArtifact) => {
+    //     if (artifact) {
+    //         this.artifact = artifact;
+    //         this.subscribers.push(
+    //             this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
+    //         );
+    //     }
+    // }
+    private onStateChanged = (artifact: IArtifactState) => {
         this.updateProperties(this.artifact);
     }
-    
+
 
     private initProperties() {
         this.artifactName = null;
@@ -109,7 +115,7 @@ export class BpArtifactInfoController {
             return;
         }
         this.artifactName = artifact.name || "";
-        let itemType = artifact.metadata.getItemType(); 
+        let itemType = artifact.metadata.getItemType();
         if (itemType) {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
@@ -118,7 +124,7 @@ export class BpArtifactInfoController {
             }
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
-        
+
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
         this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
@@ -137,7 +143,7 @@ export class BpArtifactInfoController {
                 this.selfLocked = true;
                 break;
             case Enums.LockedByEnum.OtherUser:
-                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
+                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
                  if (artifact.artifactState.lockDateTime) {
                      msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
                  }
@@ -147,7 +153,7 @@ export class BpArtifactInfoController {
                 break;
 
         }
-        
+
     }
 
 
@@ -201,7 +207,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    
+
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
          this.artifactManager.selection.getArtifact().save().finally(() => {
@@ -224,7 +230,7 @@ export class BpArtifactInfoController {
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
-            
+
         });
     }
 }

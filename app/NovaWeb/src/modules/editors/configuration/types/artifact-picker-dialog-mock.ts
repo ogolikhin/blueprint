@@ -1,6 +1,6 @@
-﻿import { IDialogSettings, IDialogService } from "../../.";
+﻿import { IDialogSettings, IDialogService } from "../../../shared";
 import { DialogTypeEnum } from "../../../shared/widgets/bp-dialog/bp-dialog";
-import { Models } from "../../.";
+import { Models } from "../../../main";
 
 export class ArtifactPickerDialogServiceMock implements IDialogService {
     public static $inject = ["$q"];

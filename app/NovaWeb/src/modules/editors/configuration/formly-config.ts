@@ -4,7 +4,6 @@ import "angular-formly-templates-bootstrap";
 import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
 import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
 import { IDialogService } from "../../shared";
-import { actorInheritanceController } from "./controllers/actor-inheritance-controller";
 import { ISelectionManager } from "../../managers";
 import { BPFieldReadOnly } from "./types/read-only";
 import { BPFieldText } from "./types/text";

@@ -904,6 +904,7 @@ pagecontent, bp-properties-panel {
 
       .icon{
         cursor:pointer;
+        margin-right: 5px;
         &.disabled{
           opacity: $default-desabled-opacity;
           cursor: not-allowed;
@@ -931,7 +932,8 @@ pagecontent, bp-properties-panel {
 
         .bp-input-group-addon{
           &.icon-wrapper{
-            padding-top:10px;
+            line-height: #{$property-min-height + 6px}; // height of input box plus padding
+            display: inline-block;
             padding-right: 2px;
           }
         }
@@ -1001,14 +1003,31 @@ pagecontent, bp-properties-panel {
         background-color: transparent;
         border:none;
         label{
-            padding: 5px 9px !important;
+            padding: 5px 9px ;
             min-width: 20px;
             text-align: center;
             width: auto !important;
-            margin: 5px 5px 5px !important;
+            margin: 5px 5px 5px;
             font-size:  $font-size-big;
             input[type=file]{
                 display:none;
+            }
+            &.btn-small{
+              padding:5px 10px;
+              min-width: 20px;
+              font-size: 1.2rem;
+          }
+            &.btn-primary {
+                background-color: transparent;
+                border: 1px solid $gray-light;
+                color: $gray-light;
+                &:hover,
+                &:focus,
+                &:active {
+                    background-color: transparent;
+                    border-color: $brand-secondary;
+                    color: $brand-secondary;
+              }
             }
         }
 
@@ -1023,6 +1042,12 @@ pagecontent, bp-properties-panel {
             cursor: not-allowed;
           }
         }
+        &:not(:first-child):not(:last-child) {
+           padding-right: 5px;
+            .icon {
+                padding-right: $padding-smaller - 5px;
+            }
+          }
       }
        
 

@@ -141,10 +141,9 @@ namespace SearchService.Controllers
 
         private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
         {
-            int minSearchQueryCharLimit = WebApiConfig.MinSearchQueryCharLimit > 0 ? 
-                WebApiConfig.MinSearchQueryCharLimit : ServiceConstants.MinSearchQueryCharLimit;
-
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || searchCriteria.Query.Length < minSearchQueryCharLimit || !searchCriteria.ProjectIds.Any())
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || 
+                searchCriteria.Query.Trim().Length < ServiceConstants.MinSearchQueryCharLimit || 
+                !searchCriteria.ProjectIds.Any())
             {
                 return false;
             }

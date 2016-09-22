@@ -4,7 +4,7 @@ import { IStencilService } from "./impl/stencil.svc";
 import { ILocalizationService } from "../../core";
 import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
-import { ISelection, IStatefulArtifactFactory, SelectionSource } from "../../managers/artifact-manager";
+import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
 import { IDiagram, IShape, IDiagramElement } from "./impl/models";
 import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
 import { Diagrams, Shapes, ShapeProps } from "./impl/utils/constants";
@@ -22,6 +22,9 @@ import {
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: Function = BPDiagramController;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BPDiagramController extends BpBaseEditor {
@@ -77,7 +80,8 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     private clearSelectionFilter = (selection: ISelection) => {
-        return selection != null
+        return this.artifact
+               && selection != null
                && selection.artifact
                && selection.artifact.id === this.artifact.id
                && !selection.subArtifact;
@@ -96,54 +100,64 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     public onUpdate() {
-        if (this.artifact !== null) {
-            this.cancelationToken = this.$q.defer();
-            this.artifact.load(true).then((it: IStatefulArtifact) => {
-                this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+        if (this.isDestroyed()) {
+            return;
+        }
+        this.cancelationToken = this.$q.defer();
+        this.artifact.load(true).then((it: IStatefulArtifact) => {
+            if (this.isDestroyed()) {
+                return;
+            }
+            this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+                this.initSubArtifacts(diagram);
 
-                    this.initSubArtifacts(diagram);
-
-                    if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
-                        this.isBrokenOrOld = true;
-                        this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
-                        this.$log.error("Old diagram, libraryVersion is 0");
-                    } else {
-                        this.isBrokenOrOld = false;
-                        this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                        this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
-                        this.stylizeSvg(this.$element, diagram.width, diagram.height);
-                        this.diagramView.drawDiagram(diagram);
-                    }
-                }).catch((error: any) => {
-                    if (error !== CancelationTokenConstant.cancelationToken) {
-                        this.isBrokenOrOld = true;
-                        this.errorMsg = error.message;
-                        this.$log.error(error.message);
-                    }               
-                }).finally(() => {
-                    this.cancelationToken = null;
-                    this.isLoading = false;
-                });
+                if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
+                    this.isBrokenOrOld = true;
+                    this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
+                    this.$log.error("Old diagram, libraryVersion is 0");
+                } else {
+                    this.isBrokenOrOld = false;
+                    this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+                    this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
+                    this.stylizeSvg(this.$element, diagram.width, diagram.height);
+                    this.diagramView.drawDiagram(diagram);
+                }
+            }).catch((error: any) => {
+                if (error !== CancelationTokenConstant.cancelationToken) {
+                    this.isBrokenOrOld = true;
+                    this.errorMsg = error.message;
+                    this.$log.error(error.message);
+                }               
+            }).finally(() => {
+                this.cancelationToken = null;
+                this.isLoading = false;
             });
-        }   
+        });  
+    }
+
+    private isDestroyed() {
+        return !this.artifact;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
+            if (this.isDestroyed()) {
+                return;
+            }
             if (elements && elements.length > 0) {
                 const element = elements[0];
                 if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
-                            this.artifactManager.selection.setArtifact(artifact, SelectionSource.Editor);
+                            this.artifactManager.selection.setArtifact(artifact);
                         });
                     }
                 } else {
                     this.artifactManager.selection.setSubArtifact(this.getSubArtifact(element.id));
                 } 
             } else {
-                this.artifactManager.selection.clearSubArtifact();
+                this.artifactManager.selection.setArtifact(this.artifact);
             }
         });
     }

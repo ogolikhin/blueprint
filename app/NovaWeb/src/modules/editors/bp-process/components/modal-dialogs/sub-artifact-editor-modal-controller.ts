@@ -109,8 +109,16 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.setNextNode(this.modalProcessViewModel);
     }
     
-    private getDescription() {
-        return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+    private getUserTaskDescription() {
+        if (this.dialogModel.clonedUserTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
+        }
+    }
+
+    private getSystemTaskDescription() {
+        if (this.dialogModel.clonedSystemTask) {
+            return this.$sce.trustAsHtml(this.dialogModel.clonedSystemTask.description);
+        }
     }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
@@ -149,7 +157,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.$rootScope["config"].labels["ST_Artifact_Inaccessible"];
+            msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
         } else {
             msg = model.typePrefix + model.id + ": " + model.name;
         }

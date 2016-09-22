@@ -8,7 +8,7 @@
     itemLabel: string;
     projectId: number;
     projectName: string;
-    rraceDirection: TraceDirection;
+    traceDirection: TraceDirection;
     traceType: LinkType;
     suspect: boolean;
     hasAccess: boolean;

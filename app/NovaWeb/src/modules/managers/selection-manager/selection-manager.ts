@@ -6,8 +6,10 @@ export interface ISelectionManager extends IDispose {
     subArtifactObservable: Rx.Observable<IStatefulSubArtifact>;
     selectionObservable: Rx.Observable<ISelection>;
 
-    getArtifact(source?: SelectionSource): IStatefulArtifact;
-    setArtifact(artifact: IStatefulArtifact, source?: SelectionSource);
+    getArtifact(): IStatefulArtifact;
+    setArtifact(artifact: IStatefulArtifact);
+    getExplorerArtifact();
+    setExplorerArtifact(artifact: IStatefulArtifact);
 
     getSubArtifact(): IStatefulSubArtifact;
     setSubArtifact(subArtifact: IStatefulSubArtifact);
@@ -23,7 +25,6 @@ export enum SelectionSource {
 }
 
 export interface ISelection {
-    source: SelectionSource;
     artifact?: IStatefulArtifact;
     subArtifact?: IStatefulSubArtifact;
 }
@@ -78,19 +79,12 @@ export class SelectionManager implements ISelectionManager {
         return null;
     }
 
-    public setArtifact(artifact: IStatefulArtifact, source?: SelectionSource) {
+    public setArtifact(artifact: IStatefulArtifact) {
         const selection = <ISelection>{
             artifact: artifact,
             subArtifact: null,
-            source: source
         };
-
-        if (source === SelectionSource.Explorer) {
-            this.explorerArtifact = artifact;
-        } else if (source === SelectionSource.Editor) {
-            this.editorArtifact = artifact;
-        }
-
+        this.editorArtifact = artifact;
         this.setSubject(selection);
     }
 
@@ -108,10 +102,17 @@ export class SelectionManager implements ISelectionManager {
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: subArtifact,
-            source: val.source
         };
 
         this.setSubject(selection);
+    }
+
+    public getExplorerArtifact() {
+        return this.explorerArtifact;
+    }
+
+    public setExplorerArtifact(artifact: IStatefulArtifact) {
+        this.explorerArtifact = artifact;
     }
 
     public clearAll() {
@@ -128,7 +129,6 @@ export class SelectionManager implements ISelectionManager {
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: null,
-            source: val.source
         };
 
         this.setSubject(selection);

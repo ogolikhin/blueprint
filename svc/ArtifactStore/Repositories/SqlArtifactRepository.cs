@@ -408,17 +408,6 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
-
-        #region GetArtifactInfoAsync
-
-        public Task<Artifact> GetArtifactInfoAsync(int artifactId, int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
     }
 
     internal class ArtifactVersion

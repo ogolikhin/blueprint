@@ -24,7 +24,12 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", "artifactManager", "windowManager", "localization", "dialogService"];
+        "messageService", 
+        "artifactManager", 
+        "windowManager", 
+        "localization", 
+        "dialogService"
+    ];
 
     constructor(
         messageService: IMessageService,
@@ -33,7 +38,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         localization: ILocalizationService,
         private dialogService: IDialogService
     ) {
-        super(messageService, artifactManager, windowManager, localization);
+        super( messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -84,14 +89,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
     
 
-    public onLoad() {
-        this.isLoading = true;
-        this.artifact.load(true).then((it: IStatefulArtifact) => {
-            this.onUpdate();
-        }).finally(() => {
-            this.isLoading = false;
-        });
-    }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
         let propertyContext = field.data as PropertyContext;

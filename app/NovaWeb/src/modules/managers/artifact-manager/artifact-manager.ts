@@ -55,9 +55,14 @@ export class ArtifactManager  implements IArtifactManager {
             deferred.resolve(artifact);
         } else {
             this.artifactFactory.createStatefulArtifact({id: id}).load().then((it: IStatefulArtifact) => {
+                this.add(it);
                 deferred.resolve(it);
             }).catch((err) => {
-                this.messageService.addError(err);
+                if (err) {
+                    this.messageService.addError(err);
+                }
+                
+                deferred.reject(err);
             });
         }
         return deferred.promise;
@@ -83,7 +88,7 @@ export class ArtifactManager  implements IArtifactManager {
     public removeAll(projectId?: number) {
         
         this.artifactList = this.artifactList.filter((it: IStatefulArtifact) => {
-            if (projectId || it.projectId === projectId) {
+            if (!projectId || it.projectId === projectId) {
                 it.dispose();
                 this.metadataService.remove(it.projectId);
                 return false;

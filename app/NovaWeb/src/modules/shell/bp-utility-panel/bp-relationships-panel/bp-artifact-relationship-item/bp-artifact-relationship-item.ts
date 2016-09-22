@@ -137,7 +137,7 @@ export class BPArtifactRelationshipItemController {
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
             this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
-                this.artifactManager.selection.setArtifact(artifact, SelectionSource.Explorer);
+                this.artifactManager.selection.setExplorerArtifact(artifact);
             });
         }
     }

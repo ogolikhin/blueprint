@@ -6,6 +6,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -16,6 +17,15 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class ArtifactDetailsTests : TestBase
     {
+        /// <summary>
+        /// This is the structure returned by the REST call to display error messages.
+        /// </summary>
+        public class MessageResult
+        {
+            public int ErrorCode { get; set; }
+            public string Message { get; set; }
+        }
+
         private IUser _user = null;
         private IProject _project = null;
 
@@ -132,6 +142,44 @@ namespace ArtifactStoreTests
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(166146)]
+        [Description("Create & publish an artifact, modify & publish it again, then delete & publish it.  GetArtifactDetails with versionId=1.  " +
+            "Verify the artifact details for the first version are returned.")]
+        public void GetArtifactDetailsWithVersionId1_DeletedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+
+            // These are internal properties used by automation, so OpenAPI doesn't set them for us.
+            retrievedArtifactVersion1.Address = artifact.Address;
+            retrievedArtifactVersion1.CreatedBy = artifact.CreatedBy;
+
+            // Modify & publish the artifact.
+            var retrievedArtifactVersion2 = retrievedArtifactVersion1.DeepCopy();
+            retrievedArtifactVersion2.Name = I18NHelper.FormatInvariant("{0}-version2", retrievedArtifactVersion1.Name);
+
+            Artifact.SaveArtifact(retrievedArtifactVersion2, _user);
+            retrievedArtifactVersion2.Publish();
+
+            artifact.Delete();
+            artifact.Publish();
+
+            NovaArtifactDetails artifactDetails = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
+            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            artifactDetails.AssertEquals(retrievedArtifactVersion1);
+
+            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
+                "SpecificPropertyValues isn't implemented yet so it should be empty!");
+
+            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+        }
+
         [TestCase]
         [TestRail(154701)]
         [Description("Create & publish an artifact, GetArtifactDetails but don't send any Session-Token header.  Verify it returns 401 Unauthorized.")]
@@ -170,11 +218,36 @@ namespace ArtifactStoreTests
             IUser unauthorizedUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
-            Assert.Throws<Http403ForbiddenException>(() =>
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(166147)]
+        [Description("Create & publish an artifact, modify save & publish it again.  GetArtifactDetails with version=1 with a user that doesn't have access to the artifact.  " +
+            "Verify it returns 403 Forbidden.")]
+        public void GetArtifactDetailsWithVersion1_PublishedArtifactWithMultipleVersions_UserWithoutPermissions_403Forbidden()
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IUser unauthorizedUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.BlueprintAnalytics);
+
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id, versionId: 1);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
 
         [TestCase]
@@ -204,5 +277,50 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 404 Not Found when passed an artifact ID that doesn't exist!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
+
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestRail(166149)]
+        [Description("Create & publish an artifact.  GetArtifactDetails and pass a non-existent Version ID (ex. 0 or 2).  Verify it returns 404 Not Found.")]
+        public void GetArtifactDetailsWithVersion_NonExistentVersionId_404NotFound(int versionId)
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId);
+            }, "'GET {0}' should return 404 Not Found when passed an artifact ID that doesn't exist!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "You have attempted to access an item that does not exist or you do not have permission to view.";
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+        }
+
+        #region Private functions.
+
+        /// <summary>
+        /// Asserts that the returned JSON content has the specified error message.
+        /// </summary>
+        /// <param name="expectedMessage">The error message expected in the JSON content.</param>
+        /// <param name="jsonContent">The JSON content.</param>
+        /// <param name="assertMessage">The message to display if the expected message isn't found in the JSON content.</param>
+        /// <param name="assertMessageParams">(optional) Parameters to use if assertMessage is a format string.</param>
+        private static void AssertJsonResponseEquals(string expectedMessage, string jsonContent, string assertMessage, params object[] assertMessageParams)
+        {
+            ThrowIf.ArgumentNull(assertMessage, nameof(assertMessage));
+
+            JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
+            {
+                // This will alert us if new properties are added to the return JSON format.
+                MissingMemberHandling = MissingMemberHandling.Error
+            };
+
+            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
+
+            Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
+        }
+
+        #endregion Private functions.
     }
 }

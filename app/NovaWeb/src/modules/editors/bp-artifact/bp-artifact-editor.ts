@@ -40,11 +40,11 @@ export class BpArtifactEditor extends BpBaseEditor {
         public localization: ILocalizationService
     ) {
         super(messageService, artifactManager);
-        this.editor = new PropertyEditor(this.localization);
     }
 
     public $onInit() {
         super.$onInit();
+        this.editor = new PropertyEditor(this.localization);
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 
@@ -62,6 +62,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
 
     public clearFields() { 
+        this.model = {};
         this.fields = []; 
     }
 
@@ -71,11 +72,9 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
-
-    public onLoad() {
-        this.model = {};
-        super.onLoad();
-    }
+    // public onLoad() {
+    //     super.onLoad();
+    // }
 
     public onUpdate() {
         super.onUpdate();
@@ -104,7 +103,7 @@ export class BpArtifactEditor extends BpBaseEditor {
             this.onFieldUpdate(field);
 
         });
-
+        this.isLoading = false;
         this.setArtifactEditorLabelsWidth();
     }
 
@@ -147,9 +146,9 @@ export class BpArtifactEditor extends BpBaseEditor {
                 }
 
 
-                // if ($scope["form"]) {
-                //     state.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
-                // }
+                if ($scope["form"]) {
+                    this.artifact.setValidationErrorsFlag($scope["form"].$$parentForm.$invalid);
+                }
 
             } catch (err) {
                 this.messageService.addError(err);

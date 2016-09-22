@@ -167,5 +167,15 @@ namespace ArtifactStore.Repositories
             var result = new ArtifactHistoryResultSet { ArtifactId = artifactId, ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos };
             return result;
         }
+
+        #region GetVersionControlArtifactInfoAsync
+
+        public Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
     }
 }

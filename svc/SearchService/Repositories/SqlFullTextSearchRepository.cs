@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using ServiceLibrary.Repositories;
 using System.Threading.Tasks;
@@ -38,13 +39,13 @@ namespace SearchService.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
-            prm.Add("@query", searchCriteria.Query);
+            prm.Add("@query", GetQuery(searchCriteria.Query));
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));
             prm.Add("@predefineds", SqlMapperHelper.ToInt32Collection(new [] { 4098, 4099, 4115, 16384 }));
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
             prm.Add("@page", page);
             prm.Add("@pageSize", pageSize);
-            prm.Add("@maxItems", WebApiConfig.MaxItems);
+            prm.Add("@maxItems", GetDefaultMaxItems());
             prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
@@ -74,11 +75,11 @@ namespace SearchService.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
-            prm.Add("@query", searchCriteria.Query);
+            prm.Add("@query", GetQuery(searchCriteria.Query));
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));
             prm.Add("@predefineds", SqlMapperHelper.ToInt32Collection(new [] { 4098, 4099, 4115, 16384 }));
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
-            prm.Add("@maxItems", WebApiConfig.MaxItems);
+            prm.Add("@maxItems", GetDefaultMaxItems());
             prm.Add("@maxSearchableValueStringSize", WebApiConfig.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
@@ -95,6 +96,20 @@ namespace SearchService.Repositories
             result.TotalCount = totalCount ?? 0;
 
             return result;
+        }
+
+        private string GetQuery(string input)
+        {
+            //Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
+            //doubling the quote to "" fixes it. 
+            //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
+            return string.IsNullOrWhiteSpace(input) ? string.Empty :
+                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
+        }
+
+        private int GetDefaultMaxItems()
+        {
+            return WebApiConfig.MaxItems > 0 ? WebApiConfig.MaxItems : ServiceConstants.MaxSearchItems;
         }
     }
 }

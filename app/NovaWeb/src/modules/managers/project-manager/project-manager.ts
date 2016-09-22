@@ -55,15 +55,15 @@ export class ProjectManager  implements IProjectManager {
         this.projectCollection.onNext(this._projectCollection.getValue());
     }
 
-    private onArtifactSelect(artifact: IStatefulArtifact) {
-        if (this.statechangesubscriber) {
-            this.statechangesubscriber.dispose();
-            delete this.statechangesubscriber;
-        }
-        if (artifact) {
-            this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-        }
-    }
+    // private onArtifactSelect(artifact: IStatefulArtifact) {
+    //     if (this.statechangesubscriber) {
+    //         this.statechangesubscriber.dispose();
+    //         delete this.statechangesubscriber;
+    //     }
+    //     if (artifact) {
+    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
+    //     }
+    // }
     
     public dispose() {
         this.remove(true);
@@ -86,8 +86,6 @@ export class ProjectManager  implements IProjectManager {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
-        this.subscriber = this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactSelect, this);        
-        
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
@@ -101,9 +99,7 @@ export class ProjectManager  implements IProjectManager {
                 throw new Error("Project_NotFound");
             }
             project = this.getProject(data.id);
-            if (project) {
-                this.artifactManager.selection.setArtifact(project.artifact, SelectionSource.Explorer);
-            } else {
+            if (!project) {
                 this.metadataService.load(data.id).then(() => {
                     angular.extend(data, {
                         projectId: data.id,
@@ -121,7 +117,6 @@ export class ProjectManager  implements IProjectManager {
                     this.loadArtifact(project.id);
 
                 });                
-
             }
 
         } catch (ex) {
@@ -149,12 +144,11 @@ export class ProjectManager  implements IProjectManager {
             });
 
             this.projectCollection.onNext(_projectCollection);
-            this.artifactManager.selection.setArtifact((this.projectCollection.getValue()[0] || {} as Project).artifact, SelectionSource.Explorer);
         } catch (ex) {
             this.messageService.addError(ex);
             throw ex;
         }
-
+ 
     }
 
     public loadArtifact(id: number) {
@@ -177,7 +171,7 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
+//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

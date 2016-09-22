@@ -1,7 +1,7 @@
 ﻿import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
-import { SelectionSource, IArtifactState } from "../../../managers/artifact-manager";
+import { Project } from "../../../managers/project-manager";
 import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
@@ -32,7 +32,7 @@ export class ProjectExplorerController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
             //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this),
+//             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this)
         ];
     }
     
@@ -95,23 +95,21 @@ export class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    private onLoadProject = (projects: Models.IProject[]) => {
+    private onLoadProject = (projects: Project[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
         // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
-            if (angular.isDefined(this._selectedArtifactId)) {
+            if (projects && projects.length > 0) {
+                this._selectedArtifactId = projects[0].id;
+                this.artifactManager.selection.setExplorerArtifact(projects[0].artifact);
+                this.navigationService.navigateToArtifact(this._selectedArtifactId);
                 this.tree.selectNode(this._selectedArtifactId);
+            } else {
+                this.artifactManager.selection.setExplorerArtifact(null);
+                this.navigationService.navigateToMain();
             }
-        }
-    }
-
-    private onSelectArtifact = (artifact: IStatefulArtifact) => {
-        // so, just need to do an extra check if the component has created
-        if (this.tree && artifact) {
-            this._selectedArtifactId = artifact.id;
-            this.tree.selectNode(this._selectedArtifactId);
         }
     }
 
@@ -127,8 +125,13 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        if (node) {
-            this.navigationService.navigateToArtifact(this.doSync(node).id);
+        if (node && this._selectedArtifactId !== node.id) {
+            const artifact = this.doSync(node);
+            this._selectedArtifactId = artifact.id;
+            //NOTE: setExplorerArtifact method does not trigger notification
+            this.artifactManager.selection.setExplorerArtifact(artifact);
+            //
+            this.navigationService.navigateToArtifact(this._selectedArtifactId);
         }
     };
 

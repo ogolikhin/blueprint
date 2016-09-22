@@ -55,9 +55,14 @@ export class BpGlossaryController extends BpBaseEditor {
     }
 
     public onLoad() {
+        super.onLoad();
+        
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
+            if (this.isDestroyed()) {
+                return;
+            }
             result.subArtifacts = result.subArtifacts.map((term: Models.ISubArtifact) => {
 
                 // TODO: should not same $sce wrapper in StatefulSubArtifact model (after MVP)
@@ -79,6 +84,10 @@ export class BpGlossaryController extends BpBaseEditor {
         }).finally(() => {
             this.isLoading = false;
         });
+    }
+
+    private isDestroyed() {
+        return !this.artifact;
     }
 
     private clearSelection() {

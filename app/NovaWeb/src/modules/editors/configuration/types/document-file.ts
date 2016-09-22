@@ -1,7 +1,7 @@
 ﻿﻿import "angular";
 import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
 import { Helper } from "../../../shared/utils/helper";
-import { ILocalizationService, IMessageService } from "../../../core";
+import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
 import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
@@ -19,7 +19,7 @@ export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
 }
 
 export class BPFieldDocumentFileController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "artifactAttachments", "$window", "messageService", "dialogService"];
+    static $inject: [string] = ["$scope", "localization", "artifactAttachments", "$window", "messageService", "dialogService", "settings"];
 
     constructor(
         private $scope: AngularFormly.ITemplateScope,
@@ -27,11 +27,13 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         private artifactAttachments: IArtifactAttachmentsService,
         private $window: ng.IWindowService,
         private messageService: IMessageService,
-        private dialogService: IDialogService
+        private dialogService: IDialogService,
+        private settings: ISettingsService
     ) {
         super();
-        const maxAttachmentFilesize: number = 1048576; // 1 MB
+        const maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
         const maxNumberAttachments: number = 1;
+
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
 
@@ -49,6 +51,10 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
             this.$scope["hasFile"] = false;
             this.$scope["fileName"] = null;
             this.$scope["extension"] = null;
+        }
+        let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
+        if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
+            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
         }
 
         let chooseDocumentFile = (files: File[], callback?: Function) => {

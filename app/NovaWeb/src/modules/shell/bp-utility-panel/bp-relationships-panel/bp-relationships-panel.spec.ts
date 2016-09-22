@@ -6,12 +6,20 @@
 // import { ComponentTest } from "../../../util/component.test";
 // import { BPRelationshipsPanelController } from "./bp-relationships-panel";
 // import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-// import { ArtifactRelationshipsMock } from "./artifact-relationships.mock";
-// import { Models, ProjectManager } from "../../../main/services/project-manager";
-// import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
-// import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
-// import { StateManager } from "../../../core/services/state-manager";
+// import { ArtifactRelationshipsMock } from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
+// import { MessageServiceMock } from "../../../core/messages/message.mock";
+// import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
 // import { DialogService } from "../../../shared/widgets/bp-dialog";
+// import {
+//     IArtifactManager,
+//     ArtifactManager,
+//     IStatefulArtifactFactory,
+//     StatefulArtifactFactory,
+//     MetaDataService,
+//     ArtifactService,
+//     ArtifactAttachmentsService 
+// }
+// from "../../../managers/artifact-manager";
 
 // describe("Component BPRelationshipsPanel", () => {
 
@@ -27,11 +35,14 @@
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
 //         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
 //         $provide.service("localization", LocalizationServiceMock);
-//         $provide.service("selectionManager", SelectionManager);
-//         $provide.service("projectManager", ProjectManager);
-//         $provide.service("projectRepository", ProjectRepositoryMock);
-//         $provide.service("stateManager", StateManager);
 //         $provide.service("dialogService", DialogService);
+//         $provide.service("selectionManager", SelectionManager);
+//         $provide.service("messageService", MessageServiceMock);
+//         $provide.service("artifactService", ArtifactService);
+//         $provide.service("artifactManager", ArtifactManager);
+//         $provide.service("artifactAttachments", ArtifactAttachmentsService);
+//         $provide.service("metadataService", MetaDataService);
+//         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
 //     }));
 
 //     beforeEach(inject(() => {
@@ -50,35 +61,36 @@
 //     });
 
 //     it("should load data for a selected artifact",
-//         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+//         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact", prefix: "AC" } as Models.IArtifact;
+//             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+//             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
-//             const selectedArtifact = selectionManager.selection.artifact;
+//             const selectedArtifact = artifactManager.selection.getArtifact();
 
 //             //Assert
 //             expect(selectedArtifact).toBeDefined();
-//             expect(vm.artifactList.manualTraces.length).toBe(2);
-//             expect(vm.artifactList.otherTraces.length).toBe(3);
+//             expect(vm.manualTraces.length).toBe(2);
+//             expect(vm.otherTraces.length).toBe(3);
 //         }));
 
 //     it("should not load data for artifact without Prefix",
-//         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+//         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+//             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact"});
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+//             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
-//             const selectedArtifact = selectionManager.selection.artifact;
+//             const selectedArtifact = artifactManager.selection.getArtifact();
 
 //             //Assert
 //             expect(selectedArtifact).toBeDefined();
-//             expect(vm.artifactList).toBe(null);
+//             expect(vm.manualTraces).toBe(null);
+//             expect(vm.otherTraces).toBe(null);
 //         }));
 // });
